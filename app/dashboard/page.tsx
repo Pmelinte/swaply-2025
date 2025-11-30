@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
 
@@ -67,13 +68,21 @@ export default function DashboardPage() {
         <p className="text-slate-400 text-sm">
           You are now logged in to Swaply.
         </p>
-        <button
-          onClick={handleLogout}
-          disabled={loggingOut}
-          className="px-6 py-3 bg-red-600 hover:bg-red-700 disabled:bg-red-800 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-slate-900"
-        >
-          {loggingOut ? 'Logging out...' : 'Logout'}
-        </button>
+        <div className="flex flex-col gap-3">
+          <Link
+            href="/items"
+            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900"
+          >
+            My Items
+          </Link>
+          <button
+            onClick={handleLogout}
+            disabled={loggingOut}
+            className="px-6 py-3 bg-red-600 hover:bg-red-700 disabled:bg-red-800 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-slate-900"
+          >
+            {loggingOut ? 'Logging out...' : 'Logout'}
+          </button>
+        </div>
       </div>
     </main>
   );
