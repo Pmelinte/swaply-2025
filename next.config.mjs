@@ -1,9 +1,23 @@
+// next.config.mjs
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
+  reactStrictMode: false,
+
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**.cloudinary.com",
+      },
+    ],
+  },
+
   experimental: {
-    appDir: true
-  }
+    serverActions: {
+      bodySizeLimit: "5mb",
+    },
+  },
 };
 
 export default nextConfig;
