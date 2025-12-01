@@ -5,5 +5,33 @@
   "dashboard": "Tablou de bord",
   "profile": "Profil",
   "my_items": "Obiectele mele",
-  "logout": "Deconectare"
+  "logout": "Deconectare",
+
+  "profile_description": "Gestionează identitatea și preferințele Swaply.",
+  "name": "Nume",
+  "location": "Locație",
+  "preferred_language": "Limba preferată",
+  "avatar": "Avatar",
+  "upload_avatar": "Încarcă avatar",
+  "uploading": "Se încarcă...",
+  "no_avatar": "Fără avatar",
+  "avatar_requirements": "JPEG, PNG, WebP, GIF (maxim 10MB)",
+
+  "save_profile": "Salvează profilul",
+  "saving": "Se salvează...",
+  "cancel": "Anulează",
+  "profile_updated": "Profil actualizat cu succes.",
+
+  "error_load_profile": "Nu s-a putut încărca profilul.",
+  "error_avatar_upload": "Încărcarea avatarului a eșuat.",
+  "error_update_profile": "Actualizarea profilului a eșuat.",
+
+  "loading": "Se încarcă...",
+
+  "en": "Engleză",
+  "ro": "Română",
+  "fr": "Franceză",
+  "de": "Germană",
+  "es": "Spaniolă"
 }
+
