@@ -6,18 +6,20 @@ import { useRouter } from 'next/navigation';
 import type { User } from '@supabase/supabase-js';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import type { ProfileFormData } from '@/lib/types/profile';
+import { useTranslation } from '@/components/LanguageProvider';
 
 const LANGUAGE_OPTIONS = [
-  { value: 'en', label: 'English' },
-  { value: 'es', label: 'Español' },
-  { value: 'fr', label: 'Français' },
-  { value: 'de', label: 'Deutsch' },
-  { value: 'ro', label: 'Română' },
+  { value: 'en', labelKey: 'en' },
+  { value: 'es', labelKey: 'es' },
+  { value: 'fr', labelKey: 'fr' },
+  { value: 'de', labelKey: 'de' },
+  { value: 'ro', labelKey: 'ro' },
 ];
 
 export default function ProfilePage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { t } = useTranslation();
 
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
@@ -63,7 +65,7 @@ export default function ProfilePage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error?.message || 'Failed to load profile');
+        throw new Error(data.error?.message || t('error_load_profile'));
       }
 
       setFormData({
@@ -73,7 +75,7 @@ export default function ProfilePage() {
         avatar_url: data.profile?.avatar_url || '',
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load profile');
+      setError(err instanceof Error ? err.message : t('error_load_profile'));
     } finally {
       setLoading(false);
     }
@@ -102,13 +104,13 @@ export default function ProfilePage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error?.message || 'Failed to upload avatar');
+        throw new Error(data.error?.message || t('error_avatar_upload'));
       }
 
       handleInputChange('avatar_url', data.image_url);
     } catch (err) {
       handleInputChange('avatar_url', '');
-      setError(err instanceof Error ? err.message : 'Failed to upload avatar');
+      setError(err instanceof Error ? err.message : t('error_avatar_upload'));
     } finally {
       setUploading(false);
     }
@@ -130,10 +132,10 @@ export default function ProfilePage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error?.message || 'Failed to update profile');
+        throw new Error(data.error?.message || t('error_update_profile'));
       }
 
-      setSuccess('Profile updated successfully.');
+      setSuccess(t('profile_updated'));
       setFormData({
         name: data.profile?.name || '',
         location: data.profile?.location || '',
@@ -141,7 +143,7 @@ export default function ProfilePage() {
         avatar_url: data.profile?.avatar_url || '',
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update profile');
+      setError(err instanceof Error ? err.message : t('error_update_profile'));
     } finally {
       setLoading(false);
     }
@@ -150,7 +152,7 @@ export default function ProfilePage() {
   if (authLoading || !user) {
     return (
       <main className="min-h-screen flex items-center justify-center">
-        <div className="text-slate-400">Loading...</div>
+        <div className="text-slate-400">{t('loading')}</div>
       </main>
     );
   }
@@ -159,65 +161,68 @@ export default function ProfilePage() {
     <main className="min-h-screen flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl space-y-6">
         <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-bold">Your Profile</h1>
+          <h1 className="text-3xl font-bold">{t('profile')}</h1>
           <p className="text-slate-400 text-sm">
-            Manage your Swaply identity and preferences.
+            {t('profile_description')}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            {/* Name */}
             <div className="space-y-2">
-              <label htmlFor="name" className="block text-sm font-medium text-slate-200">
-                Name
+              <label htmlFor="name" className="block text-sm font-medium">
+                {t('name')}
               </label>
               <input
                 id="name"
                 type="text"
                 value={formData.name}
                 onChange={(e) => handleInputChange('name', e.target.value)}
-                className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter your name"
+                className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg"
               />
             </div>
 
+            {/* Location */}
             <div className="space-y-2">
-              <label htmlFor="location" className="block text-sm font-medium text-slate-200">
-                Location
+              <label htmlFor="location" className="block text-sm font-medium">
+                {t('location')}
               </label>
               <input
                 id="location"
                 type="text"
                 value={formData.location}
                 onChange={(e) => handleInputChange('location', e.target.value)}
-                className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="City, Country"
+                className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg"
               />
             </div>
           </div>
 
+          {/* Preferred language */}
           <div className="space-y-2">
-            <label htmlFor="preferred_language" className="block text-sm font-medium text-slate-200">
-              Preferred Language
+            <label htmlFor="preferred_language" className="block text-sm font-medium">
+              {t('preferred_language')}
             </label>
             <select
               id="preferred_language"
               value={formData.preferred_language}
               onChange={(e) => handleInputChange('preferred_language', e.target.value)}
-              className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg"
             >
-              {LANGUAGE_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value} className="bg-slate-900">
-                  {option.label}
+              {LANGUAGE_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {t(opt.labelKey)}
                 </option>
               ))}
             </select>
           </div>
 
+          {/* Avatar */}
           <div className="space-y-3">
-            <label className="block text-sm font-medium text-slate-200">Avatar</label>
+            <label className="block text-sm font-medium">{t('avatar')}</label>
             <div className="flex items-center gap-4">
-              <div className="relative h-24 w-24 rounded-full overflow-hidden bg-slate-800 border border-slate-700 flex items-center justify-center">
+              <div className="relative h-24 w-24 rounded-full bg-slate-800 border border-slate-700 overflow-hidden">
                 {formData.avatar_url ? (
                   <Image
                     src={formData.avatar_url}
@@ -227,19 +232,21 @@ export default function ProfilePage() {
                     className="object-cover"
                   />
                 ) : (
-                  <span className="text-slate-500 text-sm">No avatar</span>
+                  <span className="text-slate-500 text-sm">{t('no_avatar')}</span>
                 )}
               </div>
+
               <div className="space-y-2">
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-sm font-medium rounded-lg border border-slate-700 transition-colors"
-                  disabled={uploading}
+                  className="px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg"
                 >
-                  {uploading ? 'Uploading...' : 'Upload Avatar'}
+                  {uploading ? t('uploading') : t('upload_avatar')}
                 </button>
-                <p className="text-xs text-slate-500">JPEG, PNG, WebP, GIF (max 10MB)</p>
+
+                <p className="text-xs text-slate-500">{t('avatar_requirements')}</p>
+
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -251,32 +258,36 @@ export default function ProfilePage() {
             </div>
           </div>
 
+          {/* Error */}
           {error && (
-            <div className="p-4 bg-red-900/50 border border-red-700 rounded-lg text-red-200 text-sm">
+            <div className="p-4 bg-red-900/50 border border-red-700 rounded-lg text-red-200">
               {error}
             </div>
           )}
 
+          {/* Success */}
           {success && (
-            <div className="p-4 bg-green-900/40 border border-green-700 rounded-lg text-green-200 text-sm">
+            <div className="p-4 bg-green-900/40 border border-green-700 rounded-lg text-green-200">
               {success}
             </div>
           )}
 
+          {/* Buttons */}
           <div className="flex justify-end gap-3">
             <button
               type="button"
               onClick={() => router.back()}
-              className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-sm font-medium rounded-lg border border-slate-700 transition-colors"
+              className="px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg"
             >
-              Cancel
+              {t('cancel')}
             </button>
+
             <button
               type="submit"
               disabled={loading || uploading}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed text-sm font-medium rounded-lg transition-colors"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 rounded-lg"
             >
-              {loading ? 'Saving...' : 'Save Profile'}
+              {loading ? t('saving') : t('save_profile')}
             </button>
           </div>
         </form>
