@@ -4,21 +4,20 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
+import { useTranslation } from '@/components/LanguageProvider';
 
 export default function HeaderMenu() {
   const [open, setOpen] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const loadAvatar = async () => {
       try {
         const supabase = getSupabaseBrowserClient();
-
-        // 1. verificăm userul curent
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        // 2. încărcăm profilul din API
         const res = await fetch('/api/profile');
         const data = await res.json();
 
@@ -26,7 +25,7 @@ export default function HeaderMenu() {
           setAvatarUrl(data.profile.avatar_url);
         }
       } catch (err) {
-        // ignorăm erorile pentru meniu
+        // ignorăm erorile
       }
     };
 
@@ -35,7 +34,7 @@ export default function HeaderMenu() {
 
   return (
     <div className="relative">
-      {/* Avatar din dreapta sus */}
+      {/* Avatar */}
       <button
         onClick={() => setOpen(!open)}
         className="h-10 w-10 rounded-full bg-slate-800 border border-slate-600 overflow-hidden flex items-center justify-center"
@@ -60,25 +59,25 @@ export default function HeaderMenu() {
             href="/profile"
             className="block px-4 py-2 text-sm text-slate-200 hover:bg-slate-800"
           >
-            Profile
+            {t('profile')}
           </Link>
           <Link
             href="/dashboard"
             className="block px-4 py-2 text-sm text-slate-200 hover:bg-slate-800"
           >
-            Dashboard
+            {t('dashboard')}
           </Link>
           <Link
             href="/items"
             className="block px-4 py-2 text-sm text-slate-200 hover:bg-slate-800"
           >
-            My Items
+            {t('my_items')}
           </Link>
           <Link
             href="/logout"
             className="block px-4 py-2 text-sm text-red-400 hover:bg-slate-800"
           >
-            Logout
+            {t('logout')}
           </Link>
         </div>
       )}
