@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSupabaseBrowserClient } from '@/lib/supabase/client';
+import { getSupabaseServerClient } from '@/lib/supabase/server';
 
 export async function GET() {
   try {
-    const supabase = getSupabaseBrowserClient();
+    const supabase = getSupabaseServerClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
@@ -37,7 +37,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = getSupabaseBrowserClient();
+    const supabase = getSupabaseServerClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {

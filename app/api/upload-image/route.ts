@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSupabaseBrowserClient } from '@/lib/supabase/client';
+import { getSupabaseServerClient } from '@/lib/supabase/server';
 import { uploadImage } from '@/lib/cloudinary/client';
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = getSupabaseBrowserClient();
+    const supabase = getSupabaseServerClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
