@@ -1,11 +1,9 @@
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { createBrowserClient } from '@supabase/ssr';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-let supabaseClient: SupabaseClient | null = null;
-
-export function getSupabaseBrowserClient(): SupabaseClient {
+export function getSupabaseBrowserClient() {
   if (!supabaseUrl || !supabaseAnonKey) {
     if (process.env.NODE_ENV === 'development') {
       throw new Error(
@@ -15,9 +13,5 @@ export function getSupabaseBrowserClient(): SupabaseClient {
     throw new Error('Supabase configuration error.');
   }
 
-  if (!supabaseClient) {
-    supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
-  }
-
-  return supabaseClient;
+  return createBrowserClient(supabaseUrl, supabaseAnonKey);
 }
