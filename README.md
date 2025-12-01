@@ -10,3 +10,5 @@ This is the clean Next.js + Tailwind starter for Swaply 2025, generated from the
 - `npm start`
 
 Deployed via Vercel, connected to the `swaply-2025` repository.
+
+<!-- Test comment for dummy PR verification -->
