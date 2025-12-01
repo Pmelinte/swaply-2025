@@ -1,87 +1,46 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { getSupabaseBrowserClient } from '@/lib/supabase/client';
-import type { User } from '@supabase/supabase-js';
+import { useTranslation } from '@/components/LanguageProvider';
 
 export default function DashboardPage() {
-  const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [loggingOut, setLoggingOut] = useState(false);
-
-  useEffect(() => {
-    const checkUser = async () => {
-      try {
-        const supabase = getSupabaseBrowserClient();
-        const { data: { user: currentUser } } = await supabase.auth.getUser();
-
-        if (!currentUser) {
-          router.push('/login');
-          return;
-        }
-
-        setUser(currentUser);
-      } catch (error) {
-        router.push('/login');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkUser();
-  }, [router]);
-
-  const handleLogout = async () => {
-    setLoggingOut(true);
-    try {
-      const supabase = getSupabaseBrowserClient();
-      await supabase.auth.signOut();
-      router.push('/');
-      router.refresh();
-    } catch (error) {
-      setLoggingOut(false);
-    }
-  };
-
-  if (loading) {
-    return (
-      <main className="min-h-screen flex items-center justify-center">
-        <div className="text-slate-400">Loading...</div>
-      </main>
-    );
-  }
-
-  if (!user) {
-    return null;
-  }
+  const { t } = useTranslation();
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center px-4">
-      <div className="w-full max-w-md text-center space-y-6">
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <p className="text-slate-300">
-          Bun venit, <span className="text-blue-400">{user.email}</span>
-        </p>
-        <p className="text-slate-400 text-sm">
-          You are now logged in to Swaply.
-        </p>
-        <div className="flex flex-col gap-3">
+    <main className="min-h-screen flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-xl bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl space-y-6">
+        
+        <div className="flex flex-col gap-2 mb-6">
+          <h1 className="text-3xl font-bold text-slate-100">
+            {t('dashboard')}
+          </h1>
+          <p className="text-slate-400 text-sm">
+            {t('welcome')}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
           <Link
             href="/items"
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900"
+            className="block bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg p-6 text-center transition"
           >
-            My Items
+            <div className="text-2xl mb-2">📦</div>
+            <div className="text-slate-200 font-medium">
+              {t('my_items')}
+            </div>
           </Link>
-          <button
-            onClick={handleLogout}
-            disabled={loggingOut}
-            className="px-6 py-3 bg-red-600 hover:bg-red-700 disabled:bg-red-800 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-slate-900"
+
+          <Link
+            href="/logout"
+            className="block bg-red-900/40 hover:bg-red-900/60 border border-red-700 rounded-lg p-6 text-center transition"
           >
-            {loggingOut ? 'Logging out...' : 'Logout'}
-          </button>
+            <div className="text-2xl mb-2">🚪</div>
+            <div className="text-red-300 font-medium">
+              {t('logout')}
+            </div>
+          </Link>
+
         </div>
       </div>
     </main>
