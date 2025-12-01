@@ -70,6 +70,12 @@ export default function DashboardPage() {
         </p>
         <div className="flex flex-col gap-3">
           <Link
+            href="/profile"
+            className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-slate-900"
+          >
+            My Profile
+          </Link>
+          <Link
             href="/items"
             className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900"
           >
