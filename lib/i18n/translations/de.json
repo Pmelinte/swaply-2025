@@ -1,0 +1,9 @@
+{
+  "welcome": "Willkommen",
+  "signin": "Anmelden",
+  "register": "Registrieren",
+  "dashboard": "Dashboard",
+  "profile": "Profil",
+  "my_items": "Meine Gegenstände",
+  "logout": "Abmelden"
+}
