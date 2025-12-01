@@ -5,5 +5,33 @@
   "dashboard": "Dashboard",
   "profile": "Profil",
   "my_items": "Meine Gegenstände",
-  "logout": "Abmelden"
+  "logout": "Abmelden",
+
+  "profile_description": "Verwalten Sie Ihre Swaply-Identität und -Einstellungen.",
+  "name": "Name",
+  "location": "Ort",
+  "preferred_language": "Bevorzugte Sprache",
+  "avatar": "Avatar",
+  "upload_avatar": "Avatar hochladen",
+  "uploading": "Wird hochgeladen...",
+  "no_avatar": "Kein Avatar",
+  "avatar_requirements": "JPEG, PNG, WebP, GIF (max 10MB)",
+
+  "save_profile": "Profil speichern",
+  "saving": "Speichern...",
+  "cancel": "Abbrechen",
+  "profile_updated": "Profil erfolgreich aktualisiert.",
+
+  "error_load_profile": "Profil konnte nicht geladen werden.",
+  "error_avatar_upload": "Avatar-Upload fehlgeschlagen.",
+  "error_update_profile": "Profilaktualisierung fehlgeschlagen.",
+
+  "loading": "Lädt...",
+
+  "en": "Englisch",
+  "ro": "Rumänisch",
+  "fr": "Französisch",
+  "de": "Deutsch",
+  "es": "Spanisch"
 }
+
