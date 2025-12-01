@@ -1,1 +1,37 @@
+{
+  "welcome": "Bienvenue",
+  "signin": "Connexion",
+  "register": "Créer un compte",
+  "dashboard": "Tableau de bord",
+  "profile": "Profil",
+  "my_items": "Mes objets",
+  "logout": "Déconnexion",
+
+  "profile_description": "Gérez votre identité et vos préférences Swaply.",
+  "name": "Nom",
+  "location": "Localisation",
+  "preferred_language": "Langue préférée",
+  "avatar": "Avatar",
+  "upload_avatar": "Télécharger l'avatar",
+  "uploading": "Téléchargement...",
+  "no_avatar": "Pas d'avatar",
+  "avatar_requirements": "JPEG, PNG, WebP, GIF (max 10 Mo)",
+
+  "save_profile": "Enregistrer le profil",
+  "saving": "Enregistrement...",
+  "cancel": "Annuler",
+  "profile_updated": "Profil mis à jour avec succès.",
+
+  "error_load_profile": "Impossible de charger le profil.",
+  "error_avatar_upload": "Échec du téléchargement de l'avatar.",
+  "error_update_profile": "Échec de la mise à jour du profil.",
+
+  "loading": "Chargement...",
+
+  "en": "Anglais",
+  "ro": "Roumain",
+  "fr": "Français",
+  "de": "Allemand",
+  "es": "Espagnol"
+}
 
