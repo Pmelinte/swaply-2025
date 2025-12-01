@@ -1,8 +1,16 @@
 -- Migration: Create profiles table for Swaply 2025
 -- Run this in your Supabase SQL Editor
+-- 
+-- NOTE: This migration drops any existing profiles table to ensure
+-- the correct schema is created. Run 001_create_items_table.sql first
+-- to ensure the handle_updated_at() function exists.
+
+-- Drop existing profiles table if it exists (from Supabase starter template)
+-- This ensures we have the correct schema with user_id column
+DROP TABLE IF EXISTS public.profiles CASCADE;
 
 -- Create profiles table
-CREATE TABLE IF NOT EXISTS public.profiles (
+CREATE TABLE public.profiles (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
   name TEXT,
