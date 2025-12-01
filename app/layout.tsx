@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google';
 import HeaderMenu from '@/components/HeaderMenu';
 import LanguageSelector from '@/components/LanguageSelector';
 import LanguageProvider from '@/components/LanguageProvider';
+import { useTranslation } from '@/components/LanguageProvider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -21,30 +22,35 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <LanguageProvider>
-          {/* Bara de sus */}
-          <header className="w-full border-b border-slate-800 bg-slate-900/70 backdrop-blur-md">
-            <nav className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-              
-              {/* Logo */}
-              <h1 className="text-xl font-bold text-slate-100">
-                Swaply
-              </h1>
-
-              {/* Dreapta: limbă + meniu profil */}
-              <div className="flex items-center gap-4">
-                <LanguageSelector />
-                <HeaderMenu />
-              </div>
-
-            </nav>
-          </header>
-
-          {/* Conținut */}
+          <Header />
           <main className="pt-6">
             {children}
           </main>
         </LanguageProvider>
       </body>
     </html>
+  );
+}
+
+function Header() {
+  const { t } = useTranslation();
+
+  return (
+    <header className="w-full border-b border-slate-800 bg-slate-900/70 backdrop-blur-md">
+      <nav className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+
+        {/* Logo / titlu tradus */}
+        <h1 className="text-xl font-bold text-slate-100">
+          {t('welcome')}
+        </h1>
+
+        {/* Dreapta: limba + profil */}
+        <div className="flex items-center gap-4">
+          <LanguageSelector />
+          <HeaderMenu />
+        </div>
+
+      </nav>
+    </header>
   );
 }
