@@ -1,0 +1,9 @@
+{
+  "welcome": "Bienvenido",
+  "signin": "Iniciar sesión",
+  "register": "Registrarse",
+  "dashboard": "Panel",
+  "profile": "Perfil",
+  "my_items": "Mis objetos",
+  "logout": "Cerrar sesión"
+}
