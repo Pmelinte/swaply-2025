@@ -1,0 +1,286 @@
+'use client';
+
+import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import type { User } from '@supabase/supabase-js';
+import { getSupabaseBrowserClient } from '@/lib/supabase/client';
+import type { ProfileFormData } from '@/lib/types/profile';
+
+const LANGUAGE_OPTIONS = [
+  { value: 'en', label: 'English' },
+  { value: 'es', label: 'Español' },
+  { value: 'fr', label: 'Français' },
+  { value: 'de', label: 'Deutsch' },
+  { value: 'ro', label: 'Română' },
+];
+
+export default function ProfilePage() {
+  const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [user, setUser] = useState<User | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [formData, setFormData] = useState<ProfileFormData>({
+    name: '',
+    location: '',
+    preferred_language: 'en',
+    avatar_url: '',
+  });
+
+  useEffect(() => {
+    const initialize = async () => {
+      try {
+        const supabase = getSupabaseBrowserClient();
+        const { data: { user: currentUser } } = await supabase.auth.getUser();
+
+        if (!currentUser) {
+          router.push('/login');
+          return;
+        }
+
+        setUser(currentUser);
+        await fetchProfile();
+      } catch (err) {
+        router.push('/login');
+      } finally {
+        setAuthLoading(false);
+      }
+    };
+
+    initialize();
+  }, [router]);
+
+  const fetchProfile = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch('/api/profile');
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error?.message || 'Failed to load profile');
+      }
+
+      setFormData({
+        name: data.profile?.name || '',
+        location: data.profile?.location || '',
+        preferred_language: data.profile?.preferred_language || 'en',
+        avatar_url: data.profile?.avatar_url || '',
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load profile');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleInputChange = (key: keyof ProfileFormData, value: string) => {
+    setFormData((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleAvatarChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    setError(null);
+
+    try {
+      const form = new FormData();
+      form.append('file', file);
+
+      const response = await fetch('/api/upload-image', {
+        method: 'POST',
+        body: form,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error?.message || 'Failed to upload avatar');
+      }
+
+      handleInputChange('avatar_url', data.image_url);
+    } catch (err) {
+      handleInputChange('avatar_url', '');
+      setError(err instanceof Error ? err.message : 'Failed to upload avatar');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const response = await fetch('/api/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error?.message || 'Failed to update profile');
+      }
+
+      setSuccess('Profile updated successfully.');
+      setFormData({
+        name: data.profile?.name || '',
+        location: data.profile?.location || '',
+        preferred_language: data.profile?.preferred_language || 'en',
+        avatar_url: data.profile?.avatar_url || '',
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update profile');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (authLoading || !user) {
+    return (
+      <main className="min-h-screen flex items-center justify-center">
+        <div className="text-slate-400">Loading...</div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="min-h-screen flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl space-y-6">
+        <div className="flex flex-col gap-2">
+          <h1 className="text-3xl font-bold">Your Profile</h1>
+          <p className="text-slate-400 text-sm">
+            Manage your Swaply identity and preferences.
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label htmlFor="name" className="block text-sm font-medium text-slate-200">
+                Name
+              </label>
+              <input
+                id="name"
+                type="text"
+                value={formData.name}
+                onChange={(e) => handleInputChange('name', e.target.value)}
+                className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Enter your name"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="location" className="block text-sm font-medium text-slate-200">
+                Location
+              </label>
+              <input
+                id="location"
+                type="text"
+                value={formData.location}
+                onChange={(e) => handleInputChange('location', e.target.value)}
+                className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="City, Country"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="preferred_language" className="block text-sm font-medium text-slate-200">
+              Preferred Language
+            </label>
+            <select
+              id="preferred_language"
+              value={formData.preferred_language}
+              onChange={(e) => handleInputChange('preferred_language', e.target.value)}
+              className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              {LANGUAGE_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value} className="bg-slate-900">
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="space-y-3">
+            <label className="block text-sm font-medium text-slate-200">Avatar</label>
+            <div className="flex items-center gap-4">
+              <div className="relative h-24 w-24 rounded-full overflow-hidden bg-slate-800 border border-slate-700 flex items-center justify-center">
+                {formData.avatar_url ? (
+                  <Image
+                    src={formData.avatar_url}
+                    alt="Avatar"
+                    fill
+                    sizes="96px"
+                    className="object-cover"
+                  />
+                ) : (
+                  <span className="text-slate-500 text-sm">No avatar</span>
+                )}
+              </div>
+              <div className="space-y-2">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-sm font-medium rounded-lg border border-slate-700 transition-colors"
+                  disabled={uploading}
+                >
+                  {uploading ? 'Uploading...' : 'Upload Avatar'}
+                </button>
+                <p className="text-xs text-slate-500">JPEG, PNG, WebP, GIF (max 10MB)</p>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  onChange={handleAvatarChange}
+                  className="hidden"
+                />
+              </div>
+            </div>
+          </div>
+
+          {error && (
+            <div className="p-4 bg-red-900/50 border border-red-700 rounded-lg text-red-200 text-sm">
+              {error}
+            </div>
+          )}
+
+          {success && (
+            <div className="p-4 bg-green-900/40 border border-green-700 rounded-lg text-green-200 text-sm">
+              {success}
+            </div>
+          )}
+
+          <div className="flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-sm font-medium rounded-lg border border-slate-700 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading || uploading}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed text-sm font-medium rounded-lg transition-colors"
+            >
+              {loading ? 'Saving...' : 'Save Profile'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </main>
+  );
+}
