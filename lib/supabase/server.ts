@@ -2,6 +2,7 @@
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 
+// Client pentru server (folosit în API routes, server components etc.)
 export function createClient() {
   const cookieStore = cookies();
 
@@ -31,4 +32,9 @@ export function createClient() {
       },
     }
   );
+}
+
+// Alias vechi folosit în codul existent (upload-image, items etc.)
+export function getSupabaseServerClient() {
+  return createClient();
 }
