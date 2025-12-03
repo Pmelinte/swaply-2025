@@ -28,6 +28,15 @@
 
   "loading": "Se încarcă...",
 
+  "items_page_subtitle": "Gestionează și revizuiește obiectele listate.",
+  "add_item": "Adaugă obiect",
+  "no_items": "Nu ai încă obiecte.",
+  "create_first_item": "Creează primul obiect",
+  "confirm_delete_item": "Sigur vrei să ștergi acest obiect?",
+  "edit": "Editează",
+  "delete": "Șterge",
+  "deleting": "Se șterge...",
+
   "en": "Engleză",
   "ro": "Română",
   "fr": "Franceză",

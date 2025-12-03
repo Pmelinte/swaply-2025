@@ -11,6 +11,8 @@ export default function HeaderMenu() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const { t } = useTranslation();
 
+  const closeMenu = () => setOpen(false);
+
   useEffect(() => {
     const loadAvatar = async () => {
       try {
@@ -34,10 +36,11 @@ export default function HeaderMenu() {
 
   return (
     <div className="relative">
-      {/* Avatar */}
       <button
         onClick={() => setOpen(!open)}
-        className="h-10 w-10 rounded-full bg-slate-800 border border-slate-600 overflow-hidden flex items-center justify-center"
+        className="h-10 w-10 rounded-full bg-white border border-slate-300 shadow-sm overflow-hidden flex items-center justify-center text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-200"
+        aria-haspopup="menu"
+        aria-expanded={open}
       >
         {avatarUrl ? (
           <Image
@@ -48,34 +51,37 @@ export default function HeaderMenu() {
             className="object-cover"
           />
         ) : (
-          <span className="text-slate-400 text-lg">👤</span>
+          <span className="text-lg">👤</span>
         )}
       </button>
 
-      {/* Dropdown */}
       {open && (
-        <div className="absolute right-0 mt-2 w-48 rounded-lg bg-slate-900 border border-slate-700 shadow-xl z-50">
+        <div className="absolute right-0 mt-2 w-52 rounded-lg bg-white border border-slate-200 shadow-lg ring-1 ring-slate-100 z-50 overflow-hidden">
           <Link
             href="/profile"
-            className="block px-4 py-2 text-sm text-slate-200 hover:bg-slate-800"
+            className="block px-4 py-2 text-sm text-slate-800 hover:bg-slate-50"
+            onClick={closeMenu}
           >
             {t('profile')}
           </Link>
           <Link
             href="/dashboard"
-            className="block px-4 py-2 text-sm text-slate-200 hover:bg-slate-800"
+            className="block px-4 py-2 text-sm text-slate-800 hover:bg-slate-50"
+            onClick={closeMenu}
           >
             {t('dashboard')}
           </Link>
           <Link
             href="/items"
-            className="block px-4 py-2 text-sm text-slate-200 hover:bg-slate-800"
+            className="block px-4 py-2 text-sm text-slate-800 hover:bg-slate-50"
+            onClick={closeMenu}
           >
             {t('my_items')}
           </Link>
           <Link
             href="/logout"
-            className="block px-4 py-2 text-sm text-red-400 hover:bg-slate-800"
+            className="block px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+            onClick={closeMenu}
           >
             {t('logout')}
           </Link>

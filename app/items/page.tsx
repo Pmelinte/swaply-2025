@@ -6,9 +6,11 @@ import Link from 'next/link';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import ItemCard from '@/components/items/ItemCard';
 import { Item } from '@/lib/types/item';
+import { useTranslation } from '@/components/LanguageProvider';
 
 export default function ItemsPage() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -44,7 +46,7 @@ export default function ItemsPage() {
   }, [router]);
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this item?')) {
+    if (!confirm(t('confirm_delete_item'))) {
       return;
     }
 
@@ -70,47 +72,50 @@ export default function ItemsPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen flex items-center justify-center">
-        <div className="text-slate-400">Loading...</div>
+      <main className="min-h-screen flex items-center justify-center bg-background text-foreground">
+        <div className="text-slate-600">{t('loading')}</div>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen px-4 py-8">
+    <main className="min-h-screen bg-background text-foreground px-4 py-10">
       <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">My Items</h1>
-          <div className="flex gap-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900">{t('my_items')}</h1>
+            <p className="text-sm text-slate-600">{t('items_page_subtitle')}</p>
+          </div>
+          <div className="flex gap-3">
             <Link
               href="/dashboard"
-              className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white font-medium rounded-lg transition-colors"
+              className="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-800 font-medium rounded-lg transition-colors shadow-sm"
             >
-              Dashboard
+              {t('dashboard')}
             </Link>
             <Link
               href="/items/add"
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors shadow-sm"
             >
-              Add Item
+              {t('add_item')}
             </Link>
           </div>
         </div>
 
         {error && (
-          <div className="p-4 bg-red-900/50 border border-red-700 rounded-lg text-red-200 text-sm mb-6">
+          <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm mb-6">
             {error}
           </div>
         )}
 
         {items.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-slate-400 text-lg mb-4">You don&apos;t have any items yet.</p>
+          <div className="text-center py-12 bg-card border border-slate-200 rounded-2xl shadow-sm">
+            <p className="text-slate-600 text-lg mb-4">{t('no_items')}</p>
             <Link
               href="/items/add"
-              className="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+              className="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors shadow-sm"
             >
-              Create Your First Item
+              {t('create_first_item')}
             </Link>
           </div>
         ) : (

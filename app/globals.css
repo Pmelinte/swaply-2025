@@ -72,6 +72,20 @@
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-background text-foreground antialiased font-sans;
+  }
+
+  main {
+    @apply bg-background;
+  }
+
+  input,
+  select,
+  textarea {
+    @apply bg-white text-foreground placeholder:text-slate-400;
+  }
+
+  ::selection {
+    background-color: hsl(var(--primary) / 0.15);
   }
 }

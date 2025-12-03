@@ -28,6 +28,15 @@
 
   "loading": "Chargement...",
 
+  "items_page_subtitle": "Gérez et consultez vos objets listés.",
+  "add_item": "Ajouter un objet",
+  "no_items": "Vous n'avez pas encore d'objets.",
+  "create_first_item": "Créez votre premier objet",
+  "confirm_delete_item": "Êtes-vous sûr de vouloir supprimer cet objet ?",
+  "edit": "Modifier",
+  "delete": "Supprimer",
+  "deleting": "Suppression...",
+
   "en": "Anglais",
   "ro": "Roumain",
   "fr": "Français",

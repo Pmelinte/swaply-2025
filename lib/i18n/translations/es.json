@@ -28,6 +28,15 @@
 
   "loading": "Cargando...",
 
+  "items_page_subtitle": "Administra y revisa tus objetos publicados.",
+  "add_item": "Agregar objeto",
+  "no_items": "Aún no tienes objetos.",
+  "create_first_item": "Crea tu primer objeto",
+  "confirm_delete_item": "¿Seguro que deseas eliminar este objeto?",
+  "edit": "Editar",
+  "delete": "Eliminar",
+  "deleting": "Eliminando...",
+
   "en": "Inglés",
   "ro": "Rumano",
   "fr": "Francés",
