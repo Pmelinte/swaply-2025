@@ -9,8 +9,6 @@ type Profile = {
   location: string | null;
   language: string | null;
   avatar_url: string | null;
-  created_at?: string;
-  updated_at?: string;
 };
 
 type ProfileFormData = {
@@ -35,49 +33,35 @@ export default function ProfilePage() {
   const [success, setSuccess] = useState<string | null>(null);
 
   useEffect(() => {
-    let isMounted = true;
+    let mounted = true;
 
-    async function loadProfile() {
+    async function load() {
       try {
         setLoading(true);
-        setError(null);
+        const res = await fetch('/api/profile');
+        if (!res.ok) throw new Error(`Load failed (${res.status})`);
 
-        const res = await fetch('/api/profile', {
-          method: 'GET',
-          headers: { 'Accept': 'application/json' },
-        });
+        const json = await res.json();
+        const p: Profile | null = json.profile;
 
-        if (!res.ok) {
-          throw new Error(`Failed to load profile (${res.status})`);
-        }
-
-        const data = (await res.json()) as { profile: Profile | null };
-
-        if (isMounted && data.profile) {
-          const p = data.profile;
+        if (mounted && p) {
           setForm({
             name: p.name ?? '',
             location: p.location ?? '',
             language: p.language ?? 'en',
             avatar_url: p.avatar_url ?? '',
           });
-        } else if (isMounted) {
-          setForm(EMPTY_FORM);
         }
       } catch (err: any) {
-        if (isMounted) {
-          setError(err?.message ?? 'Failed to load profile.');
-        }
+        if (mounted) setError(err.message);
       } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
+        if (mounted) setLoading(false);
       }
     }
 
-    loadProfile();
+    load();
     return () => {
-      isMounted = false;
+      mounted = false;
     };
   }, []);
 
@@ -95,90 +79,70 @@ export default function ProfilePage() {
       });
 
       if (!res.ok) {
-        const body = await res.json().catch(() => null);
-        const msg =
-          body?.error ??
-          `Failed to save profile (status ${res.status}).`;
-        throw new Error(msg);
+        const err = await res.json().catch(() => null);
+        throw new Error(err?.error || `Save failed (${res.status})`);
       }
 
-      setSuccess('Profile saved successfully.');
+      setSuccess('Profile saved successfully!');
     } catch (err: any) {
-      setError(err?.message ?? 'Failed to save profile.');
+      setError(err.message);
     } finally {
       setSaving(false);
     }
   }
 
-  function onChange<K extends keyof ProfileFormData>(
-    key: K,
-    value: ProfileFormData[K]
-  ) {
-    setForm((prev) => ({ ...prev, [key]: value }));
-  }
-
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-50 flex items-center justify-center px-4 py-10">
-      <div className="w-full max-w-3xl rounded-3xl bg-slate-800/95 shadow-2xl border border-slate-700 px-6 py-8 sm:px-10 sm:py-10">
-        <h1 className="text-3xl font-semibold tracking-tight mb-2">
-          Profile
-        </h1>
-        <p className="text-sm text-slate-300 mb-8">
-          Manage your identity and preferences in Swaply. All fields are optional except your preferred language.
+    <div className="min-h-screen bg-gray-100 text-gray-900 flex justify-center px-4 py-10">
+      <div className="w-full max-w-3xl bg-white rounded-3xl shadow-xl p-8 border border-gray-300">
+        
+        <h1 className="text-3xl font-bold mb-1">Profile</h1>
+        <p className="text-gray-600 mb-8">
+          Manage your Swaply identity and preferences.
         </p>
 
-        {loading ? (
-          <div className="text-sm text-slate-300">Loading profile…</div>
-        ) : (
+        {loading && <p className="text-gray-600">Loading…</p>}
+
+        {!loading && (
           <form onSubmit={handleSubmit} className="space-y-6">
+
             {error && (
-              <div className="rounded-xl border border-red-500/60 bg-red-500/10 text-red-100 px-4 py-2 text-sm">
+              <div className="p-3 rounded-xl bg-red-100 border border-red-300 text-red-700">
                 {error}
               </div>
             )}
 
             {success && (
-              <div className="rounded-xl border border-emerald-500/60 bg-emerald-500/10 text-emerald-100 px-4 py-2 text-sm">
+              <div className="p-3 rounded-xl bg-green-100 border border-green-300 text-green-700">
                 {success}
               </div>
             )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-slate-100 mb-2">
-                  Name
-                </label>
+                <label className="block text-sm font-semibold mb-2">Name</label>
                 <input
-                  type="text"
-                  className="w-full rounded-xl border border-slate-600 bg-slate-900/70 px-3 py-2 text-sm text-slate-50 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="John Doe"
+                  className="w-full border border-gray-300 rounded-xl px-3 py-2 focus:ring-2 focus:ring-blue-500"
                   value={form.name}
-                  onChange={(e) => onChange('name', e.target.value)}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-100 mb-2">
-                  Location
-                </label>
+                <label className="block text-sm font-semibold mb-2">Location</label>
                 <input
-                  type="text"
-                  className="w-full rounded-xl border border-slate-600 bg-slate-900/70 px-3 py-2 text-sm text-slate-50 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="City, Country"
+                  className="w-full border border-gray-300 rounded-xl px-3 py-2 focus:ring-2 focus:ring-blue-500"
                   value={form.location}
-                  onChange={(e) => onChange('location', e.target.value)}
+                  onChange={(e) => setForm({ ...form, location: e.target.value })}
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-100 mb-2">
-                Preferred language
-              </label>
+              <label className="block text-sm font-semibold mb-2">Preferred Language</label>
               <select
-                className="w-full rounded-xl border border-slate-600 bg-slate-900/70 px-3 py-2 text-sm text-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full border border-gray-300 rounded-xl px-3 py-2 bg-white focus:ring-2 focus:ring-blue-500"
                 value={form.language}
-                onChange={(e) => onChange('language', e.target.value)}
+                onChange={(e) => setForm({ ...form, language: e.target.value })}
               >
                 <option value="ro">Română</option>
                 <option value="en">English</option>
@@ -189,40 +153,32 @@ export default function ProfilePage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-100 mb-2">
-                Avatar (URL for now)
-              </label>
+              <label className="block text-sm font-semibold mb-2">Avatar (URL)</label>
               <input
-                type="text"
-                className="w-full rounded-xl border border-slate-600 bg-slate-900/70 px-3 py-2 text-sm text-slate-50 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="https://…your-image.jpg"
+                className="w-full border border-gray-300 rounded-xl px-3 py-2 focus:ring-2 focus:ring-blue-500"
                 value={form.avatar_url}
-                onChange={(e) => onChange('avatar_url', e.target.value)}
+                onChange={(e) => setForm({ ...form, avatar_url: e.target.value })}
               />
-              <p className="mt-1 text-xs text-slate-400">
-                Later we&apos;ll hook this to Cloudinary upload. For now you can paste a direct image URL.
+              <p className="text-xs text-gray-500 mt-1">
+                Upload system with Cloudinary will be added later.
               </p>
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-2">
+            <div className="flex justify-end space-x-3">
               <button
                 type="button"
-                onClick={() => {
-                  setForm(EMPTY_FORM);
-                  setError(null);
-                  setSuccess(null);
-                }}
-                className="rounded-xl border border-slate-600 px-4 py-2 text-sm font-medium text-slate-100 hover:bg-slate-700/80 transition-colors"
-                disabled={saving}
+                className="px-4 py-2 rounded-xl border border-gray-400 bg-gray-200 hover:bg-gray-300"
+                onClick={() => setForm(EMPTY_FORM)}
               >
                 Reset
               </button>
+
               <button
                 type="submit"
-                className="rounded-xl bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:opacity-60 disabled:cursor-not-allowed"
                 disabled={saving}
+                className="px-5 py-2 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-500 focus:ring-2 focus:ring-blue-400 disabled:opacity-60"
               >
-                {saving ? 'Saving…' : 'Save profile'}
+                {saving ? 'Saving…' : 'Save Profile'}
               </button>
             </div>
           </form>
