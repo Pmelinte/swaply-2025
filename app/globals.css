@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Theme tokens (shadcn / Tailwind) - LIGHT MODE CLAR, LIZIBIL */
+/* Base design tokens: light is default, dark optional */
 @layer base {
   :root {
     --background: 210 40% 98%;
@@ -36,7 +36,6 @@
     --radius: 0.75rem;
   }
 
-  /* Dacă pe viitor activezi `.dark`, rămâne liberă aici */
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
