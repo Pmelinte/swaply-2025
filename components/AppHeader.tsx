@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import LanguageSelector from "./LanguageSelector";
-import ProfileLink from "./ProfileLink";
+import { ProfileLink } from "./ProfileLink";
 
 export default function AppHeader() {
   const pathname = usePathname();
