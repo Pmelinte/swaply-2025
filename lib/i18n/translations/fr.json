@@ -1,7 +1,7 @@
 {
   "welcome": "Bienvenue",
   "signin": "Connexion",
-  "register": "Créer un compte",
+  "register": "Inscription",
   "dashboard": "Tableau de bord",
   "profile": "Profil",
   "my_items": "Mes objets",
@@ -12,8 +12,8 @@
   "location": "Localisation",
   "preferred_language": "Langue préférée",
   "avatar": "Avatar",
-  "upload_avatar": "Télécharger l'avatar",
-  "uploading": "Téléchargement...",
+  "upload_avatar": "Téléverser l'avatar",
+  "uploading": "Téléversement...",
   "no_avatar": "Pas d'avatar",
   "avatar_requirements": "JPEG, PNG, WebP, GIF (max 10 Mo)",
 
@@ -23,12 +23,13 @@
   "profile_updated": "Profil mis à jour avec succès.",
 
   "error_load_profile": "Impossible de charger le profil.",
-  "error_avatar_upload": "Échec du téléchargement de l'avatar.",
+  "error_avatar_upload": "Échec du téléversement de l'avatar.",
   "error_update_profile": "Échec de la mise à jour du profil.",
 
   "loading": "Chargement...",
+  "load_more": "Charger plus",
 
-  "items_page_subtitle": "Gérez et consultez vos objets listés.",
+  "items_page_subtitle": "Gérez et révisez vos objets listés.",
   "add_item": "Ajouter un objet",
   "no_items": "Vous n'avez pas encore d'objets.",
   "create_first_item": "Créez votre premier objet",
@@ -37,10 +38,30 @@
   "delete": "Supprimer",
   "deleting": "Suppression...",
 
+  "items_swipe_page": "Objets",
+  "items_swipe_title": "Deux zones de swipe",
+  "items_swipe_subtitle": "Répondez aux demandes dans la Magazia et découvrez les offres dans la boîte à surprises. Chaque zone charge 20 cartes.",
+  "items_swipe_unknown": "Objet sans titre",
+  "items_swipe_no_description": "Aucune description disponible.",
+  "items_swipe_error": "Nous n'avons pas pu traiter l'action. Réessayez.",
+  "items_swipe_auth_error": "Vous devez être connecté pour envoyer des swipes.",
+  "items_swipe_zone_supply_label": "Magazia",
+  "items_swipe_zone_supply_title": "Répondre aux demandes",
+  "items_swipe_zone_supply_description": "Swipez dans les demandes des autres utilisateurs (fake_desired_items).",
+  "items_swipe_empty_supply": "Aucune demande disponible pour le moment.",
+  "items_swipe_can_supply": "Je peux fournir",
+  "items_swipe_skip": "Ignorer",
+  "items_swipe_no_more_supply": "Plus de demandes",
+  "items_swipe_zone_demand_label": "Boîte à surprises",
+  "items_swipe_zone_demand_title": "Voir les offres",
+  "items_swipe_zone_demand_description": "Swipez dans les offres des autres utilisateurs (fake_offered_items).",
+  "items_swipe_empty_demand": "Aucune offre disponible pour le moment.",
+  "items_swipe_want": "Je le veux",
+  "items_swipe_no_more_demand": "Plus d'offres",
+
   "en": "Anglais",
   "ro": "Roumain",
   "fr": "Français",
   "de": "Allemand",
   "es": "Espagnol"
 }
-
