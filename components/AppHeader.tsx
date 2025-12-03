@@ -11,7 +11,7 @@ export default function AppHeader() {
   return (
     <header className="w-full border-b bg-white/90 backdrop-blur-md">
       <div className="max-w-6xl mx-auto flex items-center justify-between py-4 px-4">
-        {/* Stânga: titlu + selector de limbă */}
+        {/* STÂNGA: titlu + selector de limbă */}
         <div className="flex items-center gap-6">
           <Link href="/" className="text-xl font-semibold text-slate-900">
             Welcome
@@ -19,7 +19,7 @@ export default function AppHeader() {
           <LanguageSelector />
         </div>
 
-        {/* Dreapta: doar profilul */}
+        {/* DREAPTA: doar profilul */}
         <ProfileLink />
       </div>
     </header>
