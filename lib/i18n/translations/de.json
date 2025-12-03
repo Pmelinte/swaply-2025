@@ -28,6 +28,15 @@
 
   "loading": "Lädt...",
 
+  "items_page_subtitle": "Verwalte und prüfe deine gelisteten Artikel.",
+  "add_item": "Artikel hinzufügen",
+  "no_items": "Du hast noch keine Artikel.",
+  "create_first_item": "Erstelle deinen ersten Artikel",
+  "confirm_delete_item": "Möchtest du diesen Artikel wirklich löschen?",
+  "edit": "Bearbeiten",
+  "delete": "Löschen",
+  "deleting": "Löschen...",
+
   "en": "Englisch",
   "ro": "Rumänisch",
   "fr": "Französisch",

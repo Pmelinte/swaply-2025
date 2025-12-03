@@ -18,10 +18,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={`${inter.className} bg-background text-foreground`}>
         <LanguageProvider>
           <AppHeader />
-          <main className="pt-6">
+          <main className="pt-6 min-h-screen bg-background text-foreground">
             {children}
           </main>
         </LanguageProvider>
