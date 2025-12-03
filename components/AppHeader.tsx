@@ -17,7 +17,7 @@ export default function AppHeader() {
         </Link>
 
         {/* Right: language first, then profile */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-12">
           <LanguageSelector />
           <ProfileLink />
         </div>
