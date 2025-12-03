@@ -1,297 +1,233 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import type { User } from '@supabase/supabase-js';
-import { getSupabaseBrowserClient } from '@/lib/supabase/client';
-import type { ProfileFormData } from '@/lib/types/profile';
-import { useTranslation } from '@/components/LanguageProvider';
+import { useEffect, useState } from 'react';
 
-const LANGUAGE_OPTIONS = [
-  { value: 'en', labelKey: 'en' },
-  { value: 'es', labelKey: 'es' },
-  { value: 'fr', labelKey: 'fr' },
-  { value: 'de', labelKey: 'de' },
-  { value: 'ro', labelKey: 'ro' },
-];
+type Profile = {
+  id?: string;
+  user_id?: string;
+  name: string | null;
+  location: string | null;
+  language: string | null;
+  avatar_url: string | null;
+  created_at?: string;
+  updated_at?: string;
+};
+
+type ProfileFormData = {
+  name: string;
+  location: string;
+  language: string;
+  avatar_url: string;
+};
+
+const EMPTY_FORM: ProfileFormData = {
+  name: '',
+  location: '',
+  language: 'en',
+  avatar_url: '',
+};
 
 export default function ProfilePage() {
-  const router = useRouter();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const { t } = useTranslation();
-
-  const [user, setUser] = useState<User | null>(null);
-  const [authLoading, setAuthLoading] = useState(true);
-  const [loading, setLoading] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  const [form, setForm] = useState<ProfileFormData>(EMPTY_FORM);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [formData, setFormData] = useState<ProfileFormData>({
-    name: '',
-    location: '',
-    preferred_language: 'en',
-    avatar_url: '',
-  });
 
   useEffect(() => {
-    const initialize = async () => {
-      try {
-        const supabase = getSupabaseBrowserClient();
-        const { data: { user: currentUser } } = await supabase.auth.getUser();
+    let isMounted = true;
 
-        if (!currentUser) {
-          router.push('/login');
-          return;
+    async function loadProfile() {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const res = await fetch('/api/profile', {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' },
+        });
+
+        if (!res.ok) {
+          throw new Error(`Failed to load profile (${res.status})`);
         }
 
-        setUser(currentUser);
-        await fetchProfile();
-      } catch (err) {
-        router.push('/login');
+        const data = (await res.json()) as { profile: Profile | null };
+
+        if (isMounted && data.profile) {
+          const p = data.profile;
+          setForm({
+            name: p.name ?? '',
+            location: p.location ?? '',
+            language: p.language ?? 'en',
+            avatar_url: p.avatar_url ?? '',
+          });
+        } else if (isMounted) {
+          setForm(EMPTY_FORM);
+        }
+      } catch (err: any) {
+        if (isMounted) {
+          setError(err?.message ?? 'Failed to load profile.');
+        }
       } finally {
-        setAuthLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
+    }
+
+    loadProfile();
+    return () => {
+      isMounted = false;
     };
+  }, []);
 
-    initialize();
-  }, [router]);
-
-  const fetchProfile = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await fetch('/api/profile');
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error?.message || t('error_load_profile'));
-      }
-
-      setFormData({
-        name: data.profile?.name || '',
-        location: data.profile?.location || '',
-        preferred_language: data.profile?.preferred_language || 'en',
-        avatar_url: data.profile?.avatar_url || '',
-      });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t('error_load_profile'));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleInputChange = (key: keyof ProfileFormData, value: string) => {
-    setFormData((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const handleAvatarChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    setUploading(true);
-    setError(null);
-
-    try {
-      const form = new FormData();
-      form.append('file', file);
-
-      const response = await fetch('/api/upload-image', {
-        method: 'POST',
-        body: form,
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error?.message || t('error_avatar_upload'));
-      }
-
-      handleInputChange('avatar_url', data.image_url);
-    } catch (err) {
-      handleInputChange('avatar_url', '');
-      setError(err instanceof Error ? err.message : t('error_avatar_upload'));
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setLoading(true);
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
     setError(null);
     setSuccess(null);
 
     try {
-      const response = await fetch('/api/profile', {
-        method: 'PUT',
+      const res = await fetch('/api/profile', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(form),
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error?.message || t('error_update_profile'));
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        const msg =
+          body?.error ??
+          `Failed to save profile (status ${res.status}).`;
+        throw new Error(msg);
       }
 
-      setSuccess(t('profile_updated'));
-      setFormData({
-        name: data.profile?.name || '',
-        location: data.profile?.location || '',
-        preferred_language: data.profile?.preferred_language || 'en',
-        avatar_url: data.profile?.avatar_url || '',
-      });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t('error_update_profile'));
+      setSuccess('Profile saved successfully.');
+    } catch (err: any) {
+      setError(err?.message ?? 'Failed to save profile.');
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
-  };
+  }
 
-  if (authLoading || !user) {
-    return (
-      <main className="min-h-screen flex items-center justify-center">
-        <div className="text-slate-400">{t('loading')}</div>
-      </main>
-    );
+  function onChange<K extends keyof ProfileFormData>(
+    key: K,
+    value: ProfileFormData[K]
+  ) {
+    setForm((prev) => ({ ...prev, [key]: value }));
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl space-y-6">
-        <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-bold">{t('profile')}</h1>
-          <p className="text-slate-400 text-sm">
-            {t('profile_description')}
-          </p>
-        </div>
+    <div className="min-h-screen bg-slate-900 text-slate-50 flex items-center justify-center px-4 py-10">
+      <div className="w-full max-w-3xl rounded-3xl bg-slate-800/95 shadow-2xl border border-slate-700 px-6 py-8 sm:px-10 sm:py-10">
+        <h1 className="text-3xl font-semibold tracking-tight mb-2">
+          Profile
+        </h1>
+        <p className="text-sm text-slate-300 mb-8">
+          Manage your identity and preferences in Swaply. All fields are optional except your preferred language.
+        </p>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {loading ? (
+          <div className="text-sm text-slate-300">Loading profile…</div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {error && (
+              <div className="rounded-xl border border-red-500/60 bg-red-500/10 text-red-100 px-4 py-2 text-sm">
+                {error}
+              </div>
+            )}
 
-            {/* Name */}
-            <div className="space-y-2">
-              <label htmlFor="name" className="block text-sm font-medium">
-                {t('name')}
-              </label>
-              <input
-                id="name"
-                type="text"
-                value={formData.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
-                className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg"
-              />
-            </div>
+            {success && (
+              <div className="rounded-xl border border-emerald-500/60 bg-emerald-500/10 text-emerald-100 px-4 py-2 text-sm">
+                {success}
+              </div>
+            )}
 
-            {/* Location */}
-            <div className="space-y-2">
-              <label htmlFor="location" className="block text-sm font-medium">
-                {t('location')}
-              </label>
-              <input
-                id="location"
-                type="text"
-                value={formData.location}
-                onChange={(e) => handleInputChange('location', e.target.value)}
-                className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg"
-              />
-            </div>
-          </div>
-
-          {/* Preferred language */}
-          <div className="space-y-2">
-            <label htmlFor="preferred_language" className="block text-sm font-medium">
-              {t('preferred_language')}
-            </label>
-            <select
-              id="preferred_language"
-              value={formData.preferred_language}
-              onChange={(e) => handleInputChange('preferred_language', e.target.value)}
-              className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg"
-            >
-              {LANGUAGE_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {t(opt.labelKey)}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Avatar */}
-          <div className="space-y-3">
-            <label className="block text-sm font-medium">{t('avatar')}</label>
-            <div className="flex items-center gap-4">
-              <div className="relative h-24 w-24 rounded-full bg-slate-800 border border-slate-700 overflow-hidden">
-                {formData.avatar_url ? (
-                  <Image
-                    src={formData.avatar_url}
-                    alt="Avatar"
-                    fill
-                    sizes="96px"
-                    className="object-cover"
-                  />
-                ) : (
-                  <span className="text-slate-500 text-sm">{t('no_avatar')}</span>
-                )}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-slate-100 mb-2">
+                  Name
+                </label>
+                <input
+                  type="text"
+                  className="w-full rounded-xl border border-slate-600 bg-slate-900/70 px-3 py-2 text-sm text-slate-50 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="John Doe"
+                  value={form.name}
+                  onChange={(e) => onChange('name', e.target.value)}
+                />
               </div>
 
-              <div className="space-y-2">
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg"
-                >
-                  {uploading ? t('uploading') : t('upload_avatar')}
-                </button>
-
-                <p className="text-xs text-slate-500">{t('avatar_requirements')}</p>
-
+              <div>
+                <label className="block text-sm font-medium text-slate-100 mb-2">
+                  Location
+                </label>
                 <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp,image/gif"
-                  onChange={handleAvatarChange}
-                  className="hidden"
+                  type="text"
+                  className="w-full rounded-xl border border-slate-600 bg-slate-900/70 px-3 py-2 text-sm text-slate-50 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="City, Country"
+                  value={form.location}
+                  onChange={(e) => onChange('location', e.target.value)}
                 />
               </div>
             </div>
-          </div>
 
-          {/* Error */}
-          {error && (
-            <div className="p-4 bg-red-900/50 border border-red-700 rounded-lg text-red-200">
-              {error}
+            <div>
+              <label className="block text-sm font-medium text-slate-100 mb-2">
+                Preferred language
+              </label>
+              <select
+                className="w-full rounded-xl border border-slate-600 bg-slate-900/70 px-3 py-2 text-sm text-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                value={form.language}
+                onChange={(e) => onChange('language', e.target.value)}
+              >
+                <option value="ro">Română</option>
+                <option value="en">English</option>
+                <option value="fr">Français</option>
+                <option value="es">Español</option>
+                <option value="de">Deutsch</option>
+              </select>
             </div>
-          )}
 
-          {/* Success */}
-          {success && (
-            <div className="p-4 bg-green-900/40 border border-green-700 rounded-lg text-green-200">
-              {success}
+            <div>
+              <label className="block text-sm font-medium text-slate-100 mb-2">
+                Avatar (URL for now)
+              </label>
+              <input
+                type="text"
+                className="w-full rounded-xl border border-slate-600 bg-slate-900/70 px-3 py-2 text-sm text-slate-50 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="https://…your-image.jpg"
+                value={form.avatar_url}
+                onChange={(e) => onChange('avatar_url', e.target.value)}
+              />
+              <p className="mt-1 text-xs text-slate-400">
+                Later we&apos;ll hook this to Cloudinary upload. For now you can paste a direct image URL.
+              </p>
             </div>
-          )}
 
-          {/* Buttons */}
-          <div className="flex justify-end gap-3">
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className="px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg"
-            >
-              {t('cancel')}
-            </button>
-
-            <button
-              type="submit"
-              disabled={loading || uploading}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 rounded-lg"
-            >
-              {loading ? t('saving') : t('save_profile')}
-            </button>
-          </div>
-        </form>
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setForm(EMPTY_FORM);
+                  setError(null);
+                  setSuccess(null);
+                }}
+                className="rounded-xl border border-slate-600 px-4 py-2 text-sm font-medium text-slate-100 hover:bg-slate-700/80 transition-colors"
+                disabled={saving}
+              >
+                Reset
+              </button>
+              <button
+                type="submit"
+                className="rounded-xl bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:opacity-60 disabled:cursor-not-allowed"
+                disabled={saving}
+              >
+                {saving ? 'Saving…' : 'Save profile'}
+              </button>
+            </div>
+          </form>
+        )}
       </div>
-    </main>
+    </div>
   );
 }
