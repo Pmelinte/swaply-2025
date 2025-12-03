@@ -27,6 +27,7 @@
   "error_update_profile": "Actualizarea profilului a eșuat.",
 
   "loading": "Se încarcă...",
+  "load_more": "Încarcă mai multe",
 
   "items_page_subtitle": "Gestionează și revizuiește obiectele listate.",
   "add_item": "Adaugă obiect",
@@ -37,10 +38,30 @@
   "delete": "Șterge",
   "deleting": "Se șterge...",
 
+  "items_swipe_page": "Obiecte",
+  "items_swipe_title": "Două zone de swipe",
+  "items_swipe_subtitle": "Răspunde cererilor din Magazia și descoperă ofertele din Cutia cu surprize. Fiecare zonă încarcă câte 20 de carduri.",
+  "items_swipe_unknown": "Obiect fără titlu",
+  "items_swipe_no_description": "Fără descriere disponibilă.",
+  "items_swipe_error": "Nu am putut procesa acțiunea. Încearcă din nou.",
+  "items_swipe_auth_error": "Trebuie să fii autentificat pentru a trimite swipe-uri.",
+  "items_swipe_zone_supply_label": "Magazia",
+  "items_swipe_zone_supply_title": "Răspunde la cereri",
+  "items_swipe_zone_supply_description": "Swipe prin cererile altor utilizatori (fake_desired_items).",
+  "items_swipe_empty_supply": "Nu sunt cereri disponibile acum.",
+  "items_swipe_can_supply": "Pot oferi",
+  "items_swipe_skip": "Treci peste",
+  "items_swipe_no_more_supply": "Nu mai sunt cereri",
+  "items_swipe_zone_demand_label": "Cutia cu surprize",
+  "items_swipe_zone_demand_title": "Vezi ofertele",
+  "items_swipe_zone_demand_description": "Swipe prin ofertele altor utilizatori (fake_offered_items).",
+  "items_swipe_empty_demand": "Nu sunt oferte disponibile acum.",
+  "items_swipe_want": "Îl vreau",
+  "items_swipe_no_more_demand": "Nu mai sunt oferte",
+
   "en": "Engleză",
   "ro": "Română",
   "fr": "Franceză",
   "de": "Germană",
   "es": "Spaniolă"
 }
-

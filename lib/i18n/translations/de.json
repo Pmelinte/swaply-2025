@@ -7,7 +7,7 @@
   "my_items": "Meine Gegenstände",
   "logout": "Abmelden",
 
-  "profile_description": "Verwalten Sie Ihre Swaply-Identität und -Einstellungen.",
+  "profile_description": "Verwalte deine Swaply-Identität und -Einstellungen.",
   "name": "Name",
   "location": "Ort",
   "preferred_language": "Bevorzugte Sprache",
@@ -15,7 +15,7 @@
   "upload_avatar": "Avatar hochladen",
   "uploading": "Wird hochgeladen...",
   "no_avatar": "Kein Avatar",
-  "avatar_requirements": "JPEG, PNG, WebP, GIF (max 10MB)",
+  "avatar_requirements": "JPEG, PNG, WebP, GIF (max. 10MB)",
 
   "save_profile": "Profil speichern",
   "saving": "Speichern...",
@@ -23,19 +23,41 @@
   "profile_updated": "Profil erfolgreich aktualisiert.",
 
   "error_load_profile": "Profil konnte nicht geladen werden.",
-  "error_avatar_upload": "Avatar-Upload fehlgeschlagen.",
-  "error_update_profile": "Profilaktualisierung fehlgeschlagen.",
+  "error_avatar_upload": "Avatar konnte nicht hochgeladen werden.",
+  "error_update_profile": "Profil konnte nicht aktualisiert werden.",
 
-  "loading": "Lädt...",
+  "loading": "Laden...",
+  "load_more": "Mehr laden",
 
-  "items_page_subtitle": "Verwalte und prüfe deine gelisteten Artikel.",
-  "add_item": "Artikel hinzufügen",
-  "no_items": "Du hast noch keine Artikel.",
-  "create_first_item": "Erstelle deinen ersten Artikel",
-  "confirm_delete_item": "Möchtest du diesen Artikel wirklich löschen?",
+  "items_page_subtitle": "Verwalte und überprüfe deine gelisteten Gegenstände.",
+  "add_item": "Gegenstand hinzufügen",
+  "no_items": "Du hast noch keine Gegenstände.",
+  "create_first_item": "Erstelle deinen ersten Gegenstand",
+  "confirm_delete_item": "Möchtest du diesen Gegenstand wirklich löschen?",
   "edit": "Bearbeiten",
   "delete": "Löschen",
-  "deleting": "Löschen...",
+  "deleting": "Wird gelöscht...",
+
+  "items_swipe_page": "Objekte",
+  "items_swipe_title": "Zwei Swipe-Zonen",
+  "items_swipe_subtitle": "Reagiere auf Anfragen in der Magazia und entdecke Angebote in der Überraschungsbox. Jede Zone lädt 20 Karten.",
+  "items_swipe_unknown": "Titel unbekannt",
+  "items_swipe_no_description": "Keine Beschreibung verfügbar.",
+  "items_swipe_error": "Die Aktion konnte nicht verarbeitet werden. Bitte versuche es erneut.",
+  "items_swipe_auth_error": "Du musst angemeldet sein, um Swipes zu senden.",
+  "items_swipe_zone_supply_label": "Magazia",
+  "items_swipe_zone_supply_title": "Auf Anfragen antworten",
+  "items_swipe_zone_supply_description": "Wische durch die Wünsche anderer Nutzer (fake_desired_items).",
+  "items_swipe_empty_supply": "Derzeit keine Anfragen verfügbar.",
+  "items_swipe_can_supply": "Kann liefern",
+  "items_swipe_skip": "Überspringen",
+  "items_swipe_no_more_supply": "Keine weiteren Anfragen",
+  "items_swipe_zone_demand_label": "Überraschungsbox",
+  "items_swipe_zone_demand_title": "Angebote ansehen",
+  "items_swipe_zone_demand_description": "Wische durch die Angebote anderer Nutzer (fake_offered_items).",
+  "items_swipe_empty_demand": "Derzeit keine Angebote verfügbar.",
+  "items_swipe_want": "Ich will es",
+  "items_swipe_no_more_demand": "Keine weiteren Angebote",
 
   "en": "Englisch",
   "ro": "Rumänisch",
@@ -43,4 +65,3 @@
   "de": "Deutsch",
   "es": "Spanisch"
 }
-
