@@ -35,7 +35,7 @@ export default function HeaderMenu() {
   }, []);
 
   return (
-    <div className="relative">
+    <div className="relative z-30">
       <button
         onClick={() => setOpen(!open)}
         className="h-10 w-10 rounded-full bg-white border border-slate-300 shadow-sm overflow-hidden flex items-center justify-center text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-200"
@@ -56,7 +56,7 @@ export default function HeaderMenu() {
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-52 rounded-lg bg-white border border-slate-200 shadow-lg ring-1 ring-slate-100 z-50 overflow-hidden">
+        <div className="absolute right-0 mt-2 w-52 rounded-lg bg-white border border-slate-200 shadow-lg ring-1 ring-slate-100 z-40 overflow-hidden">
           <Link
             href="/profile"
             className="block px-4 py-2 text-sm text-slate-800 hover:bg-slate-50"

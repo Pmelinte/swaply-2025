@@ -24,7 +24,7 @@ export default function LanguageSelector() {
   };
 
   return (
-    <div className="relative">
+    <div className="relative z-20">
       {/* buton principal */}
       <button
         type="button"
@@ -49,7 +49,7 @@ export default function LanguageSelector() {
 
       {/* dropdown */}
       {open && (
-        <div className="absolute right-0 mt-2 w-40 rounded-xl bg-white border border-slate-200 shadow-xl ring-1 ring-slate-100 z-50 py-1">
+        <div className="absolute left-0 mt-2 w-40 rounded-xl bg-white border border-slate-200 shadow-xl ring-1 ring-slate-100 z-30 py-1">
           {LANGS.map((l) => {
             const active = l.code === lang;
             return (
