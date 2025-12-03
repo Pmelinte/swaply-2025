@@ -1,23 +1,28 @@
-'use client';
+"use client";
 
-import LanguageSelector from '@/components/LanguageSelector';
-import HeaderMenu from '@/components/HeaderMenu';
-import { useTranslation } from '@/components/LanguageProvider';
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { LanguageSelector } from "./LanguageSelector";
+import ProfileLink from "./ProfileLink";
 
 export default function AppHeader() {
-  const { t } = useTranslation();
+  const pathname = usePathname();
 
   return (
-    <header className="w-full border-b border-slate-200 bg-white/90 backdrop-blur shadow-sm">
-      <nav className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-slate-900">
-          {t('welcome')}
-        </h1>
+    <header className="w-full border-b bg-white/90 backdrop-blur-md">
+      <div className="max-w-6xl mx-auto flex items-center justify-between py-4 px-4">
+        
+        {/* Logo / Title */}
+        <Link href="/" className="text-xl font-semibold text-slate-900">
+          Welcome
+        </Link>
+
+        {/* Right section: LANGUAGE first, then PROFILE */}
         <div className="flex items-center gap-4">
           <LanguageSelector />
-          <HeaderMenu />
+          <ProfileLink />
         </div>
-      </nav>
+      </div>
     </header>
   );
 }
