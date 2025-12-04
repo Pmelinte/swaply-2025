@@ -8,7 +8,7 @@ function normalizeItem(item: Record<string, any>): SwipeFeedItem {
   const idValue = item.id ?? item.desired_item_id ?? item.source_id ?? item.uuid;
   const sourceId = idValue ?? crypto.randomUUID();
   const baseTitle =
-    item.title || item.name || item.desired_name || item.item_title || 'Obiect necunoscut';
+    item.title || item.name || item.desired_name || item.item_title || 'Unknown item';
 
   return {
     id: String(sourceId),
@@ -25,9 +25,22 @@ function normalizeItem(item: Record<string, any>): SwipeFeedItem {
 
 export async function GET(request: NextRequest) {
   try {
+    console.log('[desired-items] GET start', {
+      url: request.url,
+    });
+
     const supabase = getSupabaseServerClient();
+    console.log('[desired-items] Supabase client created');
+
     const { searchParams } = new URL(request.url);
-    const offset = Number(searchParams.get('offset') || '0');
+    const offsetRaw = searchParams.get('offset') || '0';
+    const offset = Number(offsetRaw);
+
+    console.log('[desired-items] Parsed offset', {
+      offsetRaw,
+      offset,
+      isNaN: Number.isNaN(offset),
+    });
 
     const { data, error } = await supabase
       .from('fake_desired_items')
@@ -35,21 +48,22 @@ export async function GET(request: NextRequest) {
       .order('id', { ascending: true })
       .range(offset, offset + PAGE_SIZE - 1);
 
+    console.log('[desired-items] Supabase query result', {
+      rowCount: data?.length,
+      hasError: !!error,
+    });
+
     if (error) {
+      console.error('[desired-items] Supabase error', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: (error as any).code,
+      });
+
       return NextResponse.json(
-        { error: { code: 'FETCH_FAILED', message: 'Unable to load desired items.' } },
-        { status: 500 }
-      );
-    }
-
-    const normalized = (data || []).map(normalizeItem);
-    const hasMore = (data?.length || 0) === PAGE_SIZE;
-
-    return NextResponse.json({ items: normalized, hasMore });
-  } catch (error) {
-    return NextResponse.json(
-      { error: { code: 'INTERNAL_ERROR', message: 'Unexpected error while loading feed.' } },
-      { status: 500 }
-    );
-  }
-}
+        {
+          error: {
+            code: 'FETCH_FAILED',
+            message: 'Unable to load desired items.',
+            debug: 'See server logs:
