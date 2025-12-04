@@ -1,51 +1,57 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '@/lib/supabase/server';
 
-export async function POST(request: NextRequest) {
+console.log('=== DEMAND ENDPOINT LOADED ===');
+
+export async function GET(request: NextRequest) {
+  console.log('[/api/swipe/demand] Request received');
+
+  const { searchParams } = new URL(request.url);
+  const offsetRaw = searchParams.get('offset') || '0';
+  const offset = Number(offsetRaw);
+
+  if (Number.isNaN(offset) || offset < 0) {
+    console.error('[/api/swipe/demand] Invalid offset value', { offsetRaw });
+    return NextResponse.json(
+      { error: { code: 'VALIDATION_ERROR', message: 'Invalid offset parameter.' } },
+      { status: 400 }
+    );
+  }
+
   try {
     const supabase = getSupabaseServerClient();
-    const { data: userData, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !userData?.user) {
-      return NextResponse.json(
-        { error: { code: 'UNAUTHORIZED', message: 'Authentication required.' } },
-        { status: 401 }
-      );
-    }
-
-    const body = await request.json();
-    const swiperId = body?.swiperId;
-    const offeredItemId = body?.offeredItemId;
-    const wantsItem = Boolean(body?.wantsItem);
-
-    if (!swiperId || !offeredItemId) {
-      return NextResponse.json(
-        { error: { code: 'VALIDATION_ERROR', message: 'Missing swiperId or offeredItemId.' } },
-        { status: 400 }
-      );
-    }
+    console.log('[/api/swipe/demand] Fetching items', {
+      offset,
+    });
 
     const { data, error } = await supabase
-      .from('fake_swipes_demand')
-      .insert({
-        swiper_id: swiperId,
-        offered_item_id: offeredItemId,
-        wants_item: wantsItem,
-      })
-      .select()
-      .single();
+      .from('fake_demand_items')
+      .select('*')
+      .order('id', { ascending: true })
+      .range(offset, offset + 19);
 
     if (error) {
+      console.error('[/api/swipe/demand] Supabase error', error);
       return NextResponse.json(
-        { error: { code: 'INSERT_FAILED', message: 'Unable to save swipe.' } },
+        { error: { code: 'FETCH_FAILED', message: 'Unable to load demand items.' } },
         { status: 500 }
       );
     }
 
-    return NextResponse.json({ swipe: data }, { status: 201 });
-  } catch (error) {
+    console.log('[/api/swipe/demand] Success', {
+      rawCount: data?.length ?? 0,
+      hasMore: (data?.length || 0) === 20,
+    });
+
+    return NextResponse.json({
+      items: data || [],
+      hasMore: (data?.length || 0) === 20,
+    });
+
+  } catch (err) {
+    console.error('[/api/swipe/demand] Unexpected error', err);
     return NextResponse.json(
-      { error: { code: 'INTERNAL_ERROR', message: 'Unexpected error while saving swipe.' } },
+      { error: { code: 'INTERNAL_ERROR', message: 'Unexpected error while loading demand feed.' } },
       { status: 500 }
     );
   }
