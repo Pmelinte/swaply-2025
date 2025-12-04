@@ -2,6 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '@/lib/supabase/server';
 import { SwipeFeedItem } from '@/lib/types/swipe';
 
+console.log("=== OFFERED-ITEMS ENDPOINT HIT ===");
+
+try {
+  console.log("Request received at /api/swipe/offered-items");
+} catch (e) {
+  console.error("Initial logging error:", e);
+}
+
 const PAGE_SIZE = 20;
 
 function normalizeItem(item: Record<string, any>): SwipeFeedItem {
