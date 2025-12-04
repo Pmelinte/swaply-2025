@@ -4,6 +4,8 @@ import { SwipeFeedItem } from '@/lib/types/swipe';
 
 const PAGE_SIZE = 20;
 
+console.log('=== DESIRED-ITEMS ENDPOINT LOADED ===');
+
 function normalizeItem(item: Record<string, any>): SwipeFeedItem {
   const idValue = item.id ?? item.desired_item_id ?? item.source_id ?? item.uuid;
   const sourceId = idValue ?? crypto.randomUUID();
@@ -24,22 +26,25 @@ function normalizeItem(item: Record<string, any>): SwipeFeedItem {
 }
 
 export async function GET(request: NextRequest) {
+  console.log('[/api/swipe/desired-items] Request received');
+
+  const { searchParams } = new URL(request.url);
+  const offsetRaw = searchParams.get('offset') || '0';
+  const offset = Number(offsetRaw);
+
+  if (Number.isNaN(offset) || offset < 0) {
+    console.error('[/api/swipe/desired-items] Invalid offset value', { offsetRaw });
+    return NextResponse.json(
+      { error: { code: 'VALIDATION_ERROR', message: 'Invalid offset parameter.' } },
+      { status: 400 }
+    );
+  }
+
   try {
-    console.log('[desired-items] GET start', {
-      url: request.url,
-    });
-
     const supabase = getSupabaseServerClient();
-    console.log('[desired-items] Supabase client created');
-
-    const { searchParams } = new URL(request.url);
-    const offsetRaw = searchParams.get('offset') || '0';
-    const offset = Number(offsetRaw);
-
-    console.log('[desired-items] Parsed offset', {
-      offsetRaw,
+    console.log('[/api/swipe/desired-items] Fetching items', {
       offset,
-      isNaN: Number.isNaN(offset),
+      pageSize: PAGE_SIZE,
     });
 
     const { data, error } = await supabase
@@ -48,22 +53,28 @@ export async function GET(request: NextRequest) {
       .order('id', { ascending: true })
       .range(offset, offset + PAGE_SIZE - 1);
 
-    console.log('[desired-items] Supabase query result', {
-      rowCount: data?.length,
-      hasError: !!error,
+    if (error) {
+      console.error('[/api/swipe/desired-items] Supabase error', error);
+      return NextResponse.json(
+        { error: { code: 'FETCH_FAILED', message: 'Unable to load desired items.' } },
+        { status: 500 }
+      );
+    }
+
+    const normalized = (data || []).map(normalizeItem);
+    const hasMore = (data?.length || 0) === PAGE_SIZE;
+
+    console.log('[/api/swipe/desired-items] Success', {
+      rawCount: data?.length ?? 0,
+      hasMore,
     });
 
-    if (error) {
-      console.error('[desired-items] Supabase error', {
-        message: error.message,
-        details: error.details,
-        hint: error.hint,
-        code: (error as any).code,
-      });
-
-      return NextResponse.json(
-        {
-          error: {
-            code: 'FETCH_FAILED',
-            message: 'Unable to load desired items.',
-            debug: 'See server logs:
+    return NextResponse.json({ items: normalized, hasMore });
+  } catch (err) {
+    console.error('[/api/swipe/desired-items] Unexpected error', err);
+    return NextResponse.json(
+      { error: { code: 'INTERNAL_ERROR', message: 'Unexpected error while loading feed.' } },
+      { status: 500 }
+    );
+  }
+}
