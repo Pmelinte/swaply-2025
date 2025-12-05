@@ -1,18 +1,18 @@
 "use client";
 
-import type { Profile } from "@/features/profile/types";
-import { ProfileView } from "@/features/profile/components/profile-view";
-import { ProfileForm } from "@/features/profile/components/profile-form";
-import { ProfileSection } from "@/features/profile/components/profile-section";
+import type { Profile } from "@/src/features/profile/types";
+import { ProfileView } from "@/src/features/profile/components/profile-view";
+import { ProfileForm } from "@/src/features/profile/components/profile-form";
+import { ProfileSection } from "@/src/features/profile/components/profile-section";
 
 interface ProfileClientProps {
   profile: Profile;
 }
 
 /**
- * Componentă client care gestionează UI-ul paginii:
- * - afișarea profilului (view)
- * - formularul de editare
+ * Client shell pentru pagina de profil:
+ * - afișează datele profilului
+ * - oferă formular de editare
  */
 export default function ProfileClient({ profile }: ProfileClientProps) {
   return (
@@ -26,7 +26,7 @@ export default function ProfileClient({ profile }: ProfileClientProps) {
 
       <ProfileSection
         title="Editează profilul"
-        description="Actualizează numele, avatarul, locația sau bio."
+        description="Actualizează numele, avatarul, locația sau descrierea."
       >
         <ProfileForm profile={profile} />
       </ProfileSection>
