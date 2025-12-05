@@ -3,7 +3,6 @@ import { z } from "zod";
 export const updateProfileSchema = z.object({
   full_name: z
     .string()
-    .min(1, "Numele nu poate fi gol")
     .max(100, "Numele este prea lung")
     .optional()
     .nullable(),
@@ -27,4 +26,7 @@ export const updateProfileSchema = z.object({
     .nullable(),
 });
 
-export type UpdateProfileSchema = z.infer<typeof updateProfileSchema>;
+/** 
+ * TIPUL CORECT folosit de hook și de profile-actions.ts
+ */
+export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
