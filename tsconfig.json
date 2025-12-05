@@ -24,6 +24,9 @@
     "paths": {
       "@/*": [
         "./*"
+      ],
+      "@/features/*": [
+        "./src/features/*"
       ]
     },
     "incremental": true
