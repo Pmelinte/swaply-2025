@@ -1,9 +1,9 @@
 "use client";
 
 import { useTransition } from "react";
-import { updateProfileAction } from "@/features/profile/server/profile-actions";
-import type { Profile } from "@/features/profile/types";
-import { useProfileForm } from "@/features/profile/hooks/use-profile-form";
+import { updateProfileAction } from "../server/profile-actions";
+import type { Profile } from "../types";
+import { useProfileForm } from "../hooks/use-profile-form";
 
 interface ProfileFormProps {
   profile: Profile;
