@@ -3,7 +3,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import {
   getCurrentProfileAction,
   updateProfileAction,
-} from "@/features/profile/server/profile-actions";
+} from "../../../src/features/profile/server/profile-actions";
 
 /**
  * GET /api/profile
@@ -52,7 +52,7 @@ export async function PUT(request: Request) {
   }
 }
 
-// Alias pentru compatibilitate cu implementările existente care folosesc POST.
+// Compat: POST se comportă ca PUT.
 export async function POST(request: Request) {
   return PUT(request);
 }
