@@ -3,7 +3,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import UserRatingBadge from "@/features/reviews/components/UserRatingBadge";
-import { getUserRatingSummaryAction } from "@/features/reviews/server/reviews-actions";
 
 interface MatchCardProps {
   match: {
@@ -12,18 +11,19 @@ interface MatchCardProps {
       id: string;
       name: string | null;
       avatar_url: string | null;
+      rating: {
+        average: number;
+        total: number;
+      };
     };
   };
 }
 
-/**
- * Server component — poate apela direct acțiunile server-side
- */
-export default async function MatchCard({ match }: MatchCardProps) {
+export default function MatchCard({ match }: MatchCardProps) {
   const user = match.otherUser;
+  const { average, total } = user.rating;
 
-  // Luăm rating summary
-  const rating = await getUserRatingSummaryAction(user.id);
+  const isTrusted = average >= 4.5 && total >= 5;
 
   return (
     <div className="border p-4 rounded-xl bg-white shadow-sm flex gap-4 items-center">
@@ -40,13 +40,18 @@ export default async function MatchCard({ match }: MatchCardProps) {
 
       {/* Info */}
       <div className="flex flex-col flex-1">
-        <p className="font-semibold text-lg">{user.name ?? "Utilizator"}</p>
+        <div className="flex items-center gap-2">
+          <p className="font-semibold text-lg">{user.name ?? "Utilizator"}</p>
+
+          {isTrusted && (
+            <span className="text-xs bg-yellow-200 text-yellow-800 px-2 py-1 rounded-lg">
+              ⭐ Trusted
+            </span>
+          )}
+        </div>
 
         {/* Rating Badge */}
-        <UserRatingBadge
-          average={rating.averageStars}
-          total={rating.totalReviews}
-        />
+        <UserRatingBadge average={average} total={total} />
 
         {/* Butoane */}
         <div className="flex gap-3 mt-3">
