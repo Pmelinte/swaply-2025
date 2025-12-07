@@ -71,6 +71,18 @@ export async function archiveItemAction(itemId: string): Promise<void> {
 }
 
 /**
+ * Ștergere item
+ */
+export async function deleteItemAction(itemId: string): Promise<void> {
+  const userId = await requireUserId();
+  await itemsRepository.deleteItem(itemId, userId);
+
+  // după ștergere, pagina publică ar trebui să devină 404, dar revalidăm totuși
+  revalidatePath("/my/items");
+  revalidatePath(`/items/${itemId}`);
+}
+
+/**
  * Returneaza un item (fără autentificare — pentru pagini publice)
  */
 export async function getItemAction(itemId: string): Promise<Item | null> {
