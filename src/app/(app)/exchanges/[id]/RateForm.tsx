@@ -19,16 +19,12 @@ export default function RateForm({ exchangeId, viewerId, reviews, status }: Rate
   const [comment, setComment] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Dacă schimbul nu e finalizat → nu arătăm formularul
-  if (status !== "completed") {
-    return null;
-  }
+  // Formularul apare DOAR dacă schimbul este complet
+  if (status !== "completed") return null;
 
-  // Dacă userul a lăsat deja un review → nu arătăm formularul
+  // Dacă userul a lăsat deja review → nu arătăm formularul
   const alreadyReviewed = reviews.some((r) => r.reviewerId === viewerId);
-  if (alreadyReviewed) {
-    return null;
-  }
+  if (alreadyReviewed) return null;
 
   const submit = async () => {
     setLoading(true);
@@ -49,11 +45,7 @@ export default function RateForm({ exchangeId, viewerId, reviews, status }: Rate
       {/* Stele */}
       <div className="flex gap-2">
         {[1, 2, 3, 4, 5].map((s) => (
-          <Star
-            key={s}
-            filled={s <= stars}
-            onClick={() => setStars(s)}
-          />
+          <Star key={s} filled={s <= stars} onClick={() => setStars(s)} />
         ))}
       </div>
 
