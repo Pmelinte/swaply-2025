@@ -4,9 +4,10 @@ import { redirect } from "next/navigation";
 import { createServerClient } from "@/lib/supabase/server";
 import type { Item } from "@/features/items/types";
 import { listUserItemsAction } from "@/features/items/server/items-actions";
+import ItemRowActions from "@/features/items/components/ItemRowActions";
 
 export default async function MyItemsPage() {
-  // verificăm user-ul
+  // verificăm user-ul autentificat
   const supabase = createServerClient();
   const {
     data: { user },
@@ -21,8 +22,7 @@ export default async function MyItemsPage() {
   try {
     items = await listUserItemsAction();
   } catch (e) {
-    // dacă pentru orice motiv acțiunea eșuează (ex: nu e autentificat corect),
-    // îl trimitem la login
+    // dacă acțiunea eșuează (ex: sesiune invalidă), îl trimitem la login
     redirect("/login");
   }
 
@@ -53,9 +53,7 @@ export default async function MyItemsPage() {
       <section>
         <h2 className="text-xl font-semibold mb-3">Arhivate</h2>
         {archived.length === 0 ? (
-          <p className="text-gray-600 text-sm">
-            Nu ai obiecte arhivate.
-          </p>
+          <p className="text-gray-600 text-sm">Nu ai obiecte arhivate.</p>
         ) : (
           <div className="space-y-3">
             {archived.map((item) => (
@@ -70,17 +68,17 @@ export default async function MyItemsPage() {
 
 function ItemRow({ item }: { item: Item }) {
   return (
-    <a
-      href={`/items/${item.id}`}
-      className="block p-4 border rounded-xl bg-gray-50 hover:bg-gray-100 transition"
-    >
-      <p className="font-semibold">{item.title}</p>
-      <p className="text-xs text-gray-500 mt-1">
-        Creat la{" "}
-        {("createdAt" in item && item.createdAt)
-          ? String(item.createdAt).slice(0, 10)
-          : "n/a"}
-      </p>
-    </a>
+    <div className="p-4 border rounded-xl bg-gray-50">
+      <a href={`/items/${item.id}`} className="block">
+        <p className="font-semibold">{item.title}</p>
+        <p className="text-xs text-gray-500 mt-1">
+          Creat la {String(item.createdAt ?? "").slice(0, 10)}
+        </p>
+      </a>
+
+      <div className="mt-2">
+        <ItemRowActions itemId={item.id} />
+      </div>
+    </div>
   );
 }
