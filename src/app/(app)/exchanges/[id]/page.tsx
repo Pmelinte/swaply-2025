@@ -11,6 +11,7 @@ import OfferForm from "./OfferForm";
 import Actions from "./Actions";
 import ShippingForm from "./ShippingForm";
 import ReceiveConfirmation from "./ReceiveConfirmation";
+import RateForm from "./RateForm";
 
 interface ExchangePageProps {
   params: { id: string };
@@ -26,12 +27,8 @@ export default async function ExchangePage({ params }: ExchangePageProps) {
 
   if (!user) redirect("/login");
 
-  // încărcăm schimbul complet
   const exchange: Exchange | null = await getExchangeAction(exchangeId);
-
-  if (!exchange) {
-    notFound();
-  }
+  if (!exchange) notFound();
 
   return (
     <div className="max-w-3xl mx-auto p-6 space-y-6">
@@ -48,22 +45,20 @@ export default async function ExchangePage({ params }: ExchangePageProps) {
         </p>
       </div>
 
-      {/* Formular ofertă nouă */}
       <OfferForm exchangeId={exchange.id} />
-
-      {/* Acțiuni Acceptă / Anulează */}
       <Actions exchangeId={exchange.id} status={exchange.status} />
-
-      {/* Inițiere livrare */}
       <ShippingForm exchangeId={exchange.id} status={exchange.status} />
-
-      {/* Confirmare primire */}
       <ReceiveConfirmation exchangeId={exchange.id} status={exchange.status} />
 
-      {/* Oferte */}
-      <Offers exchange={exchange} currentUserId={user.id} />
+      {/* ⭐ Formular review (doar după completed) */}
+      <RateForm
+        exchangeId={exchange.id}
+        viewerId={user.id}
+        reviews={exchange.reviews ?? []}
+        status={exchange.status}
+      />
 
-      {/* Timeline */}
+      <Offers exchange={exchange} currentUserId={user.id} />
       <Timeline updates={exchange.updates} />
     </div>
   );
