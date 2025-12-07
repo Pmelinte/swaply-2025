@@ -9,6 +9,7 @@ import Timeline from "./timeline";
 import Offers from "./offers";
 import OfferForm from "./OfferForm";
 import Actions from "./Actions";
+import ShippingForm from "./ShippingForm";
 
 interface ExchangePageProps {
   params: { id: string };
@@ -49,8 +50,11 @@ export default async function ExchangePage({ params }: ExchangePageProps) {
       {/* Formular ofertă nouă */}
       <OfferForm exchangeId={exchange.id} />
 
-      {/* Acțiuni: Acceptă / Anulează */}
+      {/* Acțiuni Accept / Anulează */}
       <Actions exchangeId={exchange.id} status={exchange.status} />
+
+      {/* Formular Livrare */}
+      <ShippingForm exchangeId={exchange.id} status={exchange.status} />
 
       {/* Listă de oferte */}
       <Offers exchange={exchange} currentUserId={user.id} />
