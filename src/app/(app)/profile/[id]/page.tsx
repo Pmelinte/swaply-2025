@@ -22,15 +22,26 @@ export default async function PublicProfilePage({ params }: ProfilePageProps) {
     .single();
 
   if (error || !user) {
-    console.error("PublicProfilePage error:", error);
     notFound();
   }
 
   // Rating summary
   const ratingSummary = await getUserRatingSummaryAction(userId);
 
-  // Lista recenziilor primite
+  // Recenzii primite
   const reviews = await reviewsRepository.listReviewsForUser(userId);
+
+  // Încărcăm detalii despre cei care au scris recenziile
+  const reviewerIds = reviews.map((r) => r.reviewerId);
+
+  const { data: reviewerProfiles } = await supabase
+    .from("profiles")
+    .select("user_id, name, avatar_url")
+    .in("user_id", reviewerIds);
+
+  const reviewerMap = Object.fromEntries(
+    (reviewerProfiles ?? []).map((rp) => [rp.user_id, rp])
+  );
 
   return (
     <div className="max-w-2xl mx-auto p-6 space-y-6">
@@ -67,7 +78,7 @@ export default async function PublicProfilePage({ params }: ProfilePageProps) {
         <p className="text-gray-600 text-sm">📍 {user.location}</p>
       )}
 
-      {/* DESCRIERE (dacă există) */}
+      {/* BIO */}
       {user.bio && (
         <p className="text-gray-700 text-sm leading-6">{user.bio}</p>
       )}
@@ -79,30 +90,51 @@ export default async function PublicProfilePage({ params }: ProfilePageProps) {
         <h2 className="text-xl font-semibold mb-3">Recenzii primite</h2>
 
         {reviews.length === 0 ? (
-          <p className="text-gray-600 text-sm">
-            Acest utilizator nu are încă recenzii.
-          </p>
+          <p className="text-gray-600 text-sm">Acest utilizator nu are încă recenzii.</p>
         ) : (
           <div className="space-y-4">
-            {reviews.map((rev) => (
-              <div
-                key={rev.id}
-                className="border p-3 rounded-lg bg-gray-50 shadow-sm"
-              >
-                <p className="text-yellow-500 font-semibold">
-                  {"★".repeat(rev.stars)}
-                  {"☆".repeat(5 - rev.stars)}
-                </p>
+            {reviews.map((rev) => {
+              const reviewer = reviewerMap[rev.reviewerId];
 
-                {rev.comment && (
-                  <p className="text-sm text-gray-700 mt-1">{rev.comment}</p>
-                )}
+              return (
+                <div
+                  key={rev.id}
+                  className="border p-4 rounded-xl bg-white shadow-sm"
+                >
+                  <div className="flex items-center gap-3">
+                    {/* Avatar reviewer */}
+                    <img
+                      src={reviewer?.avatar_url ?? "/placeholder-avatar.png"}
+                      alt={reviewer?.name ?? "Reviewer"}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
 
-                <p className="text-xs text-gray-500 mt-2">
-                  {rev.createdAt.slice(0, 10)}
-                </p>
-              </div>
-            ))}
+                    <div>
+                      {/* Nume reviewer */}
+                      <p className="font-medium text-sm">
+                        {reviewer?.name ?? "Utilizator"}
+                      </p>
+
+                      {/* Rating stars */}
+                      <p className="text-yellow-500 text-lg leading-none">
+                        {"★".repeat(rev.stars)}
+                        {"☆".repeat(5 - rev.stars)}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Comment */}
+                  {rev.comment && (
+                    <p className="text-sm text-gray-700 mt-3">{rev.comment}</p>
+                  )}
+
+                  {/* Date */}
+                  <p className="text-xs text-gray-500 mt-2">
+                    {rev.createdAt.slice(0, 10)}
+                  </p>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
