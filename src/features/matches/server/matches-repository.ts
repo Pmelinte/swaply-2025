@@ -5,17 +5,16 @@ import { getUserRatingSummaryAction } from "@/features/reviews/server/reviews-ac
 
 export const matchRepository = {
   /**
-   * Returnează match-urile unui utilizator,
-   * sortate în funcție de ratingul celuilalt user.
+   * Returnează match-urile ordonate după reputație.
+   * Trusted users → sus.
+   * Rating slab → jos.
    */
   async listMatchesForUser(userId: string) {
     const supabase = createServerClient();
 
-    // obținem match-urile brute
     const { data: rows, error } = await supabase
       .from("matches")
-      .select(
-        `
+      .select(`
         id,
         user_a_id,
         user_b_id,
@@ -24,23 +23,35 @@ export const matchRepository = {
           name,
           avatar_url
         )
-      `
-      )
-      .eq("user_a_id", userId)
-      .order("created_at", { ascending: false });
+      `)
+      .eq("user_a_id", userId);
 
     if (error) {
       console.error("listMatchesForUser error", error);
       return [];
     }
 
-    // transformăm fiecare match într-o structură completă
     const matches = [];
+
     for (const m of rows ?? []) {
       const other = m.users;
 
-      // luăm rating summary pentru fiecare utilizator
       const rating = await getUserRatingSummaryAction(other.id);
+
+      // Calculează scorul de vizibilitate
+      const { average, total } = rating;
+
+      let score = average;
+
+      // Boost pentru trusted
+      if (average >= 4.5 && total >= 5) {
+        score += 1.0; // prioritate mare
+      }
+
+      // Deboost pentru rating slab
+      if (average < 3.0 && total >= 3) {
+        score -= 2.0; // împins mult în jos
+      }
 
       matches.push({
         id: m.id,
@@ -48,23 +59,14 @@ export const matchRepository = {
           id: other.id,
           name: other.name,
           avatar_url: other.avatar_url,
-          rating: {
-            average: rating.averageStars,
-            total: rating.totalReviews,
-          },
+          rating,
+          visibilityScore: score,
         },
       });
     }
 
-    // SORTARE după rating:
-    // 1. rating mediu descrescător
-    // 2. la egalitate — după numărul de review-uri
-    matches.sort((a, b) => {
-      if (b.otherUser.rating.average !== a.otherUser.rating.average) {
-        return b.otherUser.rating.average - a.otherUser.rating.average;
-      }
-      return b.otherUser.rating.total - a.otherUser.rating.total;
-    });
+    // Sortare descrescătoare după scor
+    matches.sort((a, b) => b.otherUser.visibilityScore - a.otherUser.visibilityScore);
 
     return matches;
   },
