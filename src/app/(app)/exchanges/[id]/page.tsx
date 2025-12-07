@@ -6,6 +6,7 @@ import { getExchangeAction } from "@/features/exchange/server/exchange-actions";
 import type { Exchange } from "@/features/exchange/types";
 import Timeline from "./timeline";
 import Offers from "./offers";
+import OfferForm from "./OfferForm";
 
 interface ExchangePageProps {
   params: { id: string };
@@ -44,6 +45,9 @@ export default async function ExchangePage({ params }: ExchangePageProps) {
           Creat la {exchange.createdAt.slice(0, 10)}
         </p>
       </div>
+
+      {/* Formular ofertă nouă */}
+      <OfferForm exchangeId={exchange.id} />
 
       {/* Oferte */}
       <Offers exchange={exchange} currentUserId={user.id} />
