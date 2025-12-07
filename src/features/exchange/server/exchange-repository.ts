@@ -64,7 +64,11 @@ export const exchangeRepository = {
   /**
    * Creează un schimb nou.
    */
-  async createExchange(matchId: string, userAId: string, userBId: string): Promise<Exchange> {
+  async createExchange(
+    matchId: string,
+    userAId: string,
+    userBId: string
+  ): Promise<Exchange> {
     const supabase = createServerClient();
 
     const payload = {
@@ -91,7 +95,10 @@ export const exchangeRepository = {
   /**
    * Verifică dacă userul participă la acest schimb.
    */
-  async ensureAccess(exchangeId: string, userId: string): Promise<Exchange | null> {
+  async ensureAccess(
+    exchangeId: string,
+    userId: string
+  ): Promise<Exchange | null> {
     const supabase = createServerClient();
 
     const { data: row, error } = await supabase
@@ -112,7 +119,10 @@ export const exchangeRepository = {
   /**
    * Returnează schimbul complet (oferte + updates + reviews)
    */
-  async getExchange(exchangeId: string, userId: string): Promise<Exchange | null> {
+  async getExchange(
+    exchangeId: string,
+    userId: string
+  ): Promise<Exchange | null> {
     const exchange = await this.ensureAccess(exchangeId, userId);
     if (!exchange) return null;
 
@@ -136,7 +146,7 @@ export const exchangeRepository = {
 
     exchange.updates = (updateRows ?? []).map(mapDbUpdate);
 
-    // Reviews — ADĂUGAT
+    // Reviews
     const { data: reviewRows } = await supabase
       .from("reviews")
       .select("*")
@@ -156,7 +166,7 @@ export const exchangeRepository = {
     fromUserId: string,
     toUserId: string,
     offered: ExchangeOfferItem[],
-    requested: ExchangeOfferItem[],
+    requested: ExchangeOfferItem[]
   ) {
     const supabase = createServerClient();
 
@@ -175,7 +185,11 @@ export const exchangeRepository = {
       throw new Error("Nu am putut trimite oferta.");
     }
 
-    await this.addUpdate(exchangeId, "offer_sent", "A fost trimisă o ofertă de schimb.");
+    await this.addUpdate(
+      exchangeId,
+      "offer_sent",
+      "A fost trimisă o ofertă de schimb."
+    );
   },
 
   /**
@@ -198,7 +212,11 @@ export const exchangeRepository = {
   /**
    * Adaugă un eveniment în timeline.
    */
-  async addUpdate(exchangeId: string, type: ExchangeUpdate["type"], message: string) {
+  async addUpdate(
+    exchangeId: string,
+    type: ExchangeUpdate["type"],
+    message: string
+  ) {
     const supabase = createServerClient();
 
     const payload = {
@@ -207,13 +225,31 @@ export const exchangeRepository = {
       message,
     };
 
-    const { error } = await supabase
-      .from("exchange_updates")
-      .insert(payload);
+    const { error } = await supabase.from("exchange_updates").insert(payload);
 
     if (error) {
       console.error("addUpdate error:", error);
       throw new Error("Nu am putut salva update-ul.");
     }
+  },
+
+  /**
+   * Listează toate schimburile unui user (pentru "Schimburile mele").
+   */
+  async listExchangesForUser(userId: string) {
+    const supabase = createServerClient();
+
+    const { data, error } = await supabase
+      .from("exchanges")
+      .select("*")
+      .or(`user_a_id.eq.${userId},user_b_id.eq.${userId}`)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("listExchangesForUser error:", error);
+      return [];
+    }
+
+    return data ?? [];
   },
 };
