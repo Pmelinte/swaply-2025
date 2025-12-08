@@ -12,7 +12,7 @@
 - **Items & Media (Inventory)**
   - ✅ Implementat (Add Item, upload imagini, salvare în DB)
 - **AI – Clasificare & Titluri**
-  - 🔄 Parțial (folosit în concept, endpoint dedicat de clasify încă de definit/confirmat în cod)
+  - 🔄 Endpoint AI implementat (`/api/ai/items/classify`), integrare completă în UI încă în lucru
 - **Swipe / Match (Modul 9)**
   - 🔄 Implementare de bază + RLS configurat, în curs de rafinare
 - **Chat / Mesagerie**
@@ -24,7 +24,7 @@
 - **Monetizare & Plăți**
   - 📅 Concept clar (Stripe, ranguri plătite, boosting), neimplementat
 - **Categorii & Taxonomie**
-  - 📅 Concept clar (categorii/subcategorii în DB), implementare de verificat
+  - 🔄 Tabel `categories` + RLS + prime categorii/seeds implementate; lipsesc încă toate subcategoriile, tipurile TS și integrarea completă cu Items & AI classify
 - **Hărți, Localizare, InfoCity**
   - 📅 Concept clar (hartă, utilizatori, obiecte, localități), neimplementat sau foarte incipient
 
@@ -63,7 +63,7 @@
 - Obiectele au:
   - titlu, descriere,
   - imagini, locație,
-  - categorie/subcategorie (conceptual),
+  - categorie/subcategorie (legarea la tabelul `categories` urmează să fie rafinată),
   - valoare estimată (AI – la nivel de idee),
   - status de disponibilitate.
 
@@ -75,23 +75,23 @@
 
 ### 2.3. AI – Clasificare & Titluri
 
-**Status:** 🔄 Parțial / de confirmat
+**Status:** 🔄 Endpoint implementat, integrare completă în UI în lucru
 
-**Ce spune memoria:**
-- Endpoint planificat: `POST /api/ai/items/classify`
+**Ce știm:**
+- Există endpoint:
+  - `POST /api/ai/items/classify`
+- Endpointul:
   - citește `imageUrl` + `locale` din body,
   - cheamă un model (Hugging Face sau alt API) folosind:
     - `HF_ITEM_CLASSIFIER_URL` / `HF_IMAGE_CLASSIFIER_URL`,
     - `HF_API_TOKEN` / `HUGGINGFACE_API_KEY`,
-  - normalizează răspunsul la tipul `ItemClassificationResult`.
-- AI trebuie să poată genera:
-  - titlu,
-  - descriere,
-  - valoare estimată.
+  - normalizează răspunsul la un format stabil (labels + mainLabel + raw).
 
-**Status estimat:**
-- Conceptul este foarte clar.
-- Codul pentru endpoint trebuie **confirmat** sau implementat (dacă lipsește).
+**Ce mai trebuie:**
+- Maparea rezultatului AI pe:
+  - `ItemClassificationResult` în client,
+  - categoria/subcategoria reală din tabelul `categories` (prin slug / mapping).
+- Integrare completă în formularul Add Item (auto-completare titlu, categorie etc).
 
 ---
 
@@ -216,23 +216,39 @@
 
 ### 2.9. Categorii & Taxonomie
 
-**Status:** 📅 Concept bine definit, implementare de clarificat
+**Status:** 🔄 Parțial implementat
 
-**Definit în memorie:**
-- Necesitate pentru:
-  - categorii și subcategorii (obiecte, servicii, locuințe),
-  - folosire în:
-    - AI classify,
-    - filtre,
-    - UI (selecte, browsere de categorie).
-- Plan pentru:
-  - bază de date cu multe categorii,
-  - seed masiv pentru testare.
+**Ce știm acum:**
+- Tabel `public.categories` este creat cu:
+  - `id` (UUID),
+  - `name`,
+  - `slug` (unic),
+  - `parent_id` (pentru subcategorii),
+  - `type` (`object`, `service`, `home`),
+  - `created_at`.
+- RLS este activ:
+  - toți utilizatorii pot **SELECT** (pot citi categoriile),
+  - doar `service_role` poate **scrie** (seed / backend).
+- Seed implementat pentru:
+  - un set de **categorii de tip `object`** (Electronics, Phones & Tablets, Laptops & Computers, Cameras & Photography, etc.),
+  - prime subcategorii pentru:
+    - Electronics,
+    - Phones & Tablets,
+    - Laptops & Computers,
+    - Cameras & Photography.
 
-**Ce trebuie:**
-- Tabele `categories` / `subcategories`.
-- Legături `item -> category`.
-- Seed inițial.
+**Ce trebuie făcut mai departe:**
+- Extindere seed:
+  - subcategorii pentru toate celelalte categorii de obiecte,
+  - categorii de tip `service`,
+  - categorii de tip `home` (pentru schimb de locuințe).
+- Tipuri TypeScript (`Category`, `CategoryTree` etc.).
+- Legarea `Item` → `category_id`.
+- UI:
+  - selectoare de categorie/subcategorie în Add Item,
+  - eventual pagină de „Browse by category”.
+- Integrarea AI:
+  - maparea etichetelor de la AI classify la `categories.slug` / `id`.
 
 ---
 
@@ -272,4 +288,4 @@
 
 ---
 
-_Last manual update: de completat când se modifică._
+_Last manual update: vezi istoricul Git pentru acest fișier._
