@@ -1,76 +1,17 @@
 // src/features/items/validation.ts
 
 import { z } from "zod";
-import type {
-  ItemCondition,
-  ItemFormData,
-  ItemImage,
-  ItemAiMetadata,
-} from "./types";
 
-// ---------------------------------------------------------
-// 1. Condiția obiectului – valori + etichete pentru UI
-// ---------------------------------------------------------
-
-export const itemConditionValues: ItemCondition[] = [
+// condițiile posibile pentru obiect
+export const itemConditionSchema = z.enum([
   "new",
   "like_new",
   "very_good",
   "good",
   "acceptable",
-];
+]);
 
-export const itemConditionLabels: Record<ItemCondition, string> = {
-  new: "Nou, nefolosit",
-  like_new: "Ca nou",
-  very_good: "Foarte bun",
-  good: "Bun",
-  acceptable: "Acceptabil",
-};
-
-// Schema de validare pentru condiție
-const itemConditionSchema = z.enum(itemConditionValues);
-
-// ---------------------------------------------------------
-// 2. Schemas pentru imagini și metadata AI
-// ---------------------------------------------------------
-
-export const itemImageSchema: z.ZodType<ItemImage> = z.object({
-  id: z.string().uuid().optional(),
-  url: z
-    .string({
-      required_error: "Imaginea trebuie să aibă un URL.",
-    })
-    .url("URL-ul imaginii nu este valid."),
-  publicId: z.string().optional(),
-  isPrimary: z.boolean().optional(),
-  width: z.number().int().positive().optional(),
-  height: z.number().int().positive().optional(),
-  format: z.string().optional(),
-});
-
-export const itemAiMetadataSchema: z.ZodType<ItemAiMetadata> = z.object({
-  model: z.string().optional(),
-  primaryLabel: z.string().optional(),
-  confidence: z
-    .number()
-    .min(0, "Scorul de încredere nu poate fi negativ.")
-    .max(1, "Scorul de încredere nu poate fi mai mare de 1.")
-    .optional(),
-  alternativeLabels: z.array(z.string()).optional(),
-  suggestedTitle: z.string().optional(),
-  suggestedCategory: z.string().optional(),
-  suggestedSubcategory: z.string().optional(),
-  suggestedTags: z.array(z.string()).optional(),
-  source: z
-    .enum(["image_classification", "text_classification", "hybrid"])
-    .optional(),
-});
-
-// ---------------------------------------------------------
-// 3. Schema principală pentru formular (Add / Edit Item)
-// ---------------------------------------------------------
-
+// schema principală pentru formularul de item (add / edit)
 export const itemFormSchema = z.object({
   title: z
     .string({
@@ -100,82 +41,43 @@ export const itemFormSchema = z.object({
     .string()
     .min(2, "Subcategoria este prea scurtă.")
     .max(80, "Subcategoria este prea lungă.")
-    .optional()
-    // permitem "" din UI și îl transformăm în undefined
-    .or(z.literal("").transform(() => undefined)),
-
-  tags: z
-    .array(
-      z
-        .string()
-        .min(1, "Eticheta nu poate fi goală.")
-        .max(40, "Eticheta nu poate depăși 40 de caractere."),
-    )
-    .max(20, "Poți avea cel mult 20 de etichete.")
-    .default([]),
+    .optional(),
 
   condition: itemConditionSchema,
-
-  locationCity: z
-    .string()
-    .min(2, "Numele orașului este prea scurt.")
-    .max(80, "Numele orașului este prea lung.")
-    .optional()
-    .or(z.literal("").transform(() => undefined)),
-
-  locationCountry: z
-    .string()
-    .min(2, "Țara este prea scurtă.")
-    .max(80, "Țara este prea lungă.")
-    .optional()
-    .or(z.literal("").transform(() => undefined)),
 
   approximateValue: z
     .number()
     .nonnegative("Valoarea nu poate fi negativă.")
-    .max(1_000_000_000, "Valoarea este prea mare.")
+    .max(1000000000, "Valoarea este prea mare.")
     .optional(),
 
   currency: z
     .string()
     .min(1, "Moneda este prea scurtă.")
     .max(10, "Moneda este prea lungă.")
-    .optional()
-    .or(z.literal("").transform(() => undefined)),
+    .optional(),
 
   images: z
-    .array(itemImageSchema)
+    .array(
+      z.object({
+        url: z
+          .string({
+            required_error: "Imaginea trebuie să aibă un URL.",
+          })
+          .url("URL-ul imaginii nu este valid."),
+      })
+    )
     .min(1, "Trebuie să adaugi cel puțin o imagine.")
-    .default([]),
+    .optional(),
 
-  aiMetadata: itemAiMetadataSchema.optional(),
+  // metadata AI este opțională – nu blocăm formularul fără ea
+  aiMetadata: z
+    .object({
+      suggestedTitle: z.string().optional(),
+      suggestedCategory: z.string().optional(),
+      suggestedSubcategory: z.string().optional(),
+    })
+    .optional(),
 });
 
 export type ItemFormSchema = z.infer<typeof itemFormSchema>;
-
-// ---------------------------------------------------------
-// 4. Normalizare pentru server actions
-// ---------------------------------------------------------
-
-/**
- * Normalizează și validează orice vine din formulare (Add / Edit),
- * astfel încât pe server să lucrăm mereu cu un `ItemFormData` curat.
- */
-export function normalizeItemFormData(raw: unknown): ItemFormData {
-  const parsed = itemFormSchema.parse(raw);
-
-  return {
-    title: parsed.title,
-    description: parsed.description,
-    category: parsed.category,
-    subcategory: parsed.subcategory,
-    tags: parsed.tags ?? [],
-    condition: parsed.condition as ItemCondition,
-    locationCity: parsed.locationCity,
-    locationCountry: parsed.locationCountry,
-    approximateValue: parsed.approximateValue,
-    currency: parsed.currency,
-    images: parsed.images as ItemImage[],
-    aiMetadata: parsed.aiMetadata as ItemAiMetadata | undefined,
-  };
-}
