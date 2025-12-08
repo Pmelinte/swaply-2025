@@ -1,84 +1,108 @@
-// src/app/api/ai/items/classify/route.ts
+import { NextRequest, NextResponse } from "next/server";
 
-import { NextResponse } from "next/server";
-import type { ItemClassificationResult } from "@/features/items/ai/client";
+type HuggingFaceLabel = {
+  label: string;
+  score: number;
+};
 
-type HfPrediction =
-  | {
-      label: string;
-      score?: number;
-    }
-  | {
-      // pentru alte modele (ex: image-to-text)
-      generated_text?: string;
-      score?: number;
-    };
+type HuggingFaceResponse = HuggingFaceLabel[] | HuggingFaceLabel[][] | any;
 
-type HfResponse = HfPrediction[] | Record<string, unknown>;
+type NormalizedLabel = {
+  label: string;
+  confidence: number;
+};
+
+type NormalizedClassificationResult = {
+  /** Eticheta principală aleasă (ex: "bicycle", "laptop", "sofa") */
+  mainLabel: string | null;
+  /** Top N etichete normalizate din răspunsul Hugging Face */
+  labels: NormalizedLabel[];
+  /** Localizarea cerută de client (ro, en, etc.) – doar propagată, nu tradusă aici */
+  locale: string;
+  /** Răspunsul brut de la Hugging Face, pentru debugging sau UI avansat */
+  raw: HuggingFaceResponse;
+};
+
+type ErrorResponse = {
+  ok: false;
+  error: string;
+};
+
+type SuccessResponse = {
+  ok: true;
+  result: NormalizedClassificationResult;
+};
+
+type ApiResponse = SuccessResponse | ErrorResponse;
+
+type RequestBody = {
+  imageUrl?: string;
+  locale?: string;
+};
 
 /**
- * Endpoint intern pentru clasificarea imaginilor de item.
+ * POST /api/ai/items/classify
  *
- * Primește:
- *  - imageUrl: string
- *  - locale?: string ("ro", "en", etc.)
+ * Citește imageUrl + locale din body,
+ * cheamă Hugging Face (sau alt API) folosind env-urile:
+ *  - HF_ITEM_CLASSIFIER_URL (sau HF_IMAGE_CLASSIFIER_URL)
+ *  - HF_API_TOKEN (sau HUGGINGFACE_API_KEY)
  *
- * Întoarce:
- *  - ItemClassificationResult (titlu sugerat + meta)
+ * Normalizează răspunsul la un format stabil (NormalizedClassificationResult),
+ * astfel încât clientul să îl poată mapa ulterior pe ItemClassificationResult.
+ *
+ * IMPORTANT: Nu modifică nimic altundeva în proiect – doar acest endpoint nou.
  */
-export async function POST(req: Request) {
+export async function POST(request: NextRequest): Promise<NextResponse<ApiResponse>> {
   try {
-    const body = await req.json().catch(() => ({} as any));
+    const body = (await request.json().catch(() => ({}))) as RequestBody;
 
-    const imageUrl = typeof body.imageUrl === "string" ? body.imageUrl : "";
-    const locale =
-      typeof body.locale === "string" && body.locale.trim().length > 0
-        ? body.locale
-        : "en";
+    const imageUrl = body.imageUrl;
+    const locale = body.locale ?? "en";
 
-    if (!imageUrl) {
+    if (!imageUrl || typeof imageUrl !== "string") {
       return NextResponse.json(
-        { error: "Missing imageUrl in request body" },
+        {
+          ok: false,
+          error: "missing_or_invalid_image_url",
+        },
         { status: 400 },
       );
     }
 
-    const hfUrl =
-      process.env.HF_ITEM_CLASSIFIER_URL ??
-      process.env.HF_IMAGE_CLASSIFIER_URL ??
-      "";
-    const hfToken =
-      process.env.HF_API_TOKEN ??
-      process.env.HF_ACCESS_TOKEN ??
-      process.env.HUGGINGFACE_API_KEY ??
-      "";
+    const apiUrl =
+      process.env.HF_ITEM_CLASSIFIER_URL ||
+      process.env.HF_IMAGE_CLASSIFIER_URL;
 
-    if (!hfUrl || !hfToken) {
-      // Configurație lipsă – mai bine afișăm eroare clară decât să mințim UI-ul.
+    const apiToken =
+      process.env.HF_API_TOKEN || process.env.HUGGINGFACE_API_KEY;
+
+    if (!apiUrl || !apiToken) {
       return NextResponse.json(
         {
-          error:
-            "AI classifier is not configured. Please set HF_ITEM_CLASSIFIER_URL and HF_API_TOKEN in environment.",
+          ok: false,
+          error: "hf_api_not_configured",
         },
         { status: 500 },
       );
     }
 
-    // Hugging Face Inference API – generic POST
-    const hfResponse = await fetch(hfUrl, {
+    const hfResponse = await fetch(apiUrl, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${hfToken}`,
+        Authorization: `Bearer ${apiToken}`,
         "Content-Type": "application/json",
       },
+      /**
+       * Forma exactă a body-ului depinde de pipeline-ul Hugging Face folosit.
+       * Aici presupunem că modelul acceptă un URL de imagine în câmpul `inputs`.
+       * Dacă modelul tău specific cere altceva (ex. base64), se ajustează aici.
+       */
       body: JSON.stringify({
         inputs: imageUrl,
         parameters: {
-          // poți folosi locale aici dacă modelul tău suportă asta
-          // deocamdată îl trimitem doar ca extra în "options"
-          options: {
-            use_locale: locale,
-          },
+          // Propagăm locale doar ca metadată – modelul poate sau nu să o folosească
+          locale,
         },
       }),
     });
@@ -87,92 +111,87 @@ export async function POST(req: Request) {
       const text = await hfResponse.text().catch(() => "");
       return NextResponse.json(
         {
-          error: `HF API error: ${hfResponse.status} ${hfResponse.statusText}`,
-          details: text.slice(0, 500),
+          ok: false,
+          error:
+            text ||
+            `hf_request_failed_${hfResponse.status}_${hfResponse.statusText}`,
         },
         { status: 502 },
       );
     }
 
-    const hfData = (await hfResponse.json()) as HfResponse;
+    const data = (await hfResponse.json()) as HuggingFaceResponse;
 
-    const result: ItemClassificationResult = normalizeHfResponse(hfData);
+    const normalized = normalizeHuggingFaceResponse(data, locale);
 
-    // Completăm câmpuri implicite, ca să nu spargem UI-ul
-    if (!result.title || result.title.trim().length === 0) {
-      result.title = "Item";
-    }
-    if (!result.condition) {
-      result.condition = "unknown";
-    }
-    if (typeof result.confidence !== "number") {
-      result.confidence = undefined;
-    }
-
-    return NextResponse.json(result, { status: 200 });
-  } catch (err) {
-    console.error("Error in /api/ai/items/classify:", err);
     return NextResponse.json(
-      { error: "Unexpected error while classifying image" },
+      {
+        ok: true,
+        result: normalized,
+      },
+      { status: 200 },
+    );
+  } catch (error) {
+    console.error("[AI_ITEMS_CLASSIFY_ERROR]", error);
+
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "internal_error",
+      },
       { status: 500 },
     );
   }
 }
 
 /**
- * Normalizează răspunsul Hugging Face (indiferent de model)
- * în ItemClassificationResult.
+ * Normalizează răspunsul Hugging Face la un format stabil,
+ * care poate fi apoi mapat în client pe ItemClassificationResult.
+ *
+ * Suportă:
+ *  - array simplu de { label, score }
+ *  - array de array (unele pipelines întorc [[{ label, score }]])
+ *  - fallback generic (păstrează raw data)
  */
-function normalizeHfResponse(hfData: HfResponse): ItemClassificationResult {
-  // Caz 1: array clasic de { label, score }
-  if (Array.isArray(hfData) && hfData.length > 0) {
-    const first = hfData[0] as HfPrediction;
+function normalizeHuggingFaceResponse(
+  data: HuggingFaceResponse,
+  locale: string,
+): NormalizedClassificationResult {
+  let labels: NormalizedLabel[] = [];
+  let mainLabel: string | null = null;
 
-    // Model de tip image-classification → { label, score }
-    if ("label" in first && typeof first.label === "string") {
-      return {
-        title: humanizeLabel(first.label),
-        category: first.label,
-        subcategory: undefined,
-        condition: "unknown",
-        confidence:
-          typeof first.score === "number" ? first.score : undefined,
-        raw: hfData,
-      };
+  if (Array.isArray(data)) {
+    // Cazul 1: [ { label, score }, ... ]
+    if (data.length > 0 && "label" in data[0] && "score" in data[0]) {
+      labels = (data as HuggingFaceLabel[]).map((entry) => ({
+        label: entry.label,
+        confidence: entry.score,
+      }));
     }
 
-    // Model de tip image-to-text → { generated_text }
-    if ("generated_text" in first && first.generated_text) {
-      return {
-        title: String(first.generated_text),
-        category: undefined,
-        subcategory: undefined,
-        condition: "unknown",
-        confidence:
-          typeof first.score === "number" ? first.score : undefined,
-        raw: hfData,
-      };
+    // Cazul 2: [ [ { label, score }, ... ] ]
+    if (
+      labels.length === 0 &&
+      Array.isArray(data[0]) &&
+      data[0].length > 0 &&
+      "label" in data[0][0] &&
+      "score" in data[0][0]
+    ) {
+      labels = (data[0] as HuggingFaceLabel[]).map((entry) => ({
+        label: entry.label,
+        confidence: entry.score,
+      }));
     }
   }
 
-  // Caz fallback – nu recunoaștem structura, dar expunem raw
-  return {
-    title: "Item",
-    category: undefined,
-    subcategory: undefined,
-    condition: "unknown",
-    confidence: undefined,
-    raw: hfData,
-  };
-}
+  if (labels.length > 0) {
+    mainLabel = labels[0]?.label ?? null;
+  }
 
-/**
- * Transformă label-ul de la model într-un titlu mai uman:
- * "laptop_computer" → "Laptop computer"
- */
-function humanizeLabel(label: string): string {
-  if (!label) return "Item";
-  const cleaned = label.replace(/_/g, " ").trim();
-  if (!cleaned) return "Item";
-  return cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
+  return {
+    mainLabel,
+    labels,
+    locale,
+    raw: data,
+  };
 }
