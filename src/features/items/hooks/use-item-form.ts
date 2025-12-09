@@ -11,13 +11,23 @@ import type {
   Item,
 } from "../../items/types";
 
+import {
+  mapAiLabelsToCategory,
+  type AiNormalizedResult,
+  type AiNormalizedLabel,
+} from "@/lib/categories/ai-label-mapper";
+
 interface UseItemFormOptions {
   mode: "create" | "edit";
   initialData?: Partial<ItemFormData>;
   onSubmit: (values: ItemFormData) => Promise<Item>;
 }
 
-export function useItemForm({ mode, initialData = {}, onSubmit }: UseItemFormOptions) {
+export function useItemForm({
+  mode,
+  initialData = {},
+  onSubmit,
+}: UseItemFormOptions) {
   const [values, setValues] = useState<ItemFormData>({
     title: initialData.title ?? "",
     description: initialData.description ?? "",
@@ -73,15 +83,45 @@ export function useItemForm({ mode, initialData = {}, onSubmit }: UseItemFormOpt
     }));
   };
 
+  /**
+   * Aplică metadatele AI și încearcă să deducă automat
+   * categoria + subcategoria folosind mapAiLabelsToCategory.
+   */
   const applyAiMetadata = (meta: ItemAiMetadata) => {
-    setValues((v) => ({
-      ...v,
-      aiMetadata: meta,
-      title: meta.suggestedTitle ?? v.title,
-      category: meta.suggestedCategory ?? v.category,
-      subcategory: meta.suggestedSubcategory ?? v.subcategory,
-      tags: meta.suggestedTags ?? v.tags,
-    }));
+    // Construim un "rezultat AI" compatibil cu mapper-ul nostru,
+    // folosind primaryLabel + suggestedTags ca sursă de adevăr.
+    const aiResult: AiNormalizedResult = buildAiResultFromMeta(meta);
+
+    const mapping = mapAiLabelsToCategory(aiResult);
+
+    setValues((v) => {
+      const nextTitle = meta.suggestedTitle ?? v.title;
+
+      // Dacă mapping-ul a găsit ceva, îl folosim.
+      // Dacă nu, cădem înapoi pe ce vine din meta sau ce era deja în formular.
+      const nextCategory =
+        mapping.categorySlug ||
+        meta.suggestedCategory ||
+        v.category ||
+        "";
+
+      const nextSubcategory =
+        mapping.subcategorySlug ||
+        meta.suggestedSubcategory ||
+        v.subcategory ||
+        "";
+
+      const nextTags = meta.suggestedTags ?? v.tags;
+
+      return {
+        ...v,
+        aiMetadata: meta,
+        title: nextTitle,
+        category: nextCategory,
+        subcategory: nextSubcategory,
+        tags: nextTags,
+      };
+    });
   };
 
   // -----------------------------
@@ -136,3 +176,37 @@ export function useItemForm({ mode, initialData = {}, onSubmit }: UseItemFormOpt
   };
 }
 
+// -----------------------------
+// Helpers pentru AI Mapping
+// -----------------------------
+
+function buildAiResultFromMeta(meta: ItemAiMetadata): AiNormalizedResult {
+  const labels: AiNormalizedLabel[] = [];
+
+  if (meta.primaryLabel) {
+    labels.push({
+      label: meta.primaryLabel,
+      confidence: meta.confidence ?? null,
+    });
+  }
+
+  if (Array.isArray(meta.suggestedTags)) {
+    for (const tag of meta.suggestedTags) {
+      if (typeof tag === "string" && tag.trim().length > 0) {
+        labels.push({
+          label: tag.trim(),
+          confidence: null,
+        });
+      }
+    }
+  }
+
+  return {
+    mainLabel: meta.primaryLabel ?? null,
+    labels,
+    // Deocamdată nu propagăm un locale real aici;
+    // dacă vei salva locale-ul user-ului, îl putem trimite din UI.
+    locale: "ro",
+    raw: meta,
+  };
+}
