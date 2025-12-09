@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Image from "next/image";
 
 import { useItemForm } from "../../items/hooks/use-item-form";
@@ -12,6 +12,8 @@ import {
 } from "../../items/validation";
 
 import type { ItemFormData } from "../../items/types";
+import type { CategoryTreeNode } from "@/types/category";
+import { getCategoryTree } from "@/lib/categories/get-category-tree";
 
 interface ItemFormProps {
   mode: "create" | "edit";
@@ -36,6 +38,59 @@ export function ItemForm({ mode, initialData, onSubmit }: ItemFormProps) {
 
   const [uploading, setUploading] = useState(false);
 
+  const [categoryTree, setCategoryTree] = useState<CategoryTreeNode[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
+
+  // -----------------------------------
+  // Fetch category tree (object type)
+  // -----------------------------------
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadCategories = async () => {
+      try {
+        setCategoriesLoading(true);
+        const tree = await getCategoryTree("object");
+        if (isMounted) {
+          setCategoryTree(tree);
+        }
+      } catch (error) {
+        console.error("[ITEM_FORM_LOAD_CATEGORIES_ERROR]", error);
+      } finally {
+        if (isMounted) {
+          setCategoriesLoading(false);
+        }
+      }
+    };
+
+    loadCategories();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const topLevelCategories = useMemo(
+    () => categoryTree,
+    [categoryTree],
+  );
+
+  const selectedCategoryNode = useMemo(() => {
+    if (!values.category) return undefined;
+
+    return topLevelCategories.find(
+      (cat) =>
+        cat.slug === values.category ||
+        cat.id === values.category ||
+        cat.name === values.category,
+    );
+  }, [topLevelCategories, values.category]);
+
+  const subcategories = useMemo(
+    () => selectedCategoryNode?.children ?? [],
+    [selectedCategoryNode],
+  );
+
   // -----------------------------------
   // Upload Cloudinary (client side)
   // -----------------------------------
@@ -48,7 +103,10 @@ export function ItemForm({ mode, initialData, onSubmit }: ItemFormProps) {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("upload_preset", process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!);
+      formData.append(
+        "upload_preset",
+        process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!,
+      );
 
       const res = await fetch(
         `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
@@ -79,7 +137,7 @@ export function ItemForm({ mode, initialData, onSubmit }: ItemFormProps) {
   };
 
   // -----------------------------------
-  // AI autocomplete (placeholder logic)
+  // AI autocomplete (integrare cu noul endpoint)
   // -----------------------------------
   const callAiClassification = async () => {
     if (values.images.length === 0) {
@@ -88,34 +146,41 @@ export function ItemForm({ mode, initialData, onSubmit }: ItemFormProps) {
     }
 
     try {
-      const mainImage = values.images.find((i) => i.isPrimary) ?? values.images[0];
+      const mainImage =
+        values.images.find((i) => i.isPrimary) ?? values.images[0];
 
-      const res = await fetch("/api/items/classify", {
+      const res = await fetch("/api/ai/items/classify", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           imageUrl: mainImage.url,
-          description: values.description,
           locale: "ro",
         }),
       });
 
       const data = await res.json();
+
       if (data.ok) {
+        // Presupunem că endpointul normalizează răspunsul
+        // într-un format compatibil cu applyAiMetadata.
         applyAiMetadata({
-          model: "huggingface-auto",
-          primaryLabel: data.primaryLabel,
-          confidence: data.confidence,
-          suggestedTitle: data.suggestedTitle,
-          suggestedCategory: data.suggestedCategory,
-          suggestedSubcategory: data.suggestedSubcategory,
-          suggestedTags: data.suggestedTags,
-          source: "hybrid",
+          model: data.model ?? "huggingface-auto",
+          primaryLabel: data.primaryLabel ?? data.mainLabel ?? "",
+          confidence: data.confidence ?? data.score ?? null,
+          suggestedTitle: data.suggestedTitle ?? "",
+          suggestedCategory: data.suggestedCategory ?? "",
+          suggestedSubcategory: data.suggestedSubcategory ?? "",
+          suggestedTags: data.suggestedTags ?? [],
+          source: data.source ?? "hybrid",
         });
       } else {
+        console.error("[AI_CLASSIFY_ERROR]", data.error);
         alert("AI nu a putut clasifica imaginea.");
       }
     } catch (err) {
-      console.error(err);
+      console.error("[AI_CLASSIFY_UNEXPECTED_ERROR]", err);
       alert("Eroare la clasificarea AI.");
     }
   };
@@ -125,7 +190,6 @@ export function ItemForm({ mode, initialData, onSubmit }: ItemFormProps) {
   // -----------------------------------
   return (
     <div className="w-full max-w-xl mx-auto space-y-6">
-
       <h2 className="text-2xl font-bold">
         {mode === "create" ? "Adaugă un obiect" : "Editează obiectul"}
       </h2>
@@ -161,12 +225,26 @@ export function ItemForm({ mode, initialData, onSubmit }: ItemFormProps) {
       {/* Categorii */}
       <div className="flex flex-col gap-1">
         <label className="font-medium">Categoria</label>
-        <input
-          value={values.category}
-          onChange={(e) => updateField("category", e.target.value)}
+        <select
+          value={values.category ?? ""}
+          onChange={(e) => {
+            const newCategory = e.target.value || "";
+            updateField("category", newCategory);
+            // resetăm subcategoria când se schimbă categoria
+            updateField("subcategory", "");
+          }}
           className="border rounded px-3 py-2"
-          placeholder="Ex: Electronice"
-        />
+          disabled={categoriesLoading}
+        >
+          <option value="">
+            {categoriesLoading ? "Se încarcă..." : "Alege categoria"}
+          </option>
+          {topLevelCategories.map((cat) => (
+            <option key={cat.id} value={cat.slug}>
+              {cat.name}
+            </option>
+          ))}
+        </select>
         {errors.category && (
           <span className="text-red-600 text-sm">{errors.category}</span>
         )}
@@ -174,12 +252,25 @@ export function ItemForm({ mode, initialData, onSubmit }: ItemFormProps) {
 
       <div className="flex flex-col gap-1">
         <label className="font-medium">Subcategoria</label>
-        <input
+        <select
           value={values.subcategory ?? ""}
           onChange={(e) => updateField("subcategory", e.target.value)}
           className="border rounded px-3 py-2"
-          placeholder="Ex: Telefoane"
-        />
+          disabled={!selectedCategoryNode || subcategories.length === 0}
+        >
+          <option value="">
+            {!selectedCategoryNode
+              ? "Alege mai întâi o categorie"
+              : subcategories.length === 0
+              ? "Nu există subcategorii"
+              : "Alege subcategoria"}
+          </option>
+          {subcategories.map((sub) => (
+            <option key={sub.id} value={sub.slug}>
+              {sub.name}
+            </option>
+          ))}
+        </select>
         {errors.subcategory && (
           <span className="text-red-600 text-sm">{errors.subcategory}</span>
         )}
@@ -211,7 +302,10 @@ export function ItemForm({ mode, initialData, onSubmit }: ItemFormProps) {
 
         <div className="grid grid-cols-3 gap-3 mt-2">
           {values.images.map((img) => (
-            <div key={img.publicId} className="relative border rounded overflow-hidden">
+            <div
+              key={img.publicId}
+              className="relative border rounded overflow-hidden"
+            >
               <Image
                 src={img.url}
                 alt="img"
@@ -267,7 +361,11 @@ export function ItemForm({ mode, initialData, onSubmit }: ItemFormProps) {
         disabled={submitting}
         onClick={handleSubmit}
       >
-        {submitting ? "Se salvează..." : mode === "create" ? "Creează obiect" : "Salvează modificările"}
+        {submitting
+          ? "Se salvează..."
+          : mode === "create"
+          ? "Creează obiect"
+          : "Salvează modificările"}
       </button>
 
       {submitError && (
