@@ -21,6 +21,18 @@ interface ItemFormProps {
   onSubmit: (values: ItemFormData) => Promise<any>;
 }
 
+type NormalizedLabel = {
+  label: string;
+  confidence: number;
+};
+
+type NormalizedClassificationResult = {
+  mainLabel: string | null;
+  labels: NormalizedLabel[];
+  locale: string;
+  raw: unknown;
+};
+
 export function ItemForm({ mode, initialData, onSubmit }: ItemFormProps) {
   const {
     values,
@@ -137,7 +149,7 @@ export function ItemForm({ mode, initialData, onSubmit }: ItemFormProps) {
   };
 
   // -----------------------------------
-  // AI autocomplete (integrare cu noul endpoint)
+  // AI autocomplete (integrare cu endpointul actual)
   // -----------------------------------
   const callAiClassification = async () => {
     if (values.images.length === 0) {
@@ -162,23 +174,35 @@ export function ItemForm({ mode, initialData, onSubmit }: ItemFormProps) {
 
       const data = await res.json();
 
-      if (data.ok) {
-        // Presupunem că endpointul normalizează răspunsul
-        // într-un format compatibil cu applyAiMetadata.
-        applyAiMetadata({
-          model: data.model ?? "huggingface-auto",
-          primaryLabel: data.primaryLabel ?? data.mainLabel ?? "",
-          confidence: data.confidence ?? data.score ?? null,
-          suggestedTitle: data.suggestedTitle ?? "",
-          suggestedCategory: data.suggestedCategory ?? "",
-          suggestedSubcategory: data.suggestedSubcategory ?? "",
-          suggestedTags: data.suggestedTags ?? [],
-          source: data.source ?? "hybrid",
-        });
-      } else {
+      if (!data.ok) {
         console.error("[AI_CLASSIFY_ERROR]", data.error);
         alert("AI nu a putut clasifica imaginea.");
+        return;
       }
+
+      const result = data.result as NormalizedClassificationResult;
+
+      const primaryLabel = result.mainLabel ?? "";
+      const topConfidence =
+        result.labels && result.labels.length > 0
+          ? result.labels[0].confidence
+          : null;
+
+      const suggestedTitle = buildSuggestedTitle(primaryLabel);
+      const suggestedTags = buildSuggestedTags(result.labels);
+
+      applyAiMetadata({
+        model: "huggingface-image-classifier",
+        primaryLabel,
+        confidence: topConfidence,
+        suggestedTitle,
+        // Mapping AI -> categorie/subcategorie va fi făcut ulterior,
+        // deocamdată lăsăm câmpurile goale.
+        suggestedCategory: "",
+        suggestedSubcategory: "",
+        suggestedTags,
+        source: "image",
+      });
     } catch (err) {
       console.error("[AI_CLASSIFY_UNEXPECTED_ERROR]", err);
       alert("Eroare la clasificarea AI.");
@@ -379,4 +403,33 @@ export function ItemForm({ mode, initialData, onSubmit }: ItemFormProps) {
       )}
     </div>
   );
+}
+
+// -----------------------------------
+// Helpers pentru AI
+// -----------------------------------
+
+function buildSuggestedTitle(label: string): string {
+  const trimmed = label.trim();
+  if (!trimmed) return "";
+
+  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+}
+
+function buildSuggestedTags(labels: NormalizedLabel[]): string[] {
+  const rawTokens: string[] = [];
+
+  for (const entry of labels) {
+    const parts = entry.label
+      .toLowerCase()
+      .split(/[,\s/]+/)
+      .map((p) => p.trim())
+      .filter(Boolean);
+
+    rawTokens.push(...parts);
+  }
+
+  const unique = Array.from(new Set(rawTokens));
+
+  return unique.slice(0, 10);
 }
