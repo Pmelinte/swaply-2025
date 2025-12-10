@@ -55,6 +55,7 @@ export default function ChatInboxPage() {
         {matches.map((m) => {
           const name = m.otherUserName ?? "Utilizator Swaply";
           const avatar = m.otherUserAvatar;
+
           const last = m.lastMessage;
           const time = last
             ? new Date(last.createdAt).toLocaleTimeString([], {
@@ -63,11 +64,13 @@ export default function ChatInboxPage() {
               })
             : null;
 
+          const unread = (m as any).unreadCount ?? 0;
+
           return (
             <Link
               key={m.id}
               href={`/chat/${m.id}`}
-              className="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-100 transition"
+              className="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-100 transition relative"
             >
               {/* Avatar */}
               {avatar ? (
@@ -100,10 +103,12 @@ export default function ChatInboxPage() {
                 </div>
               </div>
 
-              {/* Badge necitite – placeholder (urmează în pasul 5 dacă vrei) */}
-              {/* <div className="bg-red-600 text-white text-xs px-2 py-1 rounded-full">
-                2
-              </div> */}
+              {/* 🔴 Badge pentru necitite */}
+              {unread > 0 && (
+                <div className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full absolute right-3 top-3">
+                  {unread}
+                </div>
+              )}
             </Link>
           );
         })}
