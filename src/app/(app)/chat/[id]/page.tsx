@@ -213,19 +213,33 @@ export default function ChatThreadPage() {
         {!loadingMessages &&
           messages.map((msg) => {
             const mine = userId && msg.senderId === userId;
+            const time = new Date(msg.createdAt).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            });
 
             return (
               <div
                 key={msg.id}
-                className={`max-w-[75%] px-3 py-2 rounded-lg ${
-                  mine
-                    ? "bg-blue-600 text-white ml-auto"
-                    : "bg-white text-gray-900 border mr-auto"
+                className={`flex w-full ${
+                  mine ? "justify-end" : "justify-start"
                 }`}
               >
-                {msg.content}
-                <div className="text-[10px] opacity-70 mt-1">
-                  {new Date(msg.createdAt).toLocaleTimeString()}
+                <div
+                  className={`max-w-[75%] px-3 py-2 rounded-2xl text-sm shadow-sm ${
+                    mine
+                      ? "bg-blue-600 text-white rounded-br-sm"
+                      : "bg-white text-gray-900 border border-gray-200 rounded-bl-sm"
+                  }`}
+                >
+                  <div>{msg.content}</div>
+                  <div
+                    className={`mt-1 text-[10px] opacity-75 ${
+                      mine ? "text-right" : "text-left text-gray-500"
+                    }`}
+                  >
+                    {time}
+                  </div>
                 </div>
               </div>
             );
