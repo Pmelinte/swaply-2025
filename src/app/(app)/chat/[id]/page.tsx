@@ -57,7 +57,9 @@ export default function ChatThreadPage() {
   // ---------------------------
   const loadSummary = async () => {
     try {
-      const res = await fetch(`/api/matches/${matchId}/summary`);
+      const res = await fetch(`/api/matches/${matchId}/summary`, {
+        cache: "no-store",
+      });
       const data: SummaryApiResponse = await res.json();
 
       if (res.ok && data.ok) {
@@ -71,13 +73,18 @@ export default function ChatThreadPage() {
   };
 
   // ---------------------------
-  // Încarcă mesajele
+  // Încarcă mesajele (cu mod silent)
   // ---------------------------
-  const loadMessages = async () => {
+  const loadMessages = async (silent = false) => {
     try {
-      setLoadingMessages(true);
+      if (!silent) {
+        setLoadingMessages(true);
+      }
 
-      const res = await fetch(`/api/matches/${matchId}/messages`);
+      const res = await fetch(`/api/matches/${matchId}/messages`, {
+        cache: "no-store",
+      });
+
       const data: MessagesApiResponse = await res.json();
 
       if (!res.ok || !data.ok) {
@@ -85,19 +92,31 @@ export default function ChatThreadPage() {
         return;
       }
 
-      setMessages(data.messages);
+      setMessages((old) => {
+        const newMessages = data.messages;
+
+        // Dacă numărul de mesaje e același, nu re-randăm inutil
+        if (old.length === newMessages.length) {
+          return old;
+        }
+
+        return newMessages;
+      });
+
       setError(null);
+      setTimeout(scrollToBottom, 50);
     } catch (err) {
       console.error("[CHAT_THREAD_LOAD_ERROR]", err);
       setError("Eroare la încărcarea conversației.");
     } finally {
-      setLoadingMessages(false);
-      setTimeout(scrollToBottom, 50);
+      if (!silent) {
+        setLoadingMessages(false);
+      }
     }
   };
 
   // ---------------------------
-  // Lifecycle
+  // Lifecycle: prima încărcare
   // ---------------------------
   useEffect(() => {
     loadUser();
@@ -106,8 +125,19 @@ export default function ChatThreadPage() {
 
     // marcăm ca citit
     fetch(`/api/matches/${matchId}/read`, { method: "POST" }).catch((err) =>
-      console.error("[READ_UPDATE_ERROR]", err)
+      console.error("[READ_UPDATE_ERROR]", err),
     );
+  }, [matchId]);
+
+  // ---------------------------
+  // Auto-refresh la fiecare 3 secunde
+  // ---------------------------
+  useEffect(() => {
+    const interval = setInterval(() => {
+      loadMessages(true); // silent refresh
+    }, 3000);
+
+    return () => clearInterval(interval);
   }, [matchId]);
 
   // ---------------------------
