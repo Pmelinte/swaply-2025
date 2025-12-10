@@ -4,7 +4,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
-import type { ChatMessage } from "@/features/chat/types";
+import Image from "next/image";
+import type { ChatMessage, MatchPreview } from "@/features/chat/types";
 
 type MessagesApiResponse =
   | { ok: true; messages: ChatMessage[] }
@@ -14,15 +15,20 @@ type UserApiResponse =
   | { ok: true; user: { id: string; email: string } }
   | { ok: false; user: null };
 
+type SummaryApiResponse =
+  | { ok: true; match: MatchPreview }
+  | { ok: false; error: string };
+
 export default function ChatThreadPage() {
   const { id: matchId } = useParams<{ id: string }>();
 
-  const [loading, setLoading] = useState(true);
+  const [loadingMessages, setLoadingMessages] = useState(true);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const [userId, setUserId] = useState<string | null>(null);
+  const [summary, setSummary] = useState<MatchPreview | null>(null);
 
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
@@ -30,7 +36,9 @@ export default function ChatThreadPage() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Încarcă user-ul curent
+  // ---------------------------
+  // Încarcă user ID
+  // ---------------------------
   const loadUser = async () => {
     try {
       const res = await fetch("/api/auth/me");
@@ -44,9 +52,30 @@ export default function ChatThreadPage() {
     }
   };
 
+  // ---------------------------
+  // Încarcă summary (header)
+  // ---------------------------
+  const loadSummary = async () => {
+    try {
+      const res = await fetch(`/api/matches/${matchId}/summary`);
+      const data: SummaryApiResponse = await res.json();
+
+      if (res.ok && data.ok) {
+        setSummary(data.match);
+      } else {
+        console.error("[SUMMARY_ERROR]", data);
+      }
+    } catch (err) {
+      console.error("[SUMMARY_FETCH_ERROR]", err);
+    }
+  };
+
+  // ---------------------------
+  // Încarcă mesajele
+  // ---------------------------
   const loadMessages = async () => {
     try {
-      setLoading(true);
+      setLoadingMessages(true);
 
       const res = await fetch(`/api/matches/${matchId}/messages`);
       const data: MessagesApiResponse = await res.json();
@@ -62,20 +91,28 @@ export default function ChatThreadPage() {
       console.error("[CHAT_THREAD_LOAD_ERROR]", err);
       setError("Eroare la încărcarea conversației.");
     } finally {
-      setLoading(false);
+      setLoadingMessages(false);
       setTimeout(scrollToBottom, 50);
     }
   };
 
+  // ---------------------------
+  // Lifecycle
+  // ---------------------------
   useEffect(() => {
     loadUser();
+    loadSummary();
     loadMessages();
 
     // marcăm ca citit
-    fetch(`/api/matches/${matchId}/read`, { method: "POST" })
-      .catch((err) => console.error("[READ_UPDATE_ERROR]", err));
+    fetch(`/api/matches/${matchId}/read`, { method: "POST" }).catch((err) =>
+      console.error("[READ_UPDATE_ERROR]", err)
+    );
   }, [matchId]);
 
+  // ---------------------------
+  // Trimite mesaj
+  // ---------------------------
   const sendMessage = async () => {
     const text = input.trim();
     if (!text) return;
@@ -102,15 +139,48 @@ export default function ChatThreadPage() {
     }
   };
 
+  // ---------------------------
+  // UI
+  // ---------------------------
+  const headerName = summary?.otherUserName ?? "Utilizator Swaply";
+  const headerAvatar = summary?.otherUserAvatar;
+  const headerStatus =
+    summary?.status === "active"
+      ? "Match activ"
+      : summary?.status === "pending"
+      ? "Match în așteptare"
+      : "Match închis";
+
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] max-w-2xl mx-auto px-4 py-4">
-      <h2 className="text-xl font-bold mb-4">Conversație</h2>
+      {/* Header conversație */}
+      <div className="flex items-center gap-3 mb-4 border-b pb-2">
+        {headerAvatar ? (
+          <Image
+            src={headerAvatar}
+            alt="avatar"
+            width={48}
+            height={48}
+            className="rounded-full object-cover"
+          />
+        ) : (
+          <div className="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center text-xl">
+            👤
+          </div>
+        )}
 
+        <div className="flex flex-col">
+          <span className="font-bold text-lg">{headerName}</span>
+          <span className="text-sm text-gray-600">{headerStatus}</span>
+        </div>
+      </div>
+
+      {/* Mesaje */}
       <div className="flex-1 overflow-y-auto border rounded p-4 bg-gray-50 space-y-3">
-        {loading && <p>Se încarcă...</p>}
+        {loadingMessages && <p>Se încarcă...</p>}
         {error && <p className="text-red-600 text-sm">{error}</p>}
 
-        {!loading &&
+        {!loadingMessages &&
           messages.map((msg) => {
             const mine = userId && msg.senderId === userId;
 
@@ -134,6 +204,7 @@ export default function ChatThreadPage() {
         <div ref={bottomRef} />
       </div>
 
+      {/* Input */}
       <div className="mt-4 flex gap-2">
         <input
           className="flex-1 border rounded px-3 py-2"
