@@ -3,6 +3,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import type { MatchPreview } from "@/features/chat/types";
 
@@ -10,103 +11,99 @@ type MatchesApiResponse =
   | { ok: true; matches: MatchPreview[] }
   | { ok: false; error: string };
 
-function formatDate(iso: string | undefined | null): string {
-  if (!iso) return "";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "";
-  return d.toLocaleString();
-}
-
-export default function ChatPage() {
+export default function ChatInboxPage() {
   const [loading, setLoading] = useState(true);
   const [matches, setMatches] = useState<MatchPreview[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let isMounted = true;
+  const loadMatches = async () => {
+    try {
+      const res = await fetch("/api/matches", { cache: "no-store" });
+      const data: MatchesApiResponse = await res.json();
 
-    const loadMatches = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const res = await fetch("/api/matches", {
-          method: "GET",
-          headers: {
-            "Accept": "application/json",
-          },
-        });
-
-        const data: MatchesApiResponse = await res.json();
-
-        if (!res.ok || !data.ok) {
-          setError(
-            (data as any)?.error || "Nu s-au putut încărca conversațiile."
-          );
-          return;
-        }
-
-        if (!isMounted) return;
-
-        setMatches(data.matches);
-      } catch (err) {
-        console.error("[CHAT_PAGE_LOAD_MATCHES_ERROR]", err);
-        if (!isMounted) return;
-        setError("Eroare la încărcarea conversațiilor.");
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
+      if (!res.ok || !data.ok) {
+        setError((data as any)?.error || "Eroare la încărcarea conversațiilor.");
+        return;
       }
-    };
 
+      setMatches(data.matches);
+      setError(null);
+    } catch (err) {
+      console.error("[CHAT_INBOX_ERROR]", err);
+      setError("Eroare la încărcarea conversațiilor.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     loadMatches();
-
-    return () => {
-      isMounted = false;
-    };
   }, []);
 
   return (
-    <div className="w-full max-w-2xl mx-auto px-4 py-6 space-y-4">
-      <h1 className="text-2xl font-bold mb-4">Chat</h1>
+    <div className="max-w-2xl mx-auto px-4 py-4 space-y-4">
+      <h1 className="text-2xl font-bold mb-4">Conversațiile tale</h1>
 
-      {loading && <p>Se încarcă conversațiile...</p>}
+      {loading && <p>Se încarcă...</p>}
+      {error && <p className="text-red-600">{error}</p>}
 
-      {error && !loading && (
-        <p className="text-red-600 text-sm">{error}</p>
-      )}
-
-      {!loading && !error && matches.length === 0 && (
-        <p className="text-gray-600">
-          Nu ai încă niciun chat activ. Începe prin a da swipe sau a iniția un schimb.
-        </p>
+      {!loading && matches.length === 0 && (
+        <p className="text-gray-600">Nu ai conversații încă.</p>
       )}
 
       <div className="space-y-3">
-        {matches.map((match) => {
-          const otherUserName = match.otherUserName ?? "Utilizator Swaply";
-          const lastMessageText = match.lastMessage?.content ?? "Niciun mesaj încă";
-          const lastUpdated = formatDate(match.updatedAt || match.createdAt);
+        {matches.map((m) => {
+          const name = m.otherUserName ?? "Utilizator Swaply";
+          const avatar = m.otherUserAvatar;
+          const last = m.lastMessage;
+          const time = last
+            ? new Date(last.createdAt).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })
+            : null;
 
           return (
             <Link
-              key={match.id}
-              href={`/chat/${match.id}`}
-              className="block border rounded-lg px-4 py-3 hover:bg-gray-50 transition-colors"
+              key={m.id}
+              href={`/chat/${m.id}`}
+              className="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-100 transition"
             >
-              <div className="flex items-center justify-between mb-1">
-                <span className="font-semibold">{otherUserName}</span>
-                <span className="text-xs text-gray-500">
-                  {lastUpdated}
-                </span>
+              {/* Avatar */}
+              {avatar ? (
+                <Image
+                  src={avatar}
+                  alt="avatar"
+                  width={48}
+                  height={48}
+                  className="rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center text-xl">
+                  👤
+                </div>
+              )}
+
+              {/* Info */}
+              <div className="flex-1">
+                <div className="flex justify-between items-center">
+                  <span className="font-semibold text-lg">{name}</span>
+                  {time && (
+                    <span className="text-xs text-gray-500 min-w-[50px] text-right">
+                      {time}
+                    </span>
+                  )}
+                </div>
+
+                <div className="text-gray-700 text-sm line-clamp-1">
+                  {last ? last.content : "Niciun mesaj încă"}
+                </div>
               </div>
-              <div className="text-sm text-gray-700 line-clamp-1">
-                {lastMessageText}
-              </div>
-              <div className="mt-1 text-xs text-gray-500">
-                Status: {match.status}
-              </div>
+
+              {/* Badge necitite – placeholder (urmează în pasul 5 dacă vrei) */}
+              {/* <div className="bg-red-600 text-white text-xs px-2 py-1 rounded-full">
+                2
+              </div> */}
             </Link>
           );
         })}
