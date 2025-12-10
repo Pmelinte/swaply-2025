@@ -4,13 +4,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
 
 /**
+ * Marchează mesajele ca "citite" pentru userul curent.
+ *
  * POST /api/matches/:id/read
- * Marchează toate mesajele celuilalt user ca "citite".
  */
 export async function POST(
   req: NextRequest,
   context: { params: { id: string } }
-) {
+): Promise<NextResponse> {
   try {
     const matchId = context.params.id;
 
@@ -23,9 +24,7 @@ export async function POST(
 
     const supabase = createServerClient();
 
-    // ----------------------------
-    // 1. Auth
-    // ----------------------------
+    // 1. Luăm user-ul
     const {
       data: { user },
       error: userErr,
@@ -40,49 +39,24 @@ export async function POST(
 
     const userId = user.id;
 
-    // ----------------------------
-    // 2. Confirm că user aparține match-ului
-    // ----------------------------
-    const { data: match, error: matchErr } = await supabase
-      .from("matches")
-      .select("*")
-      .eq("id", matchId)
-      .maybeSingle();
-
-    if (matchErr || !match) {
-      return NextResponse.json(
-        { ok: false, error: "match_not_found" },
-        { status: 404 }
-      );
-    }
-
-    if (match.userAId !== userId && match.userBId !== userId) {
-      return NextResponse.json(
-        { ok: false, error: "forbidden" },
-        { status: 403 }
-      );
-    }
-
-    // ----------------------------
-    // 3. Marchează mesajele
-    // ----------------------------
+    // 2. Marcăm mesajele ca citite (doar cele primite, nu și trimise)
     const { error: updateErr } = await supabase
       .from("messages")
-      .update({ isRead: true })
-      .eq("matchId", matchId)
-      .neq("senderId", userId);
+      .update({ is_read: true })
+      .eq("match_id", matchId)
+      .neq("sender_id", userId);
 
     if (updateErr) {
-      console.error("[MESSAGE_READ_UPDATE_ERROR]", updateErr);
+      console.error("[MARK_READ_ERROR]", updateErr);
       return NextResponse.json(
-        { ok: false, error: "db_error_update_read" },
+        { ok: false, error: "db_error_mark_read" },
         { status: 500 }
       );
     }
 
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true }, { status: 200 });
   } catch (err) {
-    console.error("[MESSAGE_READ_UNEXPECTED_ERROR]", err);
+    console.error("[MARK_READ_UNEXPECTED_ERROR]", err);
     return NextResponse.json(
       { ok: false, error: "internal_error" },
       { status: 500 }
