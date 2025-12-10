@@ -10,6 +10,10 @@ type MessagesApiResponse =
   | { ok: true; messages: ChatMessage[] }
   | { ok: false; error: string };
 
+type UserApiResponse =
+  | { ok: true; user: { id: string; email: string } }
+  | { ok: false; user: null };
+
 export default function ChatThreadPage() {
   const { id: matchId } = useParams<{ id: string }>();
 
@@ -18,22 +22,33 @@ export default function ChatThreadPage() {
   const [input, setInput] = useState("");
   const [error, setError] = useState<string | null>(null);
 
+  const [userId, setUserId] = useState<string | null>(null);
+
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
-  // Auto scroll la ultimul mesaj
   const scrollToBottom = () => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Încarcă mesajele
+  // Încarcă user-ul curent
+  const loadUser = async () => {
+    try {
+      const res = await fetch("/api/auth/me");
+      const data: UserApiResponse = await res.json();
+
+      if (data.ok && data.user) {
+        setUserId(data.user.id);
+      }
+    } catch (err) {
+      console.error("[CHAT_USER_LOAD_ERROR]", err);
+    }
+  };
+
   const loadMessages = async () => {
     try {
       setLoading(true);
 
-      const res = await fetch(`/api/matches/${matchId}/messages`, {
-        method: "GET",
-      });
-
+      const res = await fetch(`/api/matches/${matchId}/messages`);
       const data: MessagesApiResponse = await res.json();
 
       if (!res.ok || !data.ok) {
@@ -53,14 +68,14 @@ export default function ChatThreadPage() {
   };
 
   useEffect(() => {
+    loadUser();
     loadMessages();
 
-    // Marcăm mesajele ca citite
+    // marcăm ca citit
     fetch(`/api/matches/${matchId}/read`, { method: "POST" })
       .catch((err) => console.error("[READ_UPDATE_ERROR]", err));
   }, [matchId]);
 
-  // Trimite mesaj
   const sendMessage = async () => {
     const text = input.trim();
     if (!text) return;
@@ -97,7 +112,7 @@ export default function ChatThreadPage() {
 
         {!loading &&
           messages.map((msg) => {
-            const mine = msg.senderId === "me"; // UI dummy logic
+            const mine = userId && msg.senderId === userId;
 
             return (
               <div
@@ -119,7 +134,6 @@ export default function ChatThreadPage() {
         <div ref={bottomRef} />
       </div>
 
-      {/* Input și send */}
       <div className="mt-4 flex gap-2">
         <input
           className="flex-1 border rounded px-3 py-2"
