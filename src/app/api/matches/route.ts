@@ -4,21 +4,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
 import type { MatchPreview, ChatMessage } from "@/features/chat/types";
 
-/**
- * Returnează lista de match-uri ale userului curent,
- * fiecare cu ultimul mesaj atașat (dacă există).
- *
- * GET /api/matches
- */
+type ApiResponse =
+  | { ok: true; matches: MatchPreview[] }
+  | { ok: false; error: string };
+
 export async function GET(
   req: NextRequest
-): Promise<NextResponse<{ ok: true; matches: MatchPreview[] } | { ok: false; error: string }>> {
+): Promise<NextResponse<ApiResponse>> {
   try {
     const supabase = createServerClient();
 
-    // ---------------------------------------------------
-    // 1. Aflăm utilizatorul authentificat
-    // ---------------------------------------------------
+    // 1. Aflăm userul logat
     const {
       data: { user },
       error: userErr,
@@ -33,9 +29,7 @@ export async function GET(
 
     const userId = user.id;
 
-    // ---------------------------------------------------
-    // 2. Luăm match-urile userului
-    // ---------------------------------------------------
+    // 2. Luăm lista de match-uri
     const { data: matches, error: matchErr } = await supabase
       .from("matches")
       .select("*")
@@ -51,28 +45,38 @@ export async function GET(
     }
 
     if (!matches || matches.length === 0) {
-      return NextResponse.json({ ok: true, matches: [] }, { status: 200 });
+      return NextResponse.json({ ok: true, matches: [] });
     }
 
-    // ---------------------------------------------------
-    // 3. Luăm ultimul mesaj pentru fiecare match
-    // ---------------------------------------------------
+    // 3. Pentru fiecare match: ultimul mesaj + unreadCount
     const results: MatchPreview[] = [];
 
     for (const m of matches) {
-      const { data: lastMsg, error: msgErr } = await supabase
+      // --- ultimul mesaj ---
+      const { data: lastMsg, error: lastErr } = await supabase
         .from("messages")
         .select("*")
-        .eq("matchId", m.id)
-        .order("createdAt", { ascending: false })
-        .limit(1)
-        .maybeSingle();
+        .eq("match_id", m.id)
+        .order("created_at", { ascending: false })
+        .limit(1);
 
-      if (msgErr) {
-        console.error("[MATCH_LAST_MESSAGE_ERROR]", msgErr);
+      if (lastErr) {
+        console.error("[MATCH_LAST_MESSAGE_ERROR]", lastErr);
       }
 
-      const preview: MatchPreview = {
+      // --- unread count ---
+      const { count: unreadCount, error: unreadErr } = await supabase
+        .from("messages")
+        .select("*", { count: "exact", head: true })
+        .eq("match_id", m.id)
+        .neq("sender_id", userId)
+        .eq("is_read", false);
+
+      if (unreadErr) {
+        console.error("[MATCH_UNREAD_COUNT_ERROR]", unreadErr);
+      }
+
+      results.push({
         id: m.id,
         userAId: m.userAId,
         userBId: m.userBId,
@@ -81,13 +85,16 @@ export async function GET(
         status: m.status,
         createdAt: m.createdAt,
         updatedAt: m.updatedAt,
-        lastMessage: lastMsg ?? null,
-      };
 
-      results.push(preview);
+        otherUserName: m.otherUserName,
+        otherUserAvatar: m.otherUserAvatar,
+
+        lastMessage: lastMsg?.[0] ?? null,
+        unreadCount: unreadCount ?? 0,
+      });
     }
 
-    return NextResponse.json({ ok: true, matches: results }, { status: 200 });
+    return NextResponse.json({ ok: true, matches: results });
   } catch (err) {
     console.error("[MATCHES_UNEXPECTED_ERROR]", err);
     return NextResponse.json(
