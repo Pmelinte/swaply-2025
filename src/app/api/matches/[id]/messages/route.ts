@@ -2,19 +2,24 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
-import type { ChatMessage, CreateMessageInput } from "@/features/chat/types";
+import type { ChatMessage } from "@/features/chat/types";
 
 /**
  * GET /api/matches/:id/messages
- * Returnează toate mesajele dintr-un match.
+ * POST /api/matches/:id/messages
  */
+
 export async function GET(
   req: NextRequest,
   context: { params: { id: string } }
-) {
+): Promise<
+  NextResponse<
+    | { ok: true; messages: ChatMessage[] }
+    | { ok: false; error: string }
+  >
+> {
   try {
     const matchId = context.params.id;
-
     if (!matchId) {
       return NextResponse.json(
         { ok: false, error: "missing_match_id" },
@@ -24,9 +29,6 @@ export async function GET(
 
     const supabase = createServerClient();
 
-    // --------------------------
-    // 1. Verificăm user-ul
-    // --------------------------
     const {
       data: { user },
       error: userErr,
@@ -39,52 +41,52 @@ export async function GET(
       );
     }
 
-    const userId = user.id;
-
-    // --------------------------
-    // 2. Verificăm dacă user-ul
-    //    face parte din match
-    // --------------------------
-    const { data: match, error: matchErr } = await supabase
+    const { data: match } = await supabase
       .from("matches")
-      .select("*")
+      .select("id, userAId, userBId")
       .eq("id", matchId)
       .maybeSingle();
 
-    if (matchErr || !match) {
+    if (!match) {
       return NextResponse.json(
         { ok: false, error: "match_not_found" },
         { status: 404 }
       );
     }
 
-    if (match.userAId !== userId && match.userBId !== userId) {
+    if (match.userAId !== user.id && match.userBId !== user.id) {
       return NextResponse.json(
         { ok: false, error: "forbidden" },
         { status: 403 }
       );
     }
 
-    // --------------------------
-    // 3. Luăm mesajele ordonate
-    // --------------------------
-    const { data: messages, error: msgErr } = await supabase
+    const { data: rows, error } = await supabase
       .from("messages")
       .select("*")
-      .eq("matchId", matchId)
-      .order("createdAt", { ascending: true });
+      .eq("match_id", matchId)
+      .order("created_at", { ascending: true });
 
-    if (msgErr) {
-      console.error("[MATCH_MESSAGES_ERROR]", msgErr);
+    if (error) {
+      console.error("[MATCH_MESSAGES_GET_ERROR]", error);
       return NextResponse.json(
         { ok: false, error: "db_error_fetch_messages" },
         { status: 500 }
       );
     }
 
-    return NextResponse.json({ ok: true, messages: (messages ?? []) as ChatMessage[] });
+    const messages: ChatMessage[] =
+      rows?.map((r: any) => ({
+        id: r.id,
+        matchId: r.match_id,
+        senderId: r.sender_id,
+        content: r.content,
+        createdAt: r.created_at,
+      })) ?? [];
+
+    return NextResponse.json({ ok: true, messages });
   } catch (err) {
-    console.error("[MATCH_MESSAGES_UNEXPECTED_ERROR]", err);
+    console.error("[MATCH_MESSAGES_GET_UNEXPECTED]", err);
     return NextResponse.json(
       { ok: false, error: "internal_error" },
       { status: 500 }
@@ -92,17 +94,17 @@ export async function GET(
   }
 }
 
-/**
- * POST /api/matches/:id/messages
- * Creează un mesaj nou.
- */
 export async function POST(
   req: NextRequest,
   context: { params: { id: string } }
-) {
+): Promise<
+  NextResponse<
+    | { ok: true; message: ChatMessage }
+    | { ok: false; error: string }
+  >
+> {
   try {
     const matchId = context.params.id;
-
     if (!matchId) {
       return NextResponse.json(
         { ok: false, error: "missing_match_id" },
@@ -110,24 +112,18 @@ export async function POST(
       );
     }
 
-    const supabase = createServerClient();
+    const body = await req.json().catch(() => null);
+    const content = body?.content;
 
-    const body = (await req.json().catch(() => ({}))) as Partial<CreateMessageInput>;
-    const content = body.content?.trim();
-
-    // ------------------------------------------------------
-    // 1. Validare input
-    // ------------------------------------------------------
-    if (!content || content.length === 0) {
+    if (!content || typeof content !== "string") {
       return NextResponse.json(
-        { ok: false, error: "empty_message" },
+        { ok: false, error: "invalid_content" },
         { status: 400 }
       );
     }
 
-    // ------------------------------------------------------
-    // 2. Autentificare
-    // ------------------------------------------------------
+    const supabase = createServerClient();
+
     const {
       data: { user },
       error: userErr,
@@ -140,69 +136,55 @@ export async function POST(
       );
     }
 
-    const userId = user.id;
-
-    // ------------------------------------------------------
-    // 3. Confirmăm că userul este parte din match
-    // ------------------------------------------------------
-    const { data: match, error: matchErr } = await supabase
+    const { data: match } = await supabase
       .from("matches")
-      .select("*")
+      .select("id, userAId, userBId")
       .eq("id", matchId)
       .maybeSingle();
 
-    if (matchErr || !match) {
+    if (!match) {
       return NextResponse.json(
         { ok: false, error: "match_not_found" },
         { status: 404 }
       );
     }
 
-    if (match.userAId !== userId && match.userBId !== userId) {
+    if (match.userAId !== user.id && match.userBId !== user.id) {
       return NextResponse.json(
         { ok: false, error: "forbidden" },
         { status: 403 }
       );
     }
 
-    // ------------------------------------------------------
-    // 4. Inserăm mesajul
-    // ------------------------------------------------------
-    const now = new Date().toISOString();
-
-    const { data: inserted, error: insertErr } = await supabase
+    const { data, error } = await supabase
       .from("messages")
       .insert({
-        matchId,
-        senderId: userId,
+        match_id: matchId,
+        sender_id: user.id,
         content,
-        createdAt: now,
       })
       .select("*")
       .single();
 
-    if (insertErr) {
-      console.error("[MESSAGE_INSERT_ERROR]", insertErr);
+    if (error || !data) {
+      console.error("[MATCH_MESSAGES_POST_ERROR]", error);
       return NextResponse.json(
         { ok: false, error: "db_error_insert_message" },
         { status: 500 }
       );
     }
 
-    // ------------------------------------------------------
-    // 5. Actualizăm updatedAt pe match (pentru listă)
-    // ------------------------------------------------------
-    await supabase
-      .from("matches")
-      .update({ updatedAt: now })
-      .eq("id", matchId);
+    const message: ChatMessage = {
+      id: data.id,
+      matchId: data.match_id,
+      senderId: data.sender_id,
+      content: data.content,
+      createdAt: data.created_at,
+    };
 
-    return NextResponse.json(
-      { ok: true, message: inserted as ChatMessage },
-      { status: 201 }
-    );
+    return NextResponse.json({ ok: true, message }, { status: 200 });
   } catch (err) {
-    console.error("[MESSAGE_POST_UNEXPECTED_ERROR]", err);
+    console.error("[MATCH_MESSAGES_POST_UNEXPECTED]", err);
     return NextResponse.json(
       { ok: false, error: "internal_error" },
       { status: 500 }
