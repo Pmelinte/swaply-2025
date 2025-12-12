@@ -1,38 +1,53 @@
 // src/app/(app)/matches/[id]/page.tsx
 
-import { redirect, notFound } from "next/navigation";
 import { createServerClient } from "@/lib/supabase/server";
-import { matchesRepository } from "@/features/matches/server/matches-repository";
-import type { MatchPreview } from "@/features/chat/types";
+import { notFound } from "next/navigation";
 import ChatClient from "./ChatClient";
 
-interface ChatPageProps {
+interface PageProps {
   params: { id: string };
 }
 
-export default async function ChatPage({ params }: ChatPageProps) {
+export default async function MatchChatPage({ params }: PageProps) {
+  const supabase = createServerClient();
   const matchId = params.id;
 
-  const supabase = createServerClient();
+  // 1. User
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) redirect("/login");
+  if (!user) {
+    notFound();
+  }
 
-  // verificăm dacă userul are acces la match
-  const match: MatchPreview | null = await matchesRepository.getMatchById(
-    matchId,
-    user.id,
-  );
+  // 2. Match
+  const { data: match } = await supabase
+    .from("matches")
+    .select("*")
+    .eq("id", matchId)
+    .maybeSingle();
 
   if (!match) {
     notFound();
   }
 
+  if (match.userAId !== user.id && match.userBId !== user.id) {
+    notFound();
+  }
+
+  // 3. Mesaje
+  const { data: messages } = await supabase
+    .from("messages")
+    .select("*")
+    .eq("match_id", matchId)
+    .order("created_at", { ascending: true });
+
   return (
-    <div className="max-w-3xl mx-auto p-6">
-      <ChatClient match={match} />
-    </div>
+    <ChatClient
+      matchId={matchId}
+      currentUserId={user.id}
+      initialMessages={messages ?? []}
+    />
   );
 }
