@@ -19,9 +19,7 @@ export default async function ChatPage({ params }: PageProps) {
 
   const supabase = createServerClient();
 
-  // ------------------------------------------------
-  // Verificăm autentificarea
-  // ------------------------------------------------
+  // 1) Auth
   const {
     data: { user },
     error,
@@ -31,9 +29,7 @@ export default async function ChatPage({ params }: PageProps) {
     redirect("/login");
   }
 
-  // ------------------------------------------------
-  // Verificăm că userul e parte din match
-  // ------------------------------------------------
+  // 2) Verify match membership
   const { data: match } = await supabase
     .from("matches")
     .select("id, userAId, userBId")
@@ -48,12 +44,10 @@ export default async function ChatPage({ params }: PageProps) {
     redirect("/");
   }
 
-  // ------------------------------------------------
-  // UI
-  // ------------------------------------------------
+  // 3) UI
   return (
     <div className="h-[calc(100vh-4rem)] max-w-3xl mx-auto p-4">
-      <ChatClient matchId={matchId} />
+      <ChatClient matchId={matchId} currentUserId={user.id} />
     </div>
   );
 }
