@@ -3,6 +3,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
 import type { ChatMessage } from "@/features/chat/types";
+import { createMessageNotification } from "@/lib/notifications/create-message-notification";
 
 type ApiResponse =
   | { ok: true; messages: ChatMessage[] }
@@ -169,7 +170,8 @@ export async function POST(
       );
     }
 
-    const otherUserId = match.userAId === userId ? match.userBId : match.userAId;
+    const otherUserId =
+      match.userAId === userId ? match.userBId : match.userAId;
 
     // 3) Insert mesaj (snake_case)
     const payload = {
@@ -197,21 +199,12 @@ export async function POST(
 
     // 4) Notificare pentru interlocutor (best-effort, nu blocăm mesajul)
     if (otherUserId) {
-      const snippet =
-        content.length > 140 ? `${content.slice(0, 137)}...` : content;
-
-      const { error: notifErr } = await supabase.from("notifications").insert({
-        user_id: otherUserId,
-        type: "new_message",
-        entity_id: message.id,
-        title: "Mesaj nou",
-        body: snippet,
-        is_read: false,
+      await createMessageNotification({
+        matchId,
+        senderId: userId,
+        receiverId: otherUserId,
+        messagePreview: content,
       });
-
-      if (notifErr) {
-        console.error("[NOTIFICATION_INSERT_ERROR]", notifErr);
-      }
     }
 
     return NextResponse.json({ ok: true, message }, { status: 201 });
