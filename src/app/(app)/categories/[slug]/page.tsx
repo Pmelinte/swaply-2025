@@ -10,7 +10,12 @@ import Image from "next/image";
 type ItemPreview = {
   id: string;
   title: string;
-  images: any[] | null;
+  primaryImageUrl: string | null;
+  category: string | null;
+  subcategory: string | null;
+  locationCity: string | null;
+  locationCountry: string | null;
+  createdAt: string;
 };
 
 type ApiResponse =
@@ -30,9 +35,11 @@ export default function CategoryItemsPage() {
     const load = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`/api/items?category=${slug}`, {
+
+        const res = await fetch(`/api/items?category=${encodeURIComponent(slug)}`, {
           cache: "no-store",
         });
+
         const data: ApiResponse = await res.json();
 
         if (!res.ok || !data.ok) {
@@ -40,7 +47,7 @@ export default function CategoryItemsPage() {
           return;
         }
 
-        setItems(data.items);
+        setItems(data.items ?? []);
         setError(null);
       } catch (err) {
         console.error("[CATEGORY_ITEMS_ERROR]", err);
@@ -62,40 +69,40 @@ export default function CategoryItemsPage() {
       {loading && <p>Se încarcă…</p>}
       {error && <p className="text-red-600">{error}</p>}
 
-      {!loading && items.length === 0 && (
+      {!loading && !error && items.length === 0 && (
         <p className="text-gray-600">Nu există iteme în această categorie.</p>
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {items.map((item) => {
-          const img = item.images?.find((i: any) => i.isPrimary) ?? item.images?.[0];
-
-          return (
-            <Link
-              key={item.id}
-              href={`/items/${item.id}`}
-              className="border rounded-lg p-3 hover:shadow transition space-y-2"
-            >
-              {img?.url ? (
-                <Image
-                  src={img.url}
-                  alt={item.title}
-                  width={300}
-                  height={200}
-                  className="h-40 w-full object-cover rounded"
-                />
-              ) : (
-                <div className="h-40 bg-gray-200 rounded flex items-center justify-center">
-                  📦
-                </div>
-              )}
-
-              <div className="font-semibold line-clamp-2">
-                {item.title}
+        {items.map((item) => (
+          <Link
+            key={item.id}
+            href={`/items/${item.id}`}
+            className="border rounded-lg p-3 hover:shadow transition space-y-2"
+          >
+            {item.primaryImageUrl ? (
+              <Image
+                src={item.primaryImageUrl}
+                alt={item.title}
+                width={300}
+                height={200}
+                className="h-40 w-full object-cover rounded"
+              />
+            ) : (
+              <div className="h-40 bg-gray-200 rounded flex items-center justify-center">
+                📦
               </div>
-            </Link>
-          );
-        })}
+            )}
+
+            <div className="font-semibold line-clamp-2">{item.title}</div>
+
+            {(item.locationCity || item.locationCountry) && (
+              <div className="text-xs text-gray-600">
+                {[item.locationCity, item.locationCountry].filter(Boolean).join(", ")}
+              </div>
+            )}
+          </Link>
+        ))}
       </div>
     </div>
   );
