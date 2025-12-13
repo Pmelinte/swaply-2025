@@ -2,11 +2,17 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
-import type { WishlistApiResponse } from "@/features/wishlist/types";
+import type {
+  WishlistApiResponse,
+  AddToWishlistInput,
+  WishlistEntry,
+  WishlistItemPreview,
+} from "@/features/wishlist/types";
 
 /**
  * GET /api/wishlist
- * Returnează wishlist-ul userului curent
+ * Returnează wishlist-ul userului curent în format "preview"
+ * (titlu + imagine principală), bun pentru UI.
  */
 export async function GET(
   req: NextRequest,
@@ -14,6 +20,7 @@ export async function GET(
   try {
     const supabase = createServerClient();
 
+    // 1) User autentificat
     const {
       data: { user },
       error: userErr,
@@ -26,10 +33,25 @@ export async function GET(
       );
     }
 
-    const { data, error } = await supabase
+    const userId = user.id;
+
+    // 2) Luăm wishlists + join items (FK: wishlists.item_id -> items.id)
+    const { data: rows, error } = await supabase
       .from("wishlists")
-      .select("*")
-      .eq("user_id", user.id)
+      .select(
+        `
+        id,
+        user_id,
+        item_id,
+        created_at,
+        items:items (
+          id,
+          title,
+          images
+        )
+      `,
+      )
+      .eq("user_id", userId)
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -40,10 +62,29 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(
-      { ok: true, entries: data ?? [] },
-      { status: 200 },
-    );
+    const items: WishlistItemPreview[] =
+      (rows ?? []).map((row: any) => {
+        const item = row.items ?? null;
+
+        let primaryImageUrl: string | null = null;
+        const images = item?.images;
+
+        // images e de obicei JSON array: [{ url, isPrimary, ...}, ...]
+        if (Array.isArray(images) && images.length > 0) {
+          const primary = images.find((img: any) => img?.isPrimary) ?? images[0];
+          primaryImageUrl = primary?.url ?? null;
+        }
+
+        return {
+          id: row.id as string,
+          itemId: row.item_id as string,
+          title: (item?.title as string) ?? null,
+          primaryImageUrl,
+          createdAt: row.created_at as string,
+        };
+      }) ?? [];
+
+    return NextResponse.json({ ok: true, items }, { status: 200 });
   } catch (err) {
     console.error("[WISHLIST_API_GET_UNEXPECTED]", err);
     return NextResponse.json(
@@ -55,7 +96,8 @@ export async function GET(
 
 /**
  * POST /api/wishlist
- * Body: { itemId }
+ * Body: { itemId: string }
+ * Adaugă un item în wishlist.
  */
 export async function POST(
   req: NextRequest,
@@ -63,6 +105,7 @@ export async function POST(
   try {
     const supabase = createServerClient();
 
+    // 1) User autentificat
     const {
       data: { user },
       error: userErr,
@@ -75,23 +118,27 @@ export async function POST(
       );
     }
 
-    const body = await req.json().catch(() => ({}));
-    const itemId = body?.itemId;
+    const userId = user.id;
 
-    if (!itemId || typeof itemId !== "string") {
+    // 2) Body
+    const body = (await req.json().catch(() => ({}))) as Partial<AddToWishlistInput>;
+    const itemId = (body.itemId ?? "").trim();
+
+    if (!itemId) {
       return NextResponse.json(
         { ok: false, error: "missing_item_id" },
         { status: 400 },
       );
     }
 
+    // 3) Insert (ideal ai unique(user_id, item_id) în DB ca să prevină duplicate)
     const { data, error } = await supabase
       .from("wishlists")
       .insert({
-        user_id: user.id,
+        user_id: userId,
         item_id: itemId,
       })
-      .select("*")
+      .select("id, user_id, item_id, created_at")
       .single();
 
     if (error || !data) {
@@ -102,10 +149,14 @@ export async function POST(
       );
     }
 
-    return NextResponse.json(
-      { ok: true, entries: [data] },
-      { status: 200 },
-    );
+    const entry: WishlistEntry = {
+      id: data.id as string,
+      userId: data.user_id as string,
+      itemId: data.item_id as string,
+      createdAt: data.created_at as string,
+    };
+
+    return NextResponse.json({ ok: true, entries: [entry] }, { status: 201 });
   } catch (err) {
     console.error("[WISHLIST_API_POST_UNEXPECTED]", err);
     return NextResponse.json(
