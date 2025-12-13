@@ -1,9 +1,8 @@
-// src/components/Navbar.tsx
-
 "use client";
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { useGamification } from "@/features/gamification/hooks/use-gamification";
 
 type NotificationsApiResponse =
   | { ok: true; notifications: any[]; unreadCount: number }
@@ -13,9 +12,25 @@ type WishlistApiResponse =
   | { ok: true; entries?: any[]; items?: any[] }
   | { ok: false; error: string };
 
+function rankEmoji(rank: string) {
+  switch (rank) {
+    case "platinum":
+      return "💎";
+    case "gold":
+      return "🥇";
+    case "silver":
+      return "🥈";
+    default:
+      return "🥉";
+  }
+}
+
 export default function Navbar() {
   const [notifUnread, setNotifUnread] = useState<number>(0);
   const [wishlistCount, setWishlistCount] = useState<number>(0);
+
+  // 🔹 Gamification (rank + points)
+  const { rank, points } = useGamification();
 
   // ------------------------------------------------
   // Notifications unread count (best-effort)
@@ -35,7 +50,6 @@ export default function Navbar() {
         if (res.ok && data.ok) {
           setNotifUnread(data.unreadCount ?? 0);
         } else {
-          // dacă nu e logat sau endpointul nu e gata, nu spargem navbar-ul
           setNotifUnread(0);
         }
       } catch {
@@ -44,8 +58,6 @@ export default function Navbar() {
     };
 
     loadNotifications();
-
-    // refresh ușor, ca să vezi badge-ul crescând când vin mesaje
     const interval = setInterval(loadNotifications, 15000);
 
     return () => {
@@ -75,12 +87,11 @@ export default function Navbar() {
         const entries = (data as any).entries ?? [];
         const items = (data as any).items ?? [];
 
-        // API-ul tău poate întoarce items (preview) sau entries (rows)
         const count = Array.isArray(items)
           ? items.length
           : Array.isArray(entries)
-            ? entries.length
-            : 0;
+          ? entries.length
+          : 0;
 
         setWishlistCount(count);
       } catch {
@@ -100,11 +111,10 @@ export default function Navbar() {
   const nav = useMemo(
     () => [
       { href: "/items", label: "Items" },
-      { href: "/categories/object", label: "Categorii" }, // fallback: vezi notes mai jos
+      { href: "/categories/object", label: "Categorii" },
       { href: "/wishlist", label: "Wishlist", badge: wishlistCount },
       { href: "/chat", label: "Chat" },
       { href: "/notifications", label: "Notificări", badge: notifUnread },
-      { href: "/settings/profile", label: "Profil" },
       { href: "/map", label: "Hartă" },
     ],
     [notifUnread, wishlistCount],
@@ -118,7 +128,7 @@ export default function Navbar() {
           Swaply
         </Link>
 
-        {/* Links */}
+        {/* Center nav */}
         <nav className="flex items-center gap-2 flex-wrap">
           {nav.map((item) => (
             <Link
@@ -129,19 +139,29 @@ export default function Navbar() {
               {item.label}
 
               {"badge" in item && typeof item.badge === "number" && item.badge > 0 && (
-                <span className="ml-2 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1.5 text-[11px] font-bold rounded-full bg-red-600 text-white align-middle">
+                <span className="ml-2 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1.5 text-[11px] font-bold rounded-full bg-red-600 text-white">
                   {item.badge}
                 </span>
               )}
             </Link>
           ))}
         </nav>
-      </div>
 
-      {/* NOTE:
-          - Link-ul /categories/object e un fallback simplu.
-          - Dacă ai deja o pagină de categorii (ex: /categories), schimbă href aici.
-      */}
+        {/* Right side: Rank */}
+        <Link
+          href="/settings/profile"
+          className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-semibold hover:bg-gray-100 transition"
+          title={`Rang: ${rank} (${points} puncte)`}
+        >
+          <span className="text-lg">{rankEmoji(rank)}</span>
+          <span className="hidden sm:inline capitalize">
+            {rank}
+          </span>
+          <span className="text-xs text-gray-500 hidden md:inline">
+            {points}p
+          </span>
+        </Link>
+      </div>
     </header>
   );
 }
