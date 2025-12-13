@@ -4,6 +4,20 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
 import type { MatchPreview, ChatMessage } from "@/features/chat/types";
 
+type ApiResponse =
+  | { ok: true; match: MatchPreview }
+  | { ok: false; error: string };
+
+function mapDbMessage(row: any): ChatMessage {
+  return {
+    id: row.id,
+    matchId: row.match_id,
+    senderId: row.sender_id,
+    content: row.content,
+    createdAt: row.created_at,
+  };
+}
+
 /**
  * GET /api/matches/:id/summary
  *
@@ -15,26 +29,21 @@ import type { MatchPreview, ChatMessage } from "@/features/chat/types";
  */
 export async function GET(
   req: NextRequest,
-  context: { params: { id: string } }
-): Promise<
-  NextResponse<
-    | { ok: true; match: MatchPreview }
-    | { ok: false; error: string }
-  >
-> {
+  context: { params: { id: string } },
+): Promise<NextResponse<ApiResponse>> {
   try {
     const matchId = context.params.id;
 
     if (!matchId) {
       return NextResponse.json(
         { ok: false, error: "missing_match_id" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const supabase = createServerClient();
 
-    // 1. Auth
+    // 1) Auth
     const {
       data: { user },
       error: userErr,
@@ -43,13 +52,13 @@ export async function GET(
     if (userErr || !user) {
       return NextResponse.json(
         { ok: false, error: "not_authenticated" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
     const userId = user.id;
 
-    // 2. Luăm match-ul
+    // 2) Match-ul
     const { data: matchRow, error: matchErr } = await supabase
       .from("matches")
       .select("*")
@@ -59,27 +68,27 @@ export async function GET(
     if (matchErr || !matchRow) {
       return NextResponse.json(
         { ok: false, error: "match_not_found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
-    // Verificăm că userul face parte din match
+    // user trebuie să fie participant
     if (matchRow.userAId !== userId && matchRow.userBId !== userId) {
       return NextResponse.json(
         { ok: false, error: "forbidden" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
     const otherUserId =
       matchRow.userAId === userId ? matchRow.userBId : matchRow.userAId;
 
-    // 3. Ultimul mesaj
-    const { data: lastMsg, error: lastMsgErr } = await supabase
+    // 3) Ultimul mesaj (snake_case)
+    const { data: lastMsgRow, error: lastMsgErr } = await supabase
       .from("messages")
       .select("*")
-      .eq("matchId", matchId)
-      .order("createdAt", { ascending: false })
+      .eq("match_id", matchId)
+      .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
 
@@ -87,7 +96,9 @@ export async function GET(
       console.error("[MATCH_SUMMARY_LAST_MSG_ERROR]", lastMsgErr);
     }
 
-    // 4. Profilul celuilalt user
+    const lastMessage = lastMsgRow ? mapDbMessage(lastMsgRow) : null;
+
+    // 4) Profilul celuilalt user
     const { data: otherProfile, error: profileErr } = await supabase
       .from("profiles")
       .select("name, avatar_url")
@@ -111,7 +122,7 @@ export async function GET(
       otherUserName: otherProfile?.name ?? "Utilizator Swaply",
       otherUserAvatar: otherProfile?.avatar_url ?? null,
 
-      lastMessage: (lastMsg as ChatMessage) ?? null,
+      lastMessage,
     };
 
     return NextResponse.json({ ok: true, match: preview }, { status: 200 });
@@ -119,7 +130,7 @@ export async function GET(
     console.error("[MATCH_SUMMARY_UNEXPECTED_ERROR]", err);
     return NextResponse.json(
       { ok: false, error: "internal_error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
