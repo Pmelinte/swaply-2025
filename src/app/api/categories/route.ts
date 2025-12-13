@@ -1,5 +1,7 @@
+// src/app/api/categories/route.ts
+
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createServerClient } from "@/lib/supabase/server";
 
 type CategoryType = "object" | "service" | "home";
 
@@ -21,7 +23,9 @@ type CategoriesErrorResponse = {
   error: string;
 };
 
-type CategoriesApiResponse = CategoriesSuccessResponse | CategoriesErrorResponse;
+type CategoriesApiResponse =
+  | CategoriesSuccessResponse
+  | CategoriesErrorResponse;
 
 /**
  * GET /api/categories
@@ -29,17 +33,17 @@ type CategoriesApiResponse = CategoriesSuccessResponse | CategoriesErrorResponse
  * Opțional: ?type=object|service|home
  *
  * Exemple:
- *  - /api/categories          -> toate categoriile
- *  - /api/categories?type=object -> doar categoriile pentru obiecte
+ *  - /api/categories
+ *  - /api/categories?type=object
  *
- * Tabelul folosit: public.categories
+ * Tabel: public.categories
  * Coloane: id, name, slug, type, parent_id
  */
 export async function GET(
   request: NextRequest,
 ): Promise<NextResponse<CategoriesApiResponse>> {
   try {
-    const supabase = createClient();
+    const supabase = createServerClient();
     const { searchParams } = new URL(request.url);
 
     const typeParam = searchParams.get("type");
@@ -59,37 +63,28 @@ export async function GET(
     if (error) {
       console.error("[CATEGORIES_API_ERROR]", error);
       return NextResponse.json(
-        {
-          ok: false,
-          error: "db_error_fetch_categories",
-        },
+        { ok: false, error: "db_error_fetch_categories" },
         { status: 500 },
       );
     }
 
     const categories: CategoryDto[] =
-      data?.map((row) => ({
-        id: row.id as string,
-        name: row.name as string,
-        slug: row.slug as string,
-        type: row.type as CategoryType,
-        parentId: (row as any).parent_id ?? null,
+      data?.map((row: any) => ({
+        id: row.id,
+        name: row.name,
+        slug: row.slug,
+        type: row.type,
+        parentId: row.parent_id ?? null,
       })) ?? [];
 
     return NextResponse.json(
-      {
-        ok: true,
-        categories,
-      },
+      { ok: true, categories },
       { status: 200 },
     );
-  } catch (error) {
-    console.error("[CATEGORIES_API_UNEXPECTED_ERROR]", error);
+  } catch (err) {
+    console.error("[CATEGORIES_API_UNEXPECTED_ERROR]", err);
     return NextResponse.json(
-      {
-        ok: false,
-        error: "internal_error",
-      },
+      { ok: false, error: "internal_error" },
       { status: 500 },
     );
   }
