@@ -31,7 +31,10 @@ export async function GET(
     const matchId = context.params.id;
 
     if (!matchId) {
-      return NextResponse.json({ ok: false, error: "missing_match_id" }, { status: 400 });
+      return NextResponse.json(
+        { ok: false, error: "missing_match_id" },
+        { status: 400 },
+      );
     }
 
     const supabase = createServerClient();
@@ -43,7 +46,10 @@ export async function GET(
     } = await supabase.auth.getUser();
 
     if (userErr || !user) {
-      return NextResponse.json({ ok: false, error: "not_authenticated" }, { status: 401 });
+      return NextResponse.json(
+        { ok: false, error: "not_authenticated" },
+        { status: 401 },
+      );
     }
 
     const userId = user.id;
@@ -56,11 +62,17 @@ export async function GET(
       .maybeSingle();
 
     if (matchErr || !match) {
-      return NextResponse.json({ ok: false, error: "match_not_found" }, { status: 404 });
+      return NextResponse.json(
+        { ok: false, error: "match_not_found" },
+        { status: 404 },
+      );
     }
 
     if (match.userAId !== userId && match.userBId !== userId) {
-      return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
+      return NextResponse.json(
+        { ok: false, error: "forbidden" },
+        { status: 403 },
+      );
     }
 
     // 3) Luăm mesajele
@@ -72,7 +84,10 @@ export async function GET(
 
     if (msgErr) {
       console.error("[MATCH_MESSAGES_ERROR]", msgErr);
-      return NextResponse.json({ ok: false, error: "db_error_fetch_messages" }, { status: 500 });
+      return NextResponse.json(
+        { ok: false, error: "db_error_fetch_messages" },
+        { status: 500 },
+      );
     }
 
     const messages = (rows ?? []).map(mapDbMessage);
@@ -80,14 +95,17 @@ export async function GET(
     return NextResponse.json({ ok: true, messages }, { status: 200 });
   } catch (err) {
     console.error("[MATCH_MESSAGES_UNEXPECTED_ERROR]", err);
-    return NextResponse.json({ ok: false, error: "internal_error" }, { status: 500 });
+    return NextResponse.json(
+      { ok: false, error: "internal_error" },
+      { status: 500 },
+    );
   }
 }
 
 /**
  * POST /api/matches/:id/messages
  * Body: { content: string }
- * Creează un mesaj nou în match.
+ * Creează un mesaj nou în match + notificare pentru celălalt user (best-effort).
  */
 export async function POST(
   req: NextRequest,
@@ -97,14 +115,20 @@ export async function POST(
     const matchId = context.params.id;
 
     if (!matchId) {
-      return NextResponse.json({ ok: false, error: "missing_match_id" }, { status: 400 });
+      return NextResponse.json(
+        { ok: false, error: "missing_match_id" },
+        { status: 400 },
+      );
     }
 
     const body = (await req.json().catch(() => ({}))) as { content?: string };
     const content = (body.content ?? "").trim();
 
     if (!content) {
-      return NextResponse.json({ ok: false, error: "missing_content" }, { status: 400 });
+      return NextResponse.json(
+        { ok: false, error: "missing_content" },
+        { status: 400 },
+      );
     }
 
     const supabase = createServerClient();
@@ -116,7 +140,10 @@ export async function POST(
     } = await supabase.auth.getUser();
 
     if (userErr || !user) {
-      return NextResponse.json({ ok: false, error: "not_authenticated" }, { status: 401 });
+      return NextResponse.json(
+        { ok: false, error: "not_authenticated" },
+        { status: 401 },
+      );
     }
 
     const userId = user.id;
@@ -129,12 +156,20 @@ export async function POST(
       .maybeSingle();
 
     if (matchErr || !match) {
-      return NextResponse.json({ ok: false, error: "match_not_found" }, { status: 404 });
+      return NextResponse.json(
+        { ok: false, error: "match_not_found" },
+        { status: 404 },
+      );
     }
 
     if (match.userAId !== userId && match.userBId !== userId) {
-      return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
+      return NextResponse.json(
+        { ok: false, error: "forbidden" },
+        { status: 403 },
+      );
     }
+
+    const otherUserId = match.userAId === userId ? match.userBId : match.userAId;
 
     // 3) Insert mesaj (snake_case)
     const payload = {
@@ -152,14 +187,39 @@ export async function POST(
 
     if (insErr || !inserted) {
       console.error("[MATCH_MESSAGE_INSERT_ERROR]", insErr);
-      return NextResponse.json({ ok: false, error: "db_error_insert_message" }, { status: 500 });
+      return NextResponse.json(
+        { ok: false, error: "db_error_insert_message" },
+        { status: 500 },
+      );
     }
 
     const message = mapDbMessage(inserted);
 
+    // 4) Notificare pentru interlocutor (best-effort, nu blocăm mesajul)
+    if (otherUserId) {
+      const snippet =
+        content.length > 140 ? `${content.slice(0, 137)}...` : content;
+
+      const { error: notifErr } = await supabase.from("notifications").insert({
+        user_id: otherUserId,
+        type: "new_message",
+        entity_id: message.id,
+        title: "Mesaj nou",
+        body: snippet,
+        is_read: false,
+      });
+
+      if (notifErr) {
+        console.error("[NOTIFICATION_INSERT_ERROR]", notifErr);
+      }
+    }
+
     return NextResponse.json({ ok: true, message }, { status: 201 });
   } catch (err) {
     console.error("[MATCH_MESSAGE_POST_UNEXPECTED_ERROR]", err);
-    return NextResponse.json({ ok: false, error: "internal_error" }, { status: 500 });
+    return NextResponse.json(
+      { ok: false, error: "internal_error" },
+      { status: 500 },
+    );
   }
 }
