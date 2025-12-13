@@ -46,11 +46,10 @@ export async function GET(
 
     const url = new URL(req.url);
     const unreadOnly = url.searchParams.get("unreadOnly") === "true";
+
     const limitRaw = url.searchParams.get("limit");
-    const limit = Math.max(
-      1,
-      Math.min(200, Number.isFinite(Number(limitRaw)) ? Number(limitRaw) : 50),
-    );
+    const parsedLimit = Number(limitRaw);
+    const limit = Math.max(1, Math.min(200, Number.isFinite(parsedLimit) ? parsedLimit : 50));
 
     // 2) fetch notifications (RLS enforces ownership)
     let query = supabase
@@ -98,11 +97,7 @@ export async function GET(
       })) ?? [];
 
     return NextResponse.json(
-      {
-        ok: true,
-        notifications,
-        unreadCount: count ?? 0,
-      },
+      { ok: true, notifications, unreadCount: count ?? 0 },
       { status: 200 },
     );
   } catch (err) {
