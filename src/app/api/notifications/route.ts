@@ -2,36 +2,31 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
-
-type NotificationDto = {
-  id: string;
-  userId: string;
-  type: string;
-  entityId: string | null;
-  title: string;
-  body: string | null;
-  isRead: boolean;
-  createdAt: string;
-};
-
-type ApiResponse =
-  | { ok: true; notifications: NotificationDto[]; unreadCount: number }
-  | { ok: false; error: string };
+import type {
+  NotificationsApiResponse,
+  Notification,
+  NotificationStatus,
+} from "@/features/notifications/types";
 
 /**
  * GET /api/notifications
  *
- * Optional:
- *  - ?unreadOnly=true
+ * Query params (opțional):
+ *  - ?status=unread|read|archived
  *  - ?limit=50
+ *
+ * DB assumptions (MVP):
+ * - table: notifications
+ * - columns (snake_case): user_id, type, entity_id, title, body, is_read, created_at
+ * - optional: read_at (dacă există)
  */
 export async function GET(
   req: NextRequest,
-): Promise<NextResponse<ApiResponse>> {
+): Promise<NextResponse<NotificationsApiResponse>> {
   try {
     const supabase = createServerClient();
 
-    // 1) auth
+    // 1) Auth
     const {
       data: { user },
       error: userErr,
@@ -45,13 +40,17 @@ export async function GET(
     }
 
     const url = new URL(req.url);
-    const unreadOnly = url.searchParams.get("unreadOnly") === "true";
+
+    const status = (url.searchParams.get("status") ??
+      "unread") as NotificationStatus;
 
     const limitRaw = url.searchParams.get("limit");
-    const parsedLimit = Number(limitRaw);
-    const limit = Math.max(1, Math.min(200, Number.isFinite(parsedLimit) ? parsedLimit : 50));
+    const limit = Math.max(
+      1,
+      Math.min(200, Number.isFinite(Number(limitRaw)) ? Number(limitRaw) : 50),
+    );
 
-    // 2) fetch notifications (RLS enforces ownership)
+    // 2) Fetch notifications (RLS enforces ownership)
     let query = supabase
       .from("notifications")
       .select("*")
@@ -59,9 +58,9 @@ export async function GET(
       .order("created_at", { ascending: false })
       .limit(limit);
 
-    if (unreadOnly) {
-      query = query.eq("is_read", false);
-    }
+    // MVP: archived nu e implementat în DB (îl tratăm ca "all")
+    if (status === "unread") query = query.eq("is_read", false);
+    if (status === "read") query = query.eq("is_read", true);
 
     const { data, error } = await query;
 
@@ -73,7 +72,7 @@ export async function GET(
       );
     }
 
-    // 3) unreadCount (cheap count query)
+    // 3) unreadCount (count query)
     const { count, error: countErr } = await supabase
       .from("notifications")
       .select("*", { count: "exact", head: true })
@@ -84,20 +83,41 @@ export async function GET(
       console.error("[NOTIFICATIONS_UNREAD_COUNT_ERROR]", countErr);
     }
 
-    const notifications: NotificationDto[] =
-      (data ?? []).map((row: any) => ({
-        id: row.id,
-        userId: row.user_id,
-        type: row.type,
-        entityId: row.entity_id ?? null,
-        title: row.title,
-        body: row.body ?? null,
-        isRead: !!row.is_read,
-        createdAt: row.created_at,
-      })) ?? [];
+    // 4) Map DB -> Notification (camelCase, conform types.ts)
+    const notifications: Notification[] =
+      (data ?? []).map((row: any) => {
+        const isRead = !!row.is_read;
+
+        return {
+          id: row.id,
+          userId: row.user_id,
+
+          // în DB ai "type" (ex: "new_message") -> în types.ts e "event"
+          event: row.type,
+
+          // MVP: doar in_app (email/sms vin mai târziu)
+          channel: "in_app",
+
+          title: row.title,
+          body: row.body ?? null,
+
+          // păstrăm entity_id într-un payload stabil
+          payload: row.entity_id ? { entityId: row.entity_id } : null,
+
+          // în types.ts ai status string
+          status: isRead ? "read" : "unread",
+
+          createdAt: row.created_at,
+          readAt: row.read_at ?? null,
+        } as Notification;
+      }) ?? [];
 
     return NextResponse.json(
-      { ok: true, notifications, unreadCount: count ?? 0 },
+      {
+        ok: true,
+        notifications,
+        unreadCount: count ?? 0,
+      },
       { status: 200 },
     );
   } catch (err) {
