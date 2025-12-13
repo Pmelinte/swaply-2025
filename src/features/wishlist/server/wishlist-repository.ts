@@ -1,9 +1,9 @@
 // src/features/wishlist/server/wishlist-repository.ts
 
 import { createServerClient } from "@/lib/supabase/server";
-import type { WishlistItem, AddToWishlistInput } from "../types";
+import type { WishlistEntry, AddToWishlistInput } from "../types";
 
-const mapRow = (row: any): WishlistItem => ({
+const mapRow = (row: any): WishlistEntry => ({
   id: row.id,
   userId: row.user_id,
   itemId: row.item_id,
@@ -14,7 +14,7 @@ export const wishlistRepository = {
   /**
    * Lista wishlist-ului pentru user
    */
-  async list(userId: string): Promise<WishlistItem[]> {
+  async list(userId: string): Promise<WishlistEntry[]> {
     const supabase = createServerClient();
 
     const { data, error } = await supabase
@@ -32,13 +32,27 @@ export const wishlistRepository = {
   },
 
   /**
-   * Adaugă item în wishlist
+   * Adaugă item în wishlist (idempotent — evită duplicate)
    */
-  async add(
-    userId: string,
-    input: AddToWishlistInput,
-  ): Promise<WishlistItem> {
+  async add(userId: string, input: AddToWishlistInput): Promise<WishlistEntry> {
     const supabase = createServerClient();
+
+    // dacă există deja, îl returnăm
+    const { data: existing, error: existingErr } = await supabase
+      .from("wishlists")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("item_id", input.itemId)
+      .maybeSingle();
+
+    if (existingErr) {
+      console.error("[WISHLIST_EXISTING_ERROR]", existingErr);
+      // continuăm cu insert chiar dacă check-ul a eșuat
+    }
+
+    if (existing) {
+      return mapRow(existing);
+    }
 
     const { data, error } = await supabase
       .from("wishlists")
