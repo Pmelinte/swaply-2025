@@ -3,8 +3,10 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { getSupabaseBrowserClient } from '@/lib/supabase/client';
-import ItemForm from '@/components/items/ItemForm';
+
+// ✅ fără @/…, ca să nu mai pice la build
+import { getSupabaseBrowserClient } from '../../../lib/supabase/client';
+import ItemForm from '../../../components/items/ItemForm';
 
 export default function AddItemPage() {
   const router = useRouter();
@@ -14,13 +16,15 @@ export default function AddItemPage() {
     const checkAuth = async () => {
       try {
         const supabase = getSupabaseBrowserClient();
-        const { data: { user } } = await supabase.auth.getUser();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
 
         if (!user) {
           router.push('/login');
           return;
         }
-      } catch (error) {
+      } catch {
         router.push('/login');
       } finally {
         setLoading(false);
@@ -50,6 +54,7 @@ export default function AddItemPage() {
             Back to Items
           </Link>
         </div>
+
         <ItemForm mode="create" />
       </div>
     </main>
