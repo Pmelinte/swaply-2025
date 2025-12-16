@@ -4,83 +4,98 @@
 import { revalidatePath } from "next/cache";
 import { createServerClient } from "@/lib/supabase/server";
 import { chatRepository } from "./chat-repository";
-import { matchRepository } from "@/features/matches/server/matches-repository";
 import type { CreateMessageInput, ChatThread, ChatMessage } from "../types";
 
-export async function getThreadAction(matchId: string): Promise<ChatThread | null> {
+/**
+ * Helpers
+ */
+async function requireUser() {
   const supabase = createServerClient();
   const {
     data: { user },
-    error: userErr,
+    error,
   } = await supabase.auth.getUser();
 
-  if (userErr || !user) return null;
+  if (error || !user) {
+    throw new Error("not_authenticated");
+  }
 
-  // verificăm accesul la match (dacă repo-ul tău are funcția asta)
-  const match = await matchRepository.getById(matchId);
-  if (!match) return null;
+  return { supabase, user };
+}
 
-  const isMember = match.userAId === user.id || match.userBId === user.id;
-  if (!isMember) return null;
+async function assertMatchMembership(
+  supabase: any,
+  matchId: string,
+  userId: string,
+) {
+  // Schema ta din alte fișiere: matches are userAId/userBId.
+  const { data: match, error } = await supabase
+    .from("matches")
+    .select("id,userAId,userBId")
+    .eq("id", matchId)
+    .maybeSingle();
 
-  return await chatRepository.getThread(matchId);
+  if (error || !match) throw new Error("match_not_found");
+
+  const isMember = match.userAId === userId || match.userBId === userId;
+  if (!isMember) throw new Error("not_allowed");
+
+  return match as { id: string; userAId: string; userBId: string };
+}
+
+export async function getThreadAction(matchId: string): Promise<ChatThread | null> {
+  try {
+    const { supabase, user } = await requireUser();
+    await assertMatchMembership(supabase, matchId, user.id);
+    return await chatRepository.getThread(matchId);
+  } catch {
+    return null;
+  }
 }
 
 export async function listThreadMessagesAction(
   matchId: string,
 ): Promise<ChatMessage[]> {
-  const supabase = createServerClient();
-  const {
-    data: { user },
-    error: userErr,
-  } = await supabase.auth.getUser();
-
-  if (userErr || !user) return [];
-
-  const match = await matchRepository.getById(matchId);
-  if (!match) return [];
-
-  const isMember = match.userAId === user.id || match.userBId === user.id;
-  if (!isMember) return [];
-
-  return await chatRepository.listMessages(matchId);
+  try {
+    const { supabase, user } = await requireUser();
+    await assertMatchMembership(supabase, matchId, user.id);
+    return await chatRepository.listMessages(matchId);
+  } catch {
+    return [];
+  }
 }
 
 export async function createMessageAction(
   input: CreateMessageInput,
 ): Promise<ChatMessage> {
-  const supabase = createServerClient();
-  const {
-    data: { user },
-    error: userErr,
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await requireUser();
 
-  if (userErr || !user) {
-    throw new Error("not_authenticated");
-  }
+  const matchId = (input as any).matchId as string;
+  if (!matchId) throw new Error("missing_match_id");
 
-  const matchId = input.matchId;
-  const match = await matchRepository.getById(matchId);
+  await assertMatchMembership(supabase, matchId, user.id);
 
-  if (!match) {
-    throw new Error("match_not_found");
-  }
+  // IMPORTANT: nu presupunem câmpul de text (că ai avut mismatch mai devreme).
+  // Luăm “conținutul” din ce există în input (text/message/content) fără să stricăm tipurile.
+  const content =
+    (input as any).text ??
+    (input as any).message ??
+    (input as any).content ??
+    null;
 
-  const isMember = match.userAId === user.id || match.userBId === user.id;
-  if (!isMember) {
-    throw new Error("not_allowed");
+  if (!content || typeof content !== "string" || !content.trim()) {
+    throw new Error("missing_message_content");
   }
 
   const created = await chatRepository.createMessage({
     matchId,
     senderId: user.id,
-    // NOTE: input-ul tău poate avea `message` sau `content` în loc de `text`.
-    // Îl tratăm “safe” fără să stricăm tipurile:
-    ...(input as any),
-  });
+    // repo-ul tău probabil așteaptă una din aceste chei; trimitem ambele “safe”
+    text: content.trim(),
+    message: content.trim(),
+    content: content.trim(),
+  } as any);
 
-  // revalidate unde ai pagina de chat (ajustez generic)
   revalidatePath(`/matches/${matchId}`);
-
   return created;
 }
