@@ -1,85 +1,121 @@
+// ./app/items/[id]/edit/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 
-import { getSupabaseBrowserClient } from "@/lib/supabase/client";
-import ItemForm from "@/components/items/ItemForm";
-import type { Item } from "@/lib/types/item";
+import { createClient } from "@/lib/supabase/client";
+import type { ItemFormData, ItemImage } from "@/features/items/types";
+import { ItemForm } from "@/features/items/components/item-form";
+
+type DbItem = {
+  id: string;
+  title: string | null;
+  description: string | null;
+  // unele versiuni vechi aveau o singură imagine:
+  image_url?: string | null;
+  // versiunea nouă (corectă pt ItemFormData) are array de imagini:
+  images?: ItemImage[] | null;
+};
 
 export default function EditItemPage() {
-  const router = useRouter();
   const params = useParams<{ id: string }>();
-  const itemId = params?.id;
+  const router = useRouter();
+  const supabase = useMemo(() => createClient(), []);
 
-  const [item, setItem] = useState<Item | null>(null);
   const [loading, setLoading] = useState(true);
+  const [item, setItem] = useState<DbItem | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const id = params?.id;
+    if (!id) return;
+
     let cancelled = false;
 
-    async function load() {
-      try {
-        setLoading(true);
-        setError(null);
+    (async () => {
+      setLoading(true);
+      setError(null);
 
-        if (!itemId) throw new Error("Missing item id");
+      const { data, error } = await supabase
+        .from("items")
+        .select("id,title,description,image_url,images")
+        .eq("id", id)
+        .single();
 
-        const supabase = getSupabaseBrowserClient();
-        const { data, error: sbErr } = await supabase
-          .from("items")
-          .select("*")
-          .eq("id", itemId)
-          .single();
+      if (cancelled) return;
 
-        if (sbErr) throw sbErr;
-
-        if (!cancelled) setItem((data ?? null) as Item | null);
-      } catch (e: any) {
-        if (!cancelled) setError(e?.message ?? "Failed to load item");
-      } finally {
-        if (!cancelled) setLoading(false);
+      if (error) {
+        setError(error.message);
+        setItem(null);
+      } else {
+        setItem((data as DbItem) ?? null);
       }
-    }
 
-    load();
+      setLoading(false);
+    })();
+
     return () => {
       cancelled = true;
     };
-  }, [itemId]);
+  }, [params?.id, supabase]);
 
-  if (loading) return <p className="p-6">Loading…</p>;
-  if (error) return <p className="p-6 text-red-600">{error}</p>;
-  if (!item) return <p className="p-6">Item not found.</p>;
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-3xl p-6">
+        <h1 className="text-xl font-semibold">Edit item</h1>
+        <p className="mt-2 text-sm text-muted-foreground">Loading…</p>
+      </div>
+    );
+  }
 
-  const title = item.title ?? ""; // <-- fix: mereu string
-  const description = item.description ?? "";
-  const image_url = item.image_url ?? null;
+  if (error) {
+    return (
+      <div className="mx-auto max-w-3xl p-6">
+        <h1 className="text-xl font-semibold">Edit item</h1>
+        <p className="mt-2 text-sm text-red-600">{error}</p>
+      </div>
+    );
+  }
+
+  if (!item) {
+    return (
+      <div className="mx-auto max-w-3xl p-6">
+        <h1 className="text-xl font-semibold">Edit item</h1>
+        <p className="mt-2 text-sm text-muted-foreground">Item not found.</p>
+      </div>
+    );
+  }
+
+  // IMPORTANT: aici era bug-ul tău.
+  // `ItemFormData` NU are `image_url`, dar are `images`.
+  const initialData: Partial<ItemFormData> = {
+    title: item.title ?? "",
+    description: item.description ?? "",
+    images:
+      item.images ??
+      (item.image_url
+        ? [
+            {
+              url: item.image_url,
+              publicId: "legacy",
+            } as ItemImage,
+          ]
+        : []),
+  };
 
   return (
-    <main className="p-6">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Edit item</h1>
-        <button
-          className="underline"
-          onClick={() => router.push("/items")}
-          type="button"
-        >
-          Back
-        </button>
-      </div>
+    <div className="mx-auto max-w-3xl p-6">
+      <h1 className="text-xl font-semibold">Edit item</h1>
 
-      <ItemForm
-        mode="edit"
-        itemId={itemId}
-        initialData={{
-          title,
-          description,
-          image_url,
-        }}
-        onDone={() => router.push("/items")}
-      />
-    </main>
+      <div className="mt-4">
+        <ItemForm
+          mode="edit"
+          itemId={item.id}
+          initialData={initialData}
+          onDone={() => router.push("/items")}
+        />
+      </div>
+    </div>
   );
 }
