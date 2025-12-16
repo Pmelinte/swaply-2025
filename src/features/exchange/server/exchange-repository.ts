@@ -8,7 +8,6 @@ import type {
   ExchangeStatus,
   ExchangeOfferItem,
 } from "@/features/exchange/types";
-import type { Review } from "@/features/reviews/types";
 
 /**
  * Map DB → ExchangeUpdate
@@ -33,20 +32,11 @@ const mapDbOffer = (row: any): ExchangeOffer => ({
 });
 
 /**
- * Map DB → Review
- */
-const mapDbReview = (row: any): Review => ({
-  id: row.id,
-  exchangeId: row.exchange_id,
-  reviewerId: row.reviewer_id,
-  targetUserId: row.target_user_id,
-  stars: row.stars,
-  comment: row.comment ?? undefined,
-  createdAt: row.created_at,
-});
-
-/**
  * Map DB → Exchange skeleton
+ *
+ * IMPORTANT:
+ * - NU adăugăm `reviews` aici, fiindcă tipul `Exchange` nu are câmpul.
+ * - Dacă vrei reviews în viitor, facem un tip separat: `ExchangeWithReviews`.
  */
 const mapDbExchange = (row: any): Exchange => ({
   id: row.id,
@@ -55,7 +45,6 @@ const mapDbExchange = (row: any): Exchange => ({
   status: row.status,
   offers: [],
   updates: [],
-  reviews: [], // ADĂUGAT
   createdAt: row.created_at,
   updatedAt: row.updated_at,
 });
@@ -67,7 +56,7 @@ export const exchangeRepository = {
   async createExchange(
     matchId: string,
     userAId: string,
-    userBId: string
+    userBId: string,
   ): Promise<Exchange> {
     const supabase = createServerClient();
 
@@ -95,10 +84,7 @@ export const exchangeRepository = {
   /**
    * Verifică dacă userul participă la acest schimb.
    */
-  async ensureAccess(
-    exchangeId: string,
-    userId: string
-  ): Promise<Exchange | null> {
+  async ensureAccess(exchangeId: string, userId: string): Promise<Exchange | null> {
     const supabase = createServerClient();
 
     const { data: row, error } = await supabase
@@ -117,12 +103,12 @@ export const exchangeRepository = {
   },
 
   /**
-   * Returnează schimbul complet (oferte + updates + reviews)
+   * Returnează schimbul complet (oferte + updates)
+   *
+   * NOTE:
+   * - reviews au fost scoase temporar pentru a respecta tipul `Exchange`.
    */
-  async getExchange(
-    exchangeId: string,
-    userId: string
-  ): Promise<Exchange | null> {
+  async getExchange(exchangeId: string, userId: string): Promise<Exchange | null> {
     const exchange = await this.ensureAccess(exchangeId, userId);
     if (!exchange) return null;
 
@@ -146,15 +132,6 @@ export const exchangeRepository = {
 
     exchange.updates = (updateRows ?? []).map(mapDbUpdate);
 
-    // Reviews
-    const { data: reviewRows } = await supabase
-      .from("reviews")
-      .select("*")
-      .eq("exchange_id", exchangeId)
-      .order("created_at", { ascending: true });
-
-    exchange.reviews = (reviewRows ?? []).map(mapDbReview);
-
     return exchange;
   },
 
@@ -166,7 +143,7 @@ export const exchangeRepository = {
     fromUserId: string,
     toUserId: string,
     offered: ExchangeOfferItem[],
-    requested: ExchangeOfferItem[]
+    requested: ExchangeOfferItem[],
   ) {
     const supabase = createServerClient();
 
@@ -188,7 +165,7 @@ export const exchangeRepository = {
     await this.addUpdate(
       exchangeId,
       "offer_sent",
-      "A fost trimisă o ofertă de schimb."
+      "A fost trimisă o ofertă de schimb.",
     );
   },
 
@@ -212,11 +189,7 @@ export const exchangeRepository = {
   /**
    * Adaugă un eveniment în timeline.
    */
-  async addUpdate(
-    exchangeId: string,
-    type: ExchangeUpdate["type"],
-    message: string
-  ) {
+  async addUpdate(exchangeId: string, type: ExchangeUpdate["type"], message: string) {
     const supabase = createServerClient();
 
     const payload = {
