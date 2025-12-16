@@ -5,11 +5,22 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
 
+type ExchangeStatus =
+  | "pending"
+  | "accepted"
+  | "shipping"
+  | "in_transit"
+  | "delivered"
+  | "completed"
+  | "cancelled"
+  | string;
+
 type Props = {
   exchangeId: string;
+  status: ExchangeStatus;
 };
 
-export default function ReceiveConfirmation({ exchangeId }: Props) {
+export default function ReceiveConfirmation({ exchangeId, status }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -20,8 +31,10 @@ export default function ReceiveConfirmation({ exchangeId }: Props) {
     return createBrowserClient(url, anon);
   }, []);
 
+  const canConfirm =
+    status === "delivered" || status === "in_transit" || status === "shipping";
+
   const handleConfirm = async () => {
-    // IMPORTANT: folosim window.confirm, nu o funcție locală cu același nume
     if (!window.confirm("Confirmi că ai primit obiectul?")) return;
 
     setLoading(true);
@@ -35,7 +48,6 @@ export default function ReceiveConfirmation({ exchangeId }: Props) {
 
       if (error) throw error;
 
-      // refresh UI
       router.refresh();
     } catch (e: any) {
       setError(e?.message ?? "A apărut o eroare la confirmare.");
@@ -43,6 +55,8 @@ export default function ReceiveConfirmation({ exchangeId }: Props) {
       setLoading(false);
     }
   };
+
+  if (!canConfirm) return null;
 
   return (
     <div className="space-y-3">
