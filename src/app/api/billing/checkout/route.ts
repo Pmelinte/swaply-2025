@@ -7,7 +7,7 @@ type Plan = "silver" | "gold" | "platinum";
 
 type ApiResponse =
   | { ok: true; url: string }
-  | { ok: false; error: string };
+  | { ok: false; error: string; message?: string };
 
 type Body = {
   plan?: Plan;
@@ -70,8 +70,8 @@ export async function POST(
       plan === "silver"
         ? process.env.STRIPE_PRICE_SILVER
         : plan === "gold"
-        ? process.env.STRIPE_PRICE_GOLD
-        : process.env.STRIPE_PRICE_PLATINUM;
+          ? process.env.STRIPE_PRICE_GOLD
+          : process.env.STRIPE_PRICE_PLATINUM;
 
     if (!secretKey) {
       return NextResponse.json(
@@ -94,9 +94,24 @@ export async function POST(
       );
     }
 
-    // 4) Stripe SDK (import dinamic ca să nu crape build-ul dacă nu e folosit încă)
-    const Stripe = (await import("stripe")).default;
-    const stripe = new Stripe(secretKey, {
+    // 4) Stripe SDK — IMPORTANT:
+    // Dacă pachetul `stripe` nu e instalat, facem fallback (fără crash la build).
+    let StripeCtor: any = null;
+    try {
+      StripeCtor = (await import("stripe")).default;
+    } catch {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "stripe_sdk_missing",
+          message:
+            "Pachetul 'stripe' nu este instalat. Instalează-l sau dezactivează billing-ul.",
+        },
+        { status: 501 },
+      );
+    }
+
+    const stripe = new StripeCtor(secretKey, {
       apiVersion: "2024-06-20",
     });
 
@@ -112,7 +127,6 @@ export async function POST(
       success_url: successUrl,
       cancel_url: cancelUrl,
 
-      // metadata = aur pentru webhook-uri + debugging
       metadata: {
         user_id: user.id,
         plan,
