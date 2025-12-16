@@ -1,84 +1,97 @@
 // src/app/(app)/my/items/page.tsx
-
 import { redirect } from "next/navigation";
-import { createServerClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import type { Item } from "@/features/items/types";
-import { listUserItemsAction } from "@/features/items/server/items-actions";
-import ItemRowActions from "@/features/items/components/ItemRowActions";
+
+function isArchived(item: any): boolean {
+  // 1) dacă există un boolean clar
+  if (typeof item?.archived === "boolean") return item.archived;
+  if (typeof item?.is_archived === "boolean") return item.is_archived;
+
+  // 2) dacă există status string
+  const status = (item?.status ?? item?.state ?? "") as string;
+  if (typeof status === "string" && status.toLowerCase() === "archived") return true;
+
+  // 3) dacă există is_active boolean (invers)
+  if (typeof item?.is_active === "boolean") return !item.is_active;
+
+  // fallback: considerăm activ
+  return false;
+}
 
 export default async function MyItemsPage() {
-  // verificăm user-ul autentificat
-  const supabase = createServerClient();
+  const supabase = createClient();
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
-    redirect("/login");
-  }
+  if (!user) redirect("/login");
 
-  // luăm itemele userului prin server action
-  let items: Item[] = [];
-  try {
-    items = await listUserItemsAction();
-  } catch (e) {
-    // dacă acțiunea eșuează (ex: sesiune invalidă), îl trimitem la login
-    redirect("/login");
-  }
+  const { data: items, error } = await supabase
+    .from("items")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
 
-  const active = items.filter((item) => !item.archived);
-  const archived = items.filter((item) => item.archived);
-
-  return (
-    <div className="max-w-3xl mx-auto p-6 space-y-8">
-      <h1 className="text-3xl font-bold mb-2">Obiectele mele</h1>
-
-      {/* ACTIVE */}
-      <section>
-        <h2 className="text-xl font-semibold mb-3">Active</h2>
-        {active.length === 0 ? (
-          <p className="text-gray-600 text-sm">
-            Nu ai încă obiecte active. Adaugă unul nou din meniul principal.
-          </p>
-        ) : (
-          <div className="space-y-3">
-            {active.map((item) => (
-              <ItemRow key={item.id} item={item} />
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* ARCHIVED */}
-      <section>
-        <h2 className="text-xl font-semibold mb-3">Arhivate</h2>
-        {archived.length === 0 ? (
-          <p className="text-gray-600 text-sm">Nu ai obiecte arhivate.</p>
-        ) : (
-          <div className="space-y-3">
-            {archived.map((item) => (
-              <ItemRow key={item.id} item={item} />
-            ))}
-          </div>
-        )}
-      </section>
-    </div>
-  );
-}
-
-function ItemRow({ item }: { item: Item }) {
-  return (
-    <div className="p-4 border rounded-xl bg-gray-50">
-      <a href={`/items/${item.id}`} className="block">
-        <p className="font-semibold">{item.title}</p>
-        <p className="text-xs text-gray-500 mt-1">
-          Creat la {String(item.createdAt ?? "").slice(0, 10)}
-        </p>
-      </a>
-
-      <div className="mt-2">
-        <ItemRowActions itemId={item.id} />
+  if (error) {
+    return (
+      <div className="mx-auto max-w-3xl p-6">
+        <h1 className="text-xl font-semibold">My items</h1>
+        <p className="mt-2 text-sm text-red-600">{error.message}</p>
       </div>
+    );
+  }
+
+  const list = (items as Item[]) ?? [];
+
+  const active = list.filter((item) => !isArchived(item));
+  const archived = list.filter((item) => isArchived(item));
+
+  return (
+    <div className="mx-auto max-w-3xl p-6 space-y-8">
+      <div>
+        <h1 className="text-xl font-semibold">My items</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Active: {active.length} • Archived: {archived.length}
+        </p>
+      </div>
+
+      <section className="space-y-3">
+        <h2 className="text-base font-semibold">Active</h2>
+        {active.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No active items.</p>
+        ) : (
+          <ul className="space-y-2">
+            {active.map((item: any) => (
+              <li key={item.id} className="rounded-md border p-3">
+                <div className="font-medium">{item.title ?? "Untitled"}</div>
+                {item.description ? (
+                  <div className="text-sm text-muted-foreground">{item.description}</div>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-base font-semibold">Archived</h2>
+        {archived.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No archived items.</p>
+        ) : (
+          <ul className="space-y-2">
+            {archived.map((item: any) => (
+              <li key={item.id} className="rounded-md border p-3 opacity-80">
+                <div className="font-medium">{item.title ?? "Untitled"}</div>
+                {item.description ? (
+                  <div className="text-sm text-muted-foreground">{item.description}</div>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </div>
   );
 }
