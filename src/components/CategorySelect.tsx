@@ -11,7 +11,7 @@ export type CategoryNode = {
 
 // ✅ Props “noi” (recomandate)
 type NewProps = {
-  categories: CategoryNode[];
+  categories?: CategoryNode[]; // ✅ optional
   value?: { categoryId?: string; subcategoryId?: string };
   onChange: (next: { categoryId?: string; subcategoryId?: string }) => void;
   disabled?: boolean;
@@ -19,7 +19,7 @@ type NewProps = {
 
 // ✅ Props “vechi” (compatibilitate)
 type LegacyProps = {
-  categories: CategoryNode[];
+  categories?: CategoryNode[]; // ✅ optional
   categoryId?: string;
   subcategoryId?: string;
   onCategoryChange?: React.Dispatch<React.SetStateAction<string>>;
@@ -27,7 +27,6 @@ type LegacyProps = {
   disabled?: boolean;
 };
 
-// Acceptăm ambele forme
 export type Props = NewProps | LegacyProps;
 
 function sortTree(categories: CategoryNode[]): CategoryNode[] {
@@ -52,10 +51,11 @@ function isNewProps(p: Props): p is NewProps {
 }
 
 export default function CategorySelect(props: Props) {
-  const { categories, disabled } = props;
+  const categories = props.categories ?? []; // ✅ fallback
+  const disabled = (props as any).disabled as boolean | undefined;
+
   const sorted = useMemo(() => sortTree(categories), [categories]);
 
-  // Normalizăm input-ul la un singur model intern
   const selectedCategoryId = isNewProps(props)
     ? props.value?.categoryId ?? ""
     : props.categoryId ?? "";
@@ -94,10 +94,12 @@ export default function CategorySelect(props: Props) {
         <select
           className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
           value={selectedCategoryId}
-          disabled={disabled}
+          disabled={disabled || sorted.length === 0}
           onChange={(e) => setCategory(e.target.value || undefined)}
         >
-          <option value="">Select category…</option>
+          <option value="">
+            {sorted.length === 0 ? "No categories loaded" : "Select category…"}
+          </option>
           {sorted.map((c) => (
             <option key={c.id} value={c.id}>
               {c.name}
@@ -111,10 +113,16 @@ export default function CategorySelect(props: Props) {
         <select
           className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
           value={selectedSubcategoryId}
-          disabled={disabled || !selectedCategoryId}
+          disabled={disabled || !selectedCategoryId || subcategories.length === 0}
           onChange={(e) => setSubcategory(e.target.value || undefined)}
         >
-          <option value="">Select subcategory…</option>
+          <option value="">
+            {!selectedCategoryId
+              ? "Select category first"
+              : subcategories.length === 0
+              ? "No subcategories"
+              : "Select subcategory…"}
+          </option>
           {subcategories.map((sc) => (
             <option key={sc.id} value={sc.id}>
               {sc.name}
