@@ -3,26 +3,30 @@ import { z } from "zod";
 
 /**
  * Condiții standard pentru item.
- * IMPORTANT: `item-form.tsx` importă `itemConditionValues` + `itemConditionLabels`.
+ *
+ * IMPORTANT:
+ * În proiectul tău, tipul `ItemCondition` NU include "fair" (TypeScript ți-a zis clar).
+ * Ca să nu mai generăm un payload invalid, eliminăm "fair" din lista permisă.
  */
 export const itemConditionValues = [
   "new",
   "like_new",
   "good",
-  "fair",
   "poor",
 ] as const;
 
-export const itemConditionLabels: Record<(typeof itemConditionValues)[number], string> = {
+export const itemConditionLabels: Record<
+  (typeof itemConditionValues)[number],
+  string
+> = {
   new: "Nou",
   like_new: "Ca nou",
   good: "Bun",
-  fair: "Acceptabil",
   poor: "Slab",
 };
 
 /**
- * Schema pentru imaginile item-ului (folosită în mai multe locuri).
+ * Schema pentru imaginile item-ului.
  */
 export const itemImageSchema = z.object({
   url: z.string().min(1),
@@ -31,8 +35,6 @@ export const itemImageSchema = z.object({
 
 /**
  * Schema principală pentru formular.
- * NOTE: păstrez câmpurile “clasice” din proiectul tău; dacă ai ceva în plus,
- * TypeScript îți va spune la următorul build.
  */
 export const itemFormSchema = z.object({
   title: z.string().min(1, "Titlul este obligatoriu"),
@@ -52,6 +54,5 @@ export const itemFormSchema = z.object({
 
   images: z.array(itemImageSchema).optional().default([]),
 
-  // AI metadata (optional)
   aiMetadata: z.any().optional(),
 });
