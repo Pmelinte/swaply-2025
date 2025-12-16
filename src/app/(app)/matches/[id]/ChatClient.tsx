@@ -1,157 +1,158 @@
+// src/app/(app)/matches/[id]/ChatClient.tsx
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import type { MatchPreview, ChatMessage } from "@/features/chat/types";
-import {
-  getThreadAction,
-  createMessageAction,
-} from "@/features/chat/server/chat-actions";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
+import { createBrowserClient } from "@supabase/ssr";
+
+import {
+  createMessageAction,
+  listMessagesAction,
+} from "@/features/chat/server/chat-actions";
+
+type ChatMessage = {
+  id: string;
+  match_id: string;
+  sender_id: string;
+  text: string | null;
+  created_at: string;
+};
 
 interface ChatClientProps {
-  match: MatchPreview;
+  matchId: string;
+  currentUserId: string;
 }
 
-export default function ChatClient({ match }: ChatClientProps) {
-  const supabase = createClientComponentClient();
+export default function ChatClient({ matchId, currentUserId }: ChatClientProps) {
+  const supabase = useMemo(() => {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+    return createBrowserClient(url, anon);
+  }, []);
+
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [loading, setLoading] = useState(true);
   const [text, setText] = useState("");
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const [loading, setLoading] = useState(true);
+  const [sending, setSending] = useState(false);
+  const bottomRef = useRef<HTMLDivElement | null>(null);
 
-  // Încarcă thread-ul inițial
-  useEffect(() => {
-    (async () => {
-      const thread = await getThreadAction(match.id);
-      setMessages(thread.messages);
-      setLoading(false);
-      scrollToBottom();
-    })();
-  }, [match.id]);
-
-  // Scroll automat la finalul chat-ului
   const scrollToBottom = () => {
-    setTimeout(() => {
-      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 50);
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Realtime: ascultăm mesajele noi
   useEffect(() => {
+    let mounted = true;
+
+    (async () => {
+      setLoading(true);
+      try {
+        const list = await listMessagesAction(matchId);
+        if (!mounted) return;
+        setMessages((list as ChatMessage[]) ?? []);
+        setTimeout(scrollToBottom, 50);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    })();
+
+    return () => {
+      mounted = false;
+    };
+    // listMessagesAction e server action; nu o punem în deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [matchId]);
+
+  useEffect(() => {
+    // Realtime (dacă ai enable la Realtime pe tabela messages)
     const channel = supabase
-      .channel(`chat-${match.id}`)
+      .channel(`match:${matchId}`)
       .on(
         "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "messages",
-          filter: `match_id=eq.${match.id}`,
-        },
+        { event: "INSERT", schema: "public", table: "messages", filter: `match_id=eq.${matchId}` },
         (payload) => {
-          const newMsg = payload.new as any;
-          setMessages((prev) => [
-            ...prev,
-            {
-              id: newMsg.id,
-              matchId: newMsg.match_id,
-              senderId: newMsg.sender_id,
-              content: newMsg.content,
-              createdAt: newMsg.created_at,
-            },
-          ]);
-          scrollToBottom();
-        },
+          const m = payload.new as ChatMessage;
+          setMessages((prev) => [...prev, m]);
+          setTimeout(scrollToBottom, 50);
+        }
       )
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [match.id, supabase]);
+  }, [supabase, matchId]);
 
-  // Trimite mesaj
-  const sendMessage = async () => {
-    if (!text.trim()) return;
+  const send = async () => {
+    const value = text.trim();
+    if (!value) return;
 
-    const content = text.trim();
-    setText("");
+    setSending(true);
+    try {
+      await createMessageAction({
+        matchId,
+        text: value,
+      });
 
-    const sent = await createMessageAction({
-      matchId: match.id,
-      content,
-    });
-
-    // mesajul va intra și prin realtime, deci nu îl duplicăm
+      setText("");
+      // nu adăugăm manual în listă: realtime ar trebui să o facă.
+      // dacă realtime nu e activ, fallback: re-fetch
+      // (îl păstrăm simplu, să nu rupem nimic)
+      const list = await listMessagesAction(matchId);
+      setMessages((list as ChatMessage[]) ?? []);
+      setTimeout(scrollToBottom, 50);
+    } finally {
+      setSending(false);
+    }
   };
 
-  if (loading) {
-    return <p>Se încarcă conversația...</p>;
-  }
-
   return (
-    <div className="flex flex-col h-[80vh] border rounded-xl overflow-hidden">
-      {/* Header */}
-      <div className="border-b p-4 flex items-center gap-3 bg-gray-50">
-        <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 relative">
-          {match.otherUserAvatar ? (
-            <Image
-              src={match.otherUserAvatar}
-              alt={match.otherUserName ?? "User"}
-              fill
-              className="object-cover"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">👤</div>
-          )}
-        </div>
-        <div>
-          <p className="font-semibold text-lg">{match.otherUserName}</p>
-          <p className="text-xs text-gray-500">Match creat la {match.createdAt.slice(0, 10)}</p>
-        </div>
+    <div className="flex h-full flex-col rounded-md border">
+      <div className="flex items-center gap-3 border-b p-3">
+        <Image src="/logo.png" alt="Swaply" width={28} height={28} />
+        <div className="text-sm font-medium">Chat</div>
       </div>
 
-      {/* Mesaje */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-white">
-        {messages.map((msg) => {
-          const isMe = msg.senderId === match.userAId || msg.senderId === match.userBId
-            ? msg.senderId === match.userAId && match.userAId === match.otherUserId
-            : false;
-
-          const mine = msg.senderId !== match.userBId; // simplu pentru acum
-
-          return (
-            <div
-              key={msg.id}
-              className={`max-w-[70%] px-4 py-2 rounded-xl ${
-                mine ? "bg-blue-600 text-white ml-auto" : "bg-gray-200 text-black"
-              }`}
-            >
-              {msg.content}
-            </div>
-          );
-        })}
-
+      <div className="flex-1 overflow-auto p-3 space-y-2">
+        {loading ? (
+          <div className="text-sm text-muted-foreground">Loading…</div>
+        ) : messages.length === 0 ? (
+          <div className="text-sm text-muted-foreground">No messages yet.</div>
+        ) : (
+          messages.map((m) => {
+            const mine = m.sender_id === currentUserId;
+            return (
+              <div
+                key={m.id}
+                className={`max-w-[85%] rounded-md px-3 py-2 text-sm ${
+                  mine ? "ml-auto bg-black text-white" : "mr-auto bg-muted"
+                }`}
+              >
+                {m.text}
+              </div>
+            );
+          })
+        )}
         <div ref={bottomRef} />
       </div>
 
-      {/* Input */}
-      <div className="p-4 border-t bg-gray-50 flex gap-2">
+      <div className="border-t p-3 flex gap-2">
         <input
-          className="flex-1 border rounded-lg px-3 py-2"
-          placeholder="Scrie un mesaj..."
+          className="w-full rounded-md border px-3 py-2 text-sm"
           value={text}
           onChange={(e) => setText(e.target.value)}
+          placeholder="Write a message…"
           onKeyDown={(e) => {
-            if (e.key === "Enter") sendMessage();
+            if (e.key === "Enter") send();
           }}
+          disabled={sending}
         />
         <button
-          onClick={sendMessage}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+          type="button"
+          onClick={send}
+          disabled={sending}
+          className="rounded-md bg-black px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
         >
-          Trimite
+          {sending ? "…" : "Send"}
         </button>
       </div>
     </div>
