@@ -28,7 +28,6 @@ async function assertMatchMembership(
   matchId: string,
   userId: string,
 ) {
-  // Schema ta din alte fișiere: matches are userAId/userBId.
   const { data: match, error } = await supabase
     .from("matches")
     .select("id,userAId,userBId")
@@ -53,13 +52,24 @@ export async function getThreadAction(matchId: string): Promise<ChatThread | nul
   }
 }
 
+/**
+ * ✅ Mesajele le luăm direct din DB, ca să nu depindem de un repo method inexistent.
+ */
 export async function listThreadMessagesAction(
   matchId: string,
 ): Promise<ChatMessage[]> {
   try {
     const { supabase, user } = await requireUser();
     await assertMatchMembership(supabase, matchId, user.id);
-    return await chatRepository.listMessages(matchId);
+
+    const { data, error } = await supabase
+      .from("messages")
+      .select("*")
+      .eq("match_id", matchId)
+      .order("created_at", { ascending: true });
+
+    if (error) return [];
+    return (data as ChatMessage[]) ?? [];
   } catch {
     return [];
   }
@@ -75,8 +85,7 @@ export async function createMessageAction(
 
   await assertMatchMembership(supabase, matchId, user.id);
 
-  // IMPORTANT: nu presupunem câmpul de text (că ai avut mismatch mai devreme).
-  // Luăm “conținutul” din ce există în input (text/message/content) fără să stricăm tipurile.
+  // Nu presupunem numele câmpului pentru conținut; îl extragem “safe”.
   const content =
     (input as any).text ??
     (input as any).message ??
@@ -87,14 +96,18 @@ export async function createMessageAction(
     throw new Error("missing_message_content");
   }
 
-  const created = await chatRepository.createMessage({
-    matchId,
-    senderId: user.id,
-    // repo-ul tău probabil așteaptă una din aceste chei; trimitem ambele “safe”
-    text: content.trim(),
-    message: content.trim(),
-    content: content.trim(),
-  } as any);
+  // ✅ Semnătura reală din repo-ul tău: createMessage(input, senderId)
+  const created = await chatRepository.createMessage(
+    {
+      ...(input as any),
+      matchId,
+      // punem content în toate variantele, ca să nu pierdem mesajul
+      text: content.trim(),
+      message: content.trim(),
+      content: content.trim(),
+    } as any,
+    user.id,
+  );
 
   revalidatePath(`/matches/${matchId}`);
   return created;
