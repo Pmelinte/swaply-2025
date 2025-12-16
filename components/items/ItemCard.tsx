@@ -14,22 +14,40 @@ interface ItemCardProps {
 export default function ItemCard({ item, onDelete, isDeleting }: ItemCardProps) {
   const { t } = useTranslation();
 
+  const title = item.title ?? 'Untitled';
+  const description = item.description ?? '';
+
+  // Next/Image cere mereu string (sau StaticImport). Nu acceptă null/undefined.
+  const src: string | null =
+    (item.image_url && String(item.image_url)) ||
+    (item.imageUrl && String(item.imageUrl)) ||
+    null;
+
   return (
     <div className="bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm">
-      <div className="relative h-48 w-full">
-        <Image
-          src={item.image_url}
-          alt={item.title}
-          fill
-          className="object-cover"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        />
-      </div>
-      <div className="p-4">
-        <h3 className="text-lg font-semibold text-slate-900 truncate">{item.title}</h3>
-        {item.description && (
-          <p className="text-slate-600 text-sm mt-1 line-clamp-2">{item.description}</p>
+      <div className="relative h-48 w-full bg-slate-100">
+        {src ? (
+          <Image
+            src={src}
+            alt={title}
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center text-slate-400 text-sm">
+            No image
+          </div>
         )}
+      </div>
+
+      <div className="p-4">
+        <h3 className="text-lg font-semibold text-slate-900 truncate">{title}</h3>
+
+        {description ? (
+          <p className="text-slate-600 text-sm mt-1 line-clamp-2">{description}</p>
+        ) : null}
+
         <div className="flex gap-2 mt-4">
           <Link
             href={`/items/${item.id}/edit`}
@@ -37,6 +55,7 @@ export default function ItemCard({ item, onDelete, isDeleting }: ItemCardProps) 
           >
             {t('edit')}
           </Link>
+
           <button
             onClick={() => onDelete(item.id)}
             disabled={isDeleting}
