@@ -13,9 +13,6 @@ export default function ProfileForm({ profile }: Props) {
   const [fullName, setFullName] = useState(profile.full_name ?? "");
   const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url ?? "");
 
-  const [locationCity, setLocationCity] = useState(profile.location_city ?? "");
-  const [locationCountry, setLocationCountry] = useState(profile.location_country ?? "");
-
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -29,8 +26,6 @@ export default function ProfileForm({ profile }: Props) {
       await updateProfileAction({
         full_name: fullName.trim(),
         avatar_url: avatarUrl.trim(),
-        location_city: locationCity.trim(),
-        location_country: locationCountry.trim(),
       });
 
       setSuccess("Salvat ✅");
@@ -71,25 +66,6 @@ export default function ProfileForm({ profile }: Props) {
           value={avatarUrl}
           onChange={(e) => setAvatarUrl(e.target.value)}
         />
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="block text-sm font-medium">Oraș</label>
-          <input
-            className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
-            value={locationCity}
-            onChange={(e) => setLocationCity(e.target.value)}
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium">Țară</label>
-          <input
-            className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
-            value={locationCountry}
-            onChange={(e) => setLocationCountry(e.target.value)}
-          />
-        </div>
       </div>
 
       <button
