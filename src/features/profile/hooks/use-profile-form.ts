@@ -1,33 +1,36 @@
+// src/features/profile/hooks/use-profile-form.ts
 "use client";
 
+import { useMemo } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import type { z } from "zod";
-import { updateProfileSchema } from "../validation";
 
-/**
- * Valorile formularului de profil, derivate direct din schema Zod.
- * Nu mai avem nevoie de un tip separat `UpdateProfileInput`.
- */
-export type ProfileFormValues = z.infer<typeof updateProfileSchema>;
+type ProfileFormValues = {
+  full_name?: string;
+  avatar_url?: string;
+  language?: string;
+  location_city?: string;
+  location_country?: string;
+};
 
-/**
- * Hook reutilizabil pentru formularul de profil.
- * - folosește Zod pentru validare
- * - permite defaultValues pentru a pre-umple câmpurile
- */
-export function useProfileForm(options?: {
+type UseProfileFormOptions = {
   defaultValues?: Partial<ProfileFormValues>;
-}) {
-  const form = useForm<ProfileFormValues>({
-    resolver: zodResolver(updateProfileSchema),
-    defaultValues: {
+};
+
+export function useProfileForm(options?: UseProfileFormOptions) {
+  const defaultValues = useMemo<ProfileFormValues>(
+    () => ({
       full_name: "",
       avatar_url: "",
-      location: "",
-      bio: "",
+      language: "ro",
+      location_city: "",
+      location_country: "",
       ...options?.defaultValues,
-    },
+    }),
+    [options?.defaultValues],
+  );
+
+  const form = useForm<ProfileFormValues>({
+    defaultValues,
   });
 
   return form;
