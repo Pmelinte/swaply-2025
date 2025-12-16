@@ -12,9 +12,7 @@ type Props = {
 export default function ProfileForm({ profile }: Props) {
   const [fullName, setFullName] = useState(profile.full_name ?? "");
   const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url ?? "");
-  const [language, setLanguage] = useState(profile.language ?? "ro");
 
-  // ✅ câmpurile reale din tipul tău
   const [locationCity, setLocationCity] = useState(profile.location_city ?? "");
   const [locationCountry, setLocationCountry] = useState(profile.location_country ?? "");
 
@@ -31,7 +29,6 @@ export default function ProfileForm({ profile }: Props) {
       await updateProfileAction({
         full_name: fullName.trim(),
         avatar_url: avatarUrl.trim(),
-        language,
         location_city: locationCity.trim(),
         location_country: locationCountry.trim(),
       });
@@ -74,18 +71,6 @@ export default function ProfileForm({ profile }: Props) {
           value={avatarUrl}
           onChange={(e) => setAvatarUrl(e.target.value)}
         />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium">Language</label>
-        <select
-          className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
-          value={language}
-          onChange={(e) => setLanguage(e.target.value)}
-        >
-          <option value="ro">Română</option>
-          <option value="en">English</option>
-        </select>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
