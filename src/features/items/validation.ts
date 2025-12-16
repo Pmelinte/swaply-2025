@@ -1,5 +1,6 @@
 // src/features/items/validation.ts
 import { z } from "zod";
+import type { ItemFormData } from "./types";
 
 /**
  * Condiții standard pentru item.
@@ -7,8 +8,6 @@ import { z } from "zod";
  * IMPORTANT:
  * Din erorile tale TypeScript reiese că tipul `ItemCondition` din proiect
  * NU include "fair" și NU include "poor".
- * Ca să nu mai generăm payload invalid pentru `ItemFormData`,
- * păstrăm doar valorile compatibile: new / like_new / good.
  */
 export const itemConditionValues = ["new", "like_new", "good"] as const;
 
@@ -52,3 +51,34 @@ export const itemFormSchema = z.object({
 
   aiMetadata: z.any().optional(),
 });
+
+/**
+ * ✅ Normalizer cerut de `items-actions.ts`
+ * - convertește null -> undefined unde e nevoie
+ * - taie whitespace
+ * - garantează arrays
+ */
+export function normalizeItemFormData(input: ItemFormData): ItemFormData {
+  return {
+    ...input,
+    title: (input.title ?? "").trim(),
+    description: (input.description ?? "").trim(),
+
+    category: (input.category ?? "").trim(),
+    subcategory: (input.subcategory ?? "").trim(),
+
+    tags: Array.isArray(input.tags) ? input.tags : [],
+
+    locationCity: (input.locationCity ?? "").trim(),
+    locationCountry: (input.locationCountry ?? "").trim(),
+
+    approximateValue:
+      input.approximateValue === null ? undefined : input.approximateValue,
+
+    currency: input.currency === null ? undefined : input.currency,
+
+    images: Array.isArray(input.images) ? input.images : [],
+
+    aiMetadata: input.aiMetadata,
+  };
+}
