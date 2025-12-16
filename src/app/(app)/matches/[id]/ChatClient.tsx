@@ -5,8 +5,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { createBrowserClient } from "@supabase/ssr";
 
-import { createMessageAction } from "@/features/chat/server/chat-actions";
-
 type ChatMessage = {
   id: string;
   match_id: string;
@@ -31,10 +29,28 @@ export default function ChatClient({ matchId, currentUserId }: ChatClientProps) 
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   const scrollToBottom = (smooth = true) => {
     bottomRef.current?.scrollIntoView({ behavior: smooth ? "smooth" : "auto" });
+  };
+
+  const refresh = async () => {
+    const { data, error } = await supabase
+      .from("messages")
+      .select("id,match_id,sender_id,text,created_at")
+      .eq("match_id", matchId)
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      setError(error.message);
+      return;
+    }
+
+    setMessages((data as ChatMessage[]) ?? []);
+    setTimeout(() => scrollToBottom(true), 50);
   };
 
   // 1) initial load
@@ -43,6 +59,7 @@ export default function ChatClient({ matchId, currentUserId }: ChatClientProps) 
 
     (async () => {
       setLoading(true);
+      setError(null);
 
       const { data, error } = await supabase
         .from("messages")
@@ -53,6 +70,7 @@ export default function ChatClient({ matchId, currentUserId }: ChatClientProps) 
       if (!mounted) return;
 
       if (error) {
+        setError(error.message);
         setMessages([]);
       } else {
         setMessages((data as ChatMessage[]) ?? []);
@@ -92,28 +110,29 @@ export default function ChatClient({ matchId, currentUserId }: ChatClientProps) 
     };
   }, [supabase, matchId]);
 
-  const refresh = async () => {
-    const { data } = await supabase
-      .from("messages")
-      .select("id,match_id,sender_id,text,created_at")
-      .eq("match_id", matchId)
-      .order("created_at", { ascending: true });
-
-    setMessages((data as ChatMessage[]) ?? []);
-    setTimeout(() => scrollToBottom(true), 50);
-  };
-
   const send = async () => {
     const value = text.trim();
     if (!value) return;
 
     setSending(true);
+    setError(null);
+
     try {
-      await createMessageAction({ matchId, text: value });
+      // ✅ Insert direct în DB; evităm CreateMessageInput mismatch
+      const { error } = await supabase.from("messages").insert({
+        match_id: matchId,
+        sender_id: currentUserId,
+        text: value,
+      });
+
+      if (error) throw error;
+
       setText("");
 
-      // fallback: dacă realtime nu e activ pe tabela messages, tot vezi mesajul
+      // fallback: dacă realtime nu e activ, tot vezi mesajul
       await refresh();
+    } catch (e: any) {
+      setError(e?.message ?? "Eroare la trimiterea mesajului.");
     } finally {
       setSending(false);
     }
@@ -149,7 +168,34 @@ export default function ChatClient({ matchId, currentUserId }: ChatClientProps) 
         <div ref={bottomRef} />
       </div>
 
-      <div className="border-t p-3 flex gap-2">
-        <input
-          className="w-full rounded-md border px-3 py-2 text-sm"
-          value={text}
+      <div className="border-t p-3 space-y-2">
+        {error ? (
+          <div className="rounded-md border border-red-200 bg-red-50 p-2 text-sm text-red-700">
+            {error}
+          </div>
+        ) : null}
+
+        <div className="flex gap-2">
+          <input
+            className="w-full rounded-md border px-3 py-2 text-sm"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="Write a message…"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") send();
+            }}
+            disabled={sending}
+          />
+          <button
+            type="button"
+            onClick={send}
+            disabled={sending}
+            className="rounded-md bg-black px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+          >
+            {sending ? "…" : "Send"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
