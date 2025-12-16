@@ -28,14 +28,13 @@ export function createClient() {
           cookieStore.set({ name, value, ...options });
         } catch {
           // Server Components can't set cookies; it's fine.
-          // (Route Handlers / Server Actions can.)
         }
       },
       remove(name: string, options: any) {
         try {
           cookieStore.set({ name, value: "", ...options, maxAge: 0 });
         } catch {
-          // same rationale as set()
+          // Server Components can't set cookies; it's fine.
         }
       },
     },
@@ -43,8 +42,8 @@ export function createClient() {
 }
 
 /**
- * Backwards-compat alias.
- * Your codebase uses createServerClient() in some pages.
- * Keep it to avoid noisy refactors.
+ * Backwards-compat aliases used across the repo.
+ * Keep them so builds don't break while you refactor gradually.
  */
 export const createServerClient = createClient;
+export const getSupabaseServerClient = createClient;
