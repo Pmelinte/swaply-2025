@@ -1,7 +1,6 @@
 // src/app/(app)/matches/[id]/page.tsx
-
-import { createServerClient } from "@/lib/supabase/server";
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
 import ChatClient from "./ChatClient";
 
 interface PageProps {
@@ -9,45 +8,31 @@ interface PageProps {
 }
 
 export default async function MatchChatPage({ params }: PageProps) {
-  const supabase = createServerClient();
-  const matchId = params.id;
+  const supabase = createClient();
 
-  // 1. User
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
-    notFound();
-  }
+  if (!user) redirect("/login");
 
-  // 2. Match
+  const matchId = params.id;
+
+  if (!matchId) redirect("/");
+
+  // (opțional) verificăm că match-ul există + user e parte din el
   const { data: match } = await supabase
     .from("matches")
-    .select("*")
+    .select("id,userAId,userBId")
     .eq("id", matchId)
     .maybeSingle();
 
-  if (!match) {
-    notFound();
-  }
-
-  if (match.userAId !== user.id && match.userBId !== user.id) {
-    notFound();
-  }
-
-  // 3. Mesaje
-  const { data: messages } = await supabase
-    .from("messages")
-    .select("*")
-    .eq("match_id", matchId)
-    .order("created_at", { ascending: true });
+  if (!match) redirect("/");
+  if (match.userAId !== user.id && match.userBId !== user.id) redirect("/");
 
   return (
-    <ChatClient
-      matchId={matchId}
-      currentUserId={user.id}
-      initialMessages={messages ?? []}
-    />
+    <div className="h-[calc(100vh-4rem)] max-w-3xl mx-auto p-4">
+      <ChatClient matchId={matchId} currentUserId={user.id} />
+    </div>
   );
 }
