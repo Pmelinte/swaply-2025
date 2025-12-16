@@ -21,11 +21,19 @@ export type SwipeFeedItem = {
   image_url?: string | null;
   imageUrl?: string | null; // compat
 
+  // owner / profile (pentru card / feed)
+  profileName?: string | null;
+  profileAvatarUrl?: string | null;
+
+  // locație & tags (pentru UI)
+  location?: string | null;
+  tags?: string[] | string | null; // uneori vine ca array, uneori ca string
+
   // categorie (opțional)
   category_id?: string | null;
   subcategory_id?: string | null;
 
-  // owner
+  // owner id (opțional)
   owner_id?: string | null;
 
   // meta
