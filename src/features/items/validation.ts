@@ -5,15 +5,12 @@ import { z } from "zod";
  * Condiții standard pentru item.
  *
  * IMPORTANT:
- * În proiectul tău, tipul `ItemCondition` NU include "fair" (TypeScript ți-a zis clar).
- * Ca să nu mai generăm un payload invalid, eliminăm "fair" din lista permisă.
+ * Din erorile tale TypeScript reiese că tipul `ItemCondition` din proiect
+ * NU include "fair" și NU include "poor".
+ * Ca să nu mai generăm payload invalid pentru `ItemFormData`,
+ * păstrăm doar valorile compatibile: new / like_new / good.
  */
-export const itemConditionValues = [
-  "new",
-  "like_new",
-  "good",
-  "poor",
-] as const;
+export const itemConditionValues = ["new", "like_new", "good"] as const;
 
 export const itemConditionLabels: Record<
   (typeof itemConditionValues)[number],
@@ -22,7 +19,6 @@ export const itemConditionLabels: Record<
   new: "Nou",
   like_new: "Ca nou",
   good: "Bun",
-  poor: "Slab",
 };
 
 /**
