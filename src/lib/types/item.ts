@@ -26,7 +26,7 @@ export type Item = {
   images?: string[] | null;
 
   // tags / meta
-  tags?: string[] | null;
+  tags?: string[] | string | null;
   condition?: string | null;
   location?: string | null;
   currency?: string | null;
@@ -34,4 +34,27 @@ export type Item = {
 
   created_at?: string | null;
   updated_at?: string | null;
+};
+
+/**
+ * Datele formularului de creare/editare item.
+ * De regulă nu are `id` și are câmpuri “clean” pentru UI.
+ */
+export type ItemFormData = {
+  title: string;
+  description?: string;
+
+  categoryId?: string;
+  subcategoryId?: string;
+
+  // imagini: URL-uri (Cloudinary etc.)
+  images?: string[];
+
+  tags?: string[];
+
+  condition?: string;
+  location?: string;
+
+  currency?: string;
+  approximateValue?: number;
 };
