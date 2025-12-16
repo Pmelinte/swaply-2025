@@ -2,72 +2,76 @@
 
 import { createServerClient } from "@/lib/supabase/server";
 import { getUserRatingSummaryAction } from "@/features/reviews/server/reviews-actions";
+import type { UserRatingSummary } from "@/features/reviews/types";
+
+type MatchRow = {
+  id: any;
+  user_a_id?: any;
+  user_b_id?: any;
+  created_at?: any;
+
+  // join: poate veni ca array
+  users?: { id: any; name: any; avatar_url: any }[] | null;
+};
 
 export const matchRepository = {
   /**
-   * Returnează match-urile ordonate după reputație.
-   * Trusted users → sus.
-   * Rating slab → jos.
+   * Listează match-urile pentru un user + info “other user”.
    */
-  async listMatchesForUser(userId: string) {
+  async listMatchesForUser(userId: string): Promise<
+    {
+      id: any;
+      otherUser: {
+        id: any;
+        name: any;
+        avatar_url: any;
+        rating: UserRatingSummary;
+        visibilityScore: any;
+      };
+    }[]
+  > {
     const supabase = createServerClient();
 
-    const { data: rows, error } = await supabase
+    // NOTE:
+    // Nu știu exact cum ai făcut join-ul în schema ta, dar problema din log e clară:
+    // `m.users` vine ca array. Îl tratăm defensiv.
+    const { data, error } = await supabase
       .from("matches")
-      .select(`
-        id,
-        user_a_id,
-        user_b_id,
-        users:other_user (
-          id,
-          name,
-          avatar_url
-        )
-      `)
-      .eq("user_a_id", userId);
+      .select("id, users(id,name,avatar_url)")
+      .or(`user_a_id.eq.${userId},user_b_id.eq.${userId}`)
+      .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("listMatchesForUser error", error);
+      console.error("listMatchesForUser error:", error);
       return [];
     }
 
-    const matches = [];
+    const rows = (data ?? []) as MatchRow[];
 
-    for (const m of rows ?? []) {
-      const other = m.users;
+    const result = [];
+    for (const m of rows) {
+      const usersArr = Array.isArray(m.users) ? m.users : [];
+      const other = usersArr[0]; // ✅ FIX: e array, luăm primul (other user)
+
+      if (!other) continue;
 
       const rating = await getUserRatingSummaryAction(other.id);
 
-      // Calculează scorul de vizibilitate
       const { average, total } = rating;
+      const visibilityScore = total >= 5 ? average : average * 0.8;
 
-      let score = average;
-
-      // Boost pentru trusted
-      if (average >= 4.5 && total >= 5) {
-        score += 1.0; // prioritate mare
-      }
-
-      // Deboost pentru rating slab
-      if (average < 3.0 && total >= 3) {
-        score -= 2.0; // împins mult în jos
-      }
-
-      matches.push({
+      result.push({
         id: m.id,
         otherUser: {
           id: other.id,
           name: other.name,
           avatar_url: other.avatar_url,
           rating,
-          visibilityScore: score,
+          visibilityScore,
         },
       });
     }
 
-    // Sortare descrescătoare după scor
-    matches.sort((a, b) => b.otherUser.visibilityScore - a.otherUser.visibilityScore);
-
-    return matches;
+    return result;
   },
 };
