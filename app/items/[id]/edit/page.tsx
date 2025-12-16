@@ -3,7 +3,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-
 import { createBrowserClient } from "@supabase/ssr";
 
 import type { ItemFormData, ItemImage } from "@/features/items/types";
@@ -113,7 +112,6 @@ export default function EditItemPage() {
       <div className="mt-4">
         <ItemForm
           mode="edit"
-          itemId={item.id}
           initialData={initialData}
           onDone={() => router.push("/items")}
         />
