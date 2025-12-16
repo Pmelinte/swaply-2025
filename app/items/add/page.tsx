@@ -1,62 +1,77 @@
-'use client';
+// ./app/items/add/page.tsx
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { createBrowserClient } from "@supabase/ssr";
 
-// ✅ fără @/…, ca să nu mai pice la build
-import { getSupabaseBrowserClient } from '../../../lib/supabase/client';
-import ItemForm from '../../../components/items/ItemForm';
+import ItemForm from "@/components/items/ItemForm";
+import type { ItemFormData, Item } from "@/features/items/types";
 
 export default function AddItemPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const supabase = getSupabaseBrowserClient();
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
+  const supabase = useMemo(() => {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+    return createBrowserClient(url, anon);
+  }, []);
 
-        if (!user) {
-          router.push('/login');
-          return;
-        }
-      } catch {
-        router.push('/login');
-      } finally {
-        setLoading(false);
-      }
+  const handleSubmit = async (values: ItemFormData): Promise<Item> => {
+    setError(null);
+
+    // creez payload DB-friendly (snake_case), fără image_url (noi folosim images)
+    const payload: Record<string, unknown> = {
+      title: values.title,
+      description: values.description,
+      images: values.images ?? [],
+      category: values.category,
+      subcategory: values.subcategory,
+      tags: values.tags,
+      condition: values.condition,
+      location_city: values.locationCity,
+      location_country: values.locationCountry,
+      approximate_value: values.approximateValue,
+      currency: values.currency,
+      ai_metadata: values.aiMetadata,
     };
 
-    checkAuth();
-  }, [router]);
+    for (const k of Object.keys(payload)) {
+      if (payload[k] === undefined) delete payload[k];
+    }
 
-  if (loading) {
-    return (
-      <main className="min-h-screen flex items-center justify-center">
-        <div className="text-slate-400">Loading...</div>
-      </main>
-    );
-  }
+    const { data, error } = await supabase
+      .from("items")
+      .insert(payload)
+      .select("*")
+      .single();
+
+    if (error) {
+      setError(error.message);
+      throw error;
+    }
+
+    router.push("/items");
+    return data as Item;
+  };
 
   return (
-    <main className="min-h-screen px-4 py-8">
-      <div className="max-w-lg mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">Add New Item</h1>
-          <Link
-            href="/items"
-            className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white font-medium rounded-lg transition-colors"
-          >
-            Back to Items
-          </Link>
-        </div>
-
-        <ItemForm mode="create" />
+    <main className="mx-auto max-w-3xl p-6">
+      <div className="mb-4">
+        <h1 className="text-xl font-semibold">Add item</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Create a new listing.
+        </p>
       </div>
+
+      {error ? (
+        <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          {error}
+        </div>
+      ) : null}
+
+      <ItemForm mode="create" onSubmit={handleSubmit} />
     </main>
   );
 }
