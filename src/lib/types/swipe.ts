@@ -7,6 +7,12 @@
 export type SwipeFeedItem = {
   id: string;
 
+  /**
+   * ID-ul sursă (de obicei ID-ul itemului din DB),
+   * folosit în endpoint-uri pentru deduplicare / tracking.
+   */
+  sourceId?: string;
+
   // item fields (cele mai folosite în UI)
   title?: string | null;
   description?: string | null;
