@@ -1,46 +1,64 @@
+// src/app/(app)/exchanges/[id]/ReceiveConfirmation.tsx
 "use client";
 
-import { useState } from "react";
-import { updateExchangeStatusAction } from "@/features/exchange/server/exchange-actions";
+import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { createBrowserClient } from "@supabase/ssr";
 
-interface ReceiveConfirmationProps {
+type Props = {
   exchangeId: string;
-  status: string;
-}
+};
 
-export default function ReceiveConfirmation({
-  exchangeId,
-  status,
-}: ReceiveConfirmationProps) {
+export default function ReceiveConfirmation({ exchangeId }: Props) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Arătăm butonul DOAR când schimbul este în livrare
-  if (status !== "shipping") {
-    return null;
-  }
+  const supabase = useMemo(() => {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+    return createBrowserClient(url, anon);
+  }, []);
 
-  const confirm = async () => {
-    if (!confirm("Confirmi că ai primit obiectul?")) return;
+  const handleConfirm = async () => {
+    // IMPORTANT: folosim window.confirm, nu o funcție locală cu același nume
+    if (!window.confirm("Confirmi că ai primit obiectul?")) return;
 
     setLoading(true);
+    setError(null);
 
-    await updateExchangeStatusAction(
-      exchangeId,
-      "completed",
-      "Coletul a fost primit."
-    );
+    try {
+      const { error } = await supabase
+        .from("exchanges")
+        .update({ received_confirmed: true })
+        .eq("id", exchangeId);
 
-    window.location.reload();
+      if (error) throw error;
+
+      // refresh UI
+      router.refresh();
+    } catch (e: any) {
+      setError(e?.message ?? "A apărut o eroare la confirmare.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="flex">
+    <div className="space-y-3">
+      {error ? (
+        <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          {error}
+        </div>
+      ) : null}
+
       <button
-        onClick={confirm}
+        type="button"
+        onClick={handleConfirm}
         disabled={loading}
-        className="px-4 py-2 bg-purple-600 text-white rounded-lg font-medium"
+        className="rounded-md bg-black px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
       >
-        {loading ? "Se confirmă..." : "Am primit coletul"}
+        {loading ? "Se confirmă…" : "Confirmă primirea"}
       </button>
     </div>
   );
