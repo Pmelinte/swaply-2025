@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
 
 import type { ItemFormData, ItemImage } from "@/features/items/types";
@@ -18,7 +18,6 @@ type DbItem = {
 
 export default function EditItemPage() {
   const params = useParams<{ id: string }>();
-  const router = useRouter();
 
   const supabase = useMemo(() => {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -110,11 +109,7 @@ export default function EditItemPage() {
       <h1 className="text-xl font-semibold">Edit item</h1>
 
       <div className="mt-4">
-        <ItemForm
-          mode="edit"
-          initialData={initialData}
-          onDone={() => router.push("/items")}
-        />
+        <ItemForm mode="edit" initialData={initialData} />
       </div>
     </div>
   );
