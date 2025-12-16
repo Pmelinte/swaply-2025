@@ -5,10 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { createBrowserClient } from "@supabase/ssr";
 
-import {
-  createMessageAction,
-  listMessagesAction,
-} from "@/features/chat/server/chat-actions";
+import { createMessageAction } from "@/features/chat/server/chat-actions";
 
 type ChatMessage = {
   id: string;
@@ -36,43 +33,56 @@ export default function ChatClient({ matchId, currentUserId }: ChatClientProps) 
   const [sending, setSending] = useState(false);
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
-  const scrollToBottom = () => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  const scrollToBottom = (smooth = true) => {
+    bottomRef.current?.scrollIntoView({ behavior: smooth ? "smooth" : "auto" });
   };
 
+  // 1) initial load
   useEffect(() => {
     let mounted = true;
 
     (async () => {
       setLoading(true);
-      try {
-        const list = await listMessagesAction(matchId);
-        if (!mounted) return;
-        setMessages((list as ChatMessage[]) ?? []);
-        setTimeout(scrollToBottom, 50);
-      } finally {
-        if (mounted) setLoading(false);
+
+      const { data, error } = await supabase
+        .from("messages")
+        .select("id,match_id,sender_id,text,created_at")
+        .eq("match_id", matchId)
+        .order("created_at", { ascending: true });
+
+      if (!mounted) return;
+
+      if (error) {
+        setMessages([]);
+      } else {
+        setMessages((data as ChatMessage[]) ?? []);
+        setTimeout(() => scrollToBottom(false), 50);
       }
+
+      setLoading(false);
     })();
 
     return () => {
       mounted = false;
     };
-    // listMessagesAction e server action; nu o punem în deps
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [matchId]);
+  }, [supabase, matchId]);
 
+  // 2) realtime inserts
   useEffect(() => {
-    // Realtime (dacă ai enable la Realtime pe tabela messages)
     const channel = supabase
       .channel(`match:${matchId}`)
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "messages", filter: `match_id=eq.${matchId}` },
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+          filter: `match_id=eq.${matchId}`,
+        },
         (payload) => {
           const m = payload.new as ChatMessage;
           setMessages((prev) => [...prev, m]);
-          setTimeout(scrollToBottom, 50);
+          setTimeout(() => scrollToBottom(true), 50);
         }
       )
       .subscribe();
@@ -82,24 +92,28 @@ export default function ChatClient({ matchId, currentUserId }: ChatClientProps) 
     };
   }, [supabase, matchId]);
 
+  const refresh = async () => {
+    const { data } = await supabase
+      .from("messages")
+      .select("id,match_id,sender_id,text,created_at")
+      .eq("match_id", matchId)
+      .order("created_at", { ascending: true });
+
+    setMessages((data as ChatMessage[]) ?? []);
+    setTimeout(() => scrollToBottom(true), 50);
+  };
+
   const send = async () => {
     const value = text.trim();
     if (!value) return;
 
     setSending(true);
     try {
-      await createMessageAction({
-        matchId,
-        text: value,
-      });
-
+      await createMessageAction({ matchId, text: value });
       setText("");
-      // nu adăugăm manual în listă: realtime ar trebui să o facă.
-      // dacă realtime nu e activ, fallback: re-fetch
-      // (îl păstrăm simplu, să nu rupem nimic)
-      const list = await listMessagesAction(matchId);
-      setMessages((list as ChatMessage[]) ?? []);
-      setTimeout(scrollToBottom, 50);
+
+      // fallback: dacă realtime nu e activ pe tabela messages, tot vezi mesajul
+      await refresh();
     } finally {
       setSending(false);
     }
@@ -139,22 +153,3 @@ export default function ChatClient({ matchId, currentUserId }: ChatClientProps) 
         <input
           className="w-full rounded-md border px-3 py-2 text-sm"
           value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Write a message…"
-          onKeyDown={(e) => {
-            if (e.key === "Enter") send();
-          }}
-          disabled={sending}
-        />
-        <button
-          type="button"
-          onClick={send}
-          disabled={sending}
-          className="rounded-md bg-black px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
-        >
-          {sending ? "…" : "Send"}
-        </button>
-      </div>
-    </div>
-  );
-}
