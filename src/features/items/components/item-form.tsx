@@ -3,7 +3,10 @@
 
 import React, { useMemo, useState } from "react";
 import type { Item, ItemFormData, ItemImage, ItemAiMetadata } from "../../items/types";
-import { itemFormSchema, itemConditionValues, itemConditionLabels } from "../../items/validation";
+import {
+  itemConditionValues,
+  itemConditionLabels,
+} from "../../items/validation";
 import { useItemForm } from "../../items/hooks/use-item-form";
 
 export type ItemFormProps = {
@@ -18,73 +21,59 @@ function firstImageUrl(images?: ItemImage[] | null): string {
 }
 
 export function ItemForm({ mode, initialData, onSubmit }: ItemFormProps) {
-  const [error, setError] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string>(() =>
+    firstImageUrl(initialData?.images ?? []),
+  );
 
-  // Simplu: un singur URL de imagine (îl mapăm în images[0])
-  const [imageUrl, setImageUrl] = useState<string>(() => firstImageUrl(initialData?.images ?? []));
-
-  const { values, setValues } = useItemForm({
+  const {
+    values,
+    updateField,
+    handleSubmit,
+    submitError,
+    submitting,
+  } = useItemForm({
     mode,
     initialData,
-    onSubmit: async (v) => v as any, // nu îl folosim direct aici; apelăm onSubmit noi, mai jos
+    onSubmit: async (v) => {
+      // injectăm images din imageUrl în payload înainte de submit
+      const url = imageUrl.trim();
+      const images: ItemImage[] = url ? [{ url, publicId: "manual" }] : [];
+
+      const payload: ItemFormData = {
+        ...v,
+        images,
+        // IMPORTANT: number | undefined (nu null)
+        approximateValue: v.approximateValue ?? undefined,
+      };
+
+      return await onSubmit(payload);
+    },
   });
 
   const conditionOptions = useMemo(() => itemConditionValues, []);
 
-  const handleSave = async () => {
-    setError(null);
-    setSaving(true);
-
-    try {
-      // 1) Construim values finale
-      const url = imageUrl.trim();
-      const images: ItemImage[] = url ? [{ url, publicId: "manual" }] : [];
-
-      const next: ItemFormData = {
-        ...values,
-        images,
-        // IMPORTANT: approximateValue trebuie să fie number | undefined, nu null
-        approximateValue: values.approximateValue ?? undefined,
-      };
-
-      // 2) Validare Zod (ca să nu împingi gunoi în DB)
-      const parsed = itemFormSchema.parse(next);
-
-      // 3) Submit
-      await onSubmit(parsed as unknown as ItemFormData);
-    } catch (e: any) {
-      setError(e?.message ?? "Eroare la salvare.");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  /**
-   * AI metadata builder (aici era eroarea ta: confidence era number | null)
-   * -> îl normalizez la number | undefined.
-   */
-  const setAiSuggestion = (primaryLabel: string, topConfidence: number | null, suggestedTitle: string) => {
+  // ✅ Fix-ul de tip: confidence nu va fi niciodată null, doar undefined
+  const simulateAiSuggestion = () => {
     const ai: ItemAiMetadata = {
       model: "huggingface-image-classifier",
-      primaryLabel,
-      confidence: topConfidence ?? undefined, // ✅ FIX: nu mai e null
-      suggestedTitle,
+      primaryLabel: "object",
+      confidence: undefined, // ✅ nu null
+      suggestedTitle: "Obiect (detectat)",
     };
 
-    setValues((prev) => ({
-      ...prev,
-      aiMetadata: ai,
-      // dacă vrei auto-fill de titlu:
-      title: prev.title?.trim() ? prev.title : suggestedTitle,
-    }));
+    updateField("aiMetadata", ai);
+
+    // auto-fill titlu dacă e gol
+    if (!values.title?.trim()) {
+      updateField("title", ai.suggestedTitle);
+    }
   };
 
   return (
     <div className="space-y-4">
-      {error ? (
+      {submitError ? (
         <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-          {error}
+          {submitError}
         </div>
       ) : null}
 
@@ -93,7 +82,7 @@ export function ItemForm({ mode, initialData, onSubmit }: ItemFormProps) {
         <input
           className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
           value={values.title}
-          onChange={(e) => setValues((p) => ({ ...p, title: e.target.value }))}
+          onChange={(e) => updateField("title", e.target.value)}
           placeholder="ex: Bicicletă MTB"
         />
       </div>
@@ -104,7 +93,7 @@ export function ItemForm({ mode, initialData, onSubmit }: ItemFormProps) {
           className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
           rows={4}
           value={values.description}
-          onChange={(e) => setValues((p) => ({ ...p, description: e.target.value }))}
+          onChange={(e) => updateField("description", e.target.value)}
           placeholder="Detalii…"
         />
       </div>
@@ -124,7 +113,7 @@ export function ItemForm({ mode, initialData, onSubmit }: ItemFormProps) {
         <select
           className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
           value={values.condition}
-          onChange={(e) => setValues((p) => ({ ...p, condition: e.target.value as any }))}
+          onChange={(e) => updateField("condition", e.target.value)}
         >
           {conditionOptions.map((c) => (
             <option key={c} value={c}>
@@ -140,7 +129,7 @@ export function ItemForm({ mode, initialData, onSubmit }: ItemFormProps) {
           <input
             className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
             value={values.locationCity}
-            onChange={(e) => setValues((p) => ({ ...p, locationCity: e.target.value }))}
+            onChange={(e) => updateField("locationCity", e.target.value)}
           />
         </div>
         <div>
@@ -148,7 +137,7 @@ export function ItemForm({ mode, initialData, onSubmit }: ItemFormProps) {
           <input
             className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
             value={values.locationCountry}
-            onChange={(e) => setValues((p) => ({ ...p, locationCountry: e.target.value }))}
+            onChange={(e) => updateField("locationCountry", e.target.value)}
           />
         </div>
       </div>
@@ -161,10 +150,10 @@ export function ItemForm({ mode, initialData, onSubmit }: ItemFormProps) {
             className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
             value={values.approximateValue ?? ""}
             onChange={(e) =>
-              setValues((p) => ({
-                ...p,
-                approximateValue: e.target.value === "" ? undefined : Number(e.target.value),
-              }))
+              updateField(
+                "approximateValue",
+                e.target.value === "" ? undefined : Number(e.target.value),
+              )
             }
           />
         </div>
@@ -173,17 +162,15 @@ export function ItemForm({ mode, initialData, onSubmit }: ItemFormProps) {
           <input
             className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
             value={values.currency ?? ""}
-            onChange={(e) => setValues((p) => ({ ...p, currency: e.target.value }))}
+            onChange={(e) => updateField("currency", e.target.value)}
             placeholder="RON"
           />
         </div>
       </div>
 
-      {/* Mic “buton de test” pentru AI metadata (doar ca să existe call path-ul).
-          Îl poți șterge după ce build-ul e verde. */}
       <button
         type="button"
-        onClick={() => setAiSuggestion("object", null, "Obiect (detectat)")}
+        onClick={simulateAiSuggestion}
         className="rounded-md border px-3 py-2 text-sm"
       >
         Simulează AI title
@@ -191,12 +178,14 @@ export function ItemForm({ mode, initialData, onSubmit }: ItemFormProps) {
 
       <button
         type="button"
-        onClick={handleSave}
-        disabled={saving}
+        onClick={handleSubmit}
+        disabled={submitting}
         className="rounded-md bg-black px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
       >
-        {saving ? "Se salvează…" : mode === "edit" ? "Salvează" : "Creează"}
+        {submitting ? "Se salvează…" : mode === "edit" ? "Salvează" : "Creează"}
       </button>
     </div>
   );
 }
+
+export default ItemForm;
