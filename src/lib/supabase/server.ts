@@ -47,3 +47,4 @@ export function createClient() {
  */
 export const createServerClient = createClient;
 export const getSupabaseServerClient = createClient;
+export const createServerSupabaseClient = createClient;
