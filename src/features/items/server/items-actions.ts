@@ -18,10 +18,21 @@ async function requireUserId(): Promise<string> {
   return user.id;
 }
 
+/**
+ * ✅ Export cerut de /items/[id]/edit/page.tsx
+ */
+export async function getItemAction(itemId: string): Promise<Item | null> {
+  const userId = await requireUserId();
+  // repo-ul tău probabil are getItem; dacă nu, următoarea eroare ne spune exact cum se numește.
+  const item = await (itemsRepository as any).getItem?.(itemId, userId);
+
+  if (!item) return null;
+  return item as Item;
+}
+
 export async function createItemAction(rawFormData: unknown): Promise<Item> {
   const userId = await requireUserId();
 
-  // ✅ Validăm/parsezăm unknown -> ItemFormData (via Zod)
   const parsed = itemFormSchema.safeParse(rawFormData);
   if (!parsed.success) {
     throw new Error("invalid_item_form_data");
