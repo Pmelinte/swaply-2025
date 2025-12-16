@@ -4,7 +4,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 
-import { createClient } from "@/lib/supabase/client";
+import { createBrowserClient } from "@supabase/ssr";
+
 import type { ItemFormData, ItemImage } from "@/features/items/types";
 import { ItemForm } from "@/features/items/components/item-form";
 
@@ -12,16 +13,19 @@ type DbItem = {
   id: string;
   title: string | null;
   description: string | null;
-  // unele versiuni vechi aveau o singură imagine:
   image_url?: string | null;
-  // versiunea nouă (corectă pt ItemFormData) are array de imagini:
   images?: ItemImage[] | null;
 };
 
 export default function EditItemPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const supabase = useMemo(() => createClient(), []);
+
+  const supabase = useMemo(() => {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+    return createBrowserClient(url, anon);
+  }, []);
 
   const [loading, setLoading] = useState(true);
   const [item, setItem] = useState<DbItem | null>(null);
@@ -87,8 +91,6 @@ export default function EditItemPage() {
     );
   }
 
-  // IMPORTANT: aici era bug-ul tău.
-  // `ItemFormData` NU are `image_url`, dar are `images`.
   const initialData: Partial<ItemFormData> = {
     title: item.title ?? "",
     description: item.description ?? "",
