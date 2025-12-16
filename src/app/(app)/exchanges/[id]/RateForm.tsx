@@ -1,86 +1,142 @@
+// src/app/(app)/exchanges/[id]/RateForm.tsx
 "use client";
 
-import { useState } from "react";
-import { submitReviewAction } from "@/features/reviews/server/reviews-actions";
+import { useMemo, useState } from "react";
+import { createBrowserClient } from "@supabase/ssr";
 
-interface RateFormProps {
+type ExchangeStatus =
+  | "pending"
+  | "accepted"
+  | "shipping"
+  | "in_transit"
+  | "delivered"
+  | "completed"
+  | "cancelled"
+  | string;
+
+export type Review = {
+  id?: string;
+  exchange_id?: string;
+  reviewer_id?: string;
+  rating: number;
+  comment?: string | null;
+  created_at?: string;
+};
+
+export type RateFormProps = {
   exchangeId: string;
   viewerId: string;
-  reviews: Array<{
-    reviewerId: string;
-    stars: number;
-    comment?: string;
-  }>;
-  status: string;
-}
+  status: ExchangeStatus;
+  reviews?: Review[]; // ✅ acum e optional
+};
 
-export default function RateForm({ exchangeId, viewerId, reviews, status }: RateFormProps) {
-  const [stars, setStars] = useState(5);
-  const [comment, setComment] = useState("");
+export default function RateForm({
+  exchangeId,
+  viewerId,
+  status,
+  reviews = [],
+}: RateFormProps) {
+  const supabase = useMemo(() => {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+    return createBrowserClient(url, anon);
+  }, []);
+
+  const [rating, setRating] = useState<number>(5);
+  const [comment, setComment] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
-  // Formularul apare DOAR dacă schimbul este complet
-  if (status !== "completed") return null;
+  const canRate = status === "completed";
+  if (!canRate) return null;
 
-  // Dacă userul a lăsat deja review → nu arătăm formularul
-  const alreadyReviewed = reviews.some((r) => r.reviewerId === viewerId);
+  const alreadyReviewed = reviews.some((r) => r.reviewer_id === viewerId);
   if (alreadyReviewed) return null;
 
   const submit = async () => {
     setLoading(true);
+    setError(null);
+    setSuccess(null);
 
-    await submitReviewAction({
-      exchangeId,
-      stars,
-      comment: comment.trim() || undefined,
-    });
+    try {
+      const payload = {
+        exchange_id: exchangeId,
+        reviewer_id: viewerId,
+        rating,
+        comment: comment.trim() ? comment.trim() : null,
+      };
 
-    window.location.reload();
+      const { error } = await supabase.from("reviews").insert(payload);
+      if (error) throw error;
+
+      setSuccess("Review salvat ✅");
+      setComment("");
+      setRating(5);
+    } catch (e: any) {
+      setError(e?.message ?? "Eroare la trimiterea review-ului.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="border rounded-xl p-4 bg-gray-50 space-y-4">
-      <p className="font-semibold text-lg">Lasă un review</p>
-
-      {/* Stele */}
-      <div className="flex gap-2">
-        {[1, 2, 3, 4, 5].map((s) => (
-          <Star key={s} filled={s <= stars} onClick={() => setStars(s)} />
-        ))}
+    <div className="rounded-md border p-4 space-y-3">
+      <div>
+        <h3 className="text-base font-semibold">Lasă un review</h3>
+        <p className="text-sm text-muted-foreground">
+          După ce schimbul e complet, poți evalua experiența.
+        </p>
       </div>
 
-      {/* Comentariu */}
+      {error ? (
+        <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          {error}
+        </div>
+      ) : null}
+
+      {success ? (
+        <div className="rounded-md border border-green-200 bg-green-50 p-3 text-sm text-green-700">
+          {success}
+        </div>
+      ) : null}
+
+      <div className="flex items-center gap-3">
+        <label className="text-sm font-medium">Rating</label>
+        <select
+          className="rounded-md border px-2 py-1 text-sm"
+          value={rating}
+          onChange={(e) => setRating(Number(e.target.value))}
+          disabled={loading}
+        >
+          {[5, 4, 3, 2, 1].map((n) => (
+            <option key={n} value={n}>
+              {n}
+            </option>
+          ))}
+        </select>
+      </div>
+
       <div>
-        <label className="block text-sm font-medium mb-1">Comentariu (opțional)</label>
+        <label className="block text-sm font-medium">Comentariu (opțional)</label>
         <textarea
-          className="w-full border rounded-lg px-3 py-2 text-sm"
+          className="mt-1 w-full rounded-md border px-3 py-2"
           rows={3}
-          placeholder="Scrie un feedback scurt..."
           value={comment}
           onChange={(e) => setComment(e.target.value)}
+          disabled={loading}
+          placeholder="Cum a fost schimbul?"
         />
       </div>
 
       <button
+        type="button"
         onClick={submit}
         disabled={loading}
-        className="px-4 py-2 bg-green-600 text-white rounded-lg font-medium"
+        className="rounded-md bg-black px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
       >
-        {loading ? "Se trimite..." : "Trimite review"}
+        {loading ? "Se trimite…" : "Trimite review"}
       </button>
     </div>
-  );
-}
-
-function Star({ filled, onClick }: { filled: boolean; onClick: () => void }) {
-  return (
-    <span
-      onClick={onClick}
-      className={`cursor-pointer text-2xl ${
-        filled ? "text-yellow-500" : "text-gray-400"
-      }`}
-    >
-      ★
-    </span>
   );
 }
