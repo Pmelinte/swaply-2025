@@ -1,33 +1,28 @@
+// app/settings/profile/ProfileClient.tsx
 "use client";
 
 import type { Profile } from "../../../src/features/profile/types";
 import { ProfileView } from "../../../src/features/profile/components/profile-view";
-import { ProfileForm } from "../../../src/features/profile/components/profile-form";
+import ProfileForm from "../../../src/features/profile/components/profile-form";
 import { ProfileSection } from "../../../src/features/profile/components/profile-section";
 
 interface ProfileClientProps {
   profile: Profile;
+  editable?: boolean;
 }
 
-/**
- * Componentă client care orchestrează view + form pentru profil.
- */
-export default function ProfileClient({ profile }: ProfileClientProps) {
+export default function ProfileClient({ profile, editable = true }: ProfileClientProps) {
   return (
-    <div className="space-y-10 max-w-3xl">
-      <ProfileSection
-        title="Profil"
-        description="Informații generale despre contul tău."
-      >
+    <div className="mx-auto max-w-3xl p-6 space-y-6">
+      <ProfileSection title="Profile">
         <ProfileView profile={profile} />
       </ProfileSection>
 
-      <ProfileSection
-        title="Editează profilul"
-        description="Actualizează numele, avatarul, locația sau bio."
-      >
-        <ProfileForm profile={profile} />
-      </ProfileSection>
+      {editable ? (
+        <ProfileSection title="Edit profile">
+          <ProfileForm profile={profile} />
+        </ProfileSection>
+      ) : null}
     </div>
   );
 }
