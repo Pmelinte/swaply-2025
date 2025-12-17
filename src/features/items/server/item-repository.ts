@@ -1,7 +1,7 @@
 // src/features/items/server/item-repository.ts
 
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Item, ItemCreateInput, ItemUpdateInput } from "../types";
+import type { Item } from "../types";
 
 /**
  * Repository = stratul care vorbește cu DB.
