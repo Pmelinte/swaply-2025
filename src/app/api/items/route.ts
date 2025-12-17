@@ -1,96 +1,102 @@
 // src/app/api/items/route.ts
 
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
 
-type ItemPreviewDto = {
-  id: string;
-  title: string;
-  primaryImageUrl: string | null;
-  category: string | null;
-  subcategory: string | null;
-  locationCity: string | null;
-  locationCountry: string | null;
-  createdAt: string;
-};
+import {
+  createItemAction,
+  listMyItemsAction,
+} from "@/features/items/server/item-actions";
 
 type ApiResponse =
-  | { ok: true; items: ItemPreviewDto[] }
+  | { ok: true; items: unknown[] }
+  | { ok: true; item: unknown }
   | { ok: false; error: string };
-
-function mapRow(row: any): ItemPreviewDto {
-  const images = row.images ?? [];
-  const primary =
-    images.find((i: any) => i.isPrimary) ?? images[0] ?? null;
-
-  return {
-    id: row.id,
-    title: row.title,
-    primaryImageUrl: primary?.url ?? null,
-    category: row.category ?? null,
-    subcategory: row.subcategory ?? null,
-    locationCity: row.location_city ?? null,
-    locationCountry: row.location_country ?? null,
-    createdAt: row.created_at,
-  };
-}
 
 /**
  * GET /api/items
+ * - listează item-urile userului curent (owner view)
  *
  * Query params (opțional):
- *  - ?category=electronics
- *  - ?subcategory=phones
- *  - ?limit=50
- *
- * MVP:
- *  - public read
- *  - filtrare simplă
+ *  - ?limit=30
+ *  - ?offset=0
+ *  - ?onlyActive=true
  */
-export async function GET(
-  req: NextRequest,
-): Promise<NextResponse<ApiResponse>> {
+export async function GET(request: Request): Promise<NextResponse<ApiResponse>> {
+  const supabase = createServerClient();
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return NextResponse.json(
+      { ok: false, error: "not_authenticated" },
+      { status: 401 }
+    );
+  }
+
+  const { searchParams } = new URL(request.url);
+
+  const limit = Math.max(1, Math.min(100, Number(searchParams.get("limit") ?? 30)));
+  const offset = Math.max(0, Number(searchParams.get("offset") ?? 0));
+  const onlyActive = searchParams.get("onlyActive") === "true";
+
   try {
-    const supabase = createServerClient();
+    const items = await listMyItemsAction(supabase, user.id, {
+      limit,
+      offset,
+      onlyActive,
+    });
 
-    const url = new URL(req.url);
-    const category = url.searchParams.get("category");
-    const subcategory = url.searchParams.get("subcategory");
-    const limitRaw = url.searchParams.get("limit");
-
-    const limit = Math.max(
-      1,
-      Math.min(100, Number(limitRaw) || 24),
-    );
-
-    let query = supabase
-      .from("items")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(limit);
-
-    if (category) query = query.eq("category", category);
-    if (subcategory) query = query.eq("subcategory", subcategory);
-
-    const { data, error } = await query;
-
-    if (error) {
-      console.error("[ITEMS_LIST_ERROR]", error);
-      return NextResponse.json(
-        { ok: false, error: "db_error_fetch_items" },
-        { status: 500 },
-      );
-    }
-
+    return NextResponse.json({ ok: true, items }, { status: 200 });
+  } catch (err: any) {
+    console.error("[ITEMS_MY_LIST_ERROR]", err);
     return NextResponse.json(
-      { ok: true, items: (data ?? []).map(mapRow) },
-      { status: 200 },
+      { ok: false, error: err?.message ?? "internal_error" },
+      { status: 500 }
     );
-  } catch (err) {
-    console.error("[ITEMS_LIST_UNEXPECTED]", err);
+  }
+}
+
+/**
+ * POST /api/items
+ * - creează un item pentru userul curent
+ */
+export async function POST(request: Request): Promise<NextResponse<ApiResponse>> {
+  const supabase = createServerClient();
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
     return NextResponse.json(
-      { ok: false, error: "internal_error" },
-      { status: 500 },
+      { ok: false, error: "not_authenticated" },
+      { status: 401 }
+    );
+  }
+
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json(
+      { ok: false, error: "invalid_json" },
+      { status: 400 }
+    );
+  }
+
+  try {
+    const item = await createItemAction(supabase, user.id, body);
+    return NextResponse.json({ ok: true, item }, { status: 201 });
+  } catch (err: any) {
+    console.error("[ITEMS_CREATE_ERROR]", err);
+    return NextResponse.json(
+      { ok: false, error: err?.message ?? "validation_error" },
+      { status: 400 }
     );
   }
 }
