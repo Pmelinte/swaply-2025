@@ -15,19 +15,15 @@ import {
   updateItem,
   getItemById,
   listMyItems,
-  deleteItem,
 } from "./item-repository";
 
 /**
  * Actions = business logic.
- * Aici:
- * - validăm inputul (Zod)
- * - normalizăm datele
- * - apelăm repository
  *
  * IMPORTANT:
- * - Nu importăm ItemCreateInput / ItemUpdateInput deoarece în proiectul tău NU sunt exportate din ../types
- * - Tipul real al inputului e dat de Zod schema (validation.ts)
+ * - Nu importăm ItemCreateInput / ItemUpdateInput (nu sunt exportate din ../types).
+ * - Soft-delete este standard (isActive=false) și se face în API by-id via updateItemAction.
+ * - Hard-delete este dezactivat elegant (nu expunem delete action acum).
  */
 
 /**
@@ -87,15 +83,4 @@ export async function listMyItemsAction(
   }
 ): Promise<Item[]> {
   return listMyItems(supabase, ownerId, options);
-}
-
-/**
- * DELETE (hard) — păstrat intern pentru cleanup/admin.
- * UI/API normal folosește soft-delete via updateItemAction({ isActive: false }).
- */
-export async function deleteItemAction(
-  supabase: SupabaseClient,
-  itemId: string
-): Promise<{ ok: true }> {
-  return deleteItem(supabase, itemId);
 }
