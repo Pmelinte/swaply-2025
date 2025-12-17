@@ -8,11 +8,7 @@ import {
   normalizeItemFormData,
 } from "../validation";
 
-import type {
-  Item,
-  ItemCreateInput,
-  ItemUpdateInput,
-} from "../types";
+import type { Item } from "../types";
 
 import {
   createItem,
@@ -29,7 +25,9 @@ import {
  * - normalizăm datele
  * - apelăm repository
  *
- * UI / API NU au voie să sară peste acest strat.
+ * IMPORTANT:
+ * - Nu importăm ItemCreateInput / ItemUpdateInput deoarece în proiectul tău NU sunt exportate din ../types
+ * - Tipul real al inputului e dat de Zod schema (validation.ts)
  */
 
 /**
@@ -46,9 +44,9 @@ export async function createItemAction(
 ): Promise<Item> {
   const parsed = itemCreateSchema.parse(rawInput);
 
-  const normalized = normalizeItemFormData(parsed as any) as ItemCreateInput;
+  const normalized = normalizeItemFormData(parsed as any);
 
-  return createItem(supabase, normalized);
+  return createItem(supabase, normalized as any);
 }
 
 /**
@@ -61,9 +59,9 @@ export async function updateItemAction(
 ): Promise<Item> {
   const parsed = itemUpdateSchema.parse(rawInput);
 
-  const normalized = normalizeItemFormData(parsed as any) as ItemUpdateInput;
+  const normalized = normalizeItemFormData(parsed as any);
 
-  return updateItem(supabase, itemId, normalized);
+  return updateItem(supabase, itemId, normalized as any);
 }
 
 /**
@@ -92,12 +90,8 @@ export async function listMyItemsAction(
 }
 
 /**
- * DELETE
- *
- * Observație:
- * momentan e delete hard.
- * Dacă vrei soft-delete (is_active=false),
- * schimbăm aici, nu în 5 locuri.
+ * DELETE (hard) — păstrat intern pentru cleanup/admin.
+ * UI/API normal folosește soft-delete via updateItemAction({ isActive: false }).
  */
 export async function deleteItemAction(
   supabase: SupabaseClient,
