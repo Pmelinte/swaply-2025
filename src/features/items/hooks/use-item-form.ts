@@ -3,13 +3,9 @@
 "use client";
 
 import { useState } from "react";
+import type { z } from "zod";
 import { itemFormSchema } from "../../items/validation";
-import type {
-  ItemFormData,
-  ItemImage,
-  ItemAiMetadata,
-  Item,
-} from "../../items/types";
+import type { ItemImage, ItemAiMetadata, Item } from "../../items/types";
 
 import {
   mapAiLabelsToCategory,
@@ -17,10 +13,16 @@ import {
   type AiNormalizedLabel,
 } from "@/lib/categories/ai-label-mapper";
 
+/**
+ * ✅ Source of truth pentru tipul formularului:
+ * îl derivăm direct din Zod schema, ca să nu mai avem mismatch-uri.
+ */
+type FormData = z.infer<typeof itemFormSchema>;
+
 interface UseItemFormOptions {
   mode: "create" | "edit";
-  initialData?: Partial<ItemFormData>;
-  onSubmit: (values: ItemFormData) => Promise<Item>;
+  initialData?: Partial<FormData>;
+  onSubmit: (values: FormData) => Promise<Item>;
 }
 
 export function useItemForm({
@@ -28,13 +30,13 @@ export function useItemForm({
   initialData = {},
   onSubmit,
 }: UseItemFormOptions) {
-  const [values, setValues] = useState<ItemFormData>({
+  const [values, setValues] = useState<FormData>({
     title: initialData.title ?? "",
     description: initialData.description ?? "",
     category: initialData.category ?? "",
     subcategory: initialData.subcategory ?? "",
     tags: initialData.tags ?? [],
-    condition: initialData.condition ?? "good",
+    condition: (initialData.condition ?? "good") as FormData["condition"],
     locationCity: initialData.locationCity ?? "",
     locationCountry: initialData.locationCountry ?? "",
     approximateValue: initialData.approximateValue,
@@ -52,7 +54,7 @@ export function useItemForm({
   // Helpers interne pentru update
   // -----------------------------
 
-  const updateField = (field: keyof ItemFormData, value: any) => {
+  const updateField = (field: keyof FormData, value: any) => {
     setValues((v) => ({
       ...v,
       [field]: value,
@@ -62,21 +64,21 @@ export function useItemForm({
   const addImage = (img: ItemImage) => {
     setValues((v) => ({
       ...v,
-      images: [...v.images, img],
+      images: [...(v.images ?? []), img],
     }));
   };
 
   const removeImage = (publicId: string) => {
     setValues((v) => ({
       ...v,
-      images: v.images.filter((img) => img.publicId !== publicId),
+      images: (v.images ?? []).filter((img: any) => img.publicId !== publicId),
     }));
   };
 
   const setPrimaryImage = (publicId: string) => {
     setValues((v) => ({
       ...v,
-      images: v.images.map((img) => ({
+      images: (v.images ?? []).map((img: any) => ({
         ...img,
         isPrimary: img.publicId === publicId,
       })),
@@ -88,38 +90,33 @@ export function useItemForm({
    * categoria + subcategoria folosind mapAiLabelsToCategory.
    */
   const applyAiMetadata = (meta: ItemAiMetadata) => {
-    // Construim un "rezultat AI" compatibil cu mapper-ul nostru,
-    // folosind primaryLabel + suggestedTags ca sursă de adevăr.
     const aiResult: AiNormalizedResult = buildAiResultFromMeta(meta);
-
     const mapping = mapAiLabelsToCategory(aiResult);
 
     setValues((v) => {
-      const nextTitle = meta.suggestedTitle ?? v.title;
+      const nextTitle = meta.suggestedTitle ?? (v.title ?? "");
 
-      // Dacă mapping-ul a găsit ceva, îl folosim.
-      // Dacă nu, cădem înapoi pe ce vine din meta sau ce era deja în formular.
       const nextCategory =
         mapping.categorySlug ||
         meta.suggestedCategory ||
-        v.category ||
+        (v.category ?? "") ||
         "";
 
       const nextSubcategory =
         mapping.subcategorySlug ||
         meta.suggestedSubcategory ||
-        v.subcategory ||
+        (v.subcategory ?? "") ||
         "";
 
-      const nextTags = meta.suggestedTags ?? v.tags;
+      const nextTags = meta.suggestedTags ?? (v.tags ?? []);
 
       return {
         ...v,
-        aiMetadata: meta,
-        title: nextTitle,
-        category: nextCategory,
-        subcategory: nextSubcategory,
-        tags: nextTags,
+        aiMetadata: meta as any,
+        title: nextTitle as any,
+        category: nextCategory as any,
+        subcategory: nextSubcategory as any,
+        tags: nextTags as any,
       };
     });
   };
@@ -150,6 +147,7 @@ export function useItemForm({
     }
 
     try {
+      // ✅ parsed.data are exact tipul FormData
       const item = await onSubmit(parsed.data);
       setSuccess(true);
       return item;
@@ -204,8 +202,6 @@ function buildAiResultFromMeta(meta: ItemAiMetadata): AiNormalizedResult {
   return {
     mainLabel: meta.primaryLabel ?? null,
     labels,
-    // Deocamdată nu propagăm un locale real aici;
-    // dacă vei salva locale-ul user-ului, îl putem trimite din UI.
     locale: "ro",
     raw: meta,
   };
