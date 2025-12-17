@@ -6,7 +6,6 @@ import { createServerClient } from "@/lib/supabase/server";
 import {
   getItemAction,
   updateItemAction,
-  deleteItemAction,
 } from "@/features/items/server/item-actions";
 
 type ApiResponse =
@@ -103,7 +102,6 @@ export async function PUT(
   }
 
   try {
-    // Owner check înainte de update (RLS confirmă și el)
     const existing = await getItemAction(supabase, id);
 
     if (!existing) {
@@ -128,11 +126,7 @@ export async function PUT(
 
 /**
  * DELETE /api/items/[id]
- * - SOFT delete: setează isActive=false (doar owner)
- *
- * Notă:
- * - deleteItemAction rămâne importat doar ca să nu rupem alte fluxuri/viitor refactor,
- *   dar aici NU îl mai folosim.
+ * - SOFT delete: is_active=false (doar owner)
  */
 export async function DELETE(
   _request: Request,
@@ -148,7 +142,6 @@ export async function DELETE(
   }
 
   try {
-    // Owner check înainte de soft-delete (RLS confirmă și el)
     const existing = await getItemAction(supabase, id);
 
     if (!existing) {
