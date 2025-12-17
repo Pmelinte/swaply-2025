@@ -4,17 +4,12 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Item } from "../types";
 
 /**
- * Repository = stratul care vorbește cu DB.
+ * Repository = strat DB.
  *
  * IMPORTANT:
- * - Tabela: public.items
- * - Coloane așteptate: id, owner_id, title, description, category, subcategory,
- *   tags, condition, location_city, location_country, approximate_value, currency,
- *   images, ai_metadata, is_active, created_at, updated_at
- *
- * DB enforcement:
- * - owner_id are DEFAULT auth.uid()
- * - RLS policies aplică ownership (insert/update/delete/select)
+ * - Nu folosim ItemCreateInput / ItemUpdateInput în semnături,
+ *   ca să nu rupem build-ul când contractele evoluează.
+ * - Validarea/normalizarea stau în validation.ts + item-actions.ts.
  */
 
 function mapRowToItem(row: any): Item {
@@ -30,27 +25,33 @@ function mapRowToItem(row: any): Item {
 
     tags: Array.isArray(row.tags) ? row.tags : [],
 
-    condition: row.condition,
+    condition: row.condition ?? "good",
+
+    status: row.status ?? undefined,
 
     locationCity: row.location_city ?? "",
     locationCountry: row.location_country ?? "",
 
     approximateValue:
-      typeof row.approximate_value === "number" ? row.approximate_value : undefined,
+      typeof row.approximate_value === "number"
+        ? row.approximate_value
+        : undefined,
+
     currency: row.currency ?? undefined,
 
     images: Array.isArray(row.images) ? row.images : [],
 
     aiMetadata: row.ai_metadata ?? undefined,
 
-    isActive: Boolean(row.is_active),
+    isActive:
+      typeof row.is_active === "boolean" ? row.is_active : undefined,
 
     createdAt: row.created_at,
     updatedAt: row.updated_at ?? row.created_at,
-  };
+  } as any;
 }
 
-function mapCreateToInsert(input: ItemCreateInput) {
+function mapCreateToInsert(input: any) {
   return {
     // owner_id vine din DEFAULT auth.uid()
     title: input.title,
@@ -63,23 +64,27 @@ function mapCreateToInsert(input: ItemCreateInput) {
 
     condition: input.condition,
 
+    status: input.status ?? null,
+
     location_city: input.locationCity,
     location_country: input.locationCountry,
 
     approximate_value:
-      typeof input.approximateValue === "number" ? input.approximateValue : null,
+      typeof input.approximateValue === "number"
+        ? input.approximateValue
+        : null,
+
     currency: input.currency ?? null,
 
     images: input.images ?? [],
 
-    // ai_metadata îl setăm separat din actions (dacă vrem), nu e obligatoriu
-    ai_metadata: null,
+    ai_metadata: input.aiMetadata ?? null,
 
-    is_active: true,
+    is_active: typeof input.isActive === "boolean" ? input.isActive : true,
   };
 }
 
-function mapUpdateToPatch(input: ItemUpdateInput) {
+function mapUpdateToPatch(input: any) {
   const patch: Record<string, unknown> = {};
 
   if (typeof input.title === "string") patch.title = input.title;
@@ -99,9 +104,11 @@ function mapUpdateToPatch(input: ItemUpdateInput) {
 
   if (typeof input.condition === "string") patch.condition = input.condition;
 
+  if (typeof input.status === "string") patch.status = input.status;
+  if (input.status === null) patch.status = null;
+
   if (typeof input.locationCity === "string") patch.location_city = input.locationCity;
-  if (typeof input.locationCountry === "string")
-    patch.location_country = input.locationCountry;
+  if (typeof input.locationCountry === "string") patch.location_country = input.locationCountry;
 
   if (input.approximateValue === undefined) {
     // nu atingem
@@ -121,6 +128,10 @@ function mapUpdateToPatch(input: ItemUpdateInput) {
 
   if (Array.isArray(input.images)) patch.images = input.images;
 
+  if (typeof input.aiMetadata !== "undefined") {
+    patch.ai_metadata = input.aiMetadata ?? null;
+  }
+
   if (typeof input.isActive === "boolean") patch.is_active = input.isActive;
 
   return patch;
@@ -128,7 +139,7 @@ function mapUpdateToPatch(input: ItemUpdateInput) {
 
 export async function createItem(
   supabase: SupabaseClient,
-  input: ItemCreateInput
+  input: any
 ): Promise<Item> {
   const insert = mapCreateToInsert(input);
 
@@ -145,7 +156,7 @@ export async function createItem(
 export async function updateItem(
   supabase: SupabaseClient,
   id: string,
-  input: ItemUpdateInput
+  input: any
 ): Promise<Item> {
   const patch = mapUpdateToPatch(input);
 
@@ -181,4 +192,30 @@ export async function listMyItems(
   ownerId: string,
   options?: { limit?: number; offset?: number; onlyActive?: boolean }
 ): Promise<Item[]> {
-  const
+  const limit = options?.limit ?? 30;
+  const offset = options?.offset ?? 0;
+
+  let query = supabase
+    .from("items")
+    .select("*")
+    .eq("owner_id", ownerId)
+    .order("created_at", { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  if (options?.onlyActive) query = query.eq("is_active", true);
+
+  const { data, error } = await query;
+
+  if (error) throw new Error(`listMyItems failed: ${error.message}`);
+  return (data ?? []).map(mapRowToItem);
+}
+
+export async function deleteItem(
+  supabase: SupabaseClient,
+  id: string
+): Promise<{ ok: true }> {
+  const { error } = await supabase.from("items").delete().eq("id", id);
+
+  if (error) throw new Error(`deleteItem failed: ${error.message}`);
+  return { ok: true };
+}
