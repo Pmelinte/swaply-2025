@@ -33,7 +33,11 @@ async function getAuthedContext() {
     };
   }
 
-  return { supabase, userId: user.id, errorResponse: null as NextResponse<ApiResponse> | null };
+  return {
+    supabase,
+    userId: user.id,
+    errorResponse: null as NextResponse<ApiResponse> | null,
+  };
 }
 
 /**
@@ -99,7 +103,7 @@ export async function PUT(
   }
 
   try {
-    // Owner check înainte de update (până punem RLS strict)
+    // Owner check înainte de update (RLS confirmă și el)
     const existing = await getItemAction(supabase, id);
 
     if (!existing) {
@@ -124,7 +128,11 @@ export async function PUT(
 
 /**
  * DELETE /api/items/[id]
- * - delete item (doar owner)
+ * - SOFT delete: setează isActive=false (doar owner)
+ *
+ * Notă:
+ * - deleteItemAction rămâne importat doar ca să nu rupem alte fluxuri/viitor refactor,
+ *   dar aici NU îl mai folosim.
  */
 export async function DELETE(
   _request: Request,
@@ -140,7 +148,7 @@ export async function DELETE(
   }
 
   try {
-    // Owner check înainte de delete (până punem RLS strict)
+    // Owner check înainte de soft-delete (RLS confirmă și el)
     const existing = await getItemAction(supabase, id);
 
     if (!existing) {
@@ -151,11 +159,11 @@ export async function DELETE(
       return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
     }
 
-    await deleteItemAction(supabase, id);
+    await updateItemAction(supabase, id, { isActive: false });
 
     return NextResponse.json({ ok: true, deleted: true }, { status: 200 });
   } catch (err: any) {
-    console.error("[ITEM_DELETE_ERROR]", err);
+    console.error("[ITEM_SOFT_DELETE_ERROR]", err);
     return NextResponse.json(
       { ok: false, error: err?.message ?? "internal_error" },
       { status: 500 }
