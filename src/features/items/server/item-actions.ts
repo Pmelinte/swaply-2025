@@ -34,17 +34,21 @@ import {
 
 /**
  * CREATE
+ *
+ * Notă:
+ * - ownerId rămâne în semnătură doar pentru compatibilitate cu API-ul existent.
+ * - Nu îl folosim: DB are DEFAULT auth.uid() + RLS care aplică ownership.
  */
 export async function createItemAction(
   supabase: SupabaseClient,
-  ownerId: string,
+  _ownerId: string,
   rawInput: unknown
 ): Promise<Item> {
   const parsed = itemCreateSchema.parse(rawInput);
 
   const normalized = normalizeItemFormData(parsed as any) as ItemCreateInput;
 
-  return createItem(supabase, ownerId, normalized);
+  return createItem(supabase, normalized);
 }
 
 /**
