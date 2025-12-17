@@ -18,16 +18,26 @@ export interface ItemImage {
 }
 
 export interface ItemAiMetadata {
+  // ✅ câmpuri folosite de UI (item-form.tsx)
+  model?: string;
+  primaryLabel?: string;
+  suggestedTitle?: string;
+  suggestedCategory?: string;
+  suggestedSubcategory?: string;
+  suggestedTags?: string[];
+
+  // ✅ compat + fallback
+  confidence?: number; // 0..1
+  raw?: Record<string, unknown>;
+
+  // (păstrăm și vechile chei dacă mai sunt prin alte părți)
   detectedTitle?: string;
   detectedCategory?: string;
   detectedSubcategory?: string;
-  confidence?: number; // 0..1
-  raw?: Record<string, unknown>;
 }
 
 export interface Item {
   id: string;
-
   ownerId: string;
 
   title: string;
@@ -40,7 +50,6 @@ export interface Item {
 
   condition: ItemCondition;
 
-  // compat pentru feed-uri/swipe mai vechi
   status?: string;
 
   locationCity: string;
@@ -53,7 +62,6 @@ export interface Item {
 
   aiMetadata?: ItemAiMetadata;
 
-  // ✅ opțional: unele mappere vechi nu îl setează
   isActive?: boolean;
 
   createdAt: string;
