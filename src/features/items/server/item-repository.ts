@@ -5,15 +5,16 @@ import type { Item, ItemCreateInput, ItemUpdateInput } from "../types";
 
 /**
  * Repository = stratul care vorbește cu DB.
- * Ținem aici mapping-ul și filtrările, ca să nu ajungă Supabase peste tot.
  *
  * IMPORTANT:
- * - Folosește tabela: public.items
- * - Coloane așteptate (minim): id, owner_id, title, description, category, subcategory,
+ * - Tabela: public.items
+ * - Coloane așteptate: id, owner_id, title, description, category, subcategory,
  *   tags, condition, location_city, location_country, approximate_value, currency,
  *   images, ai_metadata, is_active, created_at, updated_at
  *
- * Dacă DB încă nu are exact așa, ajustăm la pasul de migrare.
+ * DB enforcement:
+ * - owner_id are DEFAULT auth.uid()
+ * - RLS policies aplică ownership (insert/update/delete/select)
  */
 
 function mapRowToItem(row: any): Item {
@@ -45,14 +46,13 @@ function mapRowToItem(row: any): Item {
     isActive: Boolean(row.is_active),
 
     createdAt: row.created_at,
-    updatedAt: row.updated_at,
+    updatedAt: row.updated_at ?? row.created_at,
   };
 }
 
-function mapCreateToInsert(input: ItemCreateInput, ownerId: string) {
+function mapCreateToInsert(input: ItemCreateInput) {
   return {
-    owner_id: ownerId,
-
+    // owner_id vine din DEFAULT auth.uid()
     title: input.title,
     description: input.description,
 
@@ -86,11 +86,13 @@ function mapUpdateToPatch(input: ItemUpdateInput) {
   if (typeof input.description === "string") patch.description = input.description;
 
   if (typeof input.category === "string") patch.category = input.category;
-  if (typeof input.subcategory === "string") patch.subcategory = input.subcategory;
+
   if (input.subcategory === undefined) {
     // nu atingem
   } else if (input.subcategory === null) {
     patch.subcategory = null;
+  } else if (typeof input.subcategory === "string") {
+    patch.subcategory = input.subcategory;
   }
 
   if (Array.isArray(input.tags)) patch.tags = input.tags;
@@ -101,19 +103,20 @@ function mapUpdateToPatch(input: ItemUpdateInput) {
   if (typeof input.locationCountry === "string")
     patch.location_country = input.locationCountry;
 
-  if (typeof input.approximateValue === "number")
-    patch.approximate_value = input.approximateValue;
   if (input.approximateValue === undefined) {
     // nu atingem
   } else if (input.approximateValue === null) {
     patch.approximate_value = null;
+  } else if (typeof input.approximateValue === "number") {
+    patch.approximate_value = input.approximateValue;
   }
 
-  if (typeof input.currency === "string") patch.currency = input.currency;
   if (input.currency === undefined) {
     // nu atingem
   } else if (input.currency === null) {
     patch.currency = null;
+  } else if (typeof input.currency === "string") {
+    patch.currency = input.currency;
   }
 
   if (Array.isArray(input.images)) patch.images = input.images;
@@ -125,10 +128,9 @@ function mapUpdateToPatch(input: ItemUpdateInput) {
 
 export async function createItem(
   supabase: SupabaseClient,
-  ownerId: string,
   input: ItemCreateInput
 ): Promise<Item> {
-  const insert = mapCreateToInsert(input, ownerId);
+  const insert = mapCreateToInsert(input);
 
   const { data, error } = await supabase
     .from("items")
@@ -162,7 +164,11 @@ export async function getItemById(
   supabase: SupabaseClient,
   id: string
 ): Promise<Item | null> {
-  const { data, error } = await supabase.from("items").select("*").eq("id", id).maybeSingle();
+  const { data, error } = await supabase
+    .from("items")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
 
   if (error) throw new Error(`getItemById failed: ${error.message}`);
   if (!data) return null;
@@ -175,30 +181,4 @@ export async function listMyItems(
   ownerId: string,
   options?: { limit?: number; offset?: number; onlyActive?: boolean }
 ): Promise<Item[]> {
-  const limit = options?.limit ?? 30;
-  const offset = options?.offset ?? 0;
-
-  let query = supabase
-    .from("items")
-    .select("*")
-    .eq("owner_id", ownerId)
-    .order("created_at", { ascending: false })
-    .range(offset, offset + limit - 1);
-
-  if (options?.onlyActive) query = query.eq("is_active", true);
-
-  const { data, error } = await query;
-
-  if (error) throw new Error(`listMyItems failed: ${error.message}`);
-  return (data ?? []).map(mapRowToItem);
-}
-
-export async function deleteItem(
-  supabase: SupabaseClient,
-  id: string
-): Promise<{ ok: true }> {
-  const { error } = await supabase.from("items").delete().eq("id", id);
-
-  if (error) throw new Error(`deleteItem failed: ${error.message}`);
-  return { ok: true };
-}
+  const
