@@ -1,86 +1,72 @@
-// src/features/items/server/item-actions.ts
+// src/features/items/server/items-actions.ts
 
-import type { SupabaseClient } from "@supabase/supabase-js";
-
-import {
-  itemCreateSchema,
-  itemUpdateSchema,
-  normalizeItemFormData,
-} from "../validation";
-
-import type { Item } from "../types";
+import { createServerClient } from "@/lib/supabase/server";
+import { itemFormSchema, normalizeItemFormData } from "../../items/validation";
+import type { Item, ItemFormData } from "../../items/types";
 
 import {
-  createItem,
-  updateItem,
-  getItemById,
-  listMyItems,
-} from "./item-repository";
+  createItemAction,
+  updateItemAction,
+  getItemAction,
+  listMyItemsAction,
+  deleteItemAction,
+} from "./item-actions";
 
 /**
- * Actions = business logic.
+ * ✅ Compat layer pentru codul vechi care importă din:
+ *   src/features/items/server/items-actions.ts (cu "s")
  *
- * IMPORTANT:
- * - Nu importăm ItemCreateInput / ItemUpdateInput (nu sunt exportate din ../types).
- * - Soft-delete este standard (isActive=false) și se face în API by-id via updateItemAction.
- * - Hard-delete este dezactivat elegant (nu expunem delete action acum).
+ * În loc să depindem de un "itemsRepository" (care nu există),
+ * expunem funcții server-side care folosesc:
+ * - createServerClient()
+ * - auth.getUser()
+ * - item-actions.ts (business logic)
  */
 
-/**
- * CREATE
- *
- * Notă:
- * - ownerId rămâne în semnătură doar pentru compatibilitate cu API-ul existent.
- * - Nu îl folosim: DB are DEFAULT auth.uid() + RLS care aplică ownership.
- */
-export async function createItemAction(
-  supabase: SupabaseClient,
-  _ownerId: string,
-  rawInput: unknown
-): Promise<Item> {
-  const parsed = itemCreateSchema.parse(rawInput);
+async function requireUserId(): Promise<{ supabase: ReturnType<typeof createServerClient>; userId: string }> {
+  const supabase = createServerClient();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
 
-  const normalized = normalizeItemFormData(parsed as any);
-
-  return createItem(supabase, normalized as any);
-}
-
-/**
- * UPDATE
- */
-export async function updateItemAction(
-  supabase: SupabaseClient,
-  itemId: string,
-  rawInput: unknown
-): Promise<Item> {
-  const parsed = itemUpdateSchema.parse(rawInput);
-
-  const normalized = normalizeItemFormData(parsed as any);
-
-  return updateItem(supabase, itemId, normalized as any);
-}
-
-/**
- * READ (single)
- */
-export async function getItemAction(
-  supabase: SupabaseClient,
-  itemId: string
-): Promise<Item | null> {
-  return getItemById(supabase, itemId);
-}
-
-/**
- * READ (list my items)
- */
-export async function listMyItemsAction(
-  supabase: SupabaseClient,
-  ownerId: string,
-  options?: {
-    limit?: number;
-    offset?: number;
-    onlyActive?: boolean;
+  if (error || !user) {
+    throw new Error("not_authenticated");
   }
-): Promise<Item[]> {
-  return listMyItems(supabase, ownerId, options);
+
+  return { supabase, userId: user.id };
+}
+
+export async function createItemServer(rawInput: unknown): Promise<Item> {
+  const { supabase, userId } = await requireUserId();
+
+  const parsed = itemFormSchema.parse(rawInput);
+  const normalized = normalizeItemFormData(parsed as ItemFormData);
+
+  // ownerId rămâne param pt compat; în DB poate veni din DEFAULT auth.uid()
+  return createItemAction(supabase, userId, normalized);
+}
+
+export async function updateItemServer(itemId: string, rawInput: unknown): Promise<Item> {
+  const { supabase } = await requireUserId();
+
+  const parsed = itemFormSchema.partial().parse(rawInput);
+  const normalized = normalizeItemFormData(parsed as any);
+
+  return updateItemAction(supabase, itemId, normalized);
+}
+
+export async function getItemServer(itemId: string): Promise<Item | null> {
+  const { supabase } = await requireUserId();
+  return getItemAction(supabase, itemId);
+}
+
+export async function listMyItemsServer(options?: { limit?: number; offset?: number; onlyActive?: boolean }): Promise<Item[]> {
+  const { supabase, userId } = await requireUserId();
+  return listMyItemsAction(supabase, userId, options);
+}
+
+export async function deleteItemServer(itemId: string): Promise<{ ok: true }> {
+  const { supabase } = await requireUserId();
+  return deleteItemAction(supabase, itemId);
 }
