@@ -8,7 +8,7 @@ export type ItemCondition =
   | "poor";
 
 export interface ItemImage {
-  // ✅ optional: la imagini „manual/legacy” nu avem id
+  // optional: la imagini „manual/legacy” nu avem id
   id?: string;
   url: string;
   publicId?: string;
@@ -23,7 +23,7 @@ export interface ItemAiMetadata {
   detectedCategory?: string;
   detectedSubcategory?: string;
   confidence?: number; // 0..1
-  raw?: Record<string, unknown>; // fallback safe, nu rupem build-ul
+  raw?: Record<string, unknown>;
 }
 
 export interface Item {
@@ -41,6 +41,9 @@ export interface Item {
 
   condition: ItemCondition;
 
+  // ✅ compat pentru swipe/feed-uri mai vechi
+  status?: string;
+
   locationCity: string;
   locationCountry: string;
 
@@ -53,8 +56,8 @@ export interface Item {
 
   isActive: boolean;
 
-  createdAt: string; // ISO
-  updatedAt: string; // ISO
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ItemCreateInput {
@@ -67,6 +70,9 @@ export interface ItemCreateInput {
   tags?: string[];
 
   condition: ItemCondition;
+
+  // opțional, pentru compat cu payload-uri existente
+  status?: string;
 
   locationCity: string;
   locationCountry: string;
@@ -84,8 +90,4 @@ export interface ItemUpdateInput extends Partial<ItemCreateInput> {
   isActive?: boolean;
 }
 
-/**
- * ✅ Compat layer pentru codul existent:
- * multe componente/importuri încă folosesc ItemFormData.
- */
 export type ItemFormData = ItemCreateInput;
