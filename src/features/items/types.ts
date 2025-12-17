@@ -49,7 +49,6 @@ export interface Item {
 
   aiMetadata?: ItemAiMetadata;
 
-  // ✅ necesar pentru soft-delete (DB: is_active)
   isActive: boolean;
 
   createdAt: string; // ISO
@@ -76,10 +75,16 @@ export interface ItemCreateInput {
   images?: ItemImage[];
   aiMetadata?: ItemAiMetadata;
 
-  // opțional, dar util dacă vrei să creezi direct inactive
   isActive?: boolean;
 }
 
 export interface ItemUpdateInput extends Partial<ItemCreateInput> {
   isActive?: boolean;
 }
+
+/**
+ * ✅ Compat layer pentru codul existent:
+ * multe componente/importuri încă folosesc ItemFormData.
+ * Îl păstrăm ca alias către structura de create (form = create payload).
+ */
+export type ItemFormData = ItemCreateInput;
