@@ -1,107 +1,164 @@
 // src/app/api/items/[id]/route.ts
 
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
 
-type ItemDto = {
-  id: string;
-  ownerId: string;
-  title: string;
-  description: string | null;
-
-  category: string | null;
-  subcategory: string | null;
-  tags: string[] | null;
-
-  condition: string | null;
-
-  locationCity: string | null;
-  locationCountry: string | null;
-
-  approximateValue: number | null;
-  currency: string | null;
-
-  images: any[] | null;
-
-  status: string | null;
-
-  createdAt: string;
-  updatedAt: string | null;
-};
+import {
+  getItemAction,
+  updateItemAction,
+  deleteItemAction,
+} from "@/features/items/server/item-actions";
 
 type ApiResponse =
-  | { ok: true; item: ItemDto }
+  | { ok: true; item: unknown }
+  | { ok: true; deleted: true }
   | { ok: false; error: string };
 
-function mapRowToDto(row: any): ItemDto {
-  return {
-    id: row.id,
-    ownerId: row.owner_id ?? row.user_id ?? row.ownerId ?? row.userId,
+async function getAuthedContext() {
+  const supabase = createServerClient();
 
-    title: row.title,
-    description: row.description ?? null,
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
-    category: row.category ?? null,
-    subcategory: row.subcategory ?? null,
-    tags: row.tags ?? null,
+  if (authError || !user) {
+    return {
+      supabase,
+      userId: null as string | null,
+      errorResponse: NextResponse.json(
+        { ok: false, error: "not_authenticated" },
+        { status: 401 }
+      ) as NextResponse<ApiResponse>,
+    };
+  }
 
-    condition: row.condition ?? null,
-
-    locationCity: row.location_city ?? row.locationCity ?? null,
-    locationCountry: row.location_country ?? row.locationCountry ?? null,
-
-    approximateValue: row.approximate_value ?? row.approximateValue ?? null,
-    currency: row.currency ?? null,
-
-    images: row.images ?? null,
-
-    status: row.status ?? null,
-
-    createdAt: row.created_at ?? row.createdAt,
-    updatedAt: row.updated_at ?? row.updatedAt ?? null,
-  };
+  return { supabase, userId: user.id, errorResponse: null as NextResponse<ApiResponse> | null };
 }
 
 /**
- * GET /api/items/:id
- * Returnează un item by id (public read).
- *
- * Notes:
- * - Nu cerem auth (MVP). Dacă ai RLS strict pe items, atunci va funcționa doar pentru ce e permis de RLS.
- * - Dacă vrei „public feed”, asigură-te că există policy de SELECT corespunzătoare.
+ * GET /api/items/[id]
+ * - returnează item-ul (doar dacă e al userului curent)
  */
 export async function GET(
-  req: NextRequest,
-  context: { params: { id: string } },
+  _request: Request,
+  context: { params: { id: string } }
 ): Promise<NextResponse<ApiResponse>> {
+  const { supabase, userId, errorResponse } = await getAuthedContext();
+  if (errorResponse || !userId) return errorResponse!;
+
+  const id = context.params.id;
+
+  if (!id) {
+    return NextResponse.json({ ok: false, error: "missing_item_id" }, { status: 400 });
+  }
+
   try {
-    const itemId = context.params.id;
+    const item = await getItemAction(supabase, id);
 
-    if (!itemId) {
-      return NextResponse.json({ ok: false, error: "missing_item_id" }, { status: 400 });
+    if (!item) {
+      return NextResponse.json({ ok: false, error: "not_found" }, { status: 404 });
     }
 
-    const supabase = createServerClient();
-
-    // Încercăm să citim itemul. RLS decide ce e vizibil.
-    const { data, error } = await supabase
-      .from("items")
-      .select("*")
-      .eq("id", itemId)
-      .maybeSingle();
-
-    if (error) {
-      console.error("[ITEM_GET_ERROR]", error);
-      return NextResponse.json({ ok: false, error: "db_error_fetch_item" }, { status: 500 });
+    if (item.ownerId !== userId) {
+      return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
     }
 
-    if (!data) {
-      return NextResponse.json({ ok: false, error: "item_not_found" }, { status: 404 });
+    return NextResponse.json({ ok: true, item }, { status: 200 });
+  } catch (err: any) {
+    console.error("[ITEM_GET_ERROR]", err);
+    return NextResponse.json(
+      { ok: false, error: err?.message ?? "internal_error" },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * PUT /api/items/[id]
+ * - update item (doar owner)
+ */
+export async function PUT(
+  request: Request,
+  context: { params: { id: string } }
+): Promise<NextResponse<ApiResponse>> {
+  const { supabase, userId, errorResponse } = await getAuthedContext();
+  if (errorResponse || !userId) return errorResponse!;
+
+  const id = context.params.id;
+
+  if (!id) {
+    return NextResponse.json({ ok: false, error: "missing_item_id" }, { status: 400 });
+  }
+
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ ok: false, error: "invalid_json" }, { status: 400 });
+  }
+
+  try {
+    // Owner check înainte de update (până punem RLS strict)
+    const existing = await getItemAction(supabase, id);
+
+    if (!existing) {
+      return NextResponse.json({ ok: false, error: "not_found" }, { status: 404 });
     }
 
-    return NextResponse.json({ ok: true, item: mapRowToDto(data) }, { status: 200 });
-  } catch (err) {
-    console.error("[ITEM_GET_UNEXPECTED]", err);
-    return NextResponse.json({ ok: false, error: "internal_error" }, { status: 500 });
+    if (existing.ownerId !== userId) {
+      return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
+    }
+
+    const item = await updateItemAction(supabase, id, body);
+
+    return NextResponse.json({ ok: true, item }, { status: 200 });
+  } catch (err: any) {
+    console.error("[ITEM_UPDATE_ERROR]", err);
+    return NextResponse.json(
+      { ok: false, error: err?.message ?? "validation_error" },
+      { status: 400 }
+    );
+  }
+}
+
+/**
+ * DELETE /api/items/[id]
+ * - delete item (doar owner)
+ */
+export async function DELETE(
+  _request: Request,
+  context: { params: { id: string } }
+): Promise<NextResponse<ApiResponse>> {
+  const { supabase, userId, errorResponse } = await getAuthedContext();
+  if (errorResponse || !userId) return errorResponse!;
+
+  const id = context.params.id;
+
+  if (!id) {
+    return NextResponse.json({ ok: false, error: "missing_item_id" }, { status: 400 });
+  }
+
+  try {
+    // Owner check înainte de delete (până punem RLS strict)
+    const existing = await getItemAction(supabase, id);
+
+    if (!existing) {
+      return NextResponse.json({ ok: false, error: "not_found" }, { status: 404 });
+    }
+
+    if (existing.ownerId !== userId) {
+      return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
+    }
+
+    await deleteItemAction(supabase, id);
+
+    return NextResponse.json({ ok: true, deleted: true }, { status: 200 });
+  } catch (err: any) {
+    console.error("[ITEM_DELETE_ERROR]", err);
+    return NextResponse.json(
+      { ok: false, error: err?.message ?? "internal_error" },
+      { status: 500 }
+    );
   }
 }
