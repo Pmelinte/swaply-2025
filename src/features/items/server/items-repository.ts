@@ -92,4 +92,97 @@ function mapUpdateToPatch(input: any) {
 
   if (typeof input.condition === "string") patch.condition = input.condition;
 
-  if (typeof input.locationCity === "string") patch
+  if (typeof input.locationCity === "string") patch.location_city = input.locationCity;
+  if (typeof input.locationCountry === "string")
+    patch.location_country = input.locationCountry;
+
+  if (input.approximateValue === undefined) {
+    // nu atingem
+  } else if (input.approximateValue === null) {
+    patch.approximate_value = null;
+  } else if (typeof input.approximateValue === "number") {
+    patch.approximate_value = input.approximateValue;
+  }
+
+  if (input.currency === undefined) {
+    // nu atingem
+  } else if (input.currency === null) {
+    patch.currency = null;
+  } else if (typeof input.currency === "string") {
+    patch.currency = input.currency;
+  }
+
+  if (Array.isArray(input.images)) patch.images = input.images;
+
+  if (typeof input.aiMetadata !== "undefined") patch.ai_metadata = input.aiMetadata ?? null;
+
+  if (typeof input.isActive === "boolean") patch.is_active = input.isActive;
+
+  return patch;
+}
+
+export async function createItem(supabase: SupabaseClient, input: any): Promise<Item> {
+  const insert = mapCreateToInsert(input);
+
+  const { data, error } = await supabase.from("items").insert(insert).select("*").single();
+
+  if (error) throw new Error(`createItem failed: ${error.message}`);
+  return mapRowToItem(data);
+}
+
+export async function updateItem(
+  supabase: SupabaseClient,
+  id: string,
+  input: any
+): Promise<Item> {
+  const patch = mapUpdateToPatch(input);
+
+  const { data, error } = await supabase
+    .from("items")
+    .update(patch)
+    .eq("id", id)
+    .select("*")
+    .single();
+
+  if (error) throw new Error(`updateItem failed: ${error.message}`);
+  return mapRowToItem(data);
+}
+
+export async function getItemById(
+  supabase: SupabaseClient,
+  id: string
+): Promise<Item | null> {
+  const { data, error } = await supabase
+    .from("items")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) throw new Error(`getItemById failed: ${error.message}`);
+  if (!data) return null;
+
+  return mapRowToItem(data);
+}
+
+export async function listMyItems(
+  supabase: SupabaseClient,
+  ownerId: string,
+  options?: { limit?: number; offset?: number; onlyActive?: boolean }
+): Promise<Item[]> {
+  const limit = options?.limit ?? 30;
+  const offset = options?.offset ?? 0;
+
+  let query = supabase
+    .from("items")
+    .select("*")
+    .eq("owner_id", ownerId)
+    .order("created_at", { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  if (options?.onlyActive) query = query.eq("is_active", true);
+
+  const { data, error } = await query;
+
+  if (error) throw new Error(`listMyItems failed: ${error.message}`);
+  return (data ?? []).map(mapRowToItem);
+}
