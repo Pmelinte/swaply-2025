@@ -8,7 +8,6 @@ export type ItemCondition =
   | "poor";
 
 export interface ItemImage {
-  // optional: la imagini „manual/legacy” nu avem id
   id?: string;
   url: string;
   publicId?: string;
@@ -41,7 +40,7 @@ export interface Item {
 
   condition: ItemCondition;
 
-  // ✅ compat pentru swipe/feed-uri mai vechi
+  // compat pentru feed-uri/swipe mai vechi
   status?: string;
 
   locationCity: string;
@@ -54,7 +53,8 @@ export interface Item {
 
   aiMetadata?: ItemAiMetadata;
 
-  isActive: boolean;
+  // ✅ opțional: unele mappere vechi nu îl setează
+  isActive?: boolean;
 
   createdAt: string;
   updatedAt: string;
@@ -71,7 +71,6 @@ export interface ItemCreateInput {
 
   condition: ItemCondition;
 
-  // opțional, pentru compat cu payload-uri existente
   status?: string;
 
   locationCity: string;
