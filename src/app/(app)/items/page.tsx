@@ -2,109 +2,169 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 
-type ItemPreview = {
+type ItemRow = {
   id: string;
   title: string;
-  primaryImageUrl: string | null;
-  category: string | null;
-  subcategory: string | null;
-  locationCity: string | null;
-  locationCountry: string | null;
-  createdAt: string;
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
-type ApiResponse =
-  | { ok: true; items: ItemPreview[] }
-  | { ok: false; error: string };
+type ApiOk = { ok: true; items: any[] };
+type ApiErr = { ok: false; error: string };
 
-export default function ItemsPage() {
-  const [items, setItems] = useState<ItemPreview[]>([]);
+export default function MyItemsPage() {
+  const [items, setItems] = useState<ItemRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [busyDeleteId, setBusyDeleteId] = useState<string | null>(null);
 
-  const load = async () => {
+  const hasItems = useMemo(() => items.length > 0, [items.length]);
+
+  async function load() {
+    setLoading(true);
+    setError(null);
+
     try {
-      setLoading(true);
-      const res = await fetch("/api/items", { cache: "no-store" });
-      const data: ApiResponse = await res.json();
+      const res = await fetch("/api/items?limit=50&offset=0", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        cache: "no-store",
+      });
+
+      const data = (await res.json()) as ApiOk | ApiErr;
 
       if (!res.ok || !data.ok) {
-        setError((data as any)?.error ?? "Eroare la încărcare item-uri.");
+        setError(!data.ok ? data.error : "failed_to_load_items");
+        setItems([]);
         return;
       }
 
-      setItems(data.items);
-      setError(null);
-    } catch (err) {
-      console.error("[ITEMS_PAGE_LOAD_ERROR]", err);
-      setError("Eroare la încărcare item-uri.");
+      const mapped: ItemRow[] = (data.items ?? []).map((x: any) => ({
+        id: String(x.id),
+        title: String(x.title ?? ""),
+        isActive: Boolean(x.isActive),
+        createdAt: x.createdAt,
+        updatedAt: x.updatedAt,
+      }));
+
+      setItems(mapped);
+    } catch (e: any) {
+      setError(e?.message ?? "network_error");
+      setItems([]);
     } finally {
       setLoading(false);
     }
-  };
+  }
+
+  async function onDelete(id: string) {
+    // delete hard momentan; soft-delete vine după UI
+    setBusyDeleteId(id);
+    setError(null);
+
+    try {
+      const res = await fetch(`/api/items/${id}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const data = (await res.json()) as any;
+
+      if (!res.ok || !data?.ok) {
+        setError(data?.error ?? "delete_failed");
+        return;
+      }
+
+      await load();
+    } catch (e: any) {
+      setError(e?.message ?? "network_error");
+    } finally {
+      setBusyDeleteId(null);
+    }
+  }
 
   useEffect(() => {
     load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-6 space-y-4">
-      <h1 className="text-2xl font-bold">Obiecte disponibile</h1>
+    <main className="max-w-4xl mx-auto px-4 py-6 space-y-4">
+      <header className="flex items-center gap-3">
+        <h1 className="text-2xl font-bold">My Items</h1>
 
-      {loading && <p>Se încarcă…</p>}
-      {error && <p className="text-red-600">{error}</p>}
+        <div className="ml-auto flex gap-2">
+          <button
+            onClick={load}
+            disabled={loading}
+            className="px-3 py-2 rounded-lg border bg-white disabled:opacity-60"
+          >
+            Refresh
+          </button>
 
-      {!loading && items.length === 0 && (
-        <p className="text-gray-600">Nu există obiecte disponibile.</p>
+          <Link
+            href="/items/new"
+            className="px-3 py-2 rounded-lg border bg-black text-white"
+          >
+            + Add
+          </Link>
+        </div>
+      </header>
+
+      {error && (
+        <div className="p-3 rounded-xl border border-red-200 bg-red-50 text-red-800">
+          <strong>Oops:</strong> {error}
+        </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {items.map((item) => (
-          <Link
-            key={item.id}
-            href={`/items/${item.id}`}
-            className="border rounded-lg overflow-hidden hover:shadow transition bg-white"
-          >
-            {item.primaryImageUrl ? (
-              <Image
-                src={item.primaryImageUrl}
-                alt={item.title}
-                width={400}
-                height={300}
-                className="h-40 w-full object-cover"
-              />
-            ) : (
-              <div className="h-40 bg-gray-200 flex items-center justify-center">
-                📦
-              </div>
-            )}
-
-            <div className="p-3 space-y-1">
-              <div className="font-semibold line-clamp-2">
-                {item.title}
-              </div>
-
-              <div className="text-xs text-gray-500">
-                {item.category}
-                {item.subcategory ? ` / ${item.subcategory}` : ""}
-              </div>
-
-              {(item.locationCity || item.locationCountry) && (
-                <div className="text-xs text-gray-600">
-                  📍 {item.locationCity}
-                  {item.locationCountry
-                    ? `, ${item.locationCountry}`
-                    : ""}
+      {loading ? (
+        <div className="p-3">Loading…</div>
+      ) : !hasItems ? (
+        <div className="p-4 rounded-xl border border-dashed text-gray-600">
+          No items yet. Hit <strong>+ Add</strong>.
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {items.map((it) => (
+            <div
+              key={it.id}
+              className="p-3 rounded-xl border flex items-center gap-3"
+            >
+              <div className="flex-1 min-w-0">
+                <div className="font-semibold truncate">
+                  {it.title || "(untitled)"}
                 </div>
-              )}
+                <div className="text-sm text-gray-600">
+                  Status:{" "}
+                  <span className="font-semibold">
+                    {it.isActive ? "active" : "inactive"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                <Link
+                  href={`/items/${it.id}/edit`}
+                  className="px-3 py-2 rounded-lg border bg-white"
+                >
+                  Edit
+                </Link>
+
+                <button
+                  onClick={() => onDelete(it.id)}
+                  disabled={busyDeleteId === it.id}
+                  className="px-3 py-2 rounded-lg border border-red-200 bg-white disabled:opacity-60"
+                >
+                  {busyDeleteId === it.id ? "Deleting…" : "Delete"}
+                </button>
+              </div>
             </div>
-          </Link>
-        ))}
-      </div>
-    </div>
+          ))}
+        </div>
+      )}
+    </main>
   );
 }
