@@ -8,8 +8,10 @@ export type ItemCondition =
   | "poor";
 
 export interface ItemImage {
-  id: string;
+  // ✅ optional: la imagini „manual/legacy” nu avem id
+  id?: string;
   url: string;
+  publicId?: string;
   width?: number;
   height?: number;
   format?: string;
@@ -85,6 +87,5 @@ export interface ItemUpdateInput extends Partial<ItemCreateInput> {
 /**
  * ✅ Compat layer pentru codul existent:
  * multe componente/importuri încă folosesc ItemFormData.
- * Îl păstrăm ca alias către structura de create (form = create payload).
  */
 export type ItemFormData = ItemCreateInput;
