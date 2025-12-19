@@ -69,21 +69,24 @@ export function LanguageProvider({
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }
 
-export function useTranslation() {
+export function useTranslation(): I18nContextValue {
   const ctx = useContext(I18nContext);
   if (!ctx) {
-    return { t: (k: string) => k, lang: "ro", setLang: (_: string) => {} };
+    return {
+      lang: "ro",
+      setLang: (_: string) => {},
+      t: (k: string) => k
+    };
   }
   return ctx;
 }
 
 /**
  * Compat: unele componente folosesc useLanguage().
- * Îl expunem ca alias către același context.
+ * Îl expunem ca alias complet către același context (include și t).
  */
-export function useLanguage() {
-  const { lang, setLang } = useTranslation();
-  return { lang, setLang };
+export function useLanguage(): I18nContextValue {
+  return useTranslation();
 }
 
 // Compat: unele fișiere importă default useTranslation
