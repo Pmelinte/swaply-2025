@@ -1,6 +1,6 @@
 // src/lib/supabase/server.ts
 import { cookies } from "next/headers";
-import { createServerClient } from "@supabase/ssr";
+import { createServerClient as createSsrServerClient } from "@supabase/ssr";
 
 /**
  * Canonical server-side Supabase client for Next.js App Router.
@@ -18,7 +18,7 @@ export function createClient() {
     );
   }
 
-  return createServerClient(url, anon, {
+  return createSsrServerClient(url, anon, {
     cookies: {
       get(name: string) {
         return cookieStore.get(name)?.value;
@@ -42,9 +42,9 @@ export function createClient() {
 }
 
 /**
- * Backwards-compat aliases used across the repo.
- * Keep them so builds don't break while you refactor gradually.
+ * Compatibility exports (older files import these names).
  */
+export const createServerClient = createClient;
 export const createServerClientCompat = createClient;
 export const getSupabaseServerClient = createClient;
 export const createServerSupabaseClient = createClient;
