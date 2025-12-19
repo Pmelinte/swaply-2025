@@ -10,8 +10,17 @@
  * Regula: restul proiectului importă DOAR din "@/features/items"
  */
 
+// Types (source of truth)
 export * from "./types";
-export * from "./validation";
+
+// Validation (export explicit ca să evităm coliziuni gen ItemFormData)
+export {
+  itemFormSchema,
+  itemImageSchema,
+  itemConditionValues,
+  itemConditionLabels,
+  normalizeItemFormData,
+} from "./validation";
 
 // Server actions (shape stabil)
 export * from "./server/item-actions";
