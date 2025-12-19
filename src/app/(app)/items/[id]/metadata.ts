@@ -1,38 +1,31 @@
 // src/app/(app)/items/[id]/metadata.ts
 
-import { getItemAction } from "@/features/items/server/items-actions";
 import type { Metadata } from "next";
+import { getItemServer } from "@/features/items/server/items-actions";
 
-interface Props {
+type Props = {
   params: { id: string };
-}
+};
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const item = await getItemAction(params.id);
+  const item = await getItemServer(params.id);
 
   if (!item) {
     return {
-      title: "Obiect inexistent | Swaply",
-      description: "Acest obiect nu există sau a fost șters.",
+      title: "Item inexistent",
+      description: "Acest item nu a fost găsit.",
     };
   }
 
-  const title = item.title ?? "Obiect pe Swaply";
+  const title = item.title ? `${item.title} – Swaply` : "Item – Swaply";
   const description =
-    item.description?.slice(0, 150) ??
-    "Vezi detalii despre acest obiect pe Swaply.";
+    (item.description && item.description.trim().slice(0, 160)) ||
+    "Vezi detalii despre item pe Swaply.";
 
-  // candidat pentru imagine: prima poză sau fallback OG
-  const imageCandidate =
-    Array.isArray(item.images) && item.images.length > 0
-      ? item.images[0]
-      : "/og-default.jpg";
-
-  // siguranță: evităm string gol / null / undefined
-  const image =
-    typeof imageCandidate === "string" && imageCandidate.trim().length > 5
-      ? imageCandidate
-      : "/og-default.jpg";
+  const imageUrl =
+    item.images?.find((i: any) => i?.isPrimary)?.url ||
+    item.images?.[0]?.url ||
+    undefined;
 
   return {
     title,
@@ -40,21 +33,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title,
       description,
-      type: "article",
-      images: [
-        {
-          url: image,
-          width: 1200,
-          height: 630,
-          alt: title,
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: [image],
+      images: imageUrl ? [{ url: imageUrl }] : undefined,
     },
   };
+}
+
+export default function MetadataShim() {
+  // Next cere un default export în unele setup-uri; nu renderizăm nimic.
+  return null;
 }
