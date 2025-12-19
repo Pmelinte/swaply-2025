@@ -25,6 +25,11 @@ interface UseItemFormOptions {
   onSubmit: (values: FormData) => Promise<Item>;
 }
 
+function getImageKey(img: any): string {
+  // compat: forma nouă folosește "id", forma veche folosește "publicId"
+  return (img?.id ?? img?.publicId ?? img?.url ?? "").toString();
+}
+
 export function useItemForm({
   mode,
   initialData = {},
@@ -41,6 +46,10 @@ export function useItemForm({
     locationCountry: initialData.locationCountry ?? "",
     approximateValue: initialData.approximateValue,
     currency: initialData.currency,
+
+    // ✅ FIX: schema cere imageUrl (legacy field din form)
+    imageUrl: (initialData as any).imageUrl ?? "",
+
     images: initialData.images ?? [],
     aiMetadata: initialData.aiMetadata,
   });
@@ -68,19 +77,19 @@ export function useItemForm({
     }));
   };
 
-  const removeImage = (publicId: string) => {
+  const removeImage = (key: string) => {
     setValues((v) => ({
       ...v,
-      images: (v.images ?? []).filter((img: any) => img.publicId !== publicId),
+      images: (v.images ?? []).filter((img: any) => getImageKey(img) !== key),
     }));
   };
 
-  const setPrimaryImage = (publicId: string) => {
+  const setPrimaryImage = (key: string) => {
     setValues((v) => ({
       ...v,
       images: (v.images ?? []).map((img: any) => ({
         ...img,
-        isPrimary: img.publicId === publicId,
+        isPrimary: getImageKey(img) === key,
       })),
     }));
   };
@@ -94,21 +103,21 @@ export function useItemForm({
     const mapping = mapAiLabelsToCategory(aiResult);
 
     setValues((v) => {
-      const nextTitle = meta.suggestedTitle ?? (v.title ?? "");
+      const nextTitle = (meta as any).suggestedTitle ?? (v.title ?? "");
 
       const nextCategory =
         mapping.categorySlug ||
-        meta.suggestedCategory ||
+        (meta as any).suggestedCategory ||
         (v.category ?? "") ||
         "";
 
       const nextSubcategory =
         mapping.subcategorySlug ||
-        meta.suggestedSubcategory ||
+        (meta as any).suggestedSubcategory ||
         (v.subcategory ?? "") ||
         "";
 
-      const nextTags = meta.suggestedTags ?? (v.tags ?? []);
+      const nextTags = (meta as any).suggestedTags ?? (v.tags ?? []);
 
       return {
         ...v,
@@ -181,15 +190,15 @@ export function useItemForm({
 function buildAiResultFromMeta(meta: ItemAiMetadata): AiNormalizedResult {
   const labels: AiNormalizedLabel[] = [];
 
-  if (meta.primaryLabel) {
+  if ((meta as any).primaryLabel) {
     labels.push({
-      label: meta.primaryLabel,
-      confidence: meta.confidence ?? null,
+      label: (meta as any).primaryLabel,
+      confidence: (meta as any).confidence ?? null,
     });
   }
 
-  if (Array.isArray(meta.suggestedTags)) {
-    for (const tag of meta.suggestedTags) {
+  if (Array.isArray((meta as any).suggestedTags)) {
+    for (const tag of (meta as any).suggestedTags) {
       if (typeof tag === "string" && tag.trim().length > 0) {
         labels.push({
           label: tag.trim(),
@@ -200,9 +209,9 @@ function buildAiResultFromMeta(meta: ItemAiMetadata): AiNormalizedResult {
   }
 
   return {
-    mainLabel: meta.primaryLabel ?? null,
+    mainLabel: (meta as any).primaryLabel ?? null,
     labels,
     locale: "ro",
-    raw: meta,
+    raw: meta as any,
   };
 }
