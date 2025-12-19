@@ -1,49 +1,52 @@
+// src/features/items/components/ItemRowActions.tsx
+
 "use client";
 
 import { useTransition } from "react";
-import { archiveItemAction, deleteItemAction } from "@/features/items/server/items-actions";
 
 export default function ItemRowActions({ itemId }: { itemId: string }) {
   const [pending, start] = useTransition();
 
-  const archive = () => {
+  const onDelete = () => {
     start(async () => {
-      await archiveItemAction(itemId);
-    });
-  };
+      try {
+        const res = await fetch(`/api/items/${itemId}`, {
+          method: "DELETE",
+        });
 
-  const remove = () => {
-    const ok = confirm("Sigur vrei să ștergi acest obiect?");
-    if (!ok) return;
+        const data = await res.json();
 
-    start(async () => {
-      await deleteItemAction(itemId);
+        if (!res.ok || !data?.ok) {
+          throw new Error(data?.error ?? "Nu am putut șterge item-ul.");
+        }
+
+        // refresh simplu fără router import (minim)
+        window.location.reload();
+      } catch (e: any) {
+        alert(e?.message ?? "Nu am putut șterge item-ul.");
+      }
     });
   };
 
   return (
-    <div className="flex gap-3 text-sm">
-      <a
-        href={`/items/${itemId}/edit`}
-        className="text-blue-600 hover:underline"
-      >
-        Editează
-      </a>
-
+    <div className="flex items-center gap-2">
+      {/* ✅ ARCHIVE / SOFT-DELETE e nefinalizat => dezactivat elegant */}
       <button
-        onClick={archive}
-        disabled={pending}
-        className="text-yellow-700 hover:underline disabled:opacity-50"
+        type="button"
+        disabled
+        title="Arhivarea (soft-delete) va fi disponibilă în curând."
+        className="rounded-md border px-2 py-1 text-xs opacity-50 cursor-not-allowed"
       >
         Arhivează
       </button>
 
       <button
-        onClick={remove}
+        type="button"
+        onClick={onDelete}
         disabled={pending}
-        className="text-red-700 hover:underline disabled:opacity-50"
+        className="rounded-md border px-2 py-1 text-xs"
       >
-        Șterge
+        {pending ? "Șterge…" : "Șterge"}
       </button>
     </div>
   );
