@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { getCurrentProfileAction } from "../../../src/features/profile/server/profile-actions";
+import { getCurrentProfileAction } from "@/features/profile/server/profile-actions";
 import ProfileClient from "./ProfileClient";
 
 export default async function ProfilePage() {

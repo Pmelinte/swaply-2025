@@ -1,10 +1,10 @@
 // app/settings/profile/ProfileClient.tsx
 "use client";
 
-import type { Profile } from "../../../src/features/profile/types";
-import { ProfileView } from "../../../src/features/profile/components/profile-view";
-import ProfileForm from "../../../src/features/profile/components/profile-form";
-import { ProfileSection } from "../../../src/features/profile/components/profile-section";
+import type { Profile } from "@/features/profile/types";
+import { ProfileView } from "@/features/profile/components/profile-view";
+import ProfileForm from "@/features/profile/components/profile-form";
+import { ProfileSection } from "@/features/profile/components/profile-section";
 
 interface ProfileClientProps {
   profile: Profile;

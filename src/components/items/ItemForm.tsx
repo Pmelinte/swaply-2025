@@ -2,4 +2,4 @@
 // Bridge: păstrăm codul sursă în /components/items/ItemForm.tsx
 // și expunem același modul prin aliasul "@/components/..."
 
-export { default } from "../../../components/items/ItemForm";
+export { default } from "@/components/items/ItemForm";

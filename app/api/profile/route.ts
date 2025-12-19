@@ -3,7 +3,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import {
   getCurrentProfileAction,
   updateProfileAction,
-} from "../../../src/features/profile/server/profile-actions";
+} from "@/features/profile/server/profile-actions";
 
 /**
  * GET /api/profile
