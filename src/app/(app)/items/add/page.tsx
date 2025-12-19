@@ -2,8 +2,9 @@
 
 import { redirect } from "next/navigation";
 import { createServerClient } from "@/lib/supabase/server";
+import type { Item, ItemFormData } from "@/features/items/types";
 import { ItemForm } from "@/features/items/components/item-form";
-import { createItemAction } from "@/features/items/server/items-actions";
+import { createItemServer } from "@/features/items/server/items-actions";
 
 export default async function AddItemPage() {
   const supabase = createServerClient();
@@ -11,18 +12,19 @@ export default async function AddItemPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
-    redirect("/login");
-  }
+  if (!user) redirect("/login");
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
+    <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
+      <h1 className="text-2xl font-bold">Adaugă item</h1>
+
       <ItemForm
         mode="create"
-        initialData={{}}
-        onSubmit={async (values) => {
+        onSubmit={async (values: ItemFormData) => {
           "use server";
-          return await createItemAction(values);
+          // ✅ wrapper cu 1 argument (nu Action care cere supabase/userId)
+          const created = await createItemServer(values);
+          return created as Item;
         }}
       />
     </div>
