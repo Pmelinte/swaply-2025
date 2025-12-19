@@ -99,6 +99,8 @@ export const itemUpdateSchema = itemCreateSchema.partial().extend({
 /**
  * Schema pentru FORM (client).
  * Păstrăm compatibilitatea cu ce aveai: multe câmpuri optional+default.
+ *
+ * ✅ ADĂUGAT: imageUrl (input simplu din UI)
  */
 export const itemFormSchema = z.object({
   title: z.string().min(1, "Titlul este obligatoriu"),
@@ -115,6 +117,9 @@ export const itemFormSchema = z.object({
 
   approximateValue: z.number().optional(),
   currency: z.string().optional(),
+
+  // ✅ simplu: user lipește un URL
+  imageUrl: z.string().optional().default(""),
 
   images: z.array(itemImageSchema).optional().default([]),
 
@@ -134,6 +139,7 @@ export type ItemFormData = z.infer<typeof itemFormSchema>;
  * - convertește null -> undefined unde are sens
  * - garantează arrays
  * - normalizează imaginile la forma nouă {id,url,...}
+ * - ✅ dacă ai imageUrl și images e gol -> creează automat images[0]
  */
 export function normalizeItemFormData(input: ItemFormData): ItemFormData {
   const images = Array.isArray(input.images) ? input.images : [];
@@ -148,7 +154,9 @@ export function normalizeItemFormData(input: ItemFormData): ItemFormData {
       // forma veche
       const url = typeof img.url === "string" ? img.url : "";
       const publicId =
-        "publicId" in img && typeof img.publicId === "string" ? img.publicId : undefined;
+        "publicId" in img && typeof (img as any).publicId === "string"
+          ? (img as any).publicId
+          : undefined;
 
       // id stabil: prefer publicId, altfel url (ca fallback determinist)
       const id = (publicId ?? url).trim();
@@ -162,6 +170,18 @@ export function normalizeItemFormData(input: ItemFormData): ItemFormData {
       };
     })
     .filter((x): x is z.infer<typeof itemImageNewSchema> => Boolean(x));
+
+  // ✅ dacă user a dat doar imageUrl, îl transformăm în images[]
+  const rawImageUrl = (input as any).imageUrl;
+  const imageUrl = typeof rawImageUrl === "string" ? rawImageUrl.trim() : "";
+
+  if (normalizedImages.length === 0 && imageUrl) {
+    normalizedImages.push({
+      id: "external",
+      url: imageUrl,
+      isPrimary: true,
+    } as any);
+  }
 
   return {
     ...input,
