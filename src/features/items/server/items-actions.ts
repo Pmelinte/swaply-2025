@@ -13,25 +13,12 @@ import {
 } from "./item-actions";
 
 /**
- * ✅ Compat layer pentru cod vechi.
+ * ✅ Compat layer pentru codul vechi care importă din:
+ *   src/features/items/server/items-actions.ts (cu "s")
  *
- * Avem două stiluri de folosire în proiect:
- * 1) unele fișiere importă ACTIONS:
- *    - createItemAction / updateItemAction / getItemAction ...
- * 2) altele folosesc helper-ele server-side de aici:
- *    - createItemServer / updateItemServer / getItemServer ...
- *
- * Ca să nu rupem build-ul, acest fișier exportă AMBELE.
+ * Nu folosim itemsRepository (nu există).
+ * Folosim item-actions + Supabase server client.
  */
-
-// ✅ Re-export ACTIONS pentru importurile vechi (ex: edit/page.tsx)
-export {
-  createItemAction,
-  updateItemAction,
-  getItemAction,
-  listMyItemsAction,
-  deleteItemAction,
-};
 
 async function requireUser() {
   const supabase = createServerClient();
@@ -47,20 +34,17 @@ async function requireUser() {
   return { supabase, userId: user.id };
 }
 
-// ✅ Helper-e server-side (păstrăm ce aveai deja)
 export async function createItemServer(rawInput: unknown): Promise<Item> {
   const { supabase, userId } = await requireUser();
 
   const parsed = itemFormSchema.parse(rawInput);
   const normalized = normalizeItemFormData(parsed as any) as ItemFormData;
 
-  return createItemAction(supabase, userId, normalized);
+  // ✅ IMPORTANT: trimitem ownerId explicit ca să treacă RLS fără “magie”
+  return createItemAction(supabase, userId, { ...(normalized as any), ownerId: userId } as any);
 }
 
-export async function updateItemServer(
-  itemId: string,
-  rawInput: unknown
-): Promise<Item> {
+export async function updateItemServer(itemId: string, rawInput: unknown): Promise<Item> {
   const { supabase } = await requireUser();
 
   const parsed = itemFormSchema.partial().parse(rawInput);
@@ -83,9 +67,7 @@ export async function listMyItemsServer(options?: {
   return listMyItemsAction(supabase, userId, options);
 }
 
-export async function deleteItemServer(
-  itemId: string
-): Promise<{ ok: true }> {
+export async function deleteItemServer(itemId: string): Promise<{ ok: true }> {
   const { supabase } = await requireUser();
   return deleteItemAction(supabase, itemId);
 }
