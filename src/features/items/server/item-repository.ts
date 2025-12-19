@@ -43,8 +43,7 @@ function mapRowToItem(row: any): Item {
 
     aiMetadata: row.ai_metadata ?? undefined,
 
-    isActive:
-      typeof row.is_active === "boolean" ? row.is_active : undefined,
+    isActive: typeof row.is_active === "boolean" ? row.is_active : undefined,
 
     createdAt: row.created_at,
     updatedAt: row.updated_at ?? row.created_at,
@@ -52,8 +51,9 @@ function mapRowToItem(row: any): Item {
 }
 
 function mapCreateToInsert(input: any) {
-  return {
-    // owner_id vine din DEFAULT auth.uid()
+  // ✅ owner_id explicit -> RLS devine predictibil
+  const insert: any = {
+    owner_id: input.ownerId, // <-- cheia fixului
     title: input.title,
     description: input.description,
 
@@ -82,6 +82,8 @@ function mapCreateToInsert(input: any) {
 
     is_active: typeof input.isActive === "boolean" ? input.isActive : true,
   };
+
+  return insert;
 }
 
 function mapUpdateToPatch(input: any) {
