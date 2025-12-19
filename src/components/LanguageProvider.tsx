@@ -12,8 +12,6 @@ type I18nContextValue = {
 
 const I18nContext = createContext<I18nContextValue | null>(null);
 
-// Dicționar minim ca să nu crape UI-ul.
-// Îl extinzi ulterior (sau îl încarci din fișiere JSON).
 const DICTS: Record<string, Dict> = {
   ro: {
     "common.loading": "Se încarcă…",
@@ -27,7 +25,9 @@ const DICTS: Record<string, Dict> = {
     "profile.subtitle": "Datele tale",
     "profile.name": "Nume",
     "profile.location": "Locație",
-    "profile.language": "Limbă"
+    "profile.language": "Limbă",
+    en: "Engleză",
+    ro: "Română"
   },
   en: {
     "common.loading": "Loading…",
@@ -41,7 +41,9 @@ const DICTS: Record<string, Dict> = {
     "profile.subtitle": "Your details",
     "profile.name": "Name",
     "profile.location": "Location",
-    "profile.language": "Language"
+    "profile.language": "Language",
+    en: "English",
+    ro: "Romanian"
   }
 };
 
@@ -70,13 +72,21 @@ export function LanguageProvider({
 export function useTranslation() {
   const ctx = useContext(I18nContext);
   if (!ctx) {
-    // fallback safe: nu sparge build-ul nici dacă providerul lipsește
     return { t: (k: string) => k, lang: "ro", setLang: (_: string) => {} };
   }
   return ctx;
 }
 
-// Compatibilitate: unele fișiere importă default useTranslation
+/**
+ * Compat: unele componente folosesc useLanguage().
+ * Îl expunem ca alias către același context.
+ */
+export function useLanguage() {
+  const { lang, setLang } = useTranslation();
+  return { lang, setLang };
+}
+
+// Compat: unele fișiere importă default useTranslation
 export default function useTranslationDefault() {
   return useTranslation();
 }
