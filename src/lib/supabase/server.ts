@@ -1,10 +1,10 @@
 // src/lib/supabase/server.ts
 import { cookies } from "next/headers";
-import { createServerClient as createSsrServerClient } from "@supabase/ssr";
+import { createServerClient } from "@supabase/ssr";
 
 /**
  * Canonical server-side Supabase client for Next.js App Router.
- * Uses cookies for session, works in Server Components / Route Handlers.
+ * Works in Server Components / Route Handlers.
  */
 export function createClient() {
   const cookieStore = cookies();
@@ -14,11 +14,11 @@ export function createClient() {
 
   if (!url || !anon) {
     throw new Error(
-      "Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY"
+      "Missing Supabase env vars. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY."
     );
   }
 
-  return createSsrServerClient(url, anon, {
+  return createServerClient(url, anon, {
     cookies: {
       get(name: string) {
         return cookieStore.get(name)?.value;
@@ -27,17 +27,17 @@ export function createClient() {
         try {
           cookieStore.set({ name, value, ...options });
         } catch {
-          // Server Components can't set cookies; it's fine.
+          // Server Components can't set cookies; route handlers can. Ignore safely.
         }
       },
       remove(name: string, options: any) {
         try {
           cookieStore.set({ name, value: "", ...options, maxAge: 0 });
         } catch {
-          // Server Components can't set cookies; it's fine.
+          // Same reason as above.
         }
-      },
-    },
+      }
+    }
   });
 }
 
@@ -45,6 +45,6 @@ export function createClient() {
  * Backwards-compat aliases used across the repo.
  * Keep them so builds don't break while you refactor gradually.
  */
-export const createServerClient = createClient;
+export const createServerClientCompat = createClient;
 export const getSupabaseServerClient = createClient;
 export const createServerSupabaseClient = createClient;
