@@ -2,7 +2,28 @@
 
 import { useMemo, useState } from "react";
 
+export type ItemCreateInput = {
+  title: string;
+  condition?: string | null;
+  image_url?: string | null;
+};
+
 type Props = {
+  /**
+   * Compat: unele pagini trimit mode="create" sau "edit".
+   * În versiunea minimă, folosim doar "create".
+   */
+  mode?: "create" | "edit" | string;
+
+  /**
+   * Compat: unele pagini vor să controleze submit-ul.
+   * Dacă este furnizat, îl apelăm cu valorile; altfel apelăm /api/items direct.
+   */
+  onSubmit?: (values: ItemCreateInput) => Promise<any>;
+
+  /**
+   * Callback pentru când s-a creat itemul (id).
+   */
   onCreated?: (itemId: string) => void;
 };
 
@@ -10,7 +31,7 @@ type CreateItemResponse =
   | { ok: true; item: { id: string } }
   | { ok: false; error: string };
 
-export default function ItemForm({ onCreated }: Props) {
+export default function ItemForm({ mode, onSubmit, onCreated }: Props) {
   const [title, setTitle] = useState("");
   const [condition, setCondition] = useState("new");
   const [file, setFile] = useState<File | null>(null);
@@ -42,6 +63,22 @@ export default function ItemForm({ onCreated }: Props) {
     return json?.image_url ?? null;
   }
 
+  async function defaultCreate(values: ItemCreateInput): Promise<string> {
+    const res = await fetch("/api/items", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(values)
+    });
+
+    const json = (await res.json()) as CreateItemResponse;
+
+    if (!res.ok || !json.ok) {
+      throw new Error((json as any)?.error ?? "Failed to create item");
+    }
+
+    return json.item.id;
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -52,28 +89,44 @@ export default function ItemForm({ onCreated }: Props) {
 
       const image_url = await uploadIfNeeded();
 
-      const res = await fetch("/api/items", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: title.trim(),
-          condition,
-          image_url
-        })
-      });
+      const values: ItemCreateInput = {
+        title: title.trim(),
+        condition,
+        image_url
+      };
 
-      const json = (await res.json()) as CreateItemResponse;
+      // Compat: dacă pagina controlează submit-ul, îl folosim.
+      if (onSubmit) {
+        const result = await onSubmit(values);
 
-      if (!res.ok || !json.ok) {
-        throw new Error((json as any)?.error ?? "Failed to create item");
+        // încercăm să extragem id-ul în mod tolerant
+        const id =
+          result?.id ??
+          result?.item?.id ??
+          result?.data?.id ??
+          result?.data?.item?.id ??
+          null;
+
+        if (id) {
+          setSuccessId(String(id));
+          onCreated?.(String(id));
+        } else {
+          // dacă nu avem id, măcar semnalăm success generic
+          setSuccessId("created");
+        }
+      } else {
+        // fallback: create direct
+        const id = await defaultCreate(values);
+        setSuccessId(id);
+        onCreated?.(id);
       }
 
-      setSuccessId(json.item.id);
-      onCreated?.(json.item.id);
-
-      setTitle("");
-      setCondition("new");
-      setFile(null);
+      // reset form doar pe create
+      if (String(mode ?? "create").toLowerCase().includes("create")) {
+        setTitle("");
+        setCondition("new");
+        setFile(null);
+      }
     } catch (err: any) {
       setError(err?.message ?? "Unknown error");
     } finally {
@@ -126,8 +179,10 @@ export default function ItemForm({ onCreated }: Props) {
 
       {successId && (
         <div className="rounded-md border p-3 text-sm">
-          <div className="font-medium">Creat ✅</div>
-          <div className="opacity-80">ID: {successId}</div>
+          <div className="font-medium">OK ✅</div>
+          <div className="opacity-80">
+            {successId === "created" ? "Creat." : `ID: ${successId}`}
+          </div>
         </div>
       )}
 
@@ -135,7 +190,7 @@ export default function ItemForm({ onCreated }: Props) {
         disabled={!canSubmit}
         className="rounded-md border px-4 py-2 text-sm disabled:opacity-50"
       >
-        {saving ? "Se salvează…" : "Creează obiect"}
+        {saving ? "Se salvează…" : "Salvează"}
       </button>
     </form>
   );
