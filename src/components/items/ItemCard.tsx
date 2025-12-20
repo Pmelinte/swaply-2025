@@ -3,54 +3,79 @@
 import Image from "next/image";
 import Link from "next/link";
 
-export type ItemCardProps = {
-  item: {
-    id: string;
-    title: string;
-    description?: string | null;
-    image_url?: string | null;
-    created_at?: string;
-  };
+type ItemLike = {
+  id: string;
+  title: string;
+  description?: string | null;
+  image_url?: string | null;
+  condition?: string | null;
+  created_at?: string | null;
 };
 
-export default function ItemCard({ item }: ItemCardProps) {
+type Props = {
+  item: ItemLike;
+  className?: string;
+};
+
+function formatDate(iso?: string | null) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleString();
+}
+
+export default function ItemCard({ item, className }: Props) {
+  const hasImage = Boolean(item.image_url);
+
   return (
-    <div className="rounded-xl border bg-white shadow-sm overflow-hidden">
-      {/* Imagine */}
+    <div
+      className={[
+        "w-full rounded-xl border bg-white shadow-sm overflow-hidden",
+        className ?? "",
+      ].join(" ")}
+    >
+      {/* Imagine: folosim object-contain ca să se vadă toată poza */}
       <div className="relative w-full h-48 bg-gray-100">
-        {item.image_url ? (
+        {hasImage ? (
           <Image
-            src={item.image_url}
-            alt={item.title}
+            src={item.image_url as string}
+            alt={item.title ?? "Item"}
             fill
-            className="object-contain"
             sizes="(max-width: 768px) 100vw, 33vw"
-            unoptimized
+            className="object-contain"
+            priority={false}
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-gray-400 text-sm">
+          <div className="h-full w-full flex items-center justify-center text-sm text-gray-500">
             Fără imagine
           </div>
         )}
       </div>
 
-      {/* Conținut */}
       <div className="p-4">
-        <h3 className="font-semibold text-lg">{item.title}</h3>
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h3 className="font-semibold text-lg leading-tight truncate">
+              {item.title}
+            </h3>
+            {item.description ? (
+              <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                {item.description}
+              </p>
+            ) : null}
+          </div>
 
-        {item.description && (
-          <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-            {item.description}
-          </p>
-        )}
-
-        <div className="mt-3 flex justify-end">
           <Link
             href={`/items/${item.id}/edit`}
-            className="text-sm text-blue-600 hover:underline"
+            className="text-xs underline text-gray-700 hover:text-black whitespace-nowrap"
           >
             Edit
           </Link>
+        </div>
+
+        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
+          {item.condition ? <span>Condiție: {item.condition}</span> : null}
+          {item.created_at ? <span>Creat: {formatDate(item.created_at)}</span> : null}
         </div>
       </div>
     </div>
