@@ -1,7 +1,5 @@
-// src/components/items/ItemCard.tsx
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 
 export type ItemCardItem = {
@@ -14,7 +12,6 @@ export type ItemCardItem = {
 
 type Props = {
   item: ItemCardItem;
-  /** dacă vrei să suprascrii linkul de edit */
   editHref?: string;
 };
 
@@ -25,17 +22,16 @@ export default function ItemCard({ item, editHref }: Props) {
 
   return (
     <div className="w-full overflow-hidden rounded-xl border bg-white shadow-sm">
-      {/* Imagine */}
-      <div className="relative h-48 w-full bg-gray-50">
+      {/* Imagine: <img> ca să meargă cu ORICE URL (și cu upload local -> URL Cloudinary/Supabase/etc.) */}
+      <div className="relative h-56 w-full bg-gray-50">
         {item.image_url ? (
-          <Image
+          <img
             src={item.image_url}
             alt={title}
-            fill
-            // IMPORTANT: contain => vezi toată poza, nu doar “capul” ei
-            className="object-contain p-3"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            priority={false}
+            className="h-full w-full object-contain p-3"
+            loading="lazy"
+            decoding="async"
+            referrerPolicy="no-referrer"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-sm text-gray-400">
@@ -51,11 +47,13 @@ export default function ItemCard({ item, editHref }: Props) {
             <h3 className="truncate text-base font-semibold text-gray-900">
               {title}
             </h3>
+
             {subtitle ? (
               <p className="mt-1 line-clamp-2 text-sm text-gray-600">
                 {subtitle}
               </p>
             ) : null}
+
             {item.created_at ? (
               <p className="mt-2 text-xs text-gray-400">
                 Created: {item.created_at}
