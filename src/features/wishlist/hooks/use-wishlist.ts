@@ -3,13 +3,10 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import type {
-  WishlistItemPreview,
-  WishlistApiResponse,
-} from "@/features/wishlist/types";
+import type { WishlistEntry, WishlistApiResponse } from "@/features/wishlist/types";
 
 export function useWishlist() {
-  const [items, setItems] = useState<WishlistItemPreview[]>([]);
+  const [items, setItems] = useState<WishlistEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,17 +21,7 @@ export function useWishlist() {
         return;
       }
 
-      const previews =
-        data.items ??
-        (data.entries ?? []).map((e) => ({
-          id: e.id,
-          itemId: e.itemId,
-          title: null,
-          primaryImageUrl: null,
-          createdAt: e.createdAt,
-        }));
-
-      setItems(previews);
+      setItems(data.entries ?? []);
       setError(null);
     } catch (err) {
       console.error("[USE_WISHLIST_LOAD_ERROR]", err);
@@ -44,11 +31,11 @@ export function useWishlist() {
     }
   }, []);
 
-  const add = useCallback(async (itemId: string) => {
+  const add = useCallback(async (input: Partial<WishlistEntry>) => {
     const res = await fetch("/api/wishlist", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ itemId }),
+      body: JSON.stringify(input),
     });
 
     const data: WishlistApiResponse = await res.json();
@@ -59,8 +46,8 @@ export function useWishlist() {
     await load();
   }, [load]);
 
-  const remove = useCallback(async (itemId: string) => {
-    const res = await fetch(`/api/wishlist/${itemId}`, {
+  const remove = useCallback(async (entryId: string) => {
+    const res = await fetch(`/api/wishlist/${entryId}`, {
       method: "DELETE",
     });
 
@@ -68,7 +55,7 @@ export function useWishlist() {
       throw new Error("Nu s-a putut elimina.");
     }
 
-    setItems((prev) => prev.filter((i) => i.itemId !== itemId));
+    setItems((prev) => prev.filter((i) => i.id !== entryId));
   }, []);
 
   useEffect(() => {
