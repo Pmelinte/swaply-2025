@@ -3,7 +3,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createBrowserClient } from "@supabase/ssr";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 type ExchangeStatus =
   | "pending"
@@ -25,11 +25,7 @@ export default function ReceiveConfirmation({ exchangeId, status }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const supabase = useMemo(() => {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-    return createBrowserClient(url, anon);
-  }, []);
+  const supabase = useMemo(() => getSupabaseBrowserClient(), []);
 
   const canConfirm =
     status === "delivered" || status === "in_transit" || status === "shipping";

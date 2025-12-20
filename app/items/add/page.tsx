@@ -3,7 +3,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createBrowserClient } from "@supabase/ssr";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 import ItemForm from "@/components/items/ItemForm";
 import type { ItemFormData, Item } from "@/features/items/types";
@@ -12,11 +12,7 @@ export default function AddItemPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
 
-  const supabase = useMemo(() => {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-    return createBrowserClient(url, anon);
-  }, []);
+  const supabase = useMemo(() => getSupabaseBrowserClient(), []);
 
   const handleSubmit = async (values: ItemFormData): Promise<Item> => {
     setError(null);

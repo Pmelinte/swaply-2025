@@ -3,7 +3,7 @@
 import { redirect, notFound } from "next/navigation";
 import { createServerClient } from "@/lib/supabase/server";
 import type { ItemFormData, Item } from "@/features/items/types";
-import { ItemForm } from "@/features/items/components/item-form";
+import ItemForm from "@/components/items/ItemForm";
 
 import { getItemServer, updateItemServer } from "@/features/items/server/items-actions";
 
@@ -25,7 +25,7 @@ export default async function EditItemPage({
 
   if (item.ownerId !== user.id) redirect("/items");
 
-  const initialData: ItemFormData = {
+  const initialValues: ItemFormData = {
     title: item.title ?? "",
     description: item.description ?? "",
 
@@ -57,7 +57,7 @@ export default async function EditItemPage({
 
       <ItemForm
         mode="edit"
-        initialData={initialData}
+        initialValues={initialValues}
         onSubmit={async (values) => {
           "use server";
           const updated = await updateItemServer(params.id, values);

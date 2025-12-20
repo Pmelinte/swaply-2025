@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { createServerClient } from "@/lib/supabase/server";
 import type { Item, ItemFormData } from "@/features/items/types";
-import { ItemForm } from "@/features/items/components/item-form";
+import ItemForm from "@/components/items/ItemForm";
 import { createItemServer } from "@/features/items/server/items-actions";
 
 export default async function AddItemPage() {

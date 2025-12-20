@@ -3,10 +3,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { createBrowserClient } from "@supabase/ssr";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 import type { ItemFormData, ItemImage, Item } from "@/features/items/types";
-import { ItemForm } from "@/features/items/components/item-form";
+import ItemForm from "@/components/items/ItemForm";
 
 type DbItem = {
   id: string;
@@ -20,11 +20,7 @@ export default function EditItemPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
 
-  const supabase = useMemo(() => {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-    return createBrowserClient(url, anon);
-  }, []);
+  const supabase = useMemo(() => getSupabaseBrowserClient(), []);
 
   const [loading, setLoading] = useState(true);
   const [item, setItem] = useState<DbItem | null>(null);
@@ -90,7 +86,7 @@ export default function EditItemPage() {
     );
   }
 
-  const initialData: Partial<ItemFormData> = {
+  const initialValues: Partial<ItemFormData> = {
     title: item.title ?? "",
     description: item.description ?? "",
     images:
@@ -157,7 +153,7 @@ export default function EditItemPage() {
       <h1 className="text-xl font-semibold">Edit item</h1>
 
       <div className="mt-4">
-        <ItemForm mode="edit" initialData={initialData} onSubmit={handleSubmit} />
+        <ItemForm mode="edit" initialValues={initialValues} onSubmit={handleSubmit} />
       </div>
     </div>
   );

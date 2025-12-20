@@ -3,7 +3,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
-import { createBrowserClient } from "@supabase/ssr";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 type ChatMessage = {
   id: string;
@@ -19,11 +19,7 @@ interface ChatClientProps {
 }
 
 export default function ChatClient({ matchId, currentUserId }: ChatClientProps) {
-  const supabase = useMemo(() => {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-    return createBrowserClient(url, anon);
-  }, []);
+  const supabase = useMemo(() => getSupabaseBrowserClient(), []);
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [text, setText] = useState("");
