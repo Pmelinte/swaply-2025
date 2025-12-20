@@ -5,6 +5,9 @@ export interface Profile {
   avatar_url: string | null;
   location: string | null;
   bio: string | null;
+  preferred_language: string | null;
+  trust_score: number | null;
+  account_type: "standard" | "premium" | string;
   rating: number | null;
   rating_count: number | null;
   onboarding_completed: boolean;
@@ -19,5 +22,6 @@ export interface UpdateProfileInput {
   avatar_url?: string;
   location?: string;
   bio?: string;
+  preferred_language?: string;
   preferences?: any;
 }

@@ -6,13 +6,11 @@ import type {
   WishlistApiResponse,
   AddToWishlistInput,
   WishlistEntry,
-  WishlistItemPreview,
 } from "@/features/wishlist/types";
 
 /**
  * GET /api/wishlist
- * Returnează wishlist-ul userului curent în format "preview"
- * (titlu + imagine principală), bun pentru UI.
+ * Returnează wishlist-ul userului curent (preferințe).
  */
 export async function GET(
   req: NextRequest,
@@ -35,22 +33,9 @@ export async function GET(
 
     const userId = user.id;
 
-    // 2) Luăm wishlists + join items (FK: wishlists.item_id -> items.id)
     const { data: rows, error } = await supabase
-      .from("wishlists")
-      .select(
-        `
-        id,
-        user_id,
-        item_id,
-        created_at,
-        items:items (
-          id,
-          title,
-          images
-        )
-      `,
-      )
+      .from("wishlist")
+      .select("*")
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
 
@@ -62,29 +47,20 @@ export async function GET(
       );
     }
 
-    const items: WishlistItemPreview[] =
-      (rows ?? []).map((row: any) => {
-        const item = row.items ?? null;
+    const entries: WishlistEntry[] =
+      (rows ?? []).map((row: any) => ({
+        id: row.id as string,
+        userId: row.user_id as string,
+        category: row.category ?? null,
+        subcategory: row.subcategory ?? null,
+        brand: row.brand ?? null,
+        condition: row.condition ?? null,
+        priceMin: row.price_min ?? null,
+        priceMax: row.price_max ?? null,
+        createdAt: row.created_at as string,
+      })) ?? [];
 
-        let primaryImageUrl: string | null = null;
-        const images = item?.images;
-
-        // images e de obicei JSON array: [{ url, isPrimary, ...}, ...]
-        if (Array.isArray(images) && images.length > 0) {
-          const primary = images.find((img: any) => img?.isPrimary) ?? images[0];
-          primaryImageUrl = primary?.url ?? null;
-        }
-
-        return {
-          id: row.id as string,
-          itemId: row.item_id as string,
-          title: (item?.title as string) ?? null,
-          primaryImageUrl,
-          createdAt: row.created_at as string,
-        };
-      }) ?? [];
-
-    return NextResponse.json({ ok: true, items }, { status: 200 });
+    return NextResponse.json({ ok: true, entries }, { status: 200 });
   } catch (err) {
     console.error("[WISHLIST_API_GET_UNEXPECTED]", err);
     return NextResponse.json(
@@ -96,8 +72,8 @@ export async function GET(
 
 /**
  * POST /api/wishlist
- * Body: { itemId: string }
- * Adaugă un item în wishlist.
+ * Body: { category, subcategory, brand, condition, priceMin, priceMax }
+ * Adaugă o preferință în wishlist.
  */
 export async function POST(
   req: NextRequest,
@@ -122,23 +98,19 @@ export async function POST(
 
     // 2) Body
     const body = (await req.json().catch(() => ({}))) as Partial<AddToWishlistInput>;
-    const itemId = (body.itemId ?? "").trim();
 
-    if (!itemId) {
-      return NextResponse.json(
-        { ok: false, error: "missing_item_id" },
-        { status: 400 },
-      );
-    }
-
-    // 3) Insert (ideal ai unique(user_id, item_id) în DB ca să prevină duplicate)
     const { data, error } = await supabase
-      .from("wishlists")
+      .from("wishlist")
       .insert({
         user_id: userId,
-        item_id: itemId,
+        category: body.category ?? null,
+        subcategory: body.subcategory ?? null,
+        brand: body.brand ?? null,
+        condition: body.condition ?? null,
+        price_min: body.priceMin ?? null,
+        price_max: body.priceMax ?? null,
       })
-      .select("id, user_id, item_id, created_at")
+      .select("*")
       .single();
 
     if (error || !data) {
@@ -152,7 +124,12 @@ export async function POST(
     const entry: WishlistEntry = {
       id: data.id as string,
       userId: data.user_id as string,
-      itemId: data.item_id as string,
+      category: data.category ?? null,
+      subcategory: data.subcategory ?? null,
+      brand: data.brand ?? null,
+      condition: data.condition ?? null,
+      priceMin: data.price_min ?? null,
+      priceMax: data.price_max ?? null,
       createdAt: data.created_at as string,
     };
 

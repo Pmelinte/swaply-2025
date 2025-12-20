@@ -12,7 +12,7 @@ export const updateProfileSchema = z.object({
     .max(100, "Numele este prea lung")
     .optional(),
 
-  language: z
+  preferred_language: z
     .string()
     .min(2, "Codul de limbă este prea scurt")
     .max(5, "Codul de limbă este prea lung")

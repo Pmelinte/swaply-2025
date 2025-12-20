@@ -37,14 +37,14 @@ export async function GET(
   const { data: myItems } = await supabase
     .from("items")
     .select("*")
-    .eq("owner_id", user.id)
+    .eq("user_id", user.id)
     .eq("status", "active");
 
   // obiectele celuilalt
   const { data: otherItems } = await supabase
     .from("items")
     .select("*")
-    .eq("owner_id", otherUserId)
+    .eq("user_id", otherUserId)
     .eq("status", "active");
 
   return NextResponse.json({

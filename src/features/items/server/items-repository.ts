@@ -14,7 +14,7 @@ import type { Item } from "../types";
 function mapRowToItem(row: any): Item {
   return {
     id: row.id,
-    ownerId: row.owner_id,
+    ownerId: row.user_id,
 
     title: row.title ?? "",
     description: row.description ?? "",
@@ -33,7 +33,15 @@ function mapRowToItem(row: any): Item {
       typeof row.approximate_value === "number" ? row.approximate_value : undefined,
     currency: row.currency ?? undefined,
 
-    images: Array.isArray(row.images) ? row.images : [],
+    images: Array.isArray(row.item_images)
+      ? row.item_images.map((img: any) => ({
+          id: img.id,
+          url: img.image_url,
+          isPrimary: img.is_primary,
+        }))
+      : Array.isArray(row.images)
+      ? row.images
+      : [],
 
     aiMetadata: row.ai_metadata ?? undefined,
 
@@ -46,7 +54,7 @@ function mapRowToItem(row: any): Item {
 
 function mapCreateToInsert(input: any) {
   return {
-    // owner_id vine din DEFAULT auth.uid()
+    user_id: input.ownerId,
     title: input.title,
     description: input.description,
 
@@ -59,6 +67,7 @@ function mapCreateToInsert(input: any) {
 
     location_city: input.locationCity,
     location_country: input.locationCountry,
+    location: [input.locationCity, input.locationCountry].filter(Boolean).join(", "),
 
     approximate_value:
       typeof input.approximateValue === "number" ? input.approximateValue : null,
@@ -95,6 +104,12 @@ function mapUpdateToPatch(input: any) {
   if (typeof input.locationCity === "string") patch.location_city = input.locationCity;
   if (typeof input.locationCountry === "string")
     patch.location_country = input.locationCountry;
+  if (typeof input.locationCity === "string" || typeof input.locationCountry === "string") {
+    const nextCity = typeof input.locationCity === "string" ? input.locationCity : "";
+    const nextCountry =
+      typeof input.locationCountry === "string" ? input.locationCountry : "";
+    patch.location = [nextCity, nextCountry].filter(Boolean).join(", ");
+  }
 
   if (input.approximateValue === undefined) {
     // nu atingem
@@ -127,7 +142,18 @@ export async function createItem(supabase: SupabaseClient, input: any): Promise<
   const { data, error } = await supabase.from("items").insert(insert).select("*").single();
 
   if (error) throw new Error(`createItem failed: ${error.message}`);
-  return mapRowToItem(data);
+  const item = mapRowToItem(data);
+  if (Array.isArray(input.images) && input.images.length > 0) {
+    await supabase.from("item_images").insert(
+      input.images.map((img: any, idx: number) => ({
+        item_id: item.id,
+        image_url: img.url,
+        sort_order: idx + 1,
+        is_primary: Boolean(img.isPrimary),
+      })),
+    );
+  }
+  return item;
 }
 
 export async function updateItem(
@@ -145,6 +171,17 @@ export async function updateItem(
     .single();
 
   if (error) throw new Error(`updateItem failed: ${error.message}`);
+  if (Array.isArray(input.images)) {
+    await supabase.from("item_images").delete().eq("item_id", id);
+    await supabase.from("item_images").insert(
+      input.images.map((img: any, idx: number) => ({
+        item_id: id,
+        image_url: img.url,
+        sort_order: idx + 1,
+        is_primary: Boolean(img.isPrimary),
+      })),
+    );
+  }
   return mapRowToItem(data);
 }
 
@@ -154,7 +191,7 @@ export async function getItemById(
 ): Promise<Item | null> {
   const { data, error } = await supabase
     .from("items")
-    .select("*")
+    .select("*, item_images(*)")
     .eq("id", id)
     .maybeSingle();
 
@@ -174,8 +211,8 @@ export async function listMyItems(
 
   let query = supabase
     .from("items")
-    .select("*")
-    .eq("owner_id", ownerId)
+    .select("*, item_images(*)")
+    .eq("user_id", ownerId)
     .order("created_at", { ascending: false })
     .range(offset, offset + limit - 1);
 

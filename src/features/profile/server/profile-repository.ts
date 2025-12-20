@@ -11,6 +11,9 @@ function mapProfileRow(row: any): Profile {
     avatar_url: row.avatar_url,
     location: row.location,
     bio: row.bio,
+    preferred_language: row.preferred_language ?? null,
+    trust_score: row.trust_score ?? null,
+    account_type: row.account_type ?? "standard",
     rating: row.rating ?? 0,
     rating_count: row.rating_count ?? 0,
     onboarding_completed: row.onboarding_completed ?? false,
@@ -90,6 +93,8 @@ export async function updateProfile(
   if ("avatar_url" in values) payload.avatar_url = values.avatar_url ?? null;
   if ("location" in values) payload.location = values.location ?? null;
   if ("bio" in values) payload.bio = values.bio ?? null;
+  if ("preferred_language" in values)
+    payload.preferred_language = values.preferred_language ?? null;
 
   const { data, error } = await supabase
     .from(PROFILES_TABLE)

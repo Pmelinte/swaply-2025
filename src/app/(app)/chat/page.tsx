@@ -5,28 +5,31 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import type { MatchPreview } from "@/features/chat/types";
+import type { SwapPreview } from "@/features/chat/types";
 
-type MatchesApiResponse =
-  | { ok: true; matches: MatchPreview[] }
+type SwapsApiResponse =
+  | { ok: true; swaps: SwapPreview[] }
   | { ok: false; error: string };
 
 export default function ChatInboxPage() {
   const [loading, setLoading] = useState(true);
-  const [matches, setMatches] = useState<MatchPreview[]>([]);
+  const [matches, setMatches] = useState<SwapPreview[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   const loadMatches = async () => {
     try {
-      const res = await fetch("/api/matches", { cache: "no-store" });
-      const data: MatchesApiResponse = await res.json();
+      const res = await fetch("/api/swaps", { cache: "no-store" });
+      const data: SwapsApiResponse = await res.json();
 
       if (!res.ok || !data.ok) {
         setError((data as any)?.error || "Eroare la încărcarea conversațiilor.");
         return;
       }
 
-      setMatches(data.matches);
+      const active = (data.swaps ?? []).filter(
+        (swap) => swap.status === "accepted" || swap.status === "complete",
+      );
+      setMatches(active);
       setError(null);
     } catch (err) {
       console.error("[CHAT_INBOX_ERROR]", err);
@@ -53,18 +56,9 @@ export default function ChatInboxPage() {
 
       <div className="space-y-3">
         {matches.map((m) => {
-          const name = m.otherUserName ?? "Utilizator Swaply";
-          const avatar = m.otherUserAvatar;
-
-          const last = m.lastMessage;
-          const time = last
-            ? new Date(last.createdAt).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })
-            : null;
-
-          const unread = (m as any).unreadCount ?? 0;
+          const otherProfile = (m as any).other_profile ?? null;
+          const name = otherProfile?.full_name ?? otherProfile?.username ?? "Utilizator Swaply";
+          const avatar = otherProfile?.avatar_url ?? null;
 
           return (
             <Link
@@ -91,24 +85,15 @@ export default function ChatInboxPage() {
               <div className="flex-1">
                 <div className="flex justify-between items-center">
                   <span className="font-semibold text-lg">{name}</span>
-                  {time && (
-                    <span className="text-xs text-gray-500 min-w-[50px] text-right">
-                      {time}
-                    </span>
-                  )}
+                  <span className="text-xs text-gray-500 min-w-[50px] text-right">
+                    {m.status}
+                  </span>
                 </div>
 
                 <div className="text-gray-700 text-sm line-clamp-1">
-                  {last ? last.content : "Niciun mesaj încă"}
+                  Swap #{m.id}
                 </div>
               </div>
-
-              {/* 🔴 Badge pentru necitite */}
-              {unread > 0 && (
-                <div className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full absolute right-3 top-3">
-                  {unread}
-                </div>
-              )}
             </Link>
           );
         })}

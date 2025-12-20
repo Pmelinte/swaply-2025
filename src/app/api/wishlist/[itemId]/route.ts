@@ -6,7 +6,7 @@ import type { WishlistApiResponse } from "@/features/wishlist/types";
 
 /**
  * DELETE /api/wishlist/:itemId
- * Elimină un item din wishlist-ul userului curent
+ * Elimină o preferință din wishlist-ul userului curent
  */
 export async function DELETE(
   req: NextRequest,
@@ -17,7 +17,7 @@ export async function DELETE(
 
     if (!itemId) {
       return NextResponse.json(
-        { ok: false, error: "missing_item_id" },
+        { ok: false, error: "missing_entry_id" },
         { status: 400 },
       );
     }
@@ -37,10 +37,10 @@ export async function DELETE(
     }
 
     const { error } = await supabase
-      .from("wishlists")
+      .from("wishlist")
       .delete()
       .eq("user_id", user.id)
-      .eq("item_id", itemId);
+      .eq("id", itemId);
 
     if (error) {
       console.error("[WISHLIST_API_DELETE_ERROR]", error);
@@ -50,7 +50,7 @@ export async function DELETE(
       );
     }
 
-    return NextResponse.json({ ok: true }, { status: 200 });
+    return NextResponse.json({ ok: true, entries: [] }, { status: 200 });
   } catch (err) {
     console.error("[WISHLIST_API_DELETE_UNEXPECTED]", err);
     return NextResponse.json(
