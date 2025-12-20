@@ -1,9 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { ItemCreateInput, ItemCondition } from "@/lib/types/item";
-
-export type ItemFormData = ItemCreateInput;
+import type {
+  ItemCreateInput,
+  ItemCondition,
+  ItemFormData,
+  ItemImage,
+} from "@/features/items/types";
 
 type Props = {
   mode?: "create" | "edit";
@@ -12,58 +15,90 @@ type Props = {
 };
 
 const CONDITION_OPTIONS: Array<{ value: ItemCondition; label: string }> = [
-  { value: "new" as ItemCondition, label: "Nou" },
-  { value: "like_new" as ItemCondition, label: "Ca nou" },
-  { value: "good" as ItemCondition, label: "Bun" },
-  { value: "fair" as ItemCondition, label: "Utilizat" },
-  { value: "poor" as ItemCondition, label: "Defect" },
+  { value: "new", label: "Nou" },
+  { value: "like_new", label: "Ca nou" },
+  { value: "good", label: "Bun" },
+  { value: "fair", label: "Utilizat" },
+  { value: "poor", label: "Defect" },
 ];
 
-function safeCondition(input?: ItemCondition): ItemCondition {
-  return input ?? ("good" as ItemCondition);
+function firstImageUrl(images?: ItemImage[]) {
+  const first = images?.[0]?.url;
+  return typeof first === "string" && first.trim() ? first.trim() : "";
 }
 
-export default function ItemForm({ mode = "create", initialValues, onSubmit }: Props) {
+function normalizeTags(raw: string) {
+  return raw
+    .split(",")
+    .map((t) => t.trim())
+    .filter(Boolean);
+}
+
+export default function ItemForm({
+  mode = "create",
+  initialValues,
+  onSubmit,
+}: Props) {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+
   const [error, setError] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
-  // ⚠️ AICI: ne aliniem cu ItemCreateInput (categoria e required, etc.)
-  const [values, setValues] = useState<ItemFormData>({
+  // Modelul REAL: ItemCreateInput / ItemFormData (din src/features/items/types.ts)
+  const [values, setValues] = useState<ItemCreateInput>({
     title: initialValues?.title ?? "",
     description: initialValues?.description ?? "",
+
     category: initialValues?.category ?? "",
     subcategory: initialValues?.subcategory ?? "",
+
     tags: initialValues?.tags ?? [],
-    condition: safeCondition(initialValues?.condition),
+
+    condition: (initialValues?.condition ?? "good") as ItemCondition,
+
     locationCity: initialValues?.locationCity ?? "",
     locationCountry: initialValues?.locationCountry ?? "",
+
     approximateValue: initialValues?.approximateValue,
     currency: initialValues?.currency ?? "RON",
-    image_url: initialValues?.image_url ?? null,
+
+    images: initialValues?.images ?? [],
+    aiMetadata: initialValues?.aiMetadata,
+    status: initialValues?.status,
+    isActive: initialValues?.isActive,
   });
 
   const [tagsText, setTagsText] = useState<string>((values.tags ?? []).join(", "));
+  const [imageUrlText, setImageUrlText] = useState<string>(firstImageUrl(values.images));
 
   const canSubmit = useMemo(() => {
     return (
       values.title.trim().length > 0 &&
+      values.description.trim().length > 0 &&
       values.category.trim().length > 0 &&
+      values.locationCity.trim().length > 0 &&
+      values.locationCountry.trim().length > 0 &&
       !saving &&
       !uploading
     );
-  }, [values.title, values.category, saving, uploading]);
+  }, [values, saving, uploading]);
 
-  function patch<K extends keyof ItemFormData>(key: K, val: ItemFormData[K]) {
+  function patch<K extends keyof ItemCreateInput>(key: K, val: ItemCreateInput[K]) {
     setValues((prev) => ({ ...prev, [key]: val }));
   }
 
-  function normalizeTags(raw: string) {
-    return raw
-      .split(",")
-      .map((t) => t.trim())
-      .filter(Boolean);
+  function setPrimaryImageUrl(url: string) {
+    const clean = url.trim();
+    setImageUrlText(clean);
+
+    if (!clean) {
+      patch("images", []);
+      return;
+    }
+
+    const next: ItemImage[] = [{ url: clean, isPrimary: true }];
+    patch("images", next);
   }
 
   async function handleLocalFile(file: File) {
@@ -74,11 +109,7 @@ export default function ItemForm({ mode = "create", initialValues, onSubmit }: P
       const fd = new FormData();
       fd.append("file", file);
 
-      const res = await fetch("/api/upload-image", {
-        method: "POST",
-        body: fd,
-      });
-
+      const res = await fetch("/api/upload-image", { method: "POST", body: fd });
       const data = await res.json().catch(() => null);
 
       if (!res.ok) {
@@ -88,6 +119,7 @@ export default function ItemForm({ mode = "create", initialValues, onSubmit }: P
         throw new Error(msg);
       }
 
+      // acceptăm mai multe forme de răspuns
       const url =
         (data && (data.url || data.secure_url)) ||
         (data && data.result && (data.result.url || data.result.secure_url));
@@ -96,7 +128,7 @@ export default function ItemForm({ mode = "create", initialValues, onSubmit }: P
         throw new Error("Upload ok, dar nu am primit URL în răspuns.");
       }
 
-      patch("image_url", url);
+      setPrimaryImageUrl(url);
     } catch (e: any) {
       setUploadError(e?.message || "Eroare la upload.");
     } finally {
@@ -114,13 +146,13 @@ export default function ItemForm({ mode = "create", initialValues, onSubmit }: P
         title: values.title.trim(),
         description: values.description.trim(),
         category: values.category.trim(),
-        subcategory: values.subcategory.trim(),
+        subcategory: values.subcategory?.trim() || undefined,
         tags: normalizeTags(tagsText),
         locationCity: values.locationCity.trim(),
         locationCountry: values.locationCountry.trim(),
-        currency: (values.currency ?? "RON").trim(),
-        // condition rămâne ItemCondition (deja valid)
-        // image_url poate fi null sau string
+        currency: (values.currency ?? "RON").trim() || "RON",
+        // condition deja e ItemCondition
+        images: values.images ?? [],
       };
 
       await onSubmit(payload);
@@ -171,7 +203,7 @@ export default function ItemForm({ mode = "create", initialValues, onSubmit }: P
           <div>
             <label className="block text-sm font-medium text-gray-700">Subcategorie</label>
             <input
-              value={values.subcategory}
+              value={values.subcategory ?? ""}
               onChange={(e) => patch("subcategory", e.target.value)}
               className="mt-1 w-full rounded-lg border px-3 py-2"
               placeholder="Ex: Laptops"
@@ -180,7 +212,9 @@ export default function ItemForm({ mode = "create", initialValues, onSubmit }: P
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">Tag-uri (virgulă)</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Tag-uri (virgulă)
+          </label>
           <input
             value={tagsText}
             onChange={(e) => setTagsText(e.target.value)}
@@ -189,9 +223,12 @@ export default function ItemForm({ mode = "create", initialValues, onSubmit }: P
           />
         </div>
 
+        {/* Upload local + URL */}
         <div className="space-y-3">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Imagine (upload local)</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Imagine (upload local)
+            </label>
             <input
               type="file"
               accept="image/*"
@@ -202,26 +239,28 @@ export default function ItemForm({ mode = "create", initialValues, onSubmit }: P
               }}
               disabled={uploading || saving}
             />
-
             {uploading ? <p className="mt-2 text-sm text-gray-600">Se încarcă…</p> : null}
             {uploadError ? <p className="mt-2 text-sm text-red-600">{uploadError}</p> : null}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Imagine (URL)</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Imagine (URL)
+            </label>
             <input
-              value={values.image_url ?? ""}
-              onChange={(e) => patch("image_url", e.target.value || null)}
+              value={imageUrlText}
+              onChange={(e) => setPrimaryImageUrl(e.target.value)}
               className="mt-1 w-full rounded-lg border px-3 py-2"
               placeholder="https://..."
             />
           </div>
 
+          {/* Preview fără crop */}
           <div className="rounded-lg border bg-gray-50 p-3">
             <div className="flex h-56 items-center justify-center overflow-hidden rounded-md bg-white">
-              {values.image_url ? (
+              {imageUrlText ? (
                 <img
-                  src={values.image_url}
+                  src={imageUrlText}
                   alt="Preview"
                   className="max-h-full max-w-full object-contain"
                   loading="lazy"
@@ -243,7 +282,7 @@ export default function ItemForm({ mode = "create", initialValues, onSubmit }: P
             className="mt-1 w-full rounded-lg border px-3 py-2"
           >
             {CONDITION_OPTIONS.map((opt) => (
-              <option key={opt.label} value={opt.value}>
+              <option key={opt.value} value={opt.value}>
                 {opt.label}
               </option>
             ))}
@@ -273,11 +312,16 @@ export default function ItemForm({ mode = "create", initialValues, onSubmit }: P
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Valoare (aprox.)</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Valoare (aprox.)
+            </label>
             <input
               value={values.approximateValue ?? ""}
               onChange={(e) =>
-                patch("approximateValue", e.target.value ? Number(e.target.value) : undefined)
+                patch(
+                  "approximateValue",
+                  e.target.value ? Number(e.target.value) : undefined
+                )
               }
               className="mt-1 w-full rounded-lg border px-3 py-2"
               placeholder="Ex: 1500"
@@ -293,10 +337,6 @@ export default function ItemForm({ mode = "create", initialValues, onSubmit }: P
             />
           </div>
         </div>
-
-        {!values.category.trim() ? (
-          <p className="text-sm text-amber-700">„Categorie” e obligatoriu.</p>
-        ) : null}
 
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
 
