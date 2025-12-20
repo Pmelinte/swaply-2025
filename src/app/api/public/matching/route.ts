@@ -1,7 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { authorizeApiRequest } from "@/lib/api/api-client";
 
-function scoreItem(item: any, wishlist: any[]) {
+type WishlistEntry = {
+  category?: string | null;
+  subcategory?: string | null;
+  condition?: string | null;
+};
+
+type MatchItem = {
+  category?: string | null;
+  subcategory?: string | null;
+  condition?: string | null;
+};
+
+function scoreItem(item: MatchItem, wishlist: WishlistEntry[]) {
   let bestScore = 0;
   for (const entry of wishlist) {
     let score = 0;
@@ -22,10 +34,12 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json().catch(() => ({}));
-  const wishlist = Array.isArray(body?.wishlist) ? body.wishlist : [];
-  const items = Array.isArray(body?.items) ? body.items : [];
+  const wishlist: WishlistEntry[] = Array.isArray(body?.wishlist)
+    ? body.wishlist
+    : [];
+  const items: MatchItem[] = Array.isArray(body?.items) ? body.items : [];
 
-  const matches = items.map((item) => ({
+  const matches = items.map((item: MatchItem) => ({
     item,
     score: scoreItem(item, wishlist),
   }));
