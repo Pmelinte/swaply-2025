@@ -2,7 +2,7 @@
 
 /**
  * Wishlist = “salvat pentru mai târziu”.
- * Conceptual: user-ul salvează un item (al lui sau al altcuiva) ca favorit / de urmărit.
+ * User-ul salvează un item ca favorit / de urmărit.
  */
 
 export type WishlistEntry = {
@@ -27,7 +27,6 @@ export type AddToWishlistInput = {
 };
 
 export type RemoveFromWishlistInput = {
-  id: string;
 };
 
 export type WishlistApiResponse =
