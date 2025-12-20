@@ -8,16 +8,25 @@
 export type WishlistEntry = {
   id: string;
   userId: string;
-  itemId: string;
+  category: string | null;
+  subcategory?: string | null;
+  brand: string | null;
+  condition: string | null;
+  priceMin: number | null;
+  priceMax: number | null;
   createdAt: string;
 };
 
 export type AddToWishlistInput = {
-  itemId: string;
+  category?: string | null;
+  subcategory?: string | null;
+  brand?: string | null;
+  condition?: string | null;
+  priceMin?: number | null;
+  priceMax?: number | null;
 };
 
 export type RemoveFromWishlistInput = {
-  itemId: string;
 };
 
 export type WishlistApiResponse =
