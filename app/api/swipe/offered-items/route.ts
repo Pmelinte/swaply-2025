@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '@/lib/supabase/server';
 import { SwipeFeedItem } from '@/lib/types/swipe';
 
+export const dynamic = 'force-dynamic';
+
 console.log("=== OFFERED-ITEMS ENDPOINT HIT ===");
 
 try {

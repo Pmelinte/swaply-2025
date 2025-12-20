@@ -1,4 +1,4 @@
-// src/app/(app)/chat/[id]/layout.tsx
+// src/app/(app)/chat/[matchId]/layout.tsx
 
 import type { ReactNode } from "react";
 

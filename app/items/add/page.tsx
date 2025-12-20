@@ -1,7 +1,7 @@
 // ./app/items/add/page.tsx
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
 
@@ -12,11 +12,16 @@ export default function AddItemPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
 
-  const supabase = useMemo(() => {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  const createSupabaseClient = () => {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!url || !anon) {
+      throw new Error("Supabase env vars missing");
+    }
+
     return createBrowserClient(url, anon);
-  }, []);
+  };
 
   const handleSubmit = async (values: ItemFormData): Promise<Item> => {
     setError(null);
@@ -41,6 +46,7 @@ export default function AddItemPage() {
       if (payload[k] === undefined) delete payload[k];
     }
 
+    const supabase = createSupabaseClient();
     const { data, error } = await supabase
       .from("items")
       .insert(payload)
