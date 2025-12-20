@@ -27,7 +27,7 @@ const DICTS: Record<string, Dict> = {
     "profile.location": "Locație",
     "profile.language": "Limbă",
     en: "Engleză",
-    ro: "Română"
+    ro: "Română",
   },
   en: {
     "common.loading": "Loading…",
@@ -43,13 +43,13 @@ const DICTS: Record<string, Dict> = {
     "profile.location": "Location",
     "profile.language": "Language",
     en: "English",
-    ro: "Romanian"
-  }
+    ro: "Romanian",
+  },
 };
 
 export function LanguageProvider({
   children,
-  initialLang = "ro"
+  initialLang = "ro",
 }: {
   children: React.ReactNode;
   initialLang?: string;
@@ -62,7 +62,7 @@ export function LanguageProvider({
     return {
       lang,
       setLang,
-      t: (key: string) => dict[key] ?? key
+      t: (key: string) => dict[key] ?? key,
     };
   }, [lang]);
 
@@ -75,21 +75,17 @@ export function useTranslation(): I18nContextValue {
     return {
       lang: "ro",
       setLang: (_: string) => {},
-      t: (k: string) => k
+      t: (k: string) => k,
     };
   }
   return ctx;
 }
 
-/**
- * Compat: unele componente folosesc useLanguage().
- * Îl expunem ca alias complet către același context (include și t).
- */
 export function useLanguage(): I18nContextValue {
   return useTranslation();
 }
 
-// Compat: unele fișiere importă default useTranslation
+// compat default import
 export default function useTranslationDefault() {
   return useTranslation();
 }
