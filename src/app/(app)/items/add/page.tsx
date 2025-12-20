@@ -6,6 +6,8 @@ import type { Item, ItemFormData } from "@/features/items/types";
 import { ItemForm } from "@/features/items/components/item-form";
 import { createItemServer } from "@/features/items/server/items-actions";
 
+export const dynamic = "force-dynamic";
+
 export default async function AddItemPage() {
   const supabase = createServerClient();
   const {
