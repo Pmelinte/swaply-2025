@@ -31,21 +31,30 @@ export async function listWishlistAction(): Promise<WishlistEntry[]> {
 
 /**
  * Adaugă în wishlist (user curent)
+ *
+ * Compat: acceptă atât `itemId` (camelCase) cât și `item_id` (snake_case),
+ * ca să nu pice build-ul dacă types.ts folosește una dintre variante.
  */
 export async function addToWishlistAction(
-  input: AddToWishlistInput,
+  input: AddToWishlistInput & { itemId?: unknown; item_id?: unknown },
 ): Promise<WishlistEntry> {
   const userId = await requireUserId();
 
-  if (!input?.itemId || typeof input.itemId !== "string") {
+  const raw =
+    (input as any)?.itemId ??
+    (input as any)?.item_id;
+
+  if (!raw || typeof raw !== "string") {
     throw new Error("missing_item_id");
   }
 
-  const entry = await wishlistRepository.add(userId, { itemId: input.itemId });
+  const itemId = raw;
+
+  const entry = await wishlistRepository.add(userId, { itemId });
 
   // revalidăm pagini unde se vede wishlist-ul / item-ul
   revalidatePath("/wishlist");
-  revalidatePath(`/items/${input.itemId}`);
+  revalidatePath(`/items/${itemId}`);
 
   return entry;
 }
