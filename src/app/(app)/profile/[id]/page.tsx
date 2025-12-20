@@ -120,7 +120,7 @@ export default async function PublicProfilePage({ params }: ProfilePageProps) {
       <div>
         <h2 className="text-xl font-semibold mb-2">Istoric schimburi</h2>
 
-        {exchanges.length === 0 ? (
+        {swaps.length === 0 ? (
           <p className="text-gray-600 text-sm">
             Acest utilizator nu are încă schimburi înregistrate.
           </p>
