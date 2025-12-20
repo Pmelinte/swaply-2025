@@ -3,7 +3,17 @@
   "signin": "Iniciar sesión",
   "register": "Registrarse",
   "dashboard": "Panel",
+  "dashboard.title": "Panel",
+  "dashboard.subtitle": "Resumen",
+  "dashboard.goToItems": "Ver objetos",
+  "dashboard.addItem": "Añadir objeto",
+  "dashboard.profileSettings": "Configuración del perfil",
   "profile": "Perfil",
+  "profile.title": "Perfil",
+  "profile.subtitle": "Tus datos",
+  "profile.name": "Nombre",
+  "profile.location": "Ubicación",
+  "profile.language": "Idioma",
   "my_items": "Mis objetos",
   "logout": "Cerrar sesión",
 
@@ -27,6 +37,8 @@
   "error_update_profile": "Error al actualizar el perfil.",
 
   "loading": "Cargando...",
+  "common.loading": "Cargando…",
+  "common.error": "Error",
   "load_more": "Cargar más",
 
   "items_page_subtitle": "Gestiona y revisa tus objetos listados.",

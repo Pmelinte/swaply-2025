@@ -1,6 +1,11 @@
 "use client";
 
 import React, { createContext, useContext, useMemo, useState } from "react";
+import ro from "@/lib/i18n/translations/ro.json";
+import en from "@/lib/i18n/translations/en.json";
+import fr from "@/lib/i18n/translations/fr.json";
+import es from "@/lib/i18n/translations/es.json";
+import de from "@/lib/i18n/translations/de.json";
 
 type Dict = Record<string, string>;
 
@@ -13,38 +18,11 @@ type I18nContextValue = {
 const I18nContext = createContext<I18nContextValue | null>(null);
 
 const DICTS: Record<string, Dict> = {
-  ro: {
-    "common.loading": "Se încarcă…",
-    "common.error": "Eroare",
-    "dashboard.title": "Dashboard",
-    "dashboard.subtitle": "Prezentare generală",
-    "dashboard.goToItems": "Vezi obiecte",
-    "dashboard.addItem": "Adaugă obiect",
-    "dashboard.profileSettings": "Setări profil",
-    "profile.title": "Profil",
-    "profile.subtitle": "Datele tale",
-    "profile.name": "Nume",
-    "profile.location": "Locație",
-    "profile.language": "Limbă",
-    en: "Engleză",
-    ro: "Română"
-  },
-  en: {
-    "common.loading": "Loading…",
-    "common.error": "Error",
-    "dashboard.title": "Dashboard",
-    "dashboard.subtitle": "Overview",
-    "dashboard.goToItems": "View items",
-    "dashboard.addItem": "Add item",
-    "dashboard.profileSettings": "Profile settings",
-    "profile.title": "Profile",
-    "profile.subtitle": "Your details",
-    "profile.name": "Name",
-    "profile.location": "Location",
-    "profile.language": "Language",
-    en: "English",
-    ro: "Romanian"
-  }
+  ro: ro as Dict,
+  en: en as Dict,
+  fr: fr as Dict,
+  es: es as Dict,
+  de: de as Dict,
 };
 
 export function LanguageProvider({

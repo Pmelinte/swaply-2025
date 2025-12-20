@@ -3,7 +3,17 @@
   "signin": "Connexion",
   "register": "Inscription",
   "dashboard": "Tableau de bord",
+  "dashboard.title": "Tableau de bord",
+  "dashboard.subtitle": "Vue d'ensemble",
+  "dashboard.goToItems": "Voir les objets",
+  "dashboard.addItem": "Ajouter un objet",
+  "dashboard.profileSettings": "Paramètres du profil",
   "profile": "Profil",
+  "profile.title": "Profil",
+  "profile.subtitle": "Vos informations",
+  "profile.name": "Nom",
+  "profile.location": "Localisation",
+  "profile.language": "Langue",
   "my_items": "Mes objets",
   "logout": "Déconnexion",
 
@@ -27,6 +37,8 @@
   "error_update_profile": "Échec de la mise à jour du profil.",
 
   "loading": "Chargement...",
+  "common.loading": "Chargement…",
+  "common.error": "Erreur",
   "load_more": "Charger plus",
 
   "items_page_subtitle": "Gérez et révisez vos objets listés.",

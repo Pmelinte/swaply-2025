@@ -26,6 +26,9 @@ export interface UpdateProfileInput {
   full_name?: string;
   avatar_url?: string;
   location?: string;
+  preferred_language?: string;
+  account_type?: string;
+  trust_score?: number;
   bio?: string;
   preferences?: any;
 }
@@ -137,6 +140,15 @@ export async function updateProfileAction(
   }
   if (typeof input.location === "string") {
     updatePayload.location = input.location;
+  }
+  if (typeof input.preferred_language === "string") {
+    updatePayload.preferred_language = input.preferred_language;
+  }
+  if (typeof input.account_type === "string") {
+    updatePayload.account_type = input.account_type;
+  }
+  if (typeof input.trust_score === "number") {
+    updatePayload.trust_score = input.trust_score;
   }
   if (typeof input.bio === "string") {
     updatePayload.bio = input.bio;

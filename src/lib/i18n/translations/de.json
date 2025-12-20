@@ -3,7 +3,17 @@
   "signin": "Anmelden",
   "register": "Registrieren",
   "dashboard": "Dashboard",
+  "dashboard.title": "Dashboard",
+  "dashboard.subtitle": "Übersicht",
+  "dashboard.goToItems": "Artikel ansehen",
+  "dashboard.addItem": "Gegenstand hinzufügen",
+  "dashboard.profileSettings": "Profileinstellungen",
   "profile": "Profil",
+  "profile.title": "Profil",
+  "profile.subtitle": "Deine Angaben",
+  "profile.name": "Name",
+  "profile.location": "Ort",
+  "profile.language": "Sprache",
   "my_items": "Meine Gegenstände",
   "logout": "Abmelden",
 
@@ -27,6 +37,8 @@
   "error_update_profile": "Profil konnte nicht aktualisiert werden.",
 
   "loading": "Laden...",
+  "common.loading": "Laden…",
+  "common.error": "Fehler",
   "load_more": "Mehr laden",
 
   "items_page_subtitle": "Verwalte und überprüfe deine gelisteten Gegenstände.",

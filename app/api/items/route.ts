@@ -1,92 +1,102 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getSupabaseServerClient } from '@/lib/supabase/server';
+// src/app/api/items/route.ts
 
-export async function GET() {
-  try {
-    const supabase = getSupabaseServerClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+import { NextResponse } from "next/server";
+import { createServerClient } from "@/lib/supabase/server";
 
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: { code: 'UNAUTHORIZED', message: 'You must be logged in to view items.' } },
-        { status: 401 }
-      );
-    }
+import {
+  createItemAction,
+  listMyItemsAction,
+} from "@/features/items/server/item-actions";
 
-    const { data: items, error } = await supabase
-      .from('items')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false });
+type ApiResponse =
+  | { ok: true; items: unknown[] }
+  | { ok: true; item: unknown }
+  | { ok: false; error: string };
 
-    if (error) {
-      return NextResponse.json(
-        { error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch items.' } },
-        { status: 500 }
-      );
-    }
+/**
+ * GET /api/items
+ * - listează item-urile userului curent (owner view)
+ *
+ * Query params (opțional):
+ *  - ?limit=30
+ *  - ?offset=0
+ *  - ?onlyActive=true
+ */
+export async function GET(request: Request): Promise<NextResponse<ApiResponse>> {
+  const supabase = createServerClient();
 
-    return NextResponse.json({ items }, { status: 200 });
-  } catch (error) {
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
     return NextResponse.json(
-      { error: { code: 'INTERNAL_ERROR', message: 'An unexpected error occurred.' } },
+      { ok: false, error: "not_authenticated" },
+      { status: 401 }
+    );
+  }
+
+  const { searchParams } = new URL(request.url);
+
+  const limit = Math.max(1, Math.min(100, Number(searchParams.get("limit") ?? 30)));
+  const offset = Math.max(0, Number(searchParams.get("offset") ?? 0));
+  const onlyActive = searchParams.get("onlyActive") === "true";
+
+  try {
+    const items = await listMyItemsAction(supabase, user.id, {
+      limit,
+      offset,
+      onlyActive,
+    });
+
+    return NextResponse.json({ ok: true, items }, { status: 200 });
+  } catch (err: any) {
+    console.error("[ITEMS_MY_LIST_ERROR]", err);
+    return NextResponse.json(
+      { ok: false, error: err?.message ?? "internal_error" },
       { status: 500 }
     );
   }
 }
 
-export async function POST(request: NextRequest) {
-  try {
-    const supabase = getSupabaseServerClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+/**
+ * POST /api/items
+ * - creează un item pentru userul curent
+ */
+export async function POST(request: Request): Promise<NextResponse<ApiResponse>> {
+  const supabase = createServerClient();
 
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: { code: 'UNAUTHORIZED', message: 'You must be logged in to create items.' } },
-        { status: 401 }
-      );
-    }
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
-    const body = await request.json();
-    const { title, description, image_url } = body;
-
-    if (!title || title.length < 2) {
-      return NextResponse.json(
-        { error: { code: 'VALIDATION_ERROR', message: 'Title must be at least 2 characters.' } },
-        { status: 400 }
-      );
-    }
-
-    if (!image_url) {
-      return NextResponse.json(
-        { error: { code: 'VALIDATION_ERROR', message: 'Image URL is required.' } },
-        { status: 400 }
-      );
-    }
-
-    const { data: item, error } = await supabase
-      .from('items')
-      .insert({
-        user_id: user.id,
-        title,
-        description: description || null,
-        image_url,
-      })
-      .select()
-      .single();
-
-    if (error) {
-      return NextResponse.json(
-        { error: { code: 'INTERNAL_ERROR', message: 'Failed to create item.' } },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json({ item }, { status: 201 });
-  } catch (error) {
+  if (authError || !user) {
     return NextResponse.json(
-      { error: { code: 'INTERNAL_ERROR', message: 'An unexpected error occurred.' } },
-      { status: 500 }
+      { ok: false, error: "not_authenticated" },
+      { status: 401 }
+    );
+  }
+
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json(
+      { ok: false, error: "invalid_json" },
+      { status: 400 }
+    );
+  }
+
+  try {
+    const item = await createItemAction(supabase, user.id, body);
+    return NextResponse.json({ ok: true, item }, { status: 201 });
+  } catch (err: any) {
+    console.error("[ITEMS_CREATE_ERROR]", err);
+    return NextResponse.json(
+      { ok: false, error: err?.message ?? "validation_error" },
+      { status: 400 }
     );
   }
 }

@@ -4,6 +4,9 @@ export interface Profile {
   full_name: string | null;
   avatar_url: string | null;
   location: string | null;
+  preferred_language?: string | null;
+  account_type?: string | null;
+  trust_score?: number | null;
   bio: string | null;
   rating: number | null;
   rating_count: number | null;
@@ -18,6 +21,9 @@ export interface UpdateProfileInput {
   full_name?: string;
   avatar_url?: string;
   location?: string;
+  preferred_language?: string;
+  account_type?: string;
+  trust_score?: number;
   bio?: string;
   preferences?: any;
 }

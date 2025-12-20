@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useGamification } from "@/features/gamification/hooks/use-gamification";
+import LanguageSelector from "@/components/LanguageSelector";
 
 type NotificationsApiResponse =
   | { ok: true; notifications: any[]; unreadCount: number }
@@ -116,6 +117,7 @@ export default function Navbar() {
       { href: "/chat", label: "Chat" },
       { href: "/notifications", label: "Notificări", badge: notifUnread },
       { href: "/map", label: "Hartă" },
+      { href: "/premium", label: "Premium" },
     ],
     [notifUnread, wishlistCount],
   );
@@ -148,19 +150,22 @@ export default function Navbar() {
         </nav>
 
         {/* Right side: Rank */}
-        <Link
-          href="/settings/profile"
-          className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-semibold hover:bg-gray-100 transition"
-          title={`Rang: ${rank} (${points} puncte)`}
-        >
-          <span className="text-lg">{rankEmoji(rank)}</span>
-          <span className="hidden sm:inline capitalize">
-            {rank}
-          </span>
-          <span className="text-xs text-gray-500 hidden md:inline">
-            {points}p
-          </span>
-        </Link>
+        <div className="flex items-center gap-2">
+          <LanguageSelector />
+          <Link
+            href="/settings/profile"
+            className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-semibold hover:bg-gray-100 transition"
+            title={`Rang: ${rank} (${points} puncte)`}
+          >
+            <span className="text-lg">{rankEmoji(rank)}</span>
+            <span className="hidden sm:inline capitalize">
+              {rank}
+            </span>
+            <span className="text-xs text-gray-500 hidden md:inline">
+              {points}p
+            </span>
+          </Link>
+        </div>
       </div>
     </header>
   );

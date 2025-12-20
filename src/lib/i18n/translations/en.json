@@ -3,7 +3,17 @@
   "signin": "Sign In",
   "register": "Register",
   "dashboard": "Dashboard",
+  "dashboard.title": "Dashboard",
+  "dashboard.subtitle": "Overview",
+  "dashboard.goToItems": "View items",
+  "dashboard.addItem": "Add item",
+  "dashboard.profileSettings": "Profile settings",
   "profile": "Profile",
+  "profile.title": "Profile",
+  "profile.subtitle": "Your details",
+  "profile.name": "Name",
+  "profile.location": "Location",
+  "profile.language": "Language",
   "my_items": "My Items",
   "logout": "Logout",
 
@@ -27,6 +37,8 @@
   "error_update_profile": "Failed to update profile.",
 
   "loading": "Loading...",
+  "common.loading": "Loading…",
+  "common.error": "Error",
   "load_more": "Load more",
 
   "items_page_subtitle": "Manage and review your listed items.",

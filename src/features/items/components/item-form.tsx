@@ -18,6 +18,9 @@ import {
 } from "../../items/validation";
 
 import { useItemForm } from "../../items/hooks/use-item-form";
+import { generateItemTitle } from "@/lib/ai/generate-item-title";
+import { generateItemDescription } from "@/lib/ai/generate-item-description";
+import { estimateItemPrice } from "@/lib/ai/estimate-price";
 
 export type ItemFormProps = {
   mode: "create" | "edit";
@@ -81,6 +84,7 @@ export function ItemForm({ mode, initialData, onSubmit }: ItemFormProps) {
   const {
     values,
     updateField,
+    applyAiMetadata,
     handleSubmit,
     submitError,
     submitting,
@@ -106,21 +110,72 @@ export function ItemForm({ mode, initialData, onSubmit }: ItemFormProps) {
   });
 
   const conditionOptions = useMemo(() => itemConditionValues, []);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
 
-  // ✅ Fix-ul de tip: confidence nu va fi niciodată null, doar undefined
-  const simulateAiSuggestion = () => {
-    const ai: ItemAiMetadata = {
-      model: "huggingface-image-classifier",
-      primaryLabel: "object",
-      confidence: undefined, // ✅ nu null
-      suggestedTitle: "Obiect (detectat)",
-    };
+  const runAiSuggestion = async () => {
+    if (!imageUrl.trim()) {
+      setAiError("Adaugă un URL de imagine înainte de AI.");
+      return;
+    }
 
-    updateField("aiMetadata", ai);
+    setAiLoading(true);
+    setAiError(null);
 
-    // auto-fill titlu dacă e gol
-    if (!values.title?.trim()) {
-      updateField("title", ai.suggestedTitle);
+    try {
+      const res = await fetch("/api/ai/items/classify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageUrl: imageUrl.trim(), locale: "ro" }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || !data.ok) {
+        throw new Error(data?.error ?? "AI classification failed.");
+      }
+
+      const result = data.result ?? {};
+      const primaryLabel = result.mainLabel ?? "object";
+
+      const suggestedTitle = generateItemTitle({
+        primaryLabel,
+        locale: "ro",
+      });
+
+      const suggestedDescription = generateItemDescription({
+        title: suggestedTitle,
+        primaryLabel,
+        tags: result.labels?.map((l: any) => l.label).slice(0, 4) ?? [],
+        condition: values.condition,
+        locale: "ro",
+      });
+
+      const priceEstimate = estimateItemPrice({
+        title: suggestedTitle,
+        category: values.category,
+        condition: values.condition,
+      });
+
+      const ai: ItemAiMetadata = {
+        model: "huggingface-image-classifier",
+        primaryLabel,
+        confidence: result.labels?.[0]?.confidence ?? undefined,
+        suggestedTitle,
+        suggestedTags: result.labels?.slice(0, 4).map((l: any) => l.label) ?? [],
+        raw: result,
+        priceEur: priceEstimate.eur,
+        priceRon: priceEstimate.ron,
+      };
+
+      applyAiMetadata(ai);
+      updateField("description", suggestedDescription);
+      updateField("approximateValue", priceEstimate.ron);
+      updateField("currency", "RON");
+    } catch (err: any) {
+      setAiError(err?.message ?? "AI failed.");
+    } finally {
+      setAiLoading(false);
     }
   };
 
@@ -223,12 +278,19 @@ export function ItemForm({ mode, initialData, onSubmit }: ItemFormProps) {
         </div>
       </div>
 
+      {aiError ? (
+        <div className="rounded-md border border-red-200 bg-red-50 p-2 text-sm text-red-700">
+          {aiError}
+        </div>
+      ) : null}
+
       <button
         type="button"
-        onClick={simulateAiSuggestion}
-        className="rounded-md border px-3 py-2 text-sm"
+        onClick={runAiSuggestion}
+        disabled={aiLoading}
+        className="rounded-md border px-3 py-2 text-sm disabled:opacity-60"
       >
-        Simulează AI title
+        {aiLoading ? "AI lucrează…" : "Completează cu AI"}
       </button>
 
       <button

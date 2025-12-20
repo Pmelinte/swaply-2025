@@ -34,6 +34,18 @@ export function ProfileView({ profile }: ProfileViewProps) {
           {profile.bio}
         </p>
       )}
+
+      <div className="grid gap-1 text-sm text-muted-foreground">
+        {profile.preferred_language ? (
+          <div>Limba preferată: {profile.preferred_language.toUpperCase()}</div>
+        ) : null}
+        {typeof profile.trust_score === "number" ? (
+          <div>Trust score: {profile.trust_score}</div>
+        ) : null}
+        {profile.account_type ? (
+          <div>Account type: {profile.account_type}</div>
+        ) : null}
+      </div>
     </div>
   );
 }

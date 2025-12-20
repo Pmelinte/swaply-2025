@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
 import useTranslation from "@/components/LanguageProvider";
 
 type Profile = {
-  id?: string;
   user_id?: string;
+  username?: string | null;
   full_name?: string | null;
   location?: string | null;
-  language?: string | null;
+  preferred_language?: string | null;
   avatar_url?: string | null;
   updated_at?: string | null;
 };
@@ -36,7 +36,7 @@ export default function ProfilePage() {
         }
 
         if (!cancelled) {
-          setProfile(json?.profile ?? null);
+          setProfile(json ?? null);
         }
       } catch (e: any) {
         if (!cancelled) setError(e?.message ?? "Unknown error");
@@ -73,7 +73,7 @@ export default function ProfilePage() {
         <section className="rounded-md border p-4 space-y-3">
           <div className="text-sm">
             <span className="font-medium">{t("profile.name")}:</span>{" "}
-            {profile?.full_name ?? "—"}
+            {profile?.full_name ?? profile?.username ?? "—"}
           </div>
           <div className="text-sm">
             <span className="font-medium">{t("profile.location")}:</span>{" "}
@@ -81,7 +81,7 @@ export default function ProfilePage() {
           </div>
           <div className="text-sm">
             <span className="font-medium">{t("profile.language")}:</span>{" "}
-            {profile?.language ?? "—"}
+            {profile?.preferred_language ?? "—"}
           </div>
         </section>
       )}

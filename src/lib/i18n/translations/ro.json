@@ -3,7 +3,17 @@
   "signin": "Autentificare",
   "register": "Înregistrare",
   "dashboard": "Tablou de bord",
+  "dashboard.title": "Dashboard",
+  "dashboard.subtitle": "Prezentare generală",
+  "dashboard.goToItems": "Vezi obiecte",
+  "dashboard.addItem": "Adaugă obiect",
+  "dashboard.profileSettings": "Setări profil",
   "profile": "Profil",
+  "profile.title": "Profil",
+  "profile.subtitle": "Datele tale",
+  "profile.name": "Nume",
+  "profile.location": "Locație",
+  "profile.language": "Limbă",
   "my_items": "Obiectele mele",
   "logout": "Deconectare",
 
@@ -27,6 +37,8 @@
   "error_update_profile": "Actualizarea profilului a eșuat.",
 
   "loading": "Se încarcă...",
+  "common.loading": "Se încarcă…",
+  "common.error": "Eroare",
   "load_more": "Încarcă mai multe",
 
   "items_page_subtitle": "Gestionează și revizuiește obiectele listate.",
