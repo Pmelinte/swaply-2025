@@ -1,81 +1,74 @@
+// src/components/items/ItemCard.tsx
 "use client";
 
 import Image from "next/image";
 import Link from "next/link";
 
-type ItemLike = {
+export type ItemCardItem = {
   id: string;
-  title: string;
+  title: string | null;
   description?: string | null;
   image_url?: string | null;
-  condition?: string | null;
   created_at?: string | null;
 };
 
 type Props = {
-  item: ItemLike;
-  className?: string;
+  item: ItemCardItem;
+  /** dacă vrei să suprascrii linkul de edit */
+  editHref?: string;
 };
 
-function formatDate(iso?: string | null) {
-  if (!iso) return "";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "";
-  return d.toLocaleString();
-}
-
-export default function ItemCard({ item, className }: Props) {
-  const hasImage = Boolean(item.image_url);
+export default function ItemCard({ item, editHref }: Props) {
+  const title = (item.title ?? "").trim() || "Fără titlu";
+  const subtitle = (item.description ?? "").trim();
+  const href = editHref ?? `/items/${item.id}/edit`;
 
   return (
-    <div
-      className={[
-        "w-full rounded-xl border bg-white shadow-sm overflow-hidden",
-        className ?? "",
-      ].join(" ")}
-    >
-      {/* Imagine: folosim object-contain ca să se vadă toată poza */}
-      <div className="relative w-full h-48 bg-gray-100">
-        {hasImage ? (
+    <div className="w-full overflow-hidden rounded-xl border bg-white shadow-sm">
+      {/* Imagine */}
+      <div className="relative h-48 w-full bg-gray-50">
+        {item.image_url ? (
           <Image
-            src={item.image_url as string}
-            alt={item.title ?? "Item"}
+            src={item.image_url}
+            alt={title}
             fill
-            sizes="(max-width: 768px) 100vw, 33vw"
-            className="object-contain"
+            // IMPORTANT: contain => vezi toată poza, nu doar “capul” ei
+            className="object-contain p-3"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             priority={false}
           />
         ) : (
-          <div className="h-full w-full flex items-center justify-center text-sm text-gray-500">
+          <div className="flex h-full w-full items-center justify-center text-sm text-gray-400">
             Fără imagine
           </div>
         )}
       </div>
 
+      {/* Conținut */}
       <div className="p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h3 className="font-semibold text-lg leading-tight truncate">
-              {item.title}
+            <h3 className="truncate text-base font-semibold text-gray-900">
+              {title}
             </h3>
-            {item.description ? (
-              <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-                {item.description}
+            {subtitle ? (
+              <p className="mt-1 line-clamp-2 text-sm text-gray-600">
+                {subtitle}
+              </p>
+            ) : null}
+            {item.created_at ? (
+              <p className="mt-2 text-xs text-gray-400">
+                Created: {item.created_at}
               </p>
             ) : null}
           </div>
 
           <Link
-            href={`/items/${item.id}/edit`}
-            className="text-xs underline text-gray-700 hover:text-black whitespace-nowrap"
+            href={href}
+            className="shrink-0 text-xs text-gray-500 underline hover:text-gray-900"
           >
             Edit
           </Link>
-        </div>
-
-        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
-          {item.condition ? <span>Condiție: {item.condition}</span> : null}
-          {item.created_at ? <span>Creat: {formatDate(item.created_at)}</span> : null}
         </div>
       </div>
     </div>
