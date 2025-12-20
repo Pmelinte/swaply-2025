@@ -30,47 +30,52 @@ export async function listWishlistAction(): Promise<WishlistEntry[]> {
 }
 
 /**
- * Adaugă în wishlist (user curent)
- *
- * Compat: acceptă atât `itemId` (camelCase) cât și `item_id` (snake_case),
- * ca să nu pice build-ul dacă types.ts folosește una dintre variante.
+ * Adaugă în wishlist (user curent) - wishlist pe criterii (nu pe itemId)
  */
 export async function addToWishlistAction(
-  input: AddToWishlistInput & { itemId?: unknown; item_id?: unknown },
+  input: AddToWishlistInput,
 ): Promise<WishlistEntry> {
   const userId = await requireUserId();
 
-  const raw =
-    (input as any)?.itemId ??
-    (input as any)?.item_id;
+  const safe: AddToWishlistInput = {
+    category: input?.category ?? null,
+    subcategory: input?.subcategory ?? null,
+    brand: input?.brand ?? null,
+    condition: input?.condition ?? null,
+    priceMin: input?.priceMin ?? null,
+    priceMax: input?.priceMax ?? null,
+  };
 
-  if (!raw || typeof raw !== "string") {
-    throw new Error("missing_item_id");
+  // Validare minimă: să existe măcar un criteriu setat
+  const hasAny =
+    !!(safe.category && safe.category.trim()) ||
+    !!(safe.subcategory && safe.subcategory.trim()) ||
+    !!(safe.brand && safe.brand.trim()) ||
+    !!(safe.condition && safe.condition.trim()) ||
+    typeof safe.priceMin === "number" ||
+    typeof safe.priceMax === "number";
+
+  if (!hasAny) {
+    throw new Error("missing_wishlist_criteria");
   }
 
-  const itemId = raw;
+  const entry = await wishlistRepository.add(userId, safe);
 
-  const entry = await wishlistRepository.add(userId, { itemId });
-
-  // revalidăm pagini unde se vede wishlist-ul / item-ul
   revalidatePath("/wishlist");
-  revalidatePath(`/items/${itemId}`);
-
   return entry;
 }
 
 /**
- * Elimină din wishlist (user curent)
+ * Elimină din wishlist (user curent) - ștergere după id-ul entry-ului
  */
-export async function removeFromWishlistAction(itemId: string): Promise<void> {
+export async function removeFromWishlistAction(id: string): Promise<void> {
   const userId = await requireUserId();
 
-  if (!itemId || typeof itemId !== "string") {
-    throw new Error("missing_item_id");
+  if (!id || typeof id !== "string") {
+    throw new Error("missing_id");
   }
 
-  await wishlistRepository.remove(userId, itemId);
+  await wishlistRepository.remove(userId, id);
 
   revalidatePath("/wishlist");
-  revalidatePath(`/items/${itemId}`);
 }
