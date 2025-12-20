@@ -5,7 +5,7 @@
  */
 export interface ChatMessage {
   id: string;
-  matchId: string;          // identificatorul conversației (match)
+  swapId: string;          // identificatorul conversației (swap)
   senderId: string;         // cine trimite
   content: string;          // textul mesajului
   createdAt: string;        // timestamp ISO
@@ -19,7 +19,7 @@ export interface ChatMessage {
  * Payload folosit la crearea unui mesaj nou.
  */
 export interface CreateMessageInput {
-  matchId: string;
+  swapId: string;
   content: string;
 }
 
@@ -27,7 +27,7 @@ export interface CreateMessageInput {
  * Reprezentarea completă a firului de conversație într-un match.
  */
 export interface ChatThread {
-  matchId: string;
+  swapId: string;
   messages: ChatMessage[];
 
   // Optional – pentru pagination
@@ -38,16 +38,16 @@ export interface ChatThread {
 /**
  * Preview pentru lista de match-uri (folosit în UI).
  */
-export interface MatchPreview {
+export interface SwapPreview {
   id: string;
 
-  userAId: string;
-  userBId: string;
+  fromUserId: string;
+  toUserId: string;
 
-  userAItemId: string | null;
-  userBItemId: string | null;
+  fromItemId: string | null;
+  toItemId: string | null;
 
-  status: "pending" | "active" | "closed";
+  status: "pending" | "accepted" | "rejected" | "complete" | "cancelled";
 
   createdAt: string;
   updatedAt: string;
@@ -65,10 +65,10 @@ export interface MatchPreview {
 /**
  * Structură pentru creare de match nou (opțional util în backend).
  */
-export interface CreateMatchInput {
-  userAId: string;
-  userBId: string;
+export interface CreateSwapInput {
+  fromUserId: string;
+  toUserId: string;
 
-  userAItemId?: string | null;
-  userBItemId?: string | null;
+  fromItemId?: string | null;
+  toItemId?: string | null;
 }

@@ -33,6 +33,12 @@ type Item = {
 };
 
 type ApiResponse = { ok: true; item: Item } | { ok: false; error: string };
+type AuthResponse =
+  | { ok: true; user: { id: string; email: string | null } }
+  | { ok: false; user: null };
+type UserItemsResponse =
+  | { ok: true; items: { id: string; title: string }[] }
+  | { ok: false; error: string };
 
 export default function ItemPage() {
   const { id } = useParams<{ id: string }>();
@@ -43,12 +49,15 @@ export default function ItemPage() {
   const [error, setError] = useState<string | null>(null);
 
   const [swiping, setSwiping] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [userItems, setUserItems] = useState<{ id: string; title: string }[]>([]);
+  const [selectedItemId, setSelectedItemId] = useState<string>("");
 
   useEffect(() => {
     const load = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`/api/items/${id}`, { cache: "no-store" });
+        const res = await fetch(`/api/items/public/${id}`, { cache: "no-store" });
         const data: ApiResponse = await res.json();
 
         if (!res.ok || !data.ok) {
@@ -71,6 +80,29 @@ export default function ItemPage() {
     if (id) load();
   }, [id]);
 
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const res = await fetch("/api/auth/me", { cache: "no-store" });
+        const data: AuthResponse = await res.json();
+        if (res.ok && data.ok) {
+          setCurrentUserId(data.user.id);
+          const itemsRes = await fetch("/api/items?limit=50&offset=0", {
+            cache: "no-store",
+          });
+          const itemsData: UserItemsResponse = await itemsRes.json();
+          if (itemsRes.ok && itemsData.ok) {
+            setUserItems(itemsData.items as any);
+          }
+        }
+      } catch {
+        setCurrentUserId(null);
+      }
+    };
+
+    loadUser();
+  }, []);
+
   const primaryImage = useMemo(() => {
     if (!item?.images || item.images.length === 0) return null;
     return item.images.find((i) => i.isPrimary) ?? item.images[0];
@@ -84,40 +116,40 @@ export default function ItemPage() {
     return city || country || null;
   }, [item]);
 
-  // MVP: "swipe / interest" spre item (endpoint-ul tău existent /api/swipe/supply)
-  const proposeInterest = async () => {
-    if (!item?.id) return;
+  const proposeSwap = async () => {
+    if (!item?.id || !selectedItemId) return;
 
     try {
       setSwiping(true);
 
-      const res = await fetch("/api/swipe/supply", {
+      const res = await fetch("/api/swaps", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         cache: "no-store",
         body: JSON.stringify({
-          desired_item_id: item.id,
-          note: "interest_from_item_page",
+          from_item_id: selectedItemId,
+          to_item_id: item.id,
         }),
       });
 
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok || data?.ok === false) {
-        // dacă nu e logat, endpoint-ul tău dă 401 not_authenticated
         alert(
           data?.error === "not_authenticated"
-            ? "Trebuie să fii logat ca să arăți interes."
-            : "Nu s-a putut trimite interesul (swipe).",
+            ? "Trebuie să fii logat ca să propui un swap."
+            : "Nu s-a putut trimite propunerea.",
         );
         return;
       }
 
-      alert("✅ Interes trimis! (swipe/supply)");
-      // opțional: router.push("/chat") când ai flux complet de match
+      alert("✅ Propunere trimisă!");
+      if (data?.swap?.id) {
+        router.push(`/swaps/${data.swap.id}`);
+      }
     } catch (err) {
-      console.error("[ITEM_SWIPE_ERROR]", err);
-      alert("Eroare la trimiterea interesului.");
+      console.error("[ITEM_SWAP_ERROR]", err);
+      alert("Eroare la trimiterea propunerii.");
     } finally {
       setSwiping(false);
     }
@@ -187,27 +219,41 @@ export default function ItemPage() {
       </div>
 
       {/* Actions */}
-      <div className="flex flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={proposeInterest}
-          disabled={swiping}
-          className={[
-            "px-4 py-2 rounded font-semibold border",
-            swiping ? "opacity-60 cursor-not-allowed" : "hover:bg-gray-50",
-          ].join(" ")}
-        >
-          {swiping ? "Se trimite…" : "🤝 Arată interes (swipe)"}
-        </button>
-
-        <button
-          type="button"
-          onClick={() => router.push("/chat")}
-          className="px-4 py-2 rounded font-semibold border hover:bg-gray-50"
-          title="Inbox conversații"
-        >
-          💬 Chat
-        </button>
+      <div className="flex flex-col gap-2 border rounded-lg p-3">
+        <h2 className="font-semibold">Propune swap</h2>
+        {currentUserId ? (
+          <>
+            <select
+              className="rounded border px-3 py-2 text-sm"
+              value={selectedItemId}
+              onChange={(e) => setSelectedItemId(e.target.value)}
+            >
+              <option value="">Alege obiectul tău</option>
+              {userItems.map((it) => (
+                <option key={it.id} value={it.id}>
+                  {it.title}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              onClick={proposeSwap}
+              disabled={swiping || !selectedItemId}
+              className={[
+                "px-4 py-2 rounded font-semibold border",
+                swiping || !selectedItemId
+                  ? "opacity-60 cursor-not-allowed"
+                  : "hover:bg-gray-50",
+              ].join(" ")}
+            >
+              {swiping ? "Se trimite…" : "🤝 Propune swap"}
+            </button>
+          </>
+        ) : (
+          <p className="text-sm text-gray-600">
+            Autentifică-te pentru a propune un swap.
+          </p>
+        )}
       </div>
 
       {/* Descriere */}

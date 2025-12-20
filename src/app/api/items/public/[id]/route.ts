@@ -16,6 +16,9 @@ type PublicItemDto = {
   locationCity: string | null;
   locationCountry: string | null;
 
+  approximateValue: number | null;
+  currency: string | null;
+
   images: any[] | null;
 
   createdAt: string;
@@ -26,6 +29,15 @@ type ApiResponse =
   | { ok: false; error: string };
 
 function mapRowToPublicDto(row: any): PublicItemDto {
+  const images = Array.isArray(row.item_images)
+    ? row.item_images.map((img: any) => ({
+        url: img.image_url,
+        isPrimary: img.is_primary,
+      }))
+    : Array.isArray(row.images)
+    ? row.images
+    : null;
+
   return {
     id: row.id,
     title: row.title,
@@ -39,7 +51,10 @@ function mapRowToPublicDto(row: any): PublicItemDto {
     locationCity: row.location_city ?? null,
     locationCountry: row.location_country ?? null,
 
-    images: Array.isArray(row.images) ? row.images : null,
+    approximateValue: row.approximate_value ?? null,
+    currency: row.currency ?? null,
+
+    images,
 
     createdAt: row.created_at,
   };
@@ -71,7 +86,7 @@ export async function GET(
 
     const { data, error } = await supabase
       .from("items")
-      .select("*")
+      .select("*, item_images(*)")
       .eq("id", itemId)
       .eq("is_active", true)
       .maybeSingle();

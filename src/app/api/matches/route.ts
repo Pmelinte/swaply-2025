@@ -1,145 +1,82 @@
-// src/app/api/matches/route.ts
-
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
-import type { MatchPreview } from "@/features/chat/types";
 
-type ApiResponse =
-  | { ok: true; matches: MatchPreview[] }
-  | { ok: false; error: string };
+export async function GET(req: NextRequest) {
+  const supabase = createServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-export async function GET(
-  req: NextRequest
-): Promise<NextResponse<ApiResponse>> {
-  try {
-    const supabase = createServerClient();
+  if (!user) {
+    return NextResponse.json({ ok: false, error: "not_authenticated" }, { status: 401 });
+  }
 
-    // 1) User autentificat
-    const {
-      data: { user },
-      error: userErr,
-    } = await supabase.auth.getUser();
+  const { data: wishlist } = await supabase
+    .from("wishlist")
+    .select("*")
+    .eq("user_id", user.id);
 
-    if (userErr || !user) {
-      return NextResponse.json(
-        { ok: false, error: "not_authenticated" },
-        { status: 401 }
-      );
-    }
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("location")
+    .eq("user_id", user.id)
+    .maybeSingle();
 
-    const userId = user.id;
+  const { data: items, error } = await supabase
+    .from("items")
+    .select("id,title,category,subcategory,condition,location_city,location_country,approximate_value,currency,images,user_id")
+    .eq("is_active", true)
+    .neq("user_id", user.id)
+    .limit(200);
 
-    // 2) Match-urile userului
-    const { data: matches, error: matchErr } = await supabase
-      .from("matches")
-      .select("*")
-      .or(`userAId.eq.${userId},userBId.eq.${userId}`)
-      .order("updatedAt", { ascending: false });
+  if (error) {
+    return NextResponse.json({ ok: false, error: "db_error" }, { status: 500 });
+  }
 
-    if (matchErr) {
-      console.error("[MATCHES_FETCH_ERROR]", matchErr);
-      return NextResponse.json(
-        { ok: false, error: "db_error_fetch_matches" },
-        { status: 500 }
-      );
-    }
+  const locationHint = (profile?.location ?? "").toLowerCase();
 
-    if (!matches || matches.length === 0) {
-      return NextResponse.json({ ok: true, matches: [] }, { status: 200 });
-    }
+  const scored = (items ?? []).map((item: any) => {
+    let bestScore = 0;
+    let bestWish = null as any;
 
-    // 3) Calculăm interlocutorii (otherUserIds) pentru toate match-urile
-    const otherUserIds = Array.from(
-      new Set(
-        matches
-          .map((m: any) => (m.userAId === userId ? m.userBId : m.userAId))
-          .filter(Boolean)
-      )
-    );
+    for (const entry of wishlist ?? []) {
+      let score = 0;
+      if (entry.category && item.category === entry.category) score += 0.4;
+      if (entry.subcategory && item.subcategory === entry.subcategory) score += 0.3;
+      if (entry.condition && item.condition === entry.condition) score += 0.1;
 
-    // 4) Luăm profile-urile într-o singură query
-    //    Ne bazăm pe coloanele standard din profiles: user_id, name, avatar_url
-    const profilesByUserId = new Map<string, { name: string | null; avatar_url: string | null }>();
+      const itemLocation = `${item.location_city ?? ""} ${item.location_country ?? ""}`.toLowerCase();
+      if (locationHint && itemLocation && itemLocation.includes(locationHint)) {
+        score += 0.1;
+      } else if (itemLocation) {
+        score += 0.05;
+      }
 
-    if (otherUserIds.length > 0) {
-      const { data: profiles, error: profErr } = await supabase
-        .from("profiles")
-        .select("user_id, name, avatar_url")
-        .in("user_id", otherUserIds);
-
-      if (profErr) {
-        console.error("[MATCHES_PROFILES_FETCH_ERROR]", profErr);
-      } else {
-        for (const p of profiles ?? []) {
-          profilesByUserId.set(p.user_id, {
-            name: p.name ?? null,
-            avatar_url: p.avatar_url ?? null,
-          });
+      if (typeof item.approximate_value === "number") {
+        const min = entry.price_min ?? null;
+        const max = entry.price_max ?? null;
+        if (min !== null && max !== null && item.approximate_value >= min && item.approximate_value <= max) {
+          score += 0.1;
         }
       }
+
+      const popularity = 0.1; // placeholder
+      score += popularity;
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestWish = entry;
+      }
     }
 
-    // 5) Pentru fiecare match: ultimul mesaj + unreadCount + profil interlocutor
-    const results: MatchPreview[] = [];
+    return {
+      item,
+      score: Number(bestScore.toFixed(2)),
+      wishlistId: bestWish?.id ?? null,
+    };
+  });
 
-    for (const m of matches as any[]) {
-      const matchId = m.id as string;
-      const otherUserId = m.userAId === userId ? m.userBId : m.userAId;
+  scored.sort((a, b) => b.score - a.score);
 
-      const otherProfile = otherUserId
-        ? profilesByUserId.get(otherUserId) ?? null
-        : null;
-
-      // --- ultimul mesaj ---
-      const { data: lastMsgRows, error: lastErr } = await supabase
-        .from("messages")
-        .select("*")
-        .eq("match_id", matchId)
-        .order("created_at", { ascending: false })
-        .limit(1);
-
-      if (lastErr) {
-        console.error("[MATCH_LAST_MESSAGE_ERROR]", lastErr);
-      }
-
-      const lastMessage = lastMsgRows?.[0] ?? null;
-
-      // --- unreadCount ---
-      const { count: unreadCount, error: unreadErr } = await supabase
-        .from("messages")
-        .select("*", { count: "exact", head: true })
-        .eq("match_id", matchId)
-        .neq("sender_id", userId)
-        .eq("is_read", false);
-
-      if (unreadErr) {
-        console.error("[MATCH_UNREAD_COUNT_ERROR]", unreadErr);
-      }
-
-      results.push({
-        id: m.id,
-        userAId: m.userAId,
-        userBId: m.userBId,
-        userAItemId: m.userAItemId,
-        userBItemId: m.userBItemId,
-        status: m.status,
-        createdAt: m.createdAt,
-        updatedAt: m.updatedAt,
-
-        otherUserName: otherProfile?.name ?? "Utilizator Swaply",
-        otherUserAvatar: otherProfile?.avatar_url ?? null,
-
-        lastMessage,
-        unreadCount: unreadCount ?? 0,
-      } as any);
-    }
-
-    return NextResponse.json({ ok: true, matches: results }, { status: 200 });
-  } catch (err) {
-    console.error("[MATCHES_UNEXPECTED_ERROR]", err);
-    return NextResponse.json(
-      { ok: false, error: "internal_error" },
-      { status: 500 }
-    );
-  }
+  return NextResponse.json({ ok: true, matches: scored.slice(0, 50) });
 }

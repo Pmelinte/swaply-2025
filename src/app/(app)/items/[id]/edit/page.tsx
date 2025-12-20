@@ -43,6 +43,7 @@ export default async function EditItemPage({
     currency: item.currency,
 
     images: Array.isArray(item.images) ? item.images : [],
+    imageUrl: Array.isArray(item.images) && item.images[0] ? item.images[0].url : "",
 
     aiMetadata: item.aiMetadata,
 

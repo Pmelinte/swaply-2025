@@ -21,6 +21,7 @@ export default function MapPage() {
 
   const [status, setStatus] = useState<string>("Inițializare…");
   const [selected, setSelected] = useState<LatLng>(DEFAULT_CENTER);
+  const [items, setItems] = useState<any[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -126,6 +127,22 @@ export default function MapPage() {
     };
   }, []);
 
+  useEffect(() => {
+    const loadItems = async () => {
+      try {
+        const res = await fetch("/api/items/public?limit=20", { cache: "no-store" });
+        const data = await res.json();
+        if (res.ok && data.ok) {
+          setItems(data.items ?? []);
+        }
+      } catch {
+        setItems([]);
+      }
+    };
+
+    loadItems();
+  }, []);
+
   return (
     <div className="max-w-5xl mx-auto p-4 space-y-3">
       <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -147,6 +164,24 @@ export default function MapPage() {
         className="w-full h-[65vh] rounded-lg border"
         aria-label="Google Map"
       />
+
+      <div className="rounded-lg border p-4 bg-white">
+        <h2 className="font-semibold mb-2">Swap-uri apropiate (aprox.)</h2>
+        <p className="text-xs text-gray-500 mb-3">
+          Locațiile sunt aproximative, fără adrese exacte.
+        </p>
+        <div className="space-y-2">
+          {items.length === 0 ? (
+            <p className="text-sm text-gray-600">Nu sunt item-uri în zonă.</p>
+          ) : (
+            items.map((item) => (
+              <div key={item.id} className="text-sm text-gray-700">
+                {item.title} · {item.locationCity ?? "-"}, {item.locationCountry ?? "-"}
+              </div>
+            ))
+          )}
+        </div>
+      </div>
     </div>
   );
 }

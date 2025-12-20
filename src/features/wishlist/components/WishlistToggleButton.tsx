@@ -7,12 +7,14 @@ import { useWishlist } from "@/features/wishlist/hooks/use-wishlist";
 
 interface WishlistToggleButtonProps {
   itemId: string;
+  entryId?: string;
   initialInWishlist?: boolean;
   size?: "sm" | "md";
 }
 
 export default function WishlistToggleButton({
   itemId,
+  entryId,
   initialInWishlist = false,
   size = "md",
 }: WishlistToggleButtonProps) {
@@ -26,10 +28,13 @@ export default function WishlistToggleButton({
 
     try {
       if (inWishlist) {
-        await remove(itemId);
+        if (!entryId) {
+          throw new Error("missing_entry_id");
+        }
+        await remove(entryId);
         setInWishlist(false);
       } else {
-        await add(itemId);
+        await add({});
         setInWishlist(true);
       }
     } catch (err) {

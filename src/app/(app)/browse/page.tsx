@@ -25,11 +25,26 @@ export default function BrowsePage() {
   const [items, setItems] = useState<ItemPreview[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const [category, setCategory] = useState("");
+  const [subcategory, setSubcategory] = useState("");
+  const [condition, setCondition] = useState("");
+  const [location, setLocation] = useState("");
 
   const load = async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/items/public?limit=48", { cache: "no-store" });
+      const params = new URLSearchParams();
+      params.set("limit", "48");
+      if (query.trim()) params.set("q", query.trim());
+      if (category.trim()) params.set("category", category.trim());
+      if (subcategory.trim()) params.set("subcategory", subcategory.trim());
+      if (condition.trim()) params.set("condition", condition.trim());
+      if (location.trim()) params.set("location", location.trim());
+
+      const res = await fetch(`/api/items/public?${params.toString()}`, {
+        cache: "no-store",
+      });
       const data: ApiResponse = await res.json();
 
       if (!res.ok || !data.ok) {
@@ -65,6 +80,66 @@ export default function BrowsePage() {
           </Link>
         </div>
       </div>
+
+      <form
+        className="grid gap-3 md:grid-cols-5 items-end"
+        onSubmit={(e) => {
+          e.preventDefault();
+          load();
+        }}
+      >
+        <div className="md:col-span-2">
+          <label className="text-sm font-medium">Căutare</label>
+          <input
+            className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
+            placeholder="titlu, descriere"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </div>
+        <div>
+          <label className="text-sm font-medium">Categorie</label>
+          <input
+            className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
+            placeholder="electronics"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          />
+        </div>
+        <div>
+          <label className="text-sm font-medium">Subcategorie</label>
+          <input
+            className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
+            placeholder="phones"
+            value={subcategory}
+            onChange={(e) => setSubcategory(e.target.value)}
+          />
+        </div>
+        <div>
+          <label className="text-sm font-medium">Condiție</label>
+          <input
+            className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
+            placeholder="good"
+            value={condition}
+            onChange={(e) => setCondition(e.target.value)}
+          />
+        </div>
+        <div className="md:col-span-2">
+          <label className="text-sm font-medium">Locație (aprox.)</label>
+          <input
+            className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
+            placeholder="București, RO"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+          />
+        </div>
+        <button
+          type="submit"
+          className="md:col-span-1 rounded-md bg-black px-4 py-2 text-sm font-medium text-white"
+        >
+          Caută
+        </button>
+      </form>
 
       {loading && <p>Se încarcă…</p>}
       {error && <p className="text-red-600">{error}</p>}
@@ -109,10 +184,12 @@ export default function BrowsePage() {
                 </div>
               )}
 
-              {/* Link dezactivat elegant până facem pagina de detaliu public */}
-              <div className="pt-2 text-xs text-gray-400">
-                Detalii: în curând
-              </div>
+              <Link
+                href={`/items/${item.id}`}
+                className="pt-2 text-xs text-blue-600 hover:underline"
+              >
+                Vezi detalii
+              </Link>
             </div>
           </div>
         ))}
@@ -120,4 +197,3 @@ export default function BrowsePage() {
     </div>
   );
 }
-

@@ -6,7 +6,12 @@ import type { WishlistEntry, AddToWishlistInput } from "../types";
 const mapRow = (row: any): WishlistEntry => ({
   id: row.id,
   userId: row.user_id,
-  itemId: row.item_id,
+  category: row.category ?? null,
+  subcategory: row.subcategory ?? null,
+  brand: row.brand ?? null,
+  condition: row.condition ?? null,
+  priceMin: row.price_min ?? null,
+  priceMax: row.price_max ?? null,
   createdAt: row.created_at,
 });
 
@@ -18,7 +23,7 @@ export const wishlistRepository = {
     const supabase = createServerClient();
 
     const { data, error } = await supabase
-      .from("wishlists")
+      .from("wishlist")
       .select("*")
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
@@ -37,28 +42,16 @@ export const wishlistRepository = {
   async add(userId: string, input: AddToWishlistInput): Promise<WishlistEntry> {
     const supabase = createServerClient();
 
-    // dacă există deja, îl returnăm
-    const { data: existing, error: existingErr } = await supabase
-      .from("wishlists")
-      .select("*")
-      .eq("user_id", userId)
-      .eq("item_id", input.itemId)
-      .maybeSingle();
-
-    if (existingErr) {
-      console.error("[WISHLIST_EXISTING_ERROR]", existingErr);
-      // continuăm cu insert chiar dacă check-ul a eșuat
-    }
-
-    if (existing) {
-      return mapRow(existing);
-    }
-
     const { data, error } = await supabase
-      .from("wishlists")
+      .from("wishlist")
       .insert({
         user_id: userId,
-        item_id: input.itemId,
+        category: input.category ?? null,
+        subcategory: input.subcategory ?? null,
+        brand: input.brand ?? null,
+        condition: input.condition ?? null,
+        price_min: input.priceMin ?? null,
+        price_max: input.priceMax ?? null,
       })
       .select("*")
       .single();
@@ -74,14 +67,14 @@ export const wishlistRepository = {
   /**
    * Șterge item din wishlist
    */
-  async remove(userId: string, itemId: string): Promise<void> {
+  async remove(userId: string, id: string): Promise<void> {
     const supabase = createServerClient();
 
     const { error } = await supabase
-      .from("wishlists")
+      .from("wishlist")
       .delete()
       .eq("user_id", userId)
-      .eq("item_id", itemId);
+      .eq("id", id);
 
     if (error) {
       console.error("[WISHLIST_REMOVE_ERROR]", error);

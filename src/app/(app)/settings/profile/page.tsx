@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { createServerClient } from "@/lib/supabase/server";
 import ProfileClient from "./ProfileClient";
 import { getUserRatingSummaryAction } from "@/features/reviews/server/reviews-actions";
+import { getCurrentProfileAction } from "@/features/profile/server/profile-actions";
 
 export default async function ProfilePage() {
   const supabase = createServerClient();
@@ -16,6 +17,11 @@ export default async function ProfilePage() {
 
   // Rating summary pentru profil
   const ratingSummary = await getUserRatingSummaryAction(user.id);
+  const profile = await getCurrentProfileAction();
+
+  if (!profile) {
+    redirect("/login");
+  }
 
   return (
     <div className="max-w-3xl mx-auto p-6 space-y-6">
@@ -43,7 +49,7 @@ export default async function ProfilePage() {
       </div>
 
       {/* Profile Editor */}
-      <ProfileClient userId={user.id} />
+      <ProfileClient profile={profile} ratingSummary={ratingSummary} />
     </div>
   );
 }

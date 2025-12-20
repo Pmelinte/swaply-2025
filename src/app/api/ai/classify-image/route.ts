@@ -3,6 +3,9 @@
 import { NextResponse } from "next/server";
 import { classifyItemFromImage } from "@/lib/ai/item-classification";
 import { createServerClient } from "@/lib/supabase/server";
+import { ITEM_CATEGORIES } from "@/config/item-categories";
+import { generateItemTitle } from "@/lib/ai/generate-item-title";
+import { generateItemDescription } from "@/lib/ai/generate-item-description";
 
 /**
  * Endpoint: POST /api/ai/classify-image
@@ -61,10 +64,52 @@ export async function POST(req: Request) {
       );
     }
 
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("preferred_language")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    const locale = profile?.preferred_language ?? "ro";
+
+    const localeKey = locale.startsWith("en") ? "en" : "ro";
+
+    const category = ITEM_CATEGORIES.find((c) => c.id === suggestion.categoryId);
+    const subcategory = category?.subcategories.find(
+      (s) => s.id === suggestion.subcategoryId,
+    );
+
+    const title = generateItemTitle({
+      primaryLabel: suggestion.rawCaption,
+      category: category
+        ? { id: category.id, name: category.label?.[localeKey] ?? category.label?.ro } as any
+        : null,
+      subcategory: subcategory
+        ? { id: subcategory.id, name: subcategory.label?.[localeKey] ?? subcategory.label?.ro } as any
+        : null,
+      locale,
+    });
+
+    const description = generateItemDescription({
+      title,
+      primaryLabel: suggestion.rawCaption,
+      category: category
+        ? { id: category.id, name: category.label?.[localeKey] ?? category.label?.ro } as any
+        : null,
+      subcategory: subcategory
+        ? { id: subcategory.id, name: subcategory.label?.[localeKey] ?? subcategory.label?.ro } as any
+        : null,
+      condition: suggestion.condition,
+      locale,
+    });
+
     // 4) Returnăm succes
     return NextResponse.json({
       ok: true,
-      data: suggestion,
+      data: {
+        ...suggestion,
+        title,
+        description,
+      },
     });
   } catch (error) {
     console.error("[AI classify-image] Unexpected server error:", error);

@@ -35,7 +35,7 @@ export default async function PublicProfilePage({ params }: ProfilePageProps) {
   const reviewerIds = reviews.map((r) => r.reviewerId);
   const { data: reviewerProfiles } = await supabase
     .from("profiles")
-    .select("user_id, name, avatar_url")
+    .select("user_id, full_name, username, avatar_url")
     .in("user_id", reviewerIds);
 
   const reviewerMap = Object.fromEntries(
@@ -43,28 +43,28 @@ export default async function PublicProfilePage({ params }: ProfilePageProps) {
   );
 
   // Schimburi în care userul a fost implicat
-  const { data: exchangeRows } = await supabase
-    .from("exchanges")
+  const { data: swapRows } = await supabase
+    .from("swaps")
     .select("*")
-    .or(`user_a_id.eq.${userId},user_b_id.eq.${userId}`)
+    .or(`from_user.eq.${userId},to_user.eq.${userId}`)
     .order("created_at", { ascending: false });
 
-  const exchanges = exchangeRows ?? [];
-  const completedCount = exchanges.filter((e) => e.status === "completed").length;
-  const recentExchanges = exchanges.slice(0, 5);
+  const swaps = swapRows ?? [];
+  const completedCount = swaps.filter((e) => e.status === "complete").length;
+  const recentExchanges = swaps.slice(0, 5);
 
   // Profilurile partenerilor de schimb
   const partnerIds = Array.from(
     new Set(
       recentExchanges.map((e) =>
-        e.user_a_id === userId ? e.user_b_id : e.user_a_id
+        e.from_user === userId ? e.to_user : e.from_user
       )
     )
   );
 
   const { data: partnerProfiles } = await supabase
     .from("profiles")
-    .select("user_id, name, avatar_url")
+    .select("user_id, full_name, username, avatar_url")
     .in("user_id", partnerIds);
 
   const partnerMap = Object.fromEntries(
@@ -77,12 +77,14 @@ export default async function PublicProfilePage({ params }: ProfilePageProps) {
       <div className="flex items-center gap-4">
         <img
           src={user.avatar_url ?? "/placeholder-avatar.png"}
-          alt={user.name ?? "User"}
+          alt={user.full_name ?? user.username ?? "User"}
           className="w-20 h-20 rounded-full object-cover"
         />
 
         <div>
-          <h1 className="text-2xl font-bold">{user.name ?? "Utilizator"}</h1>
+          <h1 className="text-2xl font-bold">
+            {user.full_name ?? user.username ?? "Utilizator"}
+          </h1>
 
           {/* Rating */}
           {ratingSummary.totalReviews === 0 ? (
@@ -118,7 +120,7 @@ export default async function PublicProfilePage({ params }: ProfilePageProps) {
       <div>
         <h2 className="text-xl font-semibold mb-2">Istoric schimburi</h2>
 
-        {exchanges.length === 0 ? (
+        {swaps.length === 0 ? (
           <p className="text-gray-600 text-sm">
             Acest utilizator nu are încă schimburi înregistrate.
           </p>
@@ -138,7 +140,7 @@ export default async function PublicProfilePage({ params }: ProfilePageProps) {
           <div className="space-y-4">
             {recentExchanges.map((ex) => {
               const partnerId =
-                ex.user_a_id === userId ? ex.user_b_id : ex.user_a_id;
+                ex.from_user === userId ? ex.to_user : ex.from_user;
               const partner = partnerMap[partnerId];
 
               return (
@@ -149,7 +151,7 @@ export default async function PublicProfilePage({ params }: ProfilePageProps) {
                   {/* Avatar partener */}
                   <img
                     src={partner?.avatar_url ?? "/placeholder-avatar.png"}
-                    alt={partner?.name ?? "Partener"}
+                    alt={partner?.full_name ?? partner?.username ?? "Partener"}
                     className="w-10 h-10 rounded-full object-cover"
                   />
 
@@ -157,7 +159,7 @@ export default async function PublicProfilePage({ params }: ProfilePageProps) {
                     <p className="text-sm font-medium">
                       Schimb cu{" "}
                       <span className="font-semibold">
-                        {partner?.name ?? "Utilizator"}
+                        {partner?.full_name ?? partner?.username ?? "Utilizator"}
                       </span>
                     </p>
 
@@ -200,14 +202,14 @@ export default async function PublicProfilePage({ params }: ProfilePageProps) {
                     {/* Avatar reviewer */}
                     <img
                       src={reviewer?.avatar_url ?? "/placeholder-avatar.png"}
-                      alt={reviewer?.name ?? "Reviewer"}
+                      alt={reviewer?.full_name ?? reviewer?.username ?? "Reviewer"}
                       className="w-10 h-10 rounded-full object-cover"
                     />
 
                     <div>
                       {/* Nume reviewer */}
                       <p className="font-medium text-sm">
-                        {reviewer?.name ?? "Utilizator"}
+                        {reviewer?.full_name ?? reviewer?.username ?? "Utilizator"}
                       </p>
 
                       {/* Rating stars */}
@@ -241,13 +243,11 @@ function formatExchangeStatus(status: string): string {
   switch (status) {
     case "pending":
       return "În așteptare";
-    case "negotiating":
-      return "În negociere";
     case "accepted":
       return "Acceptat";
-    case "shipping":
-      return "În livrare";
-    case "completed":
+    case "rejected":
+      return "Respins";
+    case "complete":
       return "Finalizat";
     case "cancelled":
       return "Anulat";

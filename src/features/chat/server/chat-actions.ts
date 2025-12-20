@@ -23,30 +23,30 @@ async function requireUser() {
   return { supabase, user };
 }
 
-async function assertMatchMembership(
+async function assertSwapMembership(
   supabase: any,
-  matchId: string,
+  swapId: string,
   userId: string,
 ) {
-  const { data: match, error } = await supabase
-    .from("matches")
-    .select("id,userAId,userBId")
-    .eq("id", matchId)
+  const { data: swap, error } = await supabase
+    .from("swaps")
+    .select("id,from_user,to_user")
+    .eq("id", swapId)
     .maybeSingle();
 
-  if (error || !match) throw new Error("match_not_found");
+  if (error || !swap) throw new Error("swap_not_found");
 
-  const isMember = match.userAId === userId || match.userBId === userId;
+  const isMember = swap.from_user === userId || swap.to_user === userId;
   if (!isMember) throw new Error("not_allowed");
 
-  return match as { id: string; userAId: string; userBId: string };
+  return swap as { id: string; from_user: string; to_user: string };
 }
 
-export async function getThreadAction(matchId: string): Promise<ChatThread | null> {
+export async function getThreadAction(swapId: string): Promise<ChatThread | null> {
   try {
     const { supabase, user } = await requireUser();
-    await assertMatchMembership(supabase, matchId, user.id);
-    return await chatRepository.getThread(matchId);
+    await assertSwapMembership(supabase, swapId, user.id);
+    return await chatRepository.getThread(swapId);
   } catch {
     return null;
   }
@@ -56,16 +56,16 @@ export async function getThreadAction(matchId: string): Promise<ChatThread | nul
  * ✅ Mesajele le luăm direct din DB, ca să nu depindem de un repo method inexistent.
  */
 export async function listThreadMessagesAction(
-  matchId: string,
+  swapId: string,
 ): Promise<ChatMessage[]> {
   try {
     const { supabase, user } = await requireUser();
-    await assertMatchMembership(supabase, matchId, user.id);
+    await assertSwapMembership(supabase, swapId, user.id);
 
     const { data, error } = await supabase
-      .from("messages")
+      .from("swap_messages")
       .select("*")
-      .eq("match_id", matchId)
+      .eq("swap_id", swapId)
       .order("created_at", { ascending: true });
 
     if (error) return [];
@@ -80,10 +80,10 @@ export async function createMessageAction(
 ): Promise<ChatMessage> {
   const { supabase, user } = await requireUser();
 
-  const matchId = (input as any).matchId as string;
-  if (!matchId) throw new Error("missing_match_id");
+  const swapId = (input as any).swapId as string;
+  if (!swapId) throw new Error("missing_swap_id");
 
-  await assertMatchMembership(supabase, matchId, user.id);
+  await assertSwapMembership(supabase, swapId, user.id);
 
   // Nu presupunem numele câmpului pentru conținut; îl extragem “safe”.
   const content =
@@ -100,7 +100,7 @@ export async function createMessageAction(
   const created = await chatRepository.createMessage(
     {
       ...(input as any),
-      matchId,
+      swapId,
       // punem content în toate variantele, ca să nu pierdem mesajul
       text: content.trim(),
       message: content.trim(),
@@ -109,6 +109,6 @@ export async function createMessageAction(
     user.id,
   );
 
-  revalidatePath(`/matches/${matchId}`);
+  revalidatePath(`/swaps/${swapId}`);
   return created;
 }

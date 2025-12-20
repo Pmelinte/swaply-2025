@@ -89,7 +89,7 @@ export const swipeRepository = {
     // 1) Aflăm owner-ul item-ului target
     const { data: itemRow, error: itemError } = await supabase
       .from("items")
-      .select("id, owner_id")
+      .select("id, user_id")
       .eq("id", input.targetItemId)
       .single();
 
@@ -98,7 +98,7 @@ export const swipeRepository = {
       throw new Error("Obiectul nu există sau nu mai este disponibil.");
     }
 
-    const targetOwnerId = itemRow.owner_id as string;
+    const targetOwnerId = itemRow.user_id as string;
 
     if (targetOwnerId === currentUserId) {
       throw new Error("Nu poți face swipe pe propriul obiect.");
