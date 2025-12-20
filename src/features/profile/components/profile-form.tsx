@@ -12,6 +12,10 @@ type Props = {
 export default function ProfileForm({ profile }: Props) {
   const [fullName, setFullName] = useState(profile.full_name ?? "");
   const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url ?? "");
+  const [location, setLocation] = useState(profile.location ?? "");
+  const [preferredLanguage, setPreferredLanguage] = useState(
+    profile.preferred_language ?? "ro",
+  );
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -26,6 +30,8 @@ export default function ProfileForm({ profile }: Props) {
       await updateProfileAction({
         full_name: fullName.trim(),
         avatar_url: avatarUrl.trim(),
+        location: location.trim(),
+        preferred_language: preferredLanguage.trim(),
       });
 
       setSuccess("Salvat ✅");
@@ -66,6 +72,30 @@ export default function ProfileForm({ profile }: Props) {
           value={avatarUrl}
           onChange={(e) => setAvatarUrl(e.target.value)}
         />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium">Locație</label>
+        <input
+          className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
+          value={location}
+          onChange={(e) => setLocation(e.target.value)}
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium">Limbă preferată</label>
+        <select
+          className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
+          value={preferredLanguage}
+          onChange={(e) => setPreferredLanguage(e.target.value)}
+        >
+          <option value="ro">Română</option>
+          <option value="en">English</option>
+          <option value="fr">Français</option>
+          <option value="es">Español</option>
+          <option value="de">Deutsch</option>
+        </select>
       </div>
 
       <button

@@ -21,6 +21,7 @@ export default function MyItemsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busyDeleteId, setBusyDeleteId] = useState<string | null>(null);
+  const [busyToggleId, setBusyToggleId] = useState<string | null>(null);
 
   const hasItems = useMemo(() => items.length > 0, [items.length]);
 
@@ -86,6 +87,32 @@ export default function MyItemsPage() {
     }
   }
 
+  async function onToggle(id: string, isActive: boolean | undefined) {
+    setBusyToggleId(id);
+    setError(null);
+
+    try {
+      const res = await fetch(`/api/items/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isActive: !isActive }),
+      });
+
+      const data = (await res.json()) as any;
+
+      if (!res.ok || !data?.ok) {
+        setError(data?.error ?? "toggle_failed");
+        return;
+      }
+
+      await load();
+    } catch (e: any) {
+      setError(e?.message ?? "network_error");
+    } finally {
+      setBusyToggleId(null);
+    }
+  }
+
   useEffect(() => {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -106,7 +133,7 @@ export default function MyItemsPage() {
           </button>
 
           <Link
-            href="/items/new"
+            href="/items/add"
             className="px-3 py-2 rounded-lg border bg-black text-white"
           >
             + Add
@@ -152,6 +179,18 @@ export default function MyItemsPage() {
                 >
                   Edit
                 </Link>
+
+                <button
+                  onClick={() => onToggle(it.id, it.isActive)}
+                  disabled={busyToggleId === it.id}
+                  className="px-3 py-2 rounded-lg border bg-white disabled:opacity-60"
+                >
+                  {busyToggleId === it.id
+                    ? "Updating…"
+                    : it.isActive
+                    ? "Deactivate"
+                    : "Activate"}
+                </button>
 
                 <button
                   onClick={() => onDelete(it.id)}

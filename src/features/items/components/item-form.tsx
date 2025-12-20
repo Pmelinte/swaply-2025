@@ -1,7 +1,7 @@
 // src/features/items/components/item-form.tsx
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import type { z } from "zod";
 
 import type {
@@ -30,11 +30,6 @@ export type ItemFormProps = {
  * Asta e compatibil 1:1 cu ce întoarce safeParse().
  */
 type FormData = z.infer<typeof itemFormSchema>;
-
-function firstImageUrl(images?: ItemImage[] | null): string {
-  if (!images || images.length === 0) return "";
-  return images[0]?.url ?? "";
-}
 
 function coerceCondition(value: any): FormData["condition"] {
   // Acceptăm exact ce permite schema curentă
@@ -72,15 +67,12 @@ function adaptInitialData(input?: Partial<LegacyItemFormData>): Partial<FormData
 }
 
 export function ItemForm({ mode, initialData, onSubmit }: ItemFormProps) {
-  const [imageUrl, setImageUrl] = useState<string>(() =>
-    firstImageUrl(initialData?.images ?? []),
-  );
-
   const adaptedInitial = useMemo(() => adaptInitialData(initialData), [initialData]);
 
   const {
     values,
     updateField,
+    applyAiMetadata,
     handleSubmit,
     submitError,
     submitting,
@@ -89,7 +81,7 @@ export function ItemForm({ mode, initialData, onSubmit }: ItemFormProps) {
     initialData: adaptedInitial,
     onSubmit: async (v) => {
       // injectăm images din imageUrl în payload înainte de submit
-      const url = imageUrl.trim();
+      const url = (v as any).imageUrl?.trim?.() ?? "";
       const images: ItemImage[] = url ? [{ url, publicId: "manual" }] : [];
 
       // v este FormData (Zod). Îl putem trimite către onSubmit (legacy) fără risc,
@@ -107,20 +99,58 @@ export function ItemForm({ mode, initialData, onSubmit }: ItemFormProps) {
 
   const conditionOptions = useMemo(() => itemConditionValues, []);
 
-  // ✅ Fix-ul de tip: confidence nu va fi niciodată null, doar undefined
-  const simulateAiSuggestion = () => {
-    const ai: ItemAiMetadata = {
-      model: "huggingface-image-classifier",
-      primaryLabel: "object",
-      confidence: undefined, // ✅ nu null
-      suggestedTitle: "Obiect (detectat)",
-    };
+  const runAiSuggestion = async () => {
+    const imageUrl = (values as any).imageUrl?.trim?.();
+    if (!imageUrl) {
+      alert("Adaugă întâi un URL de imagine.");
+      return;
+    }
 
-    updateField("aiMetadata", ai);
+    try {
+      const res = await fetch("/api/ai/classify-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageUrl }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        throw new Error(data?.error ?? "AI classify failed");
+      }
 
-    // auto-fill titlu dacă e gol
-    if (!values.title?.trim()) {
-      updateField("title", ai.suggestedTitle);
+      const ai: ItemAiMetadata = {
+        model: "huggingface-caption",
+        primaryLabel: data.data?.rawCaption ?? null,
+        suggestedTitle: data.data?.title,
+        suggestedCategory: data.data?.categoryId,
+        suggestedSubcategory: data.data?.subcategoryId,
+        confidence: data.data?.rawLabels?.[0]?.score ?? undefined,
+        raw: data.data,
+      };
+
+      applyAiMetadata(ai);
+      if (data.data?.description) {
+        updateField("description", data.data.description);
+      }
+      if (data.data?.condition) {
+        updateField("condition", data.data.condition);
+      }
+
+      const priceRes = await fetch("/api/ai/price-estimate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: data.data?.title ?? values.title,
+          category: data.data?.categoryId ?? values.category,
+          condition: data.data?.condition ?? values.condition,
+        }),
+      });
+      const priceData = await priceRes.json();
+      if (priceRes.ok && priceData.ok) {
+        updateField("approximateValue", priceData.priceEstimateEur);
+        updateField("currency", "EUR");
+      }
+    } catch (error: any) {
+      alert(error?.message ?? "AI error");
     }
   };
 
@@ -157,8 +187,8 @@ export function ItemForm({ mode, initialData, onSubmit }: ItemFormProps) {
         <label className="block text-sm font-medium">Imagine (URL)</label>
         <input
           className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
-          value={imageUrl}
-          onChange={(e) => setImageUrl(e.target.value)}
+          value={(values as any).imageUrl ?? ""}
+          onChange={(e) => updateField("imageUrl", e.target.value)}
           placeholder="https://…"
         />
       </div>
@@ -225,10 +255,10 @@ export function ItemForm({ mode, initialData, onSubmit }: ItemFormProps) {
 
       <button
         type="button"
-        onClick={simulateAiSuggestion}
+        onClick={runAiSuggestion}
         className="rounded-md border px-3 py-2 text-sm"
       >
-        Simulează AI title
+        Completează cu AI
       </button>
 
       <button

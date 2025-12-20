@@ -13,22 +13,15 @@ type Body = {
   plan?: Plan;
 };
 
-/**
- * POST /api/billing/checkout
- *
- * TEMPORAR DISABLED (build fix)
- *
- * Motiv: proiectul NU are instalat pachetul `stripe`.
- * TypeScript verifică importurile la build și crapă, chiar dacă importul era "dinamic".
- *
- * Când vrei să activezi:
- * 1) instalezi pachetul `stripe`
- * 2) refacem endpoint-ul să creeze checkout session.
- */
+const PRICE_IDS: Record<Plan, string | undefined> = {
+  silver: process.env.STRIPE_PRICE_ID_SILVER,
+  gold: process.env.STRIPE_PRICE_ID_GOLD,
+  platinum: process.env.STRIPE_PRICE_ID_PLATINUM,
+};
+
 export async function POST(
   req: NextRequest,
 ): Promise<NextResponse<ApiResponse>> {
-  // păstrăm auth + validare plan, ca endpoint-ul să rămână “corect” logic
   const supabase = createServerClient();
   const {
     data: { user },
@@ -45,20 +38,61 @@ export async function POST(
   const body = (await req.json().catch(() => ({}))) as Body;
   const plan = body.plan;
 
-  if (!plan || (plan !== "silver" && plan !== "gold" && plan !== "platinum")) {
+  if (!plan || !(plan in PRICE_IDS)) {
     return NextResponse.json(
       { ok: false, error: "missing_or_invalid_plan" },
       { status: 400 },
     );
   }
 
-  return NextResponse.json(
-    {
-      ok: false,
-      error: "stripe_disabled",
-      message:
-        "Billing este dezactivat momentan: pachetul 'stripe' nu este instalat în proiect.",
+  const priceId = PRICE_IDS[plan];
+  const secret = process.env.STRIPE_SECRET_KEY;
+  const origin = req.headers.get("origin") ?? process.env.NEXT_PUBLIC_SITE_URL;
+
+  if (!secret || !priceId || !origin) {
+    return NextResponse.json(
+      { ok: false, error: "stripe_not_configured" },
+      { status: 500 },
+    );
+  }
+
+  const params = new URLSearchParams();
+  params.set("mode", "subscription");
+  params.set("success_url", `${origin}/premium?status=success`);
+  params.set("cancel_url", `${origin}/premium?status=cancelled`);
+  params.set("customer_email", user.email ?? "");
+  params.set("line_items[0][price]", priceId);
+  params.set("line_items[0][quantity]", "1");
+  params.set("metadata[user_id]", user.id);
+  params.set("metadata[plan]", plan);
+
+  const stripeRes = await fetch("https://api.stripe.com/v1/checkout/sessions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${secret}`,
+      "Content-Type": "application/x-www-form-urlencoded",
     },
-    { status: 501 },
-  );
+    body: params.toString(),
+  });
+
+  if (!stripeRes.ok) {
+    const errorText = await stripeRes.text().catch(() => "");
+    return NextResponse.json(
+      { ok: false, error: "stripe_error", message: errorText },
+      { status: 502 },
+    );
+  }
+
+  const session = await stripeRes.json();
+
+  await supabase.from("payments").insert({
+    user_id: user.id,
+    stripe_session_id: session.id,
+    amount: 0,
+    currency: "EUR",
+    type: "subscription",
+    status: "pending",
+  });
+
+  return NextResponse.json({ ok: true, url: session.url });
 }

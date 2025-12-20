@@ -10,9 +10,9 @@ import type { ChatMessage, ChatThread, CreateMessageInput } from "../types";
 const mapDbMessage = (row: any): ChatMessage => {
   return {
     id: row.id,
-    matchId: row.match_id,
+    swapId: row.swap_id,
     senderId: row.sender_id,
-    content: row.content,
+    content: row.message,
     createdAt: row.created_at,
   };
 };
@@ -22,13 +22,13 @@ export const chatRepository = {
    * Returnează toate mesajele dintr-un match.
    * Userul trebuie să participe în match (verificare basic în actions).
    */
-  async getThread(matchId: string): Promise<ChatThread> {
+  async getThread(swapId: string): Promise<ChatThread> {
     const supabase = createServerClient();
 
     const { data: rows, error } = await supabase
-      .from("messages")
+      .from("swap_messages")
       .select("*")
-      .eq("match_id", matchId)
+      .eq("swap_id", swapId)
       .order("created_at", { ascending: true });
 
     if (error) {
@@ -39,7 +39,7 @@ export const chatRepository = {
     const messages = (rows ?? []).map(mapDbMessage);
 
     return {
-      matchId,
+      swapId,
       messages,
     };
   },
@@ -51,13 +51,13 @@ export const chatRepository = {
     const supabase = createServerClient();
 
     const payload = {
-      match_id: input.matchId,
+      swap_id: input.swapId,
       sender_id: senderId,
-      content: input.content,
+      message: input.content,
     };
 
     const { data, error } = await supabase
-      .from("messages")
+      .from("swap_messages")
       .insert(payload)
       .select("*")
       .single();
@@ -73,13 +73,13 @@ export const chatRepository = {
   /**
    * Returnează ultimul mesaj dintr-un match.
    */
-  async getLastMessage(matchId: string): Promise<ChatMessage | null> {
+  async getLastMessage(swapId: string): Promise<ChatMessage | null> {
     const supabase = createServerClient();
 
     const { data, error } = await supabase
-      .from("messages")
+      .from("swap_messages")
       .select("*")
-      .eq("match_id", matchId)
+      .eq("swap_id", swapId)
       .order("created_at", { ascending: false })
       .limit(1);
 

@@ -29,7 +29,8 @@ export default function LoginForm() {
         return;
       }
 
-      router.push('/dashboard');
+      await fetch('/api/profile', { cache: 'no-store' }).catch(() => {});
+      router.push('/');
       router.refresh();
     } catch (err) {
       setError('An unexpected error occurred. Please try again.');

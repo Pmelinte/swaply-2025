@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import type { ChatMessage } from "@/features/chat/types";
 
 interface ChatClientProps {
-  matchId: string;
+  swapId: string;
   currentUserId: string;
 }
 
@@ -18,7 +18,7 @@ type SendApiResponse =
   | { ok: true; message: ChatMessage }
   | { ok: false; error: string };
 
-export default function ChatClient({ matchId, currentUserId }: ChatClientProps) {
+export default function ChatClient({ swapId, currentUserId }: ChatClientProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -31,7 +31,7 @@ export default function ChatClient({ matchId, currentUserId }: ChatClientProps) 
   // ------------------------------------------------
   const loadMessages = async () => {
     try {
-      const res = await fetch(`/api/matches/${matchId}/messages`, {
+      const res = await fetch(`/api/swaps/${swapId}/messages`, {
         cache: "no-store",
       });
       const data: MessagesApiResponse = await res.json();
@@ -52,9 +52,7 @@ export default function ChatClient({ matchId, currentUserId }: ChatClientProps) 
   // ------------------------------------------------
   const markRead = async () => {
     try {
-      await fetch(`/api/matches/${matchId}/read`, {
-        method: "POST",
-      });
+      // no-op (swap messages are not tracked as read yet)
     } catch {
       // ignore (best-effort)
     }
@@ -74,12 +72,16 @@ export default function ChatClient({ matchId, currentUserId }: ChatClientProps) 
     };
 
     init();
+    const interval = setInterval(() => {
+      loadMessages();
+    }, 5000);
 
     return () => {
       mounted = false;
+      clearInterval(interval);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [matchId]);
+  }, [swapId]);
 
   // ------------------------------------------------
   // Auto-scroll
@@ -99,7 +101,7 @@ export default function ChatClient({ matchId, currentUserId }: ChatClientProps) 
 
     const optimistic: ChatMessage = {
       id: `tmp-${Date.now()}`,
-      matchId,
+      swapId,
       senderId: currentUserId,
       content: text,
       createdAt: new Date().toISOString(),
@@ -109,10 +111,10 @@ export default function ChatClient({ matchId, currentUserId }: ChatClientProps) 
     setContent("");
 
     try {
-      const res = await fetch(`/api/matches/${matchId}/messages`, {
+      const res = await fetch(`/api/swaps/${swapId}/messages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ matchId, content: text }),
+        body: JSON.stringify({ swapId, message: text }),
       });
 
       const data: SendApiResponse = await res.json();

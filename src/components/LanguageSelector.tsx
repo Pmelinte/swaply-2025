@@ -21,6 +21,13 @@ export default function LanguageSelector() {
   const handleSelect = (code: string) => {
     setLang(code as any);
     setOpen(false);
+    fetch('/api/profile', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ preferred_language: code }),
+    }).catch(() => {
+      // best-effort
+    });
   };
 
   return (

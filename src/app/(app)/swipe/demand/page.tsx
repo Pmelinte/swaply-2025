@@ -8,7 +8,7 @@ import { SwipeDeck } from "@/features/swipe/components/swipe-deck";
 const mapRowToItem = (row: any): Item => {
   return {
     id: row.id,
-    ownerId: row.owner_id,
+    ownerId: row.user_id,
     title: row.title,
     description: row.description ?? "",
     category: row.category ?? "Fără categorie",
@@ -41,7 +41,7 @@ export default async function SwipeDemandPage() {
     .from("items")
     .select("*")
     .eq("status", "active")
-    .neq("owner_id", user.id)
+    .neq("user_id", user.id)
     .order("created_at", { ascending: false });
 
   if (error) {
