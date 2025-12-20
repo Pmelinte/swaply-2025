@@ -1,20 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import type { ItemCreateInput, ItemCondition } from "@/lib/types/item";
 
-export type ItemFormData = {
-  title: string;
-  description: string;
-  category: string;      // ✅ required pentru ItemCreateInput
-  subcategory: string;   // (dacă nu e folosit, îl trimiți gol)
-  tags: string[];        // simplu, dintr-un input
-  image_url: string;     // URL final (extern sau rezultat din upload)
-  condition: string;
-  locationCity: string;
-  locationCountry: string;
-  valueApprox: string;   // string în form
-  currency: string;
-};
+export type ItemFormData = ItemCreateInput;
 
 type Props = {
   mode?: "create" | "edit";
@@ -22,48 +11,45 @@ type Props = {
   onSubmit: (values: ItemFormData) => Promise<any>;
 };
 
-const DEFAULTS: ItemFormData = {
-  title: "",
-  description: "",
-  category: "",       // ✅
-  subcategory: "",
-  tags: [],
-  image_url: "",
-  condition: "Bun",
-  locationCity: "",
-  locationCountry: "",
-  valueApprox: "",
-  currency: "RON",
-};
+const CONDITION_OPTIONS: Array<{ value: ItemCondition; label: string }> = [
+  { value: "new" as ItemCondition, label: "Nou" },
+  { value: "like_new" as ItemCondition, label: "Ca nou" },
+  { value: "good" as ItemCondition, label: "Bun" },
+  { value: "fair" as ItemCondition, label: "Utilizat" },
+  { value: "poor" as ItemCondition, label: "Defect" },
+];
+
+function safeCondition(input?: ItemCondition): ItemCondition {
+  return input ?? ("good" as ItemCondition);
+}
 
 export default function ItemForm({ mode = "create", initialValues, onSubmit }: Props) {
-  const [values, setValues] = useState<ItemFormData>({
-    ...DEFAULTS,
-    ...(initialValues ?? {}),
-    title: (initialValues?.title ?? DEFAULTS.title) as string,
-    description: (initialValues?.description ?? DEFAULTS.description) as string,
-    category: (initialValues?.category ?? DEFAULTS.category) as string,
-    subcategory: (initialValues?.subcategory ?? DEFAULTS.subcategory) as string,
-    tags: (initialValues?.tags ?? DEFAULTS.tags) as string[],
-    image_url: (initialValues?.image_url ?? DEFAULTS.image_url) as string,
-    condition: (initialValues?.condition ?? DEFAULTS.condition) as string,
-    locationCity: (initialValues?.locationCity ?? DEFAULTS.locationCity) as string,
-    locationCountry: (initialValues?.locationCountry ?? DEFAULTS.locationCountry) as string,
-    valueApprox: (initialValues?.valueApprox ?? DEFAULTS.valueApprox) as string,
-    currency: (initialValues?.currency ?? DEFAULTS.currency) as string,
-  });
-
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
+
+  // ⚠️ AICI: ne aliniem cu ItemCreateInput (categoria e required, etc.)
+  const [values, setValues] = useState<ItemFormData>({
+    title: initialValues?.title ?? "",
+    description: initialValues?.description ?? "",
+    category: initialValues?.category ?? "",
+    subcategory: initialValues?.subcategory ?? "",
+    tags: initialValues?.tags ?? [],
+    condition: safeCondition(initialValues?.condition),
+    locationCity: initialValues?.locationCity ?? "",
+    locationCountry: initialValues?.locationCountry ?? "",
+    approximateValue: initialValues?.approximateValue,
+    currency: initialValues?.currency ?? "RON",
+    image_url: initialValues?.image_url ?? null,
+  });
 
   const [tagsText, setTagsText] = useState<string>((values.tags ?? []).join(", "));
 
   const canSubmit = useMemo(() => {
     return (
       values.title.trim().length > 0 &&
-      values.category.trim().length > 0 && // ✅ category required
+      values.category.trim().length > 0 &&
       !saving &&
       !uploading
     );
@@ -71,6 +57,13 @@ export default function ItemForm({ mode = "create", initialValues, onSubmit }: P
 
   function patch<K extends keyof ItemFormData>(key: K, val: ItemFormData[K]) {
     setValues((prev) => ({ ...prev, [key]: val }));
+  }
+
+  function normalizeTags(raw: string) {
+    return raw
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
   }
 
   async function handleLocalFile(file: File) {
@@ -111,13 +104,6 @@ export default function ItemForm({ mode = "create", initialValues, onSubmit }: P
     }
   }
 
-  function normalizeTags(raw: string) {
-    return raw
-      .split(",")
-      .map((t) => t.trim())
-      .filter(Boolean);
-  }
-
   async function submit() {
     setError(null);
     setSaving(true);
@@ -130,11 +116,11 @@ export default function ItemForm({ mode = "create", initialValues, onSubmit }: P
         category: values.category.trim(),
         subcategory: values.subcategory.trim(),
         tags: normalizeTags(tagsText),
-        image_url: values.image_url.trim(),
         locationCity: values.locationCity.trim(),
         locationCountry: values.locationCountry.trim(),
-        valueApprox: values.valueApprox.trim(),
-        currency: values.currency.trim() || "RON",
+        currency: (values.currency ?? "RON").trim(),
+        // condition rămâne ItemCondition (deja valid)
+        // image_url poate fi null sau string
       };
 
       await onSubmit(payload);
@@ -169,7 +155,6 @@ export default function ItemForm({ mode = "create", initialValues, onSubmit }: P
           />
         </div>
 
-        {/* Category/Subcategory/Tags */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
             <label className="block text-sm font-medium text-gray-700">
@@ -181,9 +166,6 @@ export default function ItemForm({ mode = "create", initialValues, onSubmit }: P
               className="mt-1 w-full rounded-lg border px-3 py-2"
               placeholder="Ex: Electronics"
             />
-            <p className="mt-1 text-xs text-gray-500">
-              Deocamdată text simplu (ca să fie stabil). Mai târziu îl legăm la dropdown.
-            </p>
           </div>
 
           <div>
@@ -198,7 +180,7 @@ export default function ItemForm({ mode = "create", initialValues, onSubmit }: P
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">Tag-uri (separate prin virgulă)</label>
+          <label className="block text-sm font-medium text-gray-700">Tag-uri (virgulă)</label>
           <input
             value={tagsText}
             onChange={(e) => setTagsText(e.target.value)}
@@ -207,12 +189,9 @@ export default function ItemForm({ mode = "create", initialValues, onSubmit }: P
           />
         </div>
 
-        {/* Upload local + URL */}
         <div className="space-y-3">
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Imagine (upload local)
-            </label>
+            <label className="block text-sm font-medium text-gray-700">Imagine (upload local)</label>
             <input
               type="file"
               accept="image/*"
@@ -223,32 +202,21 @@ export default function ItemForm({ mode = "create", initialValues, onSubmit }: P
               }}
               disabled={uploading || saving}
             />
-            <p className="mt-1 text-xs text-gray-500">
-              Selectezi o poză locală → o urcăm și completăm automat câmpul URL.
-            </p>
 
-            {uploading ? (
-              <p className="mt-2 text-sm text-gray-600">Se încarcă imaginea…</p>
-            ) : null}
-
-            {uploadError ? (
-              <p className="mt-2 text-sm text-red-600">{uploadError}</p>
-            ) : null}
+            {uploading ? <p className="mt-2 text-sm text-gray-600">Se încarcă…</p> : null}
+            {uploadError ? <p className="mt-2 text-sm text-red-600">{uploadError}</p> : null}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Imagine (URL)
-            </label>
+            <label className="block text-sm font-medium text-gray-700">Imagine (URL)</label>
             <input
-              value={values.image_url}
-              onChange={(e) => patch("image_url", e.target.value)}
+              value={values.image_url ?? ""}
+              onChange={(e) => patch("image_url", e.target.value || null)}
               className="mt-1 w-full rounded-lg border px-3 py-2"
               placeholder="https://..."
             />
           </div>
 
-          {/* Preview fără crop */}
           <div className="rounded-lg border bg-gray-50 p-3">
             <div className="flex h-56 items-center justify-center overflow-hidden rounded-md bg-white">
               {values.image_url ? (
@@ -271,14 +239,14 @@ export default function ItemForm({ mode = "create", initialValues, onSubmit }: P
           <label className="block text-sm font-medium text-gray-700">Condiție</label>
           <select
             value={values.condition}
-            onChange={(e) => patch("condition", e.target.value)}
+            onChange={(e) => patch("condition", e.target.value as ItemCondition)}
             className="mt-1 w-full rounded-lg border px-3 py-2"
           >
-            <option value="Nou">Nou</option>
-            <option value="Foarte bun">Foarte bun</option>
-            <option value="Bun">Bun</option>
-            <option value="Utilizat">Utilizat</option>
-            <option value="Defect">Defect</option>
+            {CONDITION_OPTIONS.map((opt) => (
+              <option key={opt.label} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -307,8 +275,10 @@ export default function ItemForm({ mode = "create", initialValues, onSubmit }: P
           <div>
             <label className="block text-sm font-medium text-gray-700">Valoare (aprox.)</label>
             <input
-              value={values.valueApprox}
-              onChange={(e) => patch("valueApprox", e.target.value)}
+              value={values.approximateValue ?? ""}
+              onChange={(e) =>
+                patch("approximateValue", e.target.value ? Number(e.target.value) : undefined)
+              }
               className="mt-1 w-full rounded-lg border px-3 py-2"
               placeholder="Ex: 1500"
             />
@@ -316,7 +286,7 @@ export default function ItemForm({ mode = "create", initialValues, onSubmit }: P
           <div>
             <label className="block text-sm font-medium text-gray-700">Monedă</label>
             <input
-              value={values.currency}
+              value={values.currency ?? "RON"}
               onChange={(e) => patch("currency", e.target.value)}
               className="mt-1 w-full rounded-lg border px-3 py-2"
               placeholder="RON"
@@ -325,9 +295,7 @@ export default function ItemForm({ mode = "create", initialValues, onSubmit }: P
         </div>
 
         {!values.category.trim() ? (
-          <p className="text-sm text-amber-700">
-            Câmpul „Categorie” e obligatoriu (altfel TypeScript + backend au dreptate și ne ceartă).
-          </p>
+          <p className="text-sm text-amber-700">„Categorie” e obligatoriu.</p>
         ) : null}
 
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
