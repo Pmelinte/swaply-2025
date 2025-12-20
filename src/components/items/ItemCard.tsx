@@ -22,25 +22,22 @@ export default function ItemCard({ item, editHref }: Props) {
 
   return (
     <div className="w-full overflow-hidden rounded-xl border bg-white shadow-sm">
-      {/* Imagine: <img> ca să meargă cu ORICE URL (și cu upload local -> URL Cloudinary/Supabase/etc.) */}
-      <div className="relative h-56 w-full bg-gray-50">
+      {/* Imagine: wrapper flex + max sizes => NU mai taie din imagine */}
+      <div className="flex h-56 w-full items-center justify-center bg-gray-50 p-3">
         {item.image_url ? (
           <img
             src={item.image_url}
             alt={title}
-            className="h-full w-full object-contain p-3"
+            className="max-h-full max-w-full object-contain"
             loading="lazy"
             decoding="async"
             referrerPolicy="no-referrer"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-sm text-gray-400">
-            Fără imagine
-          </div>
+          <div className="text-sm text-gray-400">Fără imagine</div>
         )}
       </div>
 
-      {/* Conținut */}
       <div className="p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
