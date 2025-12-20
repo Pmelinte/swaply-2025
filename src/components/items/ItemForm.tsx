@@ -5,11 +5,14 @@ import { useMemo, useState } from "react";
 export type ItemFormData = {
   title: string;
   description: string;
-  image_url: string; // URL final (extern sau rezultat din upload)
+  category: string;      // ✅ required pentru ItemCreateInput
+  subcategory: string;   // (dacă nu e folosit, îl trimiți gol)
+  tags: string[];        // simplu, dintr-un input
+  image_url: string;     // URL final (extern sau rezultat din upload)
   condition: string;
   locationCity: string;
   locationCountry: string;
-  valueApprox: string; // ținem ca string în form, backend poate converti
+  valueApprox: string;   // string în form
   currency: string;
 };
 
@@ -22,6 +25,9 @@ type Props = {
 const DEFAULTS: ItemFormData = {
   title: "",
   description: "",
+  category: "",       // ✅
+  subcategory: "",
+  tags: [],
   image_url: "",
   condition: "Bun",
   locationCity: "",
@@ -36,6 +42,9 @@ export default function ItemForm({ mode = "create", initialValues, onSubmit }: P
     ...(initialValues ?? {}),
     title: (initialValues?.title ?? DEFAULTS.title) as string,
     description: (initialValues?.description ?? DEFAULTS.description) as string,
+    category: (initialValues?.category ?? DEFAULTS.category) as string,
+    subcategory: (initialValues?.subcategory ?? DEFAULTS.subcategory) as string,
+    tags: (initialValues?.tags ?? DEFAULTS.tags) as string[],
     image_url: (initialValues?.image_url ?? DEFAULTS.image_url) as string,
     condition: (initialValues?.condition ?? DEFAULTS.condition) as string,
     locationCity: (initialValues?.locationCity ?? DEFAULTS.locationCity) as string,
@@ -49,9 +58,16 @@ export default function ItemForm({ mode = "create", initialValues, onSubmit }: P
   const [error, setError] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
+  const [tagsText, setTagsText] = useState<string>((values.tags ?? []).join(", "));
+
   const canSubmit = useMemo(() => {
-    return values.title.trim().length > 0 && !saving && !uploading;
-  }, [values.title, saving, uploading]);
+    return (
+      values.title.trim().length > 0 &&
+      values.category.trim().length > 0 && // ✅ category required
+      !saving &&
+      !uploading
+    );
+  }, [values.title, values.category, saving, uploading]);
 
   function patch<K extends keyof ItemFormData>(key: K, val: ItemFormData[K]) {
     setValues((prev) => ({ ...prev, [key]: val }));
@@ -63,7 +79,6 @@ export default function ItemForm({ mode = "create", initialValues, onSubmit }: P
 
     try {
       const fd = new FormData();
-      // IMPORTANT: numele câmpului "file" e cel mai frecvent folosit în route handlers
       fd.append("file", file);
 
       const res = await fetch("/api/upload-image", {
@@ -80,7 +95,6 @@ export default function ItemForm({ mode = "create", initialValues, onSubmit }: P
         throw new Error(msg);
       }
 
-      // Acceptăm mai multe forme de răspuns, ca să nu “bâjbâim” iar:
       const url =
         (data && (data.url || data.secure_url)) ||
         (data && data.result && (data.result.url || data.result.secure_url));
@@ -97,16 +111,25 @@ export default function ItemForm({ mode = "create", initialValues, onSubmit }: P
     }
   }
 
+  function normalizeTags(raw: string) {
+    return raw
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
+  }
+
   async function submit() {
     setError(null);
     setSaving(true);
 
     try {
-      // Normalizare ușoară
       const payload: ItemFormData = {
         ...values,
         title: values.title.trim(),
         description: values.description.trim(),
+        category: values.category.trim(),
+        subcategory: values.subcategory.trim(),
+        tags: normalizeTags(tagsText),
         image_url: values.image_url.trim(),
         locationCity: values.locationCity.trim(),
         locationCountry: values.locationCountry.trim(),
@@ -143,6 +166,44 @@ export default function ItemForm({ mode = "create", initialValues, onSubmit }: P
             className="mt-1 w-full rounded-lg border px-3 py-2"
             rows={4}
             placeholder="Detalii…"
+          />
+        </div>
+
+        {/* Category/Subcategory/Tags */}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Categorie <span className="text-red-500">*</span>
+            </label>
+            <input
+              value={values.category}
+              onChange={(e) => patch("category", e.target.value)}
+              className="mt-1 w-full rounded-lg border px-3 py-2"
+              placeholder="Ex: Electronics"
+            />
+            <p className="mt-1 text-xs text-gray-500">
+              Deocamdată text simplu (ca să fie stabil). Mai târziu îl legăm la dropdown.
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Subcategorie</label>
+            <input
+              value={values.subcategory}
+              onChange={(e) => patch("subcategory", e.target.value)}
+              className="mt-1 w-full rounded-lg border px-3 py-2"
+              placeholder="Ex: Laptops"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Tag-uri (separate prin virgulă)</label>
+          <input
+            value={tagsText}
+            onChange={(e) => setTagsText(e.target.value)}
+            className="mt-1 w-full rounded-lg border px-3 py-2"
+            placeholder="ex: office, gaming, i5"
           />
         </div>
 
@@ -185,10 +246,6 @@ export default function ItemForm({ mode = "create", initialValues, onSubmit }: P
               className="mt-1 w-full rounded-lg border px-3 py-2"
               placeholder="https://..."
             />
-            <p className="mt-1 text-xs text-gray-500">
-              Merge și cu link extern. Pentru afișare corectă, ItemCard trebuie să folosească
-              object-contain (fără crop).
-            </p>
           </div>
 
           {/* Preview fără crop */}
@@ -266,6 +323,12 @@ export default function ItemForm({ mode = "create", initialValues, onSubmit }: P
             />
           </div>
         </div>
+
+        {!values.category.trim() ? (
+          <p className="text-sm text-amber-700">
+            Câmpul „Categorie” e obligatoriu (altfel TypeScript + backend au dreptate și ne ceartă).
+          </p>
+        ) : null}
 
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
 
