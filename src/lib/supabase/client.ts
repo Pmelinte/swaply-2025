@@ -1,4 +1,3 @@
-// src/lib/supabase/client.ts
 "use client";
 
 import { createBrowserClient } from "@supabase/ssr";
@@ -6,10 +5,6 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 let browserClient: SupabaseClient | null = null;
 
-/**
- * Canonical browser-side Supabase client (singleton).
- * Used in Client Components (login/register, header, etc).
- */
 export function getSupabaseBrowserClient(): SupabaseClient {
   if (browserClient) return browserClient;
 
@@ -26,7 +21,4 @@ export function getSupabaseBrowserClient(): SupabaseClient {
   return browserClient;
 }
 
-/**
- * Small compat alias (some files may import createClient()).
- */
 export const createClient = getSupabaseBrowserClient;
