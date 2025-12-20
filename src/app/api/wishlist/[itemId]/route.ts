@@ -50,7 +50,7 @@ export async function DELETE(
       );
     }
 
-    return NextResponse.json({ ok: true }, { status: 200 });
+    return NextResponse.json({ ok: true, entries: [] }, { status: 200 });
   } catch (err) {
     console.error("[WISHLIST_API_DELETE_UNEXPECTED]", err);
     return NextResponse.json(
