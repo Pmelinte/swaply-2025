@@ -17,7 +17,6 @@ export default function ObjectsPage() {
         {/* TODO: filtre din spec, în prezent placeholder */}
         {/* eslint-disable-next-line react/no-unescaped-entities */}
         <p className="text-xs text-amber-700">Filtrele avansate (hartă, AI) sunt TODO (NEDEFINIT ÎN DOCS) și dezactivate.</p>
-        {/* @ts-expect-error Async Server Component */}
         <ItemList />
       </Section>
     </div>
