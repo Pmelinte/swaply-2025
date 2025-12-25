@@ -8,6 +8,5 @@ interface Props {
 export default function ObjectDetailPage({ params }: Props) {
   if (!params.id) return notFound();
 
-  // @ts-expect-error Async Server Component
-  return <ItemDetail id={params.id} />;
+   return <ItemDetail id={params.id} />;
 }
