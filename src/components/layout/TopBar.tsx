@@ -4,20 +4,71 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
 import { Languages, Menu } from "lucide-react";
+import type { LanguageCode } from "@/lib/types";
 import { useAppState } from "@/lib/state";
 import { Badge } from "../ui";
 
 const menuLinks = [
+  { href: "/", label: "Home" },
+  { href: "/objects", label: "Obiecte" },
+  { href: "/match", label: "Match" },
+  { href: "/chat", label: "Chat" },
+  { href: "/change", label: "Swaply" },
+  { href: "/info", label: "Info" },
   { href: "/profile", label: "Profil & Setări" },
-  { href: "/info", label: "Info & Ajutor" },
-  { href: "/change", label: "Schimburi" },
 ];
+
+const contextualActions: Record<
+  string,
+  Array<{ label: string; href: string; disabled?: boolean }>
+> = {
+  "/": [
+    { label: "Vezi obiecte disponibile", href: "/objects" },
+    { label: "Caută pe hartă", href: "/info#map" },
+    { label: "Vezi match-urile tale", href: "/match" },
+  ],
+  "/objects": [
+    { label: "Adaugă un obiect", href: "/objects/new" },
+    { label: "Vezi match-urile", href: "/match" },
+  ],
+  "/match": [
+    { label: "Inițiază chat", href: "/chat" },
+    { label: "Propune swap", href: "/change" },
+  ],
+  "/chat": [
+    { label: "Deschide swap", href: "/change" },
+    { label: "Vezi reguli chat", href: "/info#legal" },
+  ],
+  "/change": [
+    { label: "Confirmă swap", href: "/change" },
+    { label: "Vezi obiect", href: "/objects" },
+  ],
+  "/info": [
+    { label: "Termeni & GDPR", href: "/info#legal" },
+    { label: "Beneficii badge", href: "/info#monetizare" },
+  ],
+  "/profile": [
+    { label: "Completează profilul", href: "/profile" },
+    { label: "Badge & beneficii", href: "/info#monetizare" },
+  ],
+};
 
 export function TopBar() {
   const pathname = usePathname();
-  const { user, logout } = useAppState();
-  const [language, setLanguage] = useState("ro");
+  const { user, logout, language, setLanguage } = useAppState();
   const [menuOpen, setMenuOpen] = useState(false);
+  const pathKey =
+    Object.keys(contextualActions).find(
+      (key) => pathname === key || pathname.startsWith(`${key}/`),
+    ) ?? pathname;
+  const actions = contextualActions[pathKey] ?? [];
+
+  const languages: LanguageCode[] = ["ro", "en", "es"];
+  const handleLanguageToggle = () => {
+    const currentIndex = languages.indexOf(language);
+    const next = languages[(currentIndex + 1) % languages.length];
+    setLanguage(next);
+  };
 
   return (
     <div className="sticky top-0 z-20 border-b border-zinc-200 bg-white/90 backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/80">
@@ -26,7 +77,7 @@ export function TopBar() {
           <button
             type="button"
             className="inline-flex items-center gap-2 rounded-full px-3 py-1 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-            onClick={() => setLanguage(language === "ro" ? "en" : "ro")}
+            onClick={handleLanguageToggle}
           >
             <Languages className="h-4 w-4" />
             <span className="font-semibold uppercase">{language}</span>
@@ -34,7 +85,14 @@ export function TopBar() {
           <span className="text-xs text-zinc-400">{pathname}</span>
         </div>
         <div className="flex items-center gap-2">
-          {user ? <Badge tier={user.badge} /> : null}
+          {user ? (
+            <button
+              type="button"
+              className="rounded-full border border-zinc-200 bg-white px-3 py-1 text-sm font-semibold shadow-sm hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+            >
+              <Badge tier={user.badge} />
+            </button>
+          ) : null}
           <div className="relative">
             <button
               type="button"
@@ -78,6 +136,24 @@ export function TopBar() {
                     Autentificare
                   </Link>
                 )}
+                {actions.length ? (
+                  <div className="mt-2 space-y-1 rounded-lg border-t border-zinc-200 pt-2 dark:border-zinc-700">
+                    <div className="px-2 text-[11px] uppercase text-zinc-500 dark:text-zinc-400">
+                      Meniu contextual
+                    </div>
+                    {actions.map((action) => (
+                      <Link
+                        key={action.label}
+                        href={action.href}
+                        className={`block rounded-lg px-3 py-2 text-sm ${action.disabled ? "text-zinc-400 line-through" : "text-zinc-800 hover:bg-zinc-100 dark:text-zinc-100 dark:hover:bg-zinc-700"}`}
+                        onClick={() => setMenuOpen(false)}
+                        aria-disabled={action.disabled}
+                      >
+                        {action.label}
+                      </Link>
+                    ))}
+                  </div>
+                ) : null}
               </div>
             ) : null}
           </div>

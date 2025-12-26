@@ -1,12 +1,20 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { nanoid } from "nanoid";
 import {
   Announcement,
   Conversation,
   FeatureToggle,
+  LanguageCode,
   Item,
   MatchCandidate,
   SwapIntent,
@@ -32,6 +40,8 @@ interface AppStateContextProps {
   conversations: Conversation[];
   swaps: SwapIntent[];
   featureToggles: FeatureToggle;
+  language: LanguageCode;
+  setLanguage: (next: LanguageCode) => void;
   login: (email: string) => void;
   logout: () => void;
   register: (email: string, password: string, acceptTerms: boolean) => void;
@@ -78,6 +88,19 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     useState<Conversation[]>(mockConversations);
   const [swaps, setSwaps] = useState<SwapIntent[]>(mockSwaps);
   const [featureToggles] = useState<FeatureToggle>(computeFeatureToggles());
+  const [language, setLanguage] = useState<LanguageCode>(() => {
+    if (typeof window === "undefined") return "ro";
+    const saved = window.localStorage.getItem("swaply_language");
+    if (saved === "ro" || saved === "en" || saved === "es") {
+      return saved;
+    }
+    return "ro";
+  });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem("swaply_language", language);
+  }, [language]);
 
   const login = useCallback((email: string) => {
     setUser((current) => ({
@@ -206,6 +229,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       conversations,
       swaps,
       featureToggles,
+      language,
+      setLanguage,
       login,
       logout,
       register,
@@ -237,6 +262,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       updateSwapStatus,
       addSwapFeedback,
       startNewItem,
+      language,
+      setLanguage,
       user,
     ],
   );
