@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { formatScore } from "@/lib/utils";
 import { MatchCandidate } from "@/lib/types";
 import { Pill } from "@/components/ui";
@@ -39,12 +40,18 @@ export function MatchList({ matches }: { matches: MatchCandidate[] }) {
             </p>
           ) : null}
           <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold">
-            <button className="rounded-full bg-blue-600 px-3 py-1 text-white hover:bg-blue-700">
+            <Link
+              href={`/objects/${match.itemRequested.id}`}
+              className="rounded-full bg-blue-600 px-3 py-1 text-white hover:bg-blue-700"
+            >
               Vezi detalii match
-            </button>
-            <button className="rounded-full bg-zinc-900 px-3 py-1 text-white hover:bg-zinc-800">
+            </Link>
+            <Link
+              href="/chat"
+              className="rounded-full bg-zinc-900 px-3 py-1 text-white hover:bg-zinc-800"
+            >
               Inițiază chat
-            </button>
+            </Link>
           </div>
         </div>
       ))}

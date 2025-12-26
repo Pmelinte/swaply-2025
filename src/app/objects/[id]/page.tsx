@@ -5,13 +5,24 @@ import Image from "next/image";
 import Link from "next/link";
 import { useAppState } from "@/lib/state";
 import { LoggedOutGate } from "@/components/gated";
-import { Pill, SectionCard } from "@/components/ui";
+import { Pill, SectionCard, StateShowcase } from "@/components/ui";
 
 export default function ObjectDetailsPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const { items, user } = useAppState();
+  const { items, user, loading } = useAppState();
   const item = items.find((i) => i.id === params.id);
+
+  if (loading.items) {
+    return (
+      <SectionCard
+        title="Se încarcă obiectul"
+        description="Loading state conform contractului (nu 404)."
+      >
+        <div className="h-32 animate-pulse rounded-xl bg-zinc-100 dark:bg-zinc-800" />
+      </SectionCard>
+    );
+  }
 
   if (!item) {
     return (
@@ -101,6 +112,27 @@ export default function ObjectDetailsPage() {
           Vezi mai multe reguli
         </Link>
       </SectionCard>
+
+      <StateShowcase
+        title="Stări DETALIU OBIECT"
+        states={[
+          {
+            key: "loading",
+            title: "Se pregătește galeria",
+            description: "Skeleton pentru imagine și detalii cât timp se preia obiectul.",
+          },
+          {
+            key: "empty",
+            title: "Galerie goală",
+            description: "Fallback „Fără imagine” + CTA de upload din /objects/[id]/edit.",
+          },
+          {
+            key: "error",
+            title: "ID invalid",
+            description: "Mesaj dedicat + buton către listă; nu returnăm 404 pe flux canonic.",
+          },
+        ]}
+      />
     </div>
   );
 }

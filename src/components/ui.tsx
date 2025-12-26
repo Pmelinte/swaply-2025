@@ -41,13 +41,20 @@ export function SectionCard({
   );
 }
 
-export function Pill({ children, color = "zinc" }: { children: React.ReactNode; color?: "green" | "blue" | "zinc" | "amber" }) {
+export function Pill({
+  children,
+  color = "zinc",
+}: {
+  children: React.ReactNode;
+  color?: "green" | "blue" | "zinc" | "amber" | "red";
+}) {
   const palette = {
     green: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-200",
     blue: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-200",
     zinc: "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200",
     amber:
       "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200",
+    red: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-200",
   } as const;
   return (
     <span className={clsx("inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium", palette[color])}>
@@ -105,4 +112,49 @@ export function CTAButton({
 
 export function Divider() {
   return <div className="h-px w-full bg-zinc-200 dark:bg-zinc-800" />;
+}
+
+type PageStateDefinition = {
+  key: "loading" | "empty" | "error";
+  title: string;
+  description: string;
+  action?: React.ReactNode;
+};
+
+export function StateShowcase({
+  title,
+  states,
+}: {
+  title: string;
+  states: PageStateDefinition[];
+}) {
+  const pillColor: Record<PageStateDefinition["key"], "amber" | "zinc" | "red"> =
+    {
+      loading: "amber",
+      empty: "zinc",
+      error: "red",
+    };
+
+  return (
+    <div className="space-y-2">
+      <p className="text-xs uppercase text-zinc-500 dark:text-zinc-400">{title}</p>
+      <div className="grid gap-2 md:grid-cols-3">
+        {states.map((state) => (
+          <div
+            key={state.key}
+            className="space-y-2 rounded-2xl border border-dashed border-zinc-200 bg-white/70 p-3 text-sm text-zinc-700 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/70 dark:text-zinc-200"
+          >
+            <div className="flex items-center justify-between">
+              <Pill color={pillColor[state.key]}>{state.key}</Pill>
+              {state.action}
+            </div>
+            <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+              {state.title}
+            </h4>
+            <p className="text-sm text-zinc-600 dark:text-zinc-300">{state.description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }

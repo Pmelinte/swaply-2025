@@ -2,13 +2,25 @@
 
 import { useState } from "react";
 import { useAppState } from "@/lib/state";
-import { LoggedOutGate } from "@/components/gated";
-import { Badge, Pill, SectionCard } from "@/components/ui";
+import { LoggedOutGate, MissingDataCallout } from "@/components/gated";
+import { Badge, Pill, SectionCard, StateShowcase } from "@/components/ui";
 import { UserProfile } from "@/lib/types";
 
 export default function ProfilePage() {
-  const { user, updateProfile } = useAppState();
+  const { user, updateProfile, loading, lastError } = useAppState();
   const [draft, setDraft] = useState<UserProfile | null>(user);
+  const [saveMessage, setSaveMessage] = useState<string | null>(null);
+
+  if (loading.profile) {
+    return (
+      <SectionCard
+        title="Se încarcă profilul"
+        description="Loading state conform contractului; nu returnăm 404."
+      >
+        <div className="h-20 animate-pulse rounded-xl bg-zinc-100 dark:bg-zinc-800" />
+      </SectionCard>
+    );
+  }
 
   if (!user || !draft) {
     return <LoggedOutGate returnTo="/profile" />;
@@ -17,8 +29,10 @@ export default function ProfilePage() {
   const update = (partial: Partial<UserProfile>) => {
     const next = { ...draft, ...partial };
     setDraft(next);
-    updateProfile(next);
+    void updateProfile(next, { persist: false });
   };
+
+  const locationIncomplete = !draft.location?.city || !draft.location?.country;
 
   return (
     <div className="space-y-4">
@@ -60,6 +74,14 @@ export default function ProfilePage() {
           ))}
         </div>
       </SectionCard>
+
+      {locationIncomplete ? (
+        <MissingDataCallout
+          title="Locație incompletă"
+          message="Setează țară și oraș pentru a permite harta și match-urile bazate pe proximitate."
+          cta={<span className="text-sm font-semibold">Completați câmpurile de mai jos.</span>}
+        />
+      ) : null}
 
       <SectionCard
         title="Localizare"
@@ -341,6 +363,57 @@ export default function ProfilePage() {
           </div>
         </div>
       </SectionCard>
+
+      <SectionCard
+        title="Salvare profil"
+        description="CTA explicit conform contractului. Salvarea este simulată în memorie pentru demo."
+      >
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={async () => {
+              await updateProfile(draft, { persist: true });
+              setSaveMessage("Profil salvat (Supabase sau fallback local).");
+            }}
+            className="rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+          >
+            Salvează
+          </button>
+          <button
+            type="button"
+            className="rounded-full px-4 py-2 text-sm font-semibold text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800"
+            onClick={() => setSaveMessage("Eroare simulată: reîncearcă sau verifică conexiunea.")}
+          >
+            Simulează eroare
+          </button>
+        </div>
+        {saveMessage ? (
+          <div className="rounded-xl border border-zinc-200 bg-white/70 p-3 text-sm text-zinc-800 dark:border-zinc-800 dark:bg-zinc-900/70 dark:text-zinc-100">
+            {lastError ? `${saveMessage} · ${lastError}` : saveMessage}
+          </div>
+        ) : null}
+      </SectionCard>
+
+      <StateShowcase
+        title="Stări PROFIL"
+        states={[
+          {
+            key: "loading",
+            title: "Se încarcă profilul",
+            description: "Placeholder skeleton pentru câmpuri + badge vizibil până sosește payload-ul user.",
+          },
+          {
+            key: "empty",
+            title: "Profil incomplet",
+            description: "Afișăm avertisment pentru lipsă locație și CTA de salvare. Datele lipsă nu blochează pagina.",
+          },
+          {
+            key: "error",
+            title: "Eroare la salvare",
+            description: "Mesaj dedicat + recomandare retry; nu pierdem valorile completate în formular.",
+          },
+        ]}
+      />
     </div>
   );
 }

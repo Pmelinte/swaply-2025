@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useAppState } from "@/lib/state";
 import { LoggedOutGate } from "@/components/gated";
-import { CTAButton, Pill, SectionCard } from "@/components/ui";
+import { CTAButton, Pill, SectionCard, StateShowcase } from "@/components/ui";
 import { SwapTimeline } from "@/features/change/SwapTimeline";
 
 export default function ChangePage() {
@@ -94,6 +94,27 @@ export default function ChangePage() {
         </p>
         <CTAButton href="/info" variant="ghost">Vezi politicile</CTAButton>
       </SectionCard>
+
+      <StateShowcase
+        title="Stări CHANGE / SWAPLY"
+        states={[
+          {
+            key: "loading",
+            title: "Timeline în încărcare",
+            description: "Afișăm skeleton pe pași și butoanele sunt disabled până sosesc datele swap.",
+          },
+          {
+            key: "empty",
+            title: "Niciun swap activ",
+            description: "Mesaj de empty state (există deja) + CTA spre /match sau /chat pentru inițiere.",
+          },
+          {
+            key: "error",
+            title: "Blocaje de confirmare",
+            description: "Mesaj clar când statusul nu poate fi actualizat; oferim buton „reîncearcă” sau contact suport.",
+          },
+        ]}
+      />
     </div>
   );
 }

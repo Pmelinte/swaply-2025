@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useAppState } from "@/lib/state";
 import { MatchList } from "@/features/match/MatchList";
 import { LoggedOutGate } from "@/components/gated";
-import { CTAButton, Pill, SectionCard } from "@/components/ui";
+import { CTAButton, Pill, SectionCard, StateShowcase } from "@/components/ui";
 
 export default function MatchPage() {
   const { user, matches, featureToggles } = useAppState();
@@ -54,6 +54,27 @@ export default function MatchPage() {
           <CTAButton href="/change" variant="ghost">Propune schimb</CTAButton>
         </div>
       </SectionCard>
+
+      <StateShowcase
+        title="Stări MATCH"
+        states={[
+          {
+            key: "loading",
+            title: "Calcul scor compatibilitate",
+            description: "Indicator de încărcare pentru recomputarea match-urilor (AI sau manual).",
+          },
+          {
+            key: "empty",
+            title: "Nicio recomandare",
+            description: "Empty state deja vizibil în listă + CTA spre mod manual și filtre.",
+          },
+          {
+            key: "error",
+            title: "AI down / eroare serviciu",
+            description: "Mesaj explicit + fallback manual clar, fără a bloca navigația către /chat sau /objects.",
+          },
+        ]}
+      />
     </div>
   );
 }
