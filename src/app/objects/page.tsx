@@ -10,6 +10,7 @@ import { CTAButton, SectionCard, StateShowcase } from "@/components/ui";
 
 export default function ObjectsPage() {
   const { user, items, deleteItem, loading, lastError, dataSource } = useAppState();
+  const { user, items, deleteItem } = useAppState();
   const router = useRouter();
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [search, setSearch] = useState("");
@@ -96,6 +97,7 @@ export default function ObjectsPage() {
                           "Confirmi ștergerea? În demo este o acțiune locală, dar real va notifica abonații.",
                         );
                         if (confirmed) void deleteItem(item.id);
+                        if (confirmed) deleteItem(item.id);
                       }
                     : undefined
                 }

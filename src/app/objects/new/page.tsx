@@ -27,6 +27,8 @@ export default function NewObjectPage() {
           item={item}
           onSave={async (next) => {
             await upsertItem(next);
+          onSave={(next) => {
+            upsertItem(next);
             router.push("/objects");
           }}
           onCancel={() => router.push("/objects")}

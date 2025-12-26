@@ -374,6 +374,9 @@ export default function ProfilePage() {
             onClick={async () => {
               await updateProfile(draft, { persist: true });
               setSaveMessage("Profil salvat (Supabase sau fallback local).");
+            onClick={() => {
+              updateProfile(draft);
+              setSaveMessage("Profil salvat (demo) – persistă local în sesiune.");
             }}
             className="rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
           >
@@ -390,6 +393,7 @@ export default function ProfilePage() {
         {saveMessage ? (
           <div className="rounded-xl border border-zinc-200 bg-white/70 p-3 text-sm text-zinc-800 dark:border-zinc-800 dark:bg-zinc-900/70 dark:text-zinc-100">
             {lastError ? `${saveMessage} · ${lastError}` : saveMessage}
+            {saveMessage}
           </div>
         ) : null}
       </SectionCard>

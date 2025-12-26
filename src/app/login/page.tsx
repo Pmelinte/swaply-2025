@@ -64,6 +64,37 @@ function LoginContent() {
       setStatus("success");
     }
     setProcessing(false);
+  const handleSubmit = () => {
+    setMessage(null);
+    setStatus("idle");
+    if (!accept) {
+      setMessage("Bifează acceptarea Termeni & GDPR pentru a continua.");
+      setStatus("error");
+      return;
+    }
+    setProcessing(true);
+    setTimeout(() => {
+      if (activeTab === "login") {
+        if (password !== "password123") {
+          setMessage("Credențiale invalide în demo (parola corectă este password123).");
+          setStatus("error");
+          setProcessing(false);
+          return;
+        }
+        login(email);
+        setMessage("Autentificat. Redirect către profil.");
+        setStatus("success");
+        router.push(returnTo);
+      } else if (activeTab === "register") {
+        register(email, password, accept);
+        setMessage("Cont creat. Confirmă email și configurează 2FA.");
+        setStatus("success");
+      } else {
+        setMessage("Instrucțiuni de reset trimise pe email.");
+        setStatus("success");
+      }
+      setProcessing(false);
+    }, 250);
   };
 
   return (
