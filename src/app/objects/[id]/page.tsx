@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useAppState } from "@/lib/state";
 import { LoggedOutGate } from "@/components/gated";
-import { Pill, SectionCard } from "@/components/ui";
+import { Pill, SectionCard, StateShowcase } from "@/components/ui";
 
 export default function ObjectDetailsPage() {
   const params = useParams<{ id: string }>();
@@ -101,6 +101,27 @@ export default function ObjectDetailsPage() {
           Vezi mai multe reguli
         </Link>
       </SectionCard>
+
+      <StateShowcase
+        title="Stări DETALIU OBIECT"
+        states={[
+          {
+            key: "loading",
+            title: "Se pregătește galeria",
+            description: "Skeleton pentru imagine și detalii cât timp se preia obiectul.",
+          },
+          {
+            key: "empty",
+            title: "Galerie goală",
+            description: "Fallback „Fără imagine” + CTA de upload din /objects/[id]/edit.",
+          },
+          {
+            key: "error",
+            title: "ID invalid",
+            description: "Mesaj dedicat + buton către listă; nu returnăm 404 pe flux canonic.",
+          },
+        ]}
+      />
     </div>
   );
 }

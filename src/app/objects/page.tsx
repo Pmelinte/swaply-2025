@@ -2,26 +2,27 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAppState } from "@/lib/state";
-import { Item } from "@/lib/types";
 import { ItemCard } from "@/features/items/ItemCard";
-import { ItemForm } from "@/features/items/ItemForm";
 import { LoggedOutGate, MissingDataCallout } from "@/components/gated";
-import { CTAButton, SectionCard } from "@/components/ui";
+import { CTAButton, SectionCard, StateShowcase } from "@/components/ui";
 
 export default function ObjectsPage() {
-  const { user, items, startNewItem, upsertItem, deleteItem } = useAppState();
+  const { user, items, deleteItem } = useAppState();
+  const router = useRouter();
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [search, setSearch] = useState("");
-  const [editingItem, setEditingItem] = useState<Item | null>(null);
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
 
   const visibleItems = useMemo(() => {
     return items.filter((item) => {
       if (statusFilter !== "all" && item.status !== statusFilter) return false;
+      if (categoryFilter !== "all" && item.category !== categoryFilter) return false;
       if (search && !item.title.toLowerCase().includes(search.toLowerCase())) return false;
       return true;
     });
-  }, [items, search, statusFilter]);
+  }, [categoryFilter, items, search, statusFilter]);
 
   return (
     <div className="space-y-4">
@@ -41,6 +42,24 @@ export default function ObjectsPage() {
             <option value="reserved">Rezervate</option>
             <option value="swapped">Schimbate</option>
           </select>
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className="rounded-full border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
+          >
+            <option value="all">Toate categoriile</option>
+            <option value="Sport & Outdoor">Sport & Outdoor</option>
+            <option value="Hobby & Jocuri">Hobby & Jocuri</option>
+            <option value="Electronice">Electronice</option>
+            <option value="General">General</option>
+          </select>
+          <select
+            className="rounded-full border border-dashed border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-500 dark:border-zinc-700 dark:bg-zinc-900/60 dark:text-zinc-400"
+            aria-label="Subcategorie (stub)"
+            disabled
+          >
+            <option>Subcategorie (stub până la integrare)</option>
+          </select>
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -48,13 +67,7 @@ export default function ObjectsPage() {
             className="flex-1 rounded-full border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
           />
           {user ? (
-            <button
-              type="button"
-              onClick={() => setEditingItem(startNewItem())}
-              className="rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
-            >
-              Adaugă un obiect
-            </button>
+            <CTAButton href="/objects/new">Adaugă un obiect</CTAButton>
           ) : null}
         </div>
 
@@ -66,11 +79,20 @@ export default function ObjectsPage() {
               <ItemCard
                 key={item.id}
                 item={item}
-                onView={() => setEditingItem(item)}
-                onEdit={user && item.ownerId === user.id ? () => setEditingItem(item) : undefined}
+                onView={() => router.push(`/objects/${item.id}`)}
+                onEdit={
+                  user && item.ownerId === user.id
+                    ? () => router.push(`/objects/${item.id}/edit`)
+                    : undefined
+                }
                 onDelete={
                   user && item.ownerId === user.id
-                    ? () => deleteItem(item.id)
+                    ? () => {
+                        const confirmed = window.confirm(
+                          "Confirmi ștergerea? În demo este o acțiune locală, dar real va notifica abonații.",
+                        );
+                        if (confirmed) deleteItem(item.id);
+                      }
                     : undefined
                 }
               />
@@ -84,19 +106,6 @@ export default function ObjectsPage() {
           />
         )}
       </SectionCard>
-
-      {editingItem ? (
-        <SectionCard title="Editor obiect" description="Metadate AI păstrate separat; preferința finală nu este suprascrisă.">
-          <ItemForm
-            item={editingItem}
-            onSave={(item) => {
-              upsertItem(item);
-              setEditingItem(null);
-            }}
-            onCancel={() => setEditingItem(null)}
-          />
-        </SectionCard>
-      ) : null}
 
       <SectionCard
         title="Obiecte publice"
@@ -117,6 +126,27 @@ export default function ObjectsPage() {
           ))}
         </div>
       </SectionCard>
+
+      <StateShowcase
+        title="Stări OBIECTE"
+        states={[
+          {
+            key: "loading",
+            title: "Listă în încărcare",
+            description: "Skeleton pe carduri și buton disabled până sosesc obiectele filtrate.",
+          },
+          {
+            key: "empty",
+            title: "Fără obiecte filtrate",
+            description: "Empty state + CTA către /objects/new sau /login, fără a returna 404.",
+          },
+          {
+            key: "error",
+            title: "Eroare la listare",
+            description: "Mesaj clar + buton de reîncercare; permite navigarea înapoi la / pentru a continua fluxul.",
+          },
+        ]}
+      />
     </div>
   );
 }
