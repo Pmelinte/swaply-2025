@@ -10,8 +10,19 @@ import { Pill, SectionCard, StateShowcase } from "@/components/ui";
 export default function ObjectDetailsPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const { items, user } = useAppState();
+  const { items, user, loading } = useAppState();
   const item = items.find((i) => i.id === params.id);
+
+  if (loading.items) {
+    return (
+      <SectionCard
+        title="Se încarcă obiectul"
+        description="Loading state conform contractului (nu 404)."
+      >
+        <div className="h-32 animate-pulse rounded-xl bg-zinc-100 dark:bg-zinc-800" />
+      </SectionCard>
+    );
+  }
 
   if (!item) {
     return (

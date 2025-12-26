@@ -68,6 +68,8 @@ export default function EditObjectPage() {
       >
         <ItemForm
           item={item}
+          onSave={async (next) => {
+            await upsertItem(next);
           onSave={(next) => {
             upsertItem(next);
             router.push(`/objects/${params.id}`);

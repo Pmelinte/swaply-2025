@@ -29,6 +29,41 @@ function LoginContent() {
     if (user) router.push(returnTo);
   }, [user, returnTo, router]);
 
+  const handleSubmit = async () => {
+    setMessage(null);
+    setStatus("idle");
+    setProcessing(true);
+    if (!accept) {
+      setMessage("Bifează acceptarea Termeni & GDPR pentru a continua.");
+      setStatus("error");
+      setProcessing(false);
+      return;
+    }
+
+    if (activeTab === "login") {
+      const { error } = await login(email, password, accept);
+      if (error) {
+        setMessage(error);
+        setStatus("error");
+      } else {
+        setMessage("Autentificat. Redirect către profil.");
+        setStatus("success");
+        router.push(returnTo);
+      }
+    } else if (activeTab === "register") {
+      const { error } = await register(email, password, accept);
+      if (error) {
+        setMessage(error);
+        setStatus("error");
+      } else {
+        setMessage("Cont creat. Confirmă email și configurează 2FA.");
+        setStatus("success");
+      }
+    } else {
+      setMessage("Instrucțiuni de reset trimise pe email.");
+      setStatus("success");
+    }
+    setProcessing(false);
   const handleSubmit = () => {
     setMessage(null);
     setStatus("idle");
@@ -88,7 +123,7 @@ function LoginContent() {
           className="mt-4 space-y-3"
           onSubmit={(e) => {
             e.preventDefault();
-            handleSubmit();
+            void handleSubmit();
           }}
         >
           <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-200">

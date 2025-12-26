@@ -9,6 +9,7 @@ import { LoggedOutGate, MissingDataCallout } from "@/components/gated";
 import { CTAButton, SectionCard, StateShowcase } from "@/components/ui";
 
 export default function ObjectsPage() {
+  const { user, items, deleteItem, loading, lastError, dataSource } = useAppState();
   const { user, items, deleteItem } = useAppState();
   const router = useRouter();
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -73,7 +74,11 @@ export default function ObjectsPage() {
 
         {!user ? <LoggedOutGate returnTo="/objects" /> : null}
 
-        {visibleItems.length ? (
+        {loading.items ? (
+          <div className="rounded-2xl border border-dashed border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900/60 dark:text-zinc-300">
+            Se încarcă lista de obiecte din {dataSource === "supabase" ? "Supabase" : "mock data"}...
+          </div>
+        ) : visibleItems.length ? (
           <div className="space-y-3">
             {visibleItems.map((item) => (
               <ItemCard
@@ -91,6 +96,7 @@ export default function ObjectsPage() {
                         const confirmed = window.confirm(
                           "Confirmi ștergerea? În demo este o acțiune locală, dar real va notifica abonații.",
                         );
+                        if (confirmed) void deleteItem(item.id);
                         if (confirmed) deleteItem(item.id);
                       }
                     : undefined
@@ -105,6 +111,11 @@ export default function ObjectsPage() {
             cta={<CTAButton href={user ? "/objects" : "/login"}>Începe acum</CTAButton>}
           />
         )}
+        {lastError ? (
+          <p className="mt-3 text-sm text-red-700 dark:text-red-200">
+            {lastError}
+          </p>
+        ) : null}
       </SectionCard>
 
       <SectionCard

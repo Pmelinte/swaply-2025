@@ -25,6 +25,8 @@ export default function NewObjectPage() {
       >
         <ItemForm
           item={item}
+          onSave={async (next) => {
+            await upsertItem(next);
           onSave={(next) => {
             upsertItem(next);
             router.push("/objects");

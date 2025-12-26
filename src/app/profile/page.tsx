@@ -7,9 +7,20 @@ import { Badge, Pill, SectionCard, StateShowcase } from "@/components/ui";
 import { UserProfile } from "@/lib/types";
 
 export default function ProfilePage() {
-  const { user, updateProfile } = useAppState();
+  const { user, updateProfile, loading, lastError } = useAppState();
   const [draft, setDraft] = useState<UserProfile | null>(user);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
+
+  if (loading.profile) {
+    return (
+      <SectionCard
+        title="Se încarcă profilul"
+        description="Loading state conform contractului; nu returnăm 404."
+      >
+        <div className="h-20 animate-pulse rounded-xl bg-zinc-100 dark:bg-zinc-800" />
+      </SectionCard>
+    );
+  }
 
   if (!user || !draft) {
     return <LoggedOutGate returnTo="/profile" />;
@@ -18,7 +29,7 @@ export default function ProfilePage() {
   const update = (partial: Partial<UserProfile>) => {
     const next = { ...draft, ...partial };
     setDraft(next);
-    updateProfile(next);
+    void updateProfile(next, { persist: false });
   };
 
   const locationIncomplete = !draft.location?.city || !draft.location?.country;
@@ -360,6 +371,9 @@ export default function ProfilePage() {
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
+            onClick={async () => {
+              await updateProfile(draft, { persist: true });
+              setSaveMessage("Profil salvat (Supabase sau fallback local).");
             onClick={() => {
               updateProfile(draft);
               setSaveMessage("Profil salvat (demo) – persistă local în sesiune.");
@@ -378,6 +392,7 @@ export default function ProfilePage() {
         </div>
         {saveMessage ? (
           <div className="rounded-xl border border-zinc-200 bg-white/70 p-3 text-sm text-zinc-800 dark:border-zinc-800 dark:bg-zinc-900/70 dark:text-zinc-100">
+            {lastError ? `${saveMessage} · ${lastError}` : saveMessage}
             {saveMessage}
           </div>
         ) : null}
