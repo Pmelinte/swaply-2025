@@ -1,65 +1,130 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { CTAButton, Pill, SectionCard } from "@/components/ui";
+import { MapPreview } from "@/components/MapPreview";
+import { LoggedOutGate, MissingDataCallout } from "@/components/gated";
+import { useAppState } from "@/lib/state";
+
+export default function HomePage() {
+  const { user, announcements, featureToggles, items } = useAppState();
+  const hasLocation = Boolean(user?.location?.city);
+  const hasItems = items.some((item) => item.ownerId === user?.id);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+    <div className="space-y-6">
+      <SectionCard
+        title="Descoperă oportunități de schimb în zona ta"
+        description="Alege cum vrei să începi: explorează obiecte, caută pe hartă sau verifică match-urile tale."
+        action={<CTAButton href="/objects">Vezi obiecte disponibile</CTAButton>}
+      >
+        {user ? (
+          <div className="space-y-3">
+            <p className="text-sm text-zinc-700 dark:text-zinc-300">
+              Salut, {user.displayName}! Harta afișează doar utilizatorii Premium și Platinum. Badge-ul tău îți controlează vizibilitatea.
+            </p>
+            <div className="flex flex-wrap gap-2 text-sm font-semibold">
+              <CTAButton href="/match" variant="ghost">
+                Vezi match-urile tale
+              </CTAButton>
+              <CTAButton href="/objects">Adaugă un obiect</CTAButton>
+              <CTAButton href="/change" variant="ghost">
+                Monitorizează schimburile
+              </CTAButton>
+            </div>
+          </div>
+        ) : (
+          <LoggedOutGate returnTo="/" />
+        )}
+      </SectionCard>
+
+      <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
+        <SectionCard
+          title="Hartă utilizatori activi"
+          description="Pe hartă sunt evidențiați utilizatorii Premium și Platinum."
+          action={<CTAButton href="/info" variant="ghost">Află beneficiile conturilor Premium</CTAButton>}
+        >
+          {!hasLocation && user ? (
+            <MissingDataCallout
+              title="Completează profilul și locația"
+              message="Activează funcțiile bazate pe hartă adăugând locația aproximativă."
+              cta={<CTAButton href="/profile">Deschide profil</CTAButton>}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+          ) : null}
+          <MapPreview />
+          {user?.badge === "free" ? (
+            <div className="rounded-xl bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-900/40 dark:text-amber-100">
+              Apariția pe hartă este disponibilă pentru conturile Premium. Poți explora ofertele și iniția schimburi fără a fi vizibil public.
+            </div>
+          ) : null}
+        </SectionCard>
+        <div className="space-y-3">
+          <SectionCard title="Anunțuri" description="Mesaje sistem, discrete și dismissible.">
+            <div className="space-y-2">
+              {announcements.map((ann) => (
+                <div
+                  key={ann.id}
+                  className={`rounded-xl p-3 text-sm ${
+                    ann.priority === "warning"
+                      ? "bg-amber-50 text-amber-900 dark:bg-amber-900/40 dark:text-amber-100"
+                      : ann.priority === "success"
+                        ? "bg-green-50 text-green-900 dark:bg-green-900/40 dark:text-green-100"
+                        : "bg-zinc-50 text-zinc-800 dark:bg-zinc-800/50 dark:text-zinc-100"
+                  }`}
+                >
+                  {ann.message}
+                </div>
+              ))}
+            </div>
+          </SectionCard>
+          <SectionCard title="Stări & mesaje obligatorii">
+            <ul className="list-disc space-y-2 pl-5 text-sm text-zinc-700 dark:text-zinc-300">
+              <li>Funcție nouă disponibilă</li>
+              <li>Profil incomplet – unele funcții sunt limitate</li>
+              <li>Actualizare importantă cu prioritate peste conținut</li>
+            </ul>
+          </SectionCard>
         </div>
-      </main>
+      </div>
+
+      <SectionCard title="Ghid rapid" description="Home page este hub de orientare, fără swipe sau decizii finale.">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="rounded-xl border border-zinc-200 bg-white/70 p-3 dark:border-zinc-800 dark:bg-zinc-900/70">
+            <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Login preview</h4>
+            <p className="text-sm text-zinc-600 dark:text-zinc-300">Zonele publice sunt vizibile chiar și fără cont, cu CTA de autentificare.</p>
+          </div>
+          <div className="rounded-xl border border-zinc-200 bg-white/70 p-3 dark:border-zinc-800 dark:bg-zinc-900/70">
+            <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">CTA recomandate</h4>
+            <p className="text-sm text-zinc-600 dark:text-zinc-300">Adaugă un obiect, caută pe hartă, vezi match-uri sau inițiază un swap.</p>
+          </div>
+          <div className="rounded-xl border border-zinc-200 bg-white/70 p-3 dark:border-zinc-800 dark:bg-zinc-900/70">
+            <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Link-uri permise</h4>
+            <p className="text-sm text-zinc-600 dark:text-zinc-300">Profil & Setări, Beneficii Premium/Platinum, Match-uri, Obiecte, Chat, Termeni & Politici.</p>
+          </div>
+        </div>
+      </SectionCard>
+
+      {!hasItems && user ? (
+        <MissingDataCallout
+          title="Nu ai încă obiecte listate"
+          message="Adaugă un obiect pentru a primi propuneri relevante."
+          cta={<CTAButton href="/objects">Adaugă obiect</CTAButton>}
+        />
+      ) : null}
+
+      {!featureToggles.aiEnabled ? (
+        <SectionCard title="Fallback AI" description="Mod manual activ când serviciile AI sunt indisponibile.">
+          <Pill color="amber">AI dezactivat</Pill>
+          <p className="text-sm text-zinc-700 dark:text-zinc-300">
+            Clasificarea și explicațiile se bazează pe regulile manuale pentru a nu bloca fluxurile critice.
+          </p>
+        </SectionCard>
+      ) : (
+        <SectionCard title="AI activ" description="Sugestiile de pe Home respectă contractul AI (server-side).">
+          <p className="text-sm text-zinc-700 dark:text-zinc-300">
+            Output AI este salvat ca metadata versionată și nu suprascrie preferințele finale ale utilizatorilor.
+          </p>
+        </SectionCard>
+      )}
     </div>
   );
 }
