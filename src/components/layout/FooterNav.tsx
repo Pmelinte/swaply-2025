@@ -13,10 +13,10 @@ import {
 
 const links = [
   { href: "/", label: "Home", icon: Home },
-  { href: "/objects", label: "Objects", icon: Box },
+  { href: "/objects", label: "Obiecte", icon: Box },
   { href: "/match", label: "Match", icon: HeartHandshake },
   { href: "/chat", label: "Chat", icon: MessageCircle },
-  { href: "/change", label: "Change", icon: Shuffle },
+  { href: "/change", label: "Swaply", icon: Shuffle },
   { href: "/info", label: "Info", icon: Info },
 ];
 
@@ -27,7 +27,8 @@ export function FooterNav() {
       <div className="mx-auto grid max-w-6xl grid-cols-6 gap-1 px-2 py-2 text-xs font-semibold text-zinc-600 dark:text-zinc-300">
         {links.map((link) => {
           const Icon = link.icon;
-          const active = pathname === link.href;
+          const active =
+            pathname === link.href || pathname.startsWith(`${link.href}/`);
           return (
             <Link
               key={link.href}
