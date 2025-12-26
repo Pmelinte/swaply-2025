@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { Item } from "@/lib/types";
 
@@ -20,6 +21,7 @@ export function ItemForm({
   onCancel: () => void;
 }) {
   const [draft, setDraft] = useState<Item>(item);
+  const [preview, setPreview] = useState<string | null>(item.photos[0] ?? null);
 
   return (
     <form
@@ -29,6 +31,40 @@ export function ItemForm({
         onSave(draft);
       }}
     >
+      <div className="grid gap-3 lg:grid-cols-[2fr_1fr]">
+        <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
+          Upload imagine (cu preview)
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              const url = URL.createObjectURL(file);
+              setPreview(url);
+              setDraft({ ...draft, photos: [url] });
+            }}
+            className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
+          />
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            Integrarea Cloudinary/Supabase storage este stub; fișierele rămân locale în demo.
+          </p>
+        </label>
+        <div className="overflow-hidden rounded-xl border border-dashed border-zinc-200 bg-zinc-50 p-3 text-sm text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900/60 dark:text-zinc-200">
+          {preview ? (
+            <Image
+              src={preview}
+              alt="Previzualizare"
+              width={400}
+              height={240}
+              className="h-36 w-full rounded-lg object-cover"
+              unoptimized
+            />
+          ) : (
+            <p>Previzualizare goală. Poți continua cu fallback „fără imagine”.</p>
+          )}
+        </div>
+      </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
           Titlu
@@ -81,9 +117,9 @@ export function ItemForm({
             }
             className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
           >
-            <option value="new">nou</option>
-            <option value="good">bun</option>
-            <option value="used">uzat</option>
+            <option value="new">Nou</option>
+            <option value="good">Puțin utilizat</option>
+            <option value="used">Utilizat / antichitate</option>
           </select>
         </label>
         <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">

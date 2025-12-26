@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { StatsGrid } from "@/features/info/StatsGrid";
 import { useAppState } from "@/lib/state";
-import { Pill, SectionCard } from "@/components/ui";
+import { Pill, SectionCard, StateShowcase } from "@/components/ui";
 
 export default function InfoPage() {
   const { infoStats } = useAppState();
@@ -91,6 +91,27 @@ export default function InfoPage() {
           </ul>
         </SectionCard>
       </div>
+
+      <StateShowcase
+        title="Stări INFO"
+        states={[
+          {
+            key: "loading",
+            title: "Statistici în încărcare",
+            description: "Skeleton pe grila de statistici + badge pentru legal până sosesc datele.",
+          },
+          {
+            key: "empty",
+            title: "Nicio metadată disponibilă",
+            description: "Afișăm text fallback și link direct către secțiunea legal; nu returnăm 404.",
+          },
+          {
+            key: "error",
+            title: "Eroare la hărți/contract AI",
+            description: "Mesaj clar despre provider indisponibil + fallback manual explicit pe pagină.",
+          },
+        ]}
+      />
     </div>
   );
 }

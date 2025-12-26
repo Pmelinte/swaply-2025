@@ -1,6 +1,6 @@
 "use client";
 
-import { CTAButton, Pill, SectionCard } from "@/components/ui";
+import { CTAButton, Pill, SectionCard, StateShowcase } from "@/components/ui";
 import { MapPreview } from "@/components/MapPreview";
 import { LoggedOutGate, MissingDataCallout } from "@/components/gated";
 import { useAppState } from "@/lib/state";
@@ -125,6 +125,32 @@ export default function HomePage() {
           </p>
         </SectionCard>
       )}
+
+      <SectionCard
+        title="Stări HOME"
+        description="Loading / empty / error vizibile conform contractului. Nicio rută nu returnează 404 în flux normal."
+      >
+        <StateShowcase
+          title="State obligatorii"
+          states={[
+            {
+              key: "loading",
+              title: "Se încarcă harta și feed-ul",
+              description: "Afișăm skeleton + spinner discret pentru hartă și carduri până sosesc datele.",
+            },
+            {
+              key: "empty",
+              title: "Fără anunțuri sau date user",
+              description: "Mesaj de empty state + CTA spre /login sau /profile pentru completare profil.",
+            },
+            {
+              key: "error",
+              title: "Eroare temporară la feed",
+              description: "Mesaj clar, fără crash; permite relansarea acțiunii sau navigarea spre /info pentru status sistem.",
+            },
+          ]}
+        />
+      </SectionCard>
     </div>
   );
 }

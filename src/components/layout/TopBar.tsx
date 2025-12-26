@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
-import { Languages, Menu } from "lucide-react";
+import { BellDot, Languages, Menu, ShieldCheck } from "lucide-react";
 import type { LanguageCode } from "@/lib/types";
 import { useAppState } from "@/lib/state";
 import { Badge } from "../ui";
@@ -55,13 +55,14 @@ const contextualActions: Record<
 
 export function TopBar() {
   const pathname = usePathname();
-  const { user, logout, language, setLanguage } = useAppState();
+  const { user, logout, language, setLanguage, announcements } = useAppState();
   const [menuOpen, setMenuOpen] = useState(false);
   const pathKey =
     Object.keys(contextualActions).find(
       (key) => pathname === key || pathname.startsWith(`${key}/`),
     ) ?? pathname;
   const actions = contextualActions[pathKey] ?? [];
+  const unread = announcements.length;
 
   const languages: LanguageCode[] = ["ro", "en", "es"];
   const handleLanguageToggle = () => {
@@ -117,43 +118,78 @@ export function TopBar() {
                     {link.label}
                   </Link>
                 ))}
-                {user ? (
+                <div className="mt-2 space-y-1 rounded-lg border-t border-zinc-200 pt-2 dark:border-zinc-700">
+                  <div className="flex items-center justify-between px-2 text-[11px] uppercase text-zinc-500 dark:text-zinc-400">
+                    <span>Meniu contextual</span>
+                    <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-800 dark:bg-amber-900/40 dark:text-amber-100">
+                      {pathKey}
+                    </span>
+                  </div>
+                  {actions.map((action) => (
+                    <Link
+                      key={action.label}
+                      href={action.href}
+                      className={`block rounded-lg px-3 py-2 text-sm ${action.disabled ? "text-zinc-400 line-through" : "text-zinc-800 hover:bg-zinc-100 dark:text-zinc-100 dark:hover:bg-zinc-700"}`}
+                      onClick={() => setMenuOpen(false)}
+                      aria-disabled={action.disabled}
+                    >
+                      {action.label}
+                    </Link>
+                  ))}
+                </div>
+                <div className="mt-2 space-y-1 rounded-lg border-t border-zinc-200 pt-2 dark:border-zinc-700">
+                  <div className="flex items-center justify-between px-2 text-[11px] uppercase text-zinc-500 dark:text-zinc-400">
+                    <span>Notificări & cont</span>
+                    <Badge tier={user?.badge ?? "free"} />
+                  </div>
                   <button
                     type="button"
-                    onClick={() => {
-                      logout();
-                      setMenuOpen(false);
-                    }}
-                    className="mt-1 w-full rounded-lg px-3 py-2 text-left text-sm font-semibold text-red-600 hover:bg-red-50 dark:text-red-200 dark:hover:bg-red-900/40"
+                    className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-zinc-800 hover:bg-zinc-100 dark:text-zinc-100 dark:hover:bg-zinc-700"
+                    aria-disabled
                   >
-                    Delogare
+                    <span className="flex items-center gap-2">
+                      <BellDot className="h-4 w-4" />
+                      Notificări (like/interes/chat/swaply)
+                    </span>
+                    <span className="rounded-full bg-blue-100 px-2 text-[11px] font-semibold text-blue-800 dark:bg-blue-900/50 dark:text-blue-100">
+                      {unread}
+                    </span>
                   </button>
-                ) : (
                   <Link
-                    href="/login"
-                    className="mt-1 block rounded-lg px-3 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-50 dark:text-blue-200 dark:hover:bg-blue-900/40"
+                    href="/profile"
+                    className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-zinc-800 hover:bg-zinc-100 dark:text-zinc-100 dark:hover:bg-zinc-700"
+                    onClick={() => setMenuOpen(false)}
                   >
-                    Autentificare
+                    <ShieldCheck className="h-4 w-4" />
+                    Setări & Profil
                   </Link>
-                )}
-                {actions.length ? (
-                  <div className="mt-2 space-y-1 rounded-lg border-t border-zinc-200 pt-2 dark:border-zinc-700">
-                    <div className="px-2 text-[11px] uppercase text-zinc-500 dark:text-zinc-400">
-                      Meniu contextual
-                    </div>
-                    {actions.map((action) => (
-                      <Link
-                        key={action.label}
-                        href={action.href}
-                        className={`block rounded-lg px-3 py-2 text-sm ${action.disabled ? "text-zinc-400 line-through" : "text-zinc-800 hover:bg-zinc-100 dark:text-zinc-100 dark:hover:bg-zinc-700"}`}
-                        onClick={() => setMenuOpen(false)}
-                        aria-disabled={action.disabled}
-                      >
-                        {action.label}
-                      </Link>
-                    ))}
-                  </div>
-                ) : null}
+                  <Link
+                    href="/info#legal"
+                    className="block rounded-lg px-3 py-2 text-sm font-medium text-zinc-800 hover:bg-zinc-100 dark:text-zinc-100 dark:hover:bg-zinc-700"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Termeni & GDPR
+                  </Link>
+                  {user ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        logout();
+                        setMenuOpen(false);
+                      }}
+                      className="w-full rounded-lg px-3 py-2 text-left text-sm font-semibold text-red-600 hover:bg-red-50 dark:text-red-200 dark:hover:bg-red-900/40"
+                    >
+                      Delogare
+                    </button>
+                  ) : (
+                    <Link
+                      href="/login"
+                      className="block rounded-lg px-3 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-50 dark:text-blue-200 dark:hover:bg-blue-900/40"
+                    >
+                      Autentificare
+                    </Link>
+                  )}
+                </div>
               </div>
             ) : null}
           </div>

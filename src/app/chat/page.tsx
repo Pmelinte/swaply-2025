@@ -2,7 +2,7 @@
 
 import { useAppState } from "@/lib/state";
 import { LoggedOutGate } from "@/components/gated";
-import { SectionCard } from "@/components/ui";
+import { CTAButton, SectionCard, StateShowcase } from "@/components/ui";
 import { ChatPanel } from "@/features/chat/ChatPanel";
 
 export default function ChatPage() {
@@ -17,6 +17,7 @@ export default function ChatPage() {
       <SectionCard
         title="Chat securizat"
         description="Traducere (dacă e on) + moderare + atașamente scanate + CTA spre Swaply"
+        action={<CTAButton href="/change">Confirmă swap</CTAButton>}
       >
         <ChatPanel conversations={conversations} />
       </SectionCard>
@@ -27,6 +28,27 @@ export default function ChatPage() {
           <li>CTA către Swaply (pagina Change) este prezent pentru confirmare logistică.</li>
         </ul>
       </SectionCard>
+
+      <StateShowcase
+        title="Stări CHAT"
+        states={[
+          {
+            key: "loading",
+            title: "Încărcare conversații",
+            description: "Skeleton list + badge moderare până sosesc conversațiile.",
+          },
+          {
+            key: "empty",
+            title: "Fără conversații",
+            description: "Empty state în panel + CTA spre /objects sau /match pentru inițiere chat.",
+          },
+          {
+            key: "error",
+            title: "Eroare livrare mesaj",
+            description: "Mesaj clar + buton retry, fără crash și fără a deconecta utilizatorul.",
+          },
+        ]}
+      />
     </div>
   );
 }
