@@ -64,37 +64,6 @@ function LoginContent() {
       setStatus("success");
     }
     setProcessing(false);
-  const handleSubmit = () => {
-    setMessage(null);
-    setStatus("idle");
-    if (!accept) {
-      setMessage("Bifează acceptarea Termeni & GDPR pentru a continua.");
-      setStatus("error");
-      return;
-    }
-    setProcessing(true);
-    setTimeout(() => {
-      if (activeTab === "login") {
-        if (password !== "password123") {
-          setMessage("Credențiale invalide în demo (parola corectă este password123).");
-          setStatus("error");
-          setProcessing(false);
-          return;
-        }
-        login(email);
-        setMessage("Autentificat. Redirect către profil.");
-        setStatus("success");
-        router.push(returnTo);
-      } else if (activeTab === "register") {
-        register(email, password, accept);
-        setMessage("Cont creat. Confirmă email și configurează 2FA.");
-        setStatus("success");
-      } else {
-        setMessage("Instrucțiuni de reset trimise pe email.");
-        setStatus("success");
-      }
-      setProcessing(false);
-    }, 250);
   };
 
   return (
@@ -105,19 +74,19 @@ function LoginContent() {
       >
         <div className="flex flex-wrap gap-2">
           {tabs.map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
-            className={`rounded-full px-4 py-2 text-sm font-semibold ${
-              activeTab === tab.key
-                ? "bg-blue-600 text-white"
-                : "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`rounded-full px-4 py-2 text-sm font-semibold ${
+                activeTab === tab.key
+                  ? "bg-blue-600 text-white"
+                  : "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
 
         <form
           className="mt-4 space-y-3"
@@ -140,14 +109,14 @@ function LoginContent() {
             <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-200">
               Parolă
               <input
-            value={password}
-            type="password"
-            required
-            onChange={(e) => setPassword(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
-          />
-        </label>
-      ) : null}
+                value={password}
+                type="password"
+                required
+                onChange={(e) => setPassword(e.target.value)}
+                className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
+              />
+            </label>
+          ) : null}
 
           <label className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
             <input
@@ -188,15 +157,9 @@ function LoginContent() {
         ) : null}
 
         <div className="space-y-2 text-sm text-zinc-600 dark:text-zinc-300">
-          <p>
-            2FA opțional: TOTP, SMS OTP, Passkey/WebAuthn. Activare după login pe pagina de profil.
-          </p>
-          <p>
-            Metode alternative: Google SSO, Telefon OTP (beta). Email OTP doar ca fallback.
-          </p>
-          <p>
-            Legal: link permanent către <Link className="underline" href="/info">Termeni & Politica GDPR</Link>.
-          </p>
+          <p>2FA opțional: TOTP, SMS OTP, Passkey/WebAuthn. Activare după login pe pagina de profil.</p>
+          <p>Metode alternative: Google SSO, Telefon OTP (beta). Email OTP doar ca fallback.</p>
+          <p>Legal: link permanent către <Link className="underline" href="/info">Termeni & Politica GDPR</Link>.</p>
         </div>
       </SectionCard>
       <StateShowcase
