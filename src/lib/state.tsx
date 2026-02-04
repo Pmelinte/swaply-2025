@@ -41,6 +41,10 @@ const safeArray = <T,>(value: unknown, fallback: T[]) =>
   Array.isArray(value) ? (value as T[]) : fallback;
 const safeObject = <T extends object>(value: unknown, fallback: T) =>
   value && typeof value === "object" ? (value as T) : fallback;
+const safeBadgeTier = (value: unknown, fallback: UserProfile["badge"] = "free") =>
+  value === "free" || value === "premium" || value === "platinum"
+    ? value
+    : fallback;
 
 interface AppStateContextProps {
   user: UserProfile | null;
@@ -155,7 +159,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         avatarUrl: safeString(data.avatar_url, safeString(data.avatarUrl)),
         bio: safeString(data.bio, safeString(data.about_me)),
         languages: safeArray<LanguageCode>(data.languages, user?.languages ?? ["ro"]),
-        badge: (safeString(data.badge) as UserProfile["badge"]) ?? user?.badge ?? "free",
+        badge: safeBadgeTier(data.badge, user?.badge ?? "free"),
         location:
           (safeObject(data.location, user?.location ?? {}) as UserProfile["location"]) ||
           (data.city || data.region || data.country

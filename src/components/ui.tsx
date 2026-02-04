@@ -69,16 +69,17 @@ export function Badge({ tier }: { tier: BadgeTier }) {
     premium: { label: "Premium", color: "bg-amber-100 text-amber-800" },
     platinum: { label: "Platinum", color: "bg-blue-100 text-blue-800" },
   } as const;
+  const resolved = config[tier] ?? config.free;
 
   return (
     <span
       className={clsx(
         "inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold",
-        config[tier].color,
+        resolved.color,
       )}
     >
       <span className="h-2 w-2 rounded-full bg-current" aria-hidden />
-      {config[tier].label}
+      {resolved.label}
     </span>
   );
 }
