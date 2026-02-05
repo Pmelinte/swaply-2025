@@ -1,65 +1,189 @@
--- Swaply Demo Seed: 1000 conturi demo + items asociate
+-- Swaply Demo Seed: 1000 conturi demo internationale + items asociate
+-- 20 tari, orase diverse, limbi diferite (ro / en / es)
 -- Rulează cu: psql sau Supabase SQL Editor
 -- Toate datele au is_demo = true pentru a fi ușor de identificat / șters
 
 BEGIN;
 
 -- ============================================================
--- 1) Date auxiliare pentru generare realistă
+-- 1) Date auxiliare pentru generare realistă internatională
 -- ============================================================
 
--- Orașe românești cu coordonate
+-- Orașe din 20 de țări (4 orașe per țară = 80 orașe)
+-- Coloana lang = limba principală a țării (ro / en / es)
 CREATE TEMP TABLE _cities (
-  city TEXT, region TEXT, country TEXT, lat NUMERIC, lng NUMERIC
+  city TEXT, region TEXT, country TEXT, lang TEXT, lat NUMERIC, lng NUMERIC
 ) ON COMMIT DROP;
 
 INSERT INTO _cities VALUES
-  ('București',   'Ilfov',      'România', 44.4268, 26.1025),
-  ('Cluj-Napoca', 'Cluj',       'România', 46.7712, 23.5897),
-  ('Timișoara',   'Timiș',      'România', 45.7489, 21.2087),
-  ('Iași',        'Iași',       'România', 47.1585, 27.6014),
-  ('Constanța',   'Constanța',  'România', 44.1598, 28.6348),
-  ('Craiova',     'Dolj',       'România', 44.3302, 23.7949),
-  ('Brașov',      'Brașov',     'România', 45.6427, 25.5887),
-  ('Galați',      'Galați',     'România', 45.4353, 28.0080),
-  ('Sibiu',       'Sibiu',      'România', 45.7983, 24.1256),
-  ('Oradea',      'Bihor',      'România', 47.0465, 21.9189),
-  ('Arad',        'Arad',       'România', 46.1866, 21.3123),
-  ('Ploiești',    'Prahova',    'România', 44.9462, 26.0254),
-  ('Pitești',     'Argeș',      'România', 44.8565, 24.8692),
-  ('Târgu Mureș', 'Mureș',      'România', 46.5386, 24.5579),
-  ('Baia Mare',   'Maramureș',  'România', 47.6567, 23.5850),
-  ('Suceava',     'Suceava',    'România', 47.6514, 26.2554),
-  ('Bacău',       'Bacău',      'România', 46.5670, 26.9146),
-  ('Buzău',       'Buzău',      'România', 45.1500, 26.8333),
-  ('Alba Iulia',  'Alba',       'România', 46.0764, 23.5808),
-  ('Deva',        'Hunedoara',  'România', 45.8833, 22.9000);
+  -- România (ro)
+  ('București',    'Ilfov',          'România',       'ro', 44.4268, 26.1025),
+  ('Cluj-Napoca',  'Cluj',           'România',       'ro', 46.7712, 23.5897),
+  ('Timișoara',    'Timiș',          'România',       'ro', 45.7489, 21.2087),
+  ('Iași',         'Iași',           'România',       'ro', 47.1585, 27.6014),
+  -- Moldova (ro)
+  ('Chișinău',     'Chișinău',       'Moldova',       'ro', 47.0105, 28.8638),
+  ('Bălți',        'Bălți',          'Moldova',       'ro', 47.7617, 27.9289),
+  ('Cahul',        'Cahul',          'Moldova',       'ro', 45.9042, 28.1944),
+  ('Ungheni',      'Ungheni',        'Moldova',       'ro', 47.2101, 27.8003),
+  -- Spania (es)
+  ('Madrid',       'Comunidad de Madrid', 'España',   'es', 40.4168, -3.7038),
+  ('Barcelona',    'Cataluña',       'España',        'es', 41.3874, 2.1686),
+  ('Valencia',     'Comunidad Valenciana', 'España',   'es', 39.4699, -0.3763),
+  ('Sevilla',      'Andalucía',      'España',        'es', 37.3891, -5.9845),
+  -- Mexic (es)
+  ('Ciudad de México', 'CDMX',       'México',        'es', 19.4326, -99.1332),
+  ('Guadalajara',  'Jalisco',        'México',        'es', 20.6597, -103.3496),
+  ('Monterrey',    'Nuevo León',     'México',        'es', 25.6866, -100.3161),
+  ('Puebla',       'Puebla',         'México',        'es', 19.0414, -98.2063),
+  -- Argentina (es)
+  ('Buenos Aires', 'CABA',           'Argentina',     'es', -34.6037, -58.3816),
+  ('Córdoba',      'Córdoba',        'Argentina',     'es', -31.4201, -64.1888),
+  ('Rosario',      'Santa Fe',       'Argentina',     'es', -32.9468, -60.6393),
+  ('Mendoza',      'Mendoza',        'Argentina',     'es', -32.8895, -68.8458),
+  -- Colombia (es)
+  ('Bogotá',       'Cundinamarca',   'Colombia',      'es', 4.7110, -74.0721),
+  ('Medellín',     'Antioquia',      'Colombia',      'es', 6.2442, -75.5812),
+  ('Cali',         'Valle del Cauca','Colombia',      'es', 3.4516, -76.5320),
+  ('Barranquilla', 'Atlántico',      'Colombia',      'es', 10.9685, -74.7813),
+  -- Chile (es)
+  ('Santiago',     'Metropolitana',  'Chile',         'es', -33.4489, -70.6693),
+  ('Valparaíso',   'Valparaíso',     'Chile',         'es', -33.0472, -71.6127),
+  ('Concepción',   'Biobío',         'Chile',         'es', -36.8270, -73.0503),
+  ('Antofagasta',  'Antofagasta',    'Chile',         'es', -23.6509, -70.3975),
+  -- Peru (es)
+  ('Lima',         'Lima',           'Perú',          'es', -12.0464, -77.0428),
+  ('Arequipa',     'Arequipa',       'Perú',          'es', -16.4090, -71.5375),
+  ('Trujillo',     'La Libertad',    'Perú',          'es', -8.1116, -79.0288),
+  ('Cusco',        'Cusco',          'Perú',          'es', -13.5320, -71.9675),
+  -- UK (en)
+  ('London',       'Greater London', 'United Kingdom', 'en', 51.5074, -0.1278),
+  ('Manchester',   'Greater Manchester','United Kingdom','en', 53.4808, -2.2426),
+  ('Birmingham',   'West Midlands',  'United Kingdom', 'en', 52.4862, -1.8904),
+  ('Edinburgh',    'Scotland',       'United Kingdom', 'en', 55.9533, -3.1883),
+  -- USA (en)
+  ('New York',     'New York',       'United States',  'en', 40.7128, -74.0060),
+  ('Los Angeles',  'California',     'United States',  'en', 34.0522, -118.2437),
+  ('Chicago',      'Illinois',       'United States',  'en', 41.8781, -87.6298),
+  ('Austin',       'Texas',          'United States',  'en', 30.2672, -97.7431),
+  -- Canada (en)
+  ('Toronto',      'Ontario',        'Canada',         'en', 43.6532, -79.3832),
+  ('Vancouver',    'British Columbia','Canada',         'en', 49.2827, -123.1207),
+  ('Montreal',     'Quebec',         'Canada',         'en', 45.5017, -73.5673),
+  ('Calgary',      'Alberta',        'Canada',         'en', 51.0447, -114.0719),
+  -- Australia (en)
+  ('Sydney',       'New South Wales','Australia',      'en', -33.8688, 151.2093),
+  ('Melbourne',    'Victoria',       'Australia',      'en', -37.8136, 144.9631),
+  ('Brisbane',     'Queensland',     'Australia',      'en', -27.4698, 153.0251),
+  ('Perth',        'Western Australia','Australia',    'en', -31.9505, 115.8605),
+  -- Irlanda (en)
+  ('Dublin',       'Leinster',       'Ireland',        'en', 53.3498, -6.2603),
+  ('Cork',         'Munster',        'Ireland',        'en', 51.8969, -8.4863),
+  ('Galway',       'Connacht',       'Ireland',        'en', 53.2707, -9.0568),
+  ('Limerick',     'Munster',        'Ireland',        'en', 52.6638, -8.6267),
+  -- Germania (en — nu avem de/limba, mapăm pe en)
+  ('Berlin',       'Berlin',         'Deutschland',    'en', 52.5200, 13.4050),
+  ('München',      'Bayern',         'Deutschland',    'en', 53.5511,  9.9937),
+  ('Hamburg',      'Hamburg',        'Deutschland',    'en', 53.5511,  9.9937),
+  ('Frankfurt',    'Hessen',         'Deutschland',    'en', 50.1109,  8.6821),
+  -- Franța (en — nu avem fr, mapăm pe en)
+  ('Paris',        'Île-de-France',  'France',         'en', 48.8566,  2.3522),
+  ('Lyon',         'Auvergne-Rhône-Alpes','France',    'en', 45.7640,  4.8357),
+  ('Marseille',    'Provence-Alpes-Côte d''Azur','France','en', 43.2965, 5.3698),
+  ('Toulouse',     'Occitanie',      'France',         'en', 43.6047,  1.4442),
+  -- Italia (en — nu avem it, mapăm pe en)
+  ('Roma',         'Lazio',          'Italia',         'en', 41.9028, 12.4964),
+  ('Milano',       'Lombardia',      'Italia',         'en', 45.4642,  9.1900),
+  ('Napoli',       'Campania',       'Italia',         'en', 40.8518, 14.2681),
+  ('Firenze',      'Toscana',        'Italia',         'en', 43.7696, 11.2558),
+  -- Portugalia (es — cel mai apropiat de pt)
+  ('Lisboa',       'Lisboa',         'Portugal',       'es', 38.7223, -9.1393),
+  ('Porto',        'Porto',          'Portugal',       'es', 41.1579, -8.6291),
+  ('Braga',        'Braga',          'Portugal',       'es', 41.5518, -8.4229),
+  ('Coimbra',      'Coimbra',        'Portugal',       'es', 40.2033, -8.4103),
+  -- Polonia (en — nu avem pl, mapăm pe en)
+  ('Warszawa',     'Mazowieckie',    'Polska',         'en', 52.2297, 21.0122),
+  ('Kraków',       'Małopolskie',    'Polska',         'en', 50.0647, 19.9450),
+  ('Wrocław',      'Dolnośląskie',   'Polska',         'en', 51.1079, 17.0385),
+  ('Gdańsk',       'Pomorskie',      'Polska',         'en', 54.3520, 18.6466),
+  -- Grecia (en — nu avem el, mapăm pe en)
+  ('Athens',       'Attica',         'Greece',         'en', 37.9838, 23.7275),
+  ('Thessaloniki', 'Central Macedonia','Greece',       'en', 40.6401, 22.9444),
+  ('Heraklion',    'Crete',          'Greece',         'en', 35.3387, 25.1442),
+  ('Patras',       'Western Greece', 'Greece',         'en', 38.2466, 21.7346),
+  -- Ungaria (en — nu avem hu, mapăm pe en)
+  ('Budapest',     'Budapest',       'Magyarország',   'en', 47.4979, 19.0402),
+  ('Debrecen',     'Hajdú-Bihar',    'Magyarország',   'en', 47.5316, 21.6273),
+  ('Szeged',       'Csongrád-Csanád','Magyarország',   'en', 46.2530, 20.1414),
+  ('Pécs',         'Baranya',        'Magyarország',   'en', 46.0727, 18.2323);
 
--- Prenume românești
-CREATE TEMP TABLE _firstnames (name TEXT, gender TEXT) ON COMMIT DROP;
+-- Prenume internaționale (50 feminine + 50 masculine = 100)
+CREATE TEMP TABLE _firstnames (name TEXT) ON COMMIT DROP;
 INSERT INTO _firstnames VALUES
-  ('Ana', 'F'), ('Maria', 'F'), ('Elena', 'F'), ('Ioana', 'F'), ('Andreea', 'F'),
-  ('Alexandra', 'F'), ('Cristina', 'F'), ('Diana', 'F'), ('Gabriela', 'F'), ('Laura', 'F'),
-  ('Mihaela', 'F'), ('Raluca', 'F'), ('Simona', 'F'), ('Dana', 'F'), ('Alina', 'F'),
-  ('Carmen', 'F'), ('Daniela', 'F'), ('Florina', 'F'), ('Iulia', 'F'), ('Monica', 'F'),
-  ('Andrei', 'M'), ('Mihai', 'M'), ('Alexandru', 'M'), ('Ion', 'M'), ('Florin', 'M'),
-  ('Cristian', 'M'), ('Adrian', 'M'), ('Gabriel', 'M'), ('Daniel', 'M'), ('Marius', 'M'),
-  ('Vlad', 'M'), ('Bogdan', 'M'), ('Radu', 'M'), ('Dragoș', 'M'), ('Cătălin', 'M'),
-  ('Ionuț', 'M'), ('Lucian', 'M'), ('Ovidiu', 'M'), ('Paul', 'M'), ('Sorin', 'M');
+  -- Românești
+  ('Ana'), ('Maria'), ('Elena'), ('Ioana'), ('Andreea'),
+  ('Andrei'), ('Mihai'), ('Alexandru'), ('Florin'), ('Vlad'),
+  -- Spaniole / Latine
+  ('Sofía'), ('Valentina'), ('Camila'), ('Lucía'), ('Isabella'),
+  ('Mateo'), ('Santiago'), ('Sebastián'), ('Emiliano'), ('Nicolás'),
+  -- Engleze
+  ('Emma'), ('Olivia'), ('Charlotte'), ('Amelia'), ('Sophia'),
+  ('Liam'), ('Noah'), ('James'), ('Oliver'), ('William'),
+  -- Germane
+  ('Hannah'), ('Leonie'), ('Lena'), ('Marie'), ('Johanna'),
+  ('Maximilian'), ('Felix'), ('Lukas'), ('Jonas'), ('Elias'),
+  -- Franceze
+  ('Chloé'), ('Manon'), ('Léa'), ('Inès'), ('Camille'),
+  ('Hugo'), ('Louis'), ('Lucas'), ('Raphaël'), ('Arthur'),
+  -- Italiene
+  ('Giulia'), ('Francesca'), ('Chiara'), ('Aurora'), ('Sara'),
+  ('Marco'), ('Luca'), ('Alessandro'), ('Matteo'), ('Andrea'),
+  -- Portugheze
+  ('Beatriz'), ('Carolina'), ('Mariana'), ('Teresa'), ('Catarina'),
+  ('Gonçalo'), ('Tiago'), ('Diogo'), ('Rafael'), ('Pedro'),
+  -- Poloneze
+  ('Zofia'), ('Maja'), ('Hanna'), ('Alicja'), ('Wiktoria'),
+  ('Antoni'), ('Jakub'), ('Szymon'), ('Kacper'), ('Filip'),
+  -- Maghiare
+  ('Boglárka'), ('Nóra'), ('Réka'), ('Eszter'), ('Petra'),
+  ('Bence'), ('Ádám'), ('Dániel'), ('Balázs'), ('Tamás'),
+  -- Grecești
+  ('Eleni'), ('Dimitra'), ('Katerina'), ('Niki'), ('Eirini'),
+  ('Giorgos'), ('Dimitris'), ('Nikos'), ('Panagiotis'), ('Kostas');
 
--- Nume de familie
+-- Nume de familie internaționale (100 entries)
 CREATE TEMP TABLE _lastnames (name TEXT) ON COMMIT DROP;
 INSERT INTO _lastnames VALUES
+  -- Românești
   ('Popescu'), ('Ionescu'), ('Popa'), ('Stan'), ('Dumitru'),
   ('Stoica'), ('Gheorghe'), ('Marin'), ('Tudor'), ('Rusu'),
-  ('Constantin'), ('Dinu'), ('Moldovan'), ('Matei'), ('Cristea'),
-  ('Ciobanu'), ('Luca'), ('Ungureanu'), ('Nistor'), ('Toma'),
-  ('Cojocaru'), ('Lazăr'), ('Ene'), ('Voicu'), ('Barbu'),
-  ('Neagu'), ('Preda'), ('Munteanu'), ('Oprea'), ('Savu'),
-  ('Iordache'), ('Dumitrescu'), ('Petrescu'), ('Marinescu'), ('Vasilescu'),
-  ('Georgescu'), ('Vladescu'), ('Radulescu'), ('Grigorescu'), ('Florescu'),
-  ('Diaconu'), ('Ganea'), ('Manole'), ('Niculescu'), ('Micu'),
-  ('Coman'), ('Tănase'), ('Moldoveanu'), ('Frîncu'), ('Olaru');
+  -- Spaniole / Latine
+  ('García'), ('Rodríguez'), ('Martínez'), ('López'), ('González'),
+  ('Hernández'), ('Pérez'), ('Sánchez'), ('Ramírez'), ('Torres'),
+  -- Engleze
+  ('Smith'), ('Johnson'), ('Williams'), ('Brown'), ('Jones'),
+  ('Davis'), ('Miller'), ('Wilson'), ('Moore'), ('Taylor'),
+  -- Germane
+  ('Müller'), ('Schmidt'), ('Schneider'), ('Fischer'), ('Weber'),
+  ('Meyer'), ('Wagner'), ('Becker'), ('Hoffmann'), ('Richter'),
+  -- Franceze
+  ('Martin'), ('Bernard'), ('Dubois'), ('Thomas'), ('Robert'),
+  ('Petit'), ('Moreau'), ('Laurent'), ('Simon'), ('Michel'),
+  -- Italiene
+  ('Rossi'), ('Russo'), ('Ferrari'), ('Esposito'), ('Bianchi'),
+  ('Romano'), ('Colombo'), ('Ricci'), ('Marino'), ('Greco'),
+  -- Portugheze
+  ('Silva'), ('Santos'), ('Ferreira'), ('Pereira'), ('Oliveira'),
+  ('Costa'), ('Rodrigues'), ('Martins'), ('Sousa'), ('Fernandes'),
+  -- Poloneze
+  ('Nowak'), ('Kowalski'), ('Wiśniewski'), ('Wójcik'), ('Kamiński'),
+  ('Lewandowski'), ('Zieliński'), ('Szymański'), ('Woźniak'), ('Dąbrowski'),
+  -- Maghiare
+  ('Nagy'), ('Kovács'), ('Tóth'), ('Szabó'), ('Horváth'),
+  ('Varga'), ('Kiss'), ('Molnár'), ('Németh'), ('Farkas'),
+  -- Grecești
+  ('Papadopoulos'), ('Georgiou'), ('Nikolaou'), ('Dimitriou'), ('Panagiotopoulos'),
+  ('Konstantinou'), ('Alexiou'), ('Vasileiou'), ('Ioannou'), ('Christodoulou');
 
 -- Categorii de obiecte
 CREATE TEMP TABLE _categories (name TEXT) ON COMMIT DROP;
@@ -67,90 +191,115 @@ INSERT INTO _categories VALUES
   ('Electronică'), ('Sport & Outdoor'), ('Hobby & Jocuri'),
   ('Cărți & Media'), ('Casă & Grădină'), ('Modă & Accesorii');
 
--- Titluri de obiecte per categorie
+-- Titluri de obiecte (EN) — mai internaționale
 CREATE TEMP TABLE _item_templates (
   category TEXT, title TEXT, description TEXT, tags TEXT[]
 ) ON COMMIT DROP;
 
 INSERT INTO _item_templates VALUES
-  ('Electronică', 'Monitor 24" IPS', 'Monitor IPS Full HD, stare bună, fără pixeli morți.', ARRAY['monitor','office','tech']),
-  ('Electronică', 'Tastatură mecanică', 'Switch-uri Cherry MX, iluminare RGB.', ARRAY['tastatură','gaming','periferice']),
-  ('Electronică', 'Căști wireless', 'Bluetooth 5.0, autonomie 20h, noise cancelling.', ARRAY['căști','audio','wireless']),
-  ('Electronică', 'Raspberry Pi 4', 'Kit complet cu carcasă și alimentator.', ARRAY['raspberry','embedded','tech']),
-  ('Electronică', 'Consolă retro', 'Consolă cu 200+ jocuri clasice preinstalate.', ARRAY['gaming','retro','consolă']),
-  ('Electronică', 'Cameră web HD', 'Camera 1080p cu microfon integrat.', ARRAY['webcam','video','office']),
-  ('Electronică', 'SSD extern 500GB', 'USB-C, viteze de transfer rapide.', ARRAY['stocare','ssd','portabil']),
-  ('Electronică', 'Boxă Bluetooth', 'Portabilă, rezistentă la apă, sunet clar.', ARRAY['audio','bluetooth','portabil']),
-  ('Sport & Outdoor', 'Bicicletă urbană', 'Cadru ușor, 21 viteze, ideală pentru oraș.', ARRAY['bicicletă','transport','urban']),
-  ('Sport & Outdoor', 'Trotineta electrică', 'Autonomie 25km, viteză max 25km/h.', ARRAY['trotinetă','electric','transport']),
-  ('Sport & Outdoor', 'Cort camping 3 pers', 'Impermeabil, montaj rapid, cu avanpost.', ARRAY['camping','cort','outdoor']),
-  ('Sport & Outdoor', 'Skateboard', 'Placă standard, roți noi, grip tape proaspăt.', ARRAY['skateboard','sport','urban']),
-  ('Sport & Outdoor', 'Minge fotbal', 'Mărime 5, piele sintetică, ca nouă.', ARRAY['fotbal','sport','minge']),
-  ('Sport & Outdoor', 'Rachetă tenis', 'Grafină, mâner nou, husă inclusă.', ARRAY['tenis','rachetă','sport']),
-  ('Sport & Outdoor', 'Set badminton', 'Două rachete + fluturași + plasă portabilă.', ARRAY['badminton','set','outdoor']),
-  ('Sport & Outdoor', 'Rucsac hiking 40L', 'Ergonomic, husă ploaie inclusă.', ARRAY['rucsac','hiking','outdoor']),
-  ('Hobby & Jocuri', 'Set Lego Technic', 'Parțial asamblat, manual inclus.', ARRAY['lego','technic','construcție']),
-  ('Hobby & Jocuri', 'Puzzle 1000 piese', 'Peisaj montan, piese complete.', ARRAY['puzzle','hobby','relaxare']),
-  ('Hobby & Jocuri', 'Set pictură acrilice', '24 culori + pensule + pânză.', ARRAY['pictură','artă','acrilice']),
-  ('Hobby & Jocuri', 'Chitară acustică', 'Corzi noi, sunet cald, ideală pentru începători.', ARRAY['chitară','muzică','acustică']),
-  ('Hobby & Jocuri', 'Joc Catan', 'Ediție standard + extensie 5-6 jucători.', ARRAY['boardgame','catan','societate']),
-  ('Hobby & Jocuri', 'Drona mini', 'Cu cameră HD, autonomie 15 min.', ARRAY['drona','tech','hobby']),
-  ('Hobby & Jocuri', 'Set cărți de magie', 'Pachet complet + manual trucuri.', ARRAY['magie','cărți','entertainment']),
-  ('Hobby & Jocuri', 'Telescop amator', 'Lungime focală 700mm, suport inclus.', ARRAY['telescop','astronomie','hobby']),
-  ('Cărți & Media', 'Colecție Harry Potter', 'Toate cele 7 volume, română.', ARRAY['cărți','harry-potter','colecție']),
-  ('Cărți & Media', 'Curs programare Python', 'Manual + exerciții, nivel intermediar.', ARRAY['programare','python','educație']),
-  ('Cărți & Media', 'Viniluri clasice', 'Set de 10 viniluri rock/jazz.', ARRAY['vinyl','muzică','colecție']),
-  ('Cărți & Media', 'Manga One Piece vol 1-20', 'Ediție japoneză, stare perfectă.', ARRAY['manga','one-piece','comics']),
-  ('Cărți & Media', 'DVD Box Set film', 'Trilogia LOTR extended edition.', ARRAY['dvd','film','colecție']),
-  ('Cărți & Media', 'Carte bucătărie rom.', 'Rețete tradiționale românești, ilustrat.', ARRAY['carte','bucătărie','tradițional']),
-  ('Casă & Grădină', 'Set unelte grădină', '5 piese, oțel inoxidabil, mânere lemn.', ARRAY['unelte','grădină','casă']),
-  ('Casă & Grădină', 'Lampă de birou LED', 'Reglabilă, 3 temperaturi culoare.', ARRAY['lampă','birou','led']),
-  ('Casă & Grădină', 'Aspirator robot', 'Funcțional, baterie recondiționată.', ARRAY['aspirator','robot','casă']),
-  ('Casă & Grădină', 'Set ghivece ceramice', '3 bucăți, diverse mărimi, colorate.', ARRAY['ghivece','ceramică','decor']),
-  ('Casă & Grădină', 'Hamac dublu', 'Bumbac, suportă 200kg, cu suport.', ARRAY['hamac','relaxare','grădină']),
-  ('Casă & Grădină', 'Presă cafea french', 'Sticlă Borosilicată, 1L.', ARRAY['cafea','french-press','bucătărie']),
-  ('Modă & Accesorii', 'Rucsac piele', 'Piele naturală, compartiment laptop 15".', ARRAY['rucsac','piele','accesorii']),
-  ('Modă & Accesorii', 'Ochelari de soare', 'Polarizați, model aviator, protecție UV400.', ARRAY['ochelari','soare','modă']),
-  ('Modă & Accesorii', 'Ceas analogic', 'Mecanism quartz, brățară oțel.', ARRAY['ceas','accesorii','elegant']),
-  ('Modă & Accesorii', 'Geacă de piele', 'Mărime M, stil biker, căptușeală detașabilă.', ARRAY['geacă','piele','modă']);
+  ('Electronică', '24" IPS Monitor', 'Full HD IPS display, no dead pixels, great for office work.', ARRAY['monitor','office','tech']),
+  ('Electronică', 'Mechanical Keyboard', 'Cherry MX switches, RGB backlighting, full-size layout.', ARRAY['keyboard','gaming','peripherals']),
+  ('Electronică', 'Wireless Headphones', 'Bluetooth 5.0, 20h battery, active noise cancelling.', ARRAY['headphones','audio','wireless']),
+  ('Electronică', 'Raspberry Pi 4 Kit', 'Complete kit with case, power supply and SD card.', ARRAY['raspberry','embedded','tech']),
+  ('Electronică', 'Retro Gaming Console', 'Pre-loaded with 200+ classic games, HDMI output.', ARRAY['gaming','retro','console']),
+  ('Electronică', 'HD Webcam', '1080p camera with built-in microphone, USB-C.', ARRAY['webcam','video','office']),
+  ('Electronică', '500GB External SSD', 'USB-C, fast transfer speeds, pocket-sized.', ARRAY['storage','ssd','portable']),
+  ('Electronică', 'Bluetooth Speaker', 'Waterproof, portable, clear 360° sound.', ARRAY['audio','bluetooth','portable']),
+  ('Electronică', 'Smart Watch', 'Heart rate monitor, GPS, 5-day battery life.', ARRAY['smartwatch','wearable','tech']),
+  ('Electronică', 'Tablet 10"', '64GB storage, stylus support, great for reading.', ARRAY['tablet','portable','tech']),
+  ('Sport & Outdoor', 'Urban Hybrid Bike', 'Lightweight frame, 21 speeds, perfect for city commute.', ARRAY['bike','transport','urban']),
+  ('Sport & Outdoor', 'Electric Scooter', '25km range, max speed 25km/h, foldable.', ARRAY['scooter','electric','transport']),
+  ('Sport & Outdoor', '3-Person Camping Tent', 'Waterproof, quick setup, with vestibule.', ARRAY['camping','tent','outdoor']),
+  ('Sport & Outdoor', 'Skateboard', 'Standard deck, new wheels, fresh grip tape.', ARRAY['skateboard','sport','urban']),
+  ('Sport & Outdoor', 'Football', 'Size 5, synthetic leather, match quality.', ARRAY['football','sport','ball']),
+  ('Sport & Outdoor', 'Tennis Racket', 'Graphite frame, new grip, case included.', ARRAY['tennis','racket','sport']),
+  ('Sport & Outdoor', 'Yoga Mat Set', 'Extra thick mat + blocks + strap.', ARRAY['yoga','fitness','mat']),
+  ('Sport & Outdoor', '40L Hiking Backpack', 'Ergonomic design, rain cover included.', ARRAY['backpack','hiking','outdoor']),
+  ('Sport & Outdoor', 'Running Shoes (42)', 'Lightly used, great cushioning, trail-ready.', ARRAY['shoes','running','sport']),
+  ('Sport & Outdoor', 'Surfboard 6ft', 'Epoxy board, good for intermediate surfers.', ARRAY['surf','board','water']),
+  ('Hobby & Jocuri', 'Lego Technic Set', 'Partially assembled, manual included, 800+ pieces.', ARRAY['lego','technic','building']),
+  ('Hobby & Jocuri', '1000-Piece Puzzle', 'Mountain landscape, all pieces complete.', ARRAY['puzzle','hobby','relaxation']),
+  ('Hobby & Jocuri', 'Acrylic Paint Set', '24 colours + brushes + 2 canvases.', ARRAY['painting','art','acrylic']),
+  ('Hobby & Jocuri', 'Acoustic Guitar', 'New strings, warm tone, great for beginners.', ARRAY['guitar','music','acoustic']),
+  ('Hobby & Jocuri', 'Catan Board Game', 'Standard edition + 5-6 player extension.', ARRAY['boardgame','catan','strategy']),
+  ('Hobby & Jocuri', 'Mini Drone', 'HD camera, 15 min flight time, beginner-friendly.', ARRAY['drone','tech','hobby']),
+  ('Hobby & Jocuri', 'Chess Set (Wood)', 'Handcrafted wooden pieces, folding board.', ARRAY['chess','boardgame','wood']),
+  ('Hobby & Jocuri', 'Amateur Telescope', '700mm focal length, tripod included.', ARRAY['telescope','astronomy','hobby']),
+  ('Cărți & Media', 'Harry Potter Collection', 'All 7 volumes, English paperback edition.', ARRAY['books','harry-potter','collection']),
+  ('Cărți & Media', 'Python Programming Course', 'Textbook + exercises, intermediate level.', ARRAY['programming','python','education']),
+  ('Cărți & Media', 'Classic Vinyl Records', 'Set of 10 rock/jazz vinyls, great condition.', ARRAY['vinyl','music','collection']),
+  ('Cărți & Media', 'Manga One Piece vol 1-20', 'English edition, perfect condition.', ARRAY['manga','one-piece','comics']),
+  ('Cărți & Media', 'LOTR Extended DVD Box', 'Trilogy extended edition, all extras included.', ARRAY['dvd','film','collection']),
+  ('Cărți & Media', 'Cookbook — Local Recipes', 'Traditional local recipes, illustrated.', ARRAY['book','cooking','traditional']),
+  ('Casă & Grădină', 'Garden Tool Set', '5 pieces, stainless steel, wooden handles.', ARRAY['tools','garden','home']),
+  ('Casă & Grădină', 'LED Desk Lamp', 'Adjustable, 3 colour temperatures, USB charging.', ARRAY['lamp','desk','led']),
+  ('Casă & Grădină', 'Robot Vacuum', 'Working condition, refurbished battery.', ARRAY['vacuum','robot','home']),
+  ('Casă & Grădină', 'Ceramic Plant Pots Set', '3 pots, different sizes, hand-painted.', ARRAY['pots','ceramic','decor']),
+  ('Casă & Grădină', 'Double Hammock', 'Cotton, supports 200kg, with stand.', ARRAY['hammock','relaxation','garden']),
+  ('Casă & Grădină', 'French Press Coffee', 'Borosilicate glass, 1L capacity.', ARRAY['coffee','french-press','kitchen']),
+  ('Modă & Accesorii', 'Leather Backpack', 'Genuine leather, fits 15" laptop.', ARRAY['backpack','leather','accessories']),
+  ('Modă & Accesorii', 'Polarized Sunglasses', 'Aviator style, UV400 protection.', ARRAY['sunglasses','fashion','accessories']),
+  ('Modă & Accesorii', 'Analog Watch', 'Quartz movement, steel bracelet, minimalist.', ARRAY['watch','accessories','elegant']),
+  ('Modă & Accesorii', 'Leather Biker Jacket', 'Size M, detachable lining, vintage look.', ARRAY['jacket','leather','fashion']),
+  ('Modă & Accesorii', 'Handmade Tote Bag', 'Canvas, eco-friendly, spacious.', ARRAY['bag','handmade','eco']);
 
--- Wishlist-uri posibile
+-- Wishlist-uri (EN)
 CREATE TEMP TABLE _wishlists (text TEXT) ON COMMIT DROP;
 INSERT INTO _wishlists VALUES
-  ('Orice electronică funcțională'), ('Bicicletă sau trotinetă'), ('Jocuri de societate'),
-  ('Cărți SF sau fantasy'), ('Accesorii camping'), ('Instrument muzical'),
-  ('Gadget-uri smart home'), ('Echipament sport'), ('Mobilier mic de birou'),
-  ('Plante de interior'), ('Ustensile bucătărie'), ('Decorațiuni handmade'),
-  ('Haine vintage'), ('Set LEGO orice serie'), ('Viniluri rock'),
-  ('Aparat foto instant'), ('Căști audio'), ('Monitor sau tastatură'),
-  ('Puzzle-uri complexe'), ('Unelte grădinărit');
+  ('Any working electronics'), ('Bicycle or electric scooter'), ('Board games or card games'),
+  ('Sci-fi or fantasy books'), ('Camping gear'), ('Musical instrument'),
+  ('Smart home gadgets'), ('Sports equipment'), ('Small office furniture'),
+  ('Indoor plants'), ('Kitchen tools'), ('Handmade decorations'),
+  ('Vintage clothing'), ('Any LEGO set'), ('Rock or jazz vinyl records'),
+  ('Instant camera'), ('Quality headphones'), ('Monitor or keyboard'),
+  ('Complex puzzles (1000+ pieces)'), ('Gardening tools'),
+  ('Yoga or fitness gear'), ('Art supplies'), ('Travel accessories'),
+  ('Photography equipment'), ('Retro gaming stuff');
 
--- Bio-uri posibile
+-- Bio-uri internaționale (EN)
 CREATE TEMP TABLE _bios (text TEXT) ON COMMIT DROP;
 INSERT INTO _bios VALUES
-  ('Pasionat de tehnologie și gadget-uri. Mereu în căutare de schimburi interesante.'),
-  ('Iubesc cărțile și muzica. Deschis la swap-uri creative.'),
-  ('Outdoor enthusiast, caut echipament camping și sport.'),
-  ('Colecționar de boardgames, caut parteneri de schimb.'),
-  ('Designer grafic, schimb unelte creative și tech.'),
-  ('Grădinar amator, iubesc plantele și decorațiunile handmade.'),
-  ('Student, caut cărți și electronică la prețuri accesibile.'),
-  ('Mamă creativă, schimb jucării și cărți pentru copii.'),
-  ('Fotograf amator, caut echipament foto și accesorii.'),
-  ('Bucătar pasionat, schimb ustensile și cărți de rețete.'),
-  ('Muzician, caut instrumente și echipament audio.'),
-  ('Runner, caut echipament sport și accesorii fitness.'),
-  ('Gamer, swap-uri de jocuri și periferice.'),
-  ('Minimalist, dau mai departe ce nu mai folosesc.'),
-  ('DIY enthusiast, caut materiale și unelte.'),
-  ('Ciclist urban, schimb accesorii bicicletă.'),
-  ('Iubitor de animale, caut accesorii și echipament.'),
-  ('Traveler, schimb ghiduri și echipament de călătorie.'),
-  ('Bookworm, am sute de cărți de oferit.'),
-  ('Meseriaș, schimb unelte și materiale de lucru.');
+  ('Tech enthusiast always looking for interesting swaps.'),
+  ('I love books and music. Open to creative exchanges.'),
+  ('Outdoor lover, looking for camping and sports gear.'),
+  ('Board game collector, always searching for trade partners.'),
+  ('Graphic designer, trading creative tools and tech.'),
+  ('Amateur gardener who loves plants and handmade decor.'),
+  ('Student looking for books and affordable electronics.'),
+  ('Creative parent, swapping toys and children''s books.'),
+  ('Amateur photographer, looking for photo gear and accessories.'),
+  ('Passionate cook, trading kitchen tools and recipe books.'),
+  ('Musician looking for instruments and audio equipment.'),
+  ('Runner and fitness fan, swapping sports gear.'),
+  ('Gamer — trading games and peripherals.'),
+  ('Minimalist passing along things I no longer need.'),
+  ('DIY enthusiast, looking for materials and tools.'),
+  ('Urban cyclist, trading bike accessories and gear.'),
+  ('Animal lover, swapping pet accessories and equipment.'),
+  ('Traveler trading guides and travel gear.'),
+  ('Bookworm with hundreds of books to offer.'),
+  ('Craftsperson trading tools and work materials.'),
+  ('Digital nomad, always moving — swap instead of buy!'),
+  ('Sustainability advocate, reduce-reuse-swap is my motto.'),
+  ('Coffee addict, happy to trade brewing equipment.'),
+  ('Vinyl collector looking for rare records.'),
+  ('Weekend hiker, gear in great condition to swap.');
+
+-- Swap notes per limbă
+CREATE TEMP TABLE _swap_notes (lang TEXT, note TEXT) ON COMMIT DROP;
+INSERT INTO _swap_notes VALUES
+  ('ro', 'Prefer întâlniri în zone publice. Curier doar pentru obiecte mici.'),
+  ('ro', 'Trimit prin curier în toată România.'),
+  ('ro', 'Flexibil, discutăm detaliile pe chat.'),
+  ('en', 'I prefer meeting in public places. Courier for small items only.'),
+  ('en', 'Happy to ship nationwide — buyer pays shipping.'),
+  ('en', 'Flexible on logistics, let''s chat about it.'),
+  ('es', 'Prefiero encuentros en zonas públicas. Envío solo artículos pequeños.'),
+  ('es', 'Puedo enviar por correo a todo el país.'),
+  ('es', 'Flexible, hablemos de los detalles.');
 
 -- ============================================================
--- 2) Generare 1000 profiluri demo
+-- 2) Generare 1000 profiluri demo internaționale
 -- ============================================================
 INSERT INTO profiles (
   id,
@@ -172,17 +321,26 @@ SELECT
   fn.name || ' ' || ln.name AS display_name,
   b.text AS bio,
   (ARRAY['free','free','free','premium','premium','platinum'])[1 + (i % 6)] AS badge,
+  -- Limba: bazată pe țara respectivă + uneori bilingv
   CASE
-    WHEN i % 5 = 0 THEN ARRAY['ro','en','es']::text[]
-    WHEN i % 3 = 0 THEN ARRAY['ro','en']::text[]
-    ELSE ARRAY['ro']::text[]
+    WHEN c.lang = 'ro' AND i % 4 = 0 THEN ARRAY['ro','en']::text[]
+    WHEN c.lang = 'ro' THEN ARRAY['ro']::text[]
+    WHEN c.lang = 'es' AND i % 4 = 0 THEN ARRAY['es','en']::text[]
+    WHEN c.lang = 'es' AND i % 8 = 0 THEN ARRAY['es','en','ro']::text[]
+    WHEN c.lang = 'es' THEN ARRAY['es']::text[]
+    WHEN i % 5 = 0 THEN ARRAY['en','es']::text[]
+    WHEN i % 7 = 0 THEN ARRAY['en','ro']::text[]
+    ELSE ARRAY['en']::text[]
   END AS languages,
   jsonb_build_object(
     'country', c.country,
     'region', c.region,
     'city', c.city,
     'postalCode', lpad(((i * 7 + 100000) % 900000 + 100000)::text, 6, '0'),
-    'coordinates', jsonb_build_object('lat', c.lat + (random() - 0.5) * 0.1, 'lng', c.lng + (random() - 0.5) * 0.1),
+    'coordinates', jsonb_build_object(
+      'lat', c.lat + (random() - 0.5) * 0.1,
+      'lng', c.lng + (random() - 0.5) * 0.1
+    ),
     'travelRadiusKm', (ARRAY[10,20,30,50,75,100])[1 + (i % 6)]
   ) AS location,
   jsonb_build_object(
@@ -200,11 +358,7 @@ SELECT
   ) AS notifications,
   jsonb_build_object(
     'logistics', (ARRAY['in_person','courier','flexible'])[1 + (i % 3)],
-    'notes', CASE
-      WHEN i % 3 = 0 THEN 'Prefer întâlniri în zone publice.'
-      WHEN i % 3 = 1 THEN 'Pot trimite prin curier în toată țara.'
-      ELSE 'Flexibil, discutăm detaliile.'
-    END
+    'notes', sn.note
   ) AS swap_preferences,
   jsonb_build_object(
     'twoFactorEnabled', i % 5 = 0,
@@ -219,21 +373,30 @@ SELECT
   ) AS stats
 FROM generate_series(1, 1000) AS i
 CROSS JOIN LATERAL (
-  SELECT name FROM _firstnames OFFSET (i % (SELECT count(*) FROM _firstnames)) LIMIT 1
+  SELECT name FROM _firstnames
+  OFFSET (i % (SELECT count(*) FROM _firstnames)) LIMIT 1
 ) fn
 CROSS JOIN LATERAL (
-  SELECT name FROM _lastnames OFFSET ((i * 7) % (SELECT count(*) FROM _lastnames)) LIMIT 1
+  SELECT name FROM _lastnames
+  OFFSET ((i * 7) % (SELECT count(*) FROM _lastnames)) LIMIT 1
 ) ln
 CROSS JOIN LATERAL (
-  SELECT city, region, country, lat, lng FROM _cities OFFSET (i % (SELECT count(*) FROM _cities)) LIMIT 1
+  SELECT city, region, country, lang, lat, lng FROM _cities
+  OFFSET (i % (SELECT count(*) FROM _cities)) LIMIT 1
 ) c
 CROSS JOIN LATERAL (
-  SELECT text FROM _bios OFFSET (i % (SELECT count(*) FROM _bios)) LIMIT 1
+  SELECT text FROM _bios
+  OFFSET (i % (SELECT count(*) FROM _bios)) LIMIT 1
 ) b
+CROSS JOIN LATERAL (
+  SELECT note FROM _swap_notes
+  WHERE lang = c.lang
+  OFFSET (i % 3) LIMIT 1
+) sn
 ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
--- 3) Generare ~2-3 items per cont demo (2000-3000 obiecte)
+-- 3) Generare ~2-3 items per cont demo (~2500 obiecte)
 -- ============================================================
 INSERT INTO items (
   id,
@@ -310,7 +473,12 @@ COMMIT;
 -- ============================================================
 -- Rezultat: 1000 conturi demo (demo-0001 .. demo-1000)
 --           ~2500 items demo (is_demo = true)
---           Toate în schema public cu RLS aplicabil
+--           20 țări: România, Moldova, Spania, Mexic, Argentina,
+--              Colombia, Chile, Peru, UK, USA, Canada, Australia,
+--              Irlanda, Germania, Franța, Italia, Portugalia,
+--              Polonia, Grecia, Ungaria
+--           80 orașe distincte
+--           Limbi: ro, en, es (+ combinații bilingve)
 -- ============================================================
 -- Pentru a șterge toate datele demo:
 --   DELETE FROM items WHERE is_demo = true;
