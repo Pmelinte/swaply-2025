@@ -108,23 +108,29 @@ function computeFeatureToggles(): FeatureToggle {
   return { aiEnabled, mapsEnabled, cloudinaryEnabled, supabaseConfigured };
 }
 
+function isDemoMode() {
+  if (typeof window === "undefined") return false;
+  return window.localStorage.getItem("swaply_demo_mode") === "true";
+}
+
 export function AppStateProvider({ children }: { children: ReactNode }) {
   const supabase = getSupabaseClient();
   const supabaseConfigured = Boolean(supabase);
+  const startInDemo = !supabaseConfigured || isDemoMode();
   const [dataSource, setDataSource] = useState<"supabase" | "mock">(
-    supabaseConfigured ? "supabase" : "mock",
+    startInDemo ? "mock" : "supabase",
   );
   const [loading, setLoading] = useState({
-    profile: supabaseConfigured,
-    items: supabaseConfigured,
-    auth: supabaseConfigured,
+    profile: !startInDemo && supabaseConfigured,
+    items: !startInDemo && supabaseConfigured,
+    auth: !startInDemo && supabaseConfigured,
   });
   const [lastError, setLastError] = useState<string | null>(null);
   const [user, setUser] = useState<UserProfile | null>(
-    supabaseConfigured ? null : mockUser,
+    startInDemo ? mockUser : null,
   );
   const [announcements] = useState<Announcement[]>(mockAnnouncements);
-  const [items, setItems] = useState<Item[]>(supabaseConfigured ? [] : mockItems);
+  const [items, setItems] = useState<Item[]>(startInDemo ? mockItems : []);
   const [matches, setMatches] = useState<MatchCandidate[]>(mockMatches);
   const [conversations, setConversations] =
     useState<Conversation[]>(mockConversations);
@@ -276,7 +282,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   );
 
   useEffect(() => {
-    if (!supabaseConfigured || !supabase) return;
+    if (!supabaseConfigured || !supabase || isDemoMode()) return;
 
     let unsubscribe: (() => void) | undefined;
     const init = async () => {
@@ -303,7 +309,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           if (nextSession?.user?.id) {
             setDataSource("supabase");
             await hydrateSupabase(nextSession.user.id);
-          } else {
+          } else if (!isDemoMode()) {
             setUser(null);
             setItems([]);
           }
@@ -358,14 +364,16 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   );
 
   const logout = useCallback(async () => {
+    if (typeof window !== "undefined") {
+      window.localStorage.removeItem("swaply_demo_mode");
+    }
     if (dataSource === "supabase" && supabase) {
       await supabase.auth.signOut();
-      setUser(null);
-      setItems([]);
-      return;
     }
     setUser(null);
-  }, [dataSource, supabase]);
+    setItems([]);
+    setDataSource(supabaseConfigured ? "supabase" : "mock");
+  }, [dataSource, supabase, supabaseConfigured]);
 
   const register = useCallback(
     async (
@@ -589,6 +597,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   const loginDemo = useCallback(() => {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("swaply_demo_mode", "true");
+    }
     setDataSource("mock");
     setUser(mockUser);
     setItems(mockItems);
