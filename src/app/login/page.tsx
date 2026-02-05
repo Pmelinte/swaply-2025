@@ -23,7 +23,7 @@ function LoginContent() {
   const [message, setMessage] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "error" | "success">("idle");
   const [processing, setProcessing] = useState(false);
-  const { login, register, user } = useAppState();
+  const { login, loginDemo, register, user } = useAppState();
 
   useEffect(() => {
     if (user) router.push(returnTo);
@@ -143,6 +143,23 @@ function LoginContent() {
             }
           </button>
         </form>
+
+        <div className="relative flex items-center gap-3 py-1">
+          <div className="h-px flex-1 bg-zinc-200 dark:bg-zinc-700" />
+          <span className="text-xs text-zinc-400">sau</span>
+          <div className="h-px flex-1 bg-zinc-200 dark:bg-zinc-700" />
+        </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            loginDemo();
+            router.push(returnTo);
+          }}
+          className="w-full rounded-full border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
+        >
+          Intră în modul demo (fără cont)
+        </button>
 
         {message ? (
           <div
