@@ -57,6 +57,7 @@ export function TopBar() {
   const pathname = usePathname();
   const { user, logout, language, setLanguage, announcements } = useAppState();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
   const pathKey =
     Object.keys(contextualActions).find(
       (key) => pathname === key || pathname.startsWith(`${key}/`),
@@ -142,19 +143,39 @@ export function TopBar() {
                     <span>Notificări & cont</span>
                     <Badge tier={user?.badge ?? "free"} />
                   </div>
-                  <button
-                    type="button"
-                    className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-zinc-800 hover:bg-zinc-100 dark:text-zinc-100 dark:hover:bg-zinc-700"
-                    aria-disabled
-                  >
-                    <span className="flex items-center gap-2">
-                      <BellDot className="h-4 w-4" />
-                      Notificări (like/interes/chat/swaply)
-                    </span>
-                    <span className="rounded-full bg-blue-100 px-2 text-[11px] font-semibold text-blue-800 dark:bg-blue-900/50 dark:text-blue-100">
-                      {unread}
-                    </span>
-                  </button>
+                  <div className="relative">
+                    <button
+                      type="button"
+                      className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-zinc-800 hover:bg-zinc-100 dark:text-zinc-100 dark:hover:bg-zinc-700"
+                      onClick={() => setNotifOpen((prev) => !prev)}
+                    >
+                      <span className="flex items-center gap-2">
+                        <BellDot className="h-4 w-4" />
+                        Notificări (like/interes/chat/swaply)
+                      </span>
+                      <span className="rounded-full bg-blue-100 px-2 text-[11px] font-semibold text-blue-800 dark:bg-blue-900/50 dark:text-blue-100">
+                        {unread}
+                      </span>
+                    </button>
+                    {notifOpen && announcements.length > 0 ? (
+                      <div className="mt-1 space-y-1 rounded-lg border border-zinc-200 bg-zinc-50 p-2 dark:border-zinc-700 dark:bg-zinc-900">
+                        {announcements.map((a) => (
+                          <div
+                            key={a.id}
+                            className={`rounded-md px-3 py-2 text-xs ${
+                              a.priority === "warning"
+                                ? "bg-amber-50 text-amber-900 dark:bg-amber-900/30 dark:text-amber-100"
+                                : a.priority === "success"
+                                  ? "bg-green-50 text-green-900 dark:bg-green-900/30 dark:text-green-100"
+                                  : "bg-blue-50 text-blue-900 dark:bg-blue-900/30 dark:text-blue-100"
+                            }`}
+                          >
+                            {a.message}
+                          </div>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
                   <Link
                     href="/profile"
                     className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-zinc-800 hover:bg-zinc-100 dark:text-zinc-100 dark:hover:bg-zinc-700"
