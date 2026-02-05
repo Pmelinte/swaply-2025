@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useAppState } from "@/lib/state";
 import { LoggedOutGate, MissingDataCallout } from "@/components/gated";
-import { Badge, Pill, SectionCard, StateShowcase } from "@/components/ui";
+import { Badge, NextStepRecommendation, Pill, SectionCard, StateShowcase } from "@/components/ui";
 import { UserProfile } from "@/lib/types";
 
 export default function ProfilePage() {
@@ -33,14 +33,62 @@ export default function ProfilePage() {
   };
 
   const locationIncomplete = !draft.location?.city || !draft.location?.country;
+  const [activeTab, setActiveTab] = useState<"profil" | "cont" | "reputatie">("profil");
+  const profileTabs = [
+    { key: "profil" as const, label: "Profil" },
+    { key: "cont" as const, label: "Cont & Setări" },
+    { key: "reputatie" as const, label: "Reputație" },
+  ];
 
   return (
     <div className="space-y-4">
+      <div className="flex flex-wrap gap-2">
+        {profileTabs.map((tab) => (
+          <button
+            key={tab.key}
+            type="button"
+            onClick={() => setActiveTab(tab.key)}
+            className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+              activeTab === tab.key
+                ? "bg-blue-600 text-white"
+                : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === "profil" ? (
+        <>
       <SectionCard
         title="Identitate publică"
         description="Ce vede lumea: nume afișat, avatar, bio, limbi vorbite."
         action={<Badge tier={draft.badge} />}
       >
+        <div className="flex items-center gap-4">
+          <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full border-2 border-zinc-200 bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800">
+            {draft.avatarUrl ? (
+              <img src={draft.avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-zinc-400">
+                {draft.displayName?.charAt(0)?.toUpperCase() ?? "?"}
+              </div>
+            )}
+          </div>
+          <div className="space-y-1">
+            <label className="block text-xs font-semibold text-zinc-500 dark:text-zinc-400">
+              Avatar (URL)
+              <input
+                value={draft.avatarUrl ?? ""}
+                onChange={(e) => update({ avatarUrl: e.target.value })}
+                placeholder="https://example.com/avatar.jpg"
+                className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
+              />
+            </label>
+            <p className="text-xs text-zinc-400">Upload real necesită integrare Cloudinary/Supabase Storage.</p>
+          </div>
+        </div>
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
             Nume afișat
@@ -175,6 +223,11 @@ export default function ProfilePage() {
         </div>
       </SectionCard>
 
+        </>
+      ) : null}
+
+      {activeTab === "cont" ? (
+        <>
       <SectionCard
         title="Preferințe schimb"
         description="Logistică, notificări, vizibilitate obiecte."
@@ -339,6 +392,11 @@ export default function ProfilePage() {
         </div>
       </SectionCard>
 
+        </>
+      ) : null}
+
+      {activeTab === "reputatie" ? (
+        <>
       <SectionCard
         title="Reputație & tokeni"
         description="Date read-only despre activitatea ta."
@@ -363,6 +421,9 @@ export default function ProfilePage() {
           </div>
         </div>
       </SectionCard>
+
+        </>
+      ) : null}
 
       <SectionCard
         title="Salvare profil"
@@ -393,6 +454,14 @@ export default function ProfilePage() {
           </div>
         ) : null}
       </SectionCard>
+
+      <NextStepRecommendation
+        steps={[
+          { label: "Adaugă obiecte", href: "/objects/new", description: "Listează ce ai de oferit pentru schimb" },
+          { label: "Caută match-uri", href: "/match", description: "Descoperă potriviri cu alte obiecte" },
+          { label: "Beneficii badge", href: "/info#monetizare", description: "Descoperă avantajele Premium și Platinum" },
+        ]}
+      />
 
       <StateShowcase
         title="Stări PROFIL"

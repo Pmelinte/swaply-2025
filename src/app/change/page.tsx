@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useAppState } from "@/lib/state";
 import { LoggedOutGate } from "@/components/gated";
-import { CTAButton, Pill, SectionCard, StateShowcase } from "@/components/ui";
+import { CTAButton, NextStepRecommendation, Pill, SectionCard, StateShowcase } from "@/components/ui";
 import { SwapTimeline } from "@/features/change/SwapTimeline";
 
 export default function ChangePage() {
@@ -83,6 +83,33 @@ export default function ChangePage() {
         </SectionCard>
       ) : null}
 
+      <SectionCard title="Pașii de utilizare" description="Ghid pas cu pas pentru un schimb reușit">
+        <div className="space-y-3">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              { step: "1", title: "Propune schimbul", desc: "Selectează obiectul dorit și trimite o propunere de swap." },
+              { step: "2", title: "Acceptare / Negociere", desc: "Partenerul acceptă, respinge sau propune modificări." },
+              { step: "3", title: "Logistică", desc: "Alegeți locul de întâlnire sau opțiunea de curier." },
+              { step: "4", title: "Confirmare finală", desc: "Ambii confirmă, lasă feedback și primesc tokeni." },
+            ].map((s) => (
+              <div
+                key={s.step}
+                className="rounded-xl border border-zinc-200 bg-white/70 p-3 dark:border-zinc-800 dark:bg-zinc-900/70"
+              >
+                <div className="mb-1 flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
+                  {s.step}
+                </div>
+                <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">{s.title}</p>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            Funcționalitatea completă necesită integrare cu backend de mesagerie și logistică. În demo, pașii sunt simulați.
+          </p>
+        </div>
+      </SectionCard>
+
       <SectionCard title="Siguranță" description="Harta folosește pini anonimizati, notificările sunt server-side">
         <div className="flex flex-wrap gap-2 text-xs text-zinc-600 dark:text-zinc-300">
           <Pill color="blue">Pini Premium/Platinum</Pill>
@@ -94,6 +121,14 @@ export default function ChangePage() {
         </p>
         <CTAButton href="/info" variant="ghost">Vezi politicile</CTAButton>
       </SectionCard>
+
+      <NextStepRecommendation
+        steps={[
+          { label: "Lasă feedback", href: "/change", description: "Evaluează experiența swap-ului" },
+          { label: "Caută alt match", href: "/match", description: "Descoperă noi oportunități de schimb" },
+          { label: "Vezi statistici", href: "/info#stats", description: "Verifică-ți reputația și tokenii" },
+        ]}
+      />
 
       <StateShowcase
         title="Stări CHANGE / SWAPLY"

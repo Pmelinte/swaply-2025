@@ -2,7 +2,7 @@
 
 import { useAppState } from "@/lib/state";
 import { LoggedOutGate } from "@/components/gated";
-import { CTAButton, SectionCard, StateShowcase } from "@/components/ui";
+import { CTAButton, NextStepRecommendation, SectionCard, StateShowcase } from "@/components/ui";
 import { ChatPanel } from "@/features/chat/ChatPanel";
 
 export default function ChatPage() {
@@ -28,6 +28,13 @@ export default function ChatPage() {
           <li>CTA către Swaply (pagina Change) este prezent pentru confirmare logistică.</li>
         </ul>
       </SectionCard>
+
+      <NextStepRecommendation
+        steps={[
+          { label: "Confirmă un swap", href: "/change", description: "Treci la confirmarea logisticii" },
+          { label: "Vezi match-uri", href: "/match", description: "Descoperă alte potriviri noi" },
+        ]}
+      />
 
       <StateShowcase
         title="Stări CHAT"

@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAppState } from "@/lib/state";
-import { SectionCard, StateShowcase } from "@/components/ui";
+import { NextStepRecommendation, SectionCard, StateShowcase } from "@/components/ui";
 
 const tabs = [
   { key: "login", label: "Autentificare" },
@@ -162,6 +162,12 @@ function LoginContent() {
           <p>Legal: link permanent către <Link className="underline" href="/info">Termeni & Politica GDPR</Link>.</p>
         </div>
       </SectionCard>
+      <NextStepRecommendation
+        steps={[
+          { label: "Explorează obiecte", href: "/objects", description: "Vezi obiectele disponibile chiar și fără cont" },
+          { label: "Informații platformă", href: "/info", description: "Citește regulile și beneficiile badge-urilor" },
+        ]}
+      />
       <StateShowcase
         title="Stări LOGIN"
         states={[

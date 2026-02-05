@@ -122,6 +122,36 @@ type PageStateDefinition = {
   action?: React.ReactNode;
 };
 
+export function NextStepRecommendation({
+  steps,
+}: {
+  steps: Array<{ label: string; href: string; description: string }>;
+}) {
+  if (!steps.length) return null;
+  return (
+    <div className="rounded-2xl border border-blue-200 bg-blue-50/80 p-4 shadow-sm dark:border-blue-900 dark:bg-blue-950/40">
+      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">
+        Următorul pas recomandat
+      </p>
+      <div className="space-y-2">
+        {steps.map((step) => (
+          <Link
+            key={step.href}
+            href={step.href}
+            className="flex items-center justify-between rounded-xl bg-white/70 p-3 text-sm transition hover:bg-white dark:bg-zinc-900/60 dark:hover:bg-zinc-800/80"
+          >
+            <div>
+              <p className="font-semibold text-zinc-900 dark:text-zinc-50">{step.label}</p>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">{step.description}</p>
+            </div>
+            <span className="text-blue-600 dark:text-blue-300">→</span>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function StateShowcase({
   title,
   states,

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { StatsGrid } from "@/features/info/StatsGrid";
 import { useAppState } from "@/lib/state";
-import { Pill, SectionCard, StateShowcase } from "@/components/ui";
+import { NextStepRecommendation, Pill, SectionCard, StateShowcase } from "@/components/ui";
 
 export default function InfoPage() {
   const { infoStats } = useAppState();
@@ -91,6 +91,14 @@ export default function InfoPage() {
           </ul>
         </SectionCard>
       </div>
+
+      <NextStepRecommendation
+        steps={[
+          { label: "Începe cu obiectele", href: "/objects", description: "Listează sau caută obiecte de schimb" },
+          { label: "Descoperă match-uri", href: "/match", description: "Lasă AI-ul să găsească potriviri" },
+          { label: "Autentificare", href: "/login", description: "Creează cont sau conectează-te" },
+        ]}
+      />
 
       <StateShowcase
         title="Stări INFO"
