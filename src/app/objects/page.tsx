@@ -1,201 +1,247 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useAppState } from "@/lib/state";
-import { SectionCard, StateShowcase } from "@/components/ui";
+import { LoggedOutGate } from "@/components/gated";
+import { CTAButton, NextStepRecommendation, Pill, SectionCard, StateShowcase } from "@/components/ui";
+import { ItemCard } from "@/features/items/ItemCard";
 
-const tabs = [
-  { key: "login", label: "Autentificare" },
-  { key: "register", label: "Înregistrare" },
-  { key: "reset", label: "Reset parolă" },
+const PAGE_SIZE = 3;
+
+const categories = [
+  "Toate",
+  "Electronică",
+  "Sport & Outdoor",
+  "Hobby & Jocuri",
+  "Cărți & Media",
+  "Casă & Grădină",
 ];
 
-function LoginContent() {
-  const params = useSearchParams();
+export default function ObjectsPage() {
   const router = useRouter();
-  const returnTo = params.get("returnTo") || "/profile";
-  const [activeTab, setActiveTab] = useState<string>(tabs[0].key);
-  const [email, setEmail] = useState("ana.swaply@example.com");
-  const [password, setPassword] = useState("password123");
-  const [accept, setAccept] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-  const [status, setStatus] = useState<"idle" | "error" | "success">("idle");
-  const [processing, setProcessing] = useState(false);
-  const { login, register, user } = useAppState();
+  const { user, items, deleteItem } = useAppState();
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("Toate");
+  const [pageOffered, setPageOffered] = useState(0);
+  const [pageWanted, setPageWanted] = useState(0);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (user) router.push(returnTo);
-  }, [user, returnTo, router]);
+  const myItems = user ? items.filter((i) => i.ownerId === user.id) : [];
+  const otherItems = user
+    ? items.filter((i) => i.ownerId !== user.id && i.isActive)
+    : items.filter((i) => i.isActive);
 
-  const handleSubmit = async () => {
-    setMessage(null);
-    setStatus("idle");
-    setProcessing(true);
-    if (!accept) {
-      setMessage("Bifează acceptarea Termeni & GDPR pentru a continua.");
-      setStatus("error");
-      setProcessing(false);
-      return;
-    }
+  const filterItems = (list: typeof items) =>
+    list.filter((item) => {
+      const matchesSearch =
+        !search ||
+        item.title.toLowerCase().includes(search.toLowerCase()) ||
+        item.description.toLowerCase().includes(search.toLowerCase());
+      const matchesCategory =
+        category === "Toate" || item.category === category;
+      return matchesSearch && matchesCategory;
+    });
 
-    if (activeTab === "login") {
-      const { error } = await login(email, password, accept);
-      if (error) {
-        setMessage(error);
-        setStatus("error");
-      } else {
-        setMessage("Autentificat. Redirect către profil.");
-        setStatus("success");
-        router.push(returnTo);
-      }
-    } else if (activeTab === "register") {
-      const { error } = await register(email, password, accept);
-      if (error) {
-        setMessage(error);
-        setStatus("error");
-      } else {
-        setMessage("Cont creat. Confirmă email și configurează 2FA.");
-        setStatus("success");
-      }
+  const filteredOffered = filterItems(myItems);
+  const filteredWanted = filterItems(otherItems);
+
+  const pagedOffered = filteredOffered.slice(
+    pageOffered * PAGE_SIZE,
+    (pageOffered + 1) * PAGE_SIZE,
+  );
+  const pagedWanted = filteredWanted.slice(
+    pageWanted * PAGE_SIZE,
+    (pageWanted + 1) * PAGE_SIZE,
+  );
+
+  const totalPagesOffered = Math.max(1, Math.ceil(filteredOffered.length / PAGE_SIZE));
+  const totalPagesWanted = Math.max(1, Math.ceil(filteredWanted.length / PAGE_SIZE));
+
+  const handleDelete = (id: string) => {
+    if (deleteConfirm === id) {
+      deleteItem(id);
+      setDeleteConfirm(null);
     } else {
-      setMessage("Instrucțiuni de reset trimise pe email.");
-      setStatus("success");
+      setDeleteConfirm(id);
     }
-    setProcessing(false);
   };
 
   return (
     <div className="space-y-5">
       <SectionCard
-        title="Autentificare / Înregistrare"
-        description="Email + parolă, cu opțiuni Google și OTP. Return-to păstrat după login."
+        title="Obiecte"
+        description="Obiectele tale oferite și obiectele dorite de la alți utilizatori."
+        action={
+          user ? <CTAButton href="/objects/new">Adaugă obiect</CTAButton> : undefined
+        }
       >
-        <div className="flex flex-wrap gap-2">
-          {tabs.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`rounded-full px-4 py-2 text-sm font-semibold ${
-                activeTab === tab.key
-                  ? "bg-blue-600 text-white"
-                  : "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        <form
-          className="mt-4 space-y-3"
-          onSubmit={(e) => {
-            e.preventDefault();
-            void handleSubmit();
-          }}
-        >
-          <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-            Email
-            <input
-              value={email}
-              type="email"
-              required
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
-            />
-          </label>
-          {activeTab !== "reset" ? (
-            <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-              Parolă
-              <input
-                value={password}
-                type="password"
-                required
-                onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
-              />
-            </label>
-          ) : null}
-
-          <label className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
-            <input
-              type="checkbox"
-              checked={accept}
-              onChange={(e) => setAccept(e.target.checked)}
-              required
-            />
-            <span>
-              Accept <Link className="underline" href="/info#legal">Termeni & Politica GDPR</Link> (nu permitem submit fără consimțământ)
-            </span>
-          </label>
-
-          <button
-            type="submit"
-            disabled={processing}
-            className="w-full rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <input
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPageOffered(0);
+              setPageWanted(0);
+            }}
+            placeholder="Caută obiecte..."
+            className="flex-1 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
+          />
+          <select
+            value={category}
+            onChange={(e) => {
+              setCategory(e.target.value);
+              setPageOffered(0);
+              setPageWanted(0);
+            }}
+            className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
           >
-            {activeTab === "login"
-              ? "Autentificare"
-              : activeTab === "register"
-                ? "Creează cont"
-                : "Trimite reset"
-            }
-          </button>
-        </form>
-
-        {message ? (
-          <div
-            className={`rounded-xl p-3 text-sm ${
-              status === "error"
-                ? "bg-red-50 text-red-900 dark:bg-red-900/40 dark:text-red-100"
-                : "bg-green-50 text-green-900 dark:bg-green-900/40 dark:text-green-100"
-            }`}
-          >
-            {processing ? "Se verifică..." : message}
-          </div>
-        ) : null}
-
-        <div className="space-y-2 text-sm text-zinc-600 dark:text-zinc-300">
-          <p>2FA opțional: TOTP, SMS OTP, Passkey/WebAuthn. Activare după login pe pagina de profil.</p>
-          <p>Metode alternative: Google SSO, Telefon OTP (beta). Email OTP doar ca fallback.</p>
-          <p>Legal: link permanent către <Link className="underline" href="/info">Termeni & Politica GDPR</Link>.</p>
+            {categories.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
         </div>
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+          Subcategorii dezactivate în beta. Filtrarea se aplică ambelor secțiuni.
+        </p>
       </SectionCard>
+
+      {!user ? (
+        <LoggedOutGate returnTo="/objects" />
+      ) : (
+        <SectionCard
+          title="Obiecte oferite"
+          description={`Obiectele tale listate pentru schimb (${filteredOffered.length})`}
+          action={<CTAButton href="/objects/new">Adaugă</CTAButton>}
+        >
+          {pagedOffered.length > 0 ? (
+            <div className="space-y-3">
+              {pagedOffered.map((item) => (
+                <div key={item.id}>
+                  <ItemCard
+                    item={item}
+                    onView={() => router.push(`/objects/${item.id}`)}
+                    onEdit={() => router.push(`/objects/${item.id}/edit`)}
+                    onDelete={() => handleDelete(item.id)}
+                  />
+                  {deleteConfirm === item.id ? (
+                    <div className="mt-1 rounded-lg bg-red-50 p-2 text-xs text-red-800 dark:bg-red-900/30 dark:text-red-200">
+                      Sigur vrei să ștergi? Apasă din nou pe Șterge pentru confirmare.
+                    </div>
+                  ) : null}
+                </div>
+              ))}
+              <div className="flex items-center justify-between text-xs text-zinc-500">
+                <button
+                  type="button"
+                  disabled={pageOffered === 0}
+                  onClick={() => setPageOffered((p) => p - 1)}
+                  className="rounded-full px-3 py-1 hover:bg-zinc-100 disabled:opacity-40 dark:hover:bg-zinc-800"
+                >
+                  ← Precedentă
+                </button>
+                <span>
+                  {pageOffered + 1} / {totalPagesOffered}
+                </span>
+                <button
+                  type="button"
+                  disabled={pageOffered + 1 >= totalPagesOffered}
+                  onClick={() => setPageOffered((p) => p + 1)}
+                  className="rounded-full px-3 py-1 hover:bg-zinc-100 disabled:opacity-40 dark:hover:bg-zinc-800"
+                >
+                  Următoare →
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="rounded-xl border border-dashed border-zinc-200 bg-zinc-50 p-4 text-center text-sm text-zinc-500 dark:border-zinc-700 dark:bg-zinc-900/60">
+              Nu ai obiecte listate.{" "}
+              <CTAButton href="/objects/new">Adaugă primul obiect</CTAButton>
+            </div>
+          )}
+        </SectionCard>
+      )}
+
+      <SectionCard
+        title="Obiecte dorite"
+        description={`Obiecte disponibile de la alți utilizatori (${filteredWanted.length})`}
+      >
+        {pagedWanted.length > 0 ? (
+          <div className="space-y-3">
+            {pagedWanted.map((item) => (
+              <ItemCard
+                key={item.id}
+                item={item}
+                onView={() => router.push(`/objects/${item.id}`)}
+              />
+            ))}
+            <div className="flex items-center justify-between text-xs text-zinc-500">
+              <button
+                type="button"
+                disabled={pageWanted === 0}
+                onClick={() => setPageWanted((p) => p - 1)}
+                className="rounded-full px-3 py-1 hover:bg-zinc-100 disabled:opacity-40 dark:hover:bg-zinc-800"
+              >
+                ← Precedentă
+              </button>
+              <span>
+                {pageWanted + 1} / {totalPagesWanted}
+              </span>
+              <button
+                type="button"
+                disabled={pageWanted + 1 >= totalPagesWanted}
+                onClick={() => setPageWanted((p) => p + 1)}
+                className="rounded-full px-3 py-1 hover:bg-zinc-100 disabled:opacity-40 dark:hover:bg-zinc-800"
+              >
+                Următoare →
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="rounded-xl border border-dashed border-zinc-200 bg-zinc-50 p-4 text-center text-sm text-zinc-500 dark:border-zinc-700 dark:bg-zinc-900/60">
+            Niciun obiect disponibil momentan.
+          </div>
+        )}
+      </SectionCard>
+
+      <NextStepRecommendation
+        steps={
+          user
+            ? [
+                { label: "Caută match-uri", href: "/match", description: "Descoperă potriviri pe baza obiectelor tale" },
+                { label: "Deschide chat", href: "/chat", description: "Discută cu alți utilizatori despre schimburi" },
+              ]
+            : [
+                { label: "Creează cont", href: "/login", description: "Autentifică-te pentru a lista obiecte" },
+              ]
+        }
+      />
+
       <StateShowcase
-        title="Stări LOGIN"
+        title="Stări OBIECTE"
         states={[
           {
             key: "loading",
-            title: "Se verifică sesiunea",
-            description: "Afișăm indicator de încărcare cât timp validăm tokenul sau redirectăm către returnTo.",
+            title: "Se încarcă lista de obiecte",
+            description:
+              "Afișăm skeleton pe carduri + placeholder pentru filtre.",
           },
           {
             key: "empty",
-            title: "Formular gol",
-            description: "Input-urile sunt precompletate, dar acceptarea Termeni & GDPR este obligatorie înainte de orice submit.",
+            title: "Niciun obiect",
+            description:
+              "Empty state vizibil cu CTA spre adăugare obiect nou.",
           },
           {
             key: "error",
-            title: "Credențiale invalide",
-            description: "Mesaj roșu + mențiune parolă demo. Nu facem mock success; rămânem pe pagină cu CTA spre reset parolă.",
+            title: "Eroare la încărcarea obiectelor",
+            description:
+              "Mesaj clar fără crash; permit reîncărcarea paginii sau navigarea spre alte secțiuni.",
           },
         ]}
       />
     </div>
-  );
-}
-
-export default function LoginPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="rounded-2xl border border-zinc-200 bg-white/80 p-4 text-sm text-zinc-600 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/80">
-          Se încarcă formularul de autentificare...
-        </div>
-      }
-    >
-      <LoginContent />
-    </Suspense>
   );
 }

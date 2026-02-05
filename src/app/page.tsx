@@ -1,6 +1,6 @@
 "use client";
 
-import { CTAButton, Pill, SectionCard, StateShowcase } from "@/components/ui";
+import { CTAButton, NextStepRecommendation, Pill, SectionCard, StateShowcase } from "@/components/ui";
 import { MapPreview } from "@/components/MapPreview";
 import { LoggedOutGate, MissingDataCallout } from "@/components/gated";
 import { useAppState } from "@/lib/state";
@@ -125,6 +125,21 @@ export default function HomePage() {
           </p>
         </SectionCard>
       )}
+
+      <NextStepRecommendation
+        steps={
+          user
+            ? [
+                { label: "Adaugă un obiect", href: "/objects/new", description: "Listează ceva pentru schimb" },
+                { label: "Vezi match-urile", href: "/match", description: "Descoperă propuneri compatibile" },
+                { label: "Explorează obiecte", href: "/objects", description: "Caută ce oferă alți utilizatori" },
+              ]
+            : [
+                { label: "Autentifică-te", href: "/login", description: "Creează cont sau conectează-te" },
+                { label: "Explorează obiectele", href: "/objects", description: "Vezi ce e disponibil fără cont" },
+              ]
+        }
+      />
 
       <SectionCard
         title="Stări HOME"

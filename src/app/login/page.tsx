@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAppState } from "@/lib/state";
-import { SectionCard, StateShowcase } from "@/components/ui";
+import { NextStepRecommendation, SectionCard, StateShowcase } from "@/components/ui";
 
 const tabs = [
   { key: "login", label: "Autentificare" },
@@ -23,7 +23,7 @@ function LoginContent() {
   const [message, setMessage] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "error" | "success">("idle");
   const [processing, setProcessing] = useState(false);
-  const { login, register, user } = useAppState();
+  const { login, loginDemo, register, user } = useAppState();
 
   useEffect(() => {
     if (user) router.push(returnTo);
@@ -144,6 +144,23 @@ function LoginContent() {
           </button>
         </form>
 
+        <div className="relative flex items-center gap-3 py-1">
+          <div className="h-px flex-1 bg-zinc-200 dark:bg-zinc-700" />
+          <span className="text-xs text-zinc-400">sau</span>
+          <div className="h-px flex-1 bg-zinc-200 dark:bg-zinc-700" />
+        </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            loginDemo();
+            router.push(returnTo);
+          }}
+          className="w-full rounded-full border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
+        >
+          Intră în modul demo (fără cont)
+        </button>
+
         {message ? (
           <div
             className={`rounded-xl p-3 text-sm ${
@@ -162,6 +179,12 @@ function LoginContent() {
           <p>Legal: link permanent către <Link className="underline" href="/info">Termeni & Politica GDPR</Link>.</p>
         </div>
       </SectionCard>
+      <NextStepRecommendation
+        steps={[
+          { label: "Explorează obiecte", href: "/objects", description: "Vezi obiectele disponibile chiar și fără cont" },
+          { label: "Informații platformă", href: "/info", description: "Citește regulile și beneficiile badge-urilor" },
+        ]}
+      />
       <StateShowcase
         title="Stări LOGIN"
         states={[

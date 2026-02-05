@@ -80,6 +80,7 @@ interface AppStateContextProps {
   toggleConversationTranslation: (conversationId: string) => void;
   updateSwapStatus: (swapId: string, status: SwapIntent["status"]) => void;
   addSwapFeedback: (swapId: string, rating: number, comment: string) => void;
+  loginDemo: () => void;
   startNewItem: () => Item | null;
   infoStats: typeof mockInfoStats;
 }
@@ -587,6 +588,17 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     return createEmptyItem(user.id);
   }, [user]);
 
+  const loginDemo = useCallback(() => {
+    setDataSource("mock");
+    setUser(mockUser);
+    setItems(mockItems);
+    setMatches(mockMatches);
+    setConversations(mockConversations);
+    setSwaps(mockSwaps);
+    setLastError(null);
+    setLoading({ profile: false, items: false, auth: false });
+  }, []);
+
   const value = useMemo(
     () => ({
       user,
@@ -611,6 +623,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       toggleConversationTranslation,
       updateSwapStatus,
       addSwapFeedback,
+      loginDemo,
       startNewItem,
       infoStats: mockInfoStats,
     }),
@@ -623,6 +636,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       featureToggles,
       items,
       login,
+      loginDemo,
       logout,
       matches,
       register,
