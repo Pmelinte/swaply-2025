@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -10,7 +11,17 @@ import { Pill, SectionCard, StateShowcase } from "@/components/ui";
 export default function ObjectDetailsPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const { items, user, loading } = useAppState();
+  const { items, user, loading, proposeSwap } = useAppState();
+  const myActiveItems = useMemo(
+    () =>
+      user
+        ? items.filter((i) => i.ownerId === user.id && i.isActive && i.status === "active")
+        : [],
+    [items, user],
+  );
+  const [offerItemId, setOfferItemId] = useState<string>("");
+  const validOfferItemId = myActiveItems.some((i) => i.id === offerItemId) ? offerItemId : "";
+  const effectiveOfferItemId = validOfferItemId || myActiveItems[0]?.id || "";
   const item = items.find((i) => i.id === params.id);
 
   if (loading.items) {
@@ -69,6 +80,7 @@ export default function ObjectDetailsPage() {
           <div className="space-y-3">
             <div className="flex flex-wrap gap-2 text-xs">
               <Pill color="blue">Categorie: {item.category}</Pill>
+              <Pill color="zinc">Condiție: {item.condition}</Pill>
               <Pill color="green">Status: {item.status}</Pill>
               <Pill color="zinc">Locație: {item.location}</Pill>
             </div>
@@ -76,9 +88,37 @@ export default function ObjectDetailsPage() {
             <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">
               Îmi doresc în schimb: {item.wishlist}
             </p>
-            <div className="rounded-xl bg-blue-50 p-3 text-xs text-blue-900 dark:bg-blue-950/40 dark:text-blue-100">
-              AI suggested tags: {item.aiSuggestedTags?.join(", ") || "-"} · user_final: {item.userFinalTags?.join(", ") || "-"}
+            <div className="grid gap-2 sm:grid-cols-2">
+              <div className="rounded-xl bg-blue-50 p-3 text-xs text-blue-900 dark:bg-blue-950/40 dark:text-blue-100">
+                <p className="font-semibold">AI suggested tags</p>
+                <p>{item.aiSuggestedTags?.join(", ") || "-"}</p>
+              </div>
+              <div className="rounded-xl bg-emerald-50 p-3 text-xs text-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-100">
+                <p className="font-semibold">User final tags</p>
+                <p>{item.userFinalTags?.join(", ") || "-"}</p>
+              </div>
             </div>
+
+            {item.ownerId !== user.id ? (
+              <label className="block text-xs font-semibold text-zinc-600 dark:text-zinc-300">
+                Obiectul tău oferit (pentru propunere swap)
+                <select
+                  value={effectiveOfferItemId}
+                  onChange={(e) => setOfferItemId(e.target.value)}
+                  className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
+                >
+                  {myActiveItems.length ? (
+                    myActiveItems.map((i) => (
+                      <option key={i.id} value={i.id}>
+                        {i.title}
+                      </option>
+                    ))
+                  ) : (
+                    <option value="">Nu ai obiecte active</option>
+                  )}
+                </select>
+              </label>
+            ) : null}
             <div className="flex flex-wrap gap-2 text-sm font-semibold">
               <button
                 className="rounded-full bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
@@ -88,13 +128,33 @@ export default function ObjectDetailsPage() {
               </button>
               <button
                 className="rounded-full bg-zinc-900 px-4 py-2 text-white hover:bg-zinc-800"
-                onClick={() => router.push("/chat")}
+                onClick={() =>
+                  router.push(
+                    item.ownerId === user.id
+                      ? "/chat"
+                      : `/chat?to=${encodeURIComponent(item.ownerId)}`,
+                  )
+                }
               >
                 Inițiază chat securizat
               </button>
               <button
                 className="rounded-full bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-700"
-                onClick={() => router.push("/change")}
+                disabled={item.ownerId !== user.id && !effectiveOfferItemId}
+                onClick={() => {
+                  if (item.ownerId === user.id) {
+                    router.push("/change");
+                    return;
+                  }
+                  void (async () => {
+                    const swap = await proposeSwap({
+                      requesterItemId: effectiveOfferItemId,
+                      responderItemId: item.id,
+                      responderId: item.ownerId,
+                    });
+                    router.push(swap ? `/change?swap=${swap.id}` : "/change");
+                  })();
+                }}
               >
                 Propune schimb
               </button>

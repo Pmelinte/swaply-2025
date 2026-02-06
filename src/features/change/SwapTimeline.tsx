@@ -10,7 +10,15 @@ const statusLabels: Record<SwapIntent["status"], string> = {
   cancelled: "Anulat",
 };
 
-export function SwapTimeline({ swap }: { swap: SwapIntent }) {
+export function SwapTimeline({
+  swap,
+  requesterLabel,
+  responderLabel,
+}: {
+  swap: SwapIntent;
+  requesterLabel?: string;
+  responderLabel?: string;
+}) {
   const steps: Array<{ title: string; description: string; done: boolean }> = [
     {
       title: "Propunere inițială",
@@ -43,7 +51,7 @@ export function SwapTimeline({ swap }: { swap: SwapIntent }) {
         <div>
           <p className="text-xs uppercase text-zinc-500">Schimb</p>
           <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-            {swap.requesterItemId} ↔ {swap.responderItemId}
+            {requesterLabel ?? swap.requesterItemId} ↔ {responderLabel ?? swap.responderItemId}
           </h3>
         </div>
         <Pill color="blue">Status: {statusLabels[swap.status]}</Pill>

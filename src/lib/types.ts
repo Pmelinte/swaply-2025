@@ -124,6 +124,16 @@ export interface Announcement {
   priority: "info" | "warning" | "success";
 }
 
+export interface Notification {
+  id: string;
+  userId: string;
+  type: string;
+  message: string;
+  read: boolean;
+  priority: "info" | "warning" | "success";
+  createdAt: string;
+}
+
 export interface InfoStats {
   globalSwaps: number;
   activeUsers: number;
