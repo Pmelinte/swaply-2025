@@ -10,6 +10,12 @@ export default function ProfilePage() {
   const { user, updateProfile, loading, lastError } = useAppState();
   const [draft, setDraft] = useState<UserProfile | null>(user);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"profil" | "cont" | "reputatie">("profil");
+  const profileTabs = [
+    { key: "profil" as const, label: "Profil" },
+    { key: "cont" as const, label: "Cont & Setări" },
+    { key: "reputatie" as const, label: "Reputație" },
+  ];
 
   if (loading.profile) {
     return (
@@ -33,12 +39,6 @@ export default function ProfilePage() {
   };
 
   const locationIncomplete = !draft.location?.city || !draft.location?.country;
-  const [activeTab, setActiveTab] = useState<"profil" | "cont" | "reputatie">("profil");
-  const profileTabs = [
-    { key: "profil" as const, label: "Profil" },
-    { key: "cont" as const, label: "Cont & Setări" },
-    { key: "reputatie" as const, label: "Reputație" },
-  ];
 
   return (
     <div className="space-y-4">
