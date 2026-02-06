@@ -6,17 +6,11 @@ import { useAppState } from "@/lib/state";
 import { LoggedOutGate } from "@/components/gated";
 import { CTAButton, NextStepRecommendation, Pill, SectionCard, StateShowcase } from "@/components/ui";
 import { ItemCard } from "@/features/items/ItemCard";
+import { ITEM_CATEGORIES } from "@/features/items/ItemForm";
 
 const PAGE_SIZE = 3;
 
-const categories = [
-  "Toate",
-  "Electronică",
-  "Sport & Outdoor",
-  "Hobby & Jocuri",
-  "Cărți & Media",
-  "Casă & Grădină",
-];
+const categories = ["Toate", ...ITEM_CATEGORIES];
 
 export default function ObjectsPage() {
   const router = useRouter();
