@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { z } from "zod";
 import { Item } from "@/lib/types";
+import { uploadItemPhoto } from "@/lib/storage";
 
 export const ITEM_CATEGORIES = [
   "Electronică",
@@ -75,6 +76,8 @@ export function ItemForm({
   );
   const [errors, setErrors] = useState<FieldErrors>({});
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [tagInput, setTagInput] = useState("");
 
   const validate = (): boolean => {
@@ -144,19 +147,39 @@ export function ItemForm({
           Imagine (opțional)
           <input
             type="file"
-            accept="image/*"
-            onChange={(e) => {
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            disabled={uploading}
+            onChange={async (e) => {
               const file = e.target.files?.[0];
               if (!file) return;
-              const url = URL.createObjectURL(file);
-              setPreview(url);
-              setDraft({ ...draft, photos: [url] });
+              setUploading(true);
+              setUploadError(null);
+              const result = await uploadItemPhoto(file, draft.ownerId);
+              setUploading(false);
+              if (result.error) {
+                setUploadError(result.error);
+                return;
+              }
+              if (result.url) {
+                setPreview(result.url);
+                setDraft({ ...draft, photos: [result.url] });
+              }
             }}
             className={inputNormal}
           />
-          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-            Upload local în demo. Integrare Supabase Storage urmează.
-          </p>
+          {uploading ? (
+            <p className="mt-1 text-xs text-blue-600 dark:text-blue-400">
+              Se încarcă imaginea...
+            </p>
+          ) : uploadError ? (
+            <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+              {uploadError}
+            </p>
+          ) : (
+            <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+              JPG, PNG, WebP sau GIF. Max 5 MB.
+            </p>
+          )}
         </label>
         <div className="flex items-center justify-center overflow-hidden rounded-xl border border-dashed border-zinc-200 bg-zinc-50 p-3 text-sm text-zinc-500 dark:border-zinc-700 dark:bg-zinc-900/60">
           {preview ? (
@@ -367,10 +390,10 @@ export function ItemForm({
         </button>
         <button
           type="submit"
-          disabled={saving}
+          disabled={saving || uploading}
           className="rounded-full bg-blue-600 px-6 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
         >
-          {saving ? "Se salvează..." : "Salvează"}
+          {saving ? "Se salvează..." : uploading ? "Se încarcă imaginea..." : "Salvează"}
         </button>
       </div>
     </form>
