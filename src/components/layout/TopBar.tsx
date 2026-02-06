@@ -55,9 +55,10 @@ const contextualActions: Record<
 
 export function TopBar() {
   const pathname = usePathname();
-  const { user, logout, language, setLanguage, announcements } = useAppState();
+  const { user, logout, language, setLanguage, announcements, dataSource } = useAppState();
   const [menuOpen, setMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
+  const isDemo = dataSource === "mock" && !!user;
   const pathKey =
     Object.keys(contextualActions).find(
       (key) => pathname === key || pathname.startsWith(`${key}/`),
@@ -87,6 +88,11 @@ export function TopBar() {
           <span className="text-xs text-zinc-400">{pathname}</span>
         </div>
         <div className="flex items-center gap-2">
+          {isDemo ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-amber-800 dark:bg-amber-900/50 dark:text-amber-200">
+              Demo
+            </span>
+          ) : null}
           {user ? (
             <button
               type="button"

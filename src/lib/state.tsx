@@ -108,9 +108,26 @@ function computeFeatureToggles(): FeatureToggle {
   return { aiEnabled, mapsEnabled, cloudinaryEnabled, supabaseConfigured };
 }
 
+/** Demo mode requires both the localStorage flag AND a valid session token.
+ *  This prevents someone from simply setting localStorage manually. */
+const DEMO_SESSION_KEY = "swaply_demo_session";
+const DEMO_TOKEN_PREFIX = "demo_";
+
+function generateDemoToken() {
+  return `${DEMO_TOKEN_PREFIX}${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+}
+
 function isDemoMode() {
   if (typeof window === "undefined") return false;
-  return window.localStorage.getItem("swaply_demo_mode") === "true";
+  const flag = window.localStorage.getItem("swaply_demo_mode");
+  const token = window.localStorage.getItem(DEMO_SESSION_KEY);
+  return flag === "true" && typeof token === "string" && token.startsWith(DEMO_TOKEN_PREFIX);
+}
+
+function clearDemoSession() {
+  if (typeof window === "undefined") return;
+  window.localStorage.removeItem("swaply_demo_mode");
+  window.localStorage.removeItem(DEMO_SESSION_KEY);
 }
 
 export function AppStateProvider({ children }: { children: ReactNode }) {
@@ -364,9 +381,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   );
 
   const logout = useCallback(async () => {
-    if (typeof window !== "undefined") {
-      window.localStorage.removeItem("swaply_demo_mode");
-    }
+    clearDemoSession();
     if (dataSource === "supabase" && supabase) {
       await supabase.auth.signOut();
     }
@@ -599,6 +614,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const loginDemo = useCallback(() => {
     if (typeof window !== "undefined") {
       window.localStorage.setItem("swaply_demo_mode", "true");
+      window.localStorage.setItem(DEMO_SESSION_KEY, generateDemoToken());
     }
     setDataSource("mock");
     setUser(mockUser);
