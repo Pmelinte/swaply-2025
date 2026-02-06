@@ -108,29 +108,45 @@ function computeFeatureToggles(): FeatureToggle {
   return { aiEnabled, mapsEnabled, cloudinaryEnabled, supabaseConfigured };
 }
 
+/** Demo mode requires both the localStorage flag AND a valid session token.
+ *  This prevents someone from simply setting localStorage manually. */
+const DEMO_SESSION_KEY = "swaply_demo_session";
+const DEMO_TOKEN_PREFIX = "demo_";
+
+function generateDemoToken() {
+  return `${DEMO_TOKEN_PREFIX}${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+}
+
 function isDemoMode() {
   if (typeof window === "undefined") return false;
-  return window.localStorage.getItem("swaply_demo_mode") === "true";
+  const flag = window.localStorage.getItem("swaply_demo_mode");
+  const token = window.localStorage.getItem(DEMO_SESSION_KEY);
+  return flag === "true" && typeof token === "string" && token.startsWith(DEMO_TOKEN_PREFIX);
+}
+
+function clearDemoSession() {
+  if (typeof window === "undefined") return;
+  window.localStorage.removeItem("swaply_demo_mode");
+  window.localStorage.removeItem(DEMO_SESSION_KEY);
 }
 
 export function AppStateProvider({ children }: { children: ReactNode }) {
   const supabase = getSupabaseClient();
   const supabaseConfigured = Boolean(supabase);
-  const startInDemo = !supabaseConfigured || isDemoMode();
+  // Start with neutral state to avoid hydration mismatch.
+  // Demo mode is applied in useEffect after mount.
   const [dataSource, setDataSource] = useState<"supabase" | "mock">(
-    startInDemo ? "mock" : "supabase",
+    supabaseConfigured ? "supabase" : "mock",
   );
   const [loading, setLoading] = useState({
-    profile: !startInDemo && supabaseConfigured,
-    items: !startInDemo && supabaseConfigured,
-    auth: !startInDemo && supabaseConfigured,
+    profile: supabaseConfigured,
+    items: supabaseConfigured,
+    auth: true,
   });
   const [lastError, setLastError] = useState<string | null>(null);
-  const [user, setUser] = useState<UserProfile | null>(
-    startInDemo ? mockUser : null,
-  );
+  const [user, setUser] = useState<UserProfile | null>(null);
   const [announcements] = useState<Announcement[]>(mockAnnouncements);
-  const [items, setItems] = useState<Item[]>(startInDemo ? mockItems : []);
+  const [items, setItems] = useState<Item[]>([]);
   const [matches, setMatches] = useState<MatchCandidate[]>(mockMatches);
   const [conversations, setConversations] =
     useState<Conversation[]>(mockConversations);
@@ -149,6 +165,26 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     if (typeof window === "undefined") return;
     window.localStorage.setItem("swaply_language", language);
   }, [language]);
+
+  // Restore demo mode after hydration (avoids server/client mismatch)
+  useEffect(() => {
+    if (isDemoMode()) {
+      setDataSource("mock");
+      setUser(mockUser);
+      setItems(mockItems);
+      setMatches(mockMatches);
+      setConversations(mockConversations);
+      setSwaps(mockSwaps);
+      setLoading({ profile: false, items: false, auth: false });
+    } else if (!supabaseConfigured) {
+      // No Supabase, no demo token — still load mock for development
+      setDataSource("mock");
+      setUser(mockUser);
+      setItems(mockItems);
+      setLoading({ profile: false, items: false, auth: false });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const mapProfile = useCallback(
     (data: Partial<UserProfile> & Record<string, unknown>): UserProfile => {
@@ -257,10 +293,29 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       if (profileData) {
         setUser(mapProfile(profileData));
       } else if (supabaseConfigured) {
-        // fallback to auth session data
+        // First login: create profile from auth session data
         const session = await supabase.auth.getSession();
         const email = session.data.session?.user.email ?? "";
-        setUser(mapProfile({ id: userId, email }));
+        const newProfile = mapProfile({ id: userId, email });
+        setUser(newProfile);
+
+        // Persist the new profile to Supabase
+        const { error: insertError } = await supabase.from("profiles").upsert({
+          id: userId,
+          email,
+          display_name: email.split("@")[0],
+          badge: "free",
+          languages: ["ro"],
+          location: {},
+          visibility: newProfile.visibility,
+          notifications: newProfile.notifications,
+          swap_preferences: newProfile.swapPreferences,
+          security: newProfile.security,
+          stats: newProfile.stats,
+        });
+        if (insertError) {
+          setLastError(insertError.message);
+        }
       }
 
       const { data: itemsData, error: itemsError } = await supabase
@@ -364,9 +419,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   );
 
   const logout = useCallback(async () => {
-    if (typeof window !== "undefined") {
-      window.localStorage.removeItem("swaply_demo_mode");
-    }
+    clearDemoSession();
     if (dataSource === "supabase" && supabase) {
       await supabase.auth.signOut();
     }
@@ -432,13 +485,22 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         options?.persist &&
         user?.id
       ) {
+        const merged = { ...user, ...updates };
         const payload: Record<string, unknown> = {
           id: user.id,
-          display_name: updates.displayName ?? user.displayName,
-          bio: updates.bio ?? user.bio,
-          badge: updates.badge ?? user.badge,
-          languages: updates.languages ?? user.languages,
-          location: updates.location ?? user.location,
+          email: merged.email,
+          display_name: merged.displayName,
+          first_name: merged.firstName ?? null,
+          avatar_url: merged.avatarUrl ?? null,
+          bio: merged.bio ?? null,
+          badge: merged.badge,
+          languages: merged.languages,
+          location: merged.location ?? {},
+          visibility: merged.visibility,
+          notifications: merged.notifications,
+          swap_preferences: merged.swapPreferences,
+          security: merged.security,
+          stats: merged.stats,
           updated_at: new Date().toISOString(),
         };
 
@@ -476,6 +538,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           ai_suggested_tags: item.aiSuggestedTags ?? [],
           user_final_tags: item.userFinalTags ?? [],
           photos: item.photos ?? [],
+          updated_at: new Date().toISOString(),
         };
 
         const query = item.id
@@ -599,6 +662,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const loginDemo = useCallback(() => {
     if (typeof window !== "undefined") {
       window.localStorage.setItem("swaply_demo_mode", "true");
+      window.localStorage.setItem(DEMO_SESSION_KEY, generateDemoToken());
     }
     setDataSource("mock");
     setUser(mockUser);
