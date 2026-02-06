@@ -7,6 +7,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { nanoid } from "nanoid";
@@ -145,6 +146,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   });
   const [lastError, setLastError] = useState<string | null>(null);
   const [user, setUser] = useState<UserProfile | null>(null);
+  const userRef = useRef<UserProfile | null>(null);
   const [announcements] = useState<Announcement[]>(mockAnnouncements);
   const [items, setItems] = useState<Item[]>([]);
   const [matches, setMatches] = useState<MatchCandidate[]>(mockMatches);
@@ -165,6 +167,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     if (typeof window === "undefined") return;
     window.localStorage.setItem("swaply_language", language);
   }, [language]);
+
+  useEffect(() => {
+    userRef.current = user;
+  }, [user]);
 
   // Restore demo mode after hydration (avoids server/client mismatch)
   useEffect(() => {
@@ -188,12 +194,13 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
   const mapProfile = useCallback(
     (data: Partial<UserProfile> & Record<string, unknown>): UserProfile => {
+      const currentUser = userRef.current;
       return {
         id: safeString(
           data.id,
           safeString(data.user_id, safeString(data.uid, nanoid())),
         ),
-        email: safeString(data.email, user?.email ?? ""),
+        email: safeString(data.email, currentUser?.email ?? ""),
         displayName: safeString(
           data.display_name,
           safeString(data.displayName, "Utilizator Swaply"),
@@ -201,10 +208,16 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         firstName: safeString(data.first_name, safeString(data.firstName)),
         avatarUrl: safeString(data.avatar_url, safeString(data.avatarUrl)),
         bio: safeString(data.bio, safeString(data.about_me)),
-        languages: safeArray<LanguageCode>(data.languages, user?.languages ?? ["ro"]),
-        badge: safeBadgeTier(data.badge, user?.badge ?? "free"),
+        languages: safeArray<LanguageCode>(
+          data.languages,
+          currentUser?.languages ?? ["ro"],
+        ),
+        badge: safeBadgeTier(data.badge, currentUser?.badge ?? "free"),
         location:
-          (safeObject(data.location, user?.location ?? {}) as UserProfile["location"]) ||
+          (safeObject(
+            data.location,
+            currentUser?.location ?? {},
+          ) as UserProfile["location"]) ||
           (data.city || data.region || data.country
             ? {
                 country: safeString(data.country),
@@ -214,52 +227,71 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
                 travelRadiusKm:
                   typeof data.travel_radius_km === "number"
                     ? data.travel_radius_km
-                    : user?.location?.travelRadiusKm,
+                    : currentUser?.location?.travelRadiusKm,
               }
-            : user?.location),
+            : currentUser?.location),
         visibility:
-          safeObject(data.visibility, user?.visibility ?? {
-            publicProfile: true,
-            itemsVisibility: "public",
-            showExactLocation: false,
-            showLastSeen: true,
-          }) as UserProfile["visibility"],
+          safeObject(
+            data.visibility,
+            currentUser?.visibility ?? {
+              publicProfile: true,
+              itemsVisibility: "public",
+              showExactLocation: false,
+              showLastSeen: true,
+            },
+          ) as UserProfile["visibility"],
         notifications:
-          safeObject(data.notifications, user?.notifications ?? {
-            email: true,
-            push: true,
-            chat: true,
-            matches: true,
-            swapUpdates: true,
-          }) as UserProfile["notifications"],
+          safeObject(
+            data.notifications,
+            currentUser?.notifications ?? {
+              email: true,
+              push: true,
+              chat: true,
+              matches: true,
+              swapUpdates: true,
+            },
+          ) as UserProfile["notifications"],
         swapPreferences:
-          safeObject(data.swap_preferences, user?.swapPreferences ?? {
-            logistics: "flexible",
-            notes: "",
-          }) as UserProfile["swapPreferences"],
+          safeObject(
+            data.swap_preferences,
+            currentUser?.swapPreferences ?? {
+              logistics: "flexible",
+              notes: "",
+            },
+          ) as UserProfile["swapPreferences"],
         security:
-          safeObject(data.security, user?.security ?? {
-            twoFactorEnabled: false,
-            method: null,
-            passkeysEnabled: false,
-          }) as UserProfile["security"],
+          safeObject(
+            data.security,
+            currentUser?.security ?? {
+              twoFactorEnabled: false,
+              method: null,
+              passkeysEnabled: false,
+            },
+          ) as UserProfile["security"],
         stats:
-          safeObject(data.stats, user?.stats ?? {
-            tokens: 0,
-            reputation: "starter",
-            completedSwaps: 0,
-            activeListings: 0,
-          }) as UserProfile["stats"],
+          safeObject(
+            data.stats,
+            currentUser?.stats ?? {
+              tokens: 0,
+              reputation: "starter",
+              completedSwaps: 0,
+              activeListings: 0,
+            },
+          ) as UserProfile["stats"],
       };
     },
-    [user],
+    [],
   );
 
   const mapItem = useCallback(
     (row: Partial<Item> & Record<string, unknown>): Item => {
+      const currentUser = userRef.current;
       return {
         id: safeString(row.id, nanoid()),
-        ownerId: safeString(row.owner_id, safeString(row.ownerId, user?.id ?? "unknown")),
+        ownerId: safeString(
+          row.owner_id,
+          safeString(row.ownerId, currentUser?.id ?? "unknown"),
+        ),
         title: safeString(row.title, "Obiect fără titlu"),
         category: safeString(row.category, "General"),
         condition: (safeString(row.condition, "good") as Item["condition"]) ?? "good",
@@ -275,7 +307,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         photos: safeArray<string>(row.photos, []),
       };
     },
-    [user?.id],
+    [],
   );
 
   const hydrateSupabase = useCallback(
