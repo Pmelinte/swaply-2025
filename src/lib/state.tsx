@@ -133,21 +133,20 @@ function clearDemoSession() {
 export function AppStateProvider({ children }: { children: ReactNode }) {
   const supabase = getSupabaseClient();
   const supabaseConfigured = Boolean(supabase);
-  const startInDemo = !supabaseConfigured || isDemoMode();
+  // Start with neutral state to avoid hydration mismatch.
+  // Demo mode is applied in useEffect after mount.
   const [dataSource, setDataSource] = useState<"supabase" | "mock">(
-    startInDemo ? "mock" : "supabase",
+    supabaseConfigured ? "supabase" : "mock",
   );
   const [loading, setLoading] = useState({
-    profile: !startInDemo && supabaseConfigured,
-    items: !startInDemo && supabaseConfigured,
-    auth: !startInDemo && supabaseConfigured,
+    profile: supabaseConfigured,
+    items: supabaseConfigured,
+    auth: true,
   });
   const [lastError, setLastError] = useState<string | null>(null);
-  const [user, setUser] = useState<UserProfile | null>(
-    startInDemo ? mockUser : null,
-  );
+  const [user, setUser] = useState<UserProfile | null>(null);
   const [announcements] = useState<Announcement[]>(mockAnnouncements);
-  const [items, setItems] = useState<Item[]>(startInDemo ? mockItems : []);
+  const [items, setItems] = useState<Item[]>([]);
   const [matches, setMatches] = useState<MatchCandidate[]>(mockMatches);
   const [conversations, setConversations] =
     useState<Conversation[]>(mockConversations);
@@ -166,6 +165,26 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     if (typeof window === "undefined") return;
     window.localStorage.setItem("swaply_language", language);
   }, [language]);
+
+  // Restore demo mode after hydration (avoids server/client mismatch)
+  useEffect(() => {
+    if (isDemoMode()) {
+      setDataSource("mock");
+      setUser(mockUser);
+      setItems(mockItems);
+      setMatches(mockMatches);
+      setConversations(mockConversations);
+      setSwaps(mockSwaps);
+      setLoading({ profile: false, items: false, auth: false });
+    } else if (!supabaseConfigured) {
+      // No Supabase, no demo token — still load mock for development
+      setDataSource("mock");
+      setUser(mockUser);
+      setItems(mockItems);
+      setLoading({ profile: false, items: false, auth: false });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const mapProfile = useCallback(
     (data: Partial<UserProfile> & Record<string, unknown>): UserProfile => {
