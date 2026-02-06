@@ -17,6 +17,15 @@ npm run build
 
 Aplicatia pornește pe [http://localhost:3000](http://localhost:3000).
 
+## Cum rulezi in GitHub (fara local) cu Codespaces
+
+Repo-ul are `.devcontainer/` configurat, deci poti deschide direct un Codespace:
+
+1. GitHub -> Code -> Codespaces -> Create codespace on `main`
+2. In terminal (in Codespace):
+   - `npm run dev`
+3. Portul `3000` va fi forward-uit automat.
+
 ### Variabile de mediu
 
 Configurează `.env` pe baza `.env.example`:
