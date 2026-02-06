@@ -274,10 +274,29 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       if (profileData) {
         setUser(mapProfile(profileData));
       } else if (supabaseConfigured) {
-        // fallback to auth session data
+        // First login: create profile from auth session data
         const session = await supabase.auth.getSession();
         const email = session.data.session?.user.email ?? "";
-        setUser(mapProfile({ id: userId, email }));
+        const newProfile = mapProfile({ id: userId, email });
+        setUser(newProfile);
+
+        // Persist the new profile to Supabase
+        const { error: insertError } = await supabase.from("profiles").upsert({
+          id: userId,
+          email,
+          display_name: email.split("@")[0],
+          badge: "free",
+          languages: ["ro"],
+          location: {},
+          visibility: newProfile.visibility,
+          notifications: newProfile.notifications,
+          swap_preferences: newProfile.swapPreferences,
+          security: newProfile.security,
+          stats: newProfile.stats,
+        });
+        if (insertError) {
+          setLastError(insertError.message);
+        }
       }
 
       const { data: itemsData, error: itemsError } = await supabase
@@ -447,13 +466,22 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         options?.persist &&
         user?.id
       ) {
+        const merged = { ...user, ...updates };
         const payload: Record<string, unknown> = {
           id: user.id,
-          display_name: updates.displayName ?? user.displayName,
-          bio: updates.bio ?? user.bio,
-          badge: updates.badge ?? user.badge,
-          languages: updates.languages ?? user.languages,
-          location: updates.location ?? user.location,
+          email: merged.email,
+          display_name: merged.displayName,
+          first_name: merged.firstName ?? null,
+          avatar_url: merged.avatarUrl ?? null,
+          bio: merged.bio ?? null,
+          badge: merged.badge,
+          languages: merged.languages,
+          location: merged.location ?? {},
+          visibility: merged.visibility,
+          notifications: merged.notifications,
+          swap_preferences: merged.swapPreferences,
+          security: merged.security,
+          stats: merged.stats,
           updated_at: new Date().toISOString(),
         };
 
@@ -491,6 +519,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           ai_suggested_tags: item.aiSuggestedTags ?? [],
           user_final_tags: item.userFinalTags ?? [],
           photos: item.photos ?? [],
+          updated_at: new Date().toISOString(),
         };
 
         const query = item.id
