@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAppState } from "@/lib/state";
 import { LoggedOutGate } from "@/components/gated";
-import { CTAButton, NextStepRecommendation, Pill, SectionCard, StateShowcase } from "@/components/ui";
+import { CTAButton, NextStepRecommendation, SectionCard, StateShowcase } from "@/components/ui";
 import { ItemCard } from "@/features/items/ItemCard";
 import { ITEM_CATEGORIES } from "@/features/items/ItemForm";
 
