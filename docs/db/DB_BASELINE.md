@@ -30,3 +30,6 @@ Aceste tabele sunt “source of truth” pentru aplicație. Nu se creează “fa
 
 ## 4) Fișiere asociate
 - /docs/db/audit/2025-12-25-rls-tables.csv  (dovada snapshot-ului)
+
+## Updates (repo migrations)
+- 2026-02-06: `messages` RLS updated for Phase 2 chat persistence. Participants can `SELECT` messages when `conversation_id` contains `auth.uid()`, and `INSERT` is allowed only when `sender_id = auth.uid()` and `conversation_id` contains `auth.uid()`.

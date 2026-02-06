@@ -3,7 +3,13 @@ import { formatScore } from "@/lib/utils";
 import { MatchCandidate } from "@/lib/types";
 import { Pill } from "@/components/ui";
 
-export function MatchList({ matches }: { matches: MatchCandidate[] }) {
+export function MatchList({
+  matches,
+  onProposeSwap,
+}: {
+  matches: MatchCandidate[];
+  onProposeSwap?: (match: MatchCandidate) => void;
+}) {
   if (!matches.length) {
     return (
       <div className="rounded-2xl border border-zinc-200 bg-white/90 p-4 text-sm text-zinc-600 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/80 dark:text-zinc-300">
@@ -47,11 +53,20 @@ export function MatchList({ matches }: { matches: MatchCandidate[] }) {
               Vezi detalii match
             </Link>
             <Link
-              href="/chat"
+              href={`/chat?to=${encodeURIComponent(match.itemRequested.ownerId)}`}
               className="rounded-full bg-zinc-900 px-3 py-1 text-white hover:bg-zinc-800"
             >
               Inițiază chat
             </Link>
+            {onProposeSwap ? (
+              <button
+                type="button"
+                onClick={() => onProposeSwap(match)}
+                className="rounded-full bg-emerald-600 px-3 py-1 text-white hover:bg-emerald-700"
+              >
+                Propune swap
+              </button>
+            ) : null}
           </div>
         </div>
       ))}

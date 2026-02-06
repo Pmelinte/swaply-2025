@@ -6,12 +6,25 @@ import { useAppState } from "@/lib/state";
 import { formatDate } from "@/lib/utils";
 import { Badge, Pill } from "@/components/ui";
 
-export function ChatPanel({ conversations }: { conversations: Conversation[] }) {
+export function ChatPanel({
+  conversations,
+  initialConversationId,
+}: {
+  conversations: Conversation[];
+  initialConversationId?: string;
+}) {
   const { addMessage, toggleConversationTranslation } = useAppState();
-  const [activeId, setActiveId] = useState(conversations[0]?.id);
+  const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
   const [draft, setDraft] = useState("");
 
-  const active = conversations.find((c) => c.id === activeId);
+  const effectiveActiveId =
+    (selectedId && conversations.some((c) => c.id === selectedId) ? selectedId : undefined) ??
+    (initialConversationId && conversations.some((c) => c.id === initialConversationId)
+      ? initialConversationId
+      : undefined) ??
+    conversations[0]?.id;
+
+  const active = conversations.find((c) => c.id === effectiveActiveId);
 
   return (
     <div className="grid gap-4 lg:grid-cols-[280px_1fr]">
@@ -20,9 +33,9 @@ export function ChatPanel({ conversations }: { conversations: Conversation[] }) 
         {conversations.map((conv) => (
           <button
             key={conv.id}
-            onClick={() => setActiveId(conv.id)}
+            onClick={() => setSelectedId(conv.id)}
             className={`w-full rounded-xl border px-3 py-2 text-left ${
-              conv.id === activeId
+              conv.id === effectiveActiveId
                 ? "border-blue-200 bg-blue-50 text-blue-900 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-100"
                 : "border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
             }`}
@@ -80,7 +93,7 @@ export function ChatPanel({ conversations }: { conversations: Conversation[] }) 
               onSubmit={(e) => {
                 e.preventDefault();
                 if (!draft) return;
-                addMessage(active.id, draft);
+                void addMessage(active.id, draft);
                 setDraft("");
               }}
             >

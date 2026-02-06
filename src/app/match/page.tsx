@@ -1,18 +1,31 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useAppState } from "@/lib/state";
 import { MatchList } from "@/features/match/MatchList";
 import { LoggedOutGate } from "@/components/gated";
 import { CTAButton, NextStepRecommendation, Pill, SectionCard, StateShowcase } from "@/components/ui";
 
 export default function MatchPage() {
-  const { user, matches, featureToggles } = useAppState();
+  const router = useRouter();
+  const { user, matches, featureToggles, proposeSwap } = useAppState();
   const [manualMode, setManualMode] = useState(false);
 
   if (!user) {
     return <LoggedOutGate returnTo="/match" />;
   }
+
+  const handleProposeSwap = async (matchId: string) => {
+    const match = matches.find((m) => m.id === matchId);
+    if (!match) return;
+    const swap = await proposeSwap({
+      requesterItemId: match.itemOffered.id,
+      responderItemId: match.itemRequested.id,
+      responderId: match.itemRequested.ownerId,
+    });
+    router.push(swap ? `/change?swap=${swap.id}` : "/change");
+  };
 
   return (
     <div className="space-y-4">
@@ -34,7 +47,12 @@ export default function MatchPage() {
             AI indisponibil: folosim reguli manuale și filtre pentru a nu bloca fluxul.
           </div>
         ) : null}
-        <MatchList matches={manualMode ? matches.slice(0, 1) : matches} />
+        <MatchList
+          matches={manualMode ? matches.slice(0, 1) : matches}
+          onProposeSwap={(match) => {
+            void handleProposeSwap(match.id);
+          }}
+        />
       </SectionCard>
 
       <SectionCard title="De ce acest match?" description="Explicații și trasabilitate">

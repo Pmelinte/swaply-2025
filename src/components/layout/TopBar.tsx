@@ -55,7 +55,8 @@ const contextualActions: Record<
 
 export function TopBar() {
   const pathname = usePathname();
-  const { user, logout, language, setLanguage, announcements, dataSource } = useAppState();
+  const { user, logout, language, setLanguage, notifications, markNotificationRead, dataSource } =
+    useAppState();
   const [menuOpen, setMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const isDemo = dataSource === "mock" && !!user;
@@ -64,7 +65,7 @@ export function TopBar() {
       (key) => pathname === key || pathname.startsWith(`${key}/`),
     ) ?? pathname;
   const actions = contextualActions[pathKey] ?? [];
-  const unread = announcements.length;
+  const unread = notifications.filter((n) => !n.read).length;
 
   const languages: LanguageCode[] = ["ro", "en", "es"];
   const handleLanguageToggle = () => {
@@ -163,22 +164,32 @@ export function TopBar() {
                         {unread}
                       </span>
                     </button>
-                    {notifOpen && announcements.length > 0 ? (
+                    {notifOpen ? (
                       <div className="mt-1 space-y-1 rounded-lg border border-zinc-200 bg-zinc-50 p-2 dark:border-zinc-700 dark:bg-zinc-900">
-                        {announcements.map((a) => (
-                          <div
-                            key={a.id}
-                            className={`rounded-md px-3 py-2 text-xs ${
-                              a.priority === "warning"
-                                ? "bg-amber-50 text-amber-900 dark:bg-amber-900/30 dark:text-amber-100"
-                                : a.priority === "success"
-                                  ? "bg-green-50 text-green-900 dark:bg-green-900/30 dark:text-green-100"
-                                  : "bg-blue-50 text-blue-900 dark:bg-blue-900/30 dark:text-blue-100"
-                            }`}
-                          >
-                            {a.message}
+                        {notifications.length ? (
+                          notifications.slice(0, 8).map((n) => (
+                            <button
+                              key={n.id}
+                              type="button"
+                              onClick={() => void markNotificationRead(n.id)}
+                              className={`w-full rounded-md px-3 py-2 text-left text-xs transition ${
+                                n.read ? "opacity-60" : "opacity-100"
+                              } ${
+                                n.priority === "warning"
+                                  ? "bg-amber-50 text-amber-900 hover:bg-amber-100 dark:bg-amber-900/30 dark:text-amber-100 dark:hover:bg-amber-900/40"
+                                  : n.priority === "success"
+                                    ? "bg-green-50 text-green-900 hover:bg-green-100 dark:bg-green-900/30 dark:text-green-100 dark:hover:bg-green-900/40"
+                                    : "bg-blue-50 text-blue-900 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-100 dark:hover:bg-blue-900/40"
+                              }`}
+                            >
+                              {n.message}
+                            </button>
+                          ))
+                        ) : (
+                          <div className="rounded-md bg-zinc-100 px-3 py-2 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
+                            Nicio notificare momentan.
                           </div>
-                        ))}
+                        )}
                       </div>
                     ) : null}
                   </div>
