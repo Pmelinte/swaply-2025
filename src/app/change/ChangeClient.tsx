@@ -5,10 +5,20 @@ import { useAppState } from "@/lib/state";
 import { LoggedOutGate } from "@/components/gated";
 import { CTAButton, NextStepRecommendation, Pill, SectionCard, StateShowcase } from "@/components/ui";
 import { SwapTimeline } from "@/features/change/SwapTimeline";
+import type { SwapIntent } from "@/lib/types";
+
+const VALID_TRANSITIONS: Record<SwapIntent["status"], SwapIntent["status"][]> = {
+  proposed: ["scheduled", "cancelled"],
+  scheduled: ["in_progress", "cancelled"],
+  in_progress: ["completed", "cancelled"],
+  completed: [],
+  cancelled: [],
+};
 
 export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null }) {
   const { user, swaps, updateSwapStatus, addSwapFeedback, items } = useAppState();
   const [feedback, setFeedback] = useState({ rating: 5, comment: "" });
+  const [statusError, setStatusError] = useState<string | null>(null);
   const [activeSwapId, setActiveSwapId] = useState<string | null>(swapFromQuery ?? null);
 
   const swap = swaps.find((s) => s.id === activeSwapId) ?? swaps[0];
@@ -64,25 +74,50 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
 
       {swap ? (
         <SectionCard title="Confirmări" description="Actualizează statusul și oferă feedback">
+          {statusError ? (
+            <div className="rounded-xl bg-red-50 p-3 text-sm text-red-900 dark:bg-red-900/40 dark:text-red-100">
+              {statusError}
+            </div>
+          ) : null}
+          <div className="mb-2 text-xs text-zinc-500">
+            Status curent: <span className="font-semibold">{swap.status}</span>
+            {VALID_TRANSITIONS[swap.status].length > 0
+              ? ` — tranziții posibile: ${VALID_TRANSITIONS[swap.status].join(", ")}`
+              : " — nu mai sunt tranziții posibile"}
+          </div>
           <div className="flex flex-wrap gap-2 text-sm font-semibold">
-            <button
-              className="rounded-full bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-              onClick={() => void updateSwapStatus(swap.id, "in_progress")}
-            >
-              Marchează în desfășurare
-            </button>
-            <button
-              className="rounded-full bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-700"
-              onClick={() => void updateSwapStatus(swap.id, "completed")}
-            >
-              Confirmă finalizarea
-            </button>
-            <button
-              className="rounded-full bg-red-600 px-4 py-2 text-white hover:bg-red-700"
-              onClick={() => void updateSwapStatus(swap.id, "cancelled")}
-            >
-              Anulează swap
-            </button>
+            {VALID_TRANSITIONS[swap.status].includes("scheduled") ? (
+              <button
+                className="rounded-full bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+                onClick={() => { setStatusError(null); void updateSwapStatus(swap.id, "scheduled"); }}
+              >
+                Programează
+              </button>
+            ) : null}
+            {VALID_TRANSITIONS[swap.status].includes("in_progress") ? (
+              <button
+                className="rounded-full bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+                onClick={() => { setStatusError(null); void updateSwapStatus(swap.id, "in_progress"); }}
+              >
+                Marchează in desfasurare
+              </button>
+            ) : null}
+            {VALID_TRANSITIONS[swap.status].includes("completed") ? (
+              <button
+                className="rounded-full bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-700"
+                onClick={() => { setStatusError(null); void updateSwapStatus(swap.id, "completed"); }}
+              >
+                Confirma finalizarea
+              </button>
+            ) : null}
+            {VALID_TRANSITIONS[swap.status].includes("cancelled") ? (
+              <button
+                className="rounded-full bg-red-600 px-4 py-2 text-white hover:bg-red-700"
+                onClick={() => { setStatusError(null); void updateSwapStatus(swap.id, "cancelled"); }}
+              >
+                Anuleaza swap
+              </button>
+            ) : null}
           </div>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">

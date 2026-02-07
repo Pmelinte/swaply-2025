@@ -297,7 +297,7 @@ interface AppStateContextProps {
   updateSwapStatus: (swapId: string, status: SwapIntent["status"]) => Promise<void>;
   addSwapFeedback: (swapId: string, rating: number, comment: string) => Promise<void>;
   markNotificationRead: (notificationId: string) => Promise<void>;
-  loginDemo: () => void;
+  clearNotifications: () => void;
   startNewItem: () => Item | null;
   infoStats: typeof mockInfoStats;
 }
@@ -325,26 +325,20 @@ function computeFeatureToggles(): FeatureToggle {
   return { aiEnabled, mapsEnabled, cloudinaryEnabled, supabaseConfigured };
 }
 
-/** Demo mode requires both the localStorage flag AND a valid session token.
- *  This prevents someone from simply setting localStorage manually. */
-const DEMO_SESSION_KEY = "swaply_demo_session";
-const DEMO_TOKEN_PREFIX = "demo_";
+const SESSION_KEY = "swaply_logged_in";
 
-function generateDemoToken() {
-  return `${DEMO_TOKEN_PREFIX}${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
-}
-
-function isDemoMode() {
+function isLoggedIn() {
   if (typeof window === "undefined") return false;
-  const flag = window.localStorage.getItem("swaply_demo_mode");
-  const token = window.localStorage.getItem(DEMO_SESSION_KEY);
-  return flag === "true" && typeof token === "string" && token.startsWith(DEMO_TOKEN_PREFIX);
+  return window.localStorage.getItem(SESSION_KEY) === "true";
 }
 
-function clearDemoSession() {
+function setLoggedIn(value: boolean) {
   if (typeof window === "undefined") return;
-  window.localStorage.removeItem("swaply_demo_mode");
-  window.localStorage.removeItem(DEMO_SESSION_KEY);
+  if (value) {
+    window.localStorage.setItem(SESSION_KEY, "true");
+  } else {
+    window.localStorage.removeItem(SESSION_KEY);
+  }
 }
 
 export function AppStateProvider({ children }: { children: ReactNode }) {
@@ -396,18 +390,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     setMatches(computeMatchesForUser(user.id, items));
   }, [items, user?.id]);
 
-  // Restore demo mode after hydration (avoids server/client mismatch)
+  // Restore session after hydration (avoids server/client mismatch)
   useEffect(() => {
-    if (isDemoMode()) {
-      setDataSource("mock");
-      setUser(mockUser);
-      setItems(mockItems);
-      setConversations(mockConversations);
-      setSwaps(mockSwaps);
-      setNotifications([]);
-      setLoading({ profile: false, items: false, auth: false });
-    } else if (!supabaseConfigured) {
-      // No Supabase, no demo token — still load mock for development
+    if (isLoggedIn() || !supabaseConfigured) {
       setDataSource("mock");
       setUser(mockUser);
       setItems(mockItems);
@@ -785,7 +770,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   );
 
   useEffect(() => {
-    if (!supabaseConfigured || !supabase || isDemoMode()) return;
+    if (!supabaseConfigured || !supabase || isLoggedIn()) return;
 
     let unsubscribe: (() => void) | undefined;
     const init = async () => {
@@ -820,7 +805,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           if (nextSession?.user?.id) {
             setDataSource("supabase");
             await hydrateSupabase(nextSession.user.id);
-          } else if (!isDemoMode()) {
+          } else if (!isLoggedIn()) {
             setUser(null);
             setItems([]);
             setConversations([]);
@@ -868,17 +853,20 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         return {};
       }
 
-      setUser((current) => ({
-        ...(current ?? mockUser),
-        email,
-      }));
+      setLoggedIn(true);
+      setUser({ ...mockUser, email });
+      setItems(mockItems);
+      setConversations(mockConversations);
+      setSwaps(mockSwaps);
+      setNotifications([]);
+      setLoading({ profile: false, items: false, auth: false });
       return {};
     },
     [dataSource, hydrateSupabase, supabase],
   );
 
   const logout = useCallback(async () => {
-    clearDemoSession();
+    setLoggedIn(false);
     if (dataSource === "supabase" && supabase) {
       await supabase.auth.signOut();
     }
@@ -1368,19 +1356,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     return createEmptyItem(user.id);
   }, [user]);
 
-  const loginDemo = useCallback(() => {
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem("swaply_demo_mode", "true");
-      window.localStorage.setItem(DEMO_SESSION_KEY, generateDemoToken());
-    }
-    setDataSource("mock");
-    setUser(mockUser);
-    setItems(mockItems);
-    setConversations(mockConversations);
-    setSwaps(mockSwaps);
+  const clearNotifications = useCallback(() => {
     setNotifications([]);
-    setLastError(null);
-    setLoading({ profile: false, items: false, auth: false });
   }, []);
 
   const value = useMemo(
@@ -1411,7 +1388,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       updateSwapStatus,
       addSwapFeedback,
       markNotificationRead,
-      loginDemo,
+      clearNotifications,
       startNewItem,
       infoStats: mockInfoStats,
     }),
@@ -1425,7 +1402,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       featureToggles,
       items,
       login,
-      loginDemo,
+      clearNotifications,
       logout,
       matches,
       register,
