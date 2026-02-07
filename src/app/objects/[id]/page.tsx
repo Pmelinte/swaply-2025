@@ -20,6 +20,7 @@ export default function ObjectDetailsPage() {
     [items, user],
   );
   const [offerItemId, setOfferItemId] = useState<string>("");
+  const [activePhoto, setActivePhoto] = useState(0);
   const validOfferItemId = myActiveItems.some((i) => i.id === offerItemId) ? offerItemId : "";
   const effectiveOfferItemId = validOfferItemId || myActiveItems[0]?.id || "";
   const item = items.find((i) => i.id === params.id);
@@ -62,20 +63,46 @@ export default function ObjectDetailsPage() {
         description="Detalii + acțiuni + metadata AI ca sugestii (nu suprascrie user_final)."
       >
         <div className="grid gap-4 lg:grid-cols-[280px_1fr]">
-          <div className="overflow-hidden rounded-2xl bg-zinc-100 dark:bg-zinc-800">
-            {item.photos[0] ? (
-              <Image
-                src={item.photos[0]}
-                alt={item.title}
-                width={400}
-                height={320}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="flex h-full items-center justify-center text-sm text-zinc-500">
-                Fără imagine
+          <div className="space-y-2">
+            <div className="overflow-hidden rounded-2xl bg-zinc-100 dark:bg-zinc-800">
+              {item.photos[activePhoto] ? (
+                <Image
+                  src={item.photos[activePhoto]}
+                  alt={`${item.title} — foto ${activePhoto + 1}`}
+                  width={400}
+                  height={320}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="flex h-48 items-center justify-center text-sm text-zinc-500">
+                  Fara imagine
+                </div>
+              )}
+            </div>
+            {item.photos.length > 1 ? (
+              <div className="flex gap-2 overflow-x-auto">
+                {item.photos.map((photo, idx) => (
+                  <button
+                    key={photo}
+                    type="button"
+                    onClick={() => setActivePhoto(idx)}
+                    className={`flex-shrink-0 overflow-hidden rounded-lg border-2 ${
+                      idx === activePhoto
+                        ? "border-blue-600"
+                        : "border-transparent opacity-60 hover:opacity-100"
+                    }`}
+                  >
+                    <Image
+                      src={photo}
+                      alt={`${item.title} — thumbnail ${idx + 1}`}
+                      width={64}
+                      height={64}
+                      className="h-16 w-16 object-cover"
+                    />
+                  </button>
+                ))}
               </div>
-            )}
+            ) : null}
           </div>
           <div className="space-y-3">
             <div className="flex flex-wrap gap-2 text-xs">
