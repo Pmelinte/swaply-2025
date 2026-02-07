@@ -79,6 +79,8 @@ export function ItemForm({
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [tagInput, setTagInput] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiStatus, setAiStatus] = useState<string | null>(null);
 
   const validate = (): boolean => {
     const result = itemSchema.safeParse({
@@ -130,6 +132,46 @@ export function ItemForm({
       ...draft,
       userFinalTags: (draft.userFinalTags ?? []).filter((t) => t !== tag),
     });
+  };
+
+  const fetchAiSuggestions = async () => {
+    if (!draft.title && !draft.description) {
+      setAiStatus("Scrie un titlu sau descriere mai intai.");
+      return;
+    }
+    setAiLoading(true);
+    setAiStatus(null);
+    try {
+      const res = await fetch("/api/ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: draft.title,
+          description: draft.description,
+          action: "both",
+        }),
+      });
+      const data = await res.json();
+      const updates: Partial<Item> = {};
+      if (data.category && ITEM_CATEGORIES.includes(data.category)) {
+        updates.category = data.category;
+      }
+      if (data.tags?.length) {
+        updates.aiSuggestedTags = data.tags;
+      }
+      setDraft((prev) => ({ ...prev, ...updates }));
+      setAiStatus(
+        data.status === "ok"
+          ? "Sugestii AI aplicate!"
+          : data.status === "fallback"
+            ? "Sugestii locale aplicate (AI indisponibil)."
+            : "Eroare AI, incearca din nou.",
+      );
+    } catch {
+      setAiStatus("Eroare de retea. Incearca din nou.");
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   return (
@@ -222,6 +264,25 @@ export function ItemForm({
           </select>
           <FieldError message={errors.category} />
         </label>
+      </div>
+
+      {/* AI Suggestions */}
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={() => void fetchAiSuggestions()}
+          disabled={aiLoading || saving}
+          className="rounded-full bg-purple-600 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-700 disabled:opacity-60"
+        >
+          {aiLoading ? "Se analizeaza..." : "Sugestii AI"}
+        </button>
+        {aiStatus ? (
+          <span className="text-xs text-zinc-500 dark:text-zinc-400">{aiStatus}</span>
+        ) : (
+          <span className="text-xs text-zinc-400 dark:text-zinc-500">
+            AI sugereaza categorie + taguri din titlu si descriere
+          </span>
+        )}
       </div>
 
       {/* Description */}
