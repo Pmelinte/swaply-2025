@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useAppState } from "@/lib/state";
 import { LoggedOutGate } from "@/components/gated";
 import { Pill, SectionCard, StateShowcase } from "@/components/ui";
+import { NO_IMAGE_URL } from "@/lib/storage";
 
 export default function ObjectDetailsPage() {
   const params = useParams<{ id: string }>();
@@ -65,19 +66,14 @@ export default function ObjectDetailsPage() {
         <div className="grid gap-4 lg:grid-cols-[280px_1fr]">
           <div className="space-y-2">
             <div className="overflow-hidden rounded-2xl bg-zinc-100 dark:bg-zinc-800">
-              {item.photos[activePhoto] ? (
-                <Image
-                  src={item.photos[activePhoto]}
-                  alt={`${item.title} — foto ${activePhoto + 1}`}
-                  width={400}
-                  height={320}
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <div className="flex h-48 items-center justify-center text-sm text-zinc-500">
-                  Fara imagine
-                </div>
-              )}
+              <Image
+                src={item.photos[activePhoto] || NO_IMAGE_URL}
+                alt={`${item.title} — foto ${activePhoto + 1}`}
+                width={400}
+                height={320}
+                className="h-full w-full object-cover"
+                unoptimized={!item.photos[activePhoto]}
+              />
             </div>
             {item.photos.length > 1 ? (
               <div className="flex gap-2 overflow-x-auto">

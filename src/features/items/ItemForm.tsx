@@ -182,20 +182,14 @@ export function ItemForm({
           )}
         </label>
         <div className="flex items-center justify-center overflow-hidden rounded-xl border border-dashed border-zinc-200 bg-zinc-50 p-3 text-sm text-zinc-500 dark:border-zinc-700 dark:bg-zinc-900/60">
-          {preview ? (
-            <Image
-              src={preview}
-              alt="Previzualizare"
-              width={400}
-              height={240}
-              className="h-36 w-full rounded-lg object-cover"
-              unoptimized
-            />
-          ) : (
-            <p className="text-center text-xs">
-              Fără imagine. Poți adăuga una mai târziu.
-            </p>
-          )}
+          <Image
+            src={preview || "/no-image.svg"}
+            alt="Previzualizare"
+            width={400}
+            height={240}
+            className="h-36 w-full rounded-lg object-cover"
+            unoptimized={!preview}
+          />
         </div>
       </div>
 

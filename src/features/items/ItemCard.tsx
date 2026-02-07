@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { Item } from "@/lib/types";
 import { Pill } from "@/components/ui";
+import { NO_IMAGE_URL } from "@/lib/storage";
 
 export function ItemCard({
   item,
@@ -22,19 +23,14 @@ export function ItemCard({
   return (
     <div className="flex gap-3 rounded-2xl border border-zinc-200 bg-white/80 p-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/80">
       <div className="relative h-24 w-24 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
-        {item.photos?.[0] ? (
-          <Image
-            src={item.photos[0]}
-            alt={item.title}
-            fill
-            className="object-cover"
-            sizes="96px"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center text-xs text-zinc-500">
-            Fără poză
-          </div>
-        )}
+        <Image
+          src={item.photos?.[0] || NO_IMAGE_URL}
+          alt={item.title}
+          fill
+          className="object-cover"
+          sizes="96px"
+          unoptimized={!item.photos?.[0]}
+        />
       </div>
       <div className="flex flex-1 flex-col gap-2">
         <div className="flex items-start justify-between gap-2">

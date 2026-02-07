@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="320" viewBox="0 0 400 320" fill="none">
+  <rect width="400" height="320" rx="16" fill="#f4f4f5"/>
+  <rect x="140" y="100" width="120" height="90" rx="8" stroke="#a1a1aa" stroke-width="2" stroke-dasharray="6 4" fill="none"/>
+  <circle cx="170" cy="125" r="10" stroke="#a1a1aa" stroke-width="2" fill="none"/>
+  <path d="M145 175 L175 145 L205 170 L225 155 L255 180" stroke="#a1a1aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <text x="200" y="220" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#a1a1aa">Fara imagine</text>
+</svg>
