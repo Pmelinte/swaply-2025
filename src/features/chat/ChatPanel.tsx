@@ -1,10 +1,89 @@
 "use client";
 
-import { useState } from "react";
-import { Conversation } from "@/lib/types";
+import { useEffect, useRef, useState } from "react";
+import { Conversation, ChatMessage } from "@/lib/types";
 import { useAppState } from "@/lib/state";
 import { formatDate } from "@/lib/utils";
 import { Badge, Pill } from "@/components/ui";
+
+function MessageBubble({
+  msg,
+  isMe,
+  targetLang,
+}: {
+  msg: ChatMessage;
+  isMe: boolean;
+  targetLang: string;
+}) {
+  const [translatedText, setTranslatedText] = useState<string | null>(null);
+  const [translating, setTranslating] = useState(false);
+
+  const handleTranslate = async () => {
+    setTranslating(true);
+    try {
+      const detectLang = /[ăâîșț]/i.test(msg.content)
+        ? "ro"
+        : /[ñáéíóú]/i.test(msg.content)
+          ? "es"
+          : "en";
+      const res = await fetch("/api/translate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text: msg.content,
+          from: detectLang,
+          to: targetLang,
+        }),
+      });
+      const data = await res.json();
+      setTranslatedText(data.translated);
+    } catch {
+      setTranslatedText("[Eroare traducere]");
+    } finally {
+      setTranslating(false);
+    }
+  };
+
+  return (
+    <div
+      className={`max-w-[80%] rounded-2xl p-3 shadow-sm ${
+        isMe
+          ? "ml-auto bg-blue-50 dark:bg-blue-950/40"
+          : "mr-auto bg-white dark:bg-zinc-900"
+      }`}
+    >
+      <div className="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400">
+        <span>{isMe ? "Tu" : "Partener"}</span>
+        <span>{formatDate(msg.createdAt)}</span>
+      </div>
+      <p className="mt-1 text-sm text-zinc-800 dark:text-zinc-100">{msg.content}</p>
+      {translatedText ? (
+        <p className="mt-1 rounded-lg bg-purple-50 p-2 text-xs text-purple-800 dark:bg-purple-950/30 dark:text-purple-200">
+          {translatedText}
+        </p>
+      ) : null}
+      <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px]">
+        {msg.translated ? <Pill color="blue">Tradus</Pill> : null}
+        {msg.moderated ? <Pill color="amber">Moderat</Pill> : null}
+        {msg.attachments?.map((att) => (
+          <Pill key={att.id} color={att.safe ? "green" : "amber"}>
+            {att.name}
+          </Pill>
+        ))}
+        {!translatedText ? (
+          <button
+            type="button"
+            onClick={() => void handleTranslate()}
+            disabled={translating}
+            className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-medium text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+          >
+            {translating ? "..." : "Traduce"}
+          </button>
+        ) : null}
+      </div>
+    </div>
+  );
+}
 
 export function ChatPanel({
   conversations,
@@ -13,9 +92,12 @@ export function ChatPanel({
   conversations: Conversation[];
   initialConversationId?: string;
 }) {
-  const { addMessage, toggleConversationTranslation } = useAppState();
+  const { addMessage, toggleConversationTranslation, language } = useAppState();
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
   const [draft, setDraft] = useState("");
+  const [moderationError, setModerationError] = useState<string | null>(null);
+  const [sending, setSending] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const effectiveActiveId =
     (selectedId && conversations.some((c) => c.id === selectedId) ? selectedId : undefined) ??
@@ -26,10 +108,49 @@ export function ChatPanel({
 
   const active = conversations.find((c) => c.id === effectiveActiveId);
 
+  // Auto-scroll to latest message
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [active?.messages.length]);
+
+  const handleSend = async () => {
+    if (!draft.trim() || !active) return;
+    setSending(true);
+    setModerationError(null);
+
+    try {
+      const modRes = await fetch("/api/moderate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: draft }),
+      });
+      const modData = await modRes.json();
+
+      if (!modData.safe) {
+        setModerationError(modData.message || "Mesaj blocat de moderare.");
+        setSending(false);
+        return;
+      }
+
+      await addMessage(active.id, draft);
+      setDraft("");
+    } catch {
+      setModerationError("Eroare la trimitere. Incearca din nou.");
+    } finally {
+      setSending(false);
+    }
+  };
+
   return (
     <div className="grid gap-4 lg:grid-cols-[280px_1fr]">
+      {/* Conversation list */}
       <div className="space-y-2 rounded-2xl border border-zinc-200 bg-white/80 p-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/80">
-        <h3 className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">Conversații</h3>
+        <h3 className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">Conversatii</h3>
+        {conversations.length === 0 ? (
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            Nicio conversatie. Initiaza una din pagina de obiecte sau match.
+          </p>
+        ) : null}
         {conversations.map((conv) => (
           <button
             key={conv.id}
@@ -50,7 +171,9 @@ export function ChatPanel({
           </button>
         ))}
       </div>
-      <div className="space-y-3 rounded-2xl border border-zinc-200 bg-white/80 p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/80">
+
+      {/* Active conversation */}
+      <div className="flex flex-col rounded-2xl border border-zinc-200 bg-white/80 p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/80">
         {active ? (
           <>
             <div className="flex items-center justify-between">
@@ -62,59 +185,70 @@ export function ChatPanel({
               </div>
               <button
                 type="button"
-                className="rounded-full bg-zinc-900 px-3 py-1 text-xs font-semibold text-white hover:bg-zinc-800"
+                className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                  active.translationEnabled
+                    ? "bg-purple-600 text-white hover:bg-purple-700"
+                    : "bg-zinc-200 text-zinc-700 hover:bg-zinc-300 dark:bg-zinc-700 dark:text-zinc-200"
+                }`}
                 onClick={() => toggleConversationTranslation(active.id)}
               >
                 Traducere: {active.translationEnabled ? "ON" : "OFF"}
               </button>
             </div>
-            <div className="space-y-3 rounded-xl border border-zinc-100 bg-zinc-50/80 p-3 dark:border-zinc-800 dark:bg-zinc-800/50">
+
+            {/* Messages */}
+            <div className="mt-3 flex-1 space-y-3 overflow-y-auto rounded-xl border border-zinc-100 bg-zinc-50/80 p-3 dark:border-zinc-800 dark:bg-zinc-800/50" style={{ maxHeight: "400px" }}>
               {active.messages.map((msg) => (
-                <div key={msg.id} className="rounded-lg bg-white/80 p-3 shadow-sm dark:bg-zinc-900">
-                  <div className="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400">
-                    <span>{msg.senderId === active.participantId ? "Partener" : "Tu"}</span>
-                    <span>{formatDate(msg.createdAt)}</span>
-                  </div>
-                  <p className="mt-1 text-sm text-zinc-800 dark:text-zinc-100">{msg.content}</p>
-                  <div className="mt-1 flex flex-wrap gap-2 text-[11px]">
-                    {msg.translated ? <Pill color="blue">Tradus</Pill> : null}
-                    {msg.moderated ? <Pill color="amber">Moderare</Pill> : null}
-                    {msg.attachments?.map((att) => (
-                      <Pill key={att.id} color={att.safe ? "green" : "amber"}>
-                        Atașament: {att.name}
-                      </Pill>
-                    ))}
-                  </div>
-                </div>
+                <MessageBubble
+                  key={msg.id}
+                  msg={msg}
+                  isMe={msg.senderId !== active.participantId}
+                  targetLang={language}
+                />
               ))}
+              <div ref={messagesEndRef} />
             </div>
+
+            {/* Moderation error */}
+            {moderationError ? (
+              <div className="mt-2 rounded-xl bg-red-50 p-3 text-xs text-red-800 dark:bg-red-900/30 dark:text-red-200">
+                {moderationError}
+              </div>
+            ) : null}
+
+            {/* Input */}
             <form
-              className="flex items-center gap-2"
+              className="mt-3 flex items-center gap-2"
               onSubmit={(e) => {
                 e.preventDefault();
-                if (!draft) return;
-                void addMessage(active.id, draft);
-                setDraft("");
+                void handleSend();
               }}
             >
               <input
                 value={draft}
-                onChange={(e) => setDraft(e.target.value)}
-                placeholder="Trimite un mesaj (moderare și traducere active)"
-                className="flex-1 rounded-full border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
+                onChange={(e) => {
+                  setDraft(e.target.value);
+                  setModerationError(null);
+                }}
+                placeholder="Scrie un mesaj..."
+                disabled={sending}
+                className="flex-1 rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
               />
               <button
                 type="submit"
-                className="rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+                disabled={sending || !draft.trim()}
+                className="rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
               >
-                Trimite
+                {sending ? "..." : "Trimite"}
               </button>
             </form>
           </>
         ) : (
-          <p className="text-sm text-zinc-500 dark:text-zinc-300">
-            Selectează o conversație. Traducerea și moderarea sunt afișate ca badge-uri pe mesaje.
-          </p>
+          <div className="flex flex-1 items-center justify-center p-8">
+            <p className="text-sm text-zinc-500 dark:text-zinc-300">
+              Selecteaza o conversatie sau initiaza una din pagina de obiecte.
+            </p>
+          </div>
         )}
       </div>
     </div>
