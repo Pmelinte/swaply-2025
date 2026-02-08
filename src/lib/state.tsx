@@ -34,6 +34,7 @@ import {
   mockSwaps,
   mockUser,
 } from "./mock-data";
+import { getAllKeywords, areSiblingCategories } from "./categories";
 
 const safeString = (value: unknown, fallback = "") =>
   typeof value === "string" ? value : fallback;
@@ -185,6 +186,13 @@ function wishlistMatchesCategory(wishlist: string, category: string) {
   if (!normalizedWishlist.trim()) return false;
   if (normalizedWishlist.includes(normalizedCategory)) return true;
 
+  // Use taxonomy keywords (includes parent keywords for subcategories)
+  const taxonomyKeywords = getAllKeywords(category);
+  if (taxonomyKeywords.length > 0) {
+    return taxonomyKeywords.some((kw) => normalizedWishlist.includes(normalizeMatchText(kw)));
+  }
+
+  // Fallback to legacy hardcoded keywords
   const keywords = CATEGORY_KEYWORDS[category] ?? [];
   return keywords.some((keyword) => normalizedWishlist.includes(normalizeMatchText(keyword)));
 }
@@ -290,6 +298,12 @@ function computeMatchesForUser(userId: string, items: Item[]): MatchCandidate[] 
       if (offered.acceptsBundle && requested.acceptsBundle) {
         score += 5;
         reasons.push("Ambii accepta pachet de obiecte");
+      }
+
+      // 6b. Subcategory proximity bonus (max 5)
+      if (areSiblingCategories(offered.category, requested.category)) {
+        score += 5;
+        reasons.push("Subcategorii inrudite");
       }
 
       // 7. Tags overlap (max 10)

@@ -1,19 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { z } from "zod";
 import type { Item, ItemIntent, ItemFlexibility, ItemPerceivedValue, ItemConditionImpact, ItemClarity, ItemContext } from "@/lib/types";
 import { uploadItemPhoto } from "@/lib/storage";
+import { TOP_CATEGORIES, getSubcategories, CATEGORY_NAMES, findCategoryByName } from "@/lib/categories";
 
-export const ITEM_CATEGORIES = [
-  "Electronică",
-  "Sport & Outdoor",
-  "Hobby & Jocuri",
-  "Cărți & Media",
-  "Casă & Grădină",
-  "Modă & Accesorii",
-] as const;
+export const ITEM_CATEGORIES = CATEGORY_NAMES;
 
 const CONDITIONS = [
   { value: "new", label: "Nou" },
@@ -32,9 +26,7 @@ const itemSchema = z.object({
     .string()
     .min(3, "Titlul trebuie să aibă cel puțin 3 caractere.")
     .max(120, "Titlul nu poate depăși 120 caractere."),
-  category: z.enum(ITEM_CATEGORIES, {
-    errorMap: () => ({ message: "Alege o categorie validă." }),
-  }),
+  category: z.string().min(1, "Alege o categorie valida."),
   condition: z.enum(["new", "good", "used"]),
   description: z
     .string()
@@ -81,6 +73,19 @@ export function ItemForm({
   const [tagInput, setTagInput] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
   const [aiStatus, setAiStatus] = useState<string | null>(null);
+
+  // Cascading category state
+  const initParent = useMemo(() => {
+    if (!item.category) return "";
+    const node = findCategoryByName(item.category);
+    if (!node) return "";
+    return node.parentId ?? node.id;
+  }, [item.category]);
+  const [selectedParent, setSelectedParent] = useState(initParent);
+  const subcategories = useMemo(
+    () => (selectedParent ? getSubcategories(selectedParent) : []),
+    [selectedParent],
+  );
 
   const validate = (): boolean => {
     const result = itemSchema.safeParse({
@@ -248,22 +253,44 @@ export function ItemForm({
           />
           <FieldError message={errors.title} />
         </label>
-        <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-          Categorie *
+        <div className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
+          <p>Categorie *</p>
           <select
-            value={draft.category}
-            onChange={(e) => setDraft({ ...draft, category: e.target.value })}
+            value={selectedParent}
+            onChange={(e) => {
+              setSelectedParent(e.target.value);
+              // Reset to parent category name when changing
+              const parent = TOP_CATEGORIES.find((c) => c.id === e.target.value);
+              setDraft({ ...draft, category: parent?.name ?? "" });
+            }}
             className={errors.category ? inputError : inputNormal}
           >
             <option value="">— Alege categoria —</option>
-            {ITEM_CATEGORIES.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
+            {TOP_CATEGORIES.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
               </option>
             ))}
           </select>
+          {/* Subcategory (appears when parent is selected) */}
+          {subcategories.length > 0 ? (
+            <select
+              value={draft.category}
+              onChange={(e) => setDraft({ ...draft, category: e.target.value })}
+              className={`${inputNormal} mt-1`}
+            >
+              <option value={TOP_CATEGORIES.find((c) => c.id === selectedParent)?.name ?? ""}>
+                — Toate din {TOP_CATEGORIES.find((c) => c.id === selectedParent)?.name} —
+              </option>
+              {subcategories.map((sub) => (
+                <option key={sub.id} value={sub.name}>
+                  {sub.name}
+                </option>
+              ))}
+            </select>
+          ) : null}
           <FieldError message={errors.category} />
-        </label>
+        </div>
       </div>
 
       {/* AI Suggestions */}
