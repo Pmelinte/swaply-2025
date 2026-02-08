@@ -1,13 +1,7 @@
 import { NextResponse } from "next/server";
+import { CATEGORIES_TAXONOMY, CATEGORY_NAMES } from "@/lib/categories";
 
-const CATEGORIES = [
-  "Electronică",
-  "Sport & Outdoor",
-  "Hobby & Jocuri",
-  "Cărți & Media",
-  "Casă & Grădină",
-  "Modă & Accesorii",
-];
+const CATEGORIES = CATEGORY_NAMES;
 
 const TAG_CANDIDATES = [
   "tech", "gaming", "audio", "video", "laptop", "phone", "tablet", "monitor",
@@ -118,20 +112,26 @@ export async function POST(request: Request) {
   }
 }
 
-/** Simple keyword-based category matching as fallback */
+/** Keyword-based category matching using taxonomy — checks subcategories first for precision */
 function keywordCategory(text: string): string {
-  const t = text.toLowerCase();
-  const mapping: [string, string[]][] = [
-    ["Electronică", ["laptop", "monitor", "keyboard", "phone", "tablet", "console", "gaming", "ssd", "headphone", "webcam", "speaker", "watch", "bluetooth", "usb", "electronic", "tech", "raspberry", "drone"]],
-    ["Sport & Outdoor", ["bike", "scooter", "camping", "tent", "hiking", "sport", "football", "tennis", "yoga", "running", "skateboard", "surf", "backpack", "outdoor", "fitness"]],
-    ["Hobby & Jocuri", ["lego", "puzzle", "paint", "guitar", "chess", "boardgame", "catan", "telescope", "hobby", "music", "instrument", "art", "game"]],
-    ["Cărți & Media", ["book", "harry potter", "python", "vinyl", "manga", "dvd", "cookbook", "programming", "collection", "record"]],
-    ["Casă & Grădină", ["garden", "lamp", "vacuum", "pot", "hammock", "coffee", "kitchen", "tool", "home", "decor", "furniture"]],
-    ["Modă & Accesorii", ["leather", "sunglasses", "watch", "jacket", "bag", "tote", "fashion", "shoes", "accessories"]],
-  ];
-  for (const [cat, keywords] of mapping) {
-    if (keywords.some((kw) => t.includes(kw))) return cat;
+  const t = text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+  // First try subcategories (more specific)
+  const subcats = CATEGORIES_TAXONOMY.filter((c) => c.level === 1);
+  for (const sub of subcats) {
+    if (sub.keywords.some((kw) => t.includes(kw))) {
+      return sub.name;
+    }
   }
+
+  // Then try top-level categories
+  const topCats = CATEGORIES_TAXONOMY.filter((c) => c.level === 0);
+  for (const cat of topCats) {
+    if (cat.keywords.some((kw) => t.includes(kw))) {
+      return cat.name;
+    }
+  }
+
   return "Hobby & Jocuri"; // default fallback
 }
 

@@ -30,8 +30,8 @@ export default function MatchPage() {
   return (
     <div className="space-y-4">
       <SectionCard
-        title="Match-uri recomandate"
-        description="Recomandări + explicații + modul manual dacă AI e down."
+        title="Analiza potrivirilor"
+        description="Propuneri bazate pe compatibilitate cumulativa. AI analizeaza, tu decizi."
         action={
           <button
             type="button"
@@ -55,14 +55,28 @@ export default function MatchPage() {
         />
       </SectionCard>
 
-      <SectionCard title="De ce acest match?" description="Explicații și trasabilitate">
+      <SectionCard title="Cum functioneaza analiza?" description="Scor cumulativ, nu verdict">
         <div className="space-y-2 text-sm text-zinc-700 dark:text-zinc-300">
-          <p>Explicații scurte: compatibilitate, locație similară, preferințe de schimb aliniate.</p>
-          <p>
-            Trace AI: provider/model_version/trace_id, fără a expune date private. Manual fallback dacă serviciul nu răspunde.
-          </p>
-          <Pill color="blue">Explainability</Pill>
-          <Pill color="green">RLS aplicat</Pill>
+          <p>Fiecare potrivire primeste un scor bazat pe mai multi factori: categorie, intentie, flexibilitate, valoare perceputa, locatie, taguri.</p>
+          <p>Niciun factor nu decide singur. Factorii se acumuleaza — exact ca un scor de risc: cu cat mai multi factori favorabili, cu atat potrivirea e mai puternica.</p>
+          <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <div className="rounded-lg bg-red-50 p-2 text-center text-xs dark:bg-red-950/30">
+              <p className="font-bold text-red-800 dark:text-red-200">0-39</p>
+              <p className="text-red-600 dark:text-red-400">Slab</p>
+            </div>
+            <div className="rounded-lg bg-amber-50 p-2 text-center text-xs dark:bg-amber-950/30">
+              <p className="font-bold text-amber-800 dark:text-amber-200">40-69</p>
+              <p className="text-amber-600 dark:text-amber-400">Posibil</p>
+            </div>
+            <div className="rounded-lg bg-blue-50 p-2 text-center text-xs dark:bg-blue-950/30">
+              <p className="font-bold text-blue-800 dark:text-blue-200">70-84</p>
+              <p className="text-blue-600 dark:text-blue-400">Bun</p>
+            </div>
+            <div className="rounded-lg bg-green-50 p-2 text-center text-xs dark:bg-green-950/30">
+              <p className="font-bold text-green-800 dark:text-green-200">85-100</p>
+              <p className="text-green-600 dark:text-green-400">Foarte bun</p>
+            </div>
+          </div>
         </div>
       </SectionCard>
 
@@ -136,38 +150,38 @@ export default function MatchPage() {
         </div>
       </SectionCard>
 
-      <SectionCard title="Pasul următor" description="Inițiază chat sau swap">
+      <SectionCard title="Pasul urmator" description="Deschide dialog sau propune schimb">
         <div className="flex flex-wrap gap-2 text-sm font-semibold">
-          <CTAButton href="/chat">Chat cu traducere & moderare</CTAButton>
+          <CTAButton href="/chat">Trimite mesaj</CTAButton>
           <CTAButton href="/change" variant="ghost">Propune schimb</CTAButton>
         </div>
       </SectionCard>
 
       <NextStepRecommendation
         steps={[
-          { label: "Inițiază un chat", href: "/chat", description: "Discută detalii cu partenerul de schimb" },
-          { label: "Propune un swap", href: "/change", description: "Începe procesul de schimb" },
-          { label: "Adaugă obiect", href: "/objects/new", description: "Crește-ți șansele de match cu mai multe obiecte" },
+          { label: "Trimite mesaj", href: "/chat", description: "Discuta detalii cu partenerul de schimb" },
+          { label: "Propune schimb", href: "/change", description: "Incepe procesul de schimb" },
+          { label: "Adauga obiect", href: "/objects/new", description: "Creste-ti sansele cu mai multe obiecte" },
         ]}
       />
 
       <StateShowcase
-        title="Stări MATCH"
+        title="Stari MATCHING"
         states={[
           {
             key: "loading",
-            title: "Calcul scor compatibilitate",
-            description: "Indicator de încărcare pentru recomputarea match-urilor (AI sau manual).",
+            title: "Se analizeaza compatibilitatea",
+            description: "Scor cumulativ in curs de calcul — AI sau reguli locale.",
           },
           {
             key: "empty",
-            title: "Nicio recomandare",
-            description: "Empty state deja vizibil în listă + CTA spre mod manual și filtre.",
+            title: "Nicio potrivire momentan",
+            description: "Completeaza mai multe detalii pe obiectele tale sau adauga obiecte noi.",
           },
           {
             key: "error",
-            title: "AI down / eroare serviciu",
-            description: "Mesaj explicit + fallback manual clar, fără a bloca navigația către /chat sau /objects.",
+            title: "AI indisponibil",
+            description: "Analiza continua cu reguli locale. Nicio functionalitate blocata.",
           },
         ]}
       />

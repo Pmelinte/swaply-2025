@@ -1,19 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { z } from "zod";
-import { Item } from "@/lib/types";
+import type { Item, ItemIntent, ItemFlexibility, ItemPerceivedValue, ItemConditionImpact, ItemClarity, ItemContext } from "@/lib/types";
 import { uploadItemPhoto } from "@/lib/storage";
+import { TOP_CATEGORIES, getSubcategories, CATEGORY_NAMES, findCategoryByName } from "@/lib/categories";
 
-export const ITEM_CATEGORIES = [
-  "Electronică",
-  "Sport & Outdoor",
-  "Hobby & Jocuri",
-  "Cărți & Media",
-  "Casă & Grădină",
-  "Modă & Accesorii",
-] as const;
+export const ITEM_CATEGORIES = CATEGORY_NAMES;
 
 const CONDITIONS = [
   { value: "new", label: "Nou" },
@@ -32,9 +26,7 @@ const itemSchema = z.object({
     .string()
     .min(3, "Titlul trebuie să aibă cel puțin 3 caractere.")
     .max(120, "Titlul nu poate depăși 120 caractere."),
-  category: z.enum(ITEM_CATEGORIES, {
-    errorMap: () => ({ message: "Alege o categorie validă." }),
-  }),
+  category: z.string().min(1, "Alege o categorie valida."),
   condition: z.enum(["new", "good", "used"]),
   description: z
     .string()
@@ -81,6 +73,19 @@ export function ItemForm({
   const [tagInput, setTagInput] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
   const [aiStatus, setAiStatus] = useState<string | null>(null);
+
+  // Cascading category state
+  const initParent = useMemo(() => {
+    if (!item.category) return "";
+    const node = findCategoryByName(item.category);
+    if (!node) return "";
+    return node.parentId ?? node.id;
+  }, [item.category]);
+  const [selectedParent, setSelectedParent] = useState(initParent);
+  const subcategories = useMemo(
+    () => (selectedParent ? getSubcategories(selectedParent) : []),
+    [selectedParent],
+  );
 
   const validate = (): boolean => {
     const result = itemSchema.safeParse({
@@ -248,22 +253,44 @@ export function ItemForm({
           />
           <FieldError message={errors.title} />
         </label>
-        <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-          Categorie *
+        <div className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
+          <p>Categorie *</p>
           <select
-            value={draft.category}
-            onChange={(e) => setDraft({ ...draft, category: e.target.value })}
+            value={selectedParent}
+            onChange={(e) => {
+              setSelectedParent(e.target.value);
+              // Reset to parent category name when changing
+              const parent = TOP_CATEGORIES.find((c) => c.id === e.target.value);
+              setDraft({ ...draft, category: parent?.name ?? "" });
+            }}
             className={errors.category ? inputError : inputNormal}
           >
             <option value="">— Alege categoria —</option>
-            {ITEM_CATEGORIES.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
+            {TOP_CATEGORIES.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
               </option>
             ))}
           </select>
+          {/* Subcategory (appears when parent is selected) */}
+          {subcategories.length > 0 ? (
+            <select
+              value={draft.category}
+              onChange={(e) => setDraft({ ...draft, category: e.target.value })}
+              className={`${inputNormal} mt-1`}
+            >
+              <option value={TOP_CATEGORIES.find((c) => c.id === selectedParent)?.name ?? ""}>
+                — Toate din {TOP_CATEGORIES.find((c) => c.id === selectedParent)?.name} —
+              </option>
+              {subcategories.map((sub) => (
+                <option key={sub.id} value={sub.name}>
+                  {sub.name}
+                </option>
+              ))}
+            </select>
+          ) : null}
           <FieldError message={errors.category} />
-        </label>
+        </div>
       </div>
 
       {/* AI Suggestions */}
@@ -316,6 +343,164 @@ export function ItemForm({
         />
         <FieldError message={errors.wishlist} />
       </label>
+
+      {/* ── Semantic contract fields (optional) ── */}
+      <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-3 dark:border-blue-900 dark:bg-blue-950/20">
+        <p className="text-sm font-semibold text-blue-800 dark:text-blue-200">
+          Detalii pentru analiza (optional)
+        </p>
+        <p className="mb-3 text-xs text-blue-600 dark:text-blue-400">
+          Cu cat completezi mai multe detalii, cu atat AI-ul identifica potriviri mai bune. Nimic nu e obligatoriu.
+        </p>
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          {/* Intent */}
+          <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">
+            Ce asteptare ai de la acest obiect?
+            <select
+              value={draft.intent ?? ""}
+              onChange={(e) => setDraft({ ...draft, intent: (e.target.value || undefined) as ItemIntent | undefined })}
+              className={inputNormal}
+            >
+              <option value="">— Nealeas —</option>
+              <option value="explore">Explorez — vreau sa vad ce mi s-ar oferi</option>
+              <option value="open">Deschis — as face un schimb daca apare ceva</option>
+              <option value="committed">Caut schimb clar — am obiectul pentru asta</option>
+              <option value="high_commitment">Angajament mare — schimb serios, fara tatonari</option>
+            </select>
+          </label>
+
+          {/* Flexibility */}
+          <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">
+            Cat de strict esti?
+            <select
+              value={draft.flexibility ?? ""}
+              onChange={(e) => setDraft({ ...draft, flexibility: (e.target.value || undefined) as ItemFlexibility | undefined })}
+              className={inputNormal}
+            >
+              <option value="">— Nealeas —</option>
+              <option value="strict">Strict — vreau ceva foarte apropiat</option>
+              <option value="moderate">Moderat — prefer X, dar accept si alternative</option>
+              <option value="broad">Larg — surprinde-ma</option>
+            </select>
+          </label>
+
+          {/* Perceived value */}
+          <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">
+            Cum percepi valoarea obiectului?
+            <select
+              value={draft.perceivedValue ?? ""}
+              onChange={(e) => setDraft({ ...draft, perceivedValue: (e.target.value || undefined) as ItemPerceivedValue | undefined })}
+              className={inputNormal}
+            >
+              <option value="">— Nealeas —</option>
+              <option value="small">Mica — usor de inlocuit</option>
+              <option value="medium">Medie — valoare normala</option>
+              <option value="large">Mare — important pentru mine</option>
+              <option value="sentimental">Sentimentala — are o valoare aparte</option>
+            </select>
+          </label>
+
+          {/* Clarity */}
+          <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">
+            Cat de sigur esti pe ce vrei?
+            <select
+              value={draft.clarity ?? ""}
+              onChange={(e) => setDraft({ ...draft, clarity: (e.target.value || undefined) as ItemClarity | undefined })}
+              className={inputNormal}
+            >
+              <option value="">— Nealeas —</option>
+              <option value="exploring">Nu sunt sigur, explorez</option>
+              <option value="have_idea">Am o idee, dar sunt flexibil</option>
+              <option value="know_exactly">Stiu exact ce vreau</option>
+            </select>
+          </label>
+
+          {/* Context */}
+          <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">
+            Contextul schimbului
+            <select
+              value={draft.context ?? ""}
+              onChange={(e) => setDraft({ ...draft, context: (e.target.value || undefined) as ItemContext | undefined })}
+              className={inputNormal}
+            >
+              <option value="">— Nealeas —</option>
+              <option value="permanent">Permanent — disponibil oricand</option>
+              <option value="vacation">Vacanta — contextual, temporar</option>
+              <option value="temporary">Temporar — disponibil o perioada limitata</option>
+              <option value="urgent">Urgent — cat mai repede</option>
+            </select>
+          </label>
+        </div>
+
+        {/* Checkboxes row */}
+        <div className="mt-3 flex flex-wrap gap-4">
+          <label className="flex items-center gap-2 text-xs text-zinc-700 dark:text-zinc-200">
+            <input
+              type="checkbox"
+              checked={draft.acceptsBundle ?? false}
+              onChange={(e) => setDraft({ ...draft, acceptsBundle: e.target.checked || undefined })}
+              className="rounded border-zinc-300"
+            />
+            Accept pachet de obiecte
+          </label>
+          <label className="flex items-center gap-2 text-xs text-zinc-700 dark:text-zinc-200">
+            <input
+              type="checkbox"
+              checked={draft.recipientMatters ?? false}
+              onChange={(e) => setDraft({ ...draft, recipientMatters: e.target.checked || undefined })}
+              className="rounded border-zinc-300"
+            />
+            Conteaza cui ajunge
+          </label>
+        </div>
+
+        {/* Condition impact */}
+        <div className="mt-3">
+          <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">
+            Cum afecteaza starea obiectul? (selecteaza ce se aplica)
+          </p>
+          <div className="mt-1 flex flex-wrap gap-3">
+            {([
+              { value: "affects_value", label: "Afecteaza valoarea" },
+              { value: "affects_usage", label: "Afecteaza utilizarea" },
+              { value: "affects_durability", label: "Afecteaza durabilitatea" },
+              { value: "affects_appearance", label: "Afecteaza doar aspectul" },
+            ] as const).map((opt) => (
+              <label key={opt.value} className="flex items-center gap-1 text-xs text-zinc-600 dark:text-zinc-300">
+                <input
+                  type="checkbox"
+                  checked={(draft.conditionImpact ?? []).includes(opt.value)}
+                  onChange={(e) => {
+                    const current = draft.conditionImpact ?? [];
+                    setDraft({
+                      ...draft,
+                      conditionImpact: e.target.checked
+                        ? [...current, opt.value]
+                        : current.filter((v) => v !== opt.value),
+                    });
+                  }}
+                  className="rounded border-zinc-300"
+                />
+                {opt.label}
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {/* AI Note */}
+        <label className="mt-3 block text-xs font-semibold text-zinc-700 dark:text-zinc-200">
+          Mesaj pentru AI (optional)
+          <input
+            value={draft.aiNote ?? ""}
+            onChange={(e) => setDraft({ ...draft, aiNote: e.target.value || undefined })}
+            placeholder="ex: Nu ma grabesc, Prefer schimb local, Obiectul are o poveste..."
+            maxLength={300}
+            className={inputNormal}
+          />
+          <span className="text-[10px] text-zinc-400">AI-ul foloseste aceste informatii doar pentru analiza, nu sunt afisate public.</span>
+        </label>
+      </div>
 
       {/* Condition + Status + Location */}
       <div className="grid gap-3 sm:grid-cols-3">

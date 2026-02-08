@@ -14,7 +14,7 @@ export default function HomePage() {
     <div className="space-y-6">
       <SectionCard
         title="Descoperă oportunități de schimb în zona ta"
-        description="Alege cum vrei să începi: explorează obiecte, caută pe hartă sau verifică match-urile tale."
+        description="Alege cum vrei sa incepi: exploreaza obiecte, cauta pe harta sau analizeaza potrivirile."
         action={<CTAButton href="/objects">Vezi obiecte disponibile</CTAButton>}
       >
         {user ? (
@@ -24,7 +24,7 @@ export default function HomePage() {
             </p>
             <div className="flex flex-wrap gap-2 text-sm font-semibold">
               <CTAButton href="/match" variant="ghost">
-                Vezi match-urile tale
+                Analizeaza potriviri
               </CTAButton>
               <CTAButton href="/objects">Adaugă un obiect</CTAButton>
               <CTAButton href="/change" variant="ghost">
@@ -94,11 +94,11 @@ export default function HomePage() {
           </div>
           <div className="rounded-xl border border-zinc-200 bg-white/70 p-3 dark:border-zinc-800 dark:bg-zinc-900/70">
             <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">CTA recomandate</h4>
-            <p className="text-sm text-zinc-600 dark:text-zinc-300">Adaugă un obiect, caută pe hartă, vezi match-uri sau inițiază un swap.</p>
+            <p className="text-sm text-zinc-600 dark:text-zinc-300">Adauga un obiect, cauta pe harta, analizeaza potriviri sau propune un schimb.</p>
           </div>
           <div className="rounded-xl border border-zinc-200 bg-white/70 p-3 dark:border-zinc-800 dark:bg-zinc-900/70">
             <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Link-uri permise</h4>
-            <p className="text-sm text-zinc-600 dark:text-zinc-300">Profil & Setări, Beneficii Premium/Platinum, Match-uri, Obiecte, Chat, Termeni & Politici.</p>
+            <p className="text-sm text-zinc-600 dark:text-zinc-300">Profil & Setari, Beneficii Premium/Platinum, Matching, Obiecte, Mesaje, Termeni & Politici.</p>
           </div>
         </div>
       </SectionCard>
@@ -131,7 +131,7 @@ export default function HomePage() {
           user
             ? [
                 { label: "Adaugă un obiect", href: "/objects/new", description: "Listează ceva pentru schimb" },
-                { label: "Vezi match-urile", href: "/match", description: "Descoperă propuneri compatibile" },
+                { label: "Analizeaza potriviri", href: "/match", description: "Descopera propuneri compatibile" },
                 { label: "Explorează obiecte", href: "/objects", description: "Caută ce oferă alți utilizatori" },
               ]
             : [
