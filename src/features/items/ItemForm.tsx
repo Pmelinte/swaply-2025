@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { z } from "zod";
 import { Item } from "@/lib/types";
 import { uploadItemPhoto } from "@/lib/storage";
@@ -38,8 +38,9 @@ const itemSchema = z.object({
   condition: z.enum(["new", "good", "used"]),
   description: z
     .string()
-    .min(10, "Descrierea trebuie să aibă cel puțin 10 caractere.")
-    .max(2000, "Descrierea nu poate depăși 2000 caractere."),
+    .max(2000, "Descrierea nu poate depăși 2000 caractere.")
+    .optional()
+    .default(""),
   wishlist: z.string().max(500, "Dorința nu poate depăși 500 caractere.").optional().default(""),
   location: z.string().min(2, "Specifică o locație (oraș sau zonă)."),
   userFinalTags: z.array(z.string()).max(10, "Maximum 10 taguri.").optional().default([]),
@@ -81,6 +82,16 @@ export function ItemForm({
   const [tagInput, setTagInput] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
   const [aiStatus, setAiStatus] = useState<string | null>(null);
+  const aiTriggered = useRef(false);
+
+  const triggerAiOnBlur = useCallback(() => {
+    if (aiTriggered.current || aiLoading) return;
+    if (draft.title.length >= 3) {
+      aiTriggered.current = true;
+      void fetchAiSuggestionsInternal();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draft.title, aiLoading]);
 
   const validate = (): boolean => {
     const result = itemSchema.safeParse({
@@ -134,9 +145,9 @@ export function ItemForm({
     });
   };
 
-  const fetchAiSuggestions = async () => {
+  const fetchAiSuggestionsInternal = async () => {
     if (!draft.title && !draft.description) {
-      setAiStatus("Scrie un titlu sau descriere mai intai.");
+      setAiStatus("Scrie un titlu sau descriere mai întâi.");
       return;
     }
     setAiLoading(true);
@@ -162,16 +173,21 @@ export function ItemForm({
       setDraft((prev) => ({ ...prev, ...updates }));
       setAiStatus(
         data.status === "ok"
-          ? "Sugestii AI aplicate!"
+          ? "Categorie și taguri sugerate de AI!"
           : data.status === "fallback"
             ? "Sugestii locale aplicate (AI indisponibil)."
-            : "Eroare AI, incearca din nou.",
+            : "Eroare AI, încearcă din nou.",
       );
     } catch {
-      setAiStatus("Eroare de retea. Incearca din nou.");
+      setAiStatus("Eroare de rețea. Încearcă din nou.");
     } finally {
       setAiLoading(false);
     }
+  };
+
+  const fetchAiSuggestions = () => {
+    aiTriggered.current = true;
+    void fetchAiSuggestionsInternal();
   };
 
   return (
@@ -242,6 +258,7 @@ export function ItemForm({
           <input
             value={draft.title}
             onChange={(e) => setDraft({ ...draft, title: e.target.value })}
+            onBlur={triggerAiOnBlur}
             placeholder="ex: Monitor 24 inch IPS"
             maxLength={120}
             className={errors.title ? inputError : inputNormal}
@@ -270,7 +287,7 @@ export function ItemForm({
       <div className="flex items-center gap-3">
         <button
           type="button"
-          onClick={() => void fetchAiSuggestions()}
+          onClick={fetchAiSuggestions}
           disabled={aiLoading || saving}
           className="rounded-full bg-purple-600 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-700 disabled:opacity-60"
         >
@@ -287,7 +304,7 @@ export function ItemForm({
 
       {/* Description */}
       <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-        Descriere *
+        Descriere (opțional)
         <textarea
           value={draft.description}
           onChange={(e) => setDraft({ ...draft, description: e.target.value })}

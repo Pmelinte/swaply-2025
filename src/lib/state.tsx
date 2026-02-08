@@ -1353,7 +1353,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
   const startNewItem = useCallback(() => {
     if (!user) return null;
-    return createEmptyItem(user.id);
+    const item = createEmptyItem(user.id);
+    if (user.location?.city) {
+      item.location = user.location.city;
+    }
+    return item;
   }, [user]);
 
   const clearNotifications = useCallback(() => {

@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
-import { BellDot, Languages, Menu, ShieldCheck } from "lucide-react";
+import { BellDot, Languages, LogOut, Menu, ShieldCheck } from "lucide-react";
 import type { LanguageCode } from "@/lib/types";
 import { useAppState } from "@/lib/state";
 import { Badge } from "../ui";
@@ -89,13 +89,31 @@ export function TopBar() {
         </div>
         <div className="flex items-center gap-2">
           {user ? (
-            <button
-              type="button"
-              className="rounded-full border border-zinc-200 bg-white px-3 py-1 text-sm font-semibold shadow-sm hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+            <>
+              <Link
+                href="/profile"
+                className="rounded-full border border-zinc-200 bg-white px-3 py-1 text-sm font-semibold shadow-sm hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+              >
+                <Badge tier={user.badge} />
+              </Link>
+              <button
+                type="button"
+                onClick={() => logout()}
+                className="inline-flex items-center gap-1 rounded-full border border-red-200 bg-white px-3 py-1 text-sm font-medium text-red-600 shadow-sm hover:bg-red-50 dark:border-red-800 dark:bg-zinc-800 dark:text-red-400 dark:hover:bg-red-900/30"
+                title="Delogare"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Ieși</span>
+              </button>
+            </>
+          ) : (
+            <Link
+              href="/login"
+              className="rounded-full bg-blue-600 px-3 py-1 text-sm font-semibold text-white hover:bg-blue-700"
             >
-              <Badge tier={user.badge} />
-            </button>
-          ) : null}
+              Autentificare
+            </Link>
+          )}
           <div className="relative">
             <button
               type="button"

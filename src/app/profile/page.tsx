@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAppState } from "@/lib/state";
 import { LoggedOutGate, MissingDataCallout } from "@/components/gated";
 import { Badge, NextStepRecommendation, Pill, SectionCard, StateShowcase } from "@/components/ui";
@@ -17,11 +17,21 @@ export default function ProfilePage() {
     { key: "reputatie" as const, label: "Reputație" },
   ];
 
-  if (loading.profile) {
+  const [loadingTimeout, setLoadingTimeout] = useState(false);
+
+  useEffect(() => {
+    if (loading.profile) {
+      const timer = setTimeout(() => setLoadingTimeout(true), 3000);
+      return () => clearTimeout(timer);
+    }
+    setLoadingTimeout(false);
+  }, [loading.profile]);
+
+  if (loading.profile && !loadingTimeout) {
     return (
       <SectionCard
-        title="Se încarcă profilul"
-        description="Loading state conform contractului; nu returnăm 404."
+        title="Se încarcă profilul..."
+        description="Verificăm sesiunea ta."
       >
         <div className="h-20 animate-pulse rounded-xl bg-zinc-100 dark:bg-zinc-800" />
       </SectionCard>
