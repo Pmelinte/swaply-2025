@@ -189,6 +189,22 @@ function wishlistMatchesCategory(wishlist: string, category: string) {
   return keywords.some((keyword) => normalizedWishlist.includes(normalizeMatchText(keyword)));
 }
 
+/* ─── Intent compatibility matrix ─── */
+const INTENT_COMPAT: Record<string, Record<string, number>> = {
+  explore:         { explore: 5, open: 8, committed: 2, high_commitment: 0 },
+  open:            { explore: 8, open: 10, committed: 8, high_commitment: 4 },
+  committed:       { explore: 2, open: 8, committed: 12, high_commitment: 10 },
+  high_commitment: { explore: 0, open: 4, committed: 10, high_commitment: 15 },
+};
+
+/* ─── Score tier thresholds (cardiovascular risk model) ─── */
+function scoreTier(score: number): import("./types").MatchTier {
+  if (score >= 85) return "strong";
+  if (score >= 70) return "good";
+  if (score >= 40) return "possible";
+  return "weak";
+}
+
 function computeMatchesForUser(userId: string, items: Item[]): MatchCandidate[] {
   const myItems = items.filter(
     (item) => item.ownerId === userId && item.isActive && item.status === "active",
@@ -198,42 +214,116 @@ function computeMatchesForUser(userId: string, items: Item[]): MatchCandidate[] 
   );
 
   const candidates: MatchCandidate[] = [];
+
   for (const offered of myItems) {
     for (const requested of otherItems) {
+      /* ─── Hard filters ─── */
       const wantRequested = wishlistMatchesCategory(offered.wishlist, requested.category);
       const theyWantOffered = wishlistMatchesCategory(requested.wishlist, offered.category);
+      const eitherFlexBroad = offered.flexibility === "broad" || requested.flexibility === "broad";
 
-      if (!wantRequested && !theyWantOffered) continue;
+      // Must have at least one wishlist match OR broad flexibility
+      if (!wantRequested && !theyWantOffered && !eitherFlexBroad) continue;
 
-      const locationBonus =
-        normalizeMatchText(offered.location) &&
-        normalizeMatchText(offered.location) === normalizeMatchText(requested.location)
-          ? 5
-          : 0;
-      const mutualBonus = wantRequested && theyWantOffered ? 10 : 0;
-      const score = Math.min(
-        100,
-        (wantRequested ? 50 : 0) + (theyWantOffered ? 50 : 0) + mutualBonus + locationBonus,
-      );
-
+      /* ─── Soft signals (cumulative scoring) ─── */
+      let score = 0;
       const reasons: string[] = [];
-      if (wantRequested) {
-        reasons.push(`Wishlist-ul tău indică categoria „${requested.category}”.`);
+
+      // 1. Category / wishlist match (max 30)
+      if (wantRequested && theyWantOffered) {
+        score += 30;
+        reasons.push("Categorii reciproc compatibile");
+      } else if (wantRequested) {
+        score += 20;
+        reasons.push(`Wishlist-ul tau indica „${requested.category}"`);
+      } else if (theyWantOffered) {
+        score += 20;
+        reasons.push(`Partenerul cauta „${offered.category}"`);
+      } else if (eitherFlexBroad) {
+        score += 8;
+        reasons.push("Flexibilitate larga permite explorare");
       }
-      if (theyWantOffered) {
-        reasons.push(`Wishlist-ul partenerului indică categoria „${offered.category}”.`);
+
+      // 2. Intent compatibility (max 15)
+      const myIntent = offered.intent ?? "open";
+      const theirIntent = requested.intent ?? "open";
+      const intentScore = INTENT_COMPAT[myIntent]?.[theirIntent] ?? 5;
+      score += intentScore;
+      if (intentScore >= 10) {
+        reasons.push("Intentii de schimb compatibile");
+      } else if (intentScore <= 2) {
+        reasons.push("Asteptari diferite de angajament");
       }
-      if (locationBonus) {
-        reasons.push("Locația obiectelor coincide, ceea ce simplifică logistica.");
+
+      // 3. Flexibility bonus (max 10)
+      const flexMap = { strict: 0, moderate: 4, broad: 10 } as const;
+      const flexA = flexMap[offered.flexibility ?? "moderate"] ?? 4;
+      const flexB = flexMap[requested.flexibility ?? "moderate"] ?? 4;
+      const flexBonus = Math.round((flexA + flexB) / 2);
+      score += flexBonus;
+      if (flexBonus >= 7) {
+        reasons.push("Ambele parti sunt flexibile");
       }
+
+      // 4. Perceived value proximity (max 15)
+      const valOrder = { small: 1, medium: 2, large: 3, sentimental: 2 } as const;
+      const valA = valOrder[offered.perceivedValue ?? "medium"] ?? 2;
+      const valB = valOrder[requested.perceivedValue ?? "medium"] ?? 2;
+      const valDiff = Math.abs(valA - valB);
+      const valBonus = valDiff === 0 ? 15 : valDiff === 1 ? 8 : 2;
+      score += valBonus;
+      if (valDiff === 0) {
+        reasons.push("Valoare perceputa apropiata");
+      } else if (valDiff >= 2) {
+        reasons.push("Diferenta mare de valoare perceputa");
+      }
+
+      // 5. Location match (max 10)
+      const locA = normalizeMatchText(offered.location);
+      const locB = normalizeMatchText(requested.location);
+      if (locA && locA === locB) {
+        score += 10;
+        reasons.push("Aceeasi locatie — logistica simpla");
+      }
+
+      // 6. Bundle compatibility (max 5)
+      if (offered.acceptsBundle && requested.acceptsBundle) {
+        score += 5;
+        reasons.push("Ambii accepta pachet de obiecte");
+      }
+
+      // 7. Tags overlap (max 10)
+      const tagsA = new Set([...(offered.userFinalTags ?? []), ...(offered.aiSuggestedTags ?? [])]);
+      const tagsB = new Set([...(requested.userFinalTags ?? []), ...(requested.aiSuggestedTags ?? [])]);
+      let tagOverlap = 0;
+      for (const t of tagsA) if (tagsB.has(t)) tagOverlap++;
+      const tagBonus = Math.min(10, tagOverlap * 3);
+      score += tagBonus;
+      if (tagOverlap >= 2) {
+        reasons.push(`${tagOverlap} taguri comune`);
+      }
+
+      // 8. Sentimental / recipient matters (max 5)
+      if (offered.perceivedValue === "sentimental" || requested.perceivedValue === "sentimental") {
+        if (offered.recipientMatters || requested.recipientMatters) {
+          score += 5;
+          reasons.push("Schimb cu valoare sentimentala — destinatarul conteaza");
+        }
+      }
+
+      // Cap at 100
+      score = Math.min(100, score);
+      const tier = scoreTier(score);
 
       candidates.push({
         id: `match_${offered.id}_${requested.id}`,
         itemOffered: offered,
         itemRequested: requested,
         compatibilityScore: score,
-        reason: reasons.join(" "),
-        manualFallbackReason: "Match calculat local (wishlist vs. category).",
+        tier,
+        reasons,
+        reason: reasons.slice(0, 3).join(". ") + ".",
+        manualFallbackReason: "Analiza calculata local (scor cumulativ).",
       });
     }
   }

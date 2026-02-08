@@ -49,6 +49,14 @@ export interface UserProfile {
   };
 }
 
+/** Semantic attributes — all optional, enriching match quality */
+export type ItemIntent = "explore" | "open" | "committed" | "high_commitment";
+export type ItemFlexibility = "strict" | "moderate" | "broad";
+export type ItemPerceivedValue = "small" | "medium" | "large" | "sentimental";
+export type ItemConditionImpact = "affects_value" | "affects_usage" | "affects_durability" | "affects_appearance";
+export type ItemClarity = "exploring" | "have_idea" | "know_exactly";
+export type ItemContext = "permanent" | "vacation" | "temporary" | "urgent";
+
 export interface Item {
   id: string;
   ownerId: string;
@@ -65,13 +73,27 @@ export interface Item {
   aiSuggestedTags?: string[];
   userFinalTags?: string[];
   photos: string[];
+  /* --- Semantic contract fields (all optional) --- */
+  intent?: ItemIntent;
+  flexibility?: ItemFlexibility;
+  perceivedValue?: ItemPerceivedValue;
+  conditionImpact?: ItemConditionImpact[];
+  acceptsBundle?: boolean;
+  recipientMatters?: boolean;
+  clarity?: ItemClarity;
+  context?: ItemContext;
+  aiNote?: string;
 }
+
+export type MatchTier = "weak" | "possible" | "good" | "strong";
 
 export interface MatchCandidate {
   id: string;
   itemOffered: Item;
   itemRequested: Item;
   compatibilityScore: number;
+  tier: MatchTier;
+  reasons: string[];
   reason: string;
   aiTrace?: string;
   manualFallbackReason?: string;

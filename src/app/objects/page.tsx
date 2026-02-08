@@ -287,7 +287,7 @@ export default function ObjectsPage() {
                 Ai ales {MAX_RIGHT_SWIPES} obiecte de oferit!
               </p>
               <p className="mt-1 text-xs text-emerald-600 dark:text-emerald-400">
-                Mergi la Match pentru a vedea potrivirile.
+                Ai suficiente semnale pentru o analiza.
               </p>
               <div className="mt-3 flex justify-center gap-2">
                 <button
@@ -301,7 +301,7 @@ export default function ObjectsPage() {
                 >
                   Reseteaza
                 </button>
-                <CTAButton href="/match">Cauta match</CTAButton>
+                <CTAButton href="/match">Matching</CTAButton>
               </div>
             </div>
           ) : currentOfferItem ? (
@@ -363,10 +363,36 @@ export default function ObjectsPage() {
         </div>
       </div>
 
+      {/* ── Nudge banner (appears when both zones have signals) ── */}
+      {(wishRightCount >= MAX_RIGHT_SWIPES || offerRightCount >= MAX_RIGHT_SWIPES) ? (
+        <div className="rounded-2xl border border-purple-300 bg-purple-50 p-4 text-center dark:border-purple-800 dark:bg-purple-950/30">
+          <p className="text-sm font-semibold text-purple-800 dark:text-purple-200">
+            Ai suficiente semnale pentru o analiza
+          </p>
+          <p className="mt-1 text-xs text-purple-600 dark:text-purple-400">
+            AI analizeaza compatibilitatea si iti propune variante.
+          </p>
+          <div className="mt-3 flex justify-center gap-2">
+            <CTAButton href="/match">Matching</CTAButton>
+            <button
+              type="button"
+              onClick={() => {
+                setWishRightCount(0); setOfferRightCount(0);
+                setWishSwipeIndex(0); setOfferSwipeIndex(0);
+                setWishDismissed(new Set()); setOfferDismissed(new Set());
+              }}
+              className="rounded-full border border-purple-300 px-4 py-2 text-xs font-semibold text-purple-700 hover:bg-purple-100 dark:border-purple-700 dark:text-purple-300"
+            >
+              Mai tarziu
+            </button>
+          </div>
+        </div>
+      ) : null}
+
       <NextStepRecommendation
         steps={[
-          { label: "Cauta match-uri", href: "/match", description: "Descopera potriviri pe baza obiectelor tale" },
-          { label: "Deschide chat", href: "/chat", description: "Discuta cu alti utilizatori despre schimburi" },
+          { label: "Analizeaza potriviri", href: "/match", description: "AI analizeaza compatibilitatea obiectelor tale" },
+          { label: "Trimite mesaj", href: "/chat", description: "Discuta cu alti utilizatori despre schimburi" },
         ]}
       />
 

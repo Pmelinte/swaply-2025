@@ -14,9 +14,9 @@ import {
 const links = [
   { href: "/", label: "Home", icon: Home },
   { href: "/objects", label: "Obiecte", icon: Box },
-  { href: "/match", label: "Match", icon: HeartHandshake },
-  { href: "/chat", label: "Chat", icon: MessageCircle },
-  { href: "/change", label: "Swaply", icon: Shuffle },
+  { href: "/match", label: "Matching", icon: HeartHandshake },
+  { href: "/chat", label: "Mesaje", icon: MessageCircle },
+  { href: "/change", label: "Schimb", icon: Shuffle },
   { href: "/info", label: "Info", icon: Info },
 ];
 
