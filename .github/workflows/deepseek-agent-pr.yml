@@ -132,7 +132,7 @@ jobs:
 
           diff_text = content[idx:].strip()
 
-          # Hard guard: forbid wrong root paths (Python regex flags MUST be at start)
+          # Hard guard: forbid wrong root paths
           bad = False
 
           # 1) Forbid app/* (should be src/app/*)
