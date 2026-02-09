@@ -4,15 +4,15 @@ on:
   workflow_dispatch:
     inputs:
       task:
-        description: "Ce vrei să facă agentul (ex: 'Fix login redirect; după submit rămân nelogat')"
+        description: "Ce vrei să facă agentul (ex: 'Fix login: după submit rămân nelogat')"
         required: true
         type: string
       base_branch:
-        description: "Branch-ul de bază (gol = default branch)"
+        description: "Branch-ul de bază (gol = branch-ul curent / default)"
         required: false
         type: string
       pr_branch:
-        description: "Nume branch pentru PR (opțional)"
+        description: "Nume branch pentru PR (opțional). Dacă e gol, se generează automat."
         required: false
         type: string
 
@@ -23,6 +23,11 @@ permissions:
 jobs:
   deepseek_agent:
     runs-on: ubuntu-latest
+    env:
+      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+      TASK: ${{ inputs.task }}
+      BASE_BRANCH: ${{ inputs.base_branch }}
+      PR_BRANCH: ${{ inputs.pr_branch }}
 
     steps:
       - name: Checkout
@@ -31,31 +36,37 @@ jobs:
           fetch-depth: 0
 
       - name: Set base branch
-        id: base
         run: |
-          if [ -n "${{ inputs.base_branch }}" ]; then
-            echo "base_branch=${{ inputs.base_branch }}" >> $GITHUB_OUTPUT
+          set -e
+          if [ -n "${BASE_BRANCH}" ]; then
+            echo "Using BASE_BRANCH=${BASE_BRANCH}"
+            git checkout "${BASE_BRANCH}"
           else
-            echo "base_branch=${{ github.event.repository.default_branch }}" >> $GITHUB_OUTPUT
+            echo "BASE_BRANCH not provided; staying on current branch: $(git rev-parse --abbrev-ref HEAD)"
           fi
 
-      - name: Switch to base branch
+      - name: Create work branch
         run: |
-          git checkout "${{ steps.base.outputs.base_branch }}"
-          git pull --ff-only origin "${{ steps.base.outputs.base_branch }}"
+          set -e
+          CURR="$(git rev-parse --abbrev-ref HEAD)"
+          if [ -n "${PR_BRANCH}" ]; then
+            NEWBR="${PR_BRANCH}"
+          else
+            NEWBR="deepseek/pr-$(date +%Y%m%d-%H%M%S)"
+          fi
+          echo "Creating branch ${NEWBR} from ${CURR}"
+          git checkout -b "${NEWBR}"
+          echo "NEW_BRANCH=${NEWBR}" >> $GITHUB_ENV
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Generate patch with DeepSeek
-        env:
-          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-          TASK: ${{ inputs.task }}
+      - name: Generate patch with DeepSeek (context-aware)
         run: |
           python - << 'PY'
-          import os, json, textwrap, sys, re
+          import os, json, textwrap, sys, subprocess, re
           import urllib.request
 
           api_key = os.environ.get("DEEPSEEK_API_KEY", "").strip()
@@ -68,6 +79,51 @@ jobs:
             print("Missing task input", file=sys.stderr)
             sys.exit(1)
 
+          def sh(cmd: str) -> str:
+            return subprocess.check_output(cmd, shell=True, text=True, stderr=subprocess.STDOUT)
+
+          # Repo facts
+          branch = sh("git rev-parse --abbrev-ref HEAD").strip()
+          head = sh("git rev-parse HEAD").strip()
+
+          # Helpful inventory (keep short-ish)
+          files = sh("git ls-files").splitlines()
+          # Prefer the important files for auth/login flow
+          interesting = [
+            "src/app/login/page.tsx",
+            "src/lib/state.tsx",
+            "src/lib/supabase/client.ts",
+            "src/lib/supabase/server.ts",
+            "src/middleware.ts",
+            "middleware.ts",
+            "src/app/layout.tsx",
+            "src/app/page.tsx",
+          ]
+
+          def file_text(path: str) -> str:
+            try:
+              return sh(f"sed -n '1,260p' {path}")
+            except Exception:
+              return ""
+
+          context_parts = []
+          context_parts.append(f"BRANCH: {branch}")
+          context_parts.append(f"HEAD: {head}")
+          context_parts.append("IMPORTANT: Repo uses src/ as root; Next.js App Router is under src/app/ (NOT app/).")
+
+          # Add a small file list excerpt
+          # (only show top N to not explode tokens)
+          context_parts.append("FILES (first 200):\n" + "\n".join(files[:200]))
+
+          # Add content of interesting files (only those that exist)
+          for p in interesting:
+            if p in files:
+              txt = file_text(p)
+              if txt.strip():
+                context_parts.append(f"\n===== FILE: {p} (first 260 lines) =====\n{txt}")
+
+          repo_context = "\n\n".join(context_parts)
+
           system = textwrap.dedent("""
           You are a careful coding agent working on a Next.js + Supabase project.
 
@@ -75,18 +131,24 @@ jobs:
           - This repo uses src/ as the source root.
           - Next.js App Router lives under src/app/ (NOT app/).
           - You MUST NOT reference or modify any path under app/*.
-          - Middleware (if needed) should be src/middleware.ts, NOT middleware.ts at repo root.
-          - Allowed paths to modify: src/app/**, src/components/**, src/lib/**, src/styles/**, supabase/**, public/**.
+          - Prefer minimal, safe changes.
+          - If unsure, add TODO comments rather than risky logic.
 
           OUTPUT RULES (STRICT):
           - Return ONLY a unified diff patch (no explanations, no markdown, no code fences).
-          - Output MUST include one or more diff blocks starting with: diff --git
+          - The output MUST include one or more diff blocks starting with: diff --git
           - Use correct paths that exist in the repo.
-          - Make minimal, safe changes. If unsure, add TODO comments rather than risky logic.
           - Do not modify secrets or environment variables.
           """).strip()
 
-          user = f"Task:\n{task}\n\nReturn ONLY a unified diff patch that applies cleanly with git apply."
+          user = f"""TASK:
+          {task}
+
+          REPO CONTEXT (authoritative, do not contradict it):
+          {repo_context}
+
+          Produce a unified diff patch that applies cleanly with git apply.
+          """
 
           payload = {
             "model": "deepseek-chat",
@@ -116,12 +178,13 @@ jobs:
 
           content = data["choices"][0]["message"]["content"]
 
-          # Save raw output for debugging
+          # Save raw model output for debugging
           with open("deepseek.raw.txt", "w", encoding="utf-8") as f:
             f.write(content)
 
-          # Strip accidental markdown fences
           content = content.strip()
+
+          # Strip accidental markdown fences if present
           content = re.sub(r"^```[a-zA-Z0-9_-]*\s*", "", content)
           content = re.sub(r"\s*```$", "", content)
 
@@ -132,15 +195,13 @@ jobs:
 
           diff_text = content[idx:].strip()
 
+          # Guards: forbid app/* paths and root middleware.ts
           bad = False
-
-          # Guard 1: forbid app/* paths (repo uses src/app/*)
-          if re.search(r"^(?:\+\+\+ b/app/|--- a/app/|diff --git a/app/)", diff_text, flags=re.MULTILINE):
+          if re.search(r"(?m)^diff --git a/app/|(?m)^--- a/app/|(?m)^\+\+\+ b/app/", diff_text):
             print("Patch illegally references app/* (repo uses src/app/*).", file=sys.stderr)
             bad = True
 
-          # Guard 2: forbid root middleware.ts (should be src/middleware.ts)
-          if re.search(r"^(?:\+\+\+ b/middleware\.ts|--- a/middleware\.ts|diff --git a/middleware\.ts)", diff_text, flags=re.MULTILINE):
+          if re.search(r"(?m)^diff --git a/middleware\\.ts|(?m)^--- a/middleware\\.ts|(?m)^\\+\\+\\+ b/middleware\\.ts", diff_text):
             print("Patch references root middleware.ts. Use src/middleware.ts if needed.", file=sys.stderr)
             bad = True
 
@@ -148,7 +209,6 @@ jobs:
             print("Aborting patch. Check deepseek.raw.txt for model output.", file=sys.stderr)
             sys.exit(1)
 
-          # IMPORTANT: omit newline= entirely to avoid any escaping weirdness
           with open("deepseek.patch", "w", encoding="utf-8") as f:
             f.write(diff_text + "\n")
 
@@ -161,9 +221,10 @@ jobs:
           nl -ba deepseek.patch | sed -n '1,220p'
           echo "-------------------------------"
 
-      - name: Apply patch
+      - name: Apply patch (3-way)
         run: |
-          git apply --whitespace=fix deepseek.patch
+          set -e
+          git apply --3way --whitespace=fix deepseek.patch
           git status --porcelain
 
       - name: Install deps
@@ -172,18 +233,43 @@ jobs:
       - name: Build (safety check)
         run: npm run build
 
+      - name: Commit changes
+        run: |
+          set -e
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git config user.name "deepseek-agent"
+          git config user.email "deepseek-agent@users.noreply.github.com"
+          git add -A
+          git commit -m "DeepSeek: apply task"
+
+      - name: Push branch
+        run: |
+          set -e
+          if git rev-parse --verify HEAD >/dev/null 2>&1; then
+            git push --set-upstream origin "${NEW_BRANCH}"
+          fi
+
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v6
-        with:
-          branch: ${{ inputs.pr_branch }}
-          delete-branch: true
-          base: ${{ steps.base.outputs.base_branch }}
-          title: "DeepSeek Agent: ${{ inputs.task }}"
-          body: |
-            PR generat automat de DeepSeek Agent (deepseek-chat).
-            Task: ${{ inputs.task }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          # If no commit was created, don't open PR
+          if [ -z "$(git log --oneline -n 1 2>/dev/null)" ]; then
+            echo "No commits found, skipping PR."
+            exit 0
+          fi
 
-            ✅ A rulat `npm run build` în GitHub Actions înainte de PR.
+          BASE="${BASE_BRANCH}"
+          if [ -z "${BASE}" ]; then
+            # Default to repo default branch (best effort)
+            BASE="$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')"
+          fi
 
-            Notă: dacă modelul a produs output nevalid, vezi deepseek.raw.txt în log.
-          commit-message: "DeepSeek Agent: ${{ inputs.task }}"
+          TITLE="DeepSeek Agent: ${TASK}"
+          BODY="Automated changes generated by DeepSeek for task: ${TASK}"
+
+          gh pr create --base "${BASE}" --head "${NEW_BRANCH}" --title "${TITLE}" --body "${BODY}" || true
