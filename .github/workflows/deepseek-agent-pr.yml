@@ -69,6 +69,8 @@ jobs:
 
           system = textwrap.dedent("""
           You are a careful coding agent working on a Next.js + Supabase project.
+          IMPORTANT: This repo uses src/ as the source root. All Next.js App Router files live under src/app/, NOT app/.
+          Only modify files under src/app/, src/components/, src/lib/, src/styles/, src/supabase/ as needed.
           Produce ONLY a unified diff patch that can be applied with `git apply`.
 
           HARD RULES:
