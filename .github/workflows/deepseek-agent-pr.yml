@@ -60,6 +60,7 @@ jobs:
 
           api_key = os.environ.get("DEEPSEEK_API_KEY", "").strip()
           task = os.environ.get("TASK", "").strip()
+
           if not api_key:
             print("Missing DEEPSEEK_API_KEY secret", file=sys.stderr)
             sys.exit(1)
@@ -115,7 +116,7 @@ jobs:
 
           content = data["choices"][0]["message"]["content"]
 
-          # Save raw model output for debugging
+          # Save raw output for debugging
           with open("deepseek.raw.txt", "w", encoding="utf-8") as f:
             f.write(content)
 
@@ -131,16 +132,16 @@ jobs:
 
           diff_text = content[idx:].strip()
 
-          # Hard guard: forbid wrong root paths
+          # Hard guard: forbid wrong root paths (Python regex flags MUST be at start)
           bad = False
 
           # 1) Forbid app/* (should be src/app/*)
-          if re.search(r"(?m)^\+\+\+ b/app/|(?m)^--- a/app/|(?m)^diff --git a/app/", diff_text):
+          if re.search(r"(?m)^(?:\+\+\+ b/app/|--- a/app/|diff --git a/app/)", diff_text):
             print("Patch illegally references app/* (repo uses src/app/*).", file=sys.stderr)
             bad = True
 
           # 2) Forbid root middleware.ts (should be src/middleware.ts)
-          if re.search(r"(?m)^\+\+\+ b/middleware\.ts|(?m)^--- a/middleware\.ts|(?m)^diff --git a/middleware\.ts", diff_text):
+          if re.search(r"(?m)^(?:\+\+\+ b/middleware\.ts|--- a/middleware\.ts|diff --git a/middleware\.ts)", diff_text):
             print("Patch references root middleware.ts. Use src/middleware.ts if needed.", file=sys.stderr)
             bad = True
 
@@ -148,16 +149,16 @@ jobs:
             print("Aborting patch. Check deepseek.raw.txt for model output.", file=sys.stderr)
             sys.exit(1)
 
-          with open("deepseek.patch", "w", encoding="utf-8", newline="\\n") as f:
-            f.write(diff_text + "\\n")
+          with open("deepseek.patch", "w", encoding="utf-8", newline="\n") as f:
+            f.write(diff_text + "\n")
 
           print("Wrote deepseek.patch and deepseek.raw.txt")
           PY
 
-      - name: Show patch (first 200 lines)
+      - name: Show patch (first 220 lines)
         run: |
           echo "---- deepseek.patch (head) ----"
-          nl -ba deepseek.patch | sed -n '1,200p'
+          nl -ba deepseek.patch | sed -n '1,220p'
           echo "-------------------------------"
 
       - name: Apply patch
