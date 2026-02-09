@@ -148,8 +148,8 @@ jobs:
             print("Aborting patch. Check deepseek.raw.txt for model output.", file=sys.stderr)
             sys.exit(1)
 
-          # IMPORTANT: newline must be actual '\n', not '\\n'
-          with open("deepseek.patch", "w", encoding="utf-8", newline="\n") as f:
+          # IMPORTANT: omit newline= entirely to avoid any escaping weirdness
+          with open("deepseek.patch", "w", encoding="utf-8") as f:
             f.write(diff_text + "\n")
 
           print("Wrote deepseek.patch and deepseek.raw.txt")
