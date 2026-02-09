@@ -55,7 +55,7 @@ jobs:
           TASK: ${{ inputs.task }}
         run: |
           python - << 'PY'
-          import os, json, textwrap, sys
+          import os, json, textwrap, sys, re
           import urllib.request
 
           api_key = os.environ.get("DEEPSEEK_API_KEY", "").strip()
@@ -70,15 +70,16 @@ jobs:
           system = textwrap.dedent("""
           You are a careful coding agent working on a Next.js + Supabase project.
           Produce ONLY a unified diff patch that can be applied with `git apply`.
-          Rules:
-          - Output must start with '*** BEGIN PATCH' on its own line and end with '*** END PATCH'.
-          - Inside, include ONLY the unified diff (lines starting with diff --git, index, ---/+++ and @@).
+
+          HARD RULES:
+          - Output ONLY the patch content (no explanations).
+          - The patch MUST contain one or more blocks that start with: diff --git
+          - Do not wrap output in Markdown code fences.
           - Make minimal, safe changes.
           - Do not modify secrets or environment variables.
-          - If you are unsure, still output a patch that adds TODO comments rather than risky logic.
           """).strip()
 
-          user = f"Task:\n{task}\n\nRepo context: apply changes as a unified diff patch."
+          user = f"Task:\n{task}\n\nReturn ONLY a unified diff patch."
 
           payload = {
             "model": "deepseek-chat",
@@ -100,27 +101,52 @@ jobs:
           )
 
           try:
-            with urllib.request.urlopen(req, timeout=120) as resp:
+            with urllib.request.urlopen(req, timeout=180) as resp:
               data = json.loads(resp.read().decode("utf-8"))
           except Exception as e:
             print(f"DeepSeek API call failed: {e}", file=sys.stderr)
             sys.exit(1)
 
           content = data["choices"][0]["message"]["content"]
-          if "*** BEGIN PATCH" not in content or "*** END PATCH" not in content:
-            print("Model did not return patch markers. Raw output:\n", content, file=sys.stderr)
+
+          # Save raw model output for debugging (safe: no secrets here)
+          with open("deepseek.raw.txt", "w", encoding="utf-8") as f:
+            f.write(content)
+
+          # Remove markdown fences if the model ignored instructions
+          content = re.sub(r"^```[a-zA-Z0-9_-]*\s*", "", content.strip())
+          content = re.sub(r"\s*```$", "", content.strip())
+
+          # Extract only unified diff blocks starting at 'diff --git'
+          # We keep everything from the first 'diff --git' to the end,
+          # but also strip any leading junk.
+          m = re.search(r"(?ms)^(diff --git .*?)\s*$", content)
+          if not m:
+            # fallback: find first occurrence
+            idx = content.find("diff --git")
+            if idx == -1:
+              print("Model output contains no 'diff --git' block. Check deepseek.raw.txt", file=sys.stderr)
+              sys.exit(1)
+            diff_text = content[idx:].strip()
+          else:
+            diff_text = m.group(1).strip()
+
+          # Extra safety: ensure it starts correctly
+          if not diff_text.startswith("diff --git"):
+            print("Extracted diff does not start with 'diff --git'. Check deepseek.raw.txt", file=sys.stderr)
             sys.exit(1)
 
-          patch = content.split("*** BEGIN PATCH", 1)[1].split("*** END PATCH", 1)[0].strip()
-          if not patch.startswith("diff --git"):
-            print("Patch does not look like unified diff. Raw patch:\n", patch, file=sys.stderr)
-            sys.exit(1)
+          with open("deepseek.patch", "w", encoding="utf-8", newline="\n") as f:
+            f.write(diff_text + "\n")
 
-          with open("deepseek.patch", "w", encoding="utf-8") as f:
-            f.write(patch + "\n")
-
-          print("Wrote deepseek.patch")
+          print("Wrote deepseek.patch and deepseek.raw.txt")
           PY
+
+      - name: Show patch (first 120 lines)
+        run: |
+          echo "---- deepseek.patch (head) ----"
+          nl -ba deepseek.patch | sed -n '1,120p'
+          echo "-------------------------------"
 
       - name: Apply patch
         run: |
@@ -145,4 +171,6 @@ jobs:
             Task: ${{ inputs.task }}
 
             ✅ A rulat `npm run build` în GitHub Actions înainte de PR.
+
+            Debug: dacă patch-ul nu se aplică, verifică artifact-urile din log: deepseek.raw.txt / deepseek.patch (printate în Actions).
           commit-message: "DeepSeek Agent: ${{ inputs.task }}"
