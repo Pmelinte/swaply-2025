@@ -135,13 +135,12 @@ jobs:
           # Hard guard: forbid wrong root paths
           bad = False
 
-          # 1) Forbid app/* (should be src/app/*)
-          if re.search(r"(?m)^(?:\+\+\+ b/app/|--- a/app/|diff --git a/app/)", diff_text):
+          # NOTE: Use flags parameter instead of inline (?m) to avoid Python regex flag errors.
+          if re.search(r"^(?:\+\+\+ b/app/|--- a/app/|diff --git a/app/)", diff_text, flags=re.MULTILINE):
             print("Patch illegally references app/* (repo uses src/app/*).", file=sys.stderr)
             bad = True
 
-          # 2) Forbid root middleware.ts (should be src/middleware.ts)
-          if re.search(r"(?m)^(?:\+\+\+ b/middleware\.ts|--- a/middleware\.ts|diff --git a/middleware\.ts)", diff_text):
+          if re.search(r"^(?:\+\+\+ b/middleware\.ts|--- a/middleware\.ts|diff --git a/middleware\.ts)", diff_text, flags=re.MULTILINE):
             print("Patch references root middleware.ts. Use src/middleware.ts if needed.", file=sys.stderr)
             bad = True
 
