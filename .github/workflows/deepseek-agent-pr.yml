@@ -1,0 +1,148 @@
+name: DeepSeek Agent PR
+
+on:
+  workflow_dispatch:
+    inputs:
+      task:
+        description: "Ce vrei să facă agentul (ex: 'Fix login redirect; după submit rămân nelogat')"
+        required: true
+        type: string
+      base_branch:
+        description: "Branch-ul de bază (lasă gol ca să folosească default branch)"
+        required: false
+        type: string
+      pr_branch:
+        description: "Nume branch pentru PR (opțional). Dacă e gol, se generează automat."
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  deepseek_agent:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set base branch
+        id: base
+        run: |
+          if [ -n "${{ inputs.base_branch }}" ]; then
+            echo "base_branch=${{ inputs.base_branch }}" >> $GITHUB_OUTPUT
+          else
+            echo "base_branch=${{ github.event.repository.default_branch }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Switch to base branch
+        run: |
+          git checkout "${{ steps.base.outputs.base_branch }}"
+          git pull --ff-only origin "${{ steps.base.outputs.base_branch }}"
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Generate patch with DeepSeek
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          TASK: ${{ inputs.task }}
+        run: |
+          python - << 'PY'
+          import os, json, textwrap, sys
+          import urllib.request
+
+          api_key = os.environ.get("DEEPSEEK_API_KEY", "").strip()
+          task = os.environ.get("TASK", "").strip()
+          if not api_key:
+            print("Missing DEEPSEEK_API_KEY secret", file=sys.stderr)
+            sys.exit(1)
+          if not task:
+            print("Missing task input", file=sys.stderr)
+            sys.exit(1)
+
+          system = textwrap.dedent("""
+          You are a careful coding agent working on a Next.js + Supabase project.
+          Produce ONLY a unified diff patch that can be applied with `git apply`.
+          Rules:
+          - Output must start with '*** BEGIN PATCH' on its own line and end with '*** END PATCH'.
+          - Inside, include ONLY the unified diff (lines starting with diff --git, index, ---/+++ and @@).
+          - Make minimal, safe changes.
+          - Do not modify secrets or environment variables.
+          - If you are unsure, still output a patch that adds TODO comments rather than risky logic.
+          """).strip()
+
+          user = f"Task:\n{task}\n\nRepo context: apply changes as a unified diff patch."
+
+          payload = {
+            "model": "deepseek-chat",
+            "messages": [
+              {"role": "system", "content": system},
+              {"role": "user", "content": user}
+            ],
+            "temperature": 0.2
+          }
+
+          req = urllib.request.Request(
+            "https://api.deepseek.com/chat/completions",
+            data=json.dumps(payload).encode("utf-8"),
+            headers={
+              "Content-Type": "application/json",
+              "Authorization": f"Bearer {api_key}"
+            },
+            method="POST"
+          )
+
+          try:
+            with urllib.request.urlopen(req, timeout=120) as resp:
+              data = json.loads(resp.read().decode("utf-8"))
+          except Exception as e:
+            print(f"DeepSeek API call failed: {e}", file=sys.stderr)
+            sys.exit(1)
+
+          content = data["choices"][0]["message"]["content"]
+          if "*** BEGIN PATCH" not in content or "*** END PATCH" not in content:
+            print("Model did not return patch markers. Raw output:\n", content, file=sys.stderr)
+            sys.exit(1)
+
+          patch = content.split("*** BEGIN PATCH", 1)[1].split("*** END PATCH", 1)[0].strip()
+          if not patch.startswith("diff --git"):
+            print("Patch does not look like unified diff. Raw patch:\n", patch, file=sys.stderr)
+            sys.exit(1)
+
+          with open("deepseek.patch", "w", encoding="utf-8") as f:
+            f.write(patch + "\n")
+
+          print("Wrote deepseek.patch")
+          PY
+
+      - name: Apply patch
+        run: |
+          git apply --whitespace=fix deepseek.patch
+          git status --porcelain
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Build (safety check)
+        run: npm run build
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: ${{ inputs.pr_branch }}
+          delete-branch: true
+          base: ${{ steps.base.outputs.base_branch }}
+          title: "DeepSeek Agent: ${{ inputs.task }}"
+          body: |
+            PR generat automat de DeepSeek Agent (deepseek-chat).
+            Task: ${{ inputs.task }}
+
+            ✅ A rulat `npm run build` în GitHub Actions înainte de PR.
+          commit-message: "DeepSeek Agent: ${{ inputs.task }}"
