@@ -74,6 +74,7 @@ jobs:
           - This repo uses src/ as the source root.
           - Next.js App Router lives under src/app/ (NOT app/).
           - You MUST NOT reference or modify any path under app/*.
+          - Middleware (if needed) should be src/middleware.ts, NOT middleware.ts at repo root.
           - Allowed paths to modify: src/app/**, src/components/**, src/lib/**, src/styles/**, supabase/**, public/**.
 
           OUTPUT RULES (STRICT):
@@ -130,9 +131,21 @@ jobs:
 
           diff_text = content[idx:].strip()
 
-          # Hard guard: forbid app/* paths in patch
+          # Hard guard: forbid wrong root paths
+          bad = False
+
+          # 1) Forbid app/* (should be src/app/*)
           if re.search(r"(?m)^\+\+\+ b/app/|(?m)^--- a/app/|(?m)^diff --git a/app/", diff_text):
-            print("Patch illegally references app/* (repo uses src/app/*). Aborting. Check deepseek.raw.txt", file=sys.stderr)
+            print("Patch illegally references app/* (repo uses src/app/*).", file=sys.stderr)
+            bad = True
+
+          # 2) Forbid root middleware.ts (should be src/middleware.ts)
+          if re.search(r"(?m)^\+\+\+ b/middleware\.ts|(?m)^--- a/middleware\.ts|(?m)^diff --git a/middleware\.ts", diff_text):
+            print("Patch references root middleware.ts. Use src/middleware.ts if needed.", file=sys.stderr)
+            bad = True
+
+          if bad:
+            print("Aborting patch. Check deepseek.raw.txt for model output.", file=sys.stderr)
             sys.exit(1)
 
           with open("deepseek.patch", "w", encoding="utf-8", newline="\\n") as f:
@@ -141,10 +154,10 @@ jobs:
           print("Wrote deepseek.patch and deepseek.raw.txt")
           PY
 
-      - name: Show patch (first 160 lines)
+      - name: Show patch (first 200 lines)
         run: |
           echo "---- deepseek.patch (head) ----"
-          nl -ba deepseek.patch | sed -n '1,160p'
+          nl -ba deepseek.patch | sed -n '1,200p'
           echo "-------------------------------"
 
       - name: Apply patch
