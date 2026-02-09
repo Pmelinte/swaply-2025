@@ -8,11 +8,11 @@ on:
         required: true
         type: string
       base_branch:
-        description: "Branch-ul de bază (lasă gol ca să folosească default branch)"
+        description: "Branch-ul de bază (gol = default branch)"
         required: false
         type: string
       pr_branch:
-        description: "Nume branch pentru PR (opțional). Dacă e gol, se generează automat."
+        description: "Nume branch pentru PR (opțional)"
         required: false
         type: string
 
@@ -80,7 +80,7 @@ jobs:
 
           OUTPUT RULES (STRICT):
           - Return ONLY a unified diff patch (no explanations, no markdown, no code fences).
-          - The output MUST include one or more diff blocks starting with: diff --git
+          - Output MUST include one or more diff blocks starting with: diff --git
           - Use correct paths that exist in the repo.
           - Make minimal, safe changes. If unsure, add TODO comments rather than risky logic.
           - Do not modify secrets or environment variables.
@@ -122,8 +122,8 @@ jobs:
 
           # Strip accidental markdown fences
           content = content.strip()
-          content = re.sub(r"^```[a-zA-Z0-9_-]*\s*", "", content)
-          content = re.sub(r"\s*```$", "", content)
+          content = re.sub(r"^```[a-zA-Z0-9_-]*\\s*", "", content)
+          content = re.sub(r"\\s*```$", "", content)
 
           idx = content.find("diff --git")
           if idx == -1:
@@ -135,12 +135,12 @@ jobs:
           bad = False
 
           # Guard 1: forbid app/* paths (repo uses src/app/*)
-          if re.search(r"^(?:\+\+\+ b/app/|--- a/app/|diff --git a/app/)", diff_text, flags=re.MULTILINE):
+          if re.search(r"^(?:\\+\\+\\+ b/app/|--- a/app/|diff --git a/app/)", diff_text, flags=re.MULTILINE):
             print("Patch illegally references app/* (repo uses src/app/*).", file=sys.stderr)
             bad = True
 
           # Guard 2: forbid root middleware.ts (should be src/middleware.ts)
-          if re.search(r"^(?:\+\+\+ b/middleware\.ts|--- a/middleware\.ts|diff --git a/middleware\.ts)", diff_text, flags=re.MULTILINE):
+          if re.search(r"^(?:\\+\\+\\+ b/middleware\\.ts|--- a/middleware\\.ts|diff --git a/middleware\\.ts)", diff_text, flags=re.MULTILINE):
             print("Patch references root middleware.ts. Use src/middleware.ts if needed.", file=sys.stderr)
             bad = True
 
@@ -148,8 +148,8 @@ jobs:
             print("Aborting patch. Check deepseek.raw.txt for model output.", file=sys.stderr)
             sys.exit(1)
 
-          with open("deepseek.patch", "w", encoding="utf-8", newline="\n") as f:
-            f.write(diff_text + "\n")
+          with open("deepseek.patch", "w", encoding="utf-8", newline="\\n") as f:
+            f.write(diff_text + "\\n")
 
           print("Wrote deepseek.patch and deepseek.raw.txt")
           PY
