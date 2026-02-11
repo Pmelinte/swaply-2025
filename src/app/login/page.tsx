@@ -26,12 +26,7 @@ function LoginContent() {
   const { login, register, user } = useAppState();
 
   useEffect(() => {
-    if (user) {
-      // Replace (nu push) ca să nu te întorci cu Back pe /login după ce ești logat
-      router.replace(returnTo);
-      // Refresh ca să se sincronizeze rapid starea de auth / middleware / server components
-      router.refresh();
-    }
+    if (user) router.push(returnTo);
   }, [user, returnTo, router]);
 
   const handleSubmit = async () => {
@@ -64,13 +59,7 @@ function LoginContent() {
         } else {
           setMessage("Autentificat. Redirect către profil...");
           setStatus("success");
-
-          // Mică pauză: în multe implementări, `user` din state se actualizează async după sign-in
-          await new Promise((r) => setTimeout(r, 200));
-
-          // Refresh + replace: previne situația “după submit rămân nelogat” (UI nu prinde sesiunea imediat)
-          router.refresh();
-          router.replace(returnTo);
+          router.push(returnTo);
         }
       } else if (activeTab === "register") {
         const { error } = await register(email, password, accept);
@@ -78,9 +67,7 @@ function LoginContent() {
           setMessage(error);
           setStatus("error");
         } else {
-          setMessage(
-            "Cont creat cu succes! Verifică-ți email-ul pentru confirmarea contului, apoi revino să te autentifici."
-          );
+          setMessage("Cont creat cu succes! Verifică-ți email-ul pentru confirmarea contului, apoi revino să te autentifici.");
           setStatus("success");
         }
       } else {
@@ -134,7 +121,6 @@ function LoginContent() {
               className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
             />
           </label>
-
           {activeTab !== "reset" ? (
             <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-200">
               Parolă
@@ -149,13 +135,13 @@ function LoginContent() {
           ) : null}
 
           <label className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
-            <input type="checkbox" checked={accept} onChange={(e) => setAccept(e.target.checked)} />
+            <input
+              type="checkbox"
+              checked={accept}
+              onChange={(e) => setAccept(e.target.checked)}
+            />
             <span>
-              Accept{" "}
-              <Link className="underline" href="/info#legal">
-                Termeni & Politica GDPR
-              </Link>{" "}
-              (nu permitem submit fără consimțământ)
+              Accept <Link className="underline" href="/info#legal">Termeni & Politica GDPR</Link> (nu permitem submit fără consimțământ)
             </span>
           </label>
 
@@ -168,7 +154,8 @@ function LoginContent() {
               ? "Autentificare"
               : activeTab === "register"
                 ? "Creează cont"
-                : "Trimite reset"}
+                : "Trimite reset"
+            }
           </button>
         </form>
 
@@ -183,7 +170,6 @@ function LoginContent() {
             {message}
           </div>
         ) : null}
-
         {processing ? (
           <div className="rounded-xl bg-blue-50 p-3 text-sm text-blue-900 dark:bg-blue-900/40 dark:text-blue-100">
             Se verifică...
@@ -193,43 +179,32 @@ function LoginContent() {
         <div className="space-y-2 text-sm text-zinc-600 dark:text-zinc-300">
           <p>2FA opțional: TOTP, SMS OTP, Passkey/WebAuthn. Activare după login pe pagina de profil.</p>
           <p>Metode alternative: Google SSO, Telefon OTP (beta). Email OTP doar ca fallback.</p>
-          <p>
-            Legal: link permanent către{" "}
-            <Link className="underline" href="/info">
-              Termeni & Politica GDPR
-            </Link>
-            .
-          </p>
+          <p>Legal: link permanent către <Link className="underline" href="/info">Termeni & Politica GDPR</Link>.</p>
         </div>
       </SectionCard>
-
       <NextStepRecommendation
         steps={[
           { label: "Explorează obiecte", href: "/objects", description: "Vezi obiectele disponibile chiar și fără cont" },
           { label: "Informații platformă", href: "/info", description: "Citește regulile și beneficiile badge-urilor" },
         ]}
       />
-
       <StateShowcase
         title="Stări LOGIN"
         states={[
           {
             key: "loading",
             title: "Se verifică sesiunea",
-            description:
-              "Afișăm indicator de încărcare cât timp validăm tokenul sau redirectăm către returnTo.",
+            description: "Afișăm indicator de încărcare cât timp validăm tokenul sau redirectăm către returnTo.",
           },
           {
             key: "empty",
             title: "Formular gol",
-            description:
-              "Input-urile sunt precompletate, dar acceptarea Termeni & GDPR este obligatorie înainte de orice submit.",
+            description: "Input-urile sunt precompletate, dar acceptarea Termeni & GDPR este obligatorie înainte de orice submit.",
           },
           {
             key: "error",
             title: "Credențiale invalide",
-            description:
-              "Mesaj roșu + mențiune parolă demo. Nu facem mock success; rămânem pe pagină cu CTA spre reset parolă.",
+            description: "Mesaj roșu + mențiune parolă demo. Nu facem mock success; rămânem pe pagină cu CTA spre reset parolă.",
           },
         ]}
       />
