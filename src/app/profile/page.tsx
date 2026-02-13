@@ -437,30 +437,34 @@ export default function ProfilePage() {
 
       <SectionCard
         title="Salvare profil"
-        description="CTA explicit conform contractului. Salvarea este simulată în memorie pentru demo."
+        description="Modificările vor fi salvate în baza de date."
       >
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={async () => {
-              await updateProfile(draft, { persist: true });
-              setSaveMessage("Profil salvat (Supabase sau fallback local).");
+              setSaveMessage(null);
+              try {
+                await updateProfile(draft, { persist: true });
+                setSaveMessage("Profil salvat cu succes!");
+              } catch {
+                setSaveMessage("Eroare la salvare. Încearcă din nou.");
+              }
             }}
             className="rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
           >
             Salvează
           </button>
-          <button
-            type="button"
-            className="rounded-full px-4 py-2 text-sm font-semibold text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800"
-            onClick={() => setSaveMessage("Eroare simulată: reîncearcă sau verifică conexiunea.")}
-          >
-            Simulează eroare
-          </button>
         </div>
         {saveMessage ? (
-          <div className="rounded-xl border border-zinc-200 bg-white/70 p-3 text-sm text-zinc-800 dark:border-zinc-800 dark:bg-zinc-900/70 dark:text-zinc-100">
-            {lastError ? `${saveMessage} · ${lastError}` : saveMessage}
+          <div
+            className={`rounded-xl p-3 text-sm font-medium ${
+              lastError
+                ? "bg-red-50 text-red-900 dark:bg-red-900/40 dark:text-red-100"
+                : "bg-green-50 text-green-900 dark:bg-green-900/40 dark:text-green-100"
+            }`}
+          >
+            {lastError ? `Eroare: ${lastError}` : saveMessage}
           </div>
         ) : null}
       </SectionCard>

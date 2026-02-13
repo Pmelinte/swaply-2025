@@ -948,7 +948,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       setUser((prev) => (prev ? { ...prev, ...updates } : prev));
 
       if (
-        dataSource === "supabase" &&
+        supabaseConfigured &&
         supabase &&
         options?.persist &&
         user?.id
@@ -985,7 +985,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         }
       }
     },
-    [dataSource, mapProfile, supabase, user],
+    [supabaseConfigured, mapProfile, supabase, user],
   );
 
   const upsertItem = useCallback(
