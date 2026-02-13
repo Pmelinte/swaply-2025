@@ -947,15 +947,18 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     async (updates: Partial<UserProfile>, options?: { persist?: boolean }) => {
       setUser((prev) => (prev ? { ...prev, ...updates } : prev));
 
+      // Use userRef for the latest user value (avoids stale closure)
+      const currentUser = userRef.current;
       if (
         supabaseConfigured &&
         supabase &&
         options?.persist &&
-        user?.id
+        currentUser?.id
       ) {
-        const merged = { ...user, ...updates };
+        setLastError(null);
+        const merged = { ...currentUser, ...updates };
         const payload: Record<string, unknown> = {
-          id: user.id,
+          id: currentUser.id,
           email: merged.email,
           display_name: merged.displayName,
           first_name: merged.firstName ?? null,
@@ -980,12 +983,13 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
         if (error) {
           setLastError(error.message);
+          throw new Error(error.message);
         } else if (data) {
           setUser(mapProfile(data));
         }
       }
     },
-    [supabaseConfigured, mapProfile, supabase, user],
+    [supabaseConfigured, mapProfile, supabase],
   );
 
   const upsertItem = useCallback(

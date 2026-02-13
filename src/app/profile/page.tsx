@@ -20,6 +20,13 @@ export default function ProfilePage() {
 
   const [loadingTimeout, setLoadingTimeout] = useState(false);
 
+  // Sync draft with user when user changes externally (hydration, save response)
+  useEffect(() => {
+    if (user && !draft) {
+      setDraft(user);
+    }
+  }, [user, draft]);
+
   useEffect(() => {
     if (loading.profile) {
       const timer = setTimeout(() => setLoadingTimeout(true), 3000);
