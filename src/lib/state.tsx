@@ -867,14 +867,20 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     setLoggedIn(false);
-    if (dataSource === "supabase" && supabase) {
-      await supabase.auth.signOut();
-    }
     setUser(null);
     setItems([]);
     setConversations([]);
     setSwaps([]);
     setNotifications([]);
+    setLoading({ profile: false, items: false, auth: false });
+    setLastError(null);
+    if (dataSource === "supabase" && supabase) {
+      try {
+        await supabase.auth.signOut();
+      } catch {
+        // Ignore signOut errors — state is already cleared
+      }
+    }
     setDataSource(supabaseConfigured ? "supabase" : "mock");
   }, [dataSource, supabase, supabaseConfigured]);
 

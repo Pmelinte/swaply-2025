@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
 import { BellDot, Languages, LogOut, Menu, ShieldCheck } from "lucide-react";
@@ -55,9 +55,22 @@ const contextualActions: Record<
 
 export function TopBar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { user, logout, language, setLanguage, notifications, markNotificationRead } =
     useAppState();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    setMenuOpen(false);
+    try {
+      await logout();
+    } finally {
+      setLoggingOut(false);
+      router.push("/login");
+    }
+  };
   const [notifOpen, setNotifOpen] = useState(false);
   const pathKey =
     Object.keys(contextualActions).find(
@@ -92,18 +105,20 @@ export function TopBar() {
             <>
               <Link
                 href="/profile"
-                className="rounded-full border border-zinc-200 bg-white px-3 py-1 text-sm font-semibold shadow-sm hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-3 py-1 text-sm font-semibold shadow-sm hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
               >
                 <Badge tier={user.badge} />
+                <span className="hidden sm:inline max-w-[120px] truncate">{user.displayName || user.email}</span>
               </Link>
               <button
                 type="button"
-                onClick={() => logout()}
-                className="inline-flex items-center gap-1 rounded-full border border-red-200 bg-white px-3 py-1 text-sm font-medium text-red-600 shadow-sm hover:bg-red-50 dark:border-red-800 dark:bg-zinc-800 dark:text-red-400 dark:hover:bg-red-900/30"
+                onClick={() => void handleLogout()}
+                disabled={loggingOut}
+                className="inline-flex items-center gap-1 rounded-full border border-red-200 bg-white px-3 py-1 text-sm font-medium text-red-600 shadow-sm hover:bg-red-50 disabled:opacity-50 dark:border-red-800 dark:bg-zinc-800 dark:text-red-400 dark:hover:bg-red-900/30"
                 title="Delogare"
               >
                 <LogOut className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Ieși</span>
+                <span className="hidden sm:inline">{loggingOut ? "..." : "Ieși"}</span>
               </button>
             </>
           ) : (
@@ -223,13 +238,11 @@ export function TopBar() {
                   {user ? (
                     <button
                       type="button"
-                      onClick={() => {
-                        logout();
-                        setMenuOpen(false);
-                      }}
-                      className="w-full rounded-lg px-3 py-2 text-left text-sm font-semibold text-red-600 hover:bg-red-50 dark:text-red-200 dark:hover:bg-red-900/40"
+                      onClick={() => void handleLogout()}
+                      disabled={loggingOut}
+                      className="w-full rounded-lg px-3 py-2 text-left text-sm font-semibold text-red-600 hover:bg-red-50 disabled:opacity-50 dark:text-red-200 dark:hover:bg-red-900/40"
                     >
-                      Delogare
+                      {loggingOut ? "Se deloghează..." : "Delogare"}
                     </button>
                   ) : (
                     <Link
