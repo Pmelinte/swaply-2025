@@ -82,6 +82,8 @@ export function ItemForm({
   const [tagInput, setTagInput] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
   const [aiStatus, setAiStatus] = useState<string | null>(null);
+  const [imageAiLoading, setImageAiLoading] = useState(false);
+  const [imageAiStatus, setImageAiStatus] = useState<string | null>(null);
   const aiTriggered = useRef(false);
 
   const triggerAiOnBlur = useCallback(() => {
@@ -190,6 +192,54 @@ export function ItemForm({
     void fetchAiSuggestionsInternal();
   };
 
+  const analyzeImageWithAi = async (imageUrl: string, file?: File) => {
+    setImageAiLoading(true);
+    setImageAiStatus("Se analizează imaginea cu AI...");
+    try {
+      let body: Record<string, string>;
+
+      if (imageUrl.startsWith("blob:") && file) {
+        // Blob URLs can't be fetched server-side — send as base64
+        const base64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+        body = { imageBase64: base64 };
+      } else {
+        body = { imageUrl };
+      }
+
+      const res = await fetch("/api/ai/image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+
+      if (data.status === "ok") {
+        const updates: Partial<Item> = {};
+        if (data.title) {
+          updates.title = data.title;
+        }
+        if (data.category && ITEM_CATEGORIES.includes(data.category)) {
+          updates.category = data.category;
+        }
+        setDraft((prev) => ({ ...prev, ...updates }));
+        setImageAiStatus(
+          `AI: "${data.caption}" → Titlu și categorie completate automat. Poți modifica.`,
+        );
+      } else {
+        setImageAiStatus(data.message || "AI nu a putut analiza imaginea.");
+      }
+    } catch {
+      setImageAiStatus("Eroare de rețea la analiza imaginii.");
+    } finally {
+      setImageAiLoading(false);
+    }
+  };
+
   return (
     <form
       className="space-y-4 rounded-2xl border border-zinc-200 bg-white/90 p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/80"
@@ -220,7 +270,9 @@ export function ItemForm({
               }
               if (result.url) {
                 setPreview(result.url);
-                setDraft({ ...draft, photos: [result.url] });
+                setDraft((prev) => ({ ...prev, photos: [result.url!] }));
+                // Auto-analyze uploaded image with AI
+                void analyzeImageWithAi(result.url, file);
               }
             }}
             className={inputNormal}
@@ -250,6 +302,21 @@ export function ItemForm({
           />
         </div>
       </div>
+
+      {/* Image AI status */}
+      {(imageAiLoading || imageAiStatus) && (
+        <div
+          className={`rounded-xl p-3 text-sm font-medium ${
+            imageAiLoading
+              ? "bg-purple-50 text-purple-900 dark:bg-purple-900/30 dark:text-purple-100"
+              : imageAiStatus?.startsWith("AI:")
+                ? "bg-green-50 text-green-900 dark:bg-green-900/30 dark:text-green-100"
+                : "bg-yellow-50 text-yellow-900 dark:bg-yellow-900/30 dark:text-yellow-100"
+          }`}
+        >
+          {imageAiLoading ? "Se analizează imaginea cu AI..." : imageAiStatus}
+        </div>
+      )}
 
       {/* Title + Category */}
       <div className="grid gap-3 sm:grid-cols-2">
