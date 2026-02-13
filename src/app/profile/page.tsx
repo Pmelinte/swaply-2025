@@ -5,6 +5,7 @@ import { useAppState } from "@/lib/state";
 import { LoggedOutGate, MissingDataCallout } from "@/components/gated";
 import { Badge, NextStepRecommendation, Pill, SectionCard, StateShowcase } from "@/components/ui";
 import { UserProfile } from "@/lib/types";
+import LocationPicker from "@/components/LocationPicker";
 
 export default function ProfilePage() {
   const { user, updateProfile, loading, lastError } = useAppState();
@@ -143,40 +144,23 @@ export default function ProfilePage() {
 
       <SectionCard
         title="Localizare"
-        description="Țară / regiune / oraș + coordonate aproximative. Fără geocoding automat."
+        description="Selectează țara, regiunea și orașul din liste predefinite."
       >
-        <div className="grid gap-3 sm:grid-cols-3">
-          <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-            Țară
-            <input
-              value={draft.location?.country ?? ""}
-              onChange={(e) =>
-                update({ location: { ...(draft.location ?? {}), country: e.target.value } })
-              }
-              className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
-            />
-          </label>
-          <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-            Regiune
-            <input
-              value={draft.location?.region ?? ""}
-              onChange={(e) =>
-                update({ location: { ...(draft.location ?? {}), region: e.target.value } })
-              }
-              className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
-            />
-          </label>
-          <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-            Oraș
-            <input
-              value={draft.location?.city ?? ""}
-              onChange={(e) =>
-                update({ location: { ...(draft.location ?? {}), city: e.target.value } })
-              }
-              className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
-            />
-          </label>
-        </div>
+        <LocationPicker
+          country={draft.location?.country ?? ""}
+          region={draft.location?.region ?? ""}
+          city={draft.location?.city ?? ""}
+          onChange={({ country, region, city }) =>
+            update({
+              location: {
+                ...(draft.location ?? {}),
+                country,
+                region,
+                city,
+              },
+            })
+          }
+        />
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
             Cod poștal
