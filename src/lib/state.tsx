@@ -411,15 +411,15 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       const currentUser = userRef.current;
       return {
         id: safeString(
-          data.id,
-          safeString(data.user_id, safeString(data.uid, nanoid())),
+          data.user_id,
+          safeString(data.id, safeString(data.uid, nanoid())),
         ),
         email: safeString(data.email, currentUser?.email ?? ""),
         displayName: safeString(
           data.display_name,
-          safeString(data.displayName, "Utilizator Swaply"),
+          safeString(data.username, safeString(data.displayName, "Utilizator Swaply")),
         ),
-        firstName: safeString(data.first_name, safeString(data.firstName)),
+        firstName: safeString(data.first_name, safeString(data.full_name, safeString(data.firstName))),
         avatarUrl: safeString(data.avatar_url, safeString(data.avatarUrl)),
         bio: safeString(data.bio, safeString(data.about_me)),
         languages: safeArray<LanguageCode>(
@@ -603,10 +603,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       if (!supabase) return;
       setLastError(null);
       setLoading((prev) => ({ ...prev, profile: true, items: true }));
+      // Production DB uses user_id (uuid) as primary key, not id (text)
       const { data: profileData, error: profileError } = await supabase
         .from("profiles")
         .select("*")
-        .eq("id", userId)
+        .eq("user_id", userId)
         .maybeSingle();
 
       if (profileError) {
@@ -614,7 +615,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       }
 
       if (profileData) {
-        setUser(mapProfile(profileData));
+        setUser(mapProfile({ ...profileData, id: profileData.user_id }));
       } else if (supabaseConfigured) {
         // First login: create profile from auth session data
         const session = await supabase.auth.getSession();
@@ -624,7 +625,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
         // Persist the new profile to Supabase
         const { error: insertError } = await supabase.from("profiles").upsert({
-          id: userId,
+          user_id: userId,
+          username: email.split("@")[0],
           email,
           display_name: email.split("@")[0],
           badge: "free",
@@ -713,18 +715,18 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         if (participantIds.length) {
           const { data: participantProfiles, error: participantProfilesError } = await supabase
             .from("profiles")
-            .select("id, display_name, badge")
-            .in("id", participantIds);
+            .select("user_id, display_name, username, badge")
+            .in("user_id", participantIds);
 
           if (participantProfilesError) {
             setLastError(participantProfilesError.message);
           }
 
           for (const row of participantProfiles ?? []) {
-            const id = safeString(row.id);
+            const id = safeString(row.user_id);
             if (!id) continue;
             profilesById.set(id, {
-              displayName: safeString(row.display_name, "Utilizator"),
+              displayName: safeString(row.display_name, safeString(row.username, "Utilizator")),
               badge: safeBadgeTier(row.badge, "free"),
             });
           }
@@ -958,9 +960,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         setLastError(null);
         const merged = { ...currentUser, ...updates };
         const payload: Record<string, unknown> = {
-          id: currentUser.id,
+          user_id: currentUser.id,
           email: merged.email,
+          username: merged.displayName,
           display_name: merged.displayName,
+          full_name: merged.firstName ? `${merged.firstName} ${merged.displayName}` : merged.displayName,
           first_name: merged.firstName ?? null,
           avatar_url: merged.avatarUrl ?? null,
           bio: merged.bio ?? null,
@@ -1077,8 +1081,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       if (dataSource === "supabase" && supabase) {
         const { data, error } = await supabase
           .from("profiles")
-          .select("id, display_name, badge")
-          .eq("id", participantId)
+          .select("user_id, display_name, username, badge")
+          .eq("user_id", participantId)
           .maybeSingle();
         if (error) {
           setLastError(error.message);
