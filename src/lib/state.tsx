@@ -392,7 +392,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
   // Restore session after hydration (avoids server/client mismatch)
   useEffect(() => {
-    if (isLoggedIn() || !supabaseConfigured) {
+    // Only fall back to mock when Supabase is NOT configured
+    if (!supabaseConfigured) {
       setDataSource("mock");
       setUser(mockUser);
       setItems(mockItems);
@@ -401,6 +402,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       setNotifications([]);
       setLoading({ profile: false, items: false, auth: false });
     }
+    // When Supabase IS configured, the auth listener useEffect handles session restoration
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -770,7 +772,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   );
 
   useEffect(() => {
-    if (!supabaseConfigured || !supabase || isLoggedIn()) return;
+    if (!supabaseConfigured || !supabase) return;
 
     let unsubscribe: (() => void) | undefined;
     const init = async () => {
@@ -790,8 +792,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       const session = data.session;
       if (session?.user?.id) {
         setDataSource("supabase");
+        setLoggedIn(true);
         await hydrateSupabase(session.user.id);
       } else {
+        // No active Supabase session — clear stale localStorage flag
+        setLoggedIn(false);
         setUser(null);
         setItems([]);
         setConversations([]);
@@ -804,8 +809,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         async (_event, nextSession) => {
           if (nextSession?.user?.id) {
             setDataSource("supabase");
+            setLoggedIn(true);
             await hydrateSupabase(nextSession.user.id);
-          } else if (!isLoggedIn()) {
+          } else {
+            setLoggedIn(false);
             setUser(null);
             setItems([]);
             setConversations([]);
@@ -838,7 +845,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         return { error };
       }
 
-      if (dataSource === "supabase" && supabase) {
+      // Always try Supabase when configured, regardless of current dataSource
+      if (supabaseConfigured && supabase) {
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
@@ -848,6 +856,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           return { error: error.message };
         }
         if (data.session?.user.id) {
+          setLoggedIn(true);
+          setDataSource("supabase");
           await hydrateSupabase(data.session.user.id);
         }
         return {};
@@ -862,7 +872,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       setLoading({ profile: false, items: false, auth: false });
       return {};
     },
-    [dataSource, hydrateSupabase, supabase],
+    [supabaseConfigured, hydrateSupabase, supabase],
   );
 
   const logout = useCallback(async () => {
@@ -897,7 +907,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         return { error };
       }
 
-      if (dataSource === "supabase" && supabase) {
+      // Always try Supabase when configured, regardless of current dataSource
+      if (supabaseConfigured && supabase) {
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
@@ -913,6 +924,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           return { error: error.message };
         }
         if (data.session?.user.id) {
+          setDataSource("supabase");
           await hydrateSupabase(data.session.user.id);
         }
         return {};
@@ -928,7 +940,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       });
       return {};
     },
-    [dataSource, hydrateSupabase, language, supabase],
+    [supabaseConfigured, hydrateSupabase, language, supabase],
   );
 
   const updateProfile = useCallback(
