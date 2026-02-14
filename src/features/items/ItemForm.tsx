@@ -62,6 +62,43 @@ function FieldError({ message }: { message?: string }) {
   );
 }
 
+const MAX_IMAGE_DIMENSION = 1200;
+
+/** Resize image on client to max 1200px, returns a new File */
+function resizeImage(file: File): Promise<File> {
+  return new Promise((resolve, reject) => {
+    const img = new window.Image();
+    img.onload = () => {
+      let { width, height } = img;
+      if (width <= MAX_IMAGE_DIMENSION && height <= MAX_IMAGE_DIMENSION) {
+        resolve(file);
+        return;
+      }
+      const ratio = Math.min(MAX_IMAGE_DIMENSION / width, MAX_IMAGE_DIMENSION / height);
+      width = Math.round(width * ratio);
+      height = Math.round(height * ratio);
+
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) { resolve(file); return; }
+      ctx.drawImage(img, 0, 0, width, height);
+
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) { resolve(file); return; }
+          resolve(new File([blob], file.name, { type: file.type || "image/jpeg" }));
+        },
+        file.type || "image/jpeg",
+        0.85,
+      );
+    };
+    img.onerror = () => reject(new Error("Nu s-a putut citi imaginea."));
+    img.src = URL.createObjectURL(file);
+  });
+}
+
 export function ItemForm({
   item,
   onSave,
@@ -84,6 +121,9 @@ export function ItemForm({
   const [aiStatus, setAiStatus] = useState<string | null>(null);
   const [imageAiLoading, setImageAiLoading] = useState(false);
   const [imageAiStatus, setImageAiStatus] = useState<string | null>(null);
+  const [imageUrlInput, setImageUrlInput] = useState("");
+  const [imageUrlError, setImageUrlError] = useState<string | null>(null);
+  const [loadingUrl, setLoadingUrl] = useState(false);
   const aiTriggered = useRef(false);
 
   const triggerAiOnBlur = useCallback(() => {
@@ -249,57 +289,157 @@ export function ItemForm({
       }}
       noValidate
     >
-      {/* Image upload */}
+      {/* Image upload / URL */}
       <div className="grid gap-3 lg:grid-cols-[2fr_1fr]">
-        <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-          Imagine (opțional)
-          <input
-            type="file"
-            accept="image/jpeg,image/png,image/webp,image/gif"
-            disabled={uploading}
-            onChange={async (e) => {
-              const file = e.target.files?.[0];
-              if (!file) return;
-              setUploading(true);
-              setUploadError(null);
-              const result = await uploadItemPhoto(file, draft.ownerId);
-              setUploading(false);
-              if (result.error) {
-                setUploadError(result.error);
-                return;
-              }
-              if (result.url) {
-                setPreview(result.url);
-                setDraft((prev) => ({ ...prev, photos: [result.url!] }));
-                // Auto-analyze uploaded image with AI
-                void analyzeImageWithAi(result.url, file);
-              }
-            }}
-            className={inputNormal}
-          />
-          {uploading ? (
-            <p className="mt-1 text-xs text-blue-600 dark:text-blue-400">
-              Se încarcă imaginea...
-            </p>
-          ) : uploadError ? (
-            <p className="mt-1 text-xs text-red-600 dark:text-red-400">
-              {uploadError}
-            </p>
-          ) : (
-            <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-              JPG, PNG, WebP sau GIF. Max 5 MB.
+        <div className="space-y-2">
+          <p className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
+            Imagine (opțional)
+          </p>
+
+          {/* File upload */}
+          <label className="text-xs text-zinc-500 dark:text-zinc-400">
+            Încarcă fișier
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              disabled={uploading || loadingUrl}
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                setUploading(true);
+                setUploadError(null);
+                setImageUrlError(null);
+                try {
+                  const resized = await resizeImage(file);
+                  const result = await uploadItemPhoto(resized, draft.ownerId);
+                  if (result.error) {
+                    setUploadError(result.error);
+                    return;
+                  }
+                  if (result.url) {
+                    setPreview(result.url);
+                    setDraft((prev) => ({ ...prev, photos: [result.url!] }));
+                    void analyzeImageWithAi(result.url, resized);
+                  }
+                } catch {
+                  setUploadError("Eroare la procesarea imaginii.");
+                } finally {
+                  setUploading(false);
+                }
+              }}
+              className={inputNormal}
+            />
+          </label>
+          {uploading && (
+            <p className="text-xs text-blue-600 dark:text-blue-400">
+              Se încarcă și redimensionează imaginea...
             </p>
           )}
-        </label>
-        <div className="flex items-center justify-center overflow-hidden rounded-xl border border-dashed border-zinc-200 bg-zinc-50 p-3 text-sm text-zinc-500 dark:border-zinc-700 dark:bg-zinc-900/60">
+          {uploadError && (
+            <p className="text-xs text-red-600 dark:text-red-400">
+              {uploadError}
+            </p>
+          )}
+
+          {/* Separator */}
+          <div className="flex items-center gap-2">
+            <hr className="flex-1 border-zinc-200 dark:border-zinc-700" />
+            <span className="text-xs text-zinc-400">sau</span>
+            <hr className="flex-1 border-zinc-200 dark:border-zinc-700" />
+          </div>
+
+          {/* URL input */}
+          <label className="text-xs text-zinc-500 dark:text-zinc-400">
+            Lipește link imagine
+            <div className="mt-1 flex gap-2">
+              <input
+                type="url"
+                value={imageUrlInput}
+                onChange={(e) => setImageUrlInput(e.target.value)}
+                placeholder="https://..."
+                disabled={uploading || loadingUrl}
+                className={`${inputNormal} flex-1`}
+              />
+              <button
+                type="button"
+                disabled={uploading || loadingUrl || !imageUrlInput.trim()}
+                onClick={async () => {
+                  const url = imageUrlInput.trim();
+                  if (!url) return;
+                  try {
+                    new URL(url);
+                  } catch {
+                    setImageUrlError("URL invalid.");
+                    return;
+                  }
+                  setLoadingUrl(true);
+                  setImageUrlError(null);
+                  setUploadError(null);
+                  try {
+                    // Verify the URL loads as an image
+                    const ok = await new Promise<boolean>((resolve) => {
+                      const img = new window.Image();
+                      img.onload = () => resolve(true);
+                      img.onerror = () => resolve(false);
+                      img.src = url;
+                    });
+                    if (!ok) {
+                      setImageUrlError("Link-ul nu conține o imagine validă.");
+                      return;
+                    }
+                    setPreview(url);
+                    setDraft((prev) => ({ ...prev, photos: [url] }));
+                    setImageUrlInput("");
+                    void analyzeImageWithAi(url);
+                  } catch {
+                    setImageUrlError("Nu s-a putut încărca imaginea.");
+                  } finally {
+                    setLoadingUrl(false);
+                  }
+                }}
+                className="rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
+              >
+                {loadingUrl ? "Se verifică..." : "Adaugă"}
+              </button>
+            </div>
+          </label>
+          {imageUrlError && (
+            <p className="text-xs text-red-600 dark:text-red-400">
+              {imageUrlError}
+            </p>
+          )}
+
+          <p className="text-xs text-zinc-400 dark:text-zinc-500">
+            JPG, PNG, WebP sau GIF. Max 5 MB. Imaginile sunt redimensionate automat.
+          </p>
+        </div>
+
+        {/* Preview */}
+        <div className="flex flex-col items-center justify-center overflow-hidden rounded-xl border border-dashed border-zinc-200 bg-zinc-50 p-3 text-sm text-zinc-500 dark:border-zinc-700 dark:bg-zinc-900/60">
           <Image
             src={preview || "/no-image.svg"}
-            alt="Previzualizare"
+            alt={preview ? "Previzualizare" : "Fără imagine"}
             width={400}
             height={240}
             className="h-36 w-full rounded-lg object-cover"
-            unoptimized={!preview}
+            unoptimized
           />
+          {!preview && (
+            <p className="mt-2 text-xs text-zinc-400">Fără imagine</p>
+          )}
+          {preview && (
+            <button
+              type="button"
+              onClick={() => {
+                setPreview(null);
+                setDraft((prev) => ({ ...prev, photos: [] }));
+                setImageAiStatus(null);
+              }}
+              className="mt-2 text-xs text-red-500 hover:text-red-700"
+            >
+              Șterge imaginea
+            </button>
+          )}
         </div>
       </div>
 
