@@ -243,8 +243,8 @@ export function ItemForm({
     try {
       let body: Record<string, string>;
 
-      if (imageUrl.startsWith("blob:") && file) {
-        // Blob URLs can't be fetched server-side — send as base64
+      if (file) {
+        // Always send as base64 when we have the file locally (avoids server-side fetch)
         const base64 = await new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
           reader.onload = () => resolve(reader.result as string);
@@ -271,14 +271,46 @@ export function ItemForm({
         if (data.category && ITEM_CATEGORIES.includes(data.category)) {
           updates.category = data.category;
         }
+        // If AI returned a subcategory, also set the parent dropdown
+        if (data.category) {
+          const node = findCategoryByName(data.category);
+          if (node) {
+            const parentId = node.parentId ?? node.id;
+            setSelectedParent(parentId);
+            updates.category = node.name;
+          } else if (!ITEM_CATEGORIES.includes(data.category)) {
+            // Try partial match on top-level category
+            const topMatch = ITEM_CATEGORIES.find((c) =>
+              data.category.toLowerCase().includes(c.toLowerCase()) ||
+              c.toLowerCase().includes(data.category.toLowerCase())
+            );
+            if (topMatch) {
+              updates.category = topMatch;
+              const topNode = findCategoryByName(topMatch);
+              if (topNode) setSelectedParent(topNode.id);
+            }
+          }
+        }
         setDraft((prev) => ({ ...prev, ...updates }));
+
+        const debugInfo = data.attempted?.length ? ` [${data.attempted.join(", ")}]` : "";
         setImageAiStatus(
           data.status === "ok"
             ? `AI: "${data.caption}" → Titlu și categorie completate automat. Poți modifica.`
-            : data.caption || "Sugestii din numele fișierului. Poți modifica.",
+            : (data.caption || "AI indisponibil. Completează manual."),
         );
+        if (data.status === "fallback" && debugInfo) {
+          console.warn("Image AI fallback:", debugInfo);
+        }
       } else {
-        setImageAiStatus(data.message || "AI nu a putut analiza imaginea.");
+        console.warn("Image AI error:", data.attempted);
+        // Show user-friendly message, not technical details
+        const isQuota = data.attempted?.some((a: string) => a.includes("429") || a.includes("quota"));
+        setImageAiStatus(
+          isQuota
+            ? "AI temporar indisponibil (limita de utilizare atinsă). Încearcă din nou în 1-2 minute."
+            : "AI nu a putut analiza imaginea. Completează manual titlul și categoria.",
+        );
       }
     } catch {
       setImageAiStatus("Eroare de rețea la analiza imaginii.");
