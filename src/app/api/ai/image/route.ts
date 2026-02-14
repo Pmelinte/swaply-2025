@@ -80,66 +80,81 @@ async function analyzeWithVisionModel(
   const prompt = `Look at this image and respond with ONLY a JSON object (no other text):
 {"description": "short description of the item in English", "category": "one of: ${categoriesList}"}`;
 
-  // Vision models to try via chat completions API
-  const visionModels = [
-    "meta-llama/Llama-3.2-11B-Vision-Instruct",
-    "microsoft/Florence-2-large",
+  // Try different providers and models — Together AI offers free Llama Vision
+  const attempts = [
+    // Together AI provider via HF Router (free Llama Vision)
+    {
+      url: "https://router.huggingface.co/together/v1/chat/completions",
+      model: "meta-llama/Llama-Vision-Free",
+    },
+    {
+      url: "https://router.huggingface.co/together/v1/chat/completions",
+      model: "meta-llama/Llama-3.2-11B-Vision-Instruct-Turbo",
+    },
+    // Novita AI provider via HF Router
+    {
+      url: "https://router.huggingface.co/novita/v1/chat/completions",
+      model: "meta-llama/llama-3.2-11b-vision-instruct",
+    },
+    // HF Inference direct
+    {
+      url: "https://router.huggingface.co/hf-inference/models/meta-llama/Llama-3.2-11B-Vision-Instruct/v1/chat/completions",
+      model: "meta-llama/Llama-3.2-11B-Vision-Instruct",
+    },
+    {
+      url: "https://api-inference.huggingface.co/models/meta-llama/Llama-3.2-11B-Vision-Instruct/v1/chat/completions",
+      model: "meta-llama/Llama-3.2-11B-Vision-Instruct",
+    },
   ];
 
-  const apiBaseUrls = [
-    "https://router.huggingface.co/hf-inference/models",
-    "https://api-inference.huggingface.co/models",
-  ];
+  for (const { url, model } of attempts) {
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${hfKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model,
+          messages: [
+            {
+              role: "user",
+              content: [
+                { type: "image_url", image_url: { url: imageDataUri } },
+                { type: "text", text: prompt },
+              ],
+            },
+          ],
+          max_tokens: 200,
+        }),
+      });
 
-  for (const model of visionModels) {
-    for (const baseUrl of apiBaseUrls) {
-      try {
-        const res = await fetch(`${baseUrl}/${model}/v1/chat/completions`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${hfKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model,
-            messages: [
-              {
-                role: "user",
-                content: [
-                  { type: "image_url", image_url: { url: imageDataUri } },
-                  { type: "text", text: prompt },
-                ],
-              },
-            ],
-            max_tokens: 200,
-          }),
-        });
-
-        if (!res.ok) {
-          const status = res.status;
-          console.warn(`Vision ${model} (${baseUrl}) → ${status}`);
-          if (status === 410 || status === 404 || status === 422) break;
-          if (status === 503) {
-            await new Promise((r) => setTimeout(r, 5000));
-            continue;
-          }
-          break;
+      const status = res.status;
+      if (!res.ok) {
+        console.warn(`Vision ${model} (${url}) → ${status}`);
+        // Skip to next on definitive errors
+        if (status === 410 || status === 404 || status === 422 || status === 401 || status === 403) continue;
+        // Wait on 503 then continue
+        if (status === 503) {
+          await new Promise((r) => setTimeout(r, 3000));
         }
-
-        const data = await res.json();
-        const text = data?.choices?.[0]?.message?.content?.trim();
-        console.log(`Vision model ${model} response:`, text);
-
-        if (text) {
-          return parseVisionResponse(text);
-        }
-      } catch (err) {
-        console.warn(`Vision ${model} error:`, err);
+        continue;
       }
+
+      const data = await res.json();
+      const text = data?.choices?.[0]?.message?.content?.trim();
+      console.log(`Vision success: ${model} (${url}):`, text);
+
+      if (text) {
+        return parseVisionResponse(text);
+      }
+    } catch (err) {
+      console.warn(`Vision ${model} error:`, err);
     }
   }
 
-  // Fallback: try legacy image-to-text models (might still work for some)
+  // Fallback: try legacy image-to-text models
   return tryLegacyCaptioning(imageDataUri, hfKey);
 }
 
