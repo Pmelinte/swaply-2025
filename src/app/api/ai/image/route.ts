@@ -54,38 +54,50 @@ export async function POST(request: Request) {
       return NextResponse.json({ status: "error", message: "Lipsă imagine." });
     }
 
-    // Try Gemini first (free, reliable) — retry once on 429 (rate limit)
+    const dataUri = `data:${mimeType};base64,${base64Data}`;
+
+    // 1. Try Groq first (free, fast, no regional restrictions)
+    const groqKey = (process.env.GROQ_API_KEY || "").trim();
+    if (groqKey) {
+      const result = await analyzeWithGroq(dataUri, groqKey);
+      if (result.ok) {
+        return NextResponse.json({ status: "ok", ...result.data, attempted: [...attempted, "groq: ok"] });
+      }
+      attempted.push(`groq: ${result.error}`);
+    } else {
+      attempted.push("groq: no API key");
+    }
+
+    // 2. Fallback to Gemini
     const geminiKey = (process.env.GEMINI_API_KEY || "").trim();
     if (geminiKey) {
       let result = await analyzeWithGemini(base64Data, mimeType, geminiKey);
       if (!result.ok && result.error.includes("429")) {
-        // Wait 3 seconds and retry once for rate limit
         await new Promise((r) => setTimeout(r, 3000));
         result = await analyzeWithGemini(base64Data, mimeType, geminiKey);
       }
       if (result.ok) {
-        return NextResponse.json({ status: "ok", ...result.data, attempted: [...attempted, `gemini: ok`] });
+        return NextResponse.json({ status: "ok", ...result.data, attempted: [...attempted, "gemini: ok"] });
       }
       attempted.push(`gemini: ${result.error}`);
     } else {
-      attempted.push("gemini: no API key");
+      attempted.push("gemini: no key");
     }
 
-    // Fallback to HuggingFace vision models
+    // 3. Fallback to HuggingFace
     const hfKey = (process.env.HUGGINGFACE_API_KEY || process.env.HUGGINGFACE_API_TOKEN || "").trim();
     const hfEnabled = process.env.NEXT_PUBLIC_HF_ENABLED === "true";
     if (hfKey && hfEnabled) {
-      const dataUri = `data:${mimeType};base64,${base64Data}`;
       const result = await analyzeWithHuggingFace(dataUri, hfKey);
       if (result.ok) {
         return NextResponse.json({ status: "ok", ...result.data, attempted: [...attempted, "hf: ok"] });
       }
       attempted.push(`hf: ${result.error}`);
     } else {
-      attempted.push(`hf: ${!hfKey ? "no API key" : "disabled"}`);
+      attempted.push(`hf: ${!hfKey ? "no key" : "disabled"}`);
     }
 
-    // All AI failed — use URL-based fallback
+    // All AI failed
     const fallback = fallbackFromUrl(imageUrl);
     return NextResponse.json({ status: "fallback", ...fallback, attempted });
   } catch (err) {
@@ -100,7 +112,65 @@ type AiResult =
   | { ok: true; data: { caption: string; title: string; category: string } }
   | { ok: false; error: string };
 
-/** Analyze image with Google Gemini (free: 15 req/min) */
+/** Analyze image with Groq (free: 30 req/min, Llama 3.2 Vision 90B) */
+async function analyzeWithGroq(
+  imageDataUri: string,
+  apiKey: string,
+): Promise<AiResult> {
+  const categoriesList = ALL_CATEGORY_NAMES.join(", ");
+
+  try {
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "llama-3.2-90b-vision-preview",
+        messages: [
+          {
+            role: "user",
+            content: [
+              {
+                type: "image_url",
+                image_url: { url: imageDataUri },
+              },
+              {
+                type: "text",
+                text: `Analyze this image of an item for a swap/barter platform. Respond with ONLY a JSON object (no markdown, no code blocks):
+{"description": "short description in Romanian (3-8 words)", "category": "EXACTLY one of: ${categoriesList}"}
+
+Pick the most specific matching category.`,
+              },
+            ],
+          },
+        ],
+        max_tokens: 200,
+        temperature: 0.3,
+      }),
+      signal: AbortSignal.timeout(15000),
+    });
+
+    if (!res.ok) {
+      const errText = await res.text().catch(() => "");
+      return { ok: false, error: `HTTP ${res.status}: ${errText.slice(0, 150)}` };
+    }
+
+    const data = await res.json();
+    const text = data?.choices?.[0]?.message?.content?.trim();
+
+    if (!text) return { ok: false, error: "empty response" };
+
+    const parsed = parseAiResponse(text);
+    if (parsed) return { ok: true, data: parsed };
+    return { ok: false, error: `parse failed: ${text.slice(0, 100)}` };
+  } catch (err) {
+    return { ok: false, error: String(err).slice(0, 150) };
+  }
+}
+
+/** Analyze image with Google Gemini */
 async function analyzeWithGemini(
   base64Data: string,
   mimeType: string,
@@ -119,10 +189,10 @@ async function analyzeWithGemini(
             {
               parts: [
                 {
-                  text: `Analyze this image of an item for a swap/barter platform. Respond with ONLY a JSON object (no markdown, no code blocks, no extra text):
-{"description": "short description of the item in Romanian (3-8 words)", "category": "EXACTLY one of: ${categoriesList}"}
+                  text: `Analyze this image of an item for a swap/barter platform. Respond with ONLY a JSON object (no markdown, no code blocks):
+{"description": "short description in Romanian (3-8 words)", "category": "EXACTLY one of: ${categoriesList}"}
 
-Pick the most specific matching category. If unsure, pick a top-level one.`,
+Pick the most specific matching category.`,
                 },
                 {
                   inline_data: {
@@ -148,7 +218,7 @@ Pick the most specific matching category. If unsure, pick a top-level one.`,
 
     if (!text) {
       const blockReason = data?.candidates?.[0]?.finishReason || data?.promptFeedback?.blockReason || "no text";
-      return { ok: false, error: `empty response: ${blockReason}` };
+      return { ok: false, error: `empty: ${blockReason}` };
     }
 
     const parsed = parseAiResponse(text);
@@ -167,14 +237,14 @@ async function analyzeWithHuggingFace(
   const categoriesList = ALL_CATEGORY_NAMES.join(", ");
   const prompt = `Analyze this image and respond with ONLY a JSON object: {"description": "short item description in Romanian", "category": "one of: ${categoriesList}"}`;
 
-  const attempts = [
+  const models = [
     { url: "https://router.huggingface.co/together/v1/chat/completions", model: "meta-llama/Llama-Vision-Free" },
     { url: "https://router.huggingface.co/hf-inference/models/meta-llama/Llama-3.2-11B-Vision-Instruct/v1/chat/completions", model: "meta-llama/Llama-3.2-11B-Vision-Instruct" },
   ];
 
   const errors: string[] = [];
 
-  for (const { url, model } of attempts) {
+  for (const { url, model } of models) {
     try {
       const res = await fetch(url, {
         method: "POST",
@@ -201,7 +271,7 @@ async function analyzeWithHuggingFace(
           if (parsed) return { ok: true, data: parsed };
           errors.push(`${model}: parse failed`);
         } else {
-          errors.push(`${model}: empty response`);
+          errors.push(`${model}: empty`);
         }
       } else {
         errors.push(`${model}: HTTP ${res.status}`);
@@ -217,7 +287,6 @@ async function analyzeWithHuggingFace(
 /** Parse AI response (JSON or plain text) into title + category */
 function parseAiResponse(text: string): { caption: string; title: string; category: string } | null {
   try {
-    // Strip markdown code blocks if present
     const cleaned = text.replace(/```json?\s*/g, "").replace(/```/g, "").trim();
     const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
 
@@ -226,7 +295,6 @@ function parseAiResponse(text: string): { caption: string; title: string; catego
       const description = parsed.description || parsed.desc || text;
       let category = parsed.category || "";
 
-      // Match to our taxonomy (exact or fuzzy)
       if (!ALL_CATEGORY_NAMES.includes(category)) {
         category = matchCategory(category) || keywordCategory(description);
       }
@@ -241,7 +309,6 @@ function parseAiResponse(text: string): { caption: string; title: string; catego
     // JSON parse failed
   }
 
-  // Treat as plain text description
   return {
     caption: text,
     title: formatTitle(text),
@@ -249,18 +316,16 @@ function parseAiResponse(text: string): { caption: string; title: string; catego
   };
 }
 
-/** Try to fuzzy-match a category name from AI to our taxonomy */
+/** Fuzzy-match category name to our taxonomy */
 function matchCategory(aiCategory: string): string {
   if (!aiCategory) return "";
   const norm = aiCategory.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
-  // Exact match (accent-insensitive)
   for (const name of ALL_CATEGORY_NAMES) {
     const nameNorm = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
     if (nameNorm === norm) return name;
   }
 
-  // Partial match
   for (const name of ALL_CATEGORY_NAMES) {
     const nameNorm = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
     if (nameNorm.includes(norm) || norm.includes(nameNorm)) return name;
@@ -290,7 +355,6 @@ function fallbackFromUrl(imageUrl?: string): { title: string; category: string; 
     .replace(/\s+/g, " ")
     .trim();
 
-  // Don't use random hashes as titles (Cloudinary, etc.)
   const isUseful = cleaned.length >= 3 && /[a-zA-Z]{3,}/.test(cleaned) && !/^[a-z0-9]{15,}$/i.test(cleaned);
   const category = isUseful ? keywordCategory(cleaned) : "";
   const title = isUseful ? cleaned.charAt(0).toUpperCase() + cleaned.slice(1) : "";
