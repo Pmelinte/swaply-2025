@@ -8,8 +8,9 @@
 BEGIN;
 
 -- Curăță datele demo vechi (dacă există)
+-- Items first (has FK to profiles)
 DELETE FROM items WHERE is_demo = true;
-DELETE FROM profiles WHERE id LIKE 'demo-%';
+DELETE FROM profiles WHERE is_demo = true;
 
 -- ============================================================
 -- 1) Date auxiliare
