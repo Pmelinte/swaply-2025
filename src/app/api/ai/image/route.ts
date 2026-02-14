@@ -54,10 +54,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ status: "error", message: "Lipsă imagine." });
     }
 
-    // Try Gemini first (free, reliable)
+    // Try Gemini first (free, reliable) — retry once on 429 (rate limit)
     const geminiKey = (process.env.GEMINI_API_KEY || "").trim();
     if (geminiKey) {
-      const result = await analyzeWithGemini(base64Data, mimeType, geminiKey);
+      let result = await analyzeWithGemini(base64Data, mimeType, geminiKey);
+      if (!result.ok && result.error.includes("429")) {
+        // Wait 3 seconds and retry once for rate limit
+        await new Promise((r) => setTimeout(r, 3000));
+        result = await analyzeWithGemini(base64Data, mimeType, geminiKey);
+      }
       if (result.ok) {
         return NextResponse.json({ status: "ok", ...result.data, attempted: [...attempted, `gemini: ok`] });
       }

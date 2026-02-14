@@ -297,11 +297,20 @@ export function ItemForm({
         setImageAiStatus(
           data.status === "ok"
             ? `AI: "${data.caption}" → Titlu și categorie completate automat. Poți modifica.`
-            : (data.caption || "AI indisponibil. Completează manual.") + debugInfo,
+            : (data.caption || "AI indisponibil. Completează manual."),
         );
+        if (data.status === "fallback" && debugInfo) {
+          console.warn("Image AI fallback:", debugInfo);
+        }
       } else {
-        const debugInfo = data.attempted?.length ? ` [${data.attempted.join(", ")}]` : "";
-        setImageAiStatus((data.message || "AI nu a putut analiza imaginea.") + debugInfo);
+        console.warn("Image AI error:", data.attempted);
+        // Show user-friendly message, not technical details
+        const isQuota = data.attempted?.some((a: string) => a.includes("429") || a.includes("quota"));
+        setImageAiStatus(
+          isQuota
+            ? "AI temporar indisponibil (limita de utilizare atinsă). Încearcă din nou în 1-2 minute."
+            : "AI nu a putut analiza imaginea. Completează manual titlul și categoria.",
+        );
       }
     } catch {
       setImageAiStatus("Eroare de rețea la analiza imaginii.");
