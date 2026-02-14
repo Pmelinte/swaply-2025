@@ -11,11 +11,11 @@ import { Badge } from "../ui";
 const menuLinks = [
   { href: "/", label: "Home" },
   { href: "/objects", label: "Obiecte" },
-  { href: "/match", label: "Match" },
-  { href: "/chat", label: "Chat" },
-  { href: "/change", label: "Swaply" },
-  { href: "/info", label: "Info" },
-  { href: "/profile", label: "Profil & Setări" },
+  { href: "/match", label: "Matching" },
+  { href: "/chat", label: "Mesaje" },
+  { href: "/change", label: "Schimb" },
+  { href: "/info", label: "Informatii" },
+  { href: "/profile", label: "Profil & Setari" },
 ];
 
 const contextualActions: Record<
@@ -24,23 +24,23 @@ const contextualActions: Record<
 > = {
   "/": [
     { label: "Vezi obiecte disponibile", href: "/objects" },
-    { label: "Caută pe hartă", href: "/info#map" },
-    { label: "Vezi match-urile tale", href: "/match" },
+    { label: "Cauta pe harta", href: "/info#map" },
+    { label: "Analizeaza potriviri", href: "/match" },
   ],
   "/objects": [
-    { label: "Adaugă un obiect", href: "/objects/new" },
-    { label: "Vezi match-urile", href: "/match" },
+    { label: "Adauga un obiect", href: "/objects/new" },
+    { label: "Analizeaza potriviri", href: "/match" },
   ],
   "/match": [
-    { label: "Inițiază chat", href: "/chat" },
-    { label: "Propune swap", href: "/change" },
+    { label: "Trimite mesaj", href: "/chat" },
+    { label: "Propune schimb", href: "/change" },
   ],
   "/chat": [
-    { label: "Deschide swap", href: "/change" },
-    { label: "Vezi reguli chat", href: "/info#legal" },
+    { label: "Propune schimb", href: "/change" },
+    { label: "Reguli conversatii", href: "/info#legal" },
   ],
   "/change": [
-    { label: "Confirmă swap", href: "/change" },
+    { label: "Confirma schimbul", href: "/change" },
     { label: "Vezi obiect", href: "/objects" },
   ],
   "/info": [
@@ -48,7 +48,7 @@ const contextualActions: Record<
     { label: "Beneficii badge", href: "/info#monetizare" },
   ],
   "/profile": [
-    { label: "Completează profilul", href: "/profile" },
+    { label: "Completeaza profilul", href: "/profile" },
     { label: "Badge & beneficii", href: "/info#monetizare" },
   ],
 };

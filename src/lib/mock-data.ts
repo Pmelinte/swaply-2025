@@ -120,8 +120,9 @@ export const mockMatches: MatchCandidate[] = [
     itemOffered: mockItems[0],
     itemRequested: mockItems[2],
     compatibilityScore: 92,
-    reason:
-      "Ambele obiecte sunt listate în aceeași regiune, iar preferințele de schimb se aliniază (bicicletă ↔ monitor).",
+    tier: "strong",
+    reasons: ["Categorii reciproc compatibile", "Valoare perceputa apropiata", "Aceeasi locatie — logistica simpla"],
+    reason: "Categorii reciproc compatibile. Valoare perceputa apropiata. Aceeasi locatie — logistica simpla.",
     aiTrace: "hf:swaply-matcher-v1",
   },
   {
@@ -129,9 +130,10 @@ export const mockMatches: MatchCandidate[] = [
     itemOffered: mockItems[1],
     itemRequested: mockItems[0],
     compatibilityScore: 75,
-    reason:
-      "Interese complementare detectate de AI; fallback manual dacă serviciul nu răspunde.",
-    manualFallbackReason: "Recomandare manuală bazată pe categorie și locație similară.",
+    tier: "good",
+    reasons: ["Partenerul cauta categorie compatibila", "Intentii de schimb compatibile"],
+    reason: "Partenerul cauta categorie compatibila. Intentii de schimb compatibile.",
+    manualFallbackReason: "Analiza calculata local (scor cumulativ).",
   },
 ];
 
