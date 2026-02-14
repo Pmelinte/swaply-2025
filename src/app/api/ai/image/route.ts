@@ -63,7 +63,7 @@ export async function POST(request: Request) {
 
     for (let attempt = 0; attempt < maxRetries; attempt++) {
       const captionRes = await fetch(
-        "https://api-inference.huggingface.co/models/Salesforce/blip-image-captioning-large",
+        "https://api-inference.huggingface.co/models/Salesforce/blip-image-captioning-base",
         {
           method: "POST",
           headers: {
@@ -82,8 +82,8 @@ export async function POST(request: Request) {
       const errText = await captionRes.text();
       console.warn(`BLIP attempt ${attempt + 1}/${maxRetries} failed:`, captionRes.status, errText);
 
-      // If model is loading (503), wait and retry
-      if (captionRes.status === 503 && attempt < maxRetries - 1) {
+      // If model is loading (503) or temporarily unavailable (410/429), wait and retry
+      if ((captionRes.status === 503 || captionRes.status === 410 || captionRes.status === 429) && attempt < maxRetries - 1) {
         const waitTime = Math.min(5000 * (attempt + 1), 15000);
         await new Promise((r) => setTimeout(r, waitTime));
         continue;
