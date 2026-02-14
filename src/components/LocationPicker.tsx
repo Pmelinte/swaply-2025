@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Country, State, City, ICountry, IState, ICity } from "country-state-city";
 
 interface LocationPickerProps {
@@ -21,30 +21,23 @@ export default function LocationPicker({
 }: LocationPickerProps) {
   const allCountries = useMemo(() => Country.getAllCountries(), []);
 
-  // Find the selected country's ISO code from the name
-  const [selectedCountryCode, setSelectedCountryCode] = useState<string>("");
-  const [selectedStateCode, setSelectedStateCode] = useState<string>("");
+  // Resolve initial country/region to ISO codes via lazy initialization (no useEffect needed)
+  const [selectedCountryCode, setSelectedCountryCode] = useState<string>(() => {
+    if (!country) return "";
+    const countries = Country.getAllCountries();
+    const found = countries.find((c) => c.name === country || c.isoCode === country);
+    return found?.isoCode ?? "";
+  });
 
-  // Resolve initial country/region to ISO codes on mount
-  useEffect(() => {
-    if (country) {
-      const found = allCountries.find(
-        (c) => c.name === country || c.isoCode === country,
-      );
-      if (found) {
-        setSelectedCountryCode(found.isoCode);
-        if (region) {
-          const states = State.getStatesOfCountry(found.isoCode);
-          const foundState = states.find(
-            (s) => s.name === region || s.isoCode === region,
-          );
-          if (foundState) {
-            setSelectedStateCode(foundState.isoCode);
-          }
-        }
-      }
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const [selectedStateCode, setSelectedStateCode] = useState<string>(() => {
+    if (!country || !region) return "";
+    const countries = Country.getAllCountries();
+    const found = countries.find((c) => c.name === country || c.isoCode === country);
+    if (!found) return "";
+    const states = State.getStatesOfCountry(found.isoCode);
+    const foundState = states.find((s) => s.name === region || s.isoCode === region);
+    return foundState?.isoCode ?? "";
+  });
 
   const states = useMemo(
     () => (selectedCountryCode ? State.getStatesOfCountry(selectedCountryCode) : []),

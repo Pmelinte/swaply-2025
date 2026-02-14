@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useAppState } from "@/lib/state";
 import { LoggedOutGate, MissingDataCallout } from "@/components/gated";
@@ -20,19 +21,21 @@ export default function ProfilePage() {
 
   const [loadingTimeout, setLoadingTimeout] = useState(false);
 
-  // Sync draft with user when user changes externally (hydration, save response)
-  useEffect(() => {
-    if (user && !draft) {
-      setDraft(user);
-    }
-  }, [user, draft]);
+  // Sync draft with user during render (React-recommended pattern instead of useEffect)
+  if (user && !draft) {
+    setDraft(user);
+  }
+
+  // Reset loadingTimeout during render when loading finishes
+  if (!loading.profile && loadingTimeout) {
+    setLoadingTimeout(false);
+  }
 
   useEffect(() => {
     if (loading.profile) {
       const timer = setTimeout(() => setLoadingTimeout(true), 3000);
       return () => clearTimeout(timer);
     }
-    setLoadingTimeout(false);
   }, [loading.profile]);
 
   if (loading.profile && !loadingTimeout) {
@@ -87,7 +90,7 @@ export default function ProfilePage() {
         <div className="flex items-center gap-4">
           <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full border-2 border-zinc-200 bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800">
             {draft.avatarUrl ? (
-              <img src={draft.avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
+              <Image src={draft.avatarUrl} alt="Avatar" width={80} height={80} className="h-full w-full object-cover" unoptimized />
             ) : (
               <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-zinc-400">
                 {draft.displayName?.charAt(0)?.toUpperCase() ?? "?"}

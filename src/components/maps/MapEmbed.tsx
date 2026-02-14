@@ -13,7 +13,6 @@ export function MapEmbed({
   lng,
   zoom = 12,
   height = 240,
-  markers,
 }: {
   center?: string;
   lat?: number;

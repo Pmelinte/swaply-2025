@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { z } from "zod";
-import type { Item, ItemIntent, ItemFlexibility, ItemPerceivedValue, ItemConditionImpact, ItemClarity, ItemContext } from "@/lib/types";
+import type { Item, ItemIntent, ItemFlexibility, ItemPerceivedValue, ItemClarity, ItemContext } from "@/lib/types";
 import { uploadItemPhoto } from "@/lib/storage";
 import { TOP_CATEGORIES, getSubcategories, CATEGORY_NAMES, findCategoryByName } from "@/lib/categories";
 

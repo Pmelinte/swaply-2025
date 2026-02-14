@@ -431,11 +431,6 @@ function computeFeatureToggles(): FeatureToggle {
 
 const SESSION_KEY = "swaply_logged_in";
 
-function isLoggedIn() {
-  if (typeof window === "undefined") return false;
-  return window.localStorage.getItem(SESSION_KEY) === "true";
-}
-
 function setLoggedIn(value: boolean) {
   if (typeof window === "undefined") return;
   if (value) {
