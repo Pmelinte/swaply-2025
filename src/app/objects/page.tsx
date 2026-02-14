@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useAppState } from "@/lib/state";
 import { LoggedOutGate } from "@/components/gated";
-import { CTAButton, NextStepRecommendation, Pill, SectionCard, StateShowcase } from "@/components/ui";
+import { CTAButton, NextStepRecommendation, Pill, StateShowcase } from "@/components/ui";
 import { SwipeCard } from "@/features/items/SwipeCard";
 import { NO_IMAGE_URL } from "@/lib/storage";
 import type { Item } from "@/lib/types";

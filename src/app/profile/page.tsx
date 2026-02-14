@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import Image from "next/image";
+import { useEffect, useState } from "react";
 import { useAppState } from "@/lib/state";
 import { LoggedOutGate, MissingDataCallout } from "@/components/gated";
 import { Badge, NextStepRecommendation, Pill, SectionCard, StateShowcase } from "@/components/ui";
 import { UserProfile } from "@/lib/types";
+import LocationPicker from "@/components/LocationPicker";
 
 export default function ProfilePage() {
   const { user, updateProfile, loading, lastError } = useAppState();
@@ -17,11 +19,30 @@ export default function ProfilePage() {
     { key: "reputatie" as const, label: "Reputație" },
   ];
 
-  if (loading.profile) {
+  const [loadingTimeout, setLoadingTimeout] = useState(false);
+
+  // Sync draft with user during render (React-recommended pattern instead of useEffect)
+  if (user && !draft) {
+    setDraft(user);
+  }
+
+  // Reset loadingTimeout during render when loading finishes
+  if (!loading.profile && loadingTimeout) {
+    setLoadingTimeout(false);
+  }
+
+  useEffect(() => {
+    if (loading.profile) {
+      const timer = setTimeout(() => setLoadingTimeout(true), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [loading.profile]);
+
+  if (loading.profile && !loadingTimeout) {
     return (
       <SectionCard
-        title="Se încarcă profilul"
-        description="Loading state conform contractului; nu returnăm 404."
+        title="Se încarcă profilul..."
+        description="Verificăm sesiunea ta."
       >
         <div className="h-20 animate-pulse rounded-xl bg-zinc-100 dark:bg-zinc-800" />
       </SectionCard>
@@ -69,7 +90,7 @@ export default function ProfilePage() {
         <div className="flex items-center gap-4">
           <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full border-2 border-zinc-200 bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800">
             {draft.avatarUrl ? (
-              <img src={draft.avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
+              <Image src={draft.avatarUrl} alt="Avatar" width={80} height={80} className="h-full w-full object-cover" unoptimized />
             ) : (
               <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-zinc-400">
                 {draft.displayName?.charAt(0)?.toUpperCase() ?? "?"}
@@ -133,40 +154,23 @@ export default function ProfilePage() {
 
       <SectionCard
         title="Localizare"
-        description="Țară / regiune / oraș + coordonate aproximative. Fără geocoding automat."
+        description="Selectează țara, regiunea și orașul din liste predefinite."
       >
-        <div className="grid gap-3 sm:grid-cols-3">
-          <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-            Țară
-            <input
-              value={draft.location?.country ?? ""}
-              onChange={(e) =>
-                update({ location: { ...(draft.location ?? {}), country: e.target.value } })
-              }
-              className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
-            />
-          </label>
-          <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-            Regiune
-            <input
-              value={draft.location?.region ?? ""}
-              onChange={(e) =>
-                update({ location: { ...(draft.location ?? {}), region: e.target.value } })
-              }
-              className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
-            />
-          </label>
-          <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-            Oraș
-            <input
-              value={draft.location?.city ?? ""}
-              onChange={(e) =>
-                update({ location: { ...(draft.location ?? {}), city: e.target.value } })
-              }
-              className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
-            />
-          </label>
-        </div>
+        <LocationPicker
+          country={draft.location?.country ?? ""}
+          region={draft.location?.region ?? ""}
+          city={draft.location?.city ?? ""}
+          onChange={({ country, region, city }) =>
+            update({
+              location: {
+                ...(draft.location ?? {}),
+                country,
+                region,
+                city,
+              },
+            })
+          }
+        />
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
             Cod poștal
@@ -427,30 +431,34 @@ export default function ProfilePage() {
 
       <SectionCard
         title="Salvare profil"
-        description="CTA explicit conform contractului. Salvarea este simulată în memorie pentru demo."
+        description="Modificările vor fi salvate în baza de date."
       >
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={async () => {
-              await updateProfile(draft, { persist: true });
-              setSaveMessage("Profil salvat (Supabase sau fallback local).");
+              setSaveMessage(null);
+              try {
+                await updateProfile(draft, { persist: true });
+                setSaveMessage("Profil salvat cu succes!");
+              } catch {
+                setSaveMessage("Eroare la salvare. Încearcă din nou.");
+              }
             }}
             className="rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
           >
             Salvează
           </button>
-          <button
-            type="button"
-            className="rounded-full px-4 py-2 text-sm font-semibold text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800"
-            onClick={() => setSaveMessage("Eroare simulată: reîncearcă sau verifică conexiunea.")}
-          >
-            Simulează eroare
-          </button>
         </div>
         {saveMessage ? (
-          <div className="rounded-xl border border-zinc-200 bg-white/70 p-3 text-sm text-zinc-800 dark:border-zinc-800 dark:bg-zinc-900/70 dark:text-zinc-100">
-            {lastError ? `${saveMessage} · ${lastError}` : saveMessage}
+          <div
+            className={`rounded-xl p-3 text-sm font-medium ${
+              lastError
+                ? "bg-red-50 text-red-900 dark:bg-red-900/40 dark:text-red-100"
+                : "bg-green-50 text-green-900 dark:bg-green-900/40 dark:text-green-100"
+            }`}
+          >
+            {lastError ? `Eroare: ${lastError}` : saveMessage}
           </div>
         ) : null}
       </SectionCard>

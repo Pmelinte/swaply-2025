@@ -431,11 +431,6 @@ function computeFeatureToggles(): FeatureToggle {
 
 const SESSION_KEY = "swaply_logged_in";
 
-function isLoggedIn() {
-  if (typeof window === "undefined") return false;
-  return window.localStorage.getItem(SESSION_KEY) === "true";
-}
-
 function setLoggedIn(value: boolean) {
   if (typeof window === "undefined") return;
   if (value) {
@@ -496,7 +491,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
   // Restore session after hydration (avoids server/client mismatch)
   useEffect(() => {
-    if (isLoggedIn() || !supabaseConfigured) {
+    // Only fall back to mock when Supabase is NOT configured
+    if (!supabaseConfigured) {
       setDataSource("mock");
       setUser(mockUser);
       setItems(mockItems);
@@ -505,6 +501,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       setNotifications([]);
       setLoading({ profile: false, items: false, auth: false });
     }
+    // When Supabase IS configured, the auth listener useEffect handles session restoration
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -513,15 +510,15 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       const currentUser = userRef.current;
       return {
         id: safeString(
-          data.id,
-          safeString(data.user_id, safeString(data.uid, nanoid())),
+          data.user_id,
+          safeString(data.id, safeString(data.uid, nanoid())),
         ),
         email: safeString(data.email, currentUser?.email ?? ""),
         displayName: safeString(
           data.display_name,
-          safeString(data.displayName, "Utilizator Swaply"),
+          safeString(data.username, safeString(data.displayName, "Utilizator Swaply")),
         ),
-        firstName: safeString(data.first_name, safeString(data.firstName)),
+        firstName: safeString(data.first_name, safeString(data.full_name, safeString(data.firstName))),
         avatarUrl: safeString(data.avatar_url, safeString(data.avatarUrl)),
         bio: safeString(data.bio, safeString(data.about_me)),
         languages: safeArray<LanguageCode>(
@@ -705,10 +702,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       if (!supabase) return;
       setLastError(null);
       setLoading((prev) => ({ ...prev, profile: true, items: true }));
+      // Production DB uses user_id (uuid) as primary key, not id (text)
       const { data: profileData, error: profileError } = await supabase
         .from("profiles")
         .select("*")
-        .eq("id", userId)
+        .eq("user_id", userId)
         .maybeSingle();
 
       if (profileError) {
@@ -716,7 +714,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       }
 
       if (profileData) {
-        setUser(mapProfile(profileData));
+        setUser(mapProfile({ ...profileData, id: profileData.user_id }));
       } else if (supabaseConfigured) {
         // First login: create profile from auth session data
         const session = await supabase.auth.getSession();
@@ -726,7 +724,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
         // Persist the new profile to Supabase
         const { error: insertError } = await supabase.from("profiles").upsert({
-          id: userId,
+          user_id: userId,
+          username: email.split("@")[0],
           email,
           display_name: email.split("@")[0],
           badge: "free",
@@ -815,18 +814,18 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         if (participantIds.length) {
           const { data: participantProfiles, error: participantProfilesError } = await supabase
             .from("profiles")
-            .select("id, display_name, badge")
-            .in("id", participantIds);
+            .select("user_id, display_name, username, badge")
+            .in("user_id", participantIds);
 
           if (participantProfilesError) {
             setLastError(participantProfilesError.message);
           }
 
           for (const row of participantProfiles ?? []) {
-            const id = safeString(row.id);
+            const id = safeString(row.user_id);
             if (!id) continue;
             profilesById.set(id, {
-              displayName: safeString(row.display_name, "Utilizator"),
+              displayName: safeString(row.display_name, safeString(row.username, "Utilizator")),
               badge: safeBadgeTier(row.badge, "free"),
             });
           }
@@ -874,7 +873,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   );
 
   useEffect(() => {
-    if (!supabaseConfigured || !supabase || isLoggedIn()) return;
+    if (!supabaseConfigured || !supabase) return;
 
     let unsubscribe: (() => void) | undefined;
     const init = async () => {
@@ -894,8 +893,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       const session = data.session;
       if (session?.user?.id) {
         setDataSource("supabase");
+        setLoggedIn(true);
         await hydrateSupabase(session.user.id);
       } else {
+        // No active Supabase session — clear stale localStorage flag
+        setLoggedIn(false);
         setUser(null);
         setItems([]);
         setConversations([]);
@@ -908,8 +910,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         async (_event, nextSession) => {
           if (nextSession?.user?.id) {
             setDataSource("supabase");
+            setLoggedIn(true);
             await hydrateSupabase(nextSession.user.id);
-          } else if (!isLoggedIn()) {
+          } else {
+            setLoggedIn(false);
             setUser(null);
             setItems([]);
             setConversations([]);
@@ -942,7 +946,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         return { error };
       }
 
-      if (dataSource === "supabase" && supabase) {
+      // Always try Supabase when configured, regardless of current dataSource
+      if (supabaseConfigured && supabase) {
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
@@ -952,6 +957,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           return { error: error.message };
         }
         if (data.session?.user.id) {
+          setLoggedIn(true);
+          setDataSource("supabase");
           await hydrateSupabase(data.session.user.id);
         }
         return {};
@@ -966,19 +973,25 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       setLoading({ profile: false, items: false, auth: false });
       return {};
     },
-    [dataSource, hydrateSupabase, supabase],
+    [supabaseConfigured, hydrateSupabase, supabase],
   );
 
   const logout = useCallback(async () => {
     setLoggedIn(false);
-    if (dataSource === "supabase" && supabase) {
-      await supabase.auth.signOut();
-    }
     setUser(null);
     setItems([]);
     setConversations([]);
     setSwaps([]);
     setNotifications([]);
+    setLoading({ profile: false, items: false, auth: false });
+    setLastError(null);
+    if (dataSource === "supabase" && supabase) {
+      try {
+        await supabase.auth.signOut();
+      } catch {
+        // Ignore signOut errors — state is already cleared
+      }
+    }
     setDataSource(supabaseConfigured ? "supabase" : "mock");
   }, [dataSource, supabase, supabaseConfigured]);
 
@@ -995,7 +1008,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         return { error };
       }
 
-      if (dataSource === "supabase" && supabase) {
+      // Always try Supabase when configured, regardless of current dataSource
+      if (supabaseConfigured && supabase) {
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
@@ -1011,6 +1025,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           return { error: error.message };
         }
         if (data.session?.user.id) {
+          setDataSource("supabase");
           await hydrateSupabase(data.session.user.id);
         }
         return {};
@@ -1026,24 +1041,29 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       });
       return {};
     },
-    [dataSource, hydrateSupabase, language, supabase],
+    [supabaseConfigured, hydrateSupabase, language, supabase],
   );
 
   const updateProfile = useCallback(
     async (updates: Partial<UserProfile>, options?: { persist?: boolean }) => {
       setUser((prev) => (prev ? { ...prev, ...updates } : prev));
 
+      // Use userRef for the latest user value (avoids stale closure)
+      const currentUser = userRef.current;
       if (
-        dataSource === "supabase" &&
+        supabaseConfigured &&
         supabase &&
         options?.persist &&
-        user?.id
+        currentUser?.id
       ) {
-        const merged = { ...user, ...updates };
+        setLastError(null);
+        const merged = { ...currentUser, ...updates };
         const payload: Record<string, unknown> = {
-          id: user.id,
+          user_id: currentUser.id,
           email: merged.email,
+          username: merged.displayName,
           display_name: merged.displayName,
+          full_name: merged.firstName ? `${merged.firstName} ${merged.displayName}` : merged.displayName,
           first_name: merged.firstName ?? null,
           avatar_url: merged.avatarUrl ?? null,
           bio: merged.bio ?? null,
@@ -1066,12 +1086,13 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
         if (error) {
           setLastError(error.message);
+          throw new Error(error.message);
         } else if (data) {
           setUser(mapProfile(data));
         }
       }
     },
-    [dataSource, mapProfile, supabase, user],
+    [supabaseConfigured, mapProfile, supabase],
   );
 
   const upsertItem = useCallback(
@@ -1159,8 +1180,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       if (dataSource === "supabase" && supabase) {
         const { data, error } = await supabase
           .from("profiles")
-          .select("id, display_name, badge")
-          .eq("id", participantId)
+          .select("user_id, display_name, username, badge")
+          .eq("user_id", participantId)
           .maybeSingle();
         if (error) {
           setLastError(error.message);
@@ -1457,7 +1478,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
   const startNewItem = useCallback(() => {
     if (!user) return null;
-    return createEmptyItem(user.id);
+    const item = createEmptyItem(user.id);
+    if (user.location?.city) {
+      item.location = user.location.city;
+    }
+    return item;
   }, [user]);
 
   const clearNotifications = useCallback(() => {

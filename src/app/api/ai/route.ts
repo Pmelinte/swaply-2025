@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ status: "error", message: "Titlu sau descriere lipsa" });
   }
 
-  const hfKey = process.env.HUGGINGFACE_API_KEY;
+  const hfKey = process.env.HUGGINGFACE_API_KEY || process.env.HUGGINGFACE_API_TOKEN;
   const hfEnabled = process.env.NEXT_PUBLIC_HF_ENABLED === "true";
 
   // Fallback: keyword-based matching when HF is not available

@@ -17,8 +17,8 @@ function LoginContent() {
   const router = useRouter();
   const returnTo = params.get("returnTo") || "/profile";
   const [activeTab, setActiveTab] = useState<string>(tabs[0].key);
-  const [email, setEmail] = useState("ana.swaply@example.com");
-  const [password, setPassword] = useState("password123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [accept, setAccept] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "error" | "success">("idle");
@@ -32,36 +32,51 @@ function LoginContent() {
   const handleSubmit = async () => {
     setMessage(null);
     setStatus("idle");
-    setProcessing(true);
+
     if (!accept) {
-      setMessage("Bifează acceptarea Termeni & GDPR pentru a continua.");
+      setMessage("Trebuie să bifezi acceptarea Termeni & GDPR pentru a continua.");
       setStatus("error");
-      setProcessing(false);
+      return;
+    }
+    if (!email.trim()) {
+      setMessage("Introdu adresa de email.");
+      setStatus("error");
+      return;
+    }
+    if (activeTab !== "reset" && password.length < 6) {
+      setMessage("Parola trebuie să aibă cel puțin 6 caractere.");
+      setStatus("error");
       return;
     }
 
-    if (activeTab === "login") {
-      const { error } = await login(email, password, accept);
-      if (error) {
-        setMessage(error);
-        setStatus("error");
+    setProcessing(true);
+    try {
+      if (activeTab === "login") {
+        const { error } = await login(email, password, accept);
+        if (error) {
+          setMessage(error);
+          setStatus("error");
+        } else {
+          setMessage("Autentificat. Redirect către profil...");
+          setStatus("success");
+          router.push(returnTo);
+        }
+      } else if (activeTab === "register") {
+        const { error } = await register(email, password, accept);
+        if (error) {
+          setMessage(error);
+          setStatus("error");
+        } else {
+          setMessage("Cont creat cu succes! Verifică-ți email-ul pentru confirmarea contului, apoi revino să te autentifici.");
+          setStatus("success");
+        }
       } else {
-        setMessage("Autentificat. Redirect către profil.");
-        setStatus("success");
-        router.push(returnTo);
-      }
-    } else if (activeTab === "register") {
-      const { error } = await register(email, password, accept);
-      if (error) {
-        setMessage(error);
-        setStatus("error");
-      } else {
-        setMessage("Cont creat. Confirmă email și configurează 2FA.");
+        setMessage("Instrucțiuni de reset trimise pe email.");
         setStatus("success");
       }
-    } else {
-      setMessage("Instrucțiuni de reset trimise pe email.");
-      setStatus("success");
+    } catch (err) {
+      setMessage(`Eroare neașteptată: ${err instanceof Error ? err.message : "încearcă din nou"}`);
+      setStatus("error");
     }
     setProcessing(false);
   };
@@ -94,6 +109,7 @@ function LoginContent() {
             e.preventDefault();
             void handleSubmit();
           }}
+          noValidate
         >
           <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-200">
             Email
@@ -123,7 +139,6 @@ function LoginContent() {
               type="checkbox"
               checked={accept}
               onChange={(e) => setAccept(e.target.checked)}
-              required
             />
             <span>
               Accept <Link className="underline" href="/info#legal">Termeni & Politica GDPR</Link> (nu permitem submit fără consimțământ)
@@ -146,13 +161,18 @@ function LoginContent() {
 
         {message ? (
           <div
-            className={`rounded-xl p-3 text-sm ${
+            className={`rounded-xl p-3 text-sm font-medium ${
               status === "error"
                 ? "bg-red-50 text-red-900 dark:bg-red-900/40 dark:text-red-100"
                 : "bg-green-50 text-green-900 dark:bg-green-900/40 dark:text-green-100"
             }`}
           >
-            {processing ? "Se verifică..." : message}
+            {message}
+          </div>
+        ) : null}
+        {processing ? (
+          <div className="rounded-xl bg-blue-50 p-3 text-sm text-blue-900 dark:bg-blue-900/40 dark:text-blue-100">
+            Se verifică...
           </div>
         ) : null}
 
