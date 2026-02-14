@@ -56,49 +56,63 @@ export async function POST(request: Request) {
       return NextResponse.json({ status: "error", message: "Lipsă imagine." });
     }
 
-    // Step 1: Image captioning via BLIP (with retry for cold start)
+    // Step 1: Image captioning — try multiple models until one works
+    const CAPTION_MODELS = [
+      "nlpconnect/vit-gpt2-image-captioning",
+      "Salesforce/blip-image-captioning-base",
+      "microsoft/git-base-coco",
+    ];
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let captionData: any = null;
-    const maxRetries = 3;
+    let lastError = "";
 
-    for (let attempt = 0; attempt < maxRetries; attempt++) {
-      const captionRes = await fetch(
-        "https://api-inference.huggingface.co/models/Salesforce/blip-image-captioning-base",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${hfKey}`,
-            "x-wait-for-model": "true",
-          },
-          body: new Uint8Array(imageBuffer),
-        },
-      );
+    for (const model of CAPTION_MODELS) {
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          const captionRes = await fetch(
+            `https://api-inference.huggingface.co/models/${model}`,
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${hfKey}`,
+                "x-wait-for-model": "true",
+              },
+              body: new Uint8Array(imageBuffer),
+            },
+          );
 
-      if (captionRes.ok) {
-        captionData = await captionRes.json();
+          if (captionRes.ok) {
+            captionData = await captionRes.json();
+            console.log(`Image caption success with ${model}:`, captionData);
+            break;
+          }
+
+          const errText = await captionRes.text();
+          lastError = `${model}: ${captionRes.status} ${errText}`;
+          console.warn(`Caption model ${model} attempt ${attempt + 1} failed:`, captionRes.status, errText);
+
+          // 410 = model not available on free tier, skip to next model
+          if (captionRes.status === 410) break;
+
+          // 503 = model loading, wait and retry same model
+          if (captionRes.status === 503 && attempt === 0) {
+            await new Promise((r) => setTimeout(r, 5000));
+            continue;
+          }
+        } catch (err) {
+          lastError = `${model}: ${err}`;
+          console.warn(`Caption model ${model} error:`, err);
+        }
         break;
       }
-
-      const errText = await captionRes.text();
-      console.warn(`BLIP attempt ${attempt + 1}/${maxRetries} failed:`, captionRes.status, errText);
-
-      // If model is loading (503) or temporarily unavailable (410/429), wait and retry
-      if ((captionRes.status === 503 || captionRes.status === 410 || captionRes.status === 429) && attempt < maxRetries - 1) {
-        const waitTime = Math.min(5000 * (attempt + 1), 15000);
-        await new Promise((r) => setTimeout(r, waitTime));
-        continue;
-      }
-
-      return NextResponse.json({
-        status: "error",
-        message: `AI nu a putut analiza imaginea (${captionRes.status}). Încearcă din nou.`,
-      });
+      if (captionData) break;
     }
 
     if (!captionData) {
       return NextResponse.json({
         status: "error",
-        message: "AI nu a răspuns după mai multe încercări.",
+        message: `Niciun model AI disponibil. Ultima eroare: ${lastError}`,
       });
     }
     // BLIP returns [{ generated_text: "a bicycle parked on the street" }]
