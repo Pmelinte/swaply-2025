@@ -112,7 +112,7 @@ type AiResult =
   | { ok: true; data: { caption: string; title: string; category: string } }
   | { ok: false; error: string };
 
-/** Analyze image with Groq (free: 30 req/min, Llama 3.2 Vision 90B) */
+/** Analyze image with Groq (Llama 4 Scout — multimodal, 128K context) */
 async function analyzeWithGroq(
   imageDataUri: string,
   apiKey: string,
@@ -127,7 +127,7 @@ async function analyzeWithGroq(
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "llama-3.2-90b-vision-preview",
+        model: "meta-llama/llama-4-scout-17b-16e-instruct",
         messages: [
           {
             role: "user",
