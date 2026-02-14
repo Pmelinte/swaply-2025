@@ -23,13 +23,13 @@ export async function POST(request: Request) {
     });
   }
 
-  const hfKey = process.env.HUGGINGFACE_API_KEY;
+  const hfKey = process.env.HUGGINGFACE_API_KEY || process.env.HUGGINGFACE_API_TOKEN;
   const hfEnabled = process.env.NEXT_PUBLIC_HF_ENABLED === "true";
 
   if (!hfKey || !hfEnabled) {
     return NextResponse.json({
       status: "error",
-      message: "HuggingFace AI nu este configurat.",
+      message: `HuggingFace AI nu este configurat. key=${hfKey ? "yes" : "no"}, enabled=${hfEnabled}`,
     });
   }
 
@@ -56,28 +56,51 @@ export async function POST(request: Request) {
       return NextResponse.json({ status: "error", message: "Lipsă imagine." });
     }
 
-    // Step 1: Image captioning via BLIP
-    const captionRes = await fetch(
-      "https://api-inference.huggingface.co/models/Salesforce/blip-image-captioning-large",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${hfKey}`,
-        },
-        body: new Uint8Array(imageBuffer),
-      },
-    );
+    // Step 1: Image captioning via BLIP (with retry for cold start)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let captionData: any = null;
+    const maxRetries = 3;
 
-    if (!captionRes.ok) {
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      const captionRes = await fetch(
+        "https://api-inference.huggingface.co/models/Salesforce/blip-image-captioning-large",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${hfKey}`,
+            "x-wait-for-model": "true",
+          },
+          body: new Uint8Array(imageBuffer),
+        },
+      );
+
+      if (captionRes.ok) {
+        captionData = await captionRes.json();
+        break;
+      }
+
       const errText = await captionRes.text();
-      console.warn("BLIP captioning failed:", captionRes.status, errText);
+      console.warn(`BLIP attempt ${attempt + 1}/${maxRetries} failed:`, captionRes.status, errText);
+
+      // If model is loading (503), wait and retry
+      if (captionRes.status === 503 && attempt < maxRetries - 1) {
+        const waitTime = Math.min(5000 * (attempt + 1), 15000);
+        await new Promise((r) => setTimeout(r, waitTime));
+        continue;
+      }
+
       return NextResponse.json({
         status: "error",
-        message: "AI nu a putut analiza imaginea. Încearcă din nou.",
+        message: `AI nu a putut analiza imaginea (${captionRes.status}). Încearcă din nou.`,
       });
     }
 
-    const captionData = await captionRes.json();
+    if (!captionData) {
+      return NextResponse.json({
+        status: "error",
+        message: "AI nu a răspuns după mai multe încercări.",
+      });
+    }
     // BLIP returns [{ generated_text: "a bicycle parked on the street" }]
     const caption: string =
       captionData?.[0]?.generated_text ?? captionData?.generated_text ?? "";
