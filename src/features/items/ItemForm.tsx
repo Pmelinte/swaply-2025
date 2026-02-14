@@ -420,8 +420,8 @@ export function ItemForm({
             src={preview || "/no-image.svg"}
             alt={preview ? "Previzualizare" : "Fără imagine"}
             width={400}
-            height={240}
-            className="h-36 w-full rounded-lg object-cover"
+            height={400}
+            className="max-h-48 w-full rounded-lg object-contain"
             unoptimized
           />
           {!preview && (
