@@ -23,42 +23,51 @@ export async function POST(request: Request) {
     });
   }
 
-  const hfKey = process.env.HUGGINGFACE_API_KEY || process.env.HUGGINGFACE_API_TOKEN;
-  const hfEnabled = process.env.NEXT_PUBLIC_HF_ENABLED === "true";
-
-  if (!hfKey || !hfEnabled) {
-    const fallback = fallbackFromUrl(imageUrl);
-    return NextResponse.json({ status: "fallback", ...fallback });
-  }
-
   try {
-    // Build base64 data URI for the vision model
-    let imageDataUri: string;
+    // Get image as raw base64 (without data URI prefix) and mime type
+    let base64Data: string;
+    let mimeType: string;
 
     if (imageBase64) {
-      // Already has data URI prefix or raw base64
-      imageDataUri = imageBase64.includes("data:")
-        ? imageBase64
-        : `data:image/jpeg;base64,${imageBase64}`;
+      if (imageBase64.includes(",")) {
+        const [header, data] = imageBase64.split(",");
+        base64Data = data;
+        mimeType = header.match(/data:([^;]+)/)?.[1] || "image/jpeg";
+      } else {
+        base64Data = imageBase64;
+        mimeType = "image/jpeg";
+      }
     } else if (imageUrl) {
-      // Fetch image and convert to base64
       const imgRes = await fetch(imageUrl);
       if (!imgRes.ok) {
         const fallback = fallbackFromUrl(imageUrl);
         return NextResponse.json({ status: "fallback", ...fallback });
       }
       const buffer = Buffer.from(await imgRes.arrayBuffer());
-      const contentType = imgRes.headers.get("content-type") || "image/jpeg";
-      imageDataUri = `data:${contentType};base64,${buffer.toString("base64")}`;
+      base64Data = buffer.toString("base64");
+      mimeType = imgRes.headers.get("content-type") || "image/jpeg";
     } else {
       return NextResponse.json({ status: "error", message: "Lipsă imagine." });
     }
 
-    // Use vision-language model via chat completions API
-    const result = await analyzeWithVisionModel(imageDataUri, hfKey);
+    // Try Gemini first (free, reliable), then HuggingFace as fallback
+    const geminiKey = process.env.GEMINI_API_KEY;
+    if (geminiKey) {
+      const result = await analyzeWithGemini(base64Data, mimeType, geminiKey);
+      if (result) {
+        return NextResponse.json({ status: "ok", ...result });
+      }
+    }
 
-    if (result) {
-      return NextResponse.json({ status: "ok", ...result });
+    // Fallback to HuggingFace vision models
+    const hfKey = process.env.HUGGINGFACE_API_KEY || process.env.HUGGINGFACE_API_TOKEN;
+    const hfEnabled = process.env.NEXT_PUBLIC_HF_ENABLED === "true";
+    if (hfKey && hfEnabled) {
+      const dataUri = `data:${mimeType};base64,${base64Data}`;
+      const result = await analyzeWithHuggingFace(dataUri, hfKey);
+      if (result) {
+        return NextResponse.json({ status: "ok", ...result });
+      }
     }
 
     // All AI failed — use URL-based fallback
@@ -71,40 +80,69 @@ export async function POST(request: Request) {
   }
 }
 
-/** Use a vision-language model via HuggingFace chat completions */
-async function analyzeWithVisionModel(
+/** Analyze image with Google Gemini (free: 15 req/min) */
+async function analyzeWithGemini(
+  base64Data: string,
+  mimeType: string,
+  apiKey: string,
+): Promise<{ caption: string; title: string; category: string } | null> {
+  const categoriesList = CATEGORIES.join(", ");
+
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                {
+                  text: `Look at this image of an item for a swap/barter platform. Respond with ONLY a JSON object (no markdown, no code blocks):
+{"description": "short description of the item (3-8 words, English)", "category": "EXACTLY one of: ${categoriesList}"}`,
+                },
+                {
+                  inline_data: {
+                    mime_type: mimeType,
+                    data: base64Data,
+                  },
+                },
+              ],
+            },
+          ],
+        }),
+      },
+    );
+
+    if (!res.ok) {
+      console.warn("Gemini API error:", res.status, await res.text().catch(() => ""));
+      return null;
+    }
+
+    const data = await res.json();
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+    console.log("Gemini response:", text);
+
+    if (!text) return null;
+    return parseAiResponse(text);
+  } catch (err) {
+    console.warn("Gemini error:", err);
+    return null;
+  }
+}
+
+/** Fallback: analyze image with HuggingFace vision models */
+async function analyzeWithHuggingFace(
   imageDataUri: string,
   hfKey: string,
 ): Promise<{ caption: string; title: string; category: string } | null> {
   const categoriesList = CATEGORIES.join(", ");
-  const prompt = `Look at this image and respond with ONLY a JSON object (no other text):
-{"description": "short description of the item in English", "category": "one of: ${categoriesList}"}`;
+  const prompt = `Look at this image and respond with ONLY a JSON object: {"description": "short item description", "category": "one of: ${categoriesList}"}`;
 
-  // Try different providers and models — Together AI offers free Llama Vision
   const attempts = [
-    // Together AI provider via HF Router (free Llama Vision)
-    {
-      url: "https://router.huggingface.co/together/v1/chat/completions",
-      model: "meta-llama/Llama-Vision-Free",
-    },
-    {
-      url: "https://router.huggingface.co/together/v1/chat/completions",
-      model: "meta-llama/Llama-3.2-11B-Vision-Instruct-Turbo",
-    },
-    // Novita AI provider via HF Router
-    {
-      url: "https://router.huggingface.co/novita/v1/chat/completions",
-      model: "meta-llama/llama-3.2-11b-vision-instruct",
-    },
-    // HF Inference direct
-    {
-      url: "https://router.huggingface.co/hf-inference/models/meta-llama/Llama-3.2-11B-Vision-Instruct/v1/chat/completions",
-      model: "meta-llama/Llama-3.2-11B-Vision-Instruct",
-    },
-    {
-      url: "https://api-inference.huggingface.co/models/meta-llama/Llama-3.2-11B-Vision-Instruct/v1/chat/completions",
-      model: "meta-llama/Llama-3.2-11B-Vision-Instruct",
-    },
+    { url: "https://router.huggingface.co/together/v1/chat/completions", model: "meta-llama/Llama-Vision-Free" },
+    { url: "https://router.huggingface.co/hf-inference/models/meta-llama/Llama-3.2-11B-Vision-Instruct/v1/chat/completions", model: "meta-llama/Llama-3.2-11B-Vision-Instruct" },
   ];
 
   for (const { url, model } of attempts) {
@@ -117,138 +155,60 @@ async function analyzeWithVisionModel(
         },
         body: JSON.stringify({
           model,
-          messages: [
-            {
-              role: "user",
-              content: [
-                { type: "image_url", image_url: { url: imageDataUri } },
-                { type: "text", text: prompt },
-              ],
-            },
-          ],
+          messages: [{ role: "user", content: [
+            { type: "image_url", image_url: { url: imageDataUri } },
+            { type: "text", text: prompt },
+          ]}],
           max_tokens: 200,
         }),
       });
 
-      const status = res.status;
-      if (!res.ok) {
-        console.warn(`Vision ${model} (${url}) → ${status}`);
-        // Skip to next on definitive errors
-        if (status === 410 || status === 404 || status === 422 || status === 401 || status === 403) continue;
-        // Wait on 503 then continue
-        if (status === 503) {
-          await new Promise((r) => setTimeout(r, 3000));
-        }
-        continue;
+      if (res.ok) {
+        const data = await res.json();
+        const text = data?.choices?.[0]?.message?.content?.trim();
+        if (text) return parseAiResponse(text);
       }
-
-      const data = await res.json();
-      const text = data?.choices?.[0]?.message?.content?.trim();
-      console.log(`Vision success: ${model} (${url}):`, text);
-
-      if (text) {
-        return parseVisionResponse(text);
-      }
+      console.warn(`HF Vision ${model} → ${res.status}`);
     } catch (err) {
-      console.warn(`Vision ${model} error:`, err);
-    }
-  }
-
-  // Fallback: try legacy image-to-text models
-  return tryLegacyCaptioning(imageDataUri, hfKey);
-}
-
-/** Try legacy image-to-text pipeline (pre-2025 HF API) */
-async function tryLegacyCaptioning(
-  imageDataUri: string,
-  hfKey: string,
-): Promise<{ caption: string; title: string; category: string } | null> {
-  const base64Data = imageDataUri.split(",")[1];
-  if (!base64Data) return null;
-  const imageBuffer = Buffer.from(base64Data, "base64");
-
-  const models = [
-    "nlpconnect/vit-gpt2-image-captioning",
-    "Salesforce/blip-image-captioning-base",
-  ];
-
-  const urls = [
-    (m: string) => `https://router.huggingface.co/hf-inference/models/${m}`,
-    (m: string) => `https://api-inference.huggingface.co/models/${m}`,
-  ];
-
-  for (const model of models) {
-    for (const getUrl of urls) {
-      try {
-        const res = await fetch(getUrl(model), {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${hfKey}`,
-            "x-wait-for-model": "true",
-          },
-          body: new Uint8Array(imageBuffer),
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          const caption = data?.[0]?.generated_text ?? data?.generated_text;
-          if (caption) {
-            console.log(`Legacy caption success: ${model}`);
-            return {
-              caption,
-              title: formatCaptionAsTitle(caption),
-              category: keywordCategory(caption),
-            };
-          }
-        }
-
-        const status = res.status;
-        if (status === 410 || status === 404) break;
-      } catch {
-        // continue to next
-      }
+      console.warn(`HF Vision ${model} error:`, err);
     }
   }
 
   return null;
 }
 
-/** Parse JSON response from vision model */
-function parseVisionResponse(text: string): { caption: string; title: string; category: string } | null {
+/** Parse AI response (JSON or plain text) into title + category */
+function parseAiResponse(text: string): { caption: string; title: string; category: string } | null {
   try {
-    // Extract JSON from response (might have markdown code blocks)
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      // Not JSON — treat whole text as description
+    // Strip markdown code blocks if present
+    const cleaned = text.replace(/```json?\s*/g, "").replace(/```/g, "").trim();
+    const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+
+    if (jsonMatch) {
+      const parsed = JSON.parse(jsonMatch[0]);
+      const description = parsed.description || parsed.desc || text;
+      let category = parsed.category || "";
+
+      if (!CATEGORIES.includes(category)) {
+        category = keywordCategory(description);
+      }
+
       return {
-        caption: text,
-        title: formatCaptionAsTitle(text),
-        category: keywordCategory(text),
+        caption: description,
+        title: formatTitle(description),
+        category,
       };
     }
-
-    const parsed = JSON.parse(jsonMatch[0]);
-    const description = parsed.description || parsed.desc || text;
-    let category = parsed.category || "";
-
-    // Validate category is one of ours
-    if (!CATEGORIES.includes(category)) {
-      category = keywordCategory(description);
-    }
-
-    return {
-      caption: description,
-      title: formatCaptionAsTitle(description),
-      category,
-    };
   } catch {
-    // JSON parse failed — use text as-is
-    return {
-      caption: text,
-      title: formatCaptionAsTitle(text),
-      category: keywordCategory(text),
-    };
+    // JSON parse failed
   }
+
+  // Treat as plain text description
+  return {
+    caption: text,
+    title: formatTitle(text),
+    category: keywordCategory(text),
+  };
 }
 
 /** Fallback: extract hints from image URL or filename */
@@ -260,8 +220,7 @@ function fallbackFromUrl(imageUrl?: string): { title: string; category: string; 
   let filename = "";
   try {
     const urlObj = new URL(imageUrl);
-    const parts = urlObj.pathname.split("/");
-    filename = decodeURIComponent(parts[parts.length - 1] || "");
+    filename = decodeURIComponent(urlObj.pathname.split("/").pop() || "");
   } catch {
     filename = imageUrl.split("/").pop() || "";
   }
@@ -285,13 +244,11 @@ function fallbackFromUrl(imageUrl?: string): { title: string; category: string; 
   };
 }
 
-function formatCaptionAsTitle(caption: string): string {
+function formatTitle(caption: string): string {
   let title = caption.trim();
-  title = title.replace(/^(there is |there are |a photo of |an image of |a picture of |arafed |this is |the image shows )/i, "");
+  title = title.replace(/^(there is |there are |a photo of |an image of |a picture of |arafed |this is |the image shows |an? )/i, "");
   title = title.charAt(0).toUpperCase() + title.slice(1);
-  if (title.length > 120) {
-    title = title.slice(0, 117) + "...";
-  }
+  if (title.length > 120) title = title.slice(0, 117) + "...";
   return title;
 }
 
