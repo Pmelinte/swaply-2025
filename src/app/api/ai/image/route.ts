@@ -1,13 +1,8 @@
 import { NextResponse } from "next/server";
+import { CATEGORIES_TAXONOMY } from "@/lib/categories";
 
-const CATEGORIES = [
-  "Electronică",
-  "Sport & Outdoor",
-  "Hobby & Jocuri",
-  "Cărți & Media",
-  "Casă & Grădină",
-  "Modă & Accesorii",
-];
+/** All category names (top-level + subcategories) for AI matching */
+const ALL_CATEGORY_NAMES = CATEGORIES_TAXONOMY.map((c) => c.name);
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}));
@@ -22,6 +17,8 @@ export async function POST(request: Request) {
       message: "Trimite imageUrl sau imageBase64",
     });
   }
+
+  const attempted: string[] = [];
 
   try {
     // Get image as raw base64 (without data URI prefix) and mime type
@@ -38,55 +35,73 @@ export async function POST(request: Request) {
         mimeType = "image/jpeg";
       }
     } else if (imageUrl) {
-      const imgRes = await fetch(imageUrl);
-      if (!imgRes.ok) {
+      try {
+        const imgRes = await fetch(imageUrl, { signal: AbortSignal.timeout(10000) });
+        if (!imgRes.ok) {
+          attempted.push(`fetch-url: HTTP ${imgRes.status}`);
+          const fallback = fallbackFromUrl(imageUrl);
+          return NextResponse.json({ status: "fallback", ...fallback, attempted });
+        }
+        const buffer = Buffer.from(await imgRes.arrayBuffer());
+        base64Data = buffer.toString("base64");
+        mimeType = imgRes.headers.get("content-type") || "image/jpeg";
+      } catch (fetchErr) {
+        attempted.push(`fetch-url: ${String(fetchErr).slice(0, 100)}`);
         const fallback = fallbackFromUrl(imageUrl);
-        return NextResponse.json({ status: "fallback", ...fallback });
+        return NextResponse.json({ status: "fallback", ...fallback, attempted });
       }
-      const buffer = Buffer.from(await imgRes.arrayBuffer());
-      base64Data = buffer.toString("base64");
-      mimeType = imgRes.headers.get("content-type") || "image/jpeg";
     } else {
       return NextResponse.json({ status: "error", message: "Lipsă imagine." });
     }
 
-    // Try Gemini first (free, reliable), then HuggingFace as fallback
-    const geminiKey = process.env.GEMINI_API_KEY;
+    // Try Gemini first (free, reliable)
+    const geminiKey = (process.env.GEMINI_API_KEY || "").trim();
     if (geminiKey) {
       const result = await analyzeWithGemini(base64Data, mimeType, geminiKey);
-      if (result) {
-        return NextResponse.json({ status: "ok", ...result });
+      if (result.ok) {
+        return NextResponse.json({ status: "ok", ...result.data, attempted: [...attempted, `gemini: ok`] });
       }
+      attempted.push(`gemini: ${result.error}`);
+    } else {
+      attempted.push("gemini: no API key");
     }
 
     // Fallback to HuggingFace vision models
-    const hfKey = process.env.HUGGINGFACE_API_KEY || process.env.HUGGINGFACE_API_TOKEN;
+    const hfKey = (process.env.HUGGINGFACE_API_KEY || process.env.HUGGINGFACE_API_TOKEN || "").trim();
     const hfEnabled = process.env.NEXT_PUBLIC_HF_ENABLED === "true";
     if (hfKey && hfEnabled) {
       const dataUri = `data:${mimeType};base64,${base64Data}`;
       const result = await analyzeWithHuggingFace(dataUri, hfKey);
-      if (result) {
-        return NextResponse.json({ status: "ok", ...result });
+      if (result.ok) {
+        return NextResponse.json({ status: "ok", ...result.data, attempted: [...attempted, "hf: ok"] });
       }
+      attempted.push(`hf: ${result.error}`);
+    } else {
+      attempted.push(`hf: ${!hfKey ? "no API key" : "disabled"}`);
     }
 
     // All AI failed — use URL-based fallback
     const fallback = fallbackFromUrl(imageUrl);
-    return NextResponse.json({ status: "fallback", ...fallback });
+    return NextResponse.json({ status: "fallback", ...fallback, attempted });
   } catch (err) {
     console.error("Image AI error:", err);
+    attempted.push(`exception: ${String(err).slice(0, 100)}`);
     const fallback = fallbackFromUrl(imageUrl);
-    return NextResponse.json({ status: "fallback", ...fallback });
+    return NextResponse.json({ status: "fallback", ...fallback, attempted });
   }
 }
+
+type AiResult =
+  | { ok: true; data: { caption: string; title: string; category: string } }
+  | { ok: false; error: string };
 
 /** Analyze image with Google Gemini (free: 15 req/min) */
 async function analyzeWithGemini(
   base64Data: string,
   mimeType: string,
   apiKey: string,
-): Promise<{ caption: string; title: string; category: string } | null> {
-  const categoriesList = CATEGORIES.join(", ");
+): Promise<AiResult> {
+  const categoriesList = ALL_CATEGORY_NAMES.join(", ");
 
   try {
     const res = await fetch(
@@ -99,8 +114,10 @@ async function analyzeWithGemini(
             {
               parts: [
                 {
-                  text: `Look at this image of an item for a swap/barter platform. Respond with ONLY a JSON object (no markdown, no code blocks):
-{"description": "short description of the item (3-8 words, English)", "category": "EXACTLY one of: ${categoriesList}"}`,
+                  text: `Analyze this image of an item for a swap/barter platform. Respond with ONLY a JSON object (no markdown, no code blocks, no extra text):
+{"description": "short description of the item in Romanian (3-8 words)", "category": "EXACTLY one of: ${categoriesList}"}
+
+Pick the most specific matching category. If unsure, pick a top-level one.`,
                 },
                 {
                   inline_data: {
@@ -112,23 +129,28 @@ async function analyzeWithGemini(
             },
           ],
         }),
+        signal: AbortSignal.timeout(15000),
       },
     );
 
     if (!res.ok) {
-      console.warn("Gemini API error:", res.status, await res.text().catch(() => ""));
-      return null;
+      const errText = await res.text().catch(() => "");
+      return { ok: false, error: `HTTP ${res.status}: ${errText.slice(0, 200)}` };
     }
 
     const data = await res.json();
     const text = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-    console.log("Gemini response:", text);
 
-    if (!text) return null;
-    return parseAiResponse(text);
+    if (!text) {
+      const blockReason = data?.candidates?.[0]?.finishReason || data?.promptFeedback?.blockReason || "no text";
+      return { ok: false, error: `empty response: ${blockReason}` };
+    }
+
+    const parsed = parseAiResponse(text);
+    if (parsed) return { ok: true, data: parsed };
+    return { ok: false, error: `parse failed: ${text.slice(0, 100)}` };
   } catch (err) {
-    console.warn("Gemini error:", err);
-    return null;
+    return { ok: false, error: String(err).slice(0, 150) };
   }
 }
 
@@ -136,14 +158,16 @@ async function analyzeWithGemini(
 async function analyzeWithHuggingFace(
   imageDataUri: string,
   hfKey: string,
-): Promise<{ caption: string; title: string; category: string } | null> {
-  const categoriesList = CATEGORIES.join(", ");
-  const prompt = `Look at this image and respond with ONLY a JSON object: {"description": "short item description", "category": "one of: ${categoriesList}"}`;
+): Promise<AiResult> {
+  const categoriesList = ALL_CATEGORY_NAMES.join(", ");
+  const prompt = `Analyze this image and respond with ONLY a JSON object: {"description": "short item description in Romanian", "category": "one of: ${categoriesList}"}`;
 
   const attempts = [
     { url: "https://router.huggingface.co/together/v1/chat/completions", model: "meta-llama/Llama-Vision-Free" },
     { url: "https://router.huggingface.co/hf-inference/models/meta-llama/Llama-3.2-11B-Vision-Instruct/v1/chat/completions", model: "meta-llama/Llama-3.2-11B-Vision-Instruct" },
   ];
+
+  const errors: string[] = [];
 
   for (const { url, model } of attempts) {
     try {
@@ -161,20 +185,28 @@ async function analyzeWithHuggingFace(
           ]}],
           max_tokens: 200,
         }),
+        signal: AbortSignal.timeout(30000),
       });
 
       if (res.ok) {
         const data = await res.json();
         const text = data?.choices?.[0]?.message?.content?.trim();
-        if (text) return parseAiResponse(text);
+        if (text) {
+          const parsed = parseAiResponse(text);
+          if (parsed) return { ok: true, data: parsed };
+          errors.push(`${model}: parse failed`);
+        } else {
+          errors.push(`${model}: empty response`);
+        }
+      } else {
+        errors.push(`${model}: HTTP ${res.status}`);
       }
-      console.warn(`HF Vision ${model} → ${res.status}`);
     } catch (err) {
-      console.warn(`HF Vision ${model} error:`, err);
+      errors.push(`${model}: ${String(err).slice(0, 60)}`);
     }
   }
 
-  return null;
+  return { ok: false, error: errors.join("; ") };
 }
 
 /** Parse AI response (JSON or plain text) into title + category */
@@ -189,8 +221,9 @@ function parseAiResponse(text: string): { caption: string; title: string; catego
       const description = parsed.description || parsed.desc || text;
       let category = parsed.category || "";
 
-      if (!CATEGORIES.includes(category)) {
-        category = keywordCategory(description);
+      // Match to our taxonomy (exact or fuzzy)
+      if (!ALL_CATEGORY_NAMES.includes(category)) {
+        category = matchCategory(category) || keywordCategory(description);
       }
 
       return {
@@ -209,6 +242,26 @@ function parseAiResponse(text: string): { caption: string; title: string; catego
     title: formatTitle(text),
     category: keywordCategory(text),
   };
+}
+
+/** Try to fuzzy-match a category name from AI to our taxonomy */
+function matchCategory(aiCategory: string): string {
+  if (!aiCategory) return "";
+  const norm = aiCategory.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+  // Exact match (accent-insensitive)
+  for (const name of ALL_CATEGORY_NAMES) {
+    const nameNorm = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    if (nameNorm === norm) return name;
+  }
+
+  // Partial match
+  for (const name of ALL_CATEGORY_NAMES) {
+    const nameNorm = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    if (nameNorm.includes(norm) || norm.includes(nameNorm)) return name;
+  }
+
+  return "";
 }
 
 /** Fallback: extract hints from image URL or filename */
@@ -232,15 +285,17 @@ function fallbackFromUrl(imageUrl?: string): { title: string; category: string; 
     .replace(/\s+/g, " ")
     .trim();
 
-  const category = keywordCategory(cleaned || imageUrl);
-  const title = cleaned ? cleaned.charAt(0).toUpperCase() + cleaned.slice(1) : "";
+  // Don't use random hashes as titles (Cloudinary, etc.)
+  const isUseful = cleaned.length >= 3 && /[a-zA-Z]{3,}/.test(cleaned) && !/^[a-z0-9]{15,}$/i.test(cleaned);
+  const category = isUseful ? keywordCategory(cleaned) : "";
+  const title = isUseful ? cleaned.charAt(0).toUpperCase() + cleaned.slice(1) : "";
 
   return {
     title: title.slice(0, 120),
     category,
-    caption: cleaned
-      ? `Din numele fișierului: "${cleaned}". Poți modifica.`
-      : "AI indisponibil. Completează manual.",
+    caption: title
+      ? `Din numele fișierului: "${title}". Poți modifica.`
+      : "AI indisponibil. Completează manual titlul și categoria.",
   };
 }
 
@@ -254,16 +309,8 @@ function formatTitle(caption: string): string {
 
 function keywordCategory(text: string): string {
   const t = text.toLowerCase();
-  const mapping: [string, string[]][] = [
-    ["Electronică", ["laptop", "computer", "monitor", "phone", "tablet", "console", "keyboard", "mouse", "camera", "tv", "television", "speaker", "headphone", "electronic", "cable", "charger", "printer", "router", "drone", "display", "screen"]],
-    ["Sport & Outdoor", ["bike", "bicycle", "scooter", "ball", "tennis", "football", "soccer", "basketball", "ski", "surf", "skateboard", "helmet", "camping", "tent", "hiking", "running", "yoga", "gym", "fitness", "sport", "outdoor", "swimming"]],
-    ["Hobby & Jocuri", ["lego", "puzzle", "game", "guitar", "piano", "instrument", "chess", "paint", "toy", "doll", "figure", "model", "craft", "music", "art", "card"]],
-    ["Cărți & Media", ["book", "novel", "magazine", "vinyl", "record", "dvd", "cd", "manga", "comic", "newspaper", "reading"]],
-    ["Casă & Grădină", ["chair", "table", "lamp", "couch", "sofa", "bed", "shelf", "pot", "plant", "garden", "tool", "hammer", "kitchen", "cup", "plate", "vase", "clock", "mirror", "rug", "curtain", "furniture", "vacuum", "recliner", "desk"]],
-    ["Modă & Accesorii", ["shirt", "dress", "jacket", "coat", "pants", "jeans", "shoe", "boot", "sneaker", "hat", "bag", "purse", "watch", "sunglasses", "necklace", "ring", "bracelet", "scarf", "glove", "belt", "tie", "fashion", "leather"]],
-  ];
-  for (const [cat, keywords] of mapping) {
-    if (keywords.some((kw) => t.includes(kw))) return cat;
+  for (const node of CATEGORIES_TAXONOMY) {
+    if (node.keywords.some((kw) => t.includes(kw))) return node.name;
   }
   return "";
 }
