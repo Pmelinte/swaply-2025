@@ -258,7 +258,7 @@ export function ItemForm({
       });
       const data = await res.json();
 
-      if (data.status === "ok") {
+      if (data.status === "ok" || data.status === "fallback") {
         const updates: Partial<Item> = {};
         if (data.title) {
           updates.title = data.title;
@@ -268,7 +268,9 @@ export function ItemForm({
         }
         setDraft((prev) => ({ ...prev, ...updates }));
         setImageAiStatus(
-          `AI: "${data.caption}" → Titlu și categorie completate automat. Poți modifica.`,
+          data.status === "ok"
+            ? `AI: "${data.caption}" → Titlu și categorie completate automat. Poți modifica.`
+            : data.caption || "Sugestii din numele fișierului. Poți modifica.",
         );
       } else {
         setImageAiStatus(data.message || "AI nu a putut analiza imaginea.");
