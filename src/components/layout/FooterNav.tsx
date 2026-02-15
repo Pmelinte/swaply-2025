@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   Home,
   Box,
@@ -11,17 +12,19 @@ import {
   Info,
 } from "lucide-react";
 
-const links = [
-  { href: "/", label: "Home", icon: Home },
-  { href: "/objects", label: "Obiecte", icon: Box },
-  { href: "/match", label: "Matching", icon: HeartHandshake },
-  { href: "/chat", label: "Mesaje", icon: MessageCircle },
-  { href: "/change", label: "Schimb", icon: Shuffle },
-  { href: "/info", label: "Info", icon: Info },
-];
-
 export function FooterNav() {
+  const t = useTranslations("nav");
   const pathname = usePathname();
+
+  const links = [
+    { href: "/", label: t("home"), icon: Home },
+    { href: "/objects", label: t("objects"), icon: Box },
+    { href: "/match", label: t("matching"), icon: HeartHandshake },
+    { href: "/chat", label: t("messages"), icon: MessageCircle },
+    { href: "/change", label: t("exchange"), icon: Shuffle },
+    { href: "/info", label: t("info"), icon: Info },
+  ];
+
   return (
     <nav className="sticky bottom-0 z-20 border-t border-zinc-200 bg-white/90 backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/80">
       <div className="mx-auto grid max-w-6xl grid-cols-6 gap-1 px-2 py-2 text-xs font-semibold text-zinc-600 dark:text-zinc-300">

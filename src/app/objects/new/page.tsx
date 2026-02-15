@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { ItemForm } from "@/features/items/ItemForm";
 import { LoggedOutGate } from "@/components/gated";
@@ -10,6 +11,7 @@ import { Item } from "@/lib/types";
 
 export default function NewObjectPage() {
   const { user, startNewItem, upsertItem } = useAppState();
+  const t = useTranslations("objectNew");
   const router = useRouter();
   const [item] = useState<Item | null>(startNewItem());
 
@@ -20,8 +22,8 @@ export default function NewObjectPage() {
   return (
     <div className="space-y-4">
       <SectionCard
-        title="Adaugă obiect"
-        description="Formular complet, fără a rupe build-ul."
+        title={t("title")}
+        description={t("description")}
       >
         <ItemForm
           item={item}

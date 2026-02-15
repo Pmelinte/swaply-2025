@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { Item } from "@/lib/types";
 import { ItemForm } from "@/features/items/ItemForm";
@@ -13,6 +14,7 @@ export default function EditObjectPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const { items, user, upsertItem } = useAppState();
+  const t = useTranslations("objectEdit");
   const [loading, setLoading] = useState(true);
   const [item, setItem] = useState<Item | null>(null);
 
@@ -31,8 +33,8 @@ export default function EditObjectPage() {
   if (loading) {
     return (
       <SectionCard
-        title="Se încarcă editorul"
-        description="Stare de loading obligatorie pentru a nu produce 404."
+        title={t("loading")}
+        description=""
       >
         <div className="h-24 animate-pulse rounded-xl bg-zinc-100 dark:bg-zinc-800" />
       </SectionCard>
@@ -42,11 +44,11 @@ export default function EditObjectPage() {
   if (!item) {
     return (
       <SectionCard
-        title="Obiect negăsit"
-        description="id inexistent → mesaj + link înapoi (nu crash)"
+        title={t("notFound")}
+        description=""
       >
         <p className="text-sm text-zinc-700 dark:text-zinc-300">
-          Nu am găsit acest obiect. Poți reveni la listă sau să adaugi unul nou.
+          {t("notFoundDescription")}
         </p>
         <div className="mt-3 flex flex-wrap gap-2 text-sm font-semibold">
           <Link className="rounded-full bg-blue-600 px-4 py-2 text-white" href="/objects">
@@ -63,8 +65,8 @@ export default function EditObjectPage() {
   return (
     <div className="space-y-4">
       <SectionCard
-        title="Editează obiect"
-        description="Formular cu valori preumplute + statusuri clare."
+        title={t("title")}
+        description={t("editDescription")}
       >
         <ItemForm
           item={item}

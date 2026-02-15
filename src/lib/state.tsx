@@ -464,12 +464,20 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [swaps, setSwaps] = useState<SwapIntent[]>([]);
   const [featureToggles] = useState<FeatureToggle>(computeFeatureToggles());
   const [language, setLanguage] = useState<LanguageCode>(() => {
-    if (typeof window === "undefined") return "ro";
+    if (typeof window === "undefined") return "en";
     const saved = window.localStorage.getItem("swaply_language");
-    if (saved === "ro" || saved === "en" || saved === "es") {
-      return saved;
+    if (saved) {
+      // Accept any locale from our supported list
+      const locales: string[] = [
+        "en","ro","fr","de","es","it","pt","nl","pl","el",
+        "hu","bg","cs","sk","hr","sl","sr","sv","da","fi",
+        "no","lt","lv","et","ga","mt","ru","tr","ar","zh",
+        "hi","bn","ja","ko","vi","th","id","ms","fil","fa",
+        "mn","uk",
+      ];
+      if (locales.includes(saved)) return saved as LanguageCode;
     }
-    return "ro";
+    return "en";
   });
 
   useEffect(() => {

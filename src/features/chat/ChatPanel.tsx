@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Conversation, ChatMessage } from "@/lib/types";
 import { useAppState } from "@/lib/state";
 import { formatDate } from "@/lib/utils";
@@ -15,6 +16,7 @@ function MessageBubble({
   isMe: boolean;
   targetLang: string;
 }) {
+  const t = useTranslations("chatPanel");
   const [translatedText, setTranslatedText] = useState<string | null>(null);
   const [translating, setTranslating] = useState(false);
 
@@ -38,7 +40,7 @@ function MessageBubble({
       const data = await res.json();
       setTranslatedText(data.translated);
     } catch {
-      setTranslatedText("[Eroare traducere]");
+      setTranslatedText(t("translationError"));
     } finally {
       setTranslating(false);
     }
@@ -53,7 +55,7 @@ function MessageBubble({
       }`}
     >
       <div className="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400">
-        <span>{isMe ? "Tu" : "Partener"}</span>
+        <span>{isMe ? t("you") : t("partner")}</span>
         <span>{formatDate(msg.createdAt)}</span>
       </div>
       <p className="mt-1 text-sm text-zinc-800 dark:text-zinc-100">{msg.content}</p>
@@ -63,8 +65,8 @@ function MessageBubble({
         </p>
       ) : null}
       <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px]">
-        {msg.translated ? <Pill color="blue">Tradus</Pill> : null}
-        {msg.moderated ? <Pill color="amber">Moderat</Pill> : null}
+        {msg.translated ? <Pill color="blue">{t("translated")}</Pill> : null}
+        {msg.moderated ? <Pill color="amber">{t("moderated")}</Pill> : null}
         {msg.attachments?.map((att) => (
           <Pill key={att.id} color={att.safe ? "green" : "amber"}>
             {att.name}
@@ -77,7 +79,7 @@ function MessageBubble({
             disabled={translating}
             className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-medium text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
           >
-            {translating ? "..." : "Traduce"}
+            {translating ? "..." : t("translate")}
           </button>
         ) : null}
       </div>
@@ -92,6 +94,7 @@ export function ChatPanel({
   conversations: Conversation[];
   initialConversationId?: string;
 }) {
+  const t = useTranslations("chatPanel");
   const { addMessage, toggleConversationTranslation, language } = useAppState();
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
   const [draft, setDraft] = useState("");
@@ -127,7 +130,7 @@ export function ChatPanel({
       const modData = await modRes.json();
 
       if (!modData.safe) {
-        setModerationError(modData.message || "Mesaj blocat de moderare.");
+        setModerationError(modData.message || t("blockedByModeration"));
         setSending(false);
         return;
       }
@@ -135,7 +138,7 @@ export function ChatPanel({
       await addMessage(active.id, draft);
       setDraft("");
     } catch {
-      setModerationError("Eroare la trimitere. Incearca din nou.");
+      setModerationError(t("sendError"));
     } finally {
       setSending(false);
     }
@@ -145,10 +148,10 @@ export function ChatPanel({
     <div className="grid gap-4 lg:grid-cols-[280px_1fr]">
       {/* Conversation list */}
       <div className="space-y-2 rounded-2xl border border-zinc-200 bg-white/80 p-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/80">
-        <h3 className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">Conversatii</h3>
+        <h3 className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">{t("conversations")}</h3>
         {conversations.length === 0 ? (
           <p className="text-xs text-zinc-500 dark:text-zinc-400">
-            Nicio conversatie. Initiaza una din pagina de obiecte sau match.
+            {t("noConversations")}
           </p>
         ) : null}
         {conversations.map((conv) => (
@@ -178,7 +181,7 @@ export function ChatPanel({
           <>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs uppercase text-zinc-500">Chat securizat</p>
+                <p className="text-xs uppercase text-zinc-500">{t("secureChat")}</p>
                 <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
                   {active.participantName}
                 </h3>
@@ -192,7 +195,7 @@ export function ChatPanel({
                 }`}
                 onClick={() => toggleConversationTranslation(active.id)}
               >
-                Traducere: {active.translationEnabled ? "ON" : "OFF"}
+                {t("translation")} {active.translationEnabled ? t("on") : t("off")}
               </button>
             </div>
 
@@ -230,7 +233,7 @@ export function ChatPanel({
                   setDraft(e.target.value);
                   setModerationError(null);
                 }}
-                placeholder="Scrie un mesaj..."
+                placeholder={t("writeMessage")}
                 disabled={sending}
                 className="flex-1 rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
               />
@@ -239,14 +242,14 @@ export function ChatPanel({
                 disabled={sending || !draft.trim()}
                 className="rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
               >
-                {sending ? "..." : "Trimite"}
+                {sending ? "..." : t("send")}
               </button>
             </form>
           </>
         ) : (
           <div className="flex flex-1 items-center justify-center p-8">
             <p className="text-sm text-zinc-500 dark:text-zinc-300">
-              Selecteaza o conversatie sau initiaza una din pagina de obiecte.
+              {t("selectConversation")}
             </p>
           </div>
         )}

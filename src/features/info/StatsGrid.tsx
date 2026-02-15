@@ -1,26 +1,31 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import { InfoStats } from "@/lib/types";
 
 export function StatsGrid({ stats }: { stats: InfoStats }) {
+  const t = useTranslations("statsGrid");
+
   const cards = [
     {
-      label: "Schimburi globale",
+      label: t("globalExchanges"),
       value: stats.globalSwaps.toLocaleString("ro-RO"),
-      hint: "Swaply este activ în mai multe regiuni",
+      hint: t("globalDescription"),
     },
     {
-      label: "Utilizatori activi",
+      label: t("activeUsers"),
       value: stats.activeUsers.toLocaleString("ro-RO"),
-      hint: "Filtrați pe hartă după badge",
+      hint: t("activeUsersDescription"),
     },
     {
-      label: "% conturi Premium",
+      label: t("premiumPercentage"),
       value: `${Math.round(stats.premiumShare * 100)}%`,
-      hint: "Badge-urile apar ca pini pe hartă",
+      hint: t("premiumDescription"),
     },
     {
-      label: "Tokeni emisi",
+      label: t("tokensIssued"),
       value: stats.tokensIssued.toLocaleString("ro-RO"),
-      hint: "Ledger securizat, vizibil în profil",
+      hint: t("tokensDescription"),
     },
   ];
 

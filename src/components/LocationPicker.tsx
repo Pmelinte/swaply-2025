@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Country, State, City, ICountry, IState, ICity } from "country-state-city";
 
 interface LocationPickerProps {
@@ -19,6 +20,7 @@ export default function LocationPicker({
   city = "",
   onChange,
 }: LocationPickerProps) {
+  const t = useTranslations("location");
   const allCountries = useMemo(() => Country.getAllCountries(), []);
 
   // Resolve initial country/region to ISO codes via lazy initialization (no useEffect needed)
@@ -84,13 +86,13 @@ export default function LocationPicker({
   return (
     <div className="grid gap-3 sm:grid-cols-3">
       <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-        Țară
+        {t("country")}
         <select
           value={selectedCountryCode}
           onChange={(e) => handleCountryChange(e.target.value)}
           className={selectClass}
         >
-          <option value="">— Selectează țara —</option>
+          <option value="">{t("selectCountry")}</option>
           {allCountries.map((c: ICountry) => (
             <option key={c.isoCode} value={c.isoCode}>
               {c.flag} {c.name}
@@ -100,7 +102,7 @@ export default function LocationPicker({
       </label>
 
       <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-        Regiune / Județ
+        {t("region")}
         <select
           value={selectedStateCode}
           onChange={(e) => handleStateChange(e.target.value)}
@@ -108,7 +110,7 @@ export default function LocationPicker({
           className={selectClass}
         >
           <option value="">
-            {selectedCountryCode ? "— Selectează regiunea —" : "— Alege mai întâi țara —"}
+            {selectedCountryCode ? t("selectRegion") : t("chooseCountryFirst")}
           </option>
           {states.map((s: IState) => (
             <option key={s.isoCode} value={s.isoCode}>
@@ -119,7 +121,7 @@ export default function LocationPicker({
       </label>
 
       <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-        Oraș
+        {t("city")}
         <select
           value={city}
           onChange={(e) => handleCityChange(e.target.value)}
@@ -127,7 +129,7 @@ export default function LocationPicker({
           className={selectClass}
         >
           <option value="">
-            {selectedStateCode ? "— Selectează orașul —" : "— Alege mai întâi regiunea —"}
+            {selectedStateCode ? t("selectCity") : t("chooseRegionFirst")}
           </option>
           {cities.map((c: ICity) => (
             <option key={`${c.name}-${c.latitude}-${c.longitude}`} value={c.name}>

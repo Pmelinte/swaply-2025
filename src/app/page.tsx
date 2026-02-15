@@ -4,31 +4,33 @@ import { CTAButton, NextStepRecommendation, Pill, SectionCard, StateShowcase } f
 import { MapPreview } from "@/components/MapPreview";
 import { LoggedOutGate, MissingDataCallout } from "@/components/gated";
 import { useAppState } from "@/lib/state";
+import { useTranslations } from "next-intl";
 
 export default function HomePage() {
   const { user, announcements, featureToggles, items } = useAppState();
+  const t = useTranslations("home");
   const hasLocation = Boolean(user?.location?.city);
   const hasItems = items.some((item) => item.ownerId === user?.id);
 
   return (
     <div className="space-y-6">
       <SectionCard
-        title="Descoperă oportunități de schimb în zona ta"
-        description="Alege cum vrei sa incepi: exploreaza obiecte, cauta pe harta sau analizeaza potrivirile."
-        action={<CTAButton href="/objects">Vezi obiecte disponibile</CTAButton>}
+        title={t("discoverOpportunities")}
+        description={t("chooseHowToStart")}
+        action={<CTAButton href="/objects">{t("viewAvailableObjects")}</CTAButton>}
       >
         {user ? (
           <div className="space-y-3">
             <p className="text-sm text-zinc-700 dark:text-zinc-300">
-              Salut, {user.displayName}! Harta afișează doar utilizatorii Premium și Platinum. Badge-ul tău îți controlează vizibilitatea.
+              {t("greeting", { name: user.displayName })}
             </p>
             <div className="flex flex-wrap gap-2 text-sm font-semibold">
               <CTAButton href="/match" variant="ghost">
-                Analizeaza potriviri
+                {t("analyzeMatches")}
               </CTAButton>
-              <CTAButton href="/objects">Adaugă un obiect</CTAButton>
+              <CTAButton href="/objects">{t("addObject")}</CTAButton>
               <CTAButton href="/change" variant="ghost">
-                Monitorizează schimburile
+                {t("monitorExchanges")}
               </CTAButton>
             </div>
           </div>
@@ -39,26 +41,26 @@ export default function HomePage() {
 
       <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
         <SectionCard
-          title="Hartă utilizatori activi"
-          description="Pe hartă sunt evidențiați utilizatorii Premium și Platinum."
-          action={<CTAButton href="/info" variant="ghost">Află beneficiile conturilor Premium</CTAButton>}
+          title={t("activeUsersMap")}
+          description={t("mapDescription")}
+          action={<CTAButton href="/info" variant="ghost">{t("learnPremiumBenefits")}</CTAButton>}
         >
           {!hasLocation && user ? (
             <MissingDataCallout
-              title="Completează profilul și locația"
-              message="Activează funcțiile bazate pe hartă adăugând locația aproximativă."
-              cta={<CTAButton href="/profile">Deschide profil</CTAButton>}
+              title={t("completeProfileAndLocation")}
+              message={t("completeProfileDescription")}
+              cta={<CTAButton href="/profile">{t("openProfile")}</CTAButton>}
             />
           ) : null}
           <MapPreview />
           {user?.badge === "free" ? (
             <div className="rounded-xl bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-900/40 dark:text-amber-100">
-              Apariția pe hartă este disponibilă pentru conturile Premium. Poți explora ofertele și iniția schimburi fără a fi vizibil public.
+              {t("mapVisibilityNote")}
             </div>
           ) : null}
         </SectionCard>
         <div className="space-y-3">
-          <SectionCard title="Anunțuri" description="Mesaje sistem, discrete și dismissible.">
+          <SectionCard title={t("announcements")} description={t("announcementsDescription")}>
             <div className="space-y-2">
               {announcements.map((ann) => (
                 <div
@@ -105,23 +107,23 @@ export default function HomePage() {
 
       {!hasItems && user ? (
         <MissingDataCallout
-          title="Nu ai încă obiecte listate"
-          message="Adaugă un obiect pentru a primi propuneri relevante."
-          cta={<CTAButton href="/objects">Adaugă obiect</CTAButton>}
+          title={t("noListedObjects")}
+          message={t("addObjectForProposals")}
+          cta={<CTAButton href="/objects">{t("addObject")}</CTAButton>}
         />
       ) : null}
 
       {!featureToggles.aiEnabled ? (
-        <SectionCard title="Fallback AI" description="Mod manual activ când serviciile AI sunt indisponibile.">
-          <Pill color="amber">AI dezactivat</Pill>
+        <SectionCard title={t("aiFallback")} description={t("manualModeActive")}>
+          <Pill color="amber">{t("aiDisabled")}</Pill>
           <p className="text-sm text-zinc-700 dark:text-zinc-300">
-            Clasificarea și explicațiile se bazează pe regulile manuale pentru a nu bloca fluxurile critice.
+            {t("aiDisabledDescription")}
           </p>
         </SectionCard>
       ) : (
-        <SectionCard title="AI activ" description="Sugestiile de pe Home respectă contractul AI (server-side).">
+        <SectionCard title={t("aiActive")} description={t("aiActiveDescription")}>
           <p className="text-sm text-zinc-700 dark:text-zinc-300">
-            Output AI este salvat ca metadata versionată și nu suprascrie preferințele finale ale utilizatorilor.
+            {t("aiOutputNote")}
           </p>
         </SectionCard>
       )}
@@ -130,13 +132,13 @@ export default function HomePage() {
         steps={
           user
             ? [
-                { label: "Adaugă un obiect", href: "/objects/new", description: "Listează ceva pentru schimb" },
-                { label: "Analizeaza potriviri", href: "/match", description: "Descopera propuneri compatibile" },
-                { label: "Explorează obiecte", href: "/objects", description: "Caută ce oferă alți utilizatori" },
+                { label: t("addObjectCta"), href: "/objects/new", description: t("addObjectCtaDescription") },
+                { label: t("analyzeMatchesCta"), href: "/match", description: t("analyzeMatchesCtaDescription") },
+                { label: t("exploreObjects"), href: "/objects", description: t("exploreObjectsDescription") },
               ]
             : [
-                { label: "Autentifică-te", href: "/login", description: "Creează cont sau conectează-te" },
-                { label: "Explorează obiectele", href: "/objects", description: "Vezi ce e disponibil fără cont" },
+                { label: t("loginCta"), href: "/login", description: t("loginCta") },
+                { label: t("exploreObjectsGuest"), href: "/objects", description: t("exploreObjectsGuestDescription") },
               ]
         }
       />

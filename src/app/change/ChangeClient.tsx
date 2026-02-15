@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { LoggedOutGate } from "@/components/gated";
 import { CTAButton, NextStepRecommendation, Pill, SectionCard, StateShowcase } from "@/components/ui";
@@ -17,6 +18,7 @@ const VALID_TRANSITIONS: Record<SwapIntent["status"], SwapIntent["status"][]> = 
 
 export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null }) {
   const { user, swaps, updateSwapStatus, addSwapFeedback, items } = useAppState();
+  const t = useTranslations("change");
   const [feedback, setFeedback] = useState({ rating: 5, comment: "" });
   const [statusError, setStatusError] = useState<string | null>(null);
   const [activeSwapId, setActiveSwapId] = useState<string | null>(swapFromQuery ?? null);
@@ -32,8 +34,8 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
   return (
     <div className="space-y-4">
       <SectionCard
-        title="Flux schimb (Swaply)"
-        description="Confirmare + logistică + hartă (niveluri) + notificări + feedback"
+        title={t("title")}
+        description={t("description")}
       >
         {swaps.length > 1 ? (
           <div className="flex flex-wrap gap-2">
@@ -67,23 +69,23 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
           />
         ) : (
           <p className="text-sm text-zinc-600 dark:text-zinc-300">
-            Nu există încă swap-uri. Inițiază unul din pagina de match sau chat.
+            {t("noSwaps")}
           </p>
         )}
       </SectionCard>
 
       {swap ? (
-        <SectionCard title="Confirmări" description="Actualizează statusul și oferă feedback">
+        <SectionCard title={t("confirmations")} description={t("updateStatus")}>
           {statusError ? (
             <div className="rounded-xl bg-red-50 p-3 text-sm text-red-900 dark:bg-red-900/40 dark:text-red-100">
               {statusError}
             </div>
           ) : null}
           <div className="mb-2 text-xs text-zinc-500">
-            Status curent: <span className="font-semibold">{swap.status}</span>
+            {t("currentStatus")} <span className="font-semibold">{swap.status}</span>
             {VALID_TRANSITIONS[swap.status].length > 0
-              ? ` — tranziții posibile: ${VALID_TRANSITIONS[swap.status].join(", ")}`
-              : " — nu mai sunt tranziții posibile"}
+              ? ` — ${t("possibleTransitions")} ${VALID_TRANSITIONS[swap.status].join(", ")}`
+              : ` — ${t("noMoreTransitions")}`}
           </div>
           <div className="flex flex-wrap gap-2 text-sm font-semibold">
             {VALID_TRANSITIONS[swap.status].includes("scheduled") ? (
@@ -91,7 +93,7 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
                 className="rounded-full bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
                 onClick={() => { setStatusError(null); void updateSwapStatus(swap.id, "scheduled"); }}
               >
-                Programează
+                {t("schedule")}
               </button>
             ) : null}
             {VALID_TRANSITIONS[swap.status].includes("in_progress") ? (
@@ -99,7 +101,7 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
                 className="rounded-full bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
                 onClick={() => { setStatusError(null); void updateSwapStatus(swap.id, "in_progress"); }}
               >
-                Marchează in desfasurare
+                {t("markInProgress")}
               </button>
             ) : null}
             {VALID_TRANSITIONS[swap.status].includes("completed") ? (
@@ -107,7 +109,7 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
                 className="rounded-full bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-700"
                 onClick={() => { setStatusError(null); void updateSwapStatus(swap.id, "completed"); }}
               >
-                Confirma finalizarea
+                {t("confirmCompletion")}
               </button>
             ) : null}
             {VALID_TRANSITIONS[swap.status].includes("cancelled") ? (
@@ -115,13 +117,13 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
                 className="rounded-full bg-red-600 px-4 py-2 text-white hover:bg-red-700"
                 onClick={() => { setStatusError(null); void updateSwapStatus(swap.id, "cancelled"); }}
               >
-                Anuleaza swap
+                {t("cancelSwap")}
               </button>
             ) : null}
           </div>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-              Rating
+              {t("rating")}
               <input
                 type="number"
                 value={feedback.rating}
@@ -132,7 +134,7 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
               />
             </label>
             <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-              Comentariu
+              {t("comment")}
               <input
                 value={feedback.comment}
                 onChange={(e) => setFeedback({ ...feedback, comment: e.target.value })}
@@ -144,19 +146,19 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
             className="mt-2 rounded-full bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800"
             onClick={() => void addSwapFeedback(swap.id, feedback.rating, feedback.comment)}
           >
-            Trimite feedback
+            {t("submitFeedback")}
           </button>
         </SectionCard>
       ) : null}
 
-      <SectionCard title="Pașii de utilizare" description="Ghid pas cu pas pentru un schimb reușit">
+      <SectionCard title={t("usageSteps")} description={t("usageStepsDescription")}>
         <div className="space-y-3">
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {[
-              { step: "1", title: "Propune schimbul", desc: "Selectează obiectul dorit și trimite o propunere de swap." },
-              { step: "2", title: "Acceptare / Negociere", desc: "Partenerul acceptă, respinge sau propune modificări." },
-              { step: "3", title: "Logistică", desc: "Alegeți locul de întâlnire sau opțiunea de curier." },
-              { step: "4", title: "Confirmare finală", desc: "Ambii confirmă, lasă feedback și primesc tokeni." },
+              { step: "1", title: t("step1Title"), desc: t("step1Description") },
+              { step: "2", title: t("step2Title"), desc: t("step2Description") },
+              { step: "3", title: t("step3Title"), desc: t("step3Description") },
+              { step: "4", title: t("step4Title"), desc: t("step4Description") },
             ].map((s) => (
               <div
                 key={s.step}
@@ -171,28 +173,28 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
             ))}
           </div>
           <p className="text-xs text-zinc-500 dark:text-zinc-400">
-            Funcționalitatea completă necesită integrare cu backend de mesagerie și logistică. În acest demo sunt persistate doar intențiile de swap și statusul.
+            {t("demoNote")}
           </p>
         </div>
       </SectionCard>
 
-      <SectionCard title="Siguranță" description="Harta folosește pini anonimizati, notificările sunt server-side">
+      <SectionCard title={t("safety")} description={t("safetyDescription")}>
         <div className="flex flex-wrap gap-2 text-xs text-zinc-600 dark:text-zinc-300">
-          <Pill color="blue">Pini Premium/Platinum</Pill>
-          <Pill color="amber">Fallback fără hartă</Pill>
-          <Pill color="green">Notificări automatizate</Pill>
+          <Pill color="blue">{t("premiumPins")}</Pill>
+          <Pill color="amber">{t("mapFallback")}</Pill>
+          <Pill color="green">{t("automatedNotifications")}</Pill>
         </div>
         <p className="text-sm text-zinc-700 dark:text-zinc-300">
-          Acțiunile de status și feedback sunt conectate la `swap_intents`. Notificările din meniu vin din tabela `notifications`.
+          {t("statusNote")}
         </p>
-        <CTAButton href="/info" variant="ghost">Vezi politicile</CTAButton>
+        <CTAButton href="/info" variant="ghost">{t("viewPolicies")}</CTAButton>
       </SectionCard>
 
       <NextStepRecommendation
         steps={[
-          { label: "Lasă feedback", href: "/change", description: "Evaluează experiența swap-ului" },
-          { label: "Caută alt match", href: "/match", description: "Descoperă noi oportunități de schimb" },
-          { label: "Vezi statistici", href: "/info#stats", description: "Verifică-ți reputația și tokenii" },
+          { label: t("leaveFeedback"), href: "/change", description: t("leaveFeedbackDescription") },
+          { label: t("findAnotherMatch"), href: "/match", description: t("findAnotherMatchDescription") },
+          { label: t("viewStats"), href: "/info#stats", description: t("viewStatsDescription") },
         ]}
       />
 

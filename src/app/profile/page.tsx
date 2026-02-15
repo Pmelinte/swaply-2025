@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { LoggedOutGate, MissingDataCallout } from "@/components/gated";
 import { Badge, NextStepRecommendation, Pill, SectionCard, StateShowcase } from "@/components/ui";
@@ -9,14 +10,15 @@ import { UserProfile } from "@/lib/types";
 import LocationPicker from "@/components/LocationPicker";
 
 export default function ProfilePage() {
+  const t = useTranslations("profile");
   const { user, updateProfile, loading, lastError } = useAppState();
   const [draft, setDraft] = useState<UserProfile | null>(user);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"profil" | "cont" | "reputatie">("profil");
   const profileTabs = [
-    { key: "profil" as const, label: "Profil" },
-    { key: "cont" as const, label: "Cont & Setări" },
-    { key: "reputatie" as const, label: "Reputație" },
+    { key: "profil" as const, label: t("title") },
+    { key: "cont" as const, label: t("accountAndSettings") },
+    { key: "reputatie" as const, label: t("reputation") },
   ];
 
   const [loadingTimeout, setLoadingTimeout] = useState(false);
@@ -41,8 +43,8 @@ export default function ProfilePage() {
   if (loading.profile && !loadingTimeout) {
     return (
       <SectionCard
-        title="Se încarcă profilul..."
-        description="Verificăm sesiunea ta."
+        title={t("loading")}
+        description={t("loadingDescription")}
       >
         <div className="h-20 animate-pulse rounded-xl bg-zinc-100 dark:bg-zinc-800" />
       </SectionCard>
@@ -83,8 +85,8 @@ export default function ProfilePage() {
       {activeTab === "profil" ? (
         <>
       <SectionCard
-        title="Identitate publică"
-        description="Ce vede lumea: nume afișat, avatar, bio, limbi vorbite."
+        title={t("publicIdentity")}
+        description={t("publicIdentityDescription")}
         action={<Badge tier={draft.badge} />}
       >
         <div className="flex items-center gap-4">
@@ -99,20 +101,20 @@ export default function ProfilePage() {
           </div>
           <div className="space-y-1">
             <label className="block text-xs font-semibold text-zinc-500 dark:text-zinc-400">
-              Avatar (URL)
+              {t("avatarUrl")}
               <input
                 value={draft.avatarUrl ?? ""}
                 onChange={(e) => update({ avatarUrl: e.target.value })}
-                placeholder="https://example.com/avatar.jpg"
+                placeholder={t("avatarPlaceholder")}
                 className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
               />
             </label>
-            <p className="text-xs text-zinc-400">Upload real necesită integrare Cloudinary/Supabase Storage.</p>
+            <p className="text-xs text-zinc-400">{t("avatarUploadNote")}</p>
           </div>
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-            Nume afișat
+            {t("displayName")}
             <input
               value={draft.displayName}
               onChange={(e) => update({ displayName: e.target.value })}
@@ -120,7 +122,7 @@ export default function ProfilePage() {
             />
           </label>
           <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-            Prenume (opțional)
+            {t("firstName")}
             <input
               value={draft.firstName ?? ""}
               onChange={(e) => update({ firstName: e.target.value })}
@@ -129,7 +131,7 @@ export default function ProfilePage() {
           </label>
         </div>
         <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-          Descriere scurtă (bio)
+          {t("bio")}
           <textarea
             value={draft.bio ?? ""}
             onChange={(e) => update({ bio: e.target.value })}
@@ -146,15 +148,15 @@ export default function ProfilePage() {
 
       {locationIncomplete ? (
         <MissingDataCallout
-          title="Locație incompletă"
-          message="Setează țară și oraș pentru a permite harta și match-urile bazate pe proximitate."
-          cta={<span className="text-sm font-semibold">Completați câmpurile de mai jos.</span>}
+          title={t("incompleteLocation")}
+          message={t("incompleteLocationDescription")}
+          cta={<span className="text-sm font-semibold">{t("completeFieldsBelow")}</span>}
         />
       ) : null}
 
       <SectionCard
-        title="Localizare"
-        description="Selectează țara, regiunea și orașul din liste predefinite."
+        title={t("localization")}
+        description={t("localizationDescription")}
       >
         <LocationPicker
           country={draft.location?.country ?? ""}
@@ -173,7 +175,7 @@ export default function ProfilePage() {
         />
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-            Cod poștal
+            {t("postalCode")}
             <input
               value={draft.location?.postalCode ?? ""}
               onChange={(e) =>
@@ -183,7 +185,7 @@ export default function ProfilePage() {
             />
           </label>
           <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-            Rază maximă de deplasare (km)
+            {t("maxTravelRadius")}
             <input
               type="number"
               value={draft.location?.travelRadiusKm ?? 0}
@@ -210,7 +212,7 @@ export default function ProfilePage() {
                 })
               }
             />
-            Locație exactă vizibilă
+            {t("exactLocationVisible")}
           </label>
           <label className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
             <input
@@ -222,7 +224,7 @@ export default function ProfilePage() {
                 })
               }
             />
-            Ultima activitate vizibilă
+            {t("lastActivityVisible")}
           </label>
         </div>
       </SectionCard>
@@ -233,12 +235,12 @@ export default function ProfilePage() {
       {activeTab === "cont" ? (
         <>
       <SectionCard
-        title="Preferințe schimb"
-        description="Logistică, notificări, vizibilitate obiecte."
+        title={t("swapPreferences")}
+        description={t("swapPreferencesDescription")}
       >
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-            Vizibilitate profil
+            {t("profileVisibility")}
             <select
               value={draft.visibility.publicProfile ? "public" : "private"}
               onChange={(e) =>
@@ -246,12 +248,12 @@ export default function ProfilePage() {
               }
               className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
             >
-              <option value="public">Public</option>
-              <option value="private">Privat</option>
+              <option value="public">{t("public")}</option>
+              <option value="private">{t("private")}</option>
             </select>
           </label>
           <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-            Obiecte vizibile
+            {t("itemsVisible")}
             <select
               value={draft.visibility.itemsVisibility}
               onChange={(e) =>
@@ -264,13 +266,13 @@ export default function ProfilePage() {
               }
               className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
             >
-              <option value="public">Public</option>
-              <option value="match_only">Doar match-uri</option>
+              <option value="public">{t("public")}</option>
+              <option value="match_only">{t("matchOnly")}</option>
             </select>
           </label>
         </div>
         <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-          Logistică preferată
+          {t("preferredLogistics")}
           <select
             value={draft.swapPreferences.logistics}
             onChange={(e) =>
@@ -283,13 +285,13 @@ export default function ProfilePage() {
             }
             className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
           >
-            <option value="in_person">Întâlnire fizică</option>
-            <option value="courier">Curier</option>
-            <option value="flexible">Flexibil</option>
+            <option value="in_person">{t("inPerson")}</option>
+            <option value="courier">{t("courier")}</option>
+            <option value="flexible">{t("flexible")}</option>
           </select>
         </label>
         <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-          Note
+          {t("notes")}
           <textarea
             value={draft.swapPreferences.notes ?? ""}
             onChange={(e) =>
@@ -310,7 +312,7 @@ export default function ProfilePage() {
                 update({ notifications: { ...draft.notifications, email: e.target.checked } })
               }
             />
-            Notificări email
+            {t("emailNotifications")}
           </label>
           <label className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
             <input
@@ -320,7 +322,7 @@ export default function ProfilePage() {
                 update({ notifications: { ...draft.notifications, push: e.target.checked } })
               }
             />
-            Notificări push
+            {t("pushNotifications")}
           </label>
           <label className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
             <input
@@ -330,7 +332,7 @@ export default function ProfilePage() {
                 update({ notifications: { ...draft.notifications, chat: e.target.checked } })
               }
             />
-            Notificări chat
+            {t("chatNotifications")}
           </label>
           <label className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
             <input
@@ -340,14 +342,14 @@ export default function ProfilePage() {
                 update({ notifications: { ...draft.notifications, matches: e.target.checked } })
               }
             />
-            Notificări match
+            {t("matchNotifications")}
           </label>
         </div>
       </SectionCard>
 
       <SectionCard
-        title="Siguranță & control"
-        description="2FA, dispozitive active, logout global."
+        title={t("safetyAndControl")}
+        description={t("safetyDescription")}
       >
         <div className="grid gap-3 sm:grid-cols-3">
           <label className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
@@ -358,10 +360,10 @@ export default function ProfilePage() {
                 update({ security: { ...draft.security, twoFactorEnabled: e.target.checked } })
               }
             />
-            2FA activ
+            {t("twoFactorActive")}
           </label>
           <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-            Metodă 2FA
+            {t("twoFactorMethod")}
             <select
               value={draft.security.method ?? "totp"}
               onChange={(e) =>
@@ -374,9 +376,9 @@ export default function ProfilePage() {
               }
               className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
             >
-              <option value="totp">TOTP</option>
-              <option value="sms">SMS OTP</option>
-              <option value="passkey">Passkey / WebAuthn</option>
+              <option value="totp">{t("totp")}</option>
+              <option value="sms">{t("smsOtp")}</option>
+              <option value="passkey">{t("passkey")}</option>
             </select>
           </label>
           <label className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
@@ -387,12 +389,12 @@ export default function ProfilePage() {
                 update({ security: { ...draft.security, passkeysEnabled: e.target.checked } })
               }
             />
-            Activează passkeys pe device compatibil
+            {t("enablePasskeys")}
           </label>
         </div>
         <div className="flex flex-wrap gap-2 text-xs text-zinc-600 dark:text-zinc-300">
-          <Pill color="blue">Logout din toate sesiunile</Pill>
-          <Pill color="amber">Raportare probleme</Pill>
+          <Pill color="blue">{t("logoutAllSessions")}</Pill>
+          <Pill color="amber">{t("reportIssues")}</Pill>
         </div>
       </SectionCard>
 
@@ -402,25 +404,25 @@ export default function ProfilePage() {
       {activeTab === "reputatie" ? (
         <>
       <SectionCard
-        title="Reputație & tokeni"
-        description="Date read-only despre activitatea ta."
+        title={t("reputationAndTokens")}
+        description={t("reputationDescription")}
         action={<Pill color="green">{draft.stats.reputation}</Pill>}
       >
         <div className="grid gap-3 sm:grid-cols-4">
           <div>
-            <p className="text-xs uppercase text-zinc-500">Tokeni</p>
+            <p className="text-xs uppercase text-zinc-500">{t("tokens")}</p>
             <p className="text-xl font-bold">{draft.stats.tokens}</p>
           </div>
           <div>
-            <p className="text-xs uppercase text-zinc-500">Swap-uri finalizate</p>
+            <p className="text-xs uppercase text-zinc-500">{t("completedSwaps")}</p>
             <p className="text-xl font-bold">{draft.stats.completedSwaps}</p>
           </div>
           <div>
-            <p className="text-xs uppercase text-zinc-500">Listări active</p>
+            <p className="text-xs uppercase text-zinc-500">{t("activeListings")}</p>
             <p className="text-xl font-bold">{draft.stats.activeListings}</p>
           </div>
           <div>
-            <p className="text-xs uppercase text-zinc-500">Badge</p>
+            <p className="text-xs uppercase text-zinc-500">{t("badge")}</p>
             <Badge tier={draft.badge} />
           </div>
         </div>
@@ -430,8 +432,8 @@ export default function ProfilePage() {
       ) : null}
 
       <SectionCard
-        title="Salvare profil"
-        description="Modificările vor fi salvate în baza de date."
+        title={t("saveProfile")}
+        description={t("saveDescription")}
       >
         <div className="flex flex-wrap items-center gap-2">
           <button
@@ -440,14 +442,14 @@ export default function ProfilePage() {
               setSaveMessage(null);
               try {
                 await updateProfile(draft, { persist: true });
-                setSaveMessage("Profil salvat cu succes!");
+                setSaveMessage(t("profileSaved"));
               } catch {
-                setSaveMessage("Eroare la salvare. Încearcă din nou.");
+                setSaveMessage(t("saveError"));
               }
             }}
             className="rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
           >
-            Salvează
+            {t("saveProfile")}
           </button>
         </div>
         {saveMessage ? (
@@ -458,16 +460,16 @@ export default function ProfilePage() {
                 : "bg-green-50 text-green-900 dark:bg-green-900/40 dark:text-green-100"
             }`}
           >
-            {lastError ? `Eroare: ${lastError}` : saveMessage}
+            {lastError ? t("errorMessage", { error: lastError }) : saveMessage}
           </div>
         ) : null}
       </SectionCard>
 
       <NextStepRecommendation
         steps={[
-          { label: "Adaugă obiecte", href: "/objects/new", description: "Listează ce ai de oferit pentru schimb" },
-          { label: "Caută match-uri", href: "/match", description: "Descoperă potriviri cu alte obiecte" },
-          { label: "Beneficii badge", href: "/info#monetizare", description: "Descoperă avantajele Premium și Platinum" },
+          { label: t("addObjects"), href: "/objects/new", description: t("addObjectsDescription") },
+          { label: t("findMatches"), href: "/match", description: t("findMatchesDescription") },
+          { label: t("badgeBenefits"), href: "/info#monetizare", description: t("badgeBenefitsDescription") },
         ]}
       />
 

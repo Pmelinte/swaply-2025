@@ -3,6 +3,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { LoggedOutGate } from "@/components/gated";
 import { CTAButton, NextStepRecommendation, Pill, StateShowcase } from "@/components/ui";
@@ -24,13 +25,14 @@ function SlotCard({
   onView?: () => void;
   color: "blue" | "green";
 }) {
+  const tc = useTranslations("common");
   const borderColor = color === "blue" ? "border-blue-300 dark:border-blue-700" : "border-emerald-300 dark:border-emerald-700";
   const bgColor = color === "blue" ? "bg-blue-50/50 dark:bg-blue-950/30" : "bg-emerald-50/50 dark:bg-emerald-950/30";
 
   if (!item) {
     return (
       <div className={`flex h-32 items-center justify-center rounded-xl border-2 border-dashed ${borderColor} ${bgColor} text-xs text-zinc-400`}>
-        Slot liber
+        {tc("freeSlot")}
       </div>
     );
   }
@@ -58,7 +60,7 @@ function SlotCard({
             onClick={onView}
             className="rounded-full bg-zinc-200 px-2 py-0.5 text-[10px] font-semibold text-zinc-700 hover:bg-zinc-300 dark:bg-zinc-700 dark:text-zinc-200"
           >
-            Vezi
+            {tc("view")}
           </button>
         ) : null}
         {onRemove ? (
@@ -78,6 +80,8 @@ function SlotCard({
 export default function ObjectsPage() {
   const router = useRouter();
   const { user, items } = useAppState();
+  const t = useTranslations("objects");
+  const tc = useTranslations("common");
 
   // --- WISHES (dorinte) state ---
   const [wishSwipeIndex, setWishSwipeIndex] = useState(0);
@@ -167,7 +171,7 @@ export default function ObjectsPage() {
       <div className="space-y-4">
         <LoggedOutGate returnTo="/objects" />
         <NextStepRecommendation
-          steps={[{ label: "Creaza cont", href: "/login", description: "Autentifica-te pentru a lista obiecte" }]}
+          steps={[{ label: t("createAccount"), href: "/login", description: t("loginToList") }]}
         />
       </div>
     );
@@ -180,13 +184,13 @@ export default function ObjectsPage() {
         <div className="mb-3 flex items-center justify-between">
           <div>
             <h2 className="text-lg font-bold text-blue-800 dark:text-blue-200">
-              Dorinte
+              {t("desires")}
             </h2>
             <p className="text-xs text-blue-600 dark:text-blue-400">
-              Ce obiecte te intereseaza? Swipe dreapta = DA, stanga = NU
+              {t("desiresDescription")}
             </p>
           </div>
-          <Pill color="blue">{wishRightCount}/{MAX_RIGHT_SWIPES} alese</Pill>
+          <Pill color="blue">{t("chosenDesired", { count: wishRightCount })}</Pill>
         </div>
 
         {/* Swipe zone */}
@@ -194,10 +198,10 @@ export default function ObjectsPage() {
           {wishBlocked ? (
             <div className="rounded-2xl border-2 border-blue-200 bg-blue-50 p-6 text-center dark:border-blue-800 dark:bg-blue-950/30">
               <p className="text-sm font-semibold text-blue-800 dark:text-blue-200">
-                Ai ales {MAX_RIGHT_SWIPES} obiecte dorite!
+                {t("chosenDesired", { count: MAX_RIGHT_SWIPES })}
               </p>
               <p className="mt-1 text-xs text-blue-600 dark:text-blue-400">
-                Analizeaza obiectele selectate si decide ce poti oferi in schimb.
+                {t("analyzeAndDecide")}
               </p>
               <button
                 type="button"
@@ -208,7 +212,7 @@ export default function ObjectsPage() {
                 }}
                 className="mt-3 rounded-full bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-700"
               >
-                Reseteaza si alege din nou
+                {t("resetAndChoose")}
               </button>
             </div>
           ) : currentWishItem ? (
@@ -219,7 +223,7 @@ export default function ObjectsPage() {
             />
           ) : (
             <div className="rounded-2xl border-2 border-dashed border-blue-200 bg-blue-50/50 p-8 text-center dark:border-blue-800 dark:bg-blue-950/20">
-              <p className="text-sm text-zinc-500">Nu mai sunt obiecte de explorat.</p>
+              <p className="text-sm text-zinc-500">{t("noMoreObjects")}</p>
               <button
                 type="button"
                 onClick={() => {
@@ -228,7 +232,7 @@ export default function ObjectsPage() {
                 }}
                 className="mt-2 rounded-full bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-700"
               >
-                Reincarca
+                {t("reload")}
               </button>
             </div>
           )}
@@ -237,7 +241,7 @@ export default function ObjectsPage() {
         {/* 3 fixed slots */}
         <div className="mt-4">
           <p className="mb-2 text-xs font-semibold text-blue-700 dark:text-blue-300">
-            Obiectele tale dorite (stiu ce vreau):
+            {t("yourDesiredObjects")}
           </p>
           <div className="grid grid-cols-3 gap-2">
             {wishSlots.map((item, idx) => (
@@ -267,15 +271,15 @@ export default function ObjectsPage() {
         <div className="mb-3 flex items-center justify-between">
           <div>
             <h2 className="text-lg font-bold text-emerald-800 dark:text-emerald-200">
-              Oferte
+              {t("offers")}
             </h2>
             <p className="text-xs text-emerald-600 dark:text-emerald-400">
-              Ce obiect poti oferi? Alege din obiectele tale active.
+              {t("offersDescription")}
             </p>
           </div>
           <div className="flex gap-2">
-            <Pill color="green">{offerRightCount}/{MAX_RIGHT_SWIPES} alese</Pill>
-            <CTAButton href="/objects/new">+ Adauga</CTAButton>
+            <Pill color="green">{t("chosenOffered", { count: offerRightCount })}</Pill>
+            <CTAButton href="/objects/new">{t("addButton")}</CTAButton>
           </div>
         </div>
 
@@ -284,10 +288,10 @@ export default function ObjectsPage() {
           {offerBlocked ? (
             <div className="rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-6 text-center dark:border-emerald-800 dark:bg-emerald-950/30">
               <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-200">
-                Ai ales {MAX_RIGHT_SWIPES} obiecte de oferit!
+                {t("chosenOffered", { count: MAX_RIGHT_SWIPES })}
               </p>
               <p className="mt-1 text-xs text-emerald-600 dark:text-emerald-400">
-                Ai suficiente semnale pentru o analiza.
+                {t("enoughSignals")}
               </p>
               <div className="mt-3 flex justify-center gap-2">
                 <button
@@ -299,9 +303,9 @@ export default function ObjectsPage() {
                   }}
                   className="rounded-full border border-emerald-300 px-4 py-2 text-xs font-semibold text-emerald-700 hover:bg-emerald-100 dark:border-emerald-700 dark:text-emerald-300"
                 >
-                  Reseteaza
+                  {tc("reset")}
                 </button>
-                <CTAButton href="/match">Matching</CTAButton>
+                <CTAButton href="/match">{t("matchingTitle")}</CTAButton>
               </div>
             </div>
           ) : currentOfferItem ? (
@@ -314,11 +318,11 @@ export default function ObjectsPage() {
             <div className="rounded-2xl border-2 border-dashed border-emerald-200 bg-emerald-50/50 p-8 text-center dark:border-emerald-800 dark:bg-emerald-950/20">
               <p className="text-sm text-zinc-500">
                 {myItems.length === 0
-                  ? "Nu ai obiecte active. Adauga unul!"
-                  : "Ai parcurs toate obiectele tale."}
+                  ? t("noActiveObjects")
+                  : t("browsedAllObjects")}
               </p>
               {myItems.length === 0 ? (
-                <CTAButton href="/objects/new">Adauga obiect</CTAButton>
+                <CTAButton href="/objects/new">{t("addButton")}</CTAButton>
               ) : (
                 <button
                   type="button"
@@ -328,7 +332,7 @@ export default function ObjectsPage() {
                   }}
                   className="mt-2 rounded-full bg-emerald-600 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-700"
                 >
-                  Reincarca
+                  {t("reload")}
                 </button>
               )}
             </div>
@@ -338,7 +342,7 @@ export default function ObjectsPage() {
         {/* 3 fixed slots */}
         <div className="mt-4">
           <p className="mb-2 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
-            Obiectele tale oferite (stiu ce ofer):
+            {t("yourOfferedObjects")}
           </p>
           <div className="grid grid-cols-3 gap-2">
             {offerSlots.map((item, idx) => (
@@ -367,13 +371,13 @@ export default function ObjectsPage() {
       {(wishRightCount >= MAX_RIGHT_SWIPES || offerRightCount >= MAX_RIGHT_SWIPES) ? (
         <div className="rounded-2xl border border-purple-300 bg-purple-50 p-4 text-center dark:border-purple-800 dark:bg-purple-950/30">
           <p className="text-sm font-semibold text-purple-800 dark:text-purple-200">
-            Ai suficiente semnale pentru o analiza
+            {t("enoughSignalsForAnalysis")}
           </p>
           <p className="mt-1 text-xs text-purple-600 dark:text-purple-400">
-            AI analizeaza compatibilitatea si iti propune variante.
+            {t("aiAnalyzesCompatibility")}
           </p>
           <div className="mt-3 flex justify-center gap-2">
-            <CTAButton href="/match">Matching</CTAButton>
+            <CTAButton href="/match">{t("matchingTitle")}</CTAButton>
             <button
               type="button"
               onClick={() => {
@@ -383,7 +387,7 @@ export default function ObjectsPage() {
               }}
               className="rounded-full border border-purple-300 px-4 py-2 text-xs font-semibold text-purple-700 hover:bg-purple-100 dark:border-purple-700 dark:text-purple-300"
             >
-              Mai tarziu
+              {t("later")}
             </button>
           </div>
         </div>
@@ -391,28 +395,28 @@ export default function ObjectsPage() {
 
       <NextStepRecommendation
         steps={[
-          { label: "Analizeaza potriviri", href: "/match", description: "AI analizeaza compatibilitatea obiectelor tale" },
-          { label: "Trimite mesaj", href: "/chat", description: "Discuta cu alti utilizatori despre schimburi" },
+          { label: t("analyzeMatches"), href: "/match", description: t("aiAnalyzesObjects") },
+          { label: t("sendMessage"), href: "/chat", description: t("chatWithUsers") },
         ]}
       />
 
       <StateShowcase
-        title="Stari OBIECTE"
+        title={t("loadingObjects")}
         states={[
           {
             key: "loading",
-            title: "Se incarca lista de obiecte",
-            description: "Skeleton pe carduri + placeholder pentru filtre.",
+            title: t("loadingObjects"),
+            description: t("loadingDescription"),
           },
           {
             key: "empty",
-            title: "Niciun obiect",
-            description: "Empty state cu CTA spre adaugare obiect nou.",
+            title: t("noObjects"),
+            description: t("noObjectsDescription"),
           },
           {
             key: "error",
-            title: "Eroare la incarcarea obiectelor",
-            description: "Mesaj clar fara crash; permit reincarcarea paginii.",
+            title: t("loadError"),
+            description: t("loadErrorDescription"),
           },
         ]}
       />

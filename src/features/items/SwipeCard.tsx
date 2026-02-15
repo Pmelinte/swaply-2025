@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { Item } from "@/lib/types";
 import { NO_IMAGE_URL } from "@/lib/storage";
 import { Pill } from "@/components/ui";
@@ -17,6 +18,7 @@ export function SwipeCard({
   onSwipeRight: () => void;
   disabled?: boolean;
 }) {
+  const t = useTranslations("swipeCard");
   const [offset, setOffset] = useState(0);
   const [swiping, setSwiping] = useState(false);
   const startX = useRef(0);
@@ -68,7 +70,7 @@ export function SwipeCard({
                 : "right-3 border-2 border-red-500 text-red-600"
             }`}
           >
-            {direction === "right" ? "DA" : "NU"}
+            {direction === "right" ? t("yes") : t("no")}
           </div>
         ) : null}
 
@@ -97,7 +99,7 @@ export function SwipeCard({
           </p>
           {item.wishlist ? (
             <p className="text-xs text-zinc-500 dark:text-zinc-400">
-              Doreste: {item.wishlist}
+              {t("wants")} {item.wishlist}
             </p>
           ) : null}
         </div>
@@ -110,7 +112,7 @@ export function SwipeCard({
             type="button"
             onClick={onSwipeLeft}
             className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-red-400 text-red-500 text-xl font-bold transition hover:bg-red-50 dark:hover:bg-red-950/30"
-            aria-label="Nu ma intereseaza"
+            aria-label={t("notInterested")}
           >
             ✕
           </button>
@@ -118,7 +120,7 @@ export function SwipeCard({
             type="button"
             onClick={onSwipeRight}
             className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-green-400 text-green-500 text-xl font-bold transition hover:bg-green-50 dark:hover:bg-green-950/30"
-            aria-label="Ma intereseaza"
+            aria-label={t("interested")}
           >
             ✓
           </button>

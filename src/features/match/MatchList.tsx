@@ -1,14 +1,10 @@
+"use client";
+
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { formatScore } from "@/lib/utils";
 import type { MatchCandidate, MatchTier } from "@/lib/types";
 import { Pill } from "@/components/ui";
-
-const TIER_STYLES: Record<MatchTier, { bg: string; text: string; label: string }> = {
-  weak:     { bg: "bg-red-100 dark:bg-red-950/40",    text: "text-red-800 dark:text-red-200",       label: "Slab" },
-  possible: { bg: "bg-amber-100 dark:bg-amber-950/40", text: "text-amber-800 dark:text-amber-200",   label: "Posibil" },
-  good:     { bg: "bg-blue-100 dark:bg-blue-950/40",   text: "text-blue-800 dark:text-blue-200",     label: "Bun" },
-  strong:   { bg: "bg-green-100 dark:bg-green-950/40", text: "text-green-800 dark:text-green-200",   label: "Foarte bun" },
-};
 
 export function MatchList({
   matches,
@@ -17,10 +13,19 @@ export function MatchList({
   matches: MatchCandidate[];
   onProposeSwap?: (match: MatchCandidate) => void;
 }) {
+  const t = useTranslations("matchList");
+
+  const TIER_STYLES: Record<MatchTier, { bg: string; text: string; label: string }> = {
+    weak:     { bg: "bg-red-100 dark:bg-red-950/40",    text: "text-red-800 dark:text-red-200",       label: t("weak") },
+    possible: { bg: "bg-amber-100 dark:bg-amber-950/40", text: "text-amber-800 dark:text-amber-200",   label: t("possible") },
+    good:     { bg: "bg-blue-100 dark:bg-blue-950/40",   text: "text-blue-800 dark:text-blue-200",     label: t("good") },
+    strong:   { bg: "bg-green-100 dark:bg-green-950/40", text: "text-green-800 dark:text-green-200",   label: t("veryGood") },
+  };
+
   if (!matches.length) {
     return (
       <div className="rounded-2xl border border-zinc-200 bg-white/90 p-4 text-sm text-zinc-600 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/80 dark:text-zinc-300">
-        Nicio potrivire momentan. Completeaza mai multe detalii pe obiectele tale sau activeaza modul manual.
+        {t("noMatches")}
       </div>
     );
   }
@@ -37,7 +42,7 @@ export function MatchList({
           >
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-xs uppercase text-zinc-500">Propunere de schimb</p>
+                <p className="text-xs uppercase text-zinc-500">{t("swapProposal")}</p>
                 <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-50">
                   {match.itemOffered.title} ↔ {match.itemRequested.title}
                 </h3>
@@ -65,7 +70,7 @@ export function MatchList({
 
             {match.aiTrace ? (
               <p className="mt-1 text-xs text-blue-700 dark:text-blue-200">
-                AI trace: {match.aiTrace}
+                {t("aiTrace")} {match.aiTrace}
               </p>
             ) : null}
 
@@ -74,13 +79,13 @@ export function MatchList({
                 href={`/objects/${match.itemRequested.id}`}
                 className="rounded-full bg-blue-600 px-3 py-1 text-white hover:bg-blue-700"
               >
-                Vezi detalii
+                {t("viewDetails")}
               </Link>
               <Link
                 href={`/chat?to=${encodeURIComponent(match.itemRequested.ownerId)}`}
                 className="rounded-full bg-zinc-900 px-3 py-1 text-white hover:bg-zinc-800"
               >
-                Trimite mesaj
+                {t("sendMessage")}
               </Link>
               {onProposeSwap ? (
                 <button
@@ -88,7 +93,7 @@ export function MatchList({
                   onClick={() => onProposeSwap(match)}
                   className="rounded-full bg-emerald-600 px-3 py-1 text-white hover:bg-emerald-700"
                 >
-                  Propune schimb
+                  {t("proposeExchange")}
                 </button>
               ) : null}
             </div>

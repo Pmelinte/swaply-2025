@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 /**
  * Lightweight Google Maps embed — uses the free Embed API (no JS SDK).
  * Falls back to a static placeholder when NEXT_PUBLIC_MAPS_TOKEN is missing.
@@ -21,6 +23,7 @@ export function MapEmbed({
   height?: number;
   markers?: Array<{ lat: number; lng: number; label?: string }>;
 }) {
+  const t = useTranslations("map");
   const mapsToken = process.env.NEXT_PUBLIC_MAPS_TOKEN;
 
   // Build query for the embed
@@ -33,8 +36,8 @@ export function MapEmbed({
         style={{ height }}
       >
         <div className="text-center">
-          <p>Harta indisponibila</p>
-          <p className="text-xs">{!mapsToken ? "API key lipsa" : "Locatie necunoscuta"}</p>
+          <p>{t("unavailable")}</p>
+          <p className="text-xs">{!mapsToken ? t("apiKeyMissing") : t("unknownLocation")}</p>
         </div>
       </div>
     );
@@ -53,7 +56,7 @@ export function MapEmbed({
         allowFullScreen={false}
         loading="lazy"
         referrerPolicy="no-referrer-when-downgrade"
-        title="Harta locatie"
+        title={t("mapTitle")}
       />
     </div>
   );
@@ -72,6 +75,7 @@ export function StaticMapWithMarkers({
   height?: number;
   zoom?: number;
 }) {
+  const t = useTranslations("map");
   const mapsToken = process.env.NEXT_PUBLIC_MAPS_TOKEN;
 
   if (!mapsToken || markers.length === 0) {
@@ -80,7 +84,7 @@ export function StaticMapWithMarkers({
         className="flex items-center justify-center rounded-xl border border-zinc-200 bg-zinc-100 text-sm text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400"
         style={{ height }}
       >
-        {markers.length === 0 ? "Niciun pin de afisat" : "Harta indisponibila"}
+        {markers.length === 0 ? t("noPins") : t("unavailable")}
       </div>
     );
   }
@@ -102,7 +106,7 @@ export function StaticMapWithMarkers({
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={src}
-        alt="Harta cu locatii"
+        alt={t("mapTitle")}
         width={600}
         height={height}
         className="w-full object-cover"

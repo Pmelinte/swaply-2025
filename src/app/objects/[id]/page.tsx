@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { LoggedOutGate } from "@/components/gated";
 import { Pill, SectionCard, StateShowcase } from "@/components/ui";
@@ -13,6 +14,7 @@ export default function ObjectDetailsPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const { items, user, loading, proposeSwap } = useAppState();
+  const t = useTranslations("objectDetail");
   const myActiveItems = useMemo(
     () =>
       user
@@ -29,8 +31,8 @@ export default function ObjectDetailsPage() {
   if (loading.items) {
     return (
       <SectionCard
-        title="Se încarcă obiectul"
-        description="Loading state conform contractului (nu 404)."
+        title={t("loading")}
+        description={t("loadingDescription")}
       >
         <div className="h-32 animate-pulse rounded-xl bg-zinc-100 dark:bg-zinc-800" />
       </SectionCard>
@@ -40,13 +42,13 @@ export default function ObjectDetailsPage() {
   if (!item) {
     return (
       <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-900/40 dark:text-amber-100">
-        Obiectul nu a fost găsit sau este indisponibil public. Navighează înapoi către lista de obiecte.
+        {t("notFound")}
         <div className="mt-3">
           <Link
             href="/objects"
             className="rounded-full bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-700"
           >
-            Înapoi la obiecte
+            {t("backToObjects")}
           </Link>
         </div>
       </div>
@@ -61,7 +63,7 @@ export default function ObjectDetailsPage() {
     <div className="space-y-4">
       <SectionCard
         title={item.title}
-        description="Detalii + acțiuni + metadata AI ca sugestii (nu suprascrie user_final)."
+        description={t("detailsAndActions")}
       >
         <div className="grid gap-4 lg:grid-cols-[280px_1fr]">
           <div className="space-y-2">
@@ -102,29 +104,29 @@ export default function ObjectDetailsPage() {
           </div>
           <div className="space-y-3">
             <div className="flex flex-wrap gap-2 text-xs">
-              <Pill color="blue">Categorie: {item.category}</Pill>
-              <Pill color="zinc">Condiție: {item.condition}</Pill>
-              <Pill color="green">Status: {item.status}</Pill>
-              <Pill color="zinc">Locație: {item.location}</Pill>
+              <Pill color="blue">{t("category")} {item.category}</Pill>
+              <Pill color="zinc">{t("condition")} {item.condition}</Pill>
+              <Pill color="green">{t("status")} {item.status}</Pill>
+              <Pill color="zinc">{t("location")} {item.location}</Pill>
             </div>
             <p className="text-sm text-zinc-700 dark:text-zinc-300">{item.description}</p>
             <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">
-              Îmi doresc în schimb: {item.wishlist}
+              {t("wishlist")} {item.wishlist}
             </p>
             <div className="grid gap-2 sm:grid-cols-2">
               <div className="rounded-xl bg-blue-50 p-3 text-xs text-blue-900 dark:bg-blue-950/40 dark:text-blue-100">
-                <p className="font-semibold">AI suggested tags</p>
+                <p className="font-semibold">{t("aiSuggestedTags")}</p>
                 <p>{item.aiSuggestedTags?.join(", ") || "-"}</p>
               </div>
               <div className="rounded-xl bg-emerald-50 p-3 text-xs text-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-100">
-                <p className="font-semibold">User final tags</p>
+                <p className="font-semibold">{t("userFinalTags")}</p>
                 <p>{item.userFinalTags?.join(", ") || "-"}</p>
               </div>
             </div>
 
             {item.ownerId !== user.id ? (
               <label className="block text-xs font-semibold text-zinc-600 dark:text-zinc-300">
-                Obiectul tău oferit (pentru propunere swap)
+                {t("yourOfferedObject")}
                 <select
                   value={effectiveOfferItemId}
                   onChange={(e) => setOfferItemId(e.target.value)}
@@ -137,7 +139,7 @@ export default function ObjectDetailsPage() {
                       </option>
                     ))
                   ) : (
-                    <option value="">Nu ai obiecte active</option>
+                    <option value="">{t("noActiveObjects")}</option>
                   )}
                 </select>
               </label>
@@ -147,7 +149,7 @@ export default function ObjectDetailsPage() {
                 className="rounded-full bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
                 onClick={() => router.push("/match")}
               >
-                Cere match & explicație
+                {t("requestMatch")}
               </button>
               <button
                 className="rounded-full bg-zinc-900 px-4 py-2 text-white hover:bg-zinc-800"
@@ -159,7 +161,7 @@ export default function ObjectDetailsPage() {
                   )
                 }
               >
-                Inițiază chat securizat
+                {t("startSecureChat")}
               </button>
               <button
                 className="rounded-full bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-700"
@@ -179,7 +181,7 @@ export default function ObjectDetailsPage() {
                   })();
                 }}
               >
-                Propune schimb
+                {t("proposeExchange")}
               </button>
             </div>
           </div>

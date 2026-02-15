@@ -1,6 +1,11 @@
 export type BadgeTier = "free" | "premium" | "platinum";
 
-export type LanguageCode = "ro" | "en" | "es";
+export type LanguageCode =
+  | "en" | "ro" | "fr" | "de" | "es" | "it" | "pt" | "nl" | "pl" | "el"
+  | "hu" | "bg" | "cs" | "sk" | "hr" | "sl" | "sr" | "sv" | "da" | "fi"
+  | "no" | "lt" | "lv" | "et" | "ga" | "mt" | "ru" | "tr" | "ar" | "zh"
+  | "hi" | "bn" | "ja" | "ko" | "vi" | "th" | "id" | "ms" | "fil" | "fa"
+  | "mn" | "uk";
 
 export interface UserProfile {
   id: string;

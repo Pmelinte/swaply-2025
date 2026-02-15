@@ -1,0 +1,57 @@
+export const locales = [
+  "en", "ro", "fr", "de", "es", "it", "pt", "nl", "pl", "el",
+  "hu", "bg", "cs", "sk", "hr", "sl", "sr", "sv", "da", "fi",
+  "no", "lt", "lv", "et", "ga", "mt", "ru", "tr", "ar", "zh",
+  "hi", "bn", "ja", "ko", "vi", "th", "id", "ms", "fil", "fa",
+  "mn", "uk",
+] as const;
+
+export type Locale = (typeof locales)[number];
+
+export const defaultLocale: Locale = "en";
+
+/** Display info for each language — native name shown in selector */
+export const languageNames: Record<Locale, { name: string; nativeName: string }> = {
+  en:  { name: "English",     nativeName: "English" },
+  ro:  { name: "Romanian",    nativeName: "Română" },
+  fr:  { name: "French",      nativeName: "Français" },
+  de:  { name: "German",      nativeName: "Deutsch" },
+  es:  { name: "Spanish",     nativeName: "Español" },
+  it:  { name: "Italian",     nativeName: "Italiano" },
+  pt:  { name: "Portuguese",  nativeName: "Português" },
+  nl:  { name: "Dutch",       nativeName: "Nederlands" },
+  pl:  { name: "Polish",      nativeName: "Polski" },
+  el:  { name: "Greek",       nativeName: "Ελληνικά" },
+  hu:  { name: "Hungarian",   nativeName: "Magyar" },
+  bg:  { name: "Bulgarian",   nativeName: "Български" },
+  cs:  { name: "Czech",       nativeName: "Čeština" },
+  sk:  { name: "Slovak",      nativeName: "Slovenčina" },
+  hr:  { name: "Croatian",    nativeName: "Hrvatski" },
+  sl:  { name: "Slovenian",   nativeName: "Slovenščina" },
+  sr:  { name: "Serbian",     nativeName: "Srpski" },
+  sv:  { name: "Swedish",     nativeName: "Svenska" },
+  da:  { name: "Danish",      nativeName: "Dansk" },
+  fi:  { name: "Finnish",     nativeName: "Suomi" },
+  no:  { name: "Norwegian",   nativeName: "Norsk" },
+  lt:  { name: "Lithuanian",  nativeName: "Lietuvių" },
+  lv:  { name: "Latvian",     nativeName: "Latviešu" },
+  et:  { name: "Estonian",    nativeName: "Eesti" },
+  ga:  { name: "Irish",       nativeName: "Gaeilge" },
+  mt:  { name: "Maltese",     nativeName: "Malti" },
+  ru:  { name: "Russian",     nativeName: "Русский" },
+  tr:  { name: "Turkish",     nativeName: "Türkçe" },
+  ar:  { name: "Arabic",      nativeName: "العربية" },
+  zh:  { name: "Chinese",     nativeName: "中文" },
+  hi:  { name: "Hindi",       nativeName: "हिन्दी" },
+  bn:  { name: "Bengali",     nativeName: "বাংলা" },
+  ja:  { name: "Japanese",    nativeName: "日本語" },
+  ko:  { name: "Korean",      nativeName: "한국어" },
+  vi:  { name: "Vietnamese",  nativeName: "Tiếng Việt" },
+  th:  { name: "Thai",        nativeName: "ภาษาไทย" },
+  id:  { name: "Indonesian",  nativeName: "Bahasa Indonesia" },
+  ms:  { name: "Malay",       nativeName: "Bahasa Melayu" },
+  fil: { name: "Filipino",    nativeName: "Filipino" },
+  fa:  { name: "Persian",     nativeName: "فارسی" },
+  mn:  { name: "Mongolian",   nativeName: "Монгол" },
+  uk:  { name: "Ukrainian",   nativeName: "Українська" },
+};
