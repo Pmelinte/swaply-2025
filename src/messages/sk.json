@@ -391,7 +391,7 @@
     "mapProviderNote": "Poskytovateľ mapy aktívny iba ak kľúč existuje; inak zástupný symbol podľa schémy.",
     "premiumPinsOnly": "Verejné piny iba pre Premium/Platinum odznak.",
     "approximateLocation": "Poloha je približná (mesto / rádius), bez spätného geokódovania.",
-    "mapFallback": "Záloha: zobrazenie správy „Mapa nedostupná" bez blokovania zvyšku stránky.",
+    "mapFallback": "Záloha: zobrazenie správy 'Mapa nedostupná' bez blokovania zvyšku stránky.",
     "mapRulesNote": "Pravidlá zladené s Excalidraw: viditeľnosť riadená nastavením profilu a kontrolou nákladov poskytovateľa.",
     "helpAndLegal": "Pomoc a právo",
     "helpDescription": "Podmienky, GDPR, cookies, podpora",

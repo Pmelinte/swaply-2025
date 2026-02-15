@@ -391,7 +391,7 @@
     "mapProviderNote": "Žemėlapio tiekėjas aktyvus tik jei raktas egzistuoja; kitaip vietos žymeklis pagal schemą.",
     "premiumPinsOnly": "Vieši žymekliai tik Premium/Platinum ženkleliui.",
     "approximateLocation": "Vieta yra apytikslė (miestas / spindulys), be atvirkštinio geokodavimo.",
-    "mapFallback": "Atsarginis: rodyti „Žemėlapis neprieinamas" pranešimą neblokuojant likusio puslapio.",
+    "mapFallback": "Atsarginis: rodyti 'Žemėlapis neprieinamas' pranešimą neblokuojant likusio puslapio.",
     "mapRulesNote": "Taisyklės suderintos su Excalidraw: matomumą kontroliuoja profilio nustatymai ir tiekėjo kaštų kontrolė.",
     "helpAndLegal": "Pagalba ir teisinė informacija",
     "helpDescription": "Sąlygos, BDAR, slapukai, palaikymas",

@@ -391,7 +391,7 @@
     "mapProviderNote": "地图提供商仅在密钥存在时激活；否则按模式显示占位符。",
     "premiumPinsOnly": "公开标记仅对 Premium/Platinum 徽章开放。",
     "approximateLocation": "位置为近似值（城市/半径），无反向地理编码。",
-    "mapFallback": "备用方案：显示"地图不可用"消息，不阻塞页面其余部分。",
+    "mapFallback": "备用方案：显示「地图不可用」消息，不阻塞页面其余部分。",
     "mapRulesNote": "规则与 Excalidraw 一致：可见性由个人资料设置和提供商成本控制。",
     "helpAndLegal": "帮助与法律",
     "helpDescription": "条款、GDPR、Cookie、支持",
