@@ -209,7 +209,7 @@ INSERT INTO _wishlists_ro (text) VALUES
 -- ============================================================
 INSERT INTO auth.users (
   id, instance_id, aud, role, email,
-  encrypted_password, email_confirmed_at, confirmed_at,
+  encrypted_password, email_confirmed_at,
   raw_app_meta_data, raw_user_meta_data,
   created_at, updated_at
 )
@@ -219,10 +219,10 @@ SELECT
   'authenticated' AS aud,
   'authenticated' AS role,
   'demo' || i || '@swaply.test' AS email,
-  -- bcrypt hash for "DemoSwap2025!" — generated with cost 10
+  -- bcrypt hash for "DemoSwap2025!" — generated at runtime via crypt()
   crypt('DemoSwap2025!', gen_salt('bf', 10)) AS encrypted_password,
   NOW() AS email_confirmed_at,
-  NOW() AS confirmed_at,
+  -- note: confirmed_at is a generated column, auto-derived from email_confirmed_at
   '{"provider": "email", "providers": ["email"]}'::jsonb AS raw_app_meta_data,
   '{}'::jsonb AS raw_user_meta_data,
   NOW() - ((i * 3) % 365 || ' days')::interval AS created_at,
