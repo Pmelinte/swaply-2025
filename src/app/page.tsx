@@ -35,7 +35,7 @@ export default function HomePage() {
             </div>
           </div>
         ) : (
-          <LoggedOutGate returnTo="/" />
+          <LoggedOutGate returnTo="/profile" />
         )}
       </SectionCard>
 

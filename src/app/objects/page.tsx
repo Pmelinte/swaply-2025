@@ -25,15 +25,22 @@ function SlotCard({
   onView?: () => void;
   color: "blue" | "green";
 }) {
+  const router = useRouter();
   const tc = useTranslations("common");
+  const t = useTranslations("objects");
   const borderColor = color === "blue" ? "border-blue-300 dark:border-blue-700" : "border-emerald-300 dark:border-emerald-700";
   const bgColor = color === "blue" ? "bg-blue-50/50 dark:bg-blue-950/30" : "bg-emerald-50/50 dark:bg-emerald-950/30";
 
   if (!item) {
     return (
-      <div className={`flex h-32 items-center justify-center rounded-xl border-2 border-dashed ${borderColor} ${bgColor} text-xs text-zinc-400`}>
-        {tc("freeSlot")}
-      </div>
+      <button
+        type="button"
+        onClick={() => router.push("/objects/new")}
+        className={`flex h-32 flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed ${borderColor} ${bgColor} text-xs text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition`}
+      >
+        <span className="text-lg">+</span>
+        <span className="font-semibold">{t("addButton")}</span>
+      </button>
     );
   }
 
@@ -52,7 +59,7 @@ function SlotCard({
       <p className="mt-1 truncate text-xs font-semibold text-zinc-800 dark:text-zinc-100">
         {item.title}
       </p>
-      <p className="truncate text-[10px] text-zinc-500">{item.category}</p>
+      <p className="truncate text-[10px] text-zinc-500">{item.category} &middot; {item.condition}</p>
       <div className="mt-1 flex gap-1">
         {onView ? (
           <button
@@ -277,10 +284,7 @@ export default function ObjectsPage() {
               {t("offersDescription")}
             </p>
           </div>
-          <div className="flex gap-2">
-            <Pill color="green">{t("chosenOffered", { count: offerRightCount })}</Pill>
-            <CTAButton href="/objects/new">{t("addButton")}</CTAButton>
-          </div>
+          <Pill color="green">{t("chosenOffered", { count: offerRightCount })}</Pill>
         </div>
 
         {/* Swipe zone */}
