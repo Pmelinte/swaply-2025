@@ -21,6 +21,8 @@ BEGIN;
 -- Curăță datele demo vechi
 DELETE FROM items WHERE is_demo = true;
 DELETE FROM profiles WHERE email LIKE '%@swaply.test';
+-- Curăță auth.users demo (SQL Editor rulează ca postgres, are acces)
+DELETE FROM auth.users WHERE email LIKE '%@swaply.test';
 
 -- ============================================================
 -- 1) Date auxiliare
@@ -200,7 +202,32 @@ INSERT INTO _wishlists_ro (text) VALUES
   ('Echipament foto'),('Jocuri retro sau console vechi');
 
 -- ============================================================
--- 2) 100 profiluri — adaptat la schema reală
+-- 2a) Creează 100 useri în auth.users (FK obligatoriu)
+-- ============================================================
+INSERT INTO auth.users (
+  id, instance_id, aud, role, email,
+  encrypted_password, email_confirmed_at,
+  raw_app_meta_data, raw_user_meta_data,
+  created_at, updated_at
+)
+SELECT
+  ('00000000-0000-4000-a000-' || lpad(i::text, 12, '0'))::UUID AS id,
+  '00000000-0000-0000-0000-000000000000'::UUID AS instance_id,
+  'authenticated' AS aud,
+  'authenticated' AS role,
+  'demo' || i || '@swaply.test' AS email,
+  -- bcrypt hash for "DemoSwap2025!" (unusable for login fara confirm)
+  '$2a$10$PznFhO2OlCpSRKGzKjqzXOYHV0z0rZ0Q4jZ5YJ7cFZ5.3rBxvJZGS' AS encrypted_password,
+  NOW() AS email_confirmed_at,
+  '{"provider": "email", "providers": ["email"]}'::jsonb AS raw_app_meta_data,
+  '{}'::jsonb AS raw_user_meta_data,
+  NOW() - ((i * 3) % 365 || ' days')::interval AS created_at,
+  NOW() - ((i * 2) % 30 || ' days')::interval AS updated_at
+FROM generate_series(1, 100) AS i
+ON CONFLICT (id) DO NOTHING;
+
+-- ============================================================
+-- 2b) 100 profiluri — adaptat la schema reală
 -- ============================================================
 INSERT INTO profiles (
   user_id, username, full_name, email, display_name, first_name,
@@ -379,4 +406,5 @@ COMMIT;
 -- Pentru a șterge datele demo:
 --   DELETE FROM items WHERE is_demo = true;
 --   DELETE FROM profiles WHERE email LIKE '%@swaply.test';
+--   DELETE FROM auth.users WHERE email LIKE '%@swaply.test';
 -- ============================================================
