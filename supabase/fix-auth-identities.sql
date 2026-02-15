@@ -1,19 +1,38 @@
 -- ============================================================
 -- HOTFIX: Fix "Database error querying schema" on login
--- Problem: seed.sql created auth.users but NOT auth.identities
--- GoTrue requires identity records for email sign-in.
--- Also: confirmed_at was NULL, encrypted_password may be invalid.
+-- Problem 1: seed.sql created auth.users but NOT auth.identities
+-- Problem 2: GoTrue Go SQL scanner cannot handle NULL in string
+--   columns (confirmation_token, recovery_token, etc.)
+--   Error: "Scan error on column index 3, name confirmation_token:
+--           converting NULL to string is unsupported"
 --
 -- Run this in Supabase SQL Editor (as postgres).
 -- ============================================================
 
 -- 1) Fix encrypted_password with valid bcrypt for "DemoSwap2025!"
--- (confirmed_at is a generated column — auto-computed from email_confirmed_at)
 UPDATE auth.users
 SET encrypted_password = crypt('DemoSwap2025!', gen_salt('bf', 10))
 WHERE email LIKE '%@swaply.test';
 
--- 2) Create missing auth.identities entries
+-- 2) Fix NULL token columns → empty strings (GoTrue requirement)
+UPDATE auth.users SET
+  confirmation_token = COALESCE(confirmation_token, ''),
+  recovery_token = COALESCE(recovery_token, ''),
+  email_change_token_new = COALESCE(email_change_token_new, ''),
+  email_change = COALESCE(email_change, ''),
+  email_change_token_current = COALESCE(email_change_token_current, ''),
+  reauthentication_token = COALESCE(reauthentication_token, ''),
+  phone_change = COALESCE(phone_change, ''),
+  phone_change_token = COALESCE(phone_change_token, ''),
+  raw_user_meta_data = json_build_object(
+    'sub', id::text,
+    'email', email,
+    'email_verified', true,
+    'phone_verified', false
+  )::jsonb
+WHERE email LIKE '%@swaply.test';
+
+-- 3) Create missing auth.identities entries
 INSERT INTO auth.identities (
   id, user_id, identity_data, provider, provider_id,
   last_sign_in_at, created_at, updated_at

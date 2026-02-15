@@ -211,6 +211,10 @@ INSERT INTO auth.users (
   id, instance_id, aud, role, email,
   encrypted_password, email_confirmed_at,
   raw_app_meta_data, raw_user_meta_data,
+  -- GoTrue Go SQL scanner requires these to be '' not NULL
+  confirmation_token, recovery_token,
+  email_change_token_new, email_change, email_change_token_current,
+  reauthentication_token, phone_change, phone_change_token,
   created_at, updated_at
 )
 SELECT
@@ -219,12 +223,23 @@ SELECT
   'authenticated' AS aud,
   'authenticated' AS role,
   'demo' || i || '@swaply.test' AS email,
-  -- bcrypt hash for "DemoSwap2025!" — generated at runtime via crypt()
   crypt('DemoSwap2025!', gen_salt('bf', 10)) AS encrypted_password,
   NOW() AS email_confirmed_at,
-  -- note: confirmed_at is a generated column, auto-derived from email_confirmed_at
   '{"provider": "email", "providers": ["email"]}'::jsonb AS raw_app_meta_data,
-  '{}'::jsonb AS raw_user_meta_data,
+  json_build_object(
+    'sub', ('00000000-0000-4000-a000-' || lpad(i::text, 12, '0'))::text,
+    'email', 'demo' || i || '@swaply.test',
+    'email_verified', true,
+    'phone_verified', false
+  )::jsonb AS raw_user_meta_data,
+  '' AS confirmation_token,
+  '' AS recovery_token,
+  '' AS email_change_token_new,
+  '' AS email_change,
+  '' AS email_change_token_current,
+  '' AS reauthentication_token,
+  '' AS phone_change,
+  '' AS phone_change_token,
   NOW() - ((i * 3) % 365 || ' days')::interval AS created_at,
   NOW() - ((i * 2) % 30 || ' days')::interval AS updated_at
 FROM generate_series(1, 100) AS i
