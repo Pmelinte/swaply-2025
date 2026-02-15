@@ -27,7 +27,7 @@ function LoginContent() {
   ];
 
   useEffect(() => {
-    if (user) router.push(returnTo);
+    if (user) router.replace(returnTo);
   }, [user, returnTo, router]);
 
   const handleSubmit = async () => {
@@ -60,7 +60,7 @@ function LoginContent() {
         } else {
           setMessage(t("authenticated"));
           setStatus("success");
-          router.push(returnTo);
+          router.replace(returnTo);
         }
       } else if (activeTab === "register") {
         const { error } = await register(email, password, accept);

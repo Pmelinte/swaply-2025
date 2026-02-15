@@ -607,6 +607,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const mapItem = useCallback(
     (row: Partial<Item> & Record<string, unknown>): Item => {
       const currentUser = userRef.current;
+      // Semantic fields live inside ai_metadata jsonb in the DB
+      const aiMeta = safeObject(row.ai_metadata, {}) as Record<string, unknown>;
       return {
         id: safeString(row.id, nanoid()),
         ownerId: safeString(
@@ -617,15 +619,25 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         category: safeString(row.category, "General"),
         condition: (safeString(row.condition, "good") as Item["condition"]) ?? "good",
         description: safeString(row.description),
-        wishlist: safeString(row.wishlist),
+        wishlist: safeString(row.wishlist, safeString(aiMeta.wishlist)),
         status: (safeString(row.status, "active") as Item["status"]) ?? "active",
         isDemo: safeBoolean(row.is_demo, false),
         isActive: safeBoolean(row.is_active, true),
         createdAt: safeString(row.created_at, new Date().toISOString()),
         location: safeString(row.location, safeString(row.city)),
-        aiSuggestedTags: safeArray<string>(row.ai_suggested_tags, row.aiSuggestedTags ?? []),
-        userFinalTags: safeArray<string>(row.user_final_tags, row.userFinalTags ?? []),
-        photos: safeArray<string>(row.photos, []),
+        aiSuggestedTags: safeArray<string>(row.ai_suggested_tags, safeArray<string>(row.tags, row.aiSuggestedTags ?? [])),
+        userFinalTags: safeArray<string>(row.user_final_tags, safeArray<string>(row.tags, row.userFinalTags ?? [])),
+        // DB stores photos as "images" jsonb array
+        photos: safeArray<string>(row.photos, safeArray<string>(row.images, [])),
+        // Semantic fields from ai_metadata
+        intent: (safeString(aiMeta.intent) || undefined) as Item["intent"],
+        flexibility: (safeString(aiMeta.flexibility) || undefined) as Item["flexibility"],
+        perceivedValue: (safeString(aiMeta.perceivedValue) || undefined) as Item["perceivedValue"],
+        acceptsBundle: typeof aiMeta.acceptsBundle === "boolean" ? aiMeta.acceptsBundle : undefined,
+        recipientMatters: typeof aiMeta.recipientMatters === "boolean" ? aiMeta.recipientMatters : undefined,
+        clarity: (safeString(aiMeta.clarity) || undefined) as Item["clarity"],
+        context: (safeString(aiMeta.context) || undefined) as Item["context"],
+        aiNote: safeString(aiMeta.aiNote) || undefined,
       };
     },
     [],
