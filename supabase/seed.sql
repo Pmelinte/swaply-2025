@@ -340,14 +340,10 @@ SELECT
   (ARRAY['new','good','good','used'])[1 + (item_j % 4)] AS condition,
   CASE
     WHEN item_j = 1 AND profile_i % 15 = 0 THEN 'reserved'
-    WHEN item_j = 2 AND profile_i % 30 = 0 THEN 'swapped'
     ELSE 'active'
   END AS status,
   true AS is_demo,
-  CASE
-    WHEN item_j = 2 AND profile_i % 30 = 0 THEN false
-    ELSE true
-  END AS is_active,
+  true AS is_active,
   jsonb_build_array(
     'https://picsum.photos/seed/' || t.photo_seed || '-' || profile_i || '/400/300'
   ) AS images,
