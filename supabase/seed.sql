@@ -21,7 +21,10 @@ BEGIN;
 -- Curăță datele demo vechi
 DELETE FROM items WHERE is_demo = true;
 DELETE FROM profiles WHERE email LIKE '%@swaply.test';
--- Curăță auth.users demo (SQL Editor rulează ca postgres, are acces)
+-- Curăță auth identities + users demo (SQL Editor rulează ca postgres, are acces)
+DELETE FROM auth.identities WHERE user_id IN (
+  SELECT id FROM auth.users WHERE email LIKE '%@swaply.test'
+);
 DELETE FROM auth.users WHERE email LIKE '%@swaply.test';
 
 -- ============================================================
@@ -206,7 +209,7 @@ INSERT INTO _wishlists_ro (text) VALUES
 -- ============================================================
 INSERT INTO auth.users (
   id, instance_id, aud, role, email,
-  encrypted_password, email_confirmed_at,
+  encrypted_password, email_confirmed_at, confirmed_at,
   raw_app_meta_data, raw_user_meta_data,
   created_at, updated_at
 )
@@ -216,15 +219,40 @@ SELECT
   'authenticated' AS aud,
   'authenticated' AS role,
   'demo' || i || '@swaply.test' AS email,
-  -- bcrypt hash for "DemoSwap2025!" (unusable for login fara confirm)
-  '$2a$10$PznFhO2OlCpSRKGzKjqzXOYHV0z0rZ0Q4jZ5YJ7cFZ5.3rBxvJZGS' AS encrypted_password,
+  -- bcrypt hash for "DemoSwap2025!" — generated with cost 10
+  crypt('DemoSwap2025!', gen_salt('bf', 10)) AS encrypted_password,
   NOW() AS email_confirmed_at,
+  NOW() AS confirmed_at,
   '{"provider": "email", "providers": ["email"]}'::jsonb AS raw_app_meta_data,
   '{}'::jsonb AS raw_user_meta_data,
   NOW() - ((i * 3) % 365 || ' days')::interval AS created_at,
   NOW() - ((i * 2) % 30 || ' days')::interval AS updated_at
 FROM generate_series(1, 100) AS i
 ON CONFLICT (id) DO NOTHING;
+
+-- ============================================================
+-- 2a-bis) Creează identitățile în auth.identities (obligatoriu pt GoTrue login)
+-- ============================================================
+INSERT INTO auth.identities (
+  id, user_id, identity_data, provider, provider_id,
+  last_sign_in_at, created_at, updated_at
+)
+SELECT
+  gen_random_uuid() AS id,
+  ('00000000-0000-4000-a000-' || lpad(i::text, 12, '0'))::UUID AS user_id,
+  json_build_object(
+    'sub', ('00000000-0000-4000-a000-' || lpad(i::text, 12, '0'))::text,
+    'email', 'demo' || i || '@swaply.test',
+    'email_verified', true,
+    'phone_verified', false
+  )::jsonb AS identity_data,
+  'email' AS provider,
+  ('00000000-0000-4000-a000-' || lpad(i::text, 12, '0'))::text AS provider_id,
+  NOW() AS last_sign_in_at,
+  NOW() - ((i * 3) % 365 || ' days')::interval AS created_at,
+  NOW() - ((i * 2) % 30 || ' days')::interval AS updated_at
+FROM generate_series(1, 100) AS i
+ON CONFLICT DO NOTHING;
 
 -- ============================================================
 -- 2b) 100 profiluri — adaptat la schema reală
@@ -402,5 +430,6 @@ COMMIT;
 -- Pentru a șterge datele demo:
 --   DELETE FROM items WHERE is_demo = true;
 --   DELETE FROM profiles WHERE email LIKE '%@swaply.test';
+--   DELETE FROM auth.identities WHERE user_id IN (SELECT id FROM auth.users WHERE email LIKE '%@swaply.test');
 --   DELETE FROM auth.users WHERE email LIKE '%@swaply.test';
 -- ============================================================
