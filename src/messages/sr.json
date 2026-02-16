@@ -285,6 +285,11 @@
   "match": {
     "title": "Analiza podudaranja",
     "description": "Predlozi zasnovani na kumulativnoj kompatibilnosti. AI analizira, vi odlučujete.",
+    "topPicks": "Top 3 AI izbora",
+    "topPicksDescription": "Najbolja podudaranja izabrana na osnovu analize vaših ponuda i želja.",
+    "mapProposals": "Mapa predloga",
+    "mapProposalsDescription": "Vaši predlozi za razmenu vizualizovani na mapi, obojeni prema kompatibilnosti.",
+    "yourLocation": "Vaša lokacija",
     "backToAi": "Nazad na AI",
     "enableManual": "Omogući ručni režim",
     "aiUnavailable": "AI nedostupan: koriste se ručna pravila i filteri da se tok ne blokira.",

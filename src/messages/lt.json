@@ -285,6 +285,11 @@
   "match": {
     "title": "Atitikmenų analizė",
     "description": "Pasiūlymai pagal kumuliacinį suderinamumą. AI analizuoja, jūs sprendžiate.",
+    "topPicks": "Top 3 AI pasirinkimai",
+    "topPicksDescription": "Geriausi atitikmenys, atrinkti remiantis jūsų pasiūlymų ir norų analize.",
+    "mapProposals": "Pasiūlymų žemėlapis",
+    "mapProposalsDescription": "Jūsų mainų pasiūlymai vizualizuoti žemėlapyje, spalvoti pagal suderinamumą.",
+    "yourLocation": "Jūsų vieta",
     "backToAi": "Atgal į AI",
     "enableManual": "Įjungti rankinį režimą",
     "aiUnavailable": "AI neprieinamas: naudojamos rankinės taisyklės ir filtrai, kad nebūtų blokuojamas srautas.",

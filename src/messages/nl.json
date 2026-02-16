@@ -285,6 +285,11 @@
   "match": {
     "title": "Matchanalyse",
     "description": "Voorstellen gebaseerd op cumulatieve compatibiliteit. AI analyseert, jij beslist.",
+    "topPicks": "Top 3 AI-keuzes",
+    "topPicksDescription": "Beste matches geselecteerd op basis van analyse van je aanbiedingen en wensen.",
+    "mapProposals": "Voorstellenkaart",
+    "mapProposalsDescription": "Je ruilvoorstellen gevisualiseerd op een kaart, gekleurd op compatibiliteit.",
+    "yourLocation": "Jouw locatie",
     "backToAi": "Terug naar AI",
     "enableManual": "Handmatige modus inschakelen",
     "aiUnavailable": "AI niet beschikbaar: handmatige regels en filters worden gebruikt om het proces niet te blokkeren.",

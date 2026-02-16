@@ -285,6 +285,11 @@
   "match": {
     "title": "Vastaavuusanalyysi",
     "description": "Ehdotukset kumulatiivisen yhteensopivuuden perusteella. AI analysoi, sinä päätät.",
+    "topPicks": "Top 3 AI-valintaa",
+    "topPicksDescription": "Parhaat vastaavuudet valittu tarjoustesi ja toiveidesi analyysin perusteella.",
+    "mapProposals": "Ehdotuskartta",
+    "mapProposalsDescription": "Vaihtoehdotuksesi visualisoituna kartalla, väritettynä yhteensopivuuden mukaan.",
+    "yourLocation": "Sijaintisi",
     "backToAi": "Takaisin AI:hin",
     "enableManual": "Ota manuaalitila käyttöön",
     "aiUnavailable": "AI ei käytettävissä: käytetään manuaalisia sääntöjä ja suodattimia prosessin estämisen välttämiseksi.",

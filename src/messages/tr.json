@@ -285,6 +285,11 @@
   "match": {
     "title": "Eşleşme analizi",
     "description": "Kümülatif uyumluluğa dayalı öneriler. Yapay zeka analiz eder, siz karar verirsiniz.",
+    "topPicks": "En iyi 3 yapay zeka seçimi",
+    "topPicksDescription": "Teklifleriniz ve isteklerinizin analizine göre seçilen en iyi eşleşmeler.",
+    "mapProposals": "Öneri haritası",
+    "mapProposalsDescription": "Takas önerileriniz haritada görselleştirilmiş, uyumluluğa göre renklendirilmiş.",
+    "yourLocation": "Konumunuz",
     "backToAi": "Yapay zekaya geri dön",
     "enableManual": "Manuel modu etkinleştir",
     "aiUnavailable": "Yapay zeka kullanılamıyor: akışı engellemamek için manuel kurallar ve filtreler kullanılıyor.",

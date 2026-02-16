@@ -268,6 +268,11 @@
   "match": {
     "title": "Analyse des correspondances",
     "description": "Propositions basees sur la compatibilite cumulative. L'IA analyse, vous decidez.",
+    "topPicks": "Top 3 des choix IA",
+    "topPicksDescription": "Meilleures correspondances selectionnees sur la base de l'analyse de vos offres et souhaits.",
+    "mapProposals": "Carte des propositions",
+    "mapProposalsDescription": "Vos propositions d'echange visualisees sur une carte, colorees par compatibilite.",
+    "yourLocation": "Votre emplacement",
     "backToAi": "Retour a l'IA",
     "enableManual": "Activer le mode manuel",
     "aiUnavailable": "IA indisponible : utilisation de regles manuelles et de filtres pour ne pas bloquer le flux.",

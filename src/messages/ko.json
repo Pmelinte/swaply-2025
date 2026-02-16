@@ -285,6 +285,11 @@
   "match": {
     "title": "매칭 분석",
     "description": "누적 호환성 기반 제안. AI가 분석하고 당신이 결정합니다.",
+    "topPicks": "AI 추천 상위 3개",
+    "topPicksDescription": "제안과 희망 사항 분석을 기반으로 선정된 최고의 매칭.",
+    "mapProposals": "제안 지도",
+    "mapProposalsDescription": "교환 제안이 지도에 시각화되어 호환성에 따라 색상으로 표시됩니다.",
+    "yourLocation": "내 위치",
     "backToAi": "AI로 돌아가기",
     "enableManual": "수동 모드 활성화",
     "aiUnavailable": "AI 사용 불가: 흐름을 차단하지 않도록 수동 규칙과 필터를 사용합니다.",

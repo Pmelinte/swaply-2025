@@ -268,6 +268,11 @@
   "match": {
     "title": "Uebereinstimmungsanalyse",
     "description": "Vorschlaege basierend auf kumulativer Kompatibilitaet. KI analysiert, Sie entscheiden.",
+    "topPicks": "Top 3 KI-Auswahl",
+    "topPicksDescription": "Beste Uebereinstimmungen basierend auf der Analyse Ihrer Angebote und Wuensche.",
+    "mapProposals": "Vorschlagskarte",
+    "mapProposalsDescription": "Ihre Tauschvorschlaege auf einer Karte visualisiert, farblich nach Kompatibilitaet.",
+    "yourLocation": "Ihr Standort",
     "backToAi": "Zurueck zur KI",
     "enableManual": "Manuellen Modus aktivieren",
     "aiUnavailable": "KI nicht verfuegbar: Manuelle Regeln und Filter werden verwendet, um den Ablauf nicht zu blockieren.",

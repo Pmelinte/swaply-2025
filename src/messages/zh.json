@@ -285,6 +285,11 @@
   "match": {
     "title": "匹配分析",
     "description": "基于累积兼容性的建议。AI 分析，您做决定。",
+    "topPicks": "AI 精选前 3 名",
+    "topPicksDescription": "根据您的报价和愿望分析选出的最佳匹配。",
+    "mapProposals": "提案地图",
+    "mapProposalsDescription": "您的交换提案在地图上可视化展示，按兼容性着色。",
+    "yourLocation": "您的位置",
     "backToAi": "返回 AI",
     "enableManual": "启用手动模式",
     "aiUnavailable": "AI 不可用：使用手动规则和筛选器，不阻塞流程。",

@@ -285,6 +285,11 @@
   "match": {
     "title": "Pagsusuri ng tugma",
     "description": "Mga panukala batay sa pinagsama-samang compatibility. Sinusuri ng AI, ikaw ang magpapasya.",
+    "topPicks": "Top 3 AI na Pinili",
+    "topPicksDescription": "Pinakamahusay na mga tugma na napili batay sa pagsusuri ng iyong mga alok at kagustuhan.",
+    "mapProposals": "Mapa ng mga Panukala",
+    "mapProposalsDescription": "Ang iyong mga panukala sa pagpapalit na ipinakita sa mapa, may kulay ayon sa compatibility.",
+    "yourLocation": "Ang iyong lokasyon",
     "backToAi": "Bumalik sa AI",
     "enableManual": "I-enable ang manual mode",
     "aiUnavailable": "Hindi available ang AI: gumagamit ng mga manual na patakaran at filter upang hindi maharangan ang daloy.",

@@ -285,6 +285,11 @@
   "match": {
     "title": "Phân tích ghép đôi",
     "description": "Đề xuất dựa trên khả năng tương thích tích lũy. AI phân tích, bạn quyết định.",
+    "topPicks": "Top 3 lựa chọn của AI",
+    "topPicksDescription": "Các kết quả phù hợp nhất được chọn dựa trên phân tích các đề nghị và mong muốn của bạn.",
+    "mapProposals": "Bản đồ đề xuất",
+    "mapProposalsDescription": "Các đề xuất trao đổi của bạn được hiển thị trên bản đồ, tô màu theo mức tương thích.",
+    "yourLocation": "Vị trí của bạn",
     "backToAi": "Quay lại AI",
     "enableManual": "Bật chế độ thủ công",
     "aiUnavailable": "AI không khả dụng: sử dụng quy tắc thủ công và bộ lọc để không chặn luồng.",

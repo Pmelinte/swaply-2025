@@ -285,6 +285,11 @@
   "match": {
     "title": "Analiza ujemanj",
     "description": "Predlogi na podlagi kumulativne združljivosti. AI analizira, vi se odločite.",
+    "topPicks": "Top 3 AI izbire",
+    "topPicksDescription": "Najboljša ujemanja, izbrana na podlagi analize vaših ponudb in želja.",
+    "mapProposals": "Zemljevid predlogov",
+    "mapProposalsDescription": "Vaši predlogi za zamenjavo vizualizirani na zemljevidu, obarvani glede na združljivost.",
+    "yourLocation": "Vaša lokacija",
     "backToAi": "Nazaj na AI",
     "enableManual": "Omogoči ročni način",
     "aiUnavailable": "AI nedostopen: uporaba ročnih pravil in filtrov, da se tok ne blokira.",

@@ -285,6 +285,11 @@
   "match": {
     "title": "Analiza dopasowania",
     "description": "Propozycje oparte na kumulatywnej kompatybilności. AI analizuje, Ty decydujesz.",
+    "topPicks": "Top 3 wybory AI",
+    "topPicksDescription": "Najlepsze dopasowania wybrane na podstawie analizy Twoich ofert i życzeń.",
+    "mapProposals": "Mapa propozycji",
+    "mapProposalsDescription": "Twoje propozycje wymiany zwizualizowane na mapie, pokolorowane według kompatybilności.",
+    "yourLocation": "Twoja lokalizacja",
     "backToAi": "Wróć do AI",
     "enableManual": "Włącz tryb ręczny",
     "aiUnavailable": "AI niedostępne: używam ręcznych reguł i filtrów, aby nie blokować przepływu.",

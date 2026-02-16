@@ -285,6 +285,11 @@
   "match": {
     "title": "Anailis mheaitseala",
     "description": "Moltai bunaithe ar chomhoiriúnacht charnaíoch. Anailisioinn IS, socraíonn tusa.",
+    "topPicks": "Na 3 rogha IS is fearr",
+    "topPicksDescription": "Na meaitseálacha is fearr roghnaithe bunaithe ar anailís ar do thairiscintí agus mianta.",
+    "mapProposals": "Léarscáil moltaí",
+    "mapProposalsDescription": "Do mholtaí babhtála léirithe ar léarscáil, daite de réir comhoiriúnachta.",
+    "yourLocation": "Do shuíomh",
     "backToAi": "Ar ais chuig IS",
     "enableManual": "Cumasaigh modh lamha",
     "aiUnavailable": "IS gan a bheith ar fail: ag usaid rialacha agus scagairi lamha gan an sreabhadh a bhloceail.",

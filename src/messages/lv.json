@@ -285,6 +285,11 @@
   "match": {
     "title": "Atbilstības analīze",
     "description": "Priekšlikumi, balstoties uz kumulatīvu saderību. MI analizē, jūs izlemjat.",
+    "topPicks": "Top 3 MI izvēles",
+    "topPicksDescription": "Labākās atbilstības, izvēlētas, pamatojoties uz jūsu piedāvājumu un vēlmju analīzi.",
+    "mapProposals": "Priekšlikumu karte",
+    "mapProposalsDescription": "Jūsu apmaiņas priekšlikumi vizualizēti kartē, iekrāsoti pēc saderības.",
+    "yourLocation": "Jūsu atrašanās vieta",
     "backToAi": "Atpakaļ uz MI",
     "enableManual": "Iespējot manuālo režīmu",
     "aiUnavailable": "MI nav pieejams: izmanto manuālos noteikumus un filtrus, lai nebloķētu plūsmu.",

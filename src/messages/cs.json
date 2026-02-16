@@ -285,6 +285,11 @@
   "match": {
     "title": "Analýza shod",
     "description": "Návrhy založené na kumulativní kompatibilitě. AI analyzuje, vy rozhodujete.",
+    "topPicks": "Top 3 výběry AI",
+    "topPicksDescription": "Nejlepší shody vybrané na základě analýzy vašich nabídek a přání.",
+    "mapProposals": "Mapa návrhů",
+    "mapProposalsDescription": "Vaše návrhy na výměnu vizualizované na mapě, barevně podle kompatibility.",
+    "yourLocation": "Vaše poloha",
     "backToAi": "Zpět k AI",
     "enableManual": "Povolit manuální režim",
     "aiUnavailable": "AI nedostupné: použití manuálních pravidel a filtrů, aby se neblokoval proces.",

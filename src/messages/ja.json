@@ -285,6 +285,11 @@
   "match": {
     "title": "マッチ分析",
     "description": "累積的な互換性に基づく提案。AIが分析し、あなたが決定します。",
+    "topPicks": "AIが選ぶトップ3",
+    "topPicksDescription": "あなたのオファーと希望の分析に基づいて選ばれたベストマッチ。",
+    "mapProposals": "提案マップ",
+    "mapProposalsDescription": "あなたのスワップ提案がマップ上に表示され、互換性に応じて色分けされています。",
+    "yourLocation": "あなたの位置",
     "backToAi": "AIに戻る",
     "enableManual": "手動モードを有効にする",
     "aiUnavailable": "AI利用不可: フローをブロックしないために手動ルールとフィルターを使用中。",

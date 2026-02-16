@@ -285,6 +285,11 @@
   "match": {
     "title": "Analiżi tat-tqabbil",
     "description": "Proposti bbażati fuq kompatibbiltà kumulattiva. AI janalizza, inti tiddeċiedi.",
+    "topPicks": "L-aqwa 3 għażliet tal-AI",
+    "topPicksDescription": "L-aħjar tqabbil magħżula abbażi tal-analiżi tal-offerti u x-xewqat tiegħek.",
+    "mapProposals": "Mappa tal-proposti",
+    "mapProposalsDescription": "Il-proposti tiegħek ta' skambju viżwalizzati fuq mappa, ikkuluriti skont il-kompatibbiltà.",
+    "yourLocation": "Il-post tiegħek",
     "backToAi": "Lura lejn AI",
     "enableManual": "Attiva mod manwali",
     "aiUnavailable": "AI mhux disponibbli: qed jintużaw regoli manwali u filtri biex ma jibblokkawx il-fluss.",

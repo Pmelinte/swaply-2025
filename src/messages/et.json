@@ -285,6 +285,11 @@
   "match": {
     "title": "Sobivuse analüüs",
     "description": "Pakkumised kumulatiivse ühilduvuse alusel. TI analüüsib, teie otsustate.",
+    "topPicks": "Top 3 TI valikut",
+    "topPicksDescription": "Parimad vasted, mis on valitud teie pakkumiste ja soovide analüüsi põhjal.",
+    "mapProposals": "Ettepanekute kaart",
+    "mapProposalsDescription": "Teie vahetusettepanekud kaardil visualiseerituna, värvitud ühilduvuse järgi.",
+    "yourLocation": "Teie asukoht",
     "backToAi": "Tagasi TI juurde",
     "enableManual": "Luba käsirežiim",
     "aiUnavailable": "TI pole saadaval: kasutatakse käsireegleid ja filtreid, et voogu mitte blokeerida.",

@@ -285,6 +285,11 @@
   "match": {
     "title": "Matchanalys",
     "description": "Förslag baserade på kumulativ kompatibilitet. AI analyserar, du bestämmer.",
+    "topPicks": "Topp 3 AI-val",
+    "topPicksDescription": "Bästa matchningar valda baserat på analys av dina erbjudanden och önskemål.",
+    "mapProposals": "Förslagskarta",
+    "mapProposalsDescription": "Dina bytesförslag visualiserade på en karta, färgade efter kompatibilitet.",
+    "yourLocation": "Din plats",
     "backToAi": "Tillbaka till AI",
     "enableManual": "Aktivera manuellt läge",
     "aiUnavailable": "AI otillgänglig: manuella regler och filter används för att inte blockera flödet.",

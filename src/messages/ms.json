@@ -285,6 +285,11 @@
   "match": {
     "title": "Analisis padanan",
     "description": "Cadangan berdasarkan keserasian kumulatif. AI menganalisis, anda yang memutuskan.",
+    "topPicks": "3 Pilihan Teratas AI",
+    "topPicksDescription": "Padanan terbaik dipilih berdasarkan analisis tawaran dan kehendak anda.",
+    "mapProposals": "Peta Cadangan",
+    "mapProposalsDescription": "Cadangan pertukaran anda divisualisasikan pada peta, diwarnakan mengikut keserasian.",
+    "yourLocation": "Lokasi anda",
     "backToAi": "Kembali ke AI",
     "enableManual": "Aktifkan mod manual",
     "aiUnavailable": "AI tidak tersedia: menggunakan peraturan manual dan penapis supaya aliran tidak tersekat.",

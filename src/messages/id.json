@@ -285,6 +285,11 @@
   "match": {
     "title": "Analisis kecocokan",
     "description": "Proposal berdasarkan kompatibilitas kumulatif. AI menganalisis, Anda yang memutuskan.",
+    "topPicks": "3 Pilihan Teratas AI",
+    "topPicksDescription": "Kecocokan terbaik yang dipilih berdasarkan analisis penawaran dan keinginan Anda.",
+    "mapProposals": "Peta Proposal",
+    "mapProposalsDescription": "Proposal pertukaran Anda divisualisasikan di peta, diwarnai berdasarkan kompatibilitas.",
+    "yourLocation": "Lokasi Anda",
     "backToAi": "Kembali ke AI",
     "enableManual": "Aktifkan mode manual",
     "aiUnavailable": "AI tidak tersedia: menggunakan aturan manual dan filter agar alur tidak terblokir.",

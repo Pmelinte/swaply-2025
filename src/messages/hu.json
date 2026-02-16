@@ -285,6 +285,11 @@
   "match": {
     "title": "Egyezés elemzése",
     "description": "Javaslatok a kumulatív kompatibilitás alapján. Az MI elemez, Ön dönt.",
+    "topPicks": "Top 3 MI választás",
+    "topPicksDescription": "A legjobb egyezések az ajánlatai és kívánságai elemzése alapján.",
+    "mapProposals": "Javaslatok térképe",
+    "mapProposalsDescription": "Csere javaslatai térképen megjelenítve, kompatibilitás szerint színezve.",
+    "yourLocation": "Az Ön helyzete",
     "backToAi": "Vissza az MI-hez",
     "enableManual": "Kézi mód engedélyezése",
     "aiUnavailable": "MI nem elérhető: kézi szabályok és szűrők használata a folyamat fenntartásához.",

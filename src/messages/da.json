@@ -285,6 +285,11 @@
   "match": {
     "title": "Match-analyse",
     "description": "Forslag baseret på kumulativ kompatibilitet. AI analyserer, du beslutter.",
+    "topPicks": "Top 3 AI-valg",
+    "topPicksDescription": "Bedste match udvalgt baseret på analyse af dine tilbud og ønsker.",
+    "mapProposals": "Forslagskort",
+    "mapProposalsDescription": "Dine bytteforslag visualiseret på et kort, farvet efter kompatibilitet.",
+    "yourLocation": "Din placering",
     "backToAi": "Tilbage til AI",
     "enableManual": "Aktivér manuel tilstand",
     "aiUnavailable": "AI utilgængelig: bruger manuelle regler og filtre for ikke at blokere flowet.",
