@@ -400,6 +400,8 @@ interface AppStateContextProps {
   }) => Promise<SwapIntent | null>;
   updateSwapStatus: (swapId: string, status: SwapIntent["status"]) => Promise<void>;
   addSwapFeedback: (swapId: string, rating: number, comment: string) => Promise<void>;
+  changeEmail: (newEmail: string) => Promise<{ error?: string }>;
+  changePassword: (newPassword: string) => Promise<{ error?: string }>;
   markNotificationRead: (notificationId: string) => Promise<void>;
   clearNotifications: () => void;
   startNewItem: () => Item | null;
@@ -1015,6 +1017,51 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     setDataSource(supabaseConfigured ? "supabase" : "mock");
   }, [dataSource, supabase, supabaseConfigured]);
 
+  const changeEmail = useCallback(
+    async (newEmail: string): Promise<{ error?: string }> => {
+      setLastError(null);
+      if (!newEmail.trim()) {
+        const error = "Email-ul nu poate fi gol.";
+        setLastError(error);
+        return { error };
+      }
+      if (supabaseConfigured && supabase) {
+        const { error } = await supabase.auth.updateUser({ email: newEmail });
+        if (error) {
+          setLastError(error.message);
+          return { error: error.message };
+        }
+        return {};
+      }
+      if (user) {
+        setUser({ ...user, email: newEmail });
+      }
+      return {};
+    },
+    [supabaseConfigured, supabase, user],
+  );
+
+  const changePassword = useCallback(
+    async (newPassword: string): Promise<{ error?: string }> => {
+      setLastError(null);
+      if (newPassword.length < 6) {
+        const error = "Parola trebuie să aibă cel puțin 6 caractere.";
+        setLastError(error);
+        return { error };
+      }
+      if (supabaseConfigured && supabase) {
+        const { error } = await supabase.auth.updateUser({ password: newPassword });
+        if (error) {
+          setLastError(error.message);
+          return { error: error.message };
+        }
+        return {};
+      }
+      return {};
+    },
+    [supabaseConfigured, supabase],
+  );
+
   const register = useCallback(
     async (
       email: string,
@@ -1527,6 +1574,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       login,
       logout,
       register,
+      changeEmail,
+      changePassword,
       updateProfile,
       upsertItem,
       deleteItem,
@@ -1551,6 +1600,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       featureToggles,
       items,
       login,
+      changeEmail,
+      changePassword,
       clearNotifications,
       logout,
       matches,

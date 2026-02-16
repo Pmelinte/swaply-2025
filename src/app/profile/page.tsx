@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { LoggedOutGate, MissingDataCallout } from "@/components/gated";
@@ -11,10 +11,16 @@ import LocationPicker from "@/components/LocationPicker";
 
 export default function ProfilePage() {
   const t = useTranslations("profile");
-  const { user, updateProfile, loading, lastError } = useAppState();
+  const { user, updateProfile, changeEmail, changePassword, loading, lastError } = useAppState();
   const [draft, setDraft] = useState<UserProfile | null>(user);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"profil" | "cont" | "reputatie">("profil");
+  const [newEmail, setNewEmail] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [emailMessage, setEmailMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [passwordMessage, setPasswordMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const profileTabs = [
     { key: "profil" as const, label: t("title") },
     { key: "cont" as const, label: t("accountAndSettings") },
@@ -345,6 +351,108 @@ export default function ProfilePage() {
             {t("matchNotifications")}
           </label>
         </div>
+      </SectionCard>
+
+      <SectionCard
+        title={t("emailChange")}
+        description={t("emailChangeDescription")}
+      >
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+          {t("currentEmail")}: <span className="font-semibold text-zinc-700 dark:text-zinc-200">{user.email}</span>
+        </p>
+        <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
+          {t("newEmail")}
+          <input
+            type="email"
+            value={newEmail}
+            onChange={(e) => setNewEmail(e.target.value)}
+            placeholder={t("newEmailPlaceholder")}
+            className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
+          />
+        </label>
+        <button
+          type="button"
+          disabled={!newEmail.trim()}
+          onClick={async () => {
+            setEmailMessage(null);
+            const result = await changeEmail(newEmail);
+            if (result.error) {
+              setEmailMessage({ type: "error", text: result.error });
+            } else {
+              setEmailMessage({ type: "success", text: t("emailChangeSuccess") });
+              setNewEmail("");
+            }
+          }}
+          className="rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+        >
+          {t("changeEmailButton")}
+        </button>
+        {emailMessage ? (
+          <div className={`rounded-xl p-3 text-sm font-medium ${
+            emailMessage.type === "error"
+              ? "bg-red-50 text-red-900 dark:bg-red-900/40 dark:text-red-100"
+              : "bg-green-50 text-green-900 dark:bg-green-900/40 dark:text-green-100"
+          }`}>
+            {emailMessage.text}
+          </div>
+        ) : null}
+      </SectionCard>
+
+      <SectionCard
+        title={t("passwordChange")}
+        description={t("passwordChangeDescription")}
+      >
+        <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
+          {t("newPassword")}
+          <input
+            type="password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            placeholder={t("newPasswordPlaceholder")}
+            className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
+          />
+        </label>
+        <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
+          {t("confirmPassword")}
+          <input
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder={t("confirmPasswordPlaceholder")}
+            className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
+          />
+        </label>
+        <button
+          type="button"
+          disabled={!newPassword || newPassword !== confirmPassword}
+          onClick={async () => {
+            setPasswordMessage(null);
+            if (newPassword !== confirmPassword) {
+              setPasswordMessage({ type: "error", text: t("passwordMismatch") });
+              return;
+            }
+            const result = await changePassword(newPassword);
+            if (result.error) {
+              setPasswordMessage({ type: "error", text: result.error });
+            } else {
+              setPasswordMessage({ type: "success", text: t("passwordChangeSuccess") });
+              setNewPassword("");
+              setConfirmPassword("");
+            }
+          }}
+          className="rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+        >
+          {t("changePasswordButton")}
+        </button>
+        {passwordMessage ? (
+          <div className={`rounded-xl p-3 text-sm font-medium ${
+            passwordMessage.type === "error"
+              ? "bg-red-50 text-red-900 dark:bg-red-900/40 dark:text-red-100"
+              : "bg-green-50 text-green-900 dark:bg-green-900/40 dark:text-green-100"
+          }`}>
+            {passwordMessage.text}
+          </div>
+        ) : null}
       </SectionCard>
 
       <SectionCard
