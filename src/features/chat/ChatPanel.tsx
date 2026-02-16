@@ -95,11 +95,12 @@ export function ChatPanel({
   initialConversationId?: string;
 }) {
   const t = useTranslations("chatPanel");
-  const { addMessage, toggleConversationTranslation, language } = useAppState();
+  const { addMessage, toggleConversationTranslation, language, items, swaps, user } = useAppState();
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
   const [draft, setDraft] = useState("");
   const [moderationError, setModerationError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
+  const [readCounts, setReadCounts] = useState<Record<string, number>>({});
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const effectiveActiveId =
@@ -111,10 +112,32 @@ export function ChatPanel({
 
   const active = conversations.find((c) => c.id === effectiveActiveId);
 
+  // Track read counts — mark messages as "read" when conversation is viewed
+  useEffect(() => {
+    if (active) {
+      setReadCounts((prev) => ({ ...prev, [active.id]: active.messages.length }));
+    }
+  }, [active?.id, active?.messages.length]);
+
   // Auto-scroll to latest message
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [active?.messages.length]);
+
+  // Find swap context for active conversation
+  const swapContext = active && user ? (() => {
+    const participantId = active.participantId;
+    const relevantSwaps = swaps.filter(
+      (s) =>
+        (s.requesterId === user.id && s.responderId === participantId) ||
+        (s.responderId === user.id && s.requesterId === participantId),
+    );
+    if (relevantSwaps.length === 0) return null;
+    const latestSwap = relevantSwaps[0];
+    const reqItem = items.find((i) => i.id === latestSwap.requesterItemId);
+    const resItem = items.find((i) => i.id === latestSwap.responderItemId);
+    return { swap: latestSwap, reqItem, resItem };
+  })() : null;
 
   const handleSend = async () => {
     if (!draft.trim() || !active) return;
@@ -154,25 +177,38 @@ export function ChatPanel({
             {t("noConversations")}
           </p>
         ) : null}
-        {conversations.map((conv) => (
-          <button
-            key={conv.id}
-            onClick={() => setSelectedId(conv.id)}
-            className={`w-full rounded-xl border px-3 py-2 text-left ${
-              conv.id === effectiveActiveId
-                ? "border-blue-200 bg-blue-50 text-blue-900 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-100"
-                : "border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
-            }`}
-          >
-            <div className="flex items-center justify-between">
-              <div className="font-semibold">{conv.participantName}</div>
-              <Badge tier={conv.participantBadge} />
-            </div>
-            <p className="line-clamp-1 text-xs text-zinc-500 dark:text-zinc-400">
-              {conv.lastMessage}
-            </p>
-          </button>
-        ))}
+        {conversations.map((conv) => {
+          const readCount = readCounts[conv.id] ?? 0;
+          const totalMessages = conv.messages.length;
+          const unread = totalMessages > readCount ? totalMessages - readCount : 0;
+
+          return (
+            <button
+              key={conv.id}
+              onClick={() => setSelectedId(conv.id)}
+              className={`w-full rounded-xl border px-3 py-2 text-left ${
+                conv.id === effectiveActiveId
+                  ? "border-blue-200 bg-blue-50 text-blue-900 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-100"
+                  : "border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="font-semibold">{conv.participantName}</div>
+                  <Badge tier={conv.participantBadge} />
+                </div>
+                {unread > 0 ? (
+                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-600 px-1.5 text-[10px] font-bold text-white">
+                    {unread}
+                  </span>
+                ) : null}
+              </div>
+              <p className="line-clamp-1 text-xs text-zinc-500 dark:text-zinc-400">
+                {conv.lastMessage}
+              </p>
+            </button>
+          );
+        })}
       </div>
 
       {/* Active conversation */}
@@ -199,8 +235,22 @@ export function ChatPanel({
               </button>
             </div>
 
-            {/* Messages */}
-            <div className="mt-3 flex-1 space-y-3 overflow-y-auto rounded-xl border border-zinc-100 bg-zinc-50/80 p-3 dark:border-zinc-800 dark:bg-zinc-800/50" style={{ maxHeight: "400px" }}>
+            {/* Swap context header */}
+            {swapContext ? (
+              <div className="mt-2 flex items-center gap-2 rounded-lg border border-blue-100 bg-blue-50/50 px-3 py-2 dark:border-blue-900 dark:bg-blue-950/30">
+                <span className="text-xs font-semibold text-blue-700 dark:text-blue-300">{t("swapContext")}:</span>
+                <span className="text-xs text-blue-600 dark:text-blue-400">
+                  {swapContext.reqItem?.title ?? "?"} ↔ {swapContext.resItem?.title ?? "?"}
+                </span>
+                <Pill color="blue">{swapContext.swap.status}</Pill>
+              </div>
+            ) : null}
+
+            {/* Messages — responsive height */}
+            <div
+              className="mt-3 flex-1 space-y-3 overflow-y-auto rounded-xl border border-zinc-100 bg-zinc-50/80 p-3 dark:border-zinc-800 dark:bg-zinc-800/50"
+              style={{ maxHeight: "calc(100vh - 380px)", minHeight: "200px" }}
+            >
               {active.messages.map((msg) => (
                 <MessageBubble
                   key={msg.id}

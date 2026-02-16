@@ -344,7 +344,10 @@
     "analyzingCompatibility": "Analyzing compatibility",
     "noMatchesNow": "No matches right now. Complete more details on your objects or add new ones.",
     "aiUnavailableNote": "AI unavailable",
-    "analysisContinues": "Analysis continues with local rules. No functionality blocked."
+    "analysisContinues": "Analysis continues with local rules. No functionality blocked.",
+    "openProfile": "Open profile",
+    "courier": "Courier",
+    "flexible": "Flexible"
   },
 
   "chat": {
@@ -417,7 +420,23 @@
     "findAnotherMatch": "Find another match",
     "findAnotherMatchDescription": "Discover new exchange opportunities",
     "viewStats": "View statistics",
-    "viewStatsDescription": "Check your reputation and tokens"
+    "viewStatsDescription": "Check your reputation and tokens",
+    "bilateralStatus": "Bilateral status",
+    "bilateralDescription": "View the status of each party in the exchange",
+    "requester": "Requester",
+    "responder": "Partner",
+    "you": "You",
+    "proposed": "Proposed",
+    "scheduled": "Scheduled",
+    "inProgress": "In progress",
+    "completed": "Completed",
+    "cancelled": "Cancelled",
+    "confirmActionTitle": "Confirm action",
+    "confirmCancelMessage": "Are you sure you want to cancel this exchange? This action cannot be undone.",
+    "confirmCompleteMessage": "Confirm the exchange completion? Both parties will be notified.",
+    "rateExperience": "Rate the experience",
+    "commentPlaceholder": "Write a comment about your experience...",
+    "feedbackSent": "Feedback sent"
   },
 
   "info": {
@@ -605,7 +624,10 @@
     "aiTrace": "AI trace:",
     "viewDetails": "View details",
     "sendMessage": "Send a message",
-    "proposeExchange": "Propose exchange"
+    "proposeExchange": "Propose exchange",
+    "rejectedCount": "{count} matches rejected",
+    "undoAll": "Undo all",
+    "undo": "Undo:"
   },
 
   "swapTimeline": {
@@ -646,7 +668,13 @@
     "send": "Send",
     "blockedByModeration": "Message blocked by moderation.",
     "sendError": "Error sending. Try again.",
-    "selectConversation": "Select a conversation or start one from the objects page."
+    "selectConversation": "Select a conversation or start one from the objects page.",
+    "swapContext": "Active swap",
+    "status_proposed": "Proposed",
+    "status_scheduled": "Scheduled",
+    "status_in_progress": "In progress",
+    "status_completed": "Completed",
+    "status_cancelled": "Cancelled"
   },
 
   "statsGrid": {

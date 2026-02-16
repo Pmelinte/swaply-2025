@@ -344,7 +344,10 @@
     "analyzingCompatibility": "Se analizează compatibilitatea",
     "noMatchesNow": "Nicio potrivire momentan. Completează mai multe detalii pe obiectele tale sau adaugă obiecte noi.",
     "aiUnavailableNote": "AI indisponibil",
-    "analysisContinues": "Analiza continuă cu reguli locale. Nicio funcționalitate blocată."
+    "analysisContinues": "Analiza continuă cu reguli locale. Nicio funcționalitate blocată.",
+    "openProfile": "Deschide profil",
+    "courier": "Curier",
+    "flexible": "Flexibil"
   },
 
   "chat": {
@@ -417,7 +420,23 @@
     "findAnotherMatch": "Caută alt match",
     "findAnotherMatchDescription": "Descoperă noi oportunități de schimb",
     "viewStats": "Vezi statistici",
-    "viewStatsDescription": "Verifică-ți reputația și tokenii"
+    "viewStatsDescription": "Verifică-ți reputația și tokenii",
+    "bilateralStatus": "Status bilateral",
+    "bilateralDescription": "Vizualizează statusul fiecărei părți în schimb",
+    "requester": "Inițiator",
+    "responder": "Partener",
+    "you": "Tu",
+    "proposed": "Propus",
+    "scheduled": "Programat",
+    "inProgress": "În desfășurare",
+    "completed": "Finalizat",
+    "cancelled": "Anulat",
+    "confirmActionTitle": "Confirmare acțiune",
+    "confirmCancelMessage": "Ești sigur că vrei să anulezi acest schimb? Acțiunea nu poate fi anulată.",
+    "confirmCompleteMessage": "Confirmi finalizarea schimbului? Ambele părți vor primi notificare.",
+    "rateExperience": "Evaluează experiența",
+    "commentPlaceholder": "Scrie un comentariu despre experiența ta...",
+    "feedbackSent": "Feedback trimis"
   },
 
   "info": {
@@ -605,7 +624,10 @@
     "aiTrace": "AI trace:",
     "viewDetails": "Vezi detalii",
     "sendMessage": "Trimite mesaj",
-    "proposeExchange": "Propune schimb"
+    "proposeExchange": "Propune schimb",
+    "rejectedCount": "{count} potriviri respinse",
+    "undoAll": "Anulează toate",
+    "undo": "Anulează:"
   },
 
   "swapTimeline": {
@@ -646,7 +668,13 @@
     "send": "Trimite",
     "blockedByModeration": "Mesaj blocat de moderare.",
     "sendError": "Eroare la trimitere. Încearcă din nou.",
-    "selectConversation": "Selectează o conversație sau inițiază una din pagina de obiecte."
+    "selectConversation": "Selectează o conversație sau inițiază una din pagina de obiecte.",
+    "swapContext": "Schimb activ",
+    "status_proposed": "Propus",
+    "status_scheduled": "Programat",
+    "status_in_progress": "În desfășurare",
+    "status_completed": "Finalizat",
+    "status_cancelled": "Anulat"
   },
 
   "statsGrid": {

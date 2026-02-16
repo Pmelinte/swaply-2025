@@ -209,6 +209,8 @@ export const mockSwaps: SwapIntent[] = [
       "Remind cu 24h înainte de întâlnire",
     ],
     feedback: undefined,
+    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+    updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
   },
 ];
 

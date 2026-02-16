@@ -727,6 +727,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         },
         notifications: safeArray<string>(row.notifications, []),
         feedback,
+        createdAt: safeString(row.created_at, safeString(row.createdAt)),
+        updatedAt: safeString(row.updated_at, safeString(row.updatedAt)),
       };
     },
     [],
@@ -1461,6 +1463,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         return mapped;
       }
 
+      const now = new Date().toISOString();
       const localSwap: SwapIntent = {
         id: nanoid(),
         requesterId: user.id,
@@ -1470,11 +1473,30 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         status: "proposed",
         logistics,
         notifications,
+        createdAt: now,
+        updatedAt: now,
       };
       setSwaps((prev) => [localSwap, ...prev]);
+
+      // Generate notification for new swap proposal
+      const reqItem = items.find((i) => i.id === requesterItemId);
+      const resItem = items.find((i) => i.id === responderItemId);
+      setNotifications((prev) => [
+        {
+          id: `swap-new-${localSwap.id}`,
+          userId: user.id,
+          type: "swap_proposed",
+          message: `Propunere de schimb trimisă: ${reqItem?.title ?? "?"} ↔ ${resItem?.title ?? "?"}`,
+          read: false,
+          priority: "info",
+          createdAt: now,
+        },
+        ...prev,
+      ]);
+
       return localSwap;
     },
-    [dataSource, mapSwapIntent, supabase, user],
+    [dataSource, items, mapSwapIntent, supabase, user],
   );
 
   const updateSwapStatus = useCallback(
@@ -1513,8 +1535,32 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           swap.id === swapId ? { ...swap, status, notifications: nextNotifications } : swap,
         ),
       );
+
+      // Generate notification for swap status update
+      const statusMessages: Record<string, string> = {
+        scheduled: "Schimbul a fost programat!",
+        in_progress: "Schimbul este în desfășurare.",
+        completed: "Schimbul a fost finalizat cu succes!",
+        cancelled: "Schimbul a fost anulat.",
+      };
+      if (statusMessages[status]) {
+        const reqItem = items.find((i) => i.id === existing?.requesterItemId);
+        const resItem = items.find((i) => i.id === existing?.responderItemId);
+        setNotifications((prev) => [
+          {
+            id: `swap-${swapId}-${status}-${Date.now()}`,
+            userId: user?.id ?? "",
+            type: "swap_update",
+            message: `${statusMessages[status]} (${reqItem?.title ?? "?"} ↔ ${resItem?.title ?? "?"})`,
+            read: false,
+            priority: status === "completed" ? "success" : status === "cancelled" ? "warning" : "info",
+            createdAt: new Date().toISOString(),
+          },
+          ...prev,
+        ]);
+      }
     },
-    [dataSource, mapSwapIntent, supabase, swaps],
+    [dataSource, items, mapSwapIntent, supabase, swaps, user?.id],
   );
 
   const addSwapFeedback = useCallback(

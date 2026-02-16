@@ -107,11 +107,33 @@ export function MatchList({
 
   const visibleMatches = matches.filter((m) => !rejectedIds.has(m.id));
 
+  const handleUndoReject = (id: string) => {
+    setRejectedIds((prev) => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+  };
+
   if (!visibleMatches.length) {
     return (
-      <div className="rounded-2xl border border-zinc-200 bg-white/90 p-6 text-center text-sm text-zinc-600 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/80 dark:text-zinc-300">
-        <p className="text-3xl">🔍</p>
-        <p className="mt-2 font-medium">{t("noMatches")}</p>
+      <div className="space-y-3">
+        <div className="rounded-2xl border border-zinc-200 bg-white/90 p-6 text-center text-sm text-zinc-600 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/80 dark:text-zinc-300">
+          <p className="text-3xl">🔍</p>
+          <p className="mt-2 font-medium">{t("noMatches")}</p>
+        </div>
+        {rejectedIds.size > 0 ? (
+          <div className="flex items-center gap-2 rounded-xl bg-zinc-50 p-3 text-xs dark:bg-zinc-800/50">
+            <span className="text-zinc-500">{t("rejectedCount", { count: rejectedIds.size })}</span>
+            <button
+              type="button"
+              onClick={() => setRejectedIds(new Set())}
+              className="font-semibold text-blue-600 hover:text-blue-800 dark:text-blue-400"
+            >
+              {t("undoAll")}
+            </button>
+          </div>
+        ) : null}
       </div>
     );
   }
@@ -175,8 +197,34 @@ export function MatchList({
               </div>
             </div>
 
-            {/* De ce - reasons */}
+            {/* Inline top factors + reasons */}
             <div className="border-t border-zinc-100 px-4 py-3 dark:border-zinc-800">
+              {/* Inline top factors (always visible) */}
+              <div className="mb-2 flex flex-wrap gap-1.5">
+                {SCORE_FACTORS.filter((factor) => {
+                  const reasons = match.reasons ?? [];
+                  return reasons.some((r) => {
+                    const lc = r.toLowerCase();
+                    switch (factor.key) {
+                      case "category": return lc.includes("categori") || lc.includes("wishlist");
+                      case "intent": return lc.includes("intent") || lc.includes("angajament") || lc.includes("asteptari");
+                      case "flexibility": return lc.includes("flexibil");
+                      case "value": return lc.includes("valoare");
+                      case "location": return lc.includes("locati") || lc.includes("logistic");
+                      default: return false;
+                    }
+                  });
+                }).slice(0, 3).map((factor) => (
+                  <span
+                    key={factor.key}
+                    className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${style.bg} ${style.text}`}
+                  >
+                    <span className="inline-block h-1.5 w-1.5 rounded-full bg-current opacity-60" />
+                    {t(`factor_${factor.key}`)} +{factor.max}
+                  </span>
+                ))}
+              </div>
+
               <p className="mb-1 text-xs font-semibold uppercase text-zinc-400">{t("whyMatch")}</p>
               <div className="flex flex-wrap gap-1">
                 {(match.reasons ?? []).slice(0, 3).map((r, i) => (
@@ -241,6 +289,35 @@ export function MatchList({
           </div>
         );
       })}
+      {rejectedIds.size > 0 ? (
+        <div className="flex items-center justify-between rounded-xl bg-zinc-50 p-3 text-xs dark:bg-zinc-800/50">
+          <span className="text-zinc-500 dark:text-zinc-400">
+            {t("rejectedCount", { count: rejectedIds.size })}
+          </span>
+          <div className="flex gap-2">
+            {Array.from(rejectedIds).slice(-3).map((id) => {
+              const m = matches.find((match) => match.id === id);
+              return m ? (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => handleUndoReject(id)}
+                  className="rounded-full bg-zinc-200 px-2.5 py-1 font-medium text-zinc-700 hover:bg-zinc-300 dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600"
+                >
+                  {t("undo")} {m.itemRequested.title.slice(0, 15)}
+                </button>
+              ) : null;
+            })}
+            <button
+              type="button"
+              onClick={() => setRejectedIds(new Set())}
+              className="font-semibold text-blue-600 hover:text-blue-800 dark:text-blue-400"
+            >
+              {t("undoAll")}
+            </button>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

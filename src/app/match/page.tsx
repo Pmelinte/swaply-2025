@@ -271,15 +271,15 @@ export default function MatchPage() {
                 {user.swapPreferences.logistics === "in_person"
                   ? t("inPerson")
                   : user.swapPreferences.logistics === "courier"
-                    ? "Curier"
-                    : "Flexibil"}
+                    ? t("courier")
+                    : t("flexible")}
               </p>
             </div>
           </div>
           {!user.location?.city ? (
             <div className="rounded-xl bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-900/40 dark:text-amber-100">
               {t("completeLocationNote")}
-              <CTAButton href="/profile" variant="ghost">Deschide profil</CTAButton>
+              <CTAButton href="/profile" variant="ghost">{t("openProfile")}</CTAButton>
             </div>
           ) : null}
         </div>

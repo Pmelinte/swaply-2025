@@ -143,6 +143,8 @@ export interface SwapIntent {
     rating: number;
     comment: string;
   };
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Announcement {

@@ -86,7 +86,7 @@ export function SwapTimeline({
         {t("autoNotifications")} {swap.notifications.join(" · ")}
       </div>
       <div className="text-xs text-zinc-500 dark:text-zinc-400">
-        {t("lastUpdate")} {formatDate(new Date().toISOString())}
+        {t("lastUpdate")} {formatDate(swap.updatedAt || swap.createdAt || new Date().toISOString())}
       </div>
     </div>
   );
