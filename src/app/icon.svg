@@ -1,6 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="12" fill="#111827" />
-  <text x="50%" y="50%" fill="#F9FAFB" font-family="Inter, system-ui, sans-serif" font-size="28" font-weight="700" text-anchor="middle" dominant-baseline="central">
-    S
-  </text>
+  <rect width="64" height="64" rx="12" fill="#111827"/>
+  <g transform="translate(8,8) scale(0.75)">
+    <path fill="#5BC0EB" d="M56 8C46 0 30-2 20 8S10 34 22 44C18 36 18 24 26 16S44 6 56 8Z"/>
+    <path fill="#9BC53D" d="M8 56C18 64 34 66 44 56S54 30 42 20C46 28 46 40 38 48S20 58 8 56Z"/>
+  </g>
 </svg>
