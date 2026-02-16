@@ -1,17 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { MatchList } from "@/features/match/MatchList";
 import { LoggedOutGate } from "@/components/gated";
 import { CTAButton, NextStepRecommendation, Pill, SectionCard, StateShowcase } from "@/components/ui";
+import type { MatchTier } from "@/lib/types";
+
+type SortOption = "score" | "category" | "location";
 
 export default function MatchPage() {
   const router = useRouter();
   const { user, matches, featureToggles, proposeSwap } = useAppState();
   const [manualMode, setManualMode] = useState(false);
+  const [tierFilter, setTierFilter] = useState<MatchTier | "all">("all");
+  const [sortBy, setSortBy] = useState<SortOption>("score");
   const t = useTranslations("match");
 
   if (!user) {
@@ -28,6 +33,39 @@ export default function MatchPage() {
     });
     router.push(swap ? `/change?swap=${swap.id}` : "/change");
   };
+
+  const handleNegotiate = (matchId: string) => {
+    const match = matches.find((m) => m.id === matchId);
+    if (!match) return;
+    router.push(`/chat?to=${encodeURIComponent(match.itemRequested.ownerId)}`);
+  };
+
+  const tierCounts = useMemo(() => {
+    const counts = { all: matches.length, weak: 0, possible: 0, good: 0, strong: 0 };
+    for (const m of matches) counts[m.tier] = (counts[m.tier] ?? 0) + 1;
+    return counts;
+  }, [matches]);
+
+  const filteredAndSorted = useMemo(() => {
+    let result = tierFilter === "all" ? matches : matches.filter((m) => m.tier === tierFilter);
+    if (manualMode) result = result.slice(0, 1);
+
+    if (sortBy === "category") {
+      result = [...result].sort((a, b) => a.itemRequested.category.localeCompare(b.itemRequested.category));
+    } else if (sortBy === "location") {
+      result = [...result].sort((a, b) => (a.itemRequested.location ?? "").localeCompare(b.itemRequested.location ?? ""));
+    }
+    // default "score" keeps original sort (already sorted by score)
+    return result;
+  }, [matches, tierFilter, sortBy, manualMode]);
+
+  const TIER_BUTTONS: { key: MatchTier | "all"; color: string }[] = [
+    { key: "all", color: "bg-zinc-900 text-white" },
+    { key: "strong", color: "bg-green-100 text-green-800 dark:bg-green-950/40 dark:text-green-200" },
+    { key: "good", color: "bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-200" },
+    { key: "possible", color: "bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-200" },
+    { key: "weak", color: "bg-red-100 text-red-800 dark:bg-red-950/40 dark:text-red-200" },
+  ];
 
   return (
     <div className="space-y-4">
@@ -49,11 +87,46 @@ export default function MatchPage() {
             {t("aiUnavailable")}
           </div>
         ) : null}
+
+        {/* Filter & Sort controls */}
+        <div className="space-y-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-semibold uppercase text-zinc-500 dark:text-zinc-400">{t("filterByTier")}:</span>
+            {TIER_BUTTONS.map(({ key, color }) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setTierFilter(key)}
+                className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
+                  tierFilter === key ? color : "bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400"
+                }`}
+              >
+                {key === "all" ? t("allTiers") : t(key === "strong" ? "veryGood" : key)} ({tierCounts[key]})
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold uppercase text-zinc-500 dark:text-zinc-400">{t("sortBy")}:</span>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as SortOption)}
+              className="rounded-lg border border-zinc-200 bg-white px-3 py-1 text-xs dark:border-zinc-700 dark:bg-zinc-800"
+            >
+              <option value="score">{t("sortScore")}</option>
+              <option value="category">{t("sortCategory")}</option>
+              <option value="location">{t("sortLocation")}</option>
+            </select>
+            <span className="text-xs text-zinc-500">
+              {filteredAndSorted.length} {t("resultsShown")}
+            </span>
+          </div>
+        </div>
+
         <MatchList
-          matches={manualMode ? matches.slice(0, 1) : matches}
-          onProposeSwap={(match) => {
-            void handleProposeSwap(match.id);
-          }}
+          matches={filteredAndSorted}
+          onAccept={(match) => void handleProposeSwap(match.id)}
+          onNegotiate={(match) => handleNegotiate(match.id)}
+          onReject={() => {/* rejected matches fade out via MatchList internal state */}}
         />
       </SectionCard>
 

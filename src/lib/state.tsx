@@ -491,12 +491,38 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     userRef.current = user;
   }, [user]);
 
+  const prevMatchCountRef = useRef(0);
+
   useEffect(() => {
     if (!user?.id) {
       setMatches([]);
+      prevMatchCountRef.current = 0;
       return;
     }
-    setMatches(computeMatchesForUser(user.id, items));
+    const newMatches = computeMatchesForUser(user.id, items);
+    const prevCount = prevMatchCountRef.current;
+    setMatches(newMatches);
+
+    // Notify user about new good+ matches
+    if (prevCount > 0 && newMatches.length > prevCount) {
+      const diff = newMatches.length - prevCount;
+      const hasGood = newMatches.slice(0, diff).some((m) => m.tier === "good" || m.tier === "strong");
+      if (hasGood) {
+        setNotifications((prev) => [
+          {
+            id: `match-new-${Date.now()}`,
+            userId: user.id,
+            type: "new_match",
+            message: `${diff} potrivir${diff === 1 ? "e nouă" : "i noi"} disponibil${diff === 1 ? "ă" : "e"}!`,
+            read: false,
+            priority: "success",
+            createdAt: new Date().toISOString(),
+          },
+          ...prev,
+        ]);
+      }
+    }
+    prevMatchCountRef.current = newMatches.length;
   }, [items, user?.id]);
 
   // Restore session after hydration (avoids server/client mismatch)
