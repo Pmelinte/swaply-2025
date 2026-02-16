@@ -295,6 +295,11 @@
   "match": {
     "title": "Analiza potrivirilor",
     "description": "Propuneri bazate pe compatibilitate cumulativă. AI analizează, tu decizi.",
+    "topPicks": "Top 3 propuneri AI",
+    "topPicksDescription": "Cele mai bune potriviri selectate pe baza analizei ofertelor și dorințelor tale.",
+    "mapProposals": "Hartă propuneri",
+    "mapProposalsDescription": "Propunerile tale de schimb vizualizate pe hartă, colorate după compatibilitate.",
+    "yourLocation": "Locația ta",
     "backToAi": "Revino la AI",
     "enableManual": "Activează modul manual",
     "aiUnavailable": "AI indisponibil: folosim reguli manuale și filtre pentru a nu bloca fluxul.",

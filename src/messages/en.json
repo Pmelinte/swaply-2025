@@ -295,6 +295,11 @@
   "match": {
     "title": "Match analysis",
     "description": "Proposals based on cumulative compatibility. AI analyzes, you decide.",
+    "topPicks": "Top 3 AI Picks",
+    "topPicksDescription": "Best matches selected based on analysis of your offers and wishes.",
+    "mapProposals": "Proposals Map",
+    "mapProposalsDescription": "Your swap proposals visualized on a map, colored by compatibility.",
+    "yourLocation": "Your location",
     "backToAi": "Back to AI",
     "enableManual": "Enable manual mode",
     "aiUnavailable": "AI unavailable: using manual rules and filters to not block the flow.",

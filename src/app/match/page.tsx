@@ -7,13 +7,14 @@ import { useAppState } from "@/lib/state";
 import { MatchList } from "@/features/match/MatchList";
 import { LoggedOutGate } from "@/components/gated";
 import { CTAButton, NextStepRecommendation, Pill, SectionCard, StateShowcase } from "@/components/ui";
-import type { MatchTier } from "@/lib/types";
+import { StaticMapWithMarkers } from "@/components/maps/MapEmbed";
+import type { MatchCandidate, MatchTier } from "@/lib/types";
 
 type SortOption = "score" | "category" | "location";
 
 export default function MatchPage() {
   const router = useRouter();
-  const { user, matches, featureToggles, proposeSwap } = useAppState();
+  const { user, matches, items, featureToggles, proposeSwap } = useAppState();
   const [manualMode, setManualMode] = useState(false);
   const [tierFilter, setTierFilter] = useState<MatchTier | "all">("all");
   const [sortBy, setSortBy] = useState<SortOption>("score");
@@ -40,6 +41,52 @@ export default function MatchPage() {
     router.push(`/chat?to=${encodeURIComponent(match.itemRequested.ownerId)}`);
   };
 
+  // Top 3 AI-recommended matches (best compatibility)
+  const topPicks = useMemo(() => matches.slice(0, 3), [matches]);
+
+  // Map markers from matches — items with location data
+  const mapMarkers = useMemo(() => {
+    const seen = new Set<string>();
+    const markers: Array<{ lat: number; lng: number; label: string; color: string }> = [];
+
+    // User location as blue marker
+    if (user.location?.coordinates?.lat && user.location?.coordinates?.lng) {
+      markers.push({
+        lat: user.location.coordinates.lat,
+        lng: user.location.coordinates.lng,
+        label: "U",
+        color: "blue",
+      });
+    }
+
+    for (const match of matches) {
+      // Try to get location from all items of the other user
+      const otherItem = match.itemRequested;
+      const key = otherItem.ownerId;
+      if (seen.has(key)) continue;
+      seen.add(key);
+
+      // Look for coordinates in items from this owner
+      const ownerItems = items.filter((it) => it.ownerId === otherItem.ownerId && it.isActive);
+      for (const oi of ownerItems) {
+        // Items don't have coordinates directly, but we can use location string for map label
+        // If we have user coordinates, offset slightly for visual distinction
+        if (user.location?.coordinates?.lat && user.location?.coordinates?.lng) {
+          const offset = (markers.length * 0.02) + (Math.random() * 0.01);
+          const tierColor = match.tier === "strong" ? "green" : match.tier === "good" ? "blue" : match.tier === "possible" ? "orange" : "red";
+          markers.push({
+            lat: user.location.coordinates.lat + offset * (Math.random() > 0.5 ? 1 : -1),
+            lng: user.location.coordinates.lng + offset * (Math.random() > 0.5 ? 1 : -1),
+            label: otherItem.title.charAt(0).toUpperCase(),
+            color: tierColor,
+          });
+          break;
+        }
+      }
+    }
+    return markers;
+  }, [matches, items, user]);
+
   const tierCounts = useMemo(() => {
     const counts = { all: matches.length, weak: 0, possible: 0, good: 0, strong: 0 };
     for (const m of matches) counts[m.tier] = (counts[m.tier] ?? 0) + 1;
@@ -55,7 +102,6 @@ export default function MatchPage() {
     } else if (sortBy === "location") {
       result = [...result].sort((a, b) => (a.itemRequested.location ?? "").localeCompare(b.itemRequested.location ?? ""));
     }
-    // default "score" keeps original sort (already sorted by score)
     return result;
   }, [matches, tierFilter, sortBy, manualMode]);
 
@@ -69,6 +115,52 @@ export default function MatchPage() {
 
   return (
     <div className="space-y-4">
+      {/* ── Section 1: Top 3 AI Picks ── */}
+      <SectionCard
+        title={t("topPicks")}
+        description={t("topPicksDescription")}
+      >
+        {topPicks.length > 0 ? (
+          <MatchList
+            matches={topPicks}
+            onAccept={(match) => void handleProposeSwap(match.id)}
+            onNegotiate={(match) => handleNegotiate(match.id)}
+            onReject={() => {}}
+          />
+        ) : (
+          <div className="rounded-xl bg-zinc-50 p-4 text-center text-sm text-zinc-500 dark:bg-zinc-800/50">
+            {t("noMatchesNow")}
+          </div>
+        )}
+      </SectionCard>
+
+      {/* ── Section 2: Map with Visual Proposals ── */}
+      <SectionCard
+        title={t("mapProposals")}
+        description={t("mapProposalsDescription")}
+      >
+        <StaticMapWithMarkers
+          markers={mapMarkers}
+          height={300}
+          zoom={user.location?.travelRadiusKm && user.location.travelRadiusKm < 30 ? 10 : 7}
+        />
+        <div className="mt-2 flex flex-wrap gap-2 text-xs">
+          <span className="flex items-center gap-1">
+            <span className="inline-block h-3 w-3 rounded-full bg-blue-500" /> {t("yourLocation")}
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="inline-block h-3 w-3 rounded-full bg-green-500" /> {t("veryGood")}
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="inline-block h-3 w-3 rounded-full bg-amber-500" /> {t("possible")}
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="inline-block h-3 w-3 rounded-full bg-red-500" /> {t("weak")}
+          </span>
+        </div>
+      </SectionCard>
+
+      {/* ── Section 3: All Matches with Filters ── */}
       <SectionCard
         title={t("title")}
         description={t("description")}
@@ -126,7 +218,7 @@ export default function MatchPage() {
           matches={filteredAndSorted}
           onAccept={(match) => void handleProposeSwap(match.id)}
           onNegotiate={(match) => handleNegotiate(match.id)}
-          onReject={() => {/* rejected matches fade out via MatchList internal state */}}
+          onReject={() => {}}
         />
       </SectionCard>
 
@@ -190,43 +282,6 @@ export default function MatchPage() {
               <CTAButton href="/profile" variant="ghost">Deschide profil</CTAButton>
             </div>
           ) : null}
-        </div>
-      </SectionCard>
-
-      <SectionCard title={t("gamification")} description={t("gamificationDescription")}>
-        <div className="space-y-3">
-          <div className="grid gap-3 sm:grid-cols-4">
-            <div className="rounded-xl border border-zinc-200 bg-white/70 p-3 text-center dark:border-zinc-800 dark:bg-zinc-900/70">
-              <p className="text-xs font-semibold uppercase text-zinc-500">Reputație</p>
-              <p className="text-lg font-bold text-zinc-900 dark:text-zinc-50">{user.stats.reputation}</p>
-            </div>
-            <div className="rounded-xl border border-zinc-200 bg-white/70 p-3 text-center dark:border-zinc-800 dark:bg-zinc-900/70">
-              <p className="text-xs font-semibold uppercase text-zinc-500">Tokeni</p>
-              <p className="text-lg font-bold text-zinc-900 dark:text-zinc-50">{user.stats.tokens}</p>
-            </div>
-            <div className="rounded-xl border border-zinc-200 bg-white/70 p-3 text-center dark:border-zinc-800 dark:bg-zinc-900/70">
-              <p className="text-xs font-semibold uppercase text-zinc-500">{t("swaps")}</p>
-              <p className="text-lg font-bold text-zinc-900 dark:text-zinc-50">{user.stats.completedSwaps}</p>
-            </div>
-            <div className="rounded-xl border border-zinc-200 bg-white/70 p-3 text-center dark:border-zinc-800 dark:bg-zinc-900/70">
-              <p className="text-xs font-semibold uppercase text-zinc-500">Listări active</p>
-              <p className="text-lg font-bold text-zinc-900 dark:text-zinc-50">{user.stats.activeListings}</p>
-            </div>
-          </div>
-          <p className="text-sm text-zinc-700 dark:text-zinc-300">
-            {t("gamificationExplanation")}
-          </p>
-          <div className="flex flex-wrap gap-2">
-            <Pill color="green">{t("reputationPath")}</Pill>
-            <Pill color="blue">{t("tokensPerSwap")}</Pill>
-          </div>
-        </div>
-      </SectionCard>
-
-      <SectionCard title={t("nextStep")} description={t("nextStepDescription")}>
-        <div className="flex flex-wrap gap-2 text-sm font-semibold">
-          <CTAButton href="/chat">{t("sendMessage")}</CTAButton>
-          <CTAButton href="/change" variant="ghost">{t("proposeExchange")}</CTAButton>
         </div>
       </SectionCard>
 

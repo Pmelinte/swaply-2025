@@ -1206,6 +1206,17 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           ai_suggested_tags: item.aiSuggestedTags ?? [],
           user_final_tags: item.userFinalTags ?? [],
           photos: item.photos ?? [],
+          ai_metadata: {
+            intent: item.intent ?? null,
+            flexibility: item.flexibility ?? null,
+            perceivedValue: item.perceivedValue ?? null,
+            clarity: item.clarity ?? null,
+            context: item.context ?? null,
+            acceptsBundle: item.acceptsBundle ?? false,
+            recipientMatters: item.recipientMatters ?? false,
+            conditionImpact: item.conditionImpact ?? [],
+            aiNote: item.aiNote ?? null,
+          },
           updated_at: new Date().toISOString(),
         };
 
