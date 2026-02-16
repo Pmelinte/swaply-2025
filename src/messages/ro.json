@@ -54,8 +54,26 @@
   },
 
   "notifications": {
-    "title": "Notificări (like/interes/chat/swaply)",
-    "empty": "Nicio notificare momentan."
+    "title": "Notificări",
+    "empty": "Nicio notificare momentan.",
+    "clearAll": "Șterge toate"
+  },
+
+  "contextBar": {
+    "itemsActive": "{count} obiecte active",
+    "swapsInProgress": "{count} schimburi active",
+    "newNotifications": "{count} notificări noi",
+    "addObject": "Adaugă obiect",
+    "matchAnalysis": "Analiză potriviri",
+    "addObjectFirst": "Adaugă un obiect mai întâi",
+    "basedOnItems": "pe baza a {count} obiecte",
+    "conversations": "{count} conversații",
+    "activeExchanges": "{count} schimburi",
+    "pendingAction": "{count} așteaptă acțiune",
+    "inProgress": "{count} în desfășurare",
+    "reputation": "Reputație",
+    "tokens": "Tokeni",
+    "viewInfo": "Info & Statistici"
   },
 
   "login": {

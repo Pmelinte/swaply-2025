@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Providers } from "./providers";
 import { TopBar } from "@/components/layout/TopBar";
+import { ContextBar } from "@/components/layout/ContextBar";
 import { FooterNav } from "@/components/layout/FooterNav";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 
@@ -36,7 +37,8 @@ export default function RootLayout({
       >
         <Providers>
           <TopBar />
-          <div className="mx-auto min-h-screen max-w-6xl px-4 pb-24 pt-6">
+          <ContextBar />
+          <div className="mx-auto min-h-screen max-w-6xl px-4 pb-24 pt-4">
             {children}
           </div>
           <FooterNav />

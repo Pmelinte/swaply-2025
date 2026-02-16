@@ -54,8 +54,26 @@
   },
 
   "notifications": {
-    "title": "Notifications (like/interest/chat/swaply)",
-    "empty": "No notifications right now."
+    "title": "Notifications",
+    "empty": "No notifications right now.",
+    "clearAll": "Clear all"
+  },
+
+  "contextBar": {
+    "itemsActive": "{count} active items",
+    "swapsInProgress": "{count} active swaps",
+    "newNotifications": "{count} new notifications",
+    "addObject": "Add object",
+    "matchAnalysis": "Match analysis",
+    "addObjectFirst": "Add an object first",
+    "basedOnItems": "based on {count} objects",
+    "conversations": "{count} conversations",
+    "activeExchanges": "{count} exchanges",
+    "pendingAction": "{count} pending action",
+    "inProgress": "{count} in progress",
+    "reputation": "Reputation",
+    "tokens": "Tokens",
+    "viewInfo": "Info & Statistics"
   },
 
   "login": {
