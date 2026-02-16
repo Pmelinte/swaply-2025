@@ -24,7 +24,6 @@
     "noImage": "Nincs kép",
     "freeSlot": "Szabad hely"
   },
-
   "nav": {
     "home": "Kezdőlap",
     "objects": "Tárgyak",
@@ -52,12 +51,10 @@
     "badgeBenefits": "Jelvény előnyök",
     "completeProfile": "Profil kiegészítése"
   },
-
   "notifications": {
     "title": "Értesítések (kedvelés/érdeklődés/csevegés/swaply)",
     "empty": "Jelenleg nincsenek értesítések."
   },
-
   "login": {
     "authentication": "Hitelesítés",
     "registration": "Regisztráció",
@@ -94,7 +91,6 @@
     "invalidCredentials": "Érvénytelen hitelesítő adatok",
     "invalidCredentialsDescription": "Piros hibaüzenet + demo jelszó megemlítése. Nincs mock siker; az oldalon marad a jelszó-visszaállítás lehetőségével."
   },
-
   "profile": {
     "loading": "Profil betöltése…",
     "loadingDescription": "Munkamenet ellenőrzése.",
@@ -162,44 +158,50 @@
     "badgeBenefits": "Jelvény előnyök",
     "badgeBenefitsDescription": "Fedezze fel a Prémium és Platina előnyöket"
   },
-
   "home": {
-    "discoverOpportunities": "Fedezze fel a csere lehetőségeket a környékén",
-    "chooseHowToStart": "Válassza ki, hogyan szeretne kezdeni: tárgyak böngészése, keresés a térképen, vagy egyezések elemzése.",
-    "viewAvailableObjects": "Elérhető tárgyak megtekintése",
-    "greeting": "Helló, {name}! A térkép csak Prémium és Platina felhasználókat mutat. A jelvénye határozza meg a láthatóságát.",
-    "analyzeMatches": "Egyezések elemzése",
-    "addObject": "Tárgy hozzáadása",
-    "monitorExchanges": "Cserék nyomon követése",
-    "activeUsersMap": "Aktív felhasználók térképe",
-    "mapDescription": "A Prémium és Platina felhasználók kiemelten jelennek meg a térképen.",
-    "learnPremiumBenefits": "Ismerje meg a Prémium fiók előnyeit",
-    "completeProfileAndLocation": "Egészítse ki profilját és helyadatait",
-    "completeProfileDescription": "Engedélyezze a térkép alapú funkciókat a hozzávetőleges helyzete megadásával.",
-    "openProfile": "Profil megnyitása",
-    "mapVisibilityNote": "A térképen való megjelenés Prémium fiókokhoz érhető el. Böngészheti az ajánlatokat és kezdeményezhet cseréket anélkül, hogy nyilvánosan látható lenne.",
-    "announcements": "Közlemények",
-    "announcementsDescription": "Rendszerüzenetek, diszkrétek és elrejthetők.",
-    "noListedObjects": "Még nincsenek listázott tárgyai",
-    "addObjectForProposals": "Adjon hozzá egy tárgyat, hogy releváns javaslatokat kapjon.",
-    "aiFallback": "MI tartalék",
-    "manualModeActive": "Kézi mód aktív, amikor az MI szolgáltatások nem elérhetők.",
-    "aiDisabled": "MI kikapcsolva",
-    "aiDisabledDescription": "A besorolás és magyarázatok kézi szabályokra támaszkodnak, hogy ne akadályozzák a kritikus folyamatokat.",
-    "aiActive": "MI aktív",
-    "aiActiveDescription": "A kezdőlap javaslatai az MI szerződést követik (szerveroldali).",
-    "aiOutputNote": "Az MI kimenet verziózott metaadatként kerül mentésre, és nem írja felül a felhasználók végső preferenciáit.",
-    "addObjectCta": "Tárgy hozzáadása",
-    "addObjectCtaDescription": "Listázzon valamit cserére",
-    "analyzeMatchesCta": "Egyezések elemzése",
-    "analyzeMatchesCtaDescription": "Fedezze fel a kompatibilis javaslatokat",
-    "exploreObjects": "Tárgyak böngészése",
-    "exploreObjectsDescription": "Nézze meg, mit kínálnak más felhasználók",
-    "loginCta": "Bejelentkezés",
-    "exploreObjectsGuest": "Tárgyak böngészése",
-    "exploreObjectsGuestDescription": "Nézze meg, mi érhető el fiók nélkül"
+    "welcome": "Welcome back",
+    "greeting": "Hey, {name}!",
+    "heroSubtitle": "Explore objects in your area, discover matches, and propose swaps.",
+    "statItems": "{count} active items",
+    "statSwaps": "{count} swaps",
+    "statTokens": "{count} tokens",
+    "statNotifs": "{count} new notifications",
+    "guestHeadline": "Swap what you have for what you want",
+    "guestSubtitle": "Swaply connects people who want to exchange objects, no money involved. Simple, local, transparent.",
+    "getStarted": "Get started",
+    "browseObjects": "Browse objects",
+    "actionAdd": "Add object",
+    "actionAddDesc": "List something for exchange",
+    "actionExplore": "Explore",
+    "actionExploreDesc": "Discover available objects",
+    "actionMatch": "AI Matches",
+    "actionMatchDesc": "Analyze compatibility",
+    "actionSwaps": "Swaps",
+    "actionSwapsDesc": "Monitor your exchanges",
+    "mapTitle": "Users map",
+    "mapSubtitle": "Premium and Platinum users are visible on the map.",
+    "addLocationHint": "Add your location in profile to enable map-based features",
+    "announcements": "Announcements",
+    "nudgeNoItems": "You don't have any listed objects yet",
+    "nudgeNoItemsDesc": "Add your first object to start receiving swap proposals.",
+    "nudgeProfile": "Complete your profile",
+    "nudgeProfileDesc": "A complete profile increases your trust and visibility.",
+    "nudgeProfileCta": "Edit profile",
+    "nudgeMatches": "{count} matches found",
+    "nudgeMatchesDesc": "AI has identified compatible proposals for your objects.",
+    "nudgeMatchesCta": "View matches",
+    "reputation": "Reputation",
+    "repLevel": "Level",
+    "repPath": "Starter → Trusted → Ambassador",
+    "activeSwaps": "{count} active swaps",
+    "activeSwapsDesc": "You have ongoing swaps that need your attention.",
+    "messagesLink": "Messages",
+    "messagesLinkDesc": "Chat with your swap partners",
+    "guestDiscover": "Discover Swaply",
+    "guestObjects": "View available objects",
+    "guestInfo": "Platform info",
+    "guestBadges": "Badge benefits"
   },
-
   "objects": {
     "createAccount": "Fiók létrehozása",
     "loginToList": "Jelentkezzen be a tárgyak listázásához",
@@ -234,7 +236,6 @@
     "loadError": "Hiba a tárgyak betöltésekor",
     "loadErrorDescription": "Egyértelmű üzenet összeomlás nélkül; lehetővé teszi az oldal újratöltését."
   },
-
   "objectDetail": {
     "loading": "Tárgy betöltése",
     "loadingDescription": "Betöltési állapot a szerződés szerint (nem 404).",
@@ -254,7 +255,6 @@
     "startSecureChat": "Biztonságos csevegés indítása",
     "proposeExchange": "Csere javaslata"
   },
-
   "objectEdit": {
     "loading": "Szerkesztő betöltése",
     "notFound": "Tárgy nem található",
@@ -262,12 +262,10 @@
     "title": "Tárgy szerkesztése",
     "editDescription": "Űrlap előre kitöltött értékekkel + egyértelmű állapotjelzők."
   },
-
   "objectNew": {
     "title": "Tárgy hozzáadása",
     "description": "Teljes űrlap, a build megszakítása nélkül."
   },
-
   "match": {
     "title": "Egyezés elemzése",
     "description": "Javaslatok a kumulatív kompatibilitás alapján. Az MI elemez, Ön dönt.",
@@ -310,7 +308,6 @@
     "aiUnavailableNote": "MI nem elérhető",
     "analysisContinues": "Az elemzés helyi szabályokkal folytatódik. Nincs blokkolt funkció."
   },
-
   "chat": {
     "title": "Biztonságos csevegés",
     "description": "Fordítás (ha be van kapcsolva) + moderáció + ellenőrzött mellékletek + CTA a Swaply-hoz",
@@ -341,7 +338,6 @@
     "sendError": "Hiba a küldés során. Próbálja újra.",
     "selectConversation": "Válasszon egy beszélgetést vagy kezdjen egyet a tárgyak oldalon."
   },
-
   "change": {
     "title": "Csere folyamat (Swaply)",
     "description": "Megerősítés + logisztika + térkép (szintek) + értesítések + visszajelzés",
@@ -383,7 +379,6 @@
     "viewStats": "Statisztikák megtekintése",
     "viewStatsDescription": "Hírnév és tokenek ellenőrzése"
   },
-
   "info": {
     "title": "Swaply statisztikák",
     "description": "Globális statisztikák + felhasználói statisztikák + rang + tokenek + árfolyam + segítség/jogi",
@@ -391,7 +386,7 @@
     "mapProviderNote": "A térkép szolgáltató csak akkor aktív, ha a kulcs létezik; egyébként helyőrző a séma szerint.",
     "premiumPinsOnly": "Nyilvános jelölők csak Prémium/Platina jelvénnyel.",
     "approximateLocation": "A helyszín hozzávetőleges (város / sugár), nincs visszafejtett geokódolás.",
-    "mapFallback": "Tartalék: \u201eTérkép nem elérhető\u201d üzenet megjelenítése az oldal többi részének blokkolása nélkül.",
+    "mapFallback": "Tartalék: „Térkép nem elérhető” üzenet megjelenítése az oldal többi részének blokkolása nélkül.",
     "mapRulesNote": "Az Excalidraw-val összehangolt szabályok: a láthatóságot a profilbeállítások vezérlik, költségkontrollal a szolgáltató számára.",
     "helpAndLegal": "Segítség és jogi",
     "helpDescription": "Feltételek, GDPR, sütik, támogatás",
@@ -426,7 +421,6 @@
     "authentication": "Hitelesítés",
     "authenticationDescription": "Fiók létrehozása vagy bejelentkezés"
   },
-
   "itemForm": {
     "conditionNew": "Új",
     "conditionGood": "Enyhén használt",
@@ -521,7 +515,6 @@
     "imageReadError": "Nem sikerült beolvasni a képet.",
     "uploadingImageButton": "Kép feltöltése…"
   },
-
   "itemCard": {
     "location": "Helyszín:",
     "ai": "MI:",
@@ -529,7 +522,6 @@
     "edit": "Szerkesztés",
     "delete": "Törlés"
   },
-
   "swipeCard": {
     "yes": "IGEN",
     "no": "NEM",
@@ -537,7 +529,6 @@
     "notInterested": "Nem érdekli",
     "interested": "Érdekli"
   },
-
   "matchList": {
     "weak": "Gyenge",
     "possible": "Lehetséges",
@@ -550,7 +541,6 @@
     "sendMessage": "Üzenet küldése",
     "proposeExchange": "Csere javaslata"
   },
-
   "swapTimeline": {
     "proposed": "Javasolt",
     "scheduled": "Ütemezett",
@@ -571,7 +561,6 @@
     "autoNotifications": "Automatikus értesítések:",
     "lastUpdate": "Utolsó frissítés:"
   },
-
   "chatPanel": {
     "you": "Ön",
     "partner": "Partner",
@@ -591,7 +580,6 @@
     "sendError": "Hiba a küldés során. Próbálja újra.",
     "selectConversation": "Válasszon egy beszélgetést vagy kezdjen egyet a tárgyak oldalon."
   },
-
   "statsGrid": {
     "globalExchanges": "Globális cserék",
     "globalDescription": "A Swaply több régióban aktív",
@@ -602,7 +590,6 @@
     "tokensIssued": "Kibocsátott tokenek",
     "tokensDescription": "Biztonságos főkönyv, a profilban látható"
   },
-
   "map": {
     "unavailable": "Térkép nem elérhető",
     "providerDisabled": "A térkép szolgáltató ki van kapcsolva. Az oldal többi része használható marad.",
@@ -614,7 +601,6 @@
     "mapTitle": "Helyszín térkép",
     "noPins": "Nincsenek megjelenítendő jelölők"
   },
-
   "location": {
     "country": "Ország",
     "selectCountry": "— Válasszon országot —",
@@ -625,19 +611,16 @@
     "selectCity": "— Válasszon várost —",
     "chooseRegionFirst": "— Először válasszon régiót —"
   },
-
   "gated": {
     "notLoggedIn": "Nincs bejelentkezve",
     "loginToView": "Jelentkezzen be a tartalom megtekintéséhez. A visszatérési útvonal mentésre kerül, így megszakítás nélkül folytathatja.",
     "login": "Bejelentkezés"
   },
-
   "demoBanner": {
     "demoMode": "Demo mód aktív",
     "dataNotReal": "— az adatok nem valósak és nem kerülnek mentésre.",
     "exitDemo": "Kilépés a demóból"
   },
-
   "pwa": {
     "installSwaply": "Swaply telepítése",
     "installDescription": "Hozzáadás a kezdőképernyőhöz a gyors eléréshez, böngésző nélkül.",

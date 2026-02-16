@@ -24,7 +24,6 @@
     "noImage": "이미지 없음",
     "freeSlot": "빈 슬롯"
   },
-
   "nav": {
     "home": "홈",
     "objects": "물건",
@@ -52,12 +51,10 @@
     "badgeBenefits": "배지 혜택",
     "completeProfile": "프로필 완성하기"
   },
-
   "notifications": {
     "title": "알림 (좋아요/관심/채팅/교환)",
     "empty": "현재 알림이 없습니다."
   },
-
   "login": {
     "authentication": "인증",
     "registration": "회원가입",
@@ -94,7 +91,6 @@
     "invalidCredentials": "잘못된 자격 증명",
     "invalidCredentialsDescription": "빨간 메시지 + 데모 비밀번호 안내. 모의 성공 없음; 비밀번호 재설정 CTA와 함께 페이지에 머무릅니다."
   },
-
   "profile": {
     "loading": "프로필 로딩 중…",
     "loadingDescription": "세션을 확인하고 있습니다.",
@@ -162,44 +158,50 @@
     "badgeBenefits": "배지 혜택",
     "badgeBenefitsDescription": "Premium 및 Platinum 혜택을 확인하세요"
   },
-
   "home": {
-    "discoverOpportunities": "주변 지역에서 교환 기회를 발견하세요",
-    "chooseHowToStart": "시작 방법을 선택하세요: 물건 둘러보기, 지도에서 검색, 또는 매칭 분석.",
-    "viewAvailableObjects": "사용 가능한 물건 보기",
-    "greeting": "안녕하세요, {name}님! 지도에는 Premium 및 Platinum 사용자만 표시됩니다. 배지에 따라 공개 범위가 달라집니다.",
-    "analyzeMatches": "매칭 분석",
-    "addObject": "물건 추가",
-    "monitorExchanges": "교환 모니터링",
-    "activeUsersMap": "활성 사용자 지도",
-    "mapDescription": "Premium 및 Platinum 사용자가 지도에 강조 표시됩니다.",
-    "learnPremiumBenefits": "Premium 계정 혜택 알아보기",
-    "completeProfileAndLocation": "프로필과 위치를 완성하세요",
-    "completeProfileDescription": "대략적인 위치를 추가하여 지도 기반 기능을 활성화하세요.",
-    "openProfile": "프로필 열기",
-    "mapVisibilityNote": "지도 표시는 Premium 계정에서 사용 가능합니다. 공개적으로 표시되지 않아도 제안을 탐색하고 교환을 시작할 수 있습니다.",
-    "announcements": "공지사항",
-    "announcementsDescription": "시스템 메시지, 간결하고 닫을 수 있습니다.",
-    "noListedObjects": "아직 등록된 물건이 없습니다",
-    "addObjectForProposals": "관련 제안을 받으려면 물건을 추가하세요.",
-    "aiFallback": "AI 대체 모드",
-    "manualModeActive": "AI 서비스를 사용할 수 없을 때 수동 모드가 활성화됩니다.",
-    "aiDisabled": "AI 비활성화",
-    "aiDisabledDescription": "중요한 흐름을 차단하지 않도록 분류 및 설명이 수동 규칙에 의존합니다.",
-    "aiActive": "AI 활성화",
-    "aiActiveDescription": "홈 추천이 AI 계약을 따릅니다 (서버 측).",
-    "aiOutputNote": "AI 출력은 버전 관리된 메타데이터로 저장되며 사용자의 최종 설정을 대체하지 않습니다.",
-    "addObjectCta": "물건 추가",
-    "addObjectCtaDescription": "교환할 물건을 등록하세요",
-    "analyzeMatchesCta": "매칭 분석",
-    "analyzeMatchesCtaDescription": "호환 가능한 제안 찾기",
-    "exploreObjects": "물건 둘러보기",
-    "exploreObjectsDescription": "다른 사용자가 제공하는 물건 탐색",
-    "loginCta": "로그인",
-    "exploreObjectsGuest": "물건 둘러보기",
-    "exploreObjectsGuestDescription": "계정 없이 사용 가능한 물건 확인"
+    "welcome": "Welcome back",
+    "greeting": "Hey, {name}!",
+    "heroSubtitle": "Explore objects in your area, discover matches, and propose swaps.",
+    "statItems": "{count} active items",
+    "statSwaps": "{count} swaps",
+    "statTokens": "{count} tokens",
+    "statNotifs": "{count} new notifications",
+    "guestHeadline": "Swap what you have for what you want",
+    "guestSubtitle": "Swaply connects people who want to exchange objects, no money involved. Simple, local, transparent.",
+    "getStarted": "Get started",
+    "browseObjects": "Browse objects",
+    "actionAdd": "Add object",
+    "actionAddDesc": "List something for exchange",
+    "actionExplore": "Explore",
+    "actionExploreDesc": "Discover available objects",
+    "actionMatch": "AI Matches",
+    "actionMatchDesc": "Analyze compatibility",
+    "actionSwaps": "Swaps",
+    "actionSwapsDesc": "Monitor your exchanges",
+    "mapTitle": "Users map",
+    "mapSubtitle": "Premium and Platinum users are visible on the map.",
+    "addLocationHint": "Add your location in profile to enable map-based features",
+    "announcements": "Announcements",
+    "nudgeNoItems": "You don't have any listed objects yet",
+    "nudgeNoItemsDesc": "Add your first object to start receiving swap proposals.",
+    "nudgeProfile": "Complete your profile",
+    "nudgeProfileDesc": "A complete profile increases your trust and visibility.",
+    "nudgeProfileCta": "Edit profile",
+    "nudgeMatches": "{count} matches found",
+    "nudgeMatchesDesc": "AI has identified compatible proposals for your objects.",
+    "nudgeMatchesCta": "View matches",
+    "reputation": "Reputation",
+    "repLevel": "Level",
+    "repPath": "Starter → Trusted → Ambassador",
+    "activeSwaps": "{count} active swaps",
+    "activeSwapsDesc": "You have ongoing swaps that need your attention.",
+    "messagesLink": "Messages",
+    "messagesLinkDesc": "Chat with your swap partners",
+    "guestDiscover": "Discover Swaply",
+    "guestObjects": "View available objects",
+    "guestInfo": "Platform info",
+    "guestBadges": "Badge benefits"
   },
-
   "objects": {
     "createAccount": "계정 만들기",
     "loginToList": "물건을 등록하려면 로그인하세요",
@@ -234,7 +236,6 @@
     "loadError": "물건 로딩 오류",
     "loadErrorDescription": "충돌 없는 명확한 메시지; 페이지 새로고침 가능."
   },
-
   "objectDetail": {
     "loading": "물건 로딩 중",
     "loadingDescription": "계약에 따른 로딩 상태 (404 아님).",
@@ -254,7 +255,6 @@
     "startSecureChat": "보안 채팅 시작",
     "proposeExchange": "교환 제안"
   },
-
   "objectEdit": {
     "loading": "편집기 로딩 중",
     "notFound": "물건을 찾을 수 없음",
@@ -262,12 +262,10 @@
     "title": "물건 편집",
     "editDescription": "미리 채워진 값이 있는 양식 + 명확한 상태."
   },
-
   "objectNew": {
     "title": "물건 추가",
     "description": "빌드를 중단하지 않는 완전한 양식."
   },
-
   "match": {
     "title": "매칭 분석",
     "description": "누적 호환성 기반 제안. AI가 분석하고 당신이 결정합니다.",
@@ -310,7 +308,6 @@
     "aiUnavailableNote": "AI 사용 불가",
     "analysisContinues": "로컬 규칙으로 분석이 계속됩니다. 기능이 차단되지 않습니다."
   },
-
   "chat": {
     "title": "보안 채팅",
     "description": "번역 (활성화 시) + 중재 + 스캔된 첨부 파일 + Swaply CTA",
@@ -341,7 +338,6 @@
     "sendError": "전송 오류. 다시 시도하세요.",
     "selectConversation": "대화를 선택하거나 물건 페이지에서 새로 시작하세요."
   },
-
   "change": {
     "title": "교환 흐름 (Swaply)",
     "description": "확인 + 물류 + 지도 (레벨) + 알림 + 피드백",
@@ -383,7 +379,6 @@
     "viewStats": "통계 보기",
     "viewStatsDescription": "평판과 토큰을 확인하세요"
   },
-
   "info": {
     "title": "Swaply 통계",
     "description": "전체 통계 + 사용자 통계 + 등급 + 토큰 + 교환 비율 + 도움말/법률",
@@ -426,7 +421,6 @@
     "authentication": "인증",
     "authenticationDescription": "계정 만들기 또는 로그인"
   },
-
   "itemForm": {
     "conditionNew": "새 것",
     "conditionGood": "약간 사용됨",
@@ -521,7 +515,6 @@
     "imageReadError": "이미지를 읽을 수 없습니다.",
     "uploadingImageButton": "이미지 업로드 중…"
   },
-
   "itemCard": {
     "location": "위치:",
     "ai": "AI:",
@@ -529,7 +522,6 @@
     "edit": "편집",
     "delete": "삭제"
   },
-
   "swipeCard": {
     "yes": "예",
     "no": "아니오",
@@ -537,7 +529,6 @@
     "notInterested": "관심 없음",
     "interested": "관심 있음"
   },
-
   "matchList": {
     "weak": "약함",
     "possible": "가능",
@@ -550,7 +541,6 @@
     "sendMessage": "메시지 보내기",
     "proposeExchange": "교환 제안"
   },
-
   "swapTimeline": {
     "proposed": "제안됨",
     "scheduled": "예약됨",
@@ -571,7 +561,6 @@
     "autoNotifications": "자동 알림:",
     "lastUpdate": "마지막 업데이트:"
   },
-
   "chatPanel": {
     "you": "나",
     "partner": "상대방",
@@ -591,7 +580,6 @@
     "sendError": "전송 오류. 다시 시도하세요.",
     "selectConversation": "대화를 선택하거나 물건 페이지에서 새로 시작하세요."
   },
-
   "statsGrid": {
     "globalExchanges": "전체 교환",
     "globalDescription": "Swaply는 여러 지역에서 활동 중입니다",
@@ -602,7 +590,6 @@
     "tokensIssued": "발행된 토큰",
     "tokensDescription": "프로필에서 확인 가능한 보안 원장"
   },
-
   "map": {
     "unavailable": "지도 사용 불가",
     "providerDisabled": "지도 제공자가 비활성화되었습니다. 나머지 페이지는 사용 가능합니다.",
@@ -614,7 +601,6 @@
     "mapTitle": "위치 지도",
     "noPins": "표시할 핀이 없습니다"
   },
-
   "location": {
     "country": "국가",
     "selectCountry": "— 국가 선택 —",
@@ -625,19 +611,16 @@
     "selectCity": "— 도시 선택 —",
     "chooseRegionFirst": "— 먼저 지역을 선택하세요 —"
   },
-
   "gated": {
     "notLoggedIn": "로그인하지 않았습니다",
     "loginToView": "이 콘텐츠를 보려면 로그인하세요. Return-to가 저장되어 중단 없이 흐름을 계속할 수 있습니다.",
     "login": "로그인"
   },
-
   "demoBanner": {
     "demoMode": "데모 모드 활성",
     "dataNotReal": "— 데이터는 실제가 아니며 저장되지 않습니다.",
     "exitDemo": "데모 종료"
   },
-
   "pwa": {
     "installSwaply": "Swaply 설치",
     "installDescription": "브라우저 없이 빠른 접근을 위해 홈 화면에 추가하세요.",

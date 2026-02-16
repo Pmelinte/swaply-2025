@@ -24,7 +24,6 @@
     "noImage": "Žádný obrázek",
     "freeSlot": "Volné místo"
   },
-
   "nav": {
     "home": "Domů",
     "objects": "Objekty",
@@ -52,12 +51,10 @@
     "badgeBenefits": "Výhody odznaku",
     "completeProfile": "Doplňte svůj profil"
   },
-
   "notifications": {
     "title": "Oznámení (like/zájem/chat/swaply)",
     "empty": "Momentálně žádná oznámení."
   },
-
   "login": {
     "authentication": "Ověření",
     "registration": "Registrace",
@@ -94,7 +91,6 @@
     "invalidCredentials": "Neplatné přihlašovací údaje",
     "invalidCredentialsDescription": "Červená zpráva + zmínka o demo hesle. Žádný falešný úspěch; zůstane na stránce s možností obnovení hesla."
   },
-
   "profile": {
     "loading": "Načítání profilu…",
     "loadingDescription": "Kontrola vaší relace.",
@@ -162,44 +158,50 @@
     "badgeBenefits": "Výhody odznaku",
     "badgeBenefitsDescription": "Objevte výhody Premium a Platinum"
   },
-
   "home": {
-    "discoverOpportunities": "Objevte možnosti výměny ve vašem okolí",
-    "chooseHowToStart": "Vyberte si, jak chcete začít: prozkoumat objekty, hledat na mapě nebo analyzovat shody.",
-    "viewAvailableObjects": "Zobrazit dostupné objekty",
-    "greeting": "Ahoj, {name}! Mapa zobrazuje pouze Premium a Platinum uživatele. Váš odznak určuje vaši viditelnost.",
-    "analyzeMatches": "Analyzovat shody",
-    "addObject": "Přidat objekt",
-    "monitorExchanges": "Sledovat výměny",
-    "activeUsersMap": "Mapa aktivních uživatelů",
-    "mapDescription": "Premium a Platinum uživatelé jsou na mapě zvýrazněni.",
-    "learnPremiumBenefits": "Zjistěte výhody Premium účtu",
-    "completeProfileAndLocation": "Doplňte svůj profil a polohu",
-    "completeProfileDescription": "Aktivujte funkce založené na mapě přidáním přibližné polohy.",
-    "openProfile": "Otevřít profil",
-    "mapVisibilityNote": "Zobrazení na mapě je dostupné pro Premium účty. Můžete prohlížet nabídky a zahajovat výměny, aniž byste byli veřejně viditelní.",
-    "announcements": "Oznámení",
-    "announcementsDescription": "Systémové zprávy, diskrétní a skryvatelné.",
-    "noListedObjects": "Zatím nemáte žádné uvedené objekty",
-    "addObjectForProposals": "Přidejte objekt, abyste dostávali relevantní návrhy.",
-    "aiFallback": "AI záloha",
-    "manualModeActive": "Manuální režim aktivní, když nejsou dostupné AI služby.",
-    "aiDisabled": "AI vypnuto",
-    "aiDisabledDescription": "Klasifikace a vysvětlení spoléhají na manuální pravidla, aby neblokovaly kritické procesy.",
-    "aiActive": "AI aktivní",
-    "aiActiveDescription": "Návrhy na domovské stránce sledují AI kontrakt (na straně serveru).",
-    "aiOutputNote": "AI výstup je uložen jako verzionovaná metadata a nepřepisuje konečné preference uživatelů.",
-    "addObjectCta": "Přidat objekt",
-    "addObjectCtaDescription": "Uveďte něco k výměně",
-    "analyzeMatchesCta": "Analyzovat shody",
-    "analyzeMatchesCtaDescription": "Objevte kompatibilní návrhy",
-    "exploreObjects": "Prozkoumat objekty",
-    "exploreObjectsDescription": "Prohlédněte si, co nabízejí ostatní uživatelé",
-    "loginCta": "Přihlásit se",
-    "exploreObjectsGuest": "Prozkoumat objekty",
-    "exploreObjectsGuestDescription": "Podívejte se, co je dostupné bez účtu"
+    "welcome": "Welcome back",
+    "greeting": "Hey, {name}!",
+    "heroSubtitle": "Explore objects in your area, discover matches, and propose swaps.",
+    "statItems": "{count} active items",
+    "statSwaps": "{count} swaps",
+    "statTokens": "{count} tokens",
+    "statNotifs": "{count} new notifications",
+    "guestHeadline": "Swap what you have for what you want",
+    "guestSubtitle": "Swaply connects people who want to exchange objects, no money involved. Simple, local, transparent.",
+    "getStarted": "Get started",
+    "browseObjects": "Browse objects",
+    "actionAdd": "Add object",
+    "actionAddDesc": "List something for exchange",
+    "actionExplore": "Explore",
+    "actionExploreDesc": "Discover available objects",
+    "actionMatch": "AI Matches",
+    "actionMatchDesc": "Analyze compatibility",
+    "actionSwaps": "Swaps",
+    "actionSwapsDesc": "Monitor your exchanges",
+    "mapTitle": "Users map",
+    "mapSubtitle": "Premium and Platinum users are visible on the map.",
+    "addLocationHint": "Add your location in profile to enable map-based features",
+    "announcements": "Announcements",
+    "nudgeNoItems": "You don't have any listed objects yet",
+    "nudgeNoItemsDesc": "Add your first object to start receiving swap proposals.",
+    "nudgeProfile": "Complete your profile",
+    "nudgeProfileDesc": "A complete profile increases your trust and visibility.",
+    "nudgeProfileCta": "Edit profile",
+    "nudgeMatches": "{count} matches found",
+    "nudgeMatchesDesc": "AI has identified compatible proposals for your objects.",
+    "nudgeMatchesCta": "View matches",
+    "reputation": "Reputation",
+    "repLevel": "Level",
+    "repPath": "Starter → Trusted → Ambassador",
+    "activeSwaps": "{count} active swaps",
+    "activeSwapsDesc": "You have ongoing swaps that need your attention.",
+    "messagesLink": "Messages",
+    "messagesLinkDesc": "Chat with your swap partners",
+    "guestDiscover": "Discover Swaply",
+    "guestObjects": "View available objects",
+    "guestInfo": "Platform info",
+    "guestBadges": "Badge benefits"
   },
-
   "objects": {
     "createAccount": "Vytvořit účet",
     "loginToList": "Přihlaste se pro uvedení objektů",
@@ -234,7 +236,6 @@
     "loadError": "Chyba při načítání objektů",
     "loadErrorDescription": "Jasná zpráva bez pádu; umožňuje obnovení stránky."
   },
-
   "objectDetail": {
     "loading": "Načítání objektu",
     "loadingDescription": "Stav načítání dle kontraktu (ne 404).",
@@ -254,7 +255,6 @@
     "startSecureChat": "Zahájit zabezpečený chat",
     "proposeExchange": "Navrhnout výměnu"
   },
-
   "objectEdit": {
     "loading": "Načítání editoru",
     "notFound": "Objekt nebyl nalezen",
@@ -262,12 +262,10 @@
     "title": "Upravit objekt",
     "editDescription": "Formulář s předvyplněnými hodnotami + jasné statusy."
   },
-
   "objectNew": {
     "title": "Přidat objekt",
     "description": "Kompletní formulář, bez narušení buildu."
   },
-
   "match": {
     "title": "Analýza shod",
     "description": "Návrhy založené na kumulativní kompatibilitě. AI analyzuje, vy rozhodujete.",
@@ -310,7 +308,6 @@
     "aiUnavailableNote": "AI nedostupné",
     "analysisContinues": "Analýza pokračuje s lokálními pravidly. Žádná funkce není blokována."
   },
-
   "chat": {
     "title": "Zabezpečený chat",
     "description": "Překlad (pokud je zapnutý) + moderace + skenované přílohy + CTA do Swaply",
@@ -341,7 +338,6 @@
     "sendError": "Chyba při odesílání. Zkuste to znovu.",
     "selectConversation": "Vyberte konverzaci nebo začněte jednu ze stránky objektů."
   },
-
   "change": {
     "title": "Proces výměny (Swaply)",
     "description": "Potvrzení + logistika + mapa (úrovně) + oznámení + zpětná vazba",
@@ -383,7 +379,6 @@
     "viewStats": "Zobrazit statistiky",
     "viewStatsDescription": "Zkontrolujte svou reputaci a tokeny"
   },
-
   "info": {
     "title": "Swaply statistiky",
     "description": "Globální statistiky + uživatelské statistiky + rank + tokeny + směnný kurz + pomoc/právo",
@@ -426,7 +421,6 @@
     "authentication": "Ověření",
     "authenticationDescription": "Vytvořte účet nebo se přihlaste"
   },
-
   "itemForm": {
     "conditionNew": "Nový",
     "conditionGood": "Lehce použitý",
@@ -521,7 +515,6 @@
     "imageReadError": "Nepodařilo se přečíst obrázek.",
     "uploadingImageButton": "Nahrávání obrázku…"
   },
-
   "itemCard": {
     "location": "Poloha:",
     "ai": "AI:",
@@ -529,7 +522,6 @@
     "edit": "Upravit",
     "delete": "Smazat"
   },
-
   "swipeCard": {
     "yes": "ANO",
     "no": "NE",
@@ -537,7 +529,6 @@
     "notInterested": "Nemám zájem",
     "interested": "Mám zájem"
   },
-
   "matchList": {
     "weak": "Slabá",
     "possible": "Možná",
@@ -550,7 +541,6 @@
     "sendMessage": "Odeslat zprávu",
     "proposeExchange": "Navrhnout výměnu"
   },
-
   "swapTimeline": {
     "proposed": "Navrženo",
     "scheduled": "Naplánováno",
@@ -571,7 +561,6 @@
     "autoNotifications": "Automatická oznámení:",
     "lastUpdate": "Poslední aktualizace:"
   },
-
   "chatPanel": {
     "you": "Vy",
     "partner": "Partner",
@@ -591,7 +580,6 @@
     "sendError": "Chyba při odesílání. Zkuste to znovu.",
     "selectConversation": "Vyberte konverzaci nebo začněte jednu ze stránky objektů."
   },
-
   "statsGrid": {
     "globalExchanges": "Globální výměny",
     "globalDescription": "Swaply je aktivní ve více regionech",
@@ -602,7 +590,6 @@
     "tokensIssued": "Vydané tokeny",
     "tokensDescription": "Bezpečný registr, viditelný v profilu"
   },
-
   "map": {
     "unavailable": "Mapa nedostupná",
     "providerDisabled": "Poskytovatel mapy je vypnutý. Zbytek stránky zůstává použitelný.",
@@ -614,7 +601,6 @@
     "mapTitle": "Mapa polohy",
     "noPins": "Žádné piny k zobrazení"
   },
-
   "location": {
     "country": "Země",
     "selectCountry": "— Vyberte zemi —",
@@ -625,19 +611,16 @@
     "selectCity": "— Vyberte město —",
     "chooseRegionFirst": "— Nejprve vyberte region —"
   },
-
   "gated": {
     "notLoggedIn": "Nejste přihlášeni",
     "loginToView": "Přihlaste se pro zobrazení tohoto obsahu. Návratová adresa je uložena, abyste mohli pokračovat bez přerušení.",
     "login": "Přihlásit se"
   },
-
   "demoBanner": {
     "demoMode": "Demo režim aktivní",
     "dataNotReal": "— data nejsou reálná a nejsou ukládána.",
     "exitDemo": "Opustit demo"
   },
-
   "pwa": {
     "installSwaply": "Nainstalovat Swaply",
     "installDescription": "Přidejte na domovskou obrazovku pro rychlý přístup, bez prohlížeče.",

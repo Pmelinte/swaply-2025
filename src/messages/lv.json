@@ -24,7 +24,6 @@
     "noImage": "Nav attela",
     "freeSlot": "Briva vieta"
   },
-
   "nav": {
     "home": "Sakums",
     "objects": "Objekti",
@@ -52,12 +51,10 @@
     "badgeBenefits": "Zimes prieksrocibas",
     "completeProfile": "Aizpildiet savu profilu"
   },
-
   "notifications": {
     "title": "Pazinojumi (patik/interese/terzesana/swaply)",
     "empty": "Pašlaik nav pazinojumu."
   },
-
   "login": {
     "authentication": "Autentifikacija",
     "registration": "Registracija",
@@ -94,7 +91,6 @@
     "invalidCredentials": "Nederigi akreditacijas dati",
     "invalidCredentialsDescription": "Sarkans zinojums + demo paroles pieminešana. Nav mock veiksmiba; paliek lapa ar CTA paroles atiestatisanai."
   },
-
   "profile": {
     "loading": "Ielādē profilu...",
     "loadingDescription": "Pārbauda jūsu sesiju.",
@@ -162,44 +158,50 @@
     "badgeBenefits": "Žīmju priekšrocības",
     "badgeBenefitsDescription": "Uzziniet par Premium un Platinum priekšrocībām"
   },
-
   "home": {
-    "discoverOpportunities": "Atklājiet apmaiņas iespējas savā apkārtnē",
-    "chooseHowToStart": "Izvēlieties, kā sākt: izpētiet objektus, meklējiet kartē vai analizējiet atbilstības.",
-    "viewAvailableObjects": "Skatīt pieejamos objektus",
-    "greeting": "Sveiki, {name}! Kartē tiek rādīti tikai Premium un Platinum lietotāji. Jūsu žīme kontrolē jūsu redzamību.",
-    "analyzeMatches": "Analizēt atbilstības",
-    "addObject": "Pievienot objektu",
-    "monitorExchanges": "Sekot apmaiņām",
-    "activeUsersMap": "Aktīvo lietotāju karte",
-    "mapDescription": "Premium un Platinum lietotāji ir izcelti kartē.",
-    "learnPremiumBenefits": "Uzziniet par Premium konta priekšrocībām",
-    "completeProfileAndLocation": "Aizpildiet savu profilu un atrašanās vietu",
-    "completeProfileDescription": "Iespējojiet kartes funkcijas, pievienojot aptuvenu atrašanās vietu.",
-    "openProfile": "Atvērt profilu",
-    "mapVisibilityNote": "Kartes parādīšanās ir pieejama Premium kontiem. Jūs varat izpētīt piedāvājumus un uzsākt apmaiņas, nebūdami publiski redzami.",
-    "announcements": "Paziņojumi",
-    "announcementsDescription": "Sistēmas ziņojumi, diskrēti un noraidāmi.",
-    "noListedObjects": "Jums vēl nav neviena uzskaitīta objekta",
-    "addObjectForProposals": "Pievienojiet objektu, lai saņemtu atbilstošus piedāvājumus.",
-    "aiFallback": "MI rezerves režīms",
-    "manualModeActive": "Manuālais režīms aktīvs, kad MI pakalpojumi nav pieejami.",
-    "aiDisabled": "MI atspējots",
-    "aiDisabledDescription": "Klasifikācija un skaidrojumi balstās uz manuāliem noteikumiem, lai nebloķētu kritiskās plūsmas.",
-    "aiActive": "MI aktīvs",
-    "aiActiveDescription": "Sākumlapas ieteikumi seko MI līgumam (servera pusē).",
-    "aiOutputNote": "MI izvade tiek saglabāta kā versionēti metadati un neatceļ lietotāju galīgās preferences.",
-    "addObjectCta": "Pievienot objektu",
-    "addObjectCtaDescription": "Uzskaitiet kaut ko apmaiņai",
-    "analyzeMatchesCta": "Analizēt atbilstības",
-    "analyzeMatchesCtaDescription": "Atklājiet saderīgus piedāvājumus",
-    "exploreObjects": "Izpētīt objektus",
-    "exploreObjectsDescription": "Pārlūkojiet citu lietotāju piedāvājumus",
-    "loginCta": "Pieslēgties",
-    "exploreObjectsGuest": "Izpētīt objektus",
-    "exploreObjectsGuestDescription": "Skatiet, kas pieejams bez konta"
+    "welcome": "Welcome back",
+    "greeting": "Hey, {name}!",
+    "heroSubtitle": "Explore objects in your area, discover matches, and propose swaps.",
+    "statItems": "{count} active items",
+    "statSwaps": "{count} swaps",
+    "statTokens": "{count} tokens",
+    "statNotifs": "{count} new notifications",
+    "guestHeadline": "Swap what you have for what you want",
+    "guestSubtitle": "Swaply connects people who want to exchange objects, no money involved. Simple, local, transparent.",
+    "getStarted": "Get started",
+    "browseObjects": "Browse objects",
+    "actionAdd": "Add object",
+    "actionAddDesc": "List something for exchange",
+    "actionExplore": "Explore",
+    "actionExploreDesc": "Discover available objects",
+    "actionMatch": "AI Matches",
+    "actionMatchDesc": "Analyze compatibility",
+    "actionSwaps": "Swaps",
+    "actionSwapsDesc": "Monitor your exchanges",
+    "mapTitle": "Users map",
+    "mapSubtitle": "Premium and Platinum users are visible on the map.",
+    "addLocationHint": "Add your location in profile to enable map-based features",
+    "announcements": "Announcements",
+    "nudgeNoItems": "You don't have any listed objects yet",
+    "nudgeNoItemsDesc": "Add your first object to start receiving swap proposals.",
+    "nudgeProfile": "Complete your profile",
+    "nudgeProfileDesc": "A complete profile increases your trust and visibility.",
+    "nudgeProfileCta": "Edit profile",
+    "nudgeMatches": "{count} matches found",
+    "nudgeMatchesDesc": "AI has identified compatible proposals for your objects.",
+    "nudgeMatchesCta": "View matches",
+    "reputation": "Reputation",
+    "repLevel": "Level",
+    "repPath": "Starter → Trusted → Ambassador",
+    "activeSwaps": "{count} active swaps",
+    "activeSwapsDesc": "You have ongoing swaps that need your attention.",
+    "messagesLink": "Messages",
+    "messagesLinkDesc": "Chat with your swap partners",
+    "guestDiscover": "Discover Swaply",
+    "guestObjects": "View available objects",
+    "guestInfo": "Platform info",
+    "guestBadges": "Badge benefits"
   },
-
   "objects": {
     "createAccount": "Izveidot kontu",
     "loginToList": "Pieslēdzieties, lai uzskaitītu objektus",
@@ -234,7 +236,6 @@
     "loadError": "Kļūda ielādējot objektus",
     "loadErrorDescription": "Skaidrs ziņojums bez avārijas; ļauj pārlādēt lapu."
   },
-
   "objectDetail": {
     "loading": "Ielādē objektu",
     "loadingDescription": "Ielādes stāvoklis saskaņā ar līgumu (nav 404).",
@@ -254,7 +255,6 @@
     "startSecureChat": "Sākt drošu tērzēšanu",
     "proposeExchange": "Piedāvāt apmaiņu"
   },
-
   "objectEdit": {
     "loading": "Ielādē redaktoru",
     "notFound": "Objekts nav atrasts",
@@ -262,12 +262,10 @@
     "title": "Rediģēt objektu",
     "editDescription": "Forma ar iepriekš aizpildītām vērtībām + skaidri statusi."
   },
-
   "objectNew": {
     "title": "Pievienot objektu",
     "description": "Pilnīga forma, nesabojājot būvējumu."
   },
-
   "match": {
     "title": "Atbilstības analīze",
     "description": "Priekšlikumi, balstoties uz kumulatīvu saderību. MI analizē, jūs izlemjat.",
@@ -310,7 +308,6 @@
     "aiUnavailableNote": "MI nav pieejams",
     "analysisContinues": "Analīze turpinās ar lokāliem noteikumiem. Neviena funkcionalitāte nav bloķēta."
   },
-
   "chat": {
     "title": "Droša tērzēšana",
     "description": "Tulkošana (ja ieslēgta) + moderācija + skenēti pielikumi + CTA uz Swaply",
@@ -341,7 +338,6 @@
     "sendError": "Kļūda nosūtot. Mēģiniet vēlreiz.",
     "selectConversation": "Izvēlieties sarunu vai sāciet vienu no objektu lapas."
   },
-
   "change": {
     "title": "Apmaiņas plūsma (Swaply)",
     "description": "Apstiprināšana + loģistika + karte (līmeņi) + paziņojumi + atsauksmes",
@@ -383,7 +379,6 @@
     "viewStats": "Skatīt statistiku",
     "viewStatsDescription": "Pārbaudiet savu reputāciju un žetonus"
   },
-
   "info": {
     "title": "Swaply statistika",
     "description": "Globālā statistika + lietotāja statistika + rangs + žetoni + apmaiņas kurss + palīdzība/juridiskā info",
@@ -426,7 +421,6 @@
     "authentication": "Autentifikācija",
     "authenticationDescription": "Izveidot kontu vai pieslēgties"
   },
-
   "itemForm": {
     "conditionNew": "Jauns",
     "conditionGood": "Nedaudz lietots",
@@ -521,7 +515,6 @@
     "imageReadError": "Nevarēja nolasīt attēlu.",
     "uploadingImageButton": "Augšupielādē attēlu..."
   },
-
   "itemCard": {
     "location": "Atrašanās vieta:",
     "ai": "MI:",
@@ -529,7 +522,6 @@
     "edit": "Rediģēt",
     "delete": "Dzēst"
   },
-
   "swipeCard": {
     "yes": "JĀ",
     "no": "NĒ",
@@ -537,7 +529,6 @@
     "notInterested": "Nav ieinteresēts",
     "interested": "Ieinteresēts"
   },
-
   "matchList": {
     "weak": "Vāja",
     "possible": "Iespējama",
@@ -550,7 +541,6 @@
     "sendMessage": "Nosūtīt ziņojumu",
     "proposeExchange": "Piedāvāt apmaiņu"
   },
-
   "swapTimeline": {
     "proposed": "Piedāvāts",
     "scheduled": "Ieplānots",
@@ -571,7 +561,6 @@
     "autoNotifications": "Automātiskie paziņojumi:",
     "lastUpdate": "Pēdējais atjauninājums:"
   },
-
   "chatPanel": {
     "you": "Jūs",
     "partner": "Partneris",
@@ -591,7 +580,6 @@
     "sendError": "Kļūda nosūtot. Mēģiniet vēlreiz.",
     "selectConversation": "Izvēlieties sarunu vai sāciet vienu no objektu lapas."
   },
-
   "statsGrid": {
     "globalExchanges": "Globālās apmaiņas",
     "globalDescription": "Swaply ir aktīvs vairākos reģionos",
@@ -602,7 +590,6 @@
     "tokensIssued": "Izdotie žetoni",
     "tokensDescription": "Droša virsgrāmata, redzama profilā"
   },
-
   "map": {
     "unavailable": "Karte nav pieejama",
     "providerDisabled": "Kartes pakalpojumu sniedzējs atspējots. Pārējā lapa paliek lietojama.",
@@ -614,7 +601,6 @@
     "mapTitle": "Atrašanās vietas karte",
     "noPins": "Nav adatu ko rādīt"
   },
-
   "location": {
     "country": "Valsts",
     "selectCountry": "— Izvēlieties valsti —",
@@ -625,19 +611,16 @@
     "selectCity": "— Izvēlieties pilsētu —",
     "chooseRegionFirst": "— Vispirms izvēlieties reģionu —"
   },
-
   "gated": {
     "notLoggedIn": "Jūs neesat pieslēdzies",
     "loginToView": "Pieslēdzieties, lai skatītu šo saturu. Atgriezšanās adrese ir saglabāta, lai jūs varētu turpināt plūsmu bez pārtraukumiem.",
     "login": "Pieslēgties"
   },
-
   "demoBanner": {
     "demoMode": "Demo režīms aktīvs",
     "dataNotReal": "— dati nav reāli un netiek saglabāti.",
     "exitDemo": "Iziet no demo"
   },
-
   "pwa": {
     "installSwaply": "Instalēt Swaply",
     "installDescription": "Pievienojiet sākuma ekrānam ātrai piekļuvei, bez pārlūka.",

@@ -24,7 +24,6 @@
     "noImage": "ไม่มีรูปภาพ",
     "freeSlot": "ช่องว่าง"
   },
-
   "nav": {
     "home": "หน้าแรก",
     "objects": "สิ่งของ",
@@ -52,12 +51,10 @@
     "badgeBenefits": "สิทธิประโยชน์ตรา",
     "completeProfile": "กรอกโปรไฟล์ให้สมบูรณ์"
   },
-
   "notifications": {
     "title": "การแจ้งเตือน (ถูกใจ/สนใจ/แชท/swaply)",
     "empty": "ไม่มีการแจ้งเตือนในขณะนี้"
   },
-
   "login": {
     "authentication": "การยืนยันตัวตน",
     "registration": "การลงทะเบียน",
@@ -94,7 +91,6 @@
     "invalidCredentials": "ข้อมูลรับรองไม่ถูกต้อง",
     "invalidCredentialsDescription": "ข้อความสีแดง + อ้างอิงรหัสผ่านสาธิต ไม่มีความสำเร็จจำลอง; อยู่ในหน้าพร้อมปุ่มรีเซ็ตรหัสผ่าน"
   },
-
   "profile": {
     "loading": "กำลังโหลดโปรไฟล์…",
     "loadingDescription": "กำลังตรวจสอบเซสชันของคุณ",
@@ -162,44 +158,50 @@
     "badgeBenefits": "สิทธิประโยชน์ตรา",
     "badgeBenefitsDescription": "ค้นพบข้อดีของ Premium และ Platinum"
   },
-
   "home": {
-    "discoverOpportunities": "ค้นพบโอกาสแลกเปลี่ยนในพื้นที่ของคุณ",
-    "chooseHowToStart": "เลือกวิธีเริ่มต้น: สำรวจสิ่งของ ค้นหาบนแผนที่ หรือวิเคราะห์การจับคู่",
-    "viewAvailableObjects": "ดูสิ่งของที่มีอยู่",
-    "greeting": "สวัสดี {name}! แผนที่แสดงเฉพาะผู้ใช้ Premium และ Platinum ตราของคุณควบคุมการแสดงผล",
-    "analyzeMatches": "วิเคราะห์การจับคู่",
-    "addObject": "เพิ่มสิ่งของ",
-    "monitorExchanges": "ติดตามการแลกเปลี่ยน",
-    "activeUsersMap": "แผนที่ผู้ใช้ที่ใช้งาน",
-    "mapDescription": "ผู้ใช้ Premium และ Platinum ถูกเน้นบนแผนที่",
-    "learnPremiumBenefits": "เรียนรู้เกี่ยวกับสิทธิประโยชน์บัญชี Premium",
-    "completeProfileAndLocation": "กรอกโปรไฟล์และตำแหน่งที่ตั้งให้สมบูรณ์",
-    "completeProfileDescription": "เปิดใช้งานคุณสมบัติแผนที่โดยเพิ่มตำแหน่งที่ตั้งโดยประมาณของคุณ",
-    "openProfile": "เปิดโปรไฟล์",
-    "mapVisibilityNote": "การแสดงผลบนแผนที่สำหรับบัญชี Premium คุณสามารถสำรวจข้อเสนอและเริ่มการแลกเปลี่ยนโดยไม่ต้องแสดงตัวต่อสาธารณะ",
-    "announcements": "ประกาศ",
-    "announcementsDescription": "ข้อความระบบ สุขุมและปิดได้",
-    "noListedObjects": "คุณยังไม่มีสิ่งของที่ลงรายการ",
-    "addObjectForProposals": "เพิ่มสิ่งของเพื่อรับข้อเสนอที่เกี่ยวข้อง",
-    "aiFallback": "AI สำรอง",
-    "manualModeActive": "โหมดแมนนวลทำงานเมื่อบริการ AI ไม่พร้อมใช้งาน",
-    "aiDisabled": "AI ปิดใช้งาน",
-    "aiDisabledDescription": "การจำแนกและคำอธิบายใช้กฎแบบแมนนวลเพื่อไม่บล็อกขั้นตอนสำคัญ",
-    "aiActive": "AI เปิดใช้งาน",
-    "aiActiveDescription": "คำแนะนำหน้าแรกเป็นไปตามสัญญา AI (ฝั่งเซิร์ฟเวอร์)",
-    "aiOutputNote": "ผลลัพธ์ AI ถูกบันทึกเป็นเมตาดาต้าแบบเวอร์ชันและไม่แทนที่การตั้งค่าสุดท้ายของผู้ใช้",
-    "addObjectCta": "เพิ่มสิ่งของ",
-    "addObjectCtaDescription": "ลงรายการสิ่งของเพื่อแลกเปลี่ยน",
-    "analyzeMatchesCta": "วิเคราะห์การจับคู่",
-    "analyzeMatchesCtaDescription": "ค้นพบข้อเสนอที่เข้ากัน",
-    "exploreObjects": "สำรวจสิ่งของ",
-    "exploreObjectsDescription": "เรียกดูสิ่งที่ผู้ใช้คนอื่นเสนอ",
-    "loginCta": "เข้าสู่ระบบ",
-    "exploreObjectsGuest": "สำรวจสิ่งของ",
-    "exploreObjectsGuestDescription": "ดูสิ่งที่มีอยู่โดยไม่ต้องมีบัญชี"
+    "welcome": "Welcome back",
+    "greeting": "Hey, {name}!",
+    "heroSubtitle": "Explore objects in your area, discover matches, and propose swaps.",
+    "statItems": "{count} active items",
+    "statSwaps": "{count} swaps",
+    "statTokens": "{count} tokens",
+    "statNotifs": "{count} new notifications",
+    "guestHeadline": "Swap what you have for what you want",
+    "guestSubtitle": "Swaply connects people who want to exchange objects, no money involved. Simple, local, transparent.",
+    "getStarted": "Get started",
+    "browseObjects": "Browse objects",
+    "actionAdd": "Add object",
+    "actionAddDesc": "List something for exchange",
+    "actionExplore": "Explore",
+    "actionExploreDesc": "Discover available objects",
+    "actionMatch": "AI Matches",
+    "actionMatchDesc": "Analyze compatibility",
+    "actionSwaps": "Swaps",
+    "actionSwapsDesc": "Monitor your exchanges",
+    "mapTitle": "Users map",
+    "mapSubtitle": "Premium and Platinum users are visible on the map.",
+    "addLocationHint": "Add your location in profile to enable map-based features",
+    "announcements": "Announcements",
+    "nudgeNoItems": "You don't have any listed objects yet",
+    "nudgeNoItemsDesc": "Add your first object to start receiving swap proposals.",
+    "nudgeProfile": "Complete your profile",
+    "nudgeProfileDesc": "A complete profile increases your trust and visibility.",
+    "nudgeProfileCta": "Edit profile",
+    "nudgeMatches": "{count} matches found",
+    "nudgeMatchesDesc": "AI has identified compatible proposals for your objects.",
+    "nudgeMatchesCta": "View matches",
+    "reputation": "Reputation",
+    "repLevel": "Level",
+    "repPath": "Starter → Trusted → Ambassador",
+    "activeSwaps": "{count} active swaps",
+    "activeSwapsDesc": "You have ongoing swaps that need your attention.",
+    "messagesLink": "Messages",
+    "messagesLinkDesc": "Chat with your swap partners",
+    "guestDiscover": "Discover Swaply",
+    "guestObjects": "View available objects",
+    "guestInfo": "Platform info",
+    "guestBadges": "Badge benefits"
   },
-
   "objects": {
     "createAccount": "สร้างบัญชี",
     "loginToList": "เข้าสู่ระบบเพื่อลงรายการสิ่งของ",
@@ -234,7 +236,6 @@
     "loadError": "เกิดข้อผิดพลาดในการโหลดสิ่งของ",
     "loadErrorDescription": "ข้อความชัดเจนโดยไม่ crash; อนุญาตให้โหลดหน้าใหม่"
   },
-
   "objectDetail": {
     "loading": "กำลังโหลดสิ่งของ",
     "loadingDescription": "สถานะการโหลดตามสัญญา (ไม่ใช่ 404)",
@@ -254,7 +255,6 @@
     "startSecureChat": "เริ่มแชทที่ปลอดภัย",
     "proposeExchange": "เสนอการแลกเปลี่ยน"
   },
-
   "objectEdit": {
     "loading": "กำลังโหลดตัวแก้ไข",
     "notFound": "ไม่พบสิ่งของ",
@@ -262,12 +262,10 @@
     "title": "แก้ไขสิ่งของ",
     "editDescription": "แบบฟอร์มที่มีค่าเติมล่วงหน้า + สถานะที่ชัดเจน"
   },
-
   "objectNew": {
     "title": "เพิ่มสิ่งของ",
     "description": "แบบฟอร์มสมบูรณ์ โดยไม่ทำให้บิลด์เสียหาย"
   },
-
   "match": {
     "title": "การวิเคราะห์การจับคู่",
     "description": "ข้อเสนอตามความเข้ากันได้สะสม AI วิเคราะห์ คุณตัดสินใจ",
@@ -310,7 +308,6 @@
     "aiUnavailableNote": "AI ไม่พร้อมใช้งาน",
     "analysisContinues": "การวิเคราะห์ดำเนินต่อด้วยกฎภายใน ไม่มีฟังก์ชันใดถูกบล็อก"
   },
-
   "chat": {
     "title": "แชทที่ปลอดภัย",
     "description": "การแปล (ถ้าเปิด) + การตรวจสอบ + ไฟล์แนบที่สแกน + CTA ไปยัง Swaply",
@@ -341,7 +338,6 @@
     "sendError": "เกิดข้อผิดพลาดในการส่ง ลองอีกครั้ง",
     "selectConversation": "เลือกบทสนทนาหรือเริ่มจากหน้าสิ่งของ"
   },
-
   "change": {
     "title": "ขั้นตอนการแลกเปลี่ยน (Swaply)",
     "description": "การยืนยัน + การขนส่ง + แผนที่ (ระดับ) + การแจ้งเตือน + ข้อเสนอแนะ",
@@ -383,7 +379,6 @@
     "viewStats": "ดูสถิติ",
     "viewStatsDescription": "ตรวจสอบชื่อเสียงและโทเค็นของคุณ"
   },
-
   "info": {
     "title": "สถิติ Swaply",
     "description": "สถิติทั่วโลก + สถิติผู้ใช้ + อันดับ + โทเค็น + อัตราแลกเปลี่ยน + ช่วยเหลือ/กฎหมาย",
@@ -426,7 +421,6 @@
     "authentication": "การยืนยันตัวตน",
     "authenticationDescription": "สร้างบัญชีหรือเข้าสู่ระบบ"
   },
-
   "itemForm": {
     "conditionNew": "ใหม่",
     "conditionGood": "ใช้แล้วเล็กน้อย",
@@ -521,7 +515,6 @@
     "imageReadError": "ไม่สามารถอ่านรูปภาพได้",
     "uploadingImageButton": "กำลังอัปโหลดรูปภาพ…"
   },
-
   "itemCard": {
     "location": "ตำแหน่งที่ตั้ง:",
     "ai": "AI:",
@@ -529,7 +522,6 @@
     "edit": "แก้ไข",
     "delete": "ลบ"
   },
-
   "swipeCard": {
     "yes": "ใช่",
     "no": "ไม่",
@@ -537,7 +529,6 @@
     "notInterested": "ไม่สนใจ",
     "interested": "สนใจ"
   },
-
   "matchList": {
     "weak": "อ่อน",
     "possible": "เป็นไปได้",
@@ -550,7 +541,6 @@
     "sendMessage": "ส่งข้อความ",
     "proposeExchange": "เสนอการแลกเปลี่ยน"
   },
-
   "swapTimeline": {
     "proposed": "เสนอแล้ว",
     "scheduled": "กำหนดแล้ว",
@@ -571,7 +561,6 @@
     "autoNotifications": "การแจ้งเตือนอัตโนมัติ:",
     "lastUpdate": "อัปเดตล่าสุด:"
   },
-
   "chatPanel": {
     "you": "คุณ",
     "partner": "คู่สนทนา",
@@ -591,7 +580,6 @@
     "sendError": "เกิดข้อผิดพลาดในการส่ง ลองอีกครั้ง",
     "selectConversation": "เลือกบทสนทนาหรือเริ่มจากหน้าสิ่งของ"
   },
-
   "statsGrid": {
     "globalExchanges": "การแลกเปลี่ยนทั่วโลก",
     "globalDescription": "Swaply เปิดใช้งานในหลายภูมิภาค",
@@ -602,7 +590,6 @@
     "tokensIssued": "โทเค็นที่ออก",
     "tokensDescription": "บัญชีแยกที่ปลอดภัย แสดงในโปรไฟล์"
   },
-
   "map": {
     "unavailable": "แผนที่ไม่พร้อมใช้งาน",
     "providerDisabled": "ผู้ให้บริการแผนที่ถูกปิดใช้งาน ส่วนที่เหลือของหน้ายังใช้งานได้",
@@ -614,7 +601,6 @@
     "mapTitle": "แผนที่ตำแหน่งที่ตั้ง",
     "noPins": "ไม่มีพินที่จะแสดง"
   },
-
   "location": {
     "country": "ประเทศ",
     "selectCountry": "— เลือกประเทศ —",
@@ -625,19 +611,16 @@
     "selectCity": "— เลือกเมือง —",
     "chooseRegionFirst": "— เลือกภูมิภาคก่อน —"
   },
-
   "gated": {
     "notLoggedIn": "คุณยังไม่ได้เข้าสู่ระบบ",
     "loginToView": "เข้าสู่ระบบเพื่อดูเนื้อหานี้ หน้าก่อนหน้าถูกบันทึกเพื่อให้คุณสามารถดำเนินการต่อได้โดยไม่หยุดชะงัก",
     "login": "เข้าสู่ระบบ"
   },
-
   "demoBanner": {
     "demoMode": "โหมดสาธิตเปิดใช้งาน",
     "dataNotReal": "— ข้อมูลไม่ใช่ข้อมูลจริงและไม่ถูกบันทึก",
     "exitDemo": "ออกจากโหมดสาธิต"
   },
-
   "pwa": {
     "installSwaply": "ติดตั้ง Swaply",
     "installDescription": "เพิ่มไปยังหน้าจอหลักเพื่อเข้าถึงอย่างรวดเร็ว ไม่ต้องใช้เบราว์เซอร์",

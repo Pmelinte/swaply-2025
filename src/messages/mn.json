@@ -24,7 +24,6 @@
     "noImage": "Зураг байхгүй",
     "freeSlot": "Чөлөөт зай"
   },
-
   "nav": {
     "home": "Нүүр",
     "objects": "Зүйлс",
@@ -52,12 +51,10 @@
     "badgeBenefits": "Тэмдэгний давуу тал",
     "completeProfile": "Профайлаа бөглөх"
   },
-
   "notifications": {
     "title": "Мэдэгдлүүд (таалагдсан/сонирхол/чат/swaply)",
     "empty": "Одоогоор мэдэгдэл байхгүй."
   },
-
   "login": {
     "authentication": "Нэвтрэлт",
     "registration": "Бүртгэл",
@@ -94,7 +91,6 @@
     "invalidCredentials": "Буруу нэвтрэх мэдээлэл",
     "invalidCredentialsDescription": "Улаан мессеж + демо нууц үгийн дурдалт. Хуурамч амжилт байхгүй; нууц үг шинэчлэх CTA-тай хуудсанд үлдэнэ."
   },
-
   "profile": {
     "loading": "Профайл ачааллаж байна…",
     "loadingDescription": "Таны сешнийг шалгаж байна.",
@@ -162,44 +158,50 @@
     "badgeBenefits": "Тэмдэгний давуу тал",
     "badgeBenefitsDescription": "Premium болон Platinum-ын давуу талуудыг нээх"
   },
-
   "home": {
-    "discoverOpportunities": "Таны бүс нутагт солилцооны боломжуудыг нээх",
-    "chooseHowToStart": "Хэрхэн эхлэхээ сонгох: зүйлс судлах, газрын зураг дээр хайх, эсвэл тааруулалтыг шинжлэх.",
-    "viewAvailableObjects": "Боломжтой зүйлсийг харах",
-    "greeting": "Сайн уу, {name}! Газрын зураг зөвхөн Premium болон Platinum хэрэглэгчдийг харуулна. Таны тэмдэг таны харагдацыг хянана.",
-    "analyzeMatches": "Тааруулалтыг шинжлэх",
-    "addObject": "Зүйл нэмэх",
-    "monitorExchanges": "Солилцоонуудыг хянах",
-    "activeUsersMap": "Идэвхтэй хэрэглэгчдийн газрын зураг",
-    "mapDescription": "Premium болон Platinum хэрэглэгчид газрын зураг дээр тодорхойлогдсон.",
-    "learnPremiumBenefits": "Premium бүртгэлийн давуу талуудыг мэдэх",
-    "completeProfileAndLocation": "Профайл болон байршилаа бөглөх",
-    "completeProfileDescription": "Ойролцоо байршилаа нэмж газрын зураг дээр суурилсан боломжуудыг идэвхжүүлнэ үү.",
-    "openProfile": "Профайл нээх",
-    "mapVisibilityNote": "Газрын зураг дээрх харагдац нь Premium бүртгэлд боломжтой. Та нийтэд харагдахгүйгээр санал болголтуудыг судалж, солилцоо эхлүүлж болно.",
-    "announcements": "Зарлалууд",
-    "announcementsDescription": "Системийн мессежүүд, нарийн ба хаах боломжтой.",
-    "noListedObjects": "Танд жагсаалтад оруулсан зүйл байхгүй байна",
-    "addObjectForProposals": "Зүйл нэмж холбогдох санал хүлээн авна уу.",
-    "aiFallback": "AI нөөц горим",
-    "manualModeActive": "AI үйлчилгээ боломжгүй үед гар горим идэвхтэй.",
-    "aiDisabled": "AI идэвхгүй",
-    "aiDisabledDescription": "Ангилал болон тайлбарууд чухал урсгалыг хаахгүйн тулд гар дүрэмд тулгуурлана.",
-    "aiActive": "AI идэвхтэй",
-    "aiActiveDescription": "Нүүр хуудасны санал болголтууд AI гэрээг (серверийн тал) дагана.",
-    "aiOutputNote": "AI гаралт нь хувилбарлагдсан метадата болон хадгалагддаг бөгөөд хэрэглэгчдийн эцсийн тохиргоог дарж бичдэггүй.",
-    "addObjectCta": "Зүйл нэмэх",
-    "addObjectCtaDescription": "Солилцоонд зүйл жагсаах",
-    "analyzeMatchesCta": "Тааруулалтыг шинжлэх",
-    "analyzeMatchesCtaDescription": "Нийцтэй саналуудыг нээх",
-    "exploreObjects": "Зүйлс судлах",
-    "exploreObjectsDescription": "Бусад хэрэглэгчид юу санал болгож байгааг үзэх",
-    "loginCta": "Нэвтрэх",
-    "exploreObjectsGuest": "Зүйлс судлах",
-    "exploreObjectsGuestDescription": "Бүртгэлгүйгээр юу байгааг харах"
+    "welcome": "Welcome back",
+    "greeting": "Hey, {name}!",
+    "heroSubtitle": "Explore objects in your area, discover matches, and propose swaps.",
+    "statItems": "{count} active items",
+    "statSwaps": "{count} swaps",
+    "statTokens": "{count} tokens",
+    "statNotifs": "{count} new notifications",
+    "guestHeadline": "Swap what you have for what you want",
+    "guestSubtitle": "Swaply connects people who want to exchange objects, no money involved. Simple, local, transparent.",
+    "getStarted": "Get started",
+    "browseObjects": "Browse objects",
+    "actionAdd": "Add object",
+    "actionAddDesc": "List something for exchange",
+    "actionExplore": "Explore",
+    "actionExploreDesc": "Discover available objects",
+    "actionMatch": "AI Matches",
+    "actionMatchDesc": "Analyze compatibility",
+    "actionSwaps": "Swaps",
+    "actionSwapsDesc": "Monitor your exchanges",
+    "mapTitle": "Users map",
+    "mapSubtitle": "Premium and Platinum users are visible on the map.",
+    "addLocationHint": "Add your location in profile to enable map-based features",
+    "announcements": "Announcements",
+    "nudgeNoItems": "You don't have any listed objects yet",
+    "nudgeNoItemsDesc": "Add your first object to start receiving swap proposals.",
+    "nudgeProfile": "Complete your profile",
+    "nudgeProfileDesc": "A complete profile increases your trust and visibility.",
+    "nudgeProfileCta": "Edit profile",
+    "nudgeMatches": "{count} matches found",
+    "nudgeMatchesDesc": "AI has identified compatible proposals for your objects.",
+    "nudgeMatchesCta": "View matches",
+    "reputation": "Reputation",
+    "repLevel": "Level",
+    "repPath": "Starter → Trusted → Ambassador",
+    "activeSwaps": "{count} active swaps",
+    "activeSwapsDesc": "You have ongoing swaps that need your attention.",
+    "messagesLink": "Messages",
+    "messagesLinkDesc": "Chat with your swap partners",
+    "guestDiscover": "Discover Swaply",
+    "guestObjects": "View available objects",
+    "guestInfo": "Platform info",
+    "guestBadges": "Badge benefits"
   },
-
   "objects": {
     "createAccount": "Бүртгэл үүсгэх",
     "loginToList": "Зүйлс жагсаахын тулд нэвтэрнэ үү",
@@ -234,7 +236,6 @@
     "loadError": "Зүйлс ачааллахад алдаа гарлаа",
     "loadErrorDescription": "Тодорхой мессеж гэмтэлгүйгээр; хуудас дахин ачааллах боломжтой."
   },
-
   "objectDetail": {
     "loading": "Зүйл ачааллаж байна",
     "loadingDescription": "Гэрээний дагуу ачааллалын төлөв (404 биш).",
@@ -254,7 +255,6 @@
     "startSecureChat": "Аюулгүй чат эхлүүлэх",
     "proposeExchange": "Солилцоо санал болгох"
   },
-
   "objectEdit": {
     "loading": "Засварлагч ачааллаж байна",
     "notFound": "Зүйл олдсонгүй",
@@ -262,12 +262,10 @@
     "title": "Зүйл засах",
     "editDescription": "Урьдчилан бөглөсөн утгуудтай маягт + тодорхой төлөвүүд."
   },
-
   "objectNew": {
     "title": "Зүйл нэмэх",
     "description": "Бүрэн маягт, бүтцийг эвдэхгүйгээр."
   },
-
   "match": {
     "title": "Тааруулалтын шинжилгээ",
     "description": "Хуримтлагдсан нийцтэй байдалд суурилсан саналууд. AI шинжилнэ, та шийднэ.",
@@ -310,7 +308,6 @@
     "aiUnavailableNote": "AI боломжгүй",
     "analysisContinues": "Шинжилгээ дотоод дүрмээр үргэлжилж байна. Ямар ч үйл ажиллагаа хаагдаагүй."
   },
-
   "chat": {
     "title": "Аюулгүй чат",
     "description": "Орчуулга (хэрэв идэвхтэй бол) + хяналт + шалгасан хавсралтууд + Swaply руу CTA",
@@ -341,7 +338,6 @@
     "sendError": "Илгээхэд алдаа гарлаа. Дахин оролдоно уу.",
     "selectConversation": "Яриа сонгох эсвэл зүйлсийн хуудаснаас шинийг эхлүүлнэ үү."
   },
-
   "change": {
     "title": "Солилцооны урсгал (Swaply)",
     "description": "Баталгаажуулалт + логистик + газрын зураг (түвшнүүд) + мэдэгдлүүд + санал хүсэлт",
@@ -383,7 +379,6 @@
     "viewStats": "Статистик харах",
     "viewStatsDescription": "Нэр хүнд ба токенуудаа шалгах"
   },
-
   "info": {
     "title": "Swaply Статистик",
     "description": "Глобал статистик + хэрэглэгчийн статистик + зэрэглэл + токенууд + солилцооны ханш + тусламж/хуулийн",
@@ -426,7 +421,6 @@
     "authentication": "Нэвтрэлт",
     "authenticationDescription": "Бүртгэл үүсгэх эсвэл нэвтрэх"
   },
-
   "itemForm": {
     "conditionNew": "Шинэ",
     "conditionGood": "Бага зэрэг хэрэглэсэн",
@@ -521,7 +515,6 @@
     "imageReadError": "Зургийг уншиж чадсангүй.",
     "uploadingImageButton": "Зургийг байршуулж байна…"
   },
-
   "itemCard": {
     "location": "Байршил:",
     "ai": "AI:",
@@ -529,7 +522,6 @@
     "edit": "Засах",
     "delete": "Устгах"
   },
-
   "swipeCard": {
     "yes": "ТИЙМ",
     "no": "ҮГҮЙ",
@@ -537,7 +529,6 @@
     "notInterested": "Сонирхоогүй",
     "interested": "Сонирхож байна"
   },
-
   "matchList": {
     "weak": "Сул",
     "possible": "Боломжтой",
@@ -550,7 +541,6 @@
     "sendMessage": "Мессеж илгээх",
     "proposeExchange": "Солилцоо санал болгох"
   },
-
   "swapTimeline": {
     "proposed": "Санал болгосон",
     "scheduled": "Товлосон",
@@ -571,7 +561,6 @@
     "autoNotifications": "Автомат мэдэгдлүүд:",
     "lastUpdate": "Сүүлийн шинэчлэлт:"
   },
-
   "chatPanel": {
     "you": "Та",
     "partner": "Түнш",
@@ -591,7 +580,6 @@
     "sendError": "Илгээхэд алдаа гарлаа. Дахин оролдоно уу.",
     "selectConversation": "Яриа сонгох эсвэл зүйлсийн хуудаснаас шинийг эхлүүлнэ үү."
   },
-
   "statsGrid": {
     "globalExchanges": "Глобал солилцоонууд",
     "globalDescription": "Swaply олон бүс нутагт идэвхтэй",
@@ -602,7 +590,6 @@
     "tokensIssued": "Олгосон токенууд",
     "tokensDescription": "Аюулгүй дэвтэр, профайлд харагдана"
   },
-
   "map": {
     "unavailable": "Газрын зураг боломжгүй",
     "providerDisabled": "Газрын зурагны нийлүүлэгч идэвхгүй. Хуудасны бусад хэсэг ашиглах боломжтой.",
@@ -614,7 +601,6 @@
     "mapTitle": "Байршлын газрын зураг",
     "noPins": "Харуулах пин байхгүй"
   },
-
   "location": {
     "country": "Улс",
     "selectCountry": "— Улс сонгох —",
@@ -625,19 +611,16 @@
     "selectCity": "— Хот сонгох —",
     "chooseRegionFirst": "— Эхлээд бүс нутаг сонгоно уу —"
   },
-
   "gated": {
     "notLoggedIn": "Та нэвтрээгүй байна",
     "loginToView": "Энэ агуулгыг харахын тулд нэвтэрнэ үү. Буцах хаяг хадгалагдсан тул тасалдалгүй үргэлжлүүлж болно.",
     "login": "Нэвтрэх"
   },
-
   "demoBanner": {
     "demoMode": "Демо горим идэвхтэй",
     "dataNotReal": "— өгөгдөл бодит биш бөгөөд хадгалагддаггүй.",
     "exitDemo": "Демо горимоос гарах"
   },
-
   "pwa": {
     "installSwaply": "Swaply суулгах",
     "installDescription": "Хурдан хандахын тулд нүүр дэлгэц дээр нэмэх, хөтчөгүйгээр.",

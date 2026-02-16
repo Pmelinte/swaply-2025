@@ -24,7 +24,6 @@
     "noImage": "Görsel yok",
     "freeSlot": "Boş alan"
   },
-
   "nav": {
     "home": "Ana Sayfa",
     "objects": "Nesneler",
@@ -52,12 +51,10 @@
     "badgeBenefits": "Rozet avantajları",
     "completeProfile": "Profilinizi tamamlayın"
   },
-
   "notifications": {
     "title": "Bildirimler (beğeni/ilgi/sohbet/swaply)",
     "empty": "Şu anda bildirim yok."
   },
-
   "login": {
     "authentication": "Kimlik Doğrulama",
     "registration": "Kayıt",
@@ -94,7 +91,6 @@
     "invalidCredentials": "Geçersiz kimlik bilgileri",
     "invalidCredentialsDescription": "Kırmızı mesaj + demo şifre bilgisi. Sahte başarı yok; şifre sıfırlama CTA'sıyla sayfada kalınır."
   },
-
   "profile": {
     "loading": "Profil yükleniyor…",
     "loadingDescription": "Oturumunuz kontrol ediliyor.",
@@ -162,44 +158,50 @@
     "badgeBenefits": "Rozet avantajları",
     "badgeBenefitsDescription": "Premium ve Platinum avantajlarını keşfedin"
   },
-
   "home": {
-    "discoverOpportunities": "Bölgenizdeki takas fırsatlarını keşfedin",
-    "chooseHowToStart": "Nasıl başlamak istediğinizi seçin: nesneleri keşfedin, haritada arayın veya eşleşmeleri analiz edin.",
-    "viewAvailableObjects": "Mevcut nesneleri görüntüle",
-    "greeting": "Merhaba, {name}! Harita yalnızca Premium ve Platinum kullanıcıları gösterir. Rozetiniz görünürlüğünüzü belirler.",
-    "analyzeMatches": "Eşleşmeleri analiz et",
-    "addObject": "Nesne ekle",
-    "monitorExchanges": "Takasları izle",
-    "activeUsersMap": "Aktif kullanıcılar haritası",
-    "mapDescription": "Premium ve Platinum kullanıcılar haritada vurgulanır.",
-    "learnPremiumBenefits": "Premium hesap avantajları hakkında bilgi edinin",
-    "completeProfileAndLocation": "Profilinizi ve konumunuzu tamamlayın",
-    "completeProfileDescription": "Yaklaşık konumunuzu ekleyerek harita tabanlı özellikleri etkinleştirin.",
-    "openProfile": "Profili aç",
-    "mapVisibilityNote": "Harita görünürlüğü Premium hesaplar için mevcuttur. Herkese açık görünmeden teklifleri inceleyebilir ve takas başlatabilirsiniz.",
-    "announcements": "Duyurular",
-    "announcementsDescription": "Sistem mesajları, gizli ve kapatılabilir.",
-    "noListedObjects": "Henüz listelenmiş nesneniz yok",
-    "addObjectForProposals": "İlgili öneriler almak için bir nesne ekleyin.",
-    "aiFallback": "Yapay Zeka Yedek Modu",
-    "manualModeActive": "Yapay zeka hizmetleri kullanılamadığında manuel mod aktif.",
-    "aiDisabled": "Yapay zeka devre dışı",
-    "aiDisabledDescription": "Sınıflandırma ve açıklamalar kritik akışları engellemamek için manuel kurallara dayanır.",
-    "aiActive": "Yapay zeka aktif",
-    "aiActiveDescription": "Ana sayfa önerileri yapay zeka sözleşmesini takip eder (sunucu tarafı).",
-    "aiOutputNote": "Yapay zeka çıktısı sürümlenmiş meta veri olarak kaydedilir ve kullanıcıların nihai tercihlerini geçersiz kılmaz.",
-    "addObjectCta": "Nesne ekle",
-    "addObjectCtaDescription": "Takas için bir şey listeleyin",
-    "analyzeMatchesCta": "Eşleşmeleri analiz et",
-    "analyzeMatchesCtaDescription": "Uyumlu önerileri keşfedin",
-    "exploreObjects": "Nesneleri keşfet",
-    "exploreObjectsDescription": "Diğer kullanıcıların sunduklarına göz atın",
-    "loginCta": "Giriş yap",
-    "exploreObjectsGuest": "Nesneleri keşfet",
-    "exploreObjectsGuestDescription": "Hesap olmadan nelerin mevcut olduğunu görün"
+    "welcome": "Welcome back",
+    "greeting": "Hey, {name}!",
+    "heroSubtitle": "Explore objects in your area, discover matches, and propose swaps.",
+    "statItems": "{count} active items",
+    "statSwaps": "{count} swaps",
+    "statTokens": "{count} tokens",
+    "statNotifs": "{count} new notifications",
+    "guestHeadline": "Swap what you have for what you want",
+    "guestSubtitle": "Swaply connects people who want to exchange objects, no money involved. Simple, local, transparent.",
+    "getStarted": "Get started",
+    "browseObjects": "Browse objects",
+    "actionAdd": "Add object",
+    "actionAddDesc": "List something for exchange",
+    "actionExplore": "Explore",
+    "actionExploreDesc": "Discover available objects",
+    "actionMatch": "AI Matches",
+    "actionMatchDesc": "Analyze compatibility",
+    "actionSwaps": "Swaps",
+    "actionSwapsDesc": "Monitor your exchanges",
+    "mapTitle": "Users map",
+    "mapSubtitle": "Premium and Platinum users are visible on the map.",
+    "addLocationHint": "Add your location in profile to enable map-based features",
+    "announcements": "Announcements",
+    "nudgeNoItems": "You don't have any listed objects yet",
+    "nudgeNoItemsDesc": "Add your first object to start receiving swap proposals.",
+    "nudgeProfile": "Complete your profile",
+    "nudgeProfileDesc": "A complete profile increases your trust and visibility.",
+    "nudgeProfileCta": "Edit profile",
+    "nudgeMatches": "{count} matches found",
+    "nudgeMatchesDesc": "AI has identified compatible proposals for your objects.",
+    "nudgeMatchesCta": "View matches",
+    "reputation": "Reputation",
+    "repLevel": "Level",
+    "repPath": "Starter → Trusted → Ambassador",
+    "activeSwaps": "{count} active swaps",
+    "activeSwapsDesc": "You have ongoing swaps that need your attention.",
+    "messagesLink": "Messages",
+    "messagesLinkDesc": "Chat with your swap partners",
+    "guestDiscover": "Discover Swaply",
+    "guestObjects": "View available objects",
+    "guestInfo": "Platform info",
+    "guestBadges": "Badge benefits"
   },
-
   "objects": {
     "createAccount": "Hesap oluştur",
     "loginToList": "Nesne listelemek için giriş yapın",
@@ -234,7 +236,6 @@
     "loadError": "Nesneler yüklenirken hata",
     "loadErrorDescription": "Çökmesiz net mesaj; sayfa yeniden yüklemeye izin verir."
   },
-
   "objectDetail": {
     "loading": "Nesne yükleniyor",
     "loadingDescription": "Sözleşmeye göre yükleme durumu (404 değil).",
@@ -254,7 +255,6 @@
     "startSecureChat": "Güvenli sohbet başlat",
     "proposeExchange": "Takas öner"
   },
-
   "objectEdit": {
     "loading": "Düzenleyici yükleniyor",
     "notFound": "Nesne bulunamadı",
@@ -262,12 +262,10 @@
     "title": "Nesneyi düzenle",
     "editDescription": "Önceden doldurulmuş değerler + net durumlar ile form."
   },
-
   "objectNew": {
     "title": "Nesne ekle",
     "description": "Eksiksiz form, yapıyı bozmadan."
   },
-
   "match": {
     "title": "Eşleşme analizi",
     "description": "Kümülatif uyumluluğa dayalı öneriler. Yapay zeka analiz eder, siz karar verirsiniz.",
@@ -310,7 +308,6 @@
     "aiUnavailableNote": "Yapay zeka kullanılamıyor",
     "analysisContinues": "Analiz yerel kurallarla devam ediyor. Hiçbir işlevsellik engellenmedi."
   },
-
   "chat": {
     "title": "Güvenli sohbet",
     "description": "Çeviri (açıksa) + moderasyon + taranmış ekler + Swaply CTA'sı",
@@ -341,7 +338,6 @@
     "sendError": "Gönderme hatası. Tekrar deneyin.",
     "selectConversation": "Bir konuşma seçin veya nesneler sayfasından bir tane başlatın."
   },
-
   "change": {
     "title": "Takas akışı (Swaply)",
     "description": "Onay + lojistik + harita (seviyeler) + bildirimler + geri bildirim",
@@ -383,7 +379,6 @@
     "viewStats": "İstatistikleri görüntüle",
     "viewStatsDescription": "İtibarınızı ve tokenlerinizi kontrol edin"
   },
-
   "info": {
     "title": "Swaply İstatistikleri",
     "description": "Genel istatistikler + kullanıcı istatistikleri + sıralama + tokenler + takas oranı + yardım/yasal",
@@ -426,7 +421,6 @@
     "authentication": "Kimlik doğrulama",
     "authenticationDescription": "Hesap oluşturun veya giriş yapın"
   },
-
   "itemForm": {
     "conditionNew": "Yeni",
     "conditionGood": "Az kullanılmış",
@@ -521,7 +515,6 @@
     "imageReadError": "Görsel okunamadı.",
     "uploadingImageButton": "Görsel yükleniyor…"
   },
-
   "itemCard": {
     "location": "Konum:",
     "ai": "YZ:",
@@ -529,7 +522,6 @@
     "edit": "Düzenle",
     "delete": "Sil"
   },
-
   "swipeCard": {
     "yes": "EVET",
     "no": "HAYIR",
@@ -537,7 +529,6 @@
     "notInterested": "İlgilenmiyor",
     "interested": "İlgileniyor"
   },
-
   "matchList": {
     "weak": "Zayıf",
     "possible": "Olası",
@@ -550,7 +541,6 @@
     "sendMessage": "Mesaj gönder",
     "proposeExchange": "Takas öner"
   },
-
   "swapTimeline": {
     "proposed": "Önerildi",
     "scheduled": "Planlandı",
@@ -571,7 +561,6 @@
     "autoNotifications": "Otomatik bildirimler:",
     "lastUpdate": "Son güncelleme:"
   },
-
   "chatPanel": {
     "you": "Sen",
     "partner": "Ortak",
@@ -591,7 +580,6 @@
     "sendError": "Gönderme hatası. Tekrar deneyin.",
     "selectConversation": "Bir konuşma seçin veya nesneler sayfasından bir tane başlatın."
   },
-
   "statsGrid": {
     "globalExchanges": "Küresel takaslar",
     "globalDescription": "Swaply birden fazla bölgede aktif",
@@ -602,7 +590,6 @@
     "tokensIssued": "Verilen tokenler",
     "tokensDescription": "Güvenli defter, profilde görünür"
   },
-
   "map": {
     "unavailable": "Harita kullanılamıyor",
     "providerDisabled": "Harita sağlayıcısı devre dışı. Sayfanın geri kalanı kullanılabilir durumda.",
@@ -614,7 +601,6 @@
     "mapTitle": "Konum haritası",
     "noPins": "Gösterilecek pin yok"
   },
-
   "location": {
     "country": "Ülke",
     "selectCountry": "— Ülke seçin —",
@@ -625,19 +611,16 @@
     "selectCity": "— Şehir seçin —",
     "chooseRegionFirst": "— Önce bölge seçin —"
   },
-
   "gated": {
     "notLoggedIn": "Giriş yapmadınız",
     "loginToView": "Bu içeriği görüntülemek için giriş yapın. Geri dönüş adresi kaydedildi, böylece akışa kesintisiz devam edebilirsiniz.",
     "login": "Giriş yap"
   },
-
   "demoBanner": {
     "demoMode": "Demo modu aktif",
     "dataNotReal": "— veriler gerçek değil ve kaydedilmiyor.",
     "exitDemo": "Demodan çık"
   },
-
   "pwa": {
     "installSwaply": "Swaply'yi yükle",
     "installDescription": "Tarayıcı olmadan hızlı erişim için ana ekrana ekleyin.",

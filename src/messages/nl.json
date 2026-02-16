@@ -24,7 +24,6 @@
     "noImage": "Geen afbeelding",
     "freeSlot": "Vrije plek"
   },
-
   "nav": {
     "home": "Home",
     "objects": "Objecten",
@@ -52,12 +51,10 @@
     "badgeBenefits": "Badge-voordelen",
     "completeProfile": "Maak je profiel compleet"
   },
-
   "notifications": {
     "title": "Meldingen (like/interesse/chat/swaply)",
     "empty": "Geen meldingen op dit moment."
   },
-
   "login": {
     "authentication": "Authenticatie",
     "registration": "Registratie",
@@ -94,7 +91,6 @@
     "invalidCredentials": "Ongeldige inloggegevens",
     "invalidCredentialsDescription": "Rode melding + vermelding demo-wachtwoord. Geen mock-succes; blijf op pagina met CTA om wachtwoord te resetten."
   },
-
   "profile": {
     "loading": "Profiel laden…",
     "loadingDescription": "Je sessie controleren.",
@@ -162,44 +158,50 @@
     "badgeBenefits": "Badge-voordelen",
     "badgeBenefitsDescription": "Ontdek de Premium- en Platinum-voordelen"
   },
-
   "home": {
-    "discoverOpportunities": "Ontdek ruilmogelijkheden in je omgeving",
-    "chooseHowToStart": "Kies hoe je wilt beginnen: objecten verkennen, zoeken op de kaart, of matches analyseren.",
-    "viewAvailableObjects": "Beschikbare objecten bekijken",
-    "greeting": "Hallo, {name}! De kaart toont alleen Premium- en Platinum-gebruikers. Je badge bepaalt je zichtbaarheid.",
-    "analyzeMatches": "Matches analyseren",
-    "addObject": "Object toevoegen",
-    "monitorExchanges": "Ruilen monitoren",
-    "activeUsersMap": "Kaart actieve gebruikers",
-    "mapDescription": "Premium- en Platinum-gebruikers worden gemarkeerd op de kaart.",
-    "learnPremiumBenefits": "Meer informatie over Premium-accountvoordelen",
-    "completeProfileAndLocation": "Maak je profiel en locatie compleet",
-    "completeProfileDescription": "Schakel kaartgebaseerde functies in door je geschatte locatie toe te voegen.",
-    "openProfile": "Profiel openen",
-    "mapVisibilityNote": "Kaartweergave is beschikbaar voor Premium-accounts. Je kunt aanbiedingen verkennen en ruilen starten zonder openbaar zichtbaar te zijn.",
-    "announcements": "Aankondigingen",
-    "announcementsDescription": "Systeemberichten, discreet en wegklikbaar.",
-    "noListedObjects": "Je hebt nog geen objecten vermeld",
-    "addObjectForProposals": "Voeg een object toe om relevante voorstellen te ontvangen.",
-    "aiFallback": "AI-terugval",
-    "manualModeActive": "Handmatige modus actief wanneer AI-diensten niet beschikbaar zijn.",
-    "aiDisabled": "AI uitgeschakeld",
-    "aiDisabledDescription": "Classificatie en uitleg maken gebruik van handmatige regels om kritieke processen niet te blokkeren.",
-    "aiActive": "AI actief",
-    "aiActiveDescription": "Home-suggesties volgen het AI-contract (server-side).",
-    "aiOutputNote": "AI-uitvoer wordt opgeslagen als geversioneerde metadata en overschrijft de uiteindelijke voorkeuren van gebruikers niet.",
-    "addObjectCta": "Object toevoegen",
-    "addObjectCtaDescription": "Vermeld iets voor ruil",
-    "analyzeMatchesCta": "Matches analyseren",
-    "analyzeMatchesCtaDescription": "Ontdek compatibele voorstellen",
-    "exploreObjects": "Objecten verkennen",
-    "exploreObjectsDescription": "Bekijk wat andere gebruikers aanbieden",
-    "loginCta": "Inloggen",
-    "exploreObjectsGuest": "Objecten verkennen",
-    "exploreObjectsGuestDescription": "Bekijk wat beschikbaar is zonder account"
+    "welcome": "Welcome back",
+    "greeting": "Hey, {name}!",
+    "heroSubtitle": "Explore objects in your area, discover matches, and propose swaps.",
+    "statItems": "{count} active items",
+    "statSwaps": "{count} swaps",
+    "statTokens": "{count} tokens",
+    "statNotifs": "{count} new notifications",
+    "guestHeadline": "Swap what you have for what you want",
+    "guestSubtitle": "Swaply connects people who want to exchange objects, no money involved. Simple, local, transparent.",
+    "getStarted": "Get started",
+    "browseObjects": "Browse objects",
+    "actionAdd": "Add object",
+    "actionAddDesc": "List something for exchange",
+    "actionExplore": "Explore",
+    "actionExploreDesc": "Discover available objects",
+    "actionMatch": "AI Matches",
+    "actionMatchDesc": "Analyze compatibility",
+    "actionSwaps": "Swaps",
+    "actionSwapsDesc": "Monitor your exchanges",
+    "mapTitle": "Users map",
+    "mapSubtitle": "Premium and Platinum users are visible on the map.",
+    "addLocationHint": "Add your location in profile to enable map-based features",
+    "announcements": "Announcements",
+    "nudgeNoItems": "You don't have any listed objects yet",
+    "nudgeNoItemsDesc": "Add your first object to start receiving swap proposals.",
+    "nudgeProfile": "Complete your profile",
+    "nudgeProfileDesc": "A complete profile increases your trust and visibility.",
+    "nudgeProfileCta": "Edit profile",
+    "nudgeMatches": "{count} matches found",
+    "nudgeMatchesDesc": "AI has identified compatible proposals for your objects.",
+    "nudgeMatchesCta": "View matches",
+    "reputation": "Reputation",
+    "repLevel": "Level",
+    "repPath": "Starter → Trusted → Ambassador",
+    "activeSwaps": "{count} active swaps",
+    "activeSwapsDesc": "You have ongoing swaps that need your attention.",
+    "messagesLink": "Messages",
+    "messagesLinkDesc": "Chat with your swap partners",
+    "guestDiscover": "Discover Swaply",
+    "guestObjects": "View available objects",
+    "guestInfo": "Platform info",
+    "guestBadges": "Badge benefits"
   },
-
   "objects": {
     "createAccount": "Account aanmaken",
     "loginToList": "Log in om objecten te vermelden",
@@ -234,7 +236,6 @@
     "loadError": "Fout bij laden van objecten",
     "loadErrorDescription": "Duidelijk bericht zonder crash; maakt herladen van pagina mogelijk."
   },
-
   "objectDetail": {
     "loading": "Object laden",
     "loadingDescription": "Laadstatus volgens contract (geen 404).",
@@ -254,7 +255,6 @@
     "startSecureChat": "Beveiligde chat starten",
     "proposeExchange": "Ruil voorstellen"
   },
-
   "objectEdit": {
     "loading": "Editor laden",
     "notFound": "Object niet gevonden",
@@ -262,12 +262,10 @@
     "title": "Object bewerken",
     "editDescription": "Formulier met vooraf ingevulde waarden + duidelijke statussen."
   },
-
   "objectNew": {
     "title": "Object toevoegen",
     "description": "Volledig formulier, zonder de build te breken."
   },
-
   "match": {
     "title": "Matchanalyse",
     "description": "Voorstellen gebaseerd op cumulatieve compatibiliteit. AI analyseert, jij beslist.",
@@ -310,7 +308,6 @@
     "aiUnavailableNote": "AI niet beschikbaar",
     "analysisContinues": "Analyse gaat verder met lokale regels. Geen functionaliteit geblokkeerd."
   },
-
   "chat": {
     "title": "Beveiligde chat",
     "description": "Vertaling (indien aan) + moderatie + gescande bijlagen + CTA naar Swaply",
@@ -341,7 +338,6 @@
     "sendError": "Fout bij verzenden. Probeer opnieuw.",
     "selectConversation": "Selecteer een gesprek of start er een vanuit de objectenpagina."
   },
-
   "change": {
     "title": "Ruilproces (Swaply)",
     "description": "Bevestiging + logistiek + kaart (niveaus) + meldingen + feedback",
@@ -383,7 +379,6 @@
     "viewStats": "Statistieken bekijken",
     "viewStatsDescription": "Bekijk je reputatie en tokens"
   },
-
   "info": {
     "title": "Swaply Statistieken",
     "description": "Globale statistieken + gebruikersstatistieken + rang + tokens + ruilkoers + hulp/juridisch",
@@ -426,7 +421,6 @@
     "authentication": "Authenticatie",
     "authenticationDescription": "Account aanmaken of inloggen"
   },
-
   "itemForm": {
     "conditionNew": "Nieuw",
     "conditionGood": "Licht gebruikt",
@@ -521,7 +515,6 @@
     "imageReadError": "Kon de afbeelding niet lezen.",
     "uploadingImageButton": "Afbeelding uploaden…"
   },
-
   "itemCard": {
     "location": "Locatie:",
     "ai": "AI:",
@@ -529,7 +522,6 @@
     "edit": "Bewerken",
     "delete": "Verwijderen"
   },
-
   "swipeCard": {
     "yes": "JA",
     "no": "NEE",
@@ -537,7 +529,6 @@
     "notInterested": "Niet geïnteresseerd",
     "interested": "Geïnteresseerd"
   },
-
   "matchList": {
     "weak": "Zwak",
     "possible": "Mogelijk",
@@ -550,7 +541,6 @@
     "sendMessage": "Bericht versturen",
     "proposeExchange": "Ruil voorstellen"
   },
-
   "swapTimeline": {
     "proposed": "Voorgesteld",
     "scheduled": "Gepland",
@@ -571,7 +561,6 @@
     "autoNotifications": "Automatische meldingen:",
     "lastUpdate": "Laatste update:"
   },
-
   "chatPanel": {
     "you": "Jij",
     "partner": "Partner",
@@ -591,7 +580,6 @@
     "sendError": "Fout bij verzenden. Probeer opnieuw.",
     "selectConversation": "Selecteer een gesprek of start er een vanuit de objectenpagina."
   },
-
   "statsGrid": {
     "globalExchanges": "Globale ruilen",
     "globalDescription": "Swaply is actief in meerdere regio's",
@@ -602,7 +590,6 @@
     "tokensIssued": "Tokens uitgegeven",
     "tokensDescription": "Beveiligd grootboek, zichtbaar in profiel"
   },
-
   "map": {
     "unavailable": "Kaart niet beschikbaar",
     "providerDisabled": "Kaartprovider uitgeschakeld. De rest van de pagina blijft bruikbaar.",
@@ -614,7 +601,6 @@
     "mapTitle": "Locatiekaart",
     "noPins": "Geen pins om weer te geven"
   },
-
   "location": {
     "country": "Land",
     "selectCountry": "— Selecteer land —",
@@ -625,19 +611,16 @@
     "selectCity": "— Selecteer stad —",
     "chooseRegionFirst": "— Kies eerst een regio —"
   },
-
   "gated": {
     "notLoggedIn": "Je bent niet ingelogd",
     "loginToView": "Log in om deze inhoud te bekijken. Terugkeer-URL is opgeslagen zodat je het proces zonder onderbrekingen kunt voortzetten.",
     "login": "Inloggen"
   },
-
   "demoBanner": {
     "demoMode": "Demomodus actief",
     "dataNotReal": "— gegevens zijn niet echt en worden niet opgeslagen.",
     "exitDemo": "Demo afsluiten"
   },
-
   "pwa": {
     "installSwaply": "Swaply installeren",
     "installDescription": "Voeg toe aan startscherm voor snelle toegang, zonder browser.",

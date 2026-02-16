@@ -24,7 +24,6 @@
     "noImage": "Brak obrazu",
     "freeSlot": "Wolne miejsce"
   },
-
   "nav": {
     "home": "Strona główna",
     "objects": "Obiekty",
@@ -52,12 +51,10 @@
     "badgeBenefits": "Korzyści z odznak",
     "completeProfile": "Uzupełnij swój profil"
   },
-
   "notifications": {
     "title": "Powiadomienia (polubienie/zainteresowanie/czat/swaply)",
     "empty": "Brak powiadomień w tej chwili."
   },
-
   "login": {
     "authentication": "Uwierzytelnianie",
     "registration": "Rejestracja",
@@ -94,7 +91,6 @@
     "invalidCredentials": "Nieprawidłowe dane logowania",
     "invalidCredentialsDescription": "Czerwona wiadomość + wzmianka o haśle demo. Brak symulowanego sukcesu; pozostanie na stronie z CTA do resetowania hasła."
   },
-
   "profile": {
     "loading": "Ładowanie profilu…",
     "loadingDescription": "Sprawdzanie Twojej sesji.",
@@ -162,44 +158,50 @@
     "badgeBenefits": "Korzyści z odznak",
     "badgeBenefitsDescription": "Odkryj zalety Premium i Platinum"
   },
-
   "home": {
-    "discoverOpportunities": "Odkryj możliwości wymiany w Twojej okolicy",
-    "chooseHowToStart": "Wybierz, jak chcesz zacząć: przeglądaj obiekty, szukaj na mapie lub analizuj dopasowania.",
-    "viewAvailableObjects": "Zobacz dostępne obiekty",
-    "greeting": "Cześć, {name}! Mapa pokazuje tylko użytkowników Premium i Platinum. Twoja odznaka kontroluje Twoją widoczność.",
-    "analyzeMatches": "Analizuj dopasowania",
-    "addObject": "Dodaj obiekt",
-    "monitorExchanges": "Monitoruj wymiany",
-    "activeUsersMap": "Mapa aktywnych użytkowników",
-    "mapDescription": "Użytkownicy Premium i Platinum są wyróżnieni na mapie.",
-    "learnPremiumBenefits": "Poznaj korzyści konta Premium",
-    "completeProfileAndLocation": "Uzupełnij swój profil i lokalizację",
-    "completeProfileDescription": "Włącz funkcje oparte na mapie, dodając swoją przybliżoną lokalizację.",
-    "openProfile": "Otwórz profil",
-    "mapVisibilityNote": "Widoczność na mapie jest dostępna dla kont Premium. Możesz przeglądać oferty i inicjować wymiany bez publicznej widoczności.",
-    "announcements": "Ogłoszenia",
-    "announcementsDescription": "Komunikaty systemowe, dyskretne i możliwe do odrzucenia.",
-    "noListedObjects": "Nie masz jeszcze żadnych wystawionych obiektów",
-    "addObjectForProposals": "Dodaj obiekt, aby otrzymywać trafne propozycje.",
-    "aiFallback": "Rezerwa AI",
-    "manualModeActive": "Tryb ręczny aktywny, gdy usługi AI są niedostępne.",
-    "aiDisabled": "AI wyłączone",
-    "aiDisabledDescription": "Klasyfikacja i objaśnienia opierają się na ręcznych regułach, aby nie blokować krytycznych przepływów.",
-    "aiActive": "AI aktywne",
-    "aiActiveDescription": "Sugestie na stronie głównej podlegają kontraktowi AI (po stronie serwera).",
-    "aiOutputNote": "Wyniki AI są zapisywane jako wersjonowane metadane i nie zastępują ostatecznych preferencji użytkowników.",
-    "addObjectCta": "Dodaj obiekt",
-    "addObjectCtaDescription": "Wystaw coś na wymianę",
-    "analyzeMatchesCta": "Analizuj dopasowania",
-    "analyzeMatchesCtaDescription": "Odkryj kompatybilne propozycje",
-    "exploreObjects": "Przeglądaj obiekty",
-    "exploreObjectsDescription": "Zobacz, co oferują inni użytkownicy",
-    "loginCta": "Zaloguj",
-    "exploreObjectsGuest": "Przeglądaj obiekty",
-    "exploreObjectsGuestDescription": "Zobacz, co jest dostępne bez konta"
+    "welcome": "Welcome back",
+    "greeting": "Hey, {name}!",
+    "heroSubtitle": "Explore objects in your area, discover matches, and propose swaps.",
+    "statItems": "{count} active items",
+    "statSwaps": "{count} swaps",
+    "statTokens": "{count} tokens",
+    "statNotifs": "{count} new notifications",
+    "guestHeadline": "Swap what you have for what you want",
+    "guestSubtitle": "Swaply connects people who want to exchange objects, no money involved. Simple, local, transparent.",
+    "getStarted": "Get started",
+    "browseObjects": "Browse objects",
+    "actionAdd": "Add object",
+    "actionAddDesc": "List something for exchange",
+    "actionExplore": "Explore",
+    "actionExploreDesc": "Discover available objects",
+    "actionMatch": "AI Matches",
+    "actionMatchDesc": "Analyze compatibility",
+    "actionSwaps": "Swaps",
+    "actionSwapsDesc": "Monitor your exchanges",
+    "mapTitle": "Users map",
+    "mapSubtitle": "Premium and Platinum users are visible on the map.",
+    "addLocationHint": "Add your location in profile to enable map-based features",
+    "announcements": "Announcements",
+    "nudgeNoItems": "You don't have any listed objects yet",
+    "nudgeNoItemsDesc": "Add your first object to start receiving swap proposals.",
+    "nudgeProfile": "Complete your profile",
+    "nudgeProfileDesc": "A complete profile increases your trust and visibility.",
+    "nudgeProfileCta": "Edit profile",
+    "nudgeMatches": "{count} matches found",
+    "nudgeMatchesDesc": "AI has identified compatible proposals for your objects.",
+    "nudgeMatchesCta": "View matches",
+    "reputation": "Reputation",
+    "repLevel": "Level",
+    "repPath": "Starter → Trusted → Ambassador",
+    "activeSwaps": "{count} active swaps",
+    "activeSwapsDesc": "You have ongoing swaps that need your attention.",
+    "messagesLink": "Messages",
+    "messagesLinkDesc": "Chat with your swap partners",
+    "guestDiscover": "Discover Swaply",
+    "guestObjects": "View available objects",
+    "guestInfo": "Platform info",
+    "guestBadges": "Badge benefits"
   },
-
   "objects": {
     "createAccount": "Utwórz konto",
     "loginToList": "Zaloguj się, aby wystawić obiekty",
@@ -234,7 +236,6 @@
     "loadError": "Błąd ładowania obiektów",
     "loadErrorDescription": "Jasna wiadomość bez awarii; umożliwia przeładowanie strony."
   },
-
   "objectDetail": {
     "loading": "Ładowanie obiektu",
     "loadingDescription": "Stan ładowania zgodny z kontraktem (nie 404).",
@@ -254,7 +255,6 @@
     "startSecureChat": "Rozpocznij bezpieczny czat",
     "proposeExchange": "Zaproponuj wymianę"
   },
-
   "objectEdit": {
     "loading": "Ładowanie edytora",
     "notFound": "Obiekt nie znaleziony",
@@ -262,12 +262,10 @@
     "title": "Edytuj obiekt",
     "editDescription": "Formularz z wstępnie wypełnionymi wartościami + przejrzyste statusy."
   },
-
   "objectNew": {
     "title": "Dodaj obiekt",
     "description": "Kompletny formularz, bez psucia buildu."
   },
-
   "match": {
     "title": "Analiza dopasowania",
     "description": "Propozycje oparte na kumulatywnej kompatybilności. AI analizuje, Ty decydujesz.",
@@ -310,7 +308,6 @@
     "aiUnavailableNote": "AI niedostępne",
     "analysisContinues": "Analiza kontynuowana z lokalnymi regułami. Żadna funkcjonalność nie jest zablokowana."
   },
-
   "chat": {
     "title": "Bezpieczny czat",
     "description": "Tłumaczenie (jeśli włączone) + moderacja + skanowane załączniki + CTA do Swaply",
@@ -341,7 +338,6 @@
     "sendError": "Błąd wysyłania. Spróbuj ponownie.",
     "selectConversation": "Wybierz rozmowę lub rozpocznij jedną ze strony obiektów."
   },
-
   "change": {
     "title": "Przepływ wymiany (Swaply)",
     "description": "Potwierdzenie + logistyka + mapa (poziomy) + powiadomienia + opinie",
@@ -383,7 +379,6 @@
     "viewStats": "Zobacz statystyki",
     "viewStatsDescription": "Sprawdź swoją reputację i tokeny"
   },
-
   "info": {
     "title": "Statystyki Swaply",
     "description": "Statystyki globalne + statystyki użytkownika + ranga + tokeny + kurs wymiany + pomoc/prawo",
@@ -426,7 +421,6 @@
     "authentication": "Uwierzytelnianie",
     "authenticationDescription": "Utwórz konto lub zaloguj się"
   },
-
   "itemForm": {
     "conditionNew": "Nowy",
     "conditionGood": "Lekko używany",
@@ -521,7 +515,6 @@
     "imageReadError": "Nie udało się odczytać obrazu.",
     "uploadingImageButton": "Przesyłanie obrazu…"
   },
-
   "itemCard": {
     "location": "Lokalizacja:",
     "ai": "AI:",
@@ -529,7 +522,6 @@
     "edit": "Edytuj",
     "delete": "Usuń"
   },
-
   "swipeCard": {
     "yes": "TAK",
     "no": "NIE",
@@ -537,7 +529,6 @@
     "notInterested": "Niezainteresowany",
     "interested": "Zainteresowany"
   },
-
   "matchList": {
     "weak": "Słabe",
     "possible": "Możliwe",
@@ -550,7 +541,6 @@
     "sendMessage": "Wyślij wiadomość",
     "proposeExchange": "Zaproponuj wymianę"
   },
-
   "swapTimeline": {
     "proposed": "Zaproponowana",
     "scheduled": "Zaplanowana",
@@ -571,7 +561,6 @@
     "autoNotifications": "Automatyczne powiadomienia:",
     "lastUpdate": "Ostatnia aktualizacja:"
   },
-
   "chatPanel": {
     "you": "Ty",
     "partner": "Partner",
@@ -591,7 +580,6 @@
     "sendError": "Błąd wysyłania. Spróbuj ponownie.",
     "selectConversation": "Wybierz rozmowę lub rozpocznij jedną ze strony obiektów."
   },
-
   "statsGrid": {
     "globalExchanges": "Wymiany globalne",
     "globalDescription": "Swaply jest aktywne w wielu regionach",
@@ -602,7 +590,6 @@
     "tokensIssued": "Wydane tokeny",
     "tokensDescription": "Bezpieczny rejestr, widoczny w profilu"
   },
-
   "map": {
     "unavailable": "Mapa niedostępna",
     "providerDisabled": "Dostawca mapy wyłączony. Reszta strony pozostaje użyteczna.",
@@ -614,7 +601,6 @@
     "mapTitle": "Mapa lokalizacji",
     "noPins": "Brak pinów do wyświetlenia"
   },
-
   "location": {
     "country": "Kraj",
     "selectCountry": "— Wybierz kraj —",
@@ -625,19 +611,16 @@
     "selectCity": "— Wybierz miasto —",
     "chooseRegionFirst": "— Najpierw wybierz region —"
   },
-
   "gated": {
     "notLoggedIn": "Nie jesteś zalogowany",
     "loginToView": "Zaloguj się, aby zobaczyć tę treść. Adres powrotu jest zapisany, więc możesz kontynuować bez przerw.",
     "login": "Zaloguj"
   },
-
   "demoBanner": {
     "demoMode": "Tryb demo aktywny",
     "dataNotReal": "— dane nie są prawdziwe i nie są zapisywane.",
     "exitDemo": "Wyjdź z demo"
   },
-
   "pwa": {
     "installSwaply": "Zainstaluj Swaply",
     "installDescription": "Dodaj do ekranu głównego dla szybkiego dostępu, bez przeglądarki.",

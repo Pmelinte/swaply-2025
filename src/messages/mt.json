@@ -24,7 +24,6 @@
     "noImage": "Ebda stampa",
     "freeSlot": "Post vojt"
   },
-
   "nav": {
     "home": "Paġna Ewlenija",
     "objects": "Oġġetti",
@@ -52,12 +51,10 @@
     "badgeBenefits": "Benefiċċji tal-badge",
     "completeProfile": "Ikkompleta l-profil tiegħek"
   },
-
   "notifications": {
     "title": "Notifiki (like/interess/chat/swaply)",
     "empty": "L-ebda notifiki bħalissa."
   },
-
   "login": {
     "authentication": "Awtentikazzjoni",
     "registration": "Reġistrazzjoni",
@@ -94,7 +91,6 @@
     "invalidCredentials": "Kredenzjali invalidi",
     "invalidCredentialsDescription": "Messaġġ aħmar + referenza tal-password demo. L-ebda suċċess mock; ibqa' fuq il-paġna b'CTA biex tirrisettja l-password."
   },
-
   "profile": {
     "loading": "Qed jillowdja l-profil…",
     "loadingDescription": "Qed niċċekkjaw is-sessjoni tiegħek.",
@@ -162,44 +158,50 @@
     "badgeBenefits": "Benefiċċji tal-badge",
     "badgeBenefitsDescription": "Iskopri l-vantaġġi Premium u Platinum"
   },
-
   "home": {
-    "discoverOpportunities": "Iskopri opportunitajiet ta' skambju fiż-żona tiegħek",
-    "chooseHowToStart": "Agħżel kif trid tibda: esplora l-oġġetti, fittex fuq il-mappa, jew analizza t-tqabbil.",
-    "viewAvailableObjects": "Ara l-oġġetti disponibbli",
-    "greeting": "Bonġu, {name}! Il-mappa turi biss utenti Premium u Platinum. Il-badge tiegħek jikkontrolla l-viżibilità tiegħek.",
-    "analyzeMatches": "Analizza t-tqabbil",
-    "addObject": "Żid oġġett",
-    "monitorExchanges": "Immonitorja l-iskambji",
-    "activeUsersMap": "Mappa ta' utenti attivi",
-    "mapDescription": "Utenti Premium u Platinum huma enfasizzati fuq il-mappa.",
-    "learnPremiumBenefits": "Tgħallem dwar il-benefiċċji tal-kont Premium",
-    "completeProfileAndLocation": "Ikkompleta l-profil u l-lokazzjoni tiegħek",
-    "completeProfileDescription": "Attiva funzjonalitajiet ibbażati fuq il-mappa billi żżid il-lokazzjoni approssimattiva tiegħek.",
-    "openProfile": "Iftaħ il-profil",
-    "mapVisibilityNote": "Id-dehra fil-mappa hija disponibbli għal kontijiet Premium. Tista' tesplora l-offerti u tibda skambji mingħajr ma tkun viżibbli pubblikament.",
-    "announcements": "Avviżi",
-    "announcementsDescription": "Messaġġi tas-sistema, diskreti u li jistgħu jiġu skartati.",
-    "noListedObjects": "Għadek m'għandekx oġġetti elenkati",
-    "addObjectForProposals": "Żid oġġett biex tirċievi proposti relevanti.",
-    "aiFallback": "AI Fallback",
-    "manualModeActive": "Mod manwali attiv meta s-servizzi AI mhumiex disponibbli.",
-    "aiDisabled": "AI diżattivat",
-    "aiDisabledDescription": "Il-klassifikazzjoni u l-spjegazzjonijiet jiddependu fuq regoli manwali biex ma jibblokkawx flussi kritiċi.",
-    "aiActive": "AI attiv",
-    "aiActiveDescription": "Is-suġġerimenti tal-paġna ewlenija jsegwu l-kuntratt AI (server-side).",
-    "aiOutputNote": "L-output tal-AI huwa ssejvjat bħala metadata verżjonata u ma jissostitwixxix il-preferenzi finali tal-utenti.",
-    "addObjectCta": "Żid oġġett",
-    "addObjectCtaDescription": "Elenka xi ħaġa għall-iskambju",
-    "analyzeMatchesCta": "Analizza t-tqabbil",
-    "analyzeMatchesCtaDescription": "Iskopri proposti kompatibbli",
-    "exploreObjects": "Esplora l-oġġetti",
-    "exploreObjectsDescription": "Ara x'joffru utenti oħra",
-    "loginCta": "Idħol",
-    "exploreObjectsGuest": "Esplora l-oġġetti",
-    "exploreObjectsGuestDescription": "Ara x'hemm disponibbli mingħajr kont"
+    "welcome": "Welcome back",
+    "greeting": "Hey, {name}!",
+    "heroSubtitle": "Explore objects in your area, discover matches, and propose swaps.",
+    "statItems": "{count} active items",
+    "statSwaps": "{count} swaps",
+    "statTokens": "{count} tokens",
+    "statNotifs": "{count} new notifications",
+    "guestHeadline": "Swap what you have for what you want",
+    "guestSubtitle": "Swaply connects people who want to exchange objects, no money involved. Simple, local, transparent.",
+    "getStarted": "Get started",
+    "browseObjects": "Browse objects",
+    "actionAdd": "Add object",
+    "actionAddDesc": "List something for exchange",
+    "actionExplore": "Explore",
+    "actionExploreDesc": "Discover available objects",
+    "actionMatch": "AI Matches",
+    "actionMatchDesc": "Analyze compatibility",
+    "actionSwaps": "Swaps",
+    "actionSwapsDesc": "Monitor your exchanges",
+    "mapTitle": "Users map",
+    "mapSubtitle": "Premium and Platinum users are visible on the map.",
+    "addLocationHint": "Add your location in profile to enable map-based features",
+    "announcements": "Announcements",
+    "nudgeNoItems": "You don't have any listed objects yet",
+    "nudgeNoItemsDesc": "Add your first object to start receiving swap proposals.",
+    "nudgeProfile": "Complete your profile",
+    "nudgeProfileDesc": "A complete profile increases your trust and visibility.",
+    "nudgeProfileCta": "Edit profile",
+    "nudgeMatches": "{count} matches found",
+    "nudgeMatchesDesc": "AI has identified compatible proposals for your objects.",
+    "nudgeMatchesCta": "View matches",
+    "reputation": "Reputation",
+    "repLevel": "Level",
+    "repPath": "Starter → Trusted → Ambassador",
+    "activeSwaps": "{count} active swaps",
+    "activeSwapsDesc": "You have ongoing swaps that need your attention.",
+    "messagesLink": "Messages",
+    "messagesLinkDesc": "Chat with your swap partners",
+    "guestDiscover": "Discover Swaply",
+    "guestObjects": "View available objects",
+    "guestInfo": "Platform info",
+    "guestBadges": "Badge benefits"
   },
-
   "objects": {
     "createAccount": "Oħloq kont",
     "loginToList": "Idħol biex telenka l-oġġetti",
@@ -234,7 +236,6 @@
     "loadError": "Żball fil-loading tal-oġġetti",
     "loadErrorDescription": "Messaġġ ċar mingħajr crash; jippermetti reload tal-paġna."
   },
-
   "objectDetail": {
     "loading": "Qed jillowdja l-oġġett",
     "loadingDescription": "Stat ta' loading skont il-kuntratt (mhux 404).",
@@ -254,7 +255,6 @@
     "startSecureChat": "Ibda chat sigur",
     "proposeExchange": "Ipproponi skambju"
   },
-
   "objectEdit": {
     "loading": "Qed jillowdja l-editur",
     "notFound": "L-oġġett ma nstabx",
@@ -262,12 +262,10 @@
     "title": "Editja l-oġġett",
     "editDescription": "Formola b'valuri mimlija minn qabel + stati ċari."
   },
-
   "objectNew": {
     "title": "Żid oġġett",
     "description": "Formola kompluta, mingħajr ma tkisser il-build."
   },
-
   "match": {
     "title": "Analiżi tat-tqabbil",
     "description": "Proposti bbażati fuq kompatibbiltà kumulattiva. AI janalizza, inti tiddeċiedi.",
@@ -310,7 +308,6 @@
     "aiUnavailableNote": "AI mhux disponibbli",
     "analysisContinues": "L-analiżi tkompli b'regoli lokali. L-ebda funzjonalità hija mblukkata."
   },
-
   "chat": {
     "title": "Chat sigur",
     "description": "Traduzzjoni (jekk attiva) + moderazzjoni + attachments skennjati + CTA għal Swaply",
@@ -341,7 +338,6 @@
     "sendError": "Żball fl-ibgħat. Erġa' pprova.",
     "selectConversation": "Agħżel konversazzjoni jew ibda waħda mill-paġna tal-oġġetti."
   },
-
   "change": {
     "title": "Fluss tal-iskambju (Swaply)",
     "description": "Konferma + loġistika + mappa (livelli) + notifiki + feedback",
@@ -383,7 +379,6 @@
     "viewStats": "Ara l-istatistika",
     "viewStatsDescription": "Iċċekkja r-reputazzjoni u t-tokens tiegħek"
   },
-
   "info": {
     "title": "Statistika ta' Swaply",
     "description": "Statistika globali + statistika tal-utent + rank + tokens + rata tal-iskambju + għajnuna/legali",
@@ -426,7 +421,6 @@
     "authentication": "Awtentikazzjoni",
     "authenticationDescription": "Oħloq kont jew idħol"
   },
-
   "itemForm": {
     "conditionNew": "Ġdid",
     "conditionGood": "Użat ftit",
@@ -521,7 +515,6 @@
     "imageReadError": "Ma stajna naqraw l-istampa.",
     "uploadingImageButton": "Qed jittella' l-istampa…"
   },
-
   "itemCard": {
     "location": "Lokazzjoni:",
     "ai": "AI:",
@@ -529,7 +522,6 @@
     "edit": "Editja",
     "delete": "Ħassar"
   },
-
   "swipeCard": {
     "yes": "IVA",
     "no": "LE",
@@ -537,7 +529,6 @@
     "notInterested": "Mhux interessat",
     "interested": "Interessat"
   },
-
   "matchList": {
     "weak": "Dgħajjef",
     "possible": "Possibbli",
@@ -550,7 +541,6 @@
     "sendMessage": "Ibgħat messaġġ",
     "proposeExchange": "Ipproponi skambju"
   },
-
   "swapTimeline": {
     "proposed": "Propost",
     "scheduled": "Ipprogrammat",
@@ -571,7 +561,6 @@
     "autoNotifications": "Notifiki awtomatiċi:",
     "lastUpdate": "L-aħħar aġġornament:"
   },
-
   "chatPanel": {
     "you": "Int",
     "partner": "Partner",
@@ -591,7 +580,6 @@
     "sendError": "Żball fl-ibgħat. Erġa' pprova.",
     "selectConversation": "Agħżel konversazzjoni jew ibda waħda mill-paġna tal-oġġetti."
   },
-
   "statsGrid": {
     "globalExchanges": "Skambji globali",
     "globalDescription": "Swaply huwa attiv f'diversi reġjuni",
@@ -602,7 +590,6 @@
     "tokensIssued": "Tokens maħruġa",
     "tokensDescription": "Reġistru sigur, viżibbli fil-profil"
   },
-
   "map": {
     "unavailable": "Mappa mhux disponibbli",
     "providerDisabled": "Il-fornitur tal-mappa diżattivat. Il-bqija tal-paġna tibqa' użabbli.",
@@ -614,7 +601,6 @@
     "mapTitle": "Mappa tal-lokazzjoni",
     "noPins": "L-ebda pins x'turi"
   },
-
   "location": {
     "country": "Pajjiż",
     "selectCountry": "— Agħżel pajjiż —",
@@ -625,19 +611,16 @@
     "selectCity": "— Agħżel belt —",
     "chooseRegionFirst": "— Agħżel ir-reġjun l-ewwel —"
   },
-
   "gated": {
     "notLoggedIn": "M'intix logged in",
     "loginToView": "Idħol biex tara dan il-kontenut. Return-to huwa ssejvjat biex tkompli l-fluss mingħajr interruzzjonijiet.",
     "login": "Idħol"
   },
-
   "demoBanner": {
     "demoMode": "Mod demo attiv",
     "dataNotReal": "— id-data mhix reali u mhix issejvjata.",
     "exitDemo": "Oħroġ mid-demo"
   },
-
   "pwa": {
     "installSwaply": "Installa Swaply",
     "installDescription": "Żid mal-home screen għal aċċess mgħaġġel, mingħajr browser.",

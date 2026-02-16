@@ -24,7 +24,6 @@
     "noImage": "Gan iomha",
     "freeSlot": "Slot saor"
   },
-
   "nav": {
     "home": "Baile",
     "objects": "Rudai",
@@ -52,12 +51,10 @@
     "badgeBenefits": "Buntaisti suaitheantais",
     "completeProfile": "Comhlanaigh do phroifil"
   },
-
   "notifications": {
     "title": "Fograí (maith liom/speis/comhrá/swaply)",
     "empty": "Nil aon fhograí faoi lathair."
   },
-
   "login": {
     "authentication": "Fiosrú",
     "registration": "Clárú",
@@ -94,7 +91,6 @@
     "invalidCredentials": "Dintiúir neamhbhailí",
     "invalidCredentialsDescription": "Teachtaireacht dhearg + tagairt do phasfhocal taispecanta. Nil mock-rath ann; fan ar an leathanach le CTA chun pasfhocal a athshocrú."
   },
-
   "profile": {
     "loading": "Ag luchtú proifile...",
     "loadingDescription": "Ag seiceail do sheisiúin.",
@@ -162,44 +158,50 @@
     "badgeBenefits": "Buntaisti suaitheantais",
     "badgeBenefitsDescription": "Faigh amach faoi bhuntaisti Premium agus Platinum"
   },
-
   "home": {
-    "discoverOpportunities": "Aimsigh deiseanna malartaithe i do cheantar",
-    "chooseHowToStart": "Roghnaigh conas tosú: iniúch rudai, cuardaigh ar an leárscáil, no anailisigh meaitsealacha.",
-    "viewAvailableObjects": "Feach ar rudai ata ar fail",
-    "greeting": "Dia duit, {name}! Ni thaispeanann an leárscáil ach úsaideoiri Premium agus Platinum. Rialaíonn do shuaitheanta d'infheictheacht.",
-    "analyzeMatches": "Anailisigh meaitsealacha",
-    "addObject": "Cuir rud leis",
-    "monitorExchanges": "Monatoir malartuithe",
-    "activeUsersMap": "Leárscáil úsaideoiri gniomhacha",
-    "mapDescription": "Ta úsaideoiri Premium agus Platinum ata ar leith ar an leárscáil.",
-    "learnPremiumBenefits": "Foghlaim faoi bhuntaisti cuntais Premium",
-    "completeProfileAndLocation": "Comhlanaigh do phroifil agus do shuiomh",
-    "completeProfileDescription": "Cumasaigh gneithe leárscáile tri do shuiomh garbh a chur leis.",
-    "openProfile": "Oscail proifil",
-    "mapVisibilityNote": "Ta cuma leárscáile ar fail do chuntais Premium. Is féidir leat tairiscinti a iniúchadh agus malartuithe a thosú gan a bheith infheicthe go poibli.",
-    "announcements": "Fograi",
-    "announcementsDescription": "Teachtaireachtai corais, discreideach agus indibrithe.",
-    "noListedObjects": "Nil aon rud liostaithe agat fos",
-    "addObjectForProposals": "Cuir rud leis chun moltai abhartha a fhail.",
-    "aiFallback": "Rogha chulcheangail IS",
-    "manualModeActive": "Modh lamha gniomhach nuair nach bhfuil seirbhisi IS ar fail.",
-    "aiDisabled": "IS díchumasaithe",
-    "aiDisabledDescription": "Braitheann aicmiú agus minitheoireachtai ar rialacha lamha gan sreafai criticiúla a bhloceail.",
-    "aiActive": "IS gniomhach",
-    "aiActiveDescription": "Leanann moltai an leathanaigh baile conradh IS (taobh an fhreastalai).",
-    "aiOutputNote": "Sabhaitear aschur IS mar mheitashonrai leaganithe agus ni sharaitheann se roghanna deireanacha na n-úsaideoiri.",
-    "addObjectCta": "Cuir rud leis",
-    "addObjectCtaDescription": "Liostail rud eigin le malartú",
-    "analyzeMatchesCta": "Anailisigh meaitsealacha",
-    "analyzeMatchesCtaDescription": "Aimsigh moltai comhoiruinacha",
-    "exploreObjects": "Iniúch rudai",
-    "exploreObjectsDescription": "Brabhsail cad a thairgeann úsaideoiri eile",
-    "loginCta": "Logail isteach",
-    "exploreObjectsGuest": "Iniúch rudai",
-    "exploreObjectsGuestDescription": "Feach cad ata ar fail gan chuntas"
+    "welcome": "Welcome back",
+    "greeting": "Hey, {name}!",
+    "heroSubtitle": "Explore objects in your area, discover matches, and propose swaps.",
+    "statItems": "{count} active items",
+    "statSwaps": "{count} swaps",
+    "statTokens": "{count} tokens",
+    "statNotifs": "{count} new notifications",
+    "guestHeadline": "Swap what you have for what you want",
+    "guestSubtitle": "Swaply connects people who want to exchange objects, no money involved. Simple, local, transparent.",
+    "getStarted": "Get started",
+    "browseObjects": "Browse objects",
+    "actionAdd": "Add object",
+    "actionAddDesc": "List something for exchange",
+    "actionExplore": "Explore",
+    "actionExploreDesc": "Discover available objects",
+    "actionMatch": "AI Matches",
+    "actionMatchDesc": "Analyze compatibility",
+    "actionSwaps": "Swaps",
+    "actionSwapsDesc": "Monitor your exchanges",
+    "mapTitle": "Users map",
+    "mapSubtitle": "Premium and Platinum users are visible on the map.",
+    "addLocationHint": "Add your location in profile to enable map-based features",
+    "announcements": "Announcements",
+    "nudgeNoItems": "You don't have any listed objects yet",
+    "nudgeNoItemsDesc": "Add your first object to start receiving swap proposals.",
+    "nudgeProfile": "Complete your profile",
+    "nudgeProfileDesc": "A complete profile increases your trust and visibility.",
+    "nudgeProfileCta": "Edit profile",
+    "nudgeMatches": "{count} matches found",
+    "nudgeMatchesDesc": "AI has identified compatible proposals for your objects.",
+    "nudgeMatchesCta": "View matches",
+    "reputation": "Reputation",
+    "repLevel": "Level",
+    "repPath": "Starter → Trusted → Ambassador",
+    "activeSwaps": "{count} active swaps",
+    "activeSwapsDesc": "You have ongoing swaps that need your attention.",
+    "messagesLink": "Messages",
+    "messagesLinkDesc": "Chat with your swap partners",
+    "guestDiscover": "Discover Swaply",
+    "guestObjects": "View available objects",
+    "guestInfo": "Platform info",
+    "guestBadges": "Badge benefits"
   },
-
   "objects": {
     "createAccount": "Cruthaigh cuntas",
     "loginToList": "Logail isteach chun rudai a liostail",
@@ -234,7 +236,6 @@
     "loadError": "Earraid ag luchtú rudai",
     "loadErrorDescription": "Teachtaireacht shoileir gan tuairteail; ceadaíonn athluchtú leathanaigh."
   },
-
   "objectDetail": {
     "loading": "Ag luchtú ruda",
     "loadingDescription": "Staid luchtaithe de reir an chonartha (ni 404).",
@@ -254,7 +255,6 @@
     "startSecureChat": "Tosigh comhrá slán",
     "proposeExchange": "Mol malartú"
   },
-
   "objectEdit": {
     "loading": "Ag luchtú eagarthóra",
     "notFound": "Rud gan aimsiú",
@@ -262,12 +262,10 @@
     "title": "Cuir rud in eagar",
     "editDescription": "Foirm le luachanna reámhlionta + stádais shoileira."
   },
-
   "objectNew": {
     "title": "Cuir rud leis",
     "description": "Foirm iomlan, gan an togáil a bhriseadh."
   },
-
   "match": {
     "title": "Anailis mheaitseala",
     "description": "Moltai bunaithe ar chomhoiriúnacht charnaíoch. Anailisioinn IS, socraíonn tusa.",
@@ -310,7 +308,6 @@
     "aiUnavailableNote": "IS gan a bheith ar fail",
     "analysisContinues": "Leanann an anailis le rialacha aitiúla. Nil aon fheidhmíocht blocailte."
   },
-
   "chat": {
     "title": "Comhrá slán",
     "description": "Aistriúchán (ma ta air) + modhnú + ceangaltain scanta + CTA chuig Swaply",
@@ -341,7 +338,6 @@
     "sendError": "Earraid ag seoladh. Bain triail eile as.",
     "selectConversation": "Roghnaigh comhrá no tosigh ceann o leathanach na rudai."
   },
-
   "change": {
     "title": "Sreabhadh malartaithe (Swaply)",
     "description": "Deimhniú + loigstiocht + leárscáil (leibheil) + fograí + aiseolas",
@@ -383,7 +379,6 @@
     "viewStats": "Feach ar staitistici",
     "viewStatsDescription": "Seiceail do cháil agus comharthói"
   },
-
   "info": {
     "title": "Staitistici Swaply",
     "description": "Staitistici domhanda + staitistici úsaideora + céim + comharthói + ráta malartaithe + cabhar/dlitiúil",
@@ -426,7 +421,6 @@
     "authentication": "Fiorú",
     "authenticationDescription": "Cruthaigh cuntas no logail isteach"
   },
-
   "itemForm": {
     "conditionNew": "Nua",
     "conditionGood": "Beagan usaidte",
@@ -521,7 +515,6 @@
     "imageReadError": "Nior éirigh le hiomha a leamh.",
     "uploadingImageButton": "Ag uasluchtú iomha..."
   },
-
   "itemCard": {
     "location": "Suiomh:",
     "ai": "IS:",
@@ -529,7 +522,6 @@
     "edit": "Cuir in eagar",
     "delete": "Scrios"
   },
-
   "swipeCard": {
     "yes": "TA",
     "no": "NIL",
@@ -537,7 +529,6 @@
     "notInterested": "Nil speis agam",
     "interested": "Speis agam"
   },
-
   "matchList": {
     "weak": "Lag",
     "possible": "Indéanta",
@@ -550,7 +541,6 @@
     "sendMessage": "Seol teachtaireacht",
     "proposeExchange": "Mol malartú"
   },
-
   "swapTimeline": {
     "proposed": "Molta",
     "scheduled": "Sceidealaithe",
@@ -571,7 +561,6 @@
     "autoNotifications": "Fograí uathghnothach:",
     "lastUpdate": "Nuashonrú deireanach:"
   },
-
   "chatPanel": {
     "you": "Tusa",
     "partner": "Pairtí",
@@ -591,7 +580,6 @@
     "sendError": "Earraid ag seoladh. Bain triail eile as.",
     "selectConversation": "Roghnaigh comhrá no tosigh ceann o leathanach na rudai."
   },
-
   "statsGrid": {
     "globalExchanges": "Malartuithe domhanda",
     "globalDescription": "Ta Swaply gniomhach i reígiúin iolracha",
@@ -602,7 +590,6 @@
     "tokensIssued": "Comharthói eisithe",
     "tokensDescription": "Moirleabhar slán, le feiceail i bproifil"
   },
-
   "map": {
     "unavailable": "Leárscáil gan a bheith ar fail",
     "providerDisabled": "Solathrai leárscáile díchumasaithe. Fanann an chuid eile den leathanach inusaidte.",
@@ -614,7 +601,6 @@
     "mapTitle": "Leárscáil suimh",
     "noPins": "Nil aon bhiorrain le taispeáint"
   },
-
   "location": {
     "country": "Tir",
     "selectCountry": "— Roghnaigh tir —",
@@ -625,19 +611,16 @@
     "selectCity": "— Roghnaigh cathair —",
     "chooseRegionFirst": "— Roghnaigh reígiún ar dtús —"
   },
-
   "gated": {
     "notLoggedIn": "Nil tú logailte isteach",
     "loginToView": "Logail isteach chun an t-abhar seo a fheiceail. Ta filleadh-go sabhailte ionas gur féidir leat leanúint ar aghaidh gan briseadh.",
     "login": "Logail isteach"
   },
-
   "demoBanner": {
     "demoMode": "Modh taispecantais gniomhach",
     "dataNotReal": "— nil na sonrai fior agus ni shabhaitear iad.",
     "exitDemo": "Fag an taispecantas"
   },
-
   "pwa": {
     "installSwaply": "Suiteail Swaply",
     "installDescription": "Cuir leis an scaileán baile le haghaidh rochtain thapa, gan bhrabhsalai.",

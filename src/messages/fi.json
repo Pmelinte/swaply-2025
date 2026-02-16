@@ -24,7 +24,6 @@
     "noImage": "Ei kuvaa",
     "freeSlot": "Vapaa paikka"
   },
-
   "nav": {
     "home": "Etusivu",
     "objects": "Esineet",
@@ -52,12 +51,10 @@
     "badgeBenefits": "Merkkien edut",
     "completeProfile": "Täydennä profiilisi"
   },
-
   "notifications": {
     "title": "Ilmoitukset (tykkäys/kiinnostus/keskustelu/swaply)",
     "empty": "Ei ilmoituksia juuri nyt."
   },
-
   "login": {
     "authentication": "Tunnistautuminen",
     "registration": "Rekisteröinti",
@@ -94,7 +91,6 @@
     "invalidCredentials": "Virheelliset tunnistetiedot",
     "invalidCredentialsDescription": "Punainen viesti + demo-salasanan maininta. Ei mock-onnistumista; pysy sivulla CTA:lla salasanan nollaukseen."
   },
-
   "profile": {
     "loading": "Ladataan profiilia…",
     "loadingDescription": "Tarkistetaan istuntoasi.",
@@ -162,44 +158,50 @@
     "badgeBenefits": "Merkkien edut",
     "badgeBenefitsDescription": "Tutustu Premium- ja Platinum-etuihin"
   },
-
   "home": {
-    "discoverOpportunities": "Löydä vaihtomahdollisuuksia alueellasi",
-    "chooseHowToStart": "Valitse miten haluat aloittaa: selaa esineitä, hae kartalta tai analysoi vastaavuuksia.",
-    "viewAvailableObjects": "Näytä saatavilla olevat esineet",
-    "greeting": "Hei, {name}! Kartta näyttää vain Premium- ja Platinum-käyttäjät. Merkkisi ohjaa näkyvyyttäsi.",
-    "analyzeMatches": "Analysoi vastaavuudet",
-    "addObject": "Lisää esine",
-    "monitorExchanges": "Seuraa vaihtoja",
-    "activeUsersMap": "Aktiivisten käyttäjien kartta",
-    "mapDescription": "Premium- ja Platinum-käyttäjät on korostettu kartalla.",
-    "learnPremiumBenefits": "Tutustu Premium-tilin etuihin",
-    "completeProfileAndLocation": "Täydennä profiilisi ja sijaintisi",
-    "completeProfileDescription": "Ota karttapohjaiset ominaisuudet käyttöön lisäämällä likimääräinen sijaintisi.",
-    "openProfile": "Avaa profiili",
-    "mapVisibilityNote": "Karttanäkyvyys on saatavilla Premium-tileille. Voit selata tarjouksia ja aloittaa vaihtoja olematta julkisesti näkyvissä.",
-    "announcements": "Ilmoitukset",
-    "announcementsDescription": "Järjestelmäviestit, huomaamattomat ja hylättävissä olevat.",
-    "noListedObjects": "Sinulla ei ole vielä listattuja esineitä",
-    "addObjectForProposals": "Lisää esine saadaksesi olennaisia ehdotuksia.",
-    "aiFallback": "AI-varamenetelmä",
-    "manualModeActive": "Manuaalitila aktiivinen kun AI-palvelut eivät ole käytettävissä.",
-    "aiDisabled": "AI pois käytöstä",
-    "aiDisabledDescription": "Luokittelu ja selitykset käyttävät manuaalisia sääntöjä kriittisten prosessien estämisen välttämiseksi.",
-    "aiActive": "AI aktiivinen",
-    "aiActiveDescription": "Etusivun ehdotukset noudattavat AI-sopimusta (palvelinpuoli).",
-    "aiOutputNote": "AI-tuloste tallennetaan versioituna metatietona eikä korvaa käyttäjien lopullisia valintoja.",
-    "addObjectCta": "Lisää esine",
-    "addObjectCtaDescription": "Listaa jotain vaihtoon",
-    "analyzeMatchesCta": "Analysoi vastaavuudet",
-    "analyzeMatchesCtaDescription": "Löydä yhteensopivia ehdotuksia",
-    "exploreObjects": "Selaa esineitä",
-    "exploreObjectsDescription": "Selaa mitä muut käyttäjät tarjoavat",
-    "loginCta": "Kirjaudu sisään",
-    "exploreObjectsGuest": "Selaa esineitä",
-    "exploreObjectsGuestDescription": "Katso mitä on tarjolla ilman tiliä"
+    "welcome": "Welcome back",
+    "greeting": "Hey, {name}!",
+    "heroSubtitle": "Explore objects in your area, discover matches, and propose swaps.",
+    "statItems": "{count} active items",
+    "statSwaps": "{count} swaps",
+    "statTokens": "{count} tokens",
+    "statNotifs": "{count} new notifications",
+    "guestHeadline": "Swap what you have for what you want",
+    "guestSubtitle": "Swaply connects people who want to exchange objects, no money involved. Simple, local, transparent.",
+    "getStarted": "Get started",
+    "browseObjects": "Browse objects",
+    "actionAdd": "Add object",
+    "actionAddDesc": "List something for exchange",
+    "actionExplore": "Explore",
+    "actionExploreDesc": "Discover available objects",
+    "actionMatch": "AI Matches",
+    "actionMatchDesc": "Analyze compatibility",
+    "actionSwaps": "Swaps",
+    "actionSwapsDesc": "Monitor your exchanges",
+    "mapTitle": "Users map",
+    "mapSubtitle": "Premium and Platinum users are visible on the map.",
+    "addLocationHint": "Add your location in profile to enable map-based features",
+    "announcements": "Announcements",
+    "nudgeNoItems": "You don't have any listed objects yet",
+    "nudgeNoItemsDesc": "Add your first object to start receiving swap proposals.",
+    "nudgeProfile": "Complete your profile",
+    "nudgeProfileDesc": "A complete profile increases your trust and visibility.",
+    "nudgeProfileCta": "Edit profile",
+    "nudgeMatches": "{count} matches found",
+    "nudgeMatchesDesc": "AI has identified compatible proposals for your objects.",
+    "nudgeMatchesCta": "View matches",
+    "reputation": "Reputation",
+    "repLevel": "Level",
+    "repPath": "Starter → Trusted → Ambassador",
+    "activeSwaps": "{count} active swaps",
+    "activeSwapsDesc": "You have ongoing swaps that need your attention.",
+    "messagesLink": "Messages",
+    "messagesLinkDesc": "Chat with your swap partners",
+    "guestDiscover": "Discover Swaply",
+    "guestObjects": "View available objects",
+    "guestInfo": "Platform info",
+    "guestBadges": "Badge benefits"
   },
-
   "objects": {
     "createAccount": "Luo tili",
     "loginToList": "Kirjaudu sisään listataksesi esineitä",
@@ -234,7 +236,6 @@
     "loadError": "Virhe esineiden lataamisessa",
     "loadErrorDescription": "Selkeä viesti ilman kaatumista; sallii sivun uudelleenlatauksen."
   },
-
   "objectDetail": {
     "loading": "Ladataan esinettä",
     "loadingDescription": "Lataustila sopimuksen mukaan (ei 404).",
@@ -254,7 +255,6 @@
     "startSecureChat": "Aloita suojattu keskustelu",
     "proposeExchange": "Ehdota vaihtoa"
   },
-
   "objectEdit": {
     "loading": "Ladataan muokkainta",
     "notFound": "Esinettä ei löytynyt",
@@ -262,12 +262,10 @@
     "title": "Muokkaa esinettä",
     "editDescription": "Lomake esitäytetyillä arvoilla + selkeät tilat."
   },
-
   "objectNew": {
     "title": "Lisää esine",
     "description": "Täydellinen lomake, rikkomatta rakennusta."
   },
-
   "match": {
     "title": "Vastaavuusanalyysi",
     "description": "Ehdotukset kumulatiivisen yhteensopivuuden perusteella. AI analysoi, sinä päätät.",
@@ -310,7 +308,6 @@
     "aiUnavailableNote": "AI ei käytettävissä",
     "analysisContinues": "Analyysi jatkuu paikallisilla säännöillä. Mitään toiminnallisuutta ei estetty."
   },
-
   "chat": {
     "title": "Suojattu keskustelu",
     "description": "Käännös (jos päällä) + moderointi + skannatut liitteet + CTA Swaplyyn",
@@ -341,7 +338,6 @@
     "sendError": "Virhe lähetyksessä. Yritä uudelleen.",
     "selectConversation": "Valitse keskustelu tai aloita yksi esineet-sivulta."
   },
-
   "change": {
     "title": "Vaihtoprosessi (Swaply)",
     "description": "Vahvistus + logistiikka + kartta (tasot) + ilmoitukset + palaute",
@@ -383,7 +379,6 @@
     "viewStats": "Näytä tilastot",
     "viewStatsDescription": "Tarkista maineesi ja tokenisi"
   },
-
   "info": {
     "title": "Swaply-tilastot",
     "description": "Globaalit tilastot + käyttäjätilastot + sijoitus + tokenit + vaihtokurssi + ohje/oikeudelliset",
@@ -426,7 +421,6 @@
     "authentication": "Tunnistautuminen",
     "authenticationDescription": "Luo tili tai kirjaudu sisään"
   },
-
   "itemForm": {
     "conditionNew": "Uusi",
     "conditionGood": "Vähän käytetty",
@@ -521,7 +515,6 @@
     "imageReadError": "Kuvaa ei voitu lukea.",
     "uploadingImageButton": "Ladataan kuvaa…"
   },
-
   "itemCard": {
     "location": "Sijainti:",
     "ai": "AI:",
@@ -529,7 +522,6 @@
     "edit": "Muokkaa",
     "delete": "Poista"
   },
-
   "swipeCard": {
     "yes": "KYLLÄ",
     "no": "EI",
@@ -537,7 +529,6 @@
     "notInterested": "Ei kiinnosta",
     "interested": "Kiinnostaa"
   },
-
   "matchList": {
     "weak": "Heikko",
     "possible": "Mahdollinen",
@@ -550,7 +541,6 @@
     "sendMessage": "Lähetä viesti",
     "proposeExchange": "Ehdota vaihtoa"
   },
-
   "swapTimeline": {
     "proposed": "Ehdotettu",
     "scheduled": "Aikataulutettu",
@@ -571,7 +561,6 @@
     "autoNotifications": "Automaattiset ilmoitukset:",
     "lastUpdate": "Viimeisin päivitys:"
   },
-
   "chatPanel": {
     "you": "Sinä",
     "partner": "Kumppani",
@@ -591,7 +580,6 @@
     "sendError": "Virhe lähetyksessä. Yritä uudelleen.",
     "selectConversation": "Valitse keskustelu tai aloita yksi esineet-sivulta."
   },
-
   "statsGrid": {
     "globalExchanges": "Globaalit vaihdot",
     "globalDescription": "Swaply on aktiivinen useilla alueilla",
@@ -602,7 +590,6 @@
     "tokensIssued": "Myönnetyt tokenit",
     "tokensDescription": "Turvallinen tilikirja, näkyy profiilissa"
   },
-
   "map": {
     "unavailable": "Kartta ei käytettävissä",
     "providerDisabled": "Karttatarjoaja pois käytöstä. Sivun muu osa pysyy käytettävänä.",
@@ -614,7 +601,6 @@
     "mapTitle": "Sijaintikartta",
     "noPins": "Ei pinnejä näytettäväksi"
   },
-
   "location": {
     "country": "Maa",
     "selectCountry": "— Valitse maa —",
@@ -625,19 +611,16 @@
     "selectCity": "— Valitse kaupunki —",
     "chooseRegionFirst": "— Valitse alue ensin —"
   },
-
   "gated": {
     "notLoggedIn": "Et ole kirjautunut sisään",
     "loginToView": "Kirjaudu sisään nähdäksesi tämän sisällön. Paluuosoite on tallennettu, jotta voit jatkaa prosessia keskeytyksettä.",
     "login": "Kirjaudu sisään"
   },
-
   "demoBanner": {
     "demoMode": "Demotila aktiivinen",
     "dataNotReal": "— tiedot eivät ole todellisia eikä niitä tallenneta.",
     "exitDemo": "Poistu demosta"
   },
-
   "pwa": {
     "installSwaply": "Asenna Swaply",
     "installDescription": "Lisää aloitusnäytölle nopeaa käyttöä varten, ilman selainta.",

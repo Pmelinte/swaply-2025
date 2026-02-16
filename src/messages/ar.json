@@ -24,7 +24,6 @@
     "noImage": "لا توجد صورة",
     "freeSlot": "خانة فارغة"
   },
-
   "nav": {
     "home": "الرئيسية",
     "objects": "الأغراض",
@@ -52,12 +51,10 @@
     "badgeBenefits": "مزايا الشارات",
     "completeProfile": "أكمل ملفك الشخصي"
   },
-
   "notifications": {
     "title": "الإشعارات (إعجاب/اهتمام/محادثة/swaply)",
     "empty": "لا توجد إشعارات حالياً."
   },
-
   "login": {
     "authentication": "المصادقة",
     "registration": "التسجيل",
@@ -94,7 +91,6 @@
     "invalidCredentials": "بيانات اعتماد غير صالحة",
     "invalidCredentialsDescription": "رسالة حمراء + ذكر كلمة مرور تجريبية. لا نجاح وهمي؛ البقاء في الصفحة مع دعوة لإعادة تعيين كلمة المرور."
   },
-
   "profile": {
     "loading": "جارٍ تحميل الملف الشخصي…",
     "loadingDescription": "جارٍ التحقق من جلستك.",
@@ -162,44 +158,50 @@
     "badgeBenefits": "مزايا الشارات",
     "badgeBenefitsDescription": "اكتشف مزايا Premium و Platinum"
   },
-
   "home": {
-    "discoverOpportunities": "اكتشف فرص التبادل في منطقتك",
-    "chooseHowToStart": "اختر كيف تريد البدء: استكشاف الأغراض، البحث على الخريطة، أو تحليل المطابقات.",
-    "viewAvailableObjects": "عرض الأغراض المتاحة",
-    "greeting": "مرحباً، {name}! تعرض الخريطة مستخدمي Premium و Platinum فقط. شارتك تتحكم في ظهورك.",
-    "analyzeMatches": "تحليل المطابقات",
-    "addObject": "إضافة غرض",
-    "monitorExchanges": "مراقبة التبادلات",
-    "activeUsersMap": "خريطة المستخدمين النشطين",
-    "mapDescription": "مستخدمو Premium و Platinum مميزون على الخريطة.",
-    "learnPremiumBenefits": "تعرّف على مزايا حساب Premium",
-    "completeProfileAndLocation": "أكمل ملفك الشخصي وموقعك",
-    "completeProfileDescription": "فعّل ميزات الخريطة بإضافة موقعك التقريبي.",
-    "openProfile": "فتح الملف الشخصي",
-    "mapVisibilityNote": "الظهور على الخريطة متاح لحسابات Premium. يمكنك استكشاف العروض وبدء التبادلات دون أن تكون مرئياً للعامة.",
-    "announcements": "الإعلانات",
-    "announcementsDescription": "رسائل النظام، مخفية وقابلة للإغلاق.",
-    "noListedObjects": "ليس لديك أي أغراض معروضة بعد",
-    "addObjectForProposals": "أضف غرضاً لتلقي عروض مناسبة.",
-    "aiFallback": "الوضع الاحتياطي للذكاء الاصطناعي",
-    "manualModeActive": "الوضع اليدوي نشط عندما تكون خدمات الذكاء الاصطناعي غير متاحة.",
-    "aiDisabled": "الذكاء الاصطناعي معطّل",
-    "aiDisabledDescription": "التصنيف والتفسيرات تعتمد على قواعد يدوية لعدم حظر التدفقات الحرجة.",
-    "aiActive": "الذكاء الاصطناعي نشط",
-    "aiActiveDescription": "اقتراحات الصفحة الرئيسية تتبع عقد الذكاء الاصطناعي (من جانب الخادم).",
-    "aiOutputNote": "يتم حفظ مخرجات الذكاء الاصطناعي كبيانات وصفية مُسجّلة الإصدار ولا تتجاوز التفضيلات النهائية للمستخدم.",
-    "addObjectCta": "إضافة غرض",
-    "addObjectCtaDescription": "اعرض شيئاً للتبادل",
-    "analyzeMatchesCta": "تحليل المطابقات",
-    "analyzeMatchesCtaDescription": "اكتشف العروض المتوافقة",
-    "exploreObjects": "استكشاف الأغراض",
-    "exploreObjectsDescription": "تصفّح ما يعرضه المستخدمون الآخرون",
-    "loginCta": "تسجيل الدخول",
-    "exploreObjectsGuest": "استكشاف الأغراض",
-    "exploreObjectsGuestDescription": "شاهد ما هو متاح بدون حساب"
+    "welcome": "Welcome back",
+    "greeting": "Hey, {name}!",
+    "heroSubtitle": "Explore objects in your area, discover matches, and propose swaps.",
+    "statItems": "{count} active items",
+    "statSwaps": "{count} swaps",
+    "statTokens": "{count} tokens",
+    "statNotifs": "{count} new notifications",
+    "guestHeadline": "Swap what you have for what you want",
+    "guestSubtitle": "Swaply connects people who want to exchange objects, no money involved. Simple, local, transparent.",
+    "getStarted": "Get started",
+    "browseObjects": "Browse objects",
+    "actionAdd": "Add object",
+    "actionAddDesc": "List something for exchange",
+    "actionExplore": "Explore",
+    "actionExploreDesc": "Discover available objects",
+    "actionMatch": "AI Matches",
+    "actionMatchDesc": "Analyze compatibility",
+    "actionSwaps": "Swaps",
+    "actionSwapsDesc": "Monitor your exchanges",
+    "mapTitle": "Users map",
+    "mapSubtitle": "Premium and Platinum users are visible on the map.",
+    "addLocationHint": "Add your location in profile to enable map-based features",
+    "announcements": "Announcements",
+    "nudgeNoItems": "You don't have any listed objects yet",
+    "nudgeNoItemsDesc": "Add your first object to start receiving swap proposals.",
+    "nudgeProfile": "Complete your profile",
+    "nudgeProfileDesc": "A complete profile increases your trust and visibility.",
+    "nudgeProfileCta": "Edit profile",
+    "nudgeMatches": "{count} matches found",
+    "nudgeMatchesDesc": "AI has identified compatible proposals for your objects.",
+    "nudgeMatchesCta": "View matches",
+    "reputation": "Reputation",
+    "repLevel": "Level",
+    "repPath": "Starter → Trusted → Ambassador",
+    "activeSwaps": "{count} active swaps",
+    "activeSwapsDesc": "You have ongoing swaps that need your attention.",
+    "messagesLink": "Messages",
+    "messagesLinkDesc": "Chat with your swap partners",
+    "guestDiscover": "Discover Swaply",
+    "guestObjects": "View available objects",
+    "guestInfo": "Platform info",
+    "guestBadges": "Badge benefits"
   },
-
   "objects": {
     "createAccount": "إنشاء حساب",
     "loginToList": "سجّل الدخول لعرض الأغراض",
@@ -234,7 +236,6 @@
     "loadError": "خطأ في تحميل الأغراض",
     "loadErrorDescription": "رسالة واضحة بدون تعطل؛ تسمح بإعادة تحميل الصفحة."
   },
-
   "objectDetail": {
     "loading": "جارٍ تحميل الغرض",
     "loadingDescription": "حالة تحميل حسب العقد (ليس 404).",
@@ -254,7 +255,6 @@
     "startSecureChat": "بدء محادثة آمنة",
     "proposeExchange": "اقتراح تبادل"
   },
-
   "objectEdit": {
     "loading": "جارٍ تحميل المحرر",
     "notFound": "الغرض غير موجود",
@@ -262,12 +262,10 @@
     "title": "تعديل الغرض",
     "editDescription": "نموذج بقيم مملوءة مسبقاً + حالات واضحة."
   },
-
   "objectNew": {
     "title": "إضافة غرض",
     "description": "نموذج كامل، بدون كسر البناء."
   },
-
   "match": {
     "title": "تحليل المطابقة",
     "description": "اقتراحات مبنية على التوافق التراكمي. الذكاء الاصطناعي يحلل، أنت تقرر.",
@@ -310,7 +308,6 @@
     "aiUnavailableNote": "الذكاء الاصطناعي غير متاح",
     "analysisContinues": "يستمر التحليل بالقواعد المحلية. لا وظائف محظورة."
   },
-
   "chat": {
     "title": "محادثة آمنة",
     "description": "ترجمة (إذا مفعّلة) + إشراف + مرفقات مفحوصة + CTA إلى Swaply",
@@ -341,7 +338,6 @@
     "sendError": "خطأ في الإرسال. حاول مرة أخرى.",
     "selectConversation": "اختر محادثة أو ابدأ واحدة من صفحة الأغراض."
   },
-
   "change": {
     "title": "مسار التبادل (Swaply)",
     "description": "تأكيد + لوجستيات + خريطة (مستويات) + إشعارات + تقييم",
@@ -383,7 +379,6 @@
     "viewStats": "عرض الإحصائيات",
     "viewStatsDescription": "تحقق من سمعتك ورموزك"
   },
-
   "info": {
     "title": "إحصائيات Swaply",
     "description": "إحصائيات عامة + إحصائيات المستخدم + الرتبة + الرموز + سعر التبادل + المساعدة/القانوني",
@@ -426,7 +421,6 @@
     "authentication": "المصادقة",
     "authenticationDescription": "أنشئ حساباً أو سجّل الدخول"
   },
-
   "itemForm": {
     "conditionNew": "جديد",
     "conditionGood": "مستعمل قليلاً",
@@ -521,7 +515,6 @@
     "imageReadError": "تعذّر قراءة الصورة.",
     "uploadingImageButton": "جارٍ رفع الصورة…"
   },
-
   "itemCard": {
     "location": "الموقع:",
     "ai": "ذ.ا.:",
@@ -529,7 +522,6 @@
     "edit": "تعديل",
     "delete": "حذف"
   },
-
   "swipeCard": {
     "yes": "نعم",
     "no": "لا",
@@ -537,7 +529,6 @@
     "notInterested": "غير مهتم",
     "interested": "مهتم"
   },
-
   "matchList": {
     "weak": "ضعيف",
     "possible": "محتمل",
@@ -550,7 +541,6 @@
     "sendMessage": "إرسال رسالة",
     "proposeExchange": "اقتراح تبادل"
   },
-
   "swapTimeline": {
     "proposed": "مقترح",
     "scheduled": "مجدول",
@@ -571,7 +561,6 @@
     "autoNotifications": "إشعارات تلقائية:",
     "lastUpdate": "آخر تحديث:"
   },
-
   "chatPanel": {
     "you": "أنت",
     "partner": "الشريك",
@@ -591,7 +580,6 @@
     "sendError": "خطأ في الإرسال. حاول مرة أخرى.",
     "selectConversation": "اختر محادثة أو ابدأ واحدة من صفحة الأغراض."
   },
-
   "statsGrid": {
     "globalExchanges": "التبادلات العالمية",
     "globalDescription": "Swaply نشط في مناطق متعددة",
@@ -602,7 +590,6 @@
     "tokensIssued": "الرموز الصادرة",
     "tokensDescription": "سجل آمن، مرئي في الملف الشخصي"
   },
-
   "map": {
     "unavailable": "الخريطة غير متاحة",
     "providerDisabled": "مزود الخريطة معطّل. بقية الصفحة تبقى قابلة للاستخدام.",
@@ -614,7 +601,6 @@
     "mapTitle": "خريطة المواقع",
     "noPins": "لا توجد دبابيس للعرض"
   },
-
   "location": {
     "country": "البلد",
     "selectCountry": "— اختر بلداً —",
@@ -625,19 +611,16 @@
     "selectCity": "— اختر مدينة —",
     "chooseRegionFirst": "— اختر المنطقة أولاً —"
   },
-
   "gated": {
     "notLoggedIn": "لم تسجّل الدخول",
     "loginToView": "سجّل الدخول لعرض هذا المحتوى. تم حفظ عنوان العودة حتى تتمكن من متابعة التدفق دون انقطاع.",
     "login": "تسجيل الدخول"
   },
-
   "demoBanner": {
     "demoMode": "الوضع التجريبي نشط",
     "dataNotReal": "— البيانات غير حقيقية ولا يتم حفظها.",
     "exitDemo": "الخروج من العرض التجريبي"
   },
-
   "pwa": {
     "installSwaply": "تثبيت Swaply",
     "installDescription": "أضف إلى الشاشة الرئيسية للوصول السريع، بدون متصفح.",

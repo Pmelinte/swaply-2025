@@ -24,7 +24,6 @@
     "noImage": "بدون تصویر",
     "freeSlot": "جایگاه آزاد"
   },
-
   "nav": {
     "home": "خانه",
     "objects": "اشیاء",
@@ -52,12 +51,10 @@
     "badgeBenefits": "مزایای نشان",
     "completeProfile": "پروفایل خود را تکمیل کنید"
   },
-
   "notifications": {
     "title": "اعلان‌ها (لایک/علاقه/چت/سواپلی)",
     "empty": "در حال حاضر اعلانی وجود ندارد."
   },
-
   "login": {
     "authentication": "احراز هویت",
     "registration": "ثبت‌نام",
@@ -94,7 +91,6 @@
     "invalidCredentials": "اعتبارنامه‌های نامعتبر",
     "invalidCredentialsDescription": "پیام قرمز + ذکر رمز عبور آزمایشی. بدون موفقیت ساختگی؛ ماندن در صفحه با CTA برای بازنشانی رمز عبور."
   },
-
   "profile": {
     "loading": "در حال بارگذاری پروفایل…",
     "loadingDescription": "در حال بررسی نشست شما.",
@@ -162,44 +158,50 @@
     "badgeBenefits": "مزایای نشان",
     "badgeBenefitsDescription": "کشف مزایای Premium و Platinum"
   },
-
   "home": {
-    "discoverOpportunities": "کشف فرصت‌های مبادله در منطقه شما",
-    "chooseHowToStart": "نحوه شروع را انتخاب کنید: کاوش اشیاء، جستجو روی نقشه، یا تحلیل تطبیق‌ها.",
-    "viewAvailableObjects": "مشاهده اشیاء موجود",
-    "greeting": "سلام، {name}! نقشه فقط کاربران Premium و Platinum را نشان می‌دهد. نشان شما نمایش شما را کنترل می‌کند.",
-    "analyzeMatches": "تحلیل تطبیق‌ها",
-    "addObject": "افزودن یک شیء",
-    "monitorExchanges": "نظارت بر مبادله‌ها",
-    "activeUsersMap": "نقشه کاربران فعال",
-    "mapDescription": "کاربران Premium و Platinum روی نقشه برجسته شده‌اند.",
-    "learnPremiumBenefits": "آشنایی با مزایای حساب Premium",
-    "completeProfileAndLocation": "پروفایل و موقعیت مکانی خود را تکمیل کنید",
-    "completeProfileDescription": "با افزودن موقعیت تقریبی خود، ویژگی‌های مبتنی بر نقشه را فعال کنید.",
-    "openProfile": "باز کردن پروفایل",
-    "mapVisibilityNote": "نمایش روی نقشه برای حساب‌های Premium در دسترس است. می‌توانید پیشنهادها را مرور کرده و مبادله‌ها را بدون نمایش عمومی آغاز کنید.",
-    "announcements": "اطلاعیه‌ها",
-    "announcementsDescription": "پیام‌های سیستمی، محتاطانه و قابل رد کردن.",
-    "noListedObjects": "هنوز هیچ شیء فهرست‌شده‌ای ندارید",
-    "addObjectForProposals": "یک شیء اضافه کنید تا پیشنهادهای مرتبط دریافت کنید.",
-    "aiFallback": "جایگزین هوش مصنوعی",
-    "manualModeActive": "حالت دستی فعال است زمانی که سرویس‌های هوش مصنوعی در دسترس نیستند.",
-    "aiDisabled": "هوش مصنوعی غیرفعال",
-    "aiDisabledDescription": "طبقه‌بندی و توضیحات بر قوانین دستی تکیه می‌کنند تا جریان‌های بحرانی مسدود نشوند.",
-    "aiActive": "هوش مصنوعی فعال",
-    "aiActiveDescription": "پیشنهادهای صفحه اصلی از قرارداد هوش مصنوعی (سمت سرور) پیروی می‌کنند.",
-    "aiOutputNote": "خروجی هوش مصنوعی به عنوان متادیتای نسخه‌بندی‌شده ذخیره می‌شود و تنظیمات نهایی کاربران را بازنویسی نمی‌کند.",
-    "addObjectCta": "افزودن یک شیء",
-    "addObjectCtaDescription": "چیزی برای مبادله فهرست کنید",
-    "analyzeMatchesCta": "تحلیل تطبیق‌ها",
-    "analyzeMatchesCtaDescription": "کشف پیشنهادهای سازگار",
-    "exploreObjects": "کاوش اشیاء",
-    "exploreObjectsDescription": "مرور آنچه کاربران دیگر ارائه می‌دهند",
-    "loginCta": "ورود",
-    "exploreObjectsGuest": "کاوش اشیاء",
-    "exploreObjectsGuestDescription": "مشاهده موارد موجود بدون حساب کاربری"
+    "welcome": "Welcome back",
+    "greeting": "Hey, {name}!",
+    "heroSubtitle": "Explore objects in your area, discover matches, and propose swaps.",
+    "statItems": "{count} active items",
+    "statSwaps": "{count} swaps",
+    "statTokens": "{count} tokens",
+    "statNotifs": "{count} new notifications",
+    "guestHeadline": "Swap what you have for what you want",
+    "guestSubtitle": "Swaply connects people who want to exchange objects, no money involved. Simple, local, transparent.",
+    "getStarted": "Get started",
+    "browseObjects": "Browse objects",
+    "actionAdd": "Add object",
+    "actionAddDesc": "List something for exchange",
+    "actionExplore": "Explore",
+    "actionExploreDesc": "Discover available objects",
+    "actionMatch": "AI Matches",
+    "actionMatchDesc": "Analyze compatibility",
+    "actionSwaps": "Swaps",
+    "actionSwapsDesc": "Monitor your exchanges",
+    "mapTitle": "Users map",
+    "mapSubtitle": "Premium and Platinum users are visible on the map.",
+    "addLocationHint": "Add your location in profile to enable map-based features",
+    "announcements": "Announcements",
+    "nudgeNoItems": "You don't have any listed objects yet",
+    "nudgeNoItemsDesc": "Add your first object to start receiving swap proposals.",
+    "nudgeProfile": "Complete your profile",
+    "nudgeProfileDesc": "A complete profile increases your trust and visibility.",
+    "nudgeProfileCta": "Edit profile",
+    "nudgeMatches": "{count} matches found",
+    "nudgeMatchesDesc": "AI has identified compatible proposals for your objects.",
+    "nudgeMatchesCta": "View matches",
+    "reputation": "Reputation",
+    "repLevel": "Level",
+    "repPath": "Starter → Trusted → Ambassador",
+    "activeSwaps": "{count} active swaps",
+    "activeSwapsDesc": "You have ongoing swaps that need your attention.",
+    "messagesLink": "Messages",
+    "messagesLinkDesc": "Chat with your swap partners",
+    "guestDiscover": "Discover Swaply",
+    "guestObjects": "View available objects",
+    "guestInfo": "Platform info",
+    "guestBadges": "Badge benefits"
   },
-
   "objects": {
     "createAccount": "ایجاد حساب کاربری",
     "loginToList": "برای فهرست کردن اشیاء وارد شوید",
@@ -234,7 +236,6 @@
     "loadError": "خطا در بارگذاری اشیاء",
     "loadErrorDescription": "پیام واضح بدون خرابی؛ امکان بارگذاری مجدد صفحه."
   },
-
   "objectDetail": {
     "loading": "در حال بارگذاری شیء",
     "loadingDescription": "وضعیت بارگذاری طبق قرارداد (نه 404).",
@@ -254,7 +255,6 @@
     "startSecureChat": "شروع چت امن",
     "proposeExchange": "پیشنهاد مبادله"
   },
-
   "objectEdit": {
     "loading": "در حال بارگذاری ویرایشگر",
     "notFound": "شیء یافت نشد",
@@ -262,12 +262,10 @@
     "title": "ویرایش شیء",
     "editDescription": "فرم با مقادیر از پیش پر شده + وضعیت‌های واضح."
   },
-
   "objectNew": {
     "title": "افزودن شیء",
     "description": "فرم کامل، بدون خراب کردن بیلد."
   },
-
   "match": {
     "title": "تحلیل تطبیق",
     "description": "پیشنهادها بر اساس سازگاری تجمعی. هوش مصنوعی تحلیل می‌کند، شما تصمیم می‌گیرید.",
@@ -310,7 +308,6 @@
     "aiUnavailableNote": "هوش مصنوعی در دسترس نیست",
     "analysisContinues": "تحلیل با قوانین محلی ادامه می‌یابد. هیچ عملکردی مسدود نشده است."
   },
-
   "chat": {
     "title": "چت امن",
     "description": "ترجمه (اگر فعال باشد) + مدیریت محتوا + پیوست‌های اسکن‌شده + CTA به سواپلی",
@@ -341,7 +338,6 @@
     "sendError": "خطا در ارسال. دوباره تلاش کنید.",
     "selectConversation": "یک مکالمه انتخاب کنید یا از صفحه اشیاء شروع کنید."
   },
-
   "change": {
     "title": "جریان مبادله (سواپلی)",
     "description": "تأیید + لجستیک + نقشه (سطوح) + اعلان‌ها + بازخورد",
@@ -383,7 +379,6 @@
     "viewStats": "مشاهده آمار",
     "viewStatsDescription": "بررسی اعتبار و توکن‌های شما"
   },
-
   "info": {
     "title": "آمار سواپلی",
     "description": "آمار جهانی + آمار کاربر + رتبه + توکن‌ها + نرخ مبادله + کمک/حقوقی",
@@ -426,7 +421,6 @@
     "authentication": "احراز هویت",
     "authenticationDescription": "ایجاد حساب کاربری یا ورود"
   },
-
   "itemForm": {
     "conditionNew": "نو",
     "conditionGood": "کمی استفاده‌شده",
@@ -521,7 +515,6 @@
     "imageReadError": "تصویر خوانده نشد.",
     "uploadingImageButton": "در حال آپلود تصویر…"
   },
-
   "itemCard": {
     "location": "موقعیت:",
     "ai": "هوش مصنوعی:",
@@ -529,7 +522,6 @@
     "edit": "ویرایش",
     "delete": "حذف"
   },
-
   "swipeCard": {
     "yes": "بله",
     "no": "خیر",
@@ -537,7 +529,6 @@
     "notInterested": "علاقه‌مند نیست",
     "interested": "علاقه‌مند"
   },
-
   "matchList": {
     "weak": "ضعیف",
     "possible": "ممکن",
@@ -550,7 +541,6 @@
     "sendMessage": "ارسال پیام",
     "proposeExchange": "پیشنهاد مبادله"
   },
-
   "swapTimeline": {
     "proposed": "پیشنهاد شده",
     "scheduled": "زمان‌بندی شده",
@@ -571,7 +561,6 @@
     "autoNotifications": "اعلان‌های خودکار:",
     "lastUpdate": "آخرین به‌روزرسانی:"
   },
-
   "chatPanel": {
     "you": "شما",
     "partner": "شریک",
@@ -591,7 +580,6 @@
     "sendError": "خطا در ارسال. دوباره تلاش کنید.",
     "selectConversation": "یک مکالمه انتخاب کنید یا از صفحه اشیاء شروع کنید."
   },
-
   "statsGrid": {
     "globalExchanges": "مبادله‌های جهانی",
     "globalDescription": "سواپلی در مناطق متعدد فعال است",
@@ -602,7 +590,6 @@
     "tokensIssued": "توکن‌های صادرشده",
     "tokensDescription": "دفتر امن، قابل مشاهده در پروفایل"
   },
-
   "map": {
     "unavailable": "نقشه در دسترس نیست",
     "providerDisabled": "ارائه‌دهنده نقشه غیرفعال است. بقیه صفحه قابل استفاده باقی می‌ماند.",
@@ -614,7 +601,6 @@
     "mapTitle": "نقشه موقعیت",
     "noPins": "پینی برای نمایش وجود ندارد"
   },
-
   "location": {
     "country": "کشور",
     "selectCountry": "— انتخاب کشور —",
@@ -625,19 +611,16 @@
     "selectCity": "— انتخاب شهر —",
     "chooseRegionFirst": "— ابتدا منطقه را انتخاب کنید —"
   },
-
   "gated": {
     "notLoggedIn": "وارد نشده‌اید",
     "loginToView": "برای مشاهده این محتوا وارد شوید. آدرس بازگشت ذخیره شده تا بتوانید بدون وقفه ادامه دهید.",
     "login": "ورود"
   },
-
   "demoBanner": {
     "demoMode": "حالت آزمایشی فعال",
     "dataNotReal": "— داده‌ها واقعی نیستند و ذخیره نمی‌شوند.",
     "exitDemo": "خروج از حالت آزمایشی"
   },
-
   "pwa": {
     "installSwaply": "نصب سواپلی",
     "installDescription": "به صفحه اصلی اضافه کنید برای دسترسی سریع، بدون مرورگر.",

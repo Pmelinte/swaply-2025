@@ -24,7 +24,6 @@
     "noImage": "ছবি নেই",
     "freeSlot": "ফাঁকা স্লট"
   },
-
   "nav": {
     "home": "হোম",
     "objects": "বস্তু",
@@ -52,12 +51,10 @@
     "badgeBenefits": "ব্যাজের সুবিধা",
     "completeProfile": "আপনার প্রোফাইল সম্পূর্ণ করুন"
   },
-
   "notifications": {
     "title": "বিজ্ঞপ্তি (লাইক/আগ্রহ/চ্যাট/স্বাপলি)",
     "empty": "এই মুহূর্তে কোনো বিজ্ঞপ্তি নেই।"
   },
-
   "login": {
     "authentication": "প্রমাণীকরণ",
     "registration": "নিবন্ধন",
@@ -94,7 +91,6 @@
     "invalidCredentials": "অবৈধ প্রমাণপত্র",
     "invalidCredentialsDescription": "লাল বার্তা + ডেমো পাসওয়ার্ডের উল্লেখ। কোনো মক সফলতা নয়; পাসওয়ার্ড রিসেটের CTA সহ পাতায় থাকুন।"
   },
-
   "profile": {
     "loading": "প্রোফাইল লোড হচ্ছে…",
     "loadingDescription": "আপনার সেশন পরীক্ষা করা হচ্ছে।",
@@ -162,44 +158,50 @@
     "badgeBenefits": "ব্যাজের সুবিধা",
     "badgeBenefitsDescription": "প্রিমিয়াম এবং প্ল্যাটিনাম সুবিধাগুলো আবিষ্কার করুন"
   },
-
   "home": {
-    "discoverOpportunities": "আপনার এলাকায় বিনিময়ের সুযোগ আবিষ্কার করুন",
-    "chooseHowToStart": "কীভাবে শুরু করতে চান বেছে নিন: বস্তু দেখুন, মানচিত্রে অনুসন্ধান করুন, বা ম্যাচ বিশ্লেষণ করুন।",
-    "viewAvailableObjects": "উপলব্ধ বস্তু দেখুন",
-    "greeting": "নমস্কার, {name}! মানচিত্রে শুধুমাত্র প্রিমিয়াম এবং প্ল্যাটিনাম ব্যবহারকারীরা দেখা যায়। আপনার ব্যাজ আপনার দৃশ্যমানতা নিয়ন্ত্রণ করে।",
-    "analyzeMatches": "ম্যাচ বিশ্লেষণ করুন",
-    "addObject": "বস্তু যোগ করুন",
-    "monitorExchanges": "বিনিময় পর্যবেক্ষণ করুন",
-    "activeUsersMap": "সক্রিয় ব্যবহারকারী মানচিত্র",
-    "mapDescription": "প্রিমিয়াম এবং প্ল্যাটিনাম ব্যবহারকারীরা মানচিত্রে হাইলাইট করা হয়।",
-    "learnPremiumBenefits": "প্রিমিয়াম অ্যাকাউন্টের সুবিধাগুলো জানুন",
-    "completeProfileAndLocation": "আপনার প্রোফাইল ও অবস্থান সম্পূর্ণ করুন",
-    "completeProfileDescription": "আপনার আনুমানিক অবস্থান যোগ করে মানচিত্র-ভিত্তিক বৈশিষ্ট্যগুলো সক্রিয় করুন।",
-    "openProfile": "প্রোফাইল খুলুন",
-    "mapVisibilityNote": "মানচিত্রে প্রদর্শন প্রিমিয়াম অ্যাকাউন্টের জন্য উপলব্ধ। আপনি সর্বজনীনভাবে দৃশ্যমান না হয়ে অফার দেখতে এবং বিনিময় শুরু করতে পারেন।",
-    "announcements": "ঘোষণা",
-    "announcementsDescription": "সিস্টেম বার্তা, বিচক্ষণ এবং বাতিলযোগ্য।",
-    "noListedObjects": "আপনার এখনো কোনো তালিকাভুক্ত বস্তু নেই",
-    "addObjectForProposals": "প্রাসঙ্গিক প্রস্তাব পেতে একটি বস্তু যোগ করুন।",
-    "aiFallback": "AI ফলব্যাক",
-    "manualModeActive": "AI পরিষেবা অনুপলব্ধ হলে ম্যানুয়াল মোড সক্রিয়।",
-    "aiDisabled": "AI নিষ্ক্রিয়",
-    "aiDisabledDescription": "গুরুত্বপূর্ণ প্রবাহগুলো অবরুদ্ধ না করতে শ্রেণীবিভাগ ও ব্যাখ্যা ম্যানুয়াল নিয়মের উপর নির্ভর করে।",
-    "aiActive": "AI সক্রিয়",
-    "aiActiveDescription": "হোম সাজেশনগুলো AI চুক্তি অনুসরণ করে (সার্ভার-সাইড)।",
-    "aiOutputNote": "AI আউটপুট সংস্করণযুক্ত মেটাডেটা হিসেবে সংরক্ষিত হয় এবং ব্যবহারকারীদের চূড়ান্ত পছন্দকে ওভাররাইড করে না।",
-    "addObjectCta": "বস্তু যোগ করুন",
-    "addObjectCtaDescription": "বিনিময়ের জন্য কিছু তালিকাভুক্ত করুন",
-    "analyzeMatchesCta": "ম্যাচ বিশ্লেষণ করুন",
-    "analyzeMatchesCtaDescription": "সামঞ্জস্যপূর্ণ প্রস্তাব আবিষ্কার করুন",
-    "exploreObjects": "বস্তু অন্বেষণ করুন",
-    "exploreObjectsDescription": "অন্য ব্যবহারকারীরা কী অফার করছে ব্রাউজ করুন",
-    "loginCta": "লগইন",
-    "exploreObjectsGuest": "বস্তু অন্বেষণ করুন",
-    "exploreObjectsGuestDescription": "অ্যাকাউন্ট ছাড়া কী উপলব্ধ দেখুন"
+    "welcome": "Welcome back",
+    "greeting": "Hey, {name}!",
+    "heroSubtitle": "Explore objects in your area, discover matches, and propose swaps.",
+    "statItems": "{count} active items",
+    "statSwaps": "{count} swaps",
+    "statTokens": "{count} tokens",
+    "statNotifs": "{count} new notifications",
+    "guestHeadline": "Swap what you have for what you want",
+    "guestSubtitle": "Swaply connects people who want to exchange objects, no money involved. Simple, local, transparent.",
+    "getStarted": "Get started",
+    "browseObjects": "Browse objects",
+    "actionAdd": "Add object",
+    "actionAddDesc": "List something for exchange",
+    "actionExplore": "Explore",
+    "actionExploreDesc": "Discover available objects",
+    "actionMatch": "AI Matches",
+    "actionMatchDesc": "Analyze compatibility",
+    "actionSwaps": "Swaps",
+    "actionSwapsDesc": "Monitor your exchanges",
+    "mapTitle": "Users map",
+    "mapSubtitle": "Premium and Platinum users are visible on the map.",
+    "addLocationHint": "Add your location in profile to enable map-based features",
+    "announcements": "Announcements",
+    "nudgeNoItems": "You don't have any listed objects yet",
+    "nudgeNoItemsDesc": "Add your first object to start receiving swap proposals.",
+    "nudgeProfile": "Complete your profile",
+    "nudgeProfileDesc": "A complete profile increases your trust and visibility.",
+    "nudgeProfileCta": "Edit profile",
+    "nudgeMatches": "{count} matches found",
+    "nudgeMatchesDesc": "AI has identified compatible proposals for your objects.",
+    "nudgeMatchesCta": "View matches",
+    "reputation": "Reputation",
+    "repLevel": "Level",
+    "repPath": "Starter → Trusted → Ambassador",
+    "activeSwaps": "{count} active swaps",
+    "activeSwapsDesc": "You have ongoing swaps that need your attention.",
+    "messagesLink": "Messages",
+    "messagesLinkDesc": "Chat with your swap partners",
+    "guestDiscover": "Discover Swaply",
+    "guestObjects": "View available objects",
+    "guestInfo": "Platform info",
+    "guestBadges": "Badge benefits"
   },
-
   "objects": {
     "createAccount": "অ্যাকাউন্ট তৈরি করুন",
     "loginToList": "বস্তু তালিকাভুক্ত করতে লগইন করুন",
@@ -234,7 +236,6 @@
     "loadError": "বস্তু লোডে ত্রুটি",
     "loadErrorDescription": "ক্র্যাশ ছাড়া স্পষ্ট বার্তা; পাতা পুনরায় লোড করার অনুমতি দেয়।"
   },
-
   "objectDetail": {
     "loading": "বস্তু লোড হচ্ছে",
     "loadingDescription": "চুক্তি অনুযায়ী লোডিং অবস্থা (404 নয়)।",
@@ -254,7 +255,6 @@
     "startSecureChat": "নিরাপদ চ্যাট শুরু করুন",
     "proposeExchange": "বিনিময় প্রস্তাব করুন"
   },
-
   "objectEdit": {
     "loading": "সম্পাদক লোড হচ্ছে",
     "notFound": "বস্তু পাওয়া যায়নি",
@@ -262,12 +262,10 @@
     "title": "বস্তু সম্পাদনা করুন",
     "editDescription": "পূর্বপূরিত মান এবং স্পষ্ট স্ট্যাটাস সহ ফর্ম।"
   },
-
   "objectNew": {
     "title": "বস্তু যোগ করুন",
     "description": "সম্পূর্ণ ফর্ম, বিল্ড ভাঙা ছাড়া।"
   },
-
   "match": {
     "title": "ম্যাচ বিশ্লেষণ",
     "description": "সঞ্চিত সামঞ্জস্যতার উপর ভিত্তি করে প্রস্তাব। AI বিশ্লেষণ করে, আপনি সিদ্ধান্ত নেন।",
@@ -310,7 +308,6 @@
     "aiUnavailableNote": "AI অনুপলব্ধ",
     "analysisContinues": "স্থানীয় নিয়ম দিয়ে বিশ্লেষণ চলছে। কোনো কার্যকারিতা অবরুদ্ধ নয়।"
   },
-
   "chat": {
     "title": "নিরাপদ চ্যাট",
     "description": "অনুবাদ (চালু থাকলে) + মডারেশন + স্ক্যানকৃত সংযুক্তি + Swaply-র CTA",
@@ -341,7 +338,6 @@
     "sendError": "পাঠাতে ত্রুটি। আবার চেষ্টা করুন।",
     "selectConversation": "একটি কথোপকথন নির্বাচন করুন বা বস্তু পাতা থেকে একটি শুরু করুন।"
   },
-
   "change": {
     "title": "বিনিময় প্রবাহ (Swaply)",
     "description": "নিশ্চিতকরণ + লজিস্টিক্স + মানচিত্র (স্তর) + বিজ্ঞপ্তি + প্রতিক্রিয়া",
@@ -383,7 +379,6 @@
     "viewStats": "পরিসংখ্যান দেখুন",
     "viewStatsDescription": "আপনার সুনাম ও টোকেন পরীক্ষা করুন"
   },
-
   "info": {
     "title": "Swaply পরিসংখ্যান",
     "description": "বৈশ্বিক পরিসংখ্যান + ব্যবহারকারী পরিসংখ্যান + র‍্যাঙ্ক + টোকেন + বিনিময় হার + সাহায্য/আইনি",
@@ -426,7 +421,6 @@
     "authentication": "প্রমাণীকরণ",
     "authenticationDescription": "অ্যাকাউন্ট তৈরি করুন বা লগইন করুন"
   },
-
   "itemForm": {
     "conditionNew": "নতুন",
     "conditionGood": "সামান্য ব্যবহৃত",
@@ -521,7 +515,6 @@
     "imageReadError": "ছবি পড়া যায়নি।",
     "uploadingImageButton": "ছবি আপলোড হচ্ছে…"
   },
-
   "itemCard": {
     "location": "অবস্থান:",
     "ai": "AI:",
@@ -529,7 +522,6 @@
     "edit": "সম্পাদনা করুন",
     "delete": "মুছুন"
   },
-
   "swipeCard": {
     "yes": "হ্যাঁ",
     "no": "না",
@@ -537,7 +529,6 @@
     "notInterested": "আগ্রহী নয়",
     "interested": "আগ্রহী"
   },
-
   "matchList": {
     "weak": "দুর্বল",
     "possible": "সম্ভব",
@@ -550,7 +541,6 @@
     "sendMessage": "বার্তা পাঠান",
     "proposeExchange": "বিনিময় প্রস্তাব করুন"
   },
-
   "swapTimeline": {
     "proposed": "প্রস্তাবিত",
     "scheduled": "নির্ধারিত",
@@ -571,7 +561,6 @@
     "autoNotifications": "স্বয়ংক্রিয় বিজ্ঞপ্তি:",
     "lastUpdate": "শেষ আপডেট:"
   },
-
   "chatPanel": {
     "you": "আপনি",
     "partner": "সঙ্গী",
@@ -591,7 +580,6 @@
     "sendError": "পাঠাতে ত্রুটি। আবার চেষ্টা করুন।",
     "selectConversation": "একটি কথোপকথন নির্বাচন করুন বা বস্তু পাতা থেকে একটি শুরু করুন।"
   },
-
   "statsGrid": {
     "globalExchanges": "বৈশ্বিক বিনিময়",
     "globalDescription": "Swaply একাধিক অঞ্চলে সক্রিয়",
@@ -602,7 +590,6 @@
     "tokensIssued": "জারিকৃত টোকেন",
     "tokensDescription": "নিরাপদ লেজার, প্রোফাইলে দৃশ্যমান"
   },
-
   "map": {
     "unavailable": "মানচিত্র অনুপলব্ধ",
     "providerDisabled": "মানচিত্র প্রদানকারী নিষ্ক্রিয়। পাতার বাকি অংশ ব্যবহারযোগ্য থাকে।",
@@ -614,7 +601,6 @@
     "mapTitle": "অবস্থান মানচিত্র",
     "noPins": "প্রদর্শনের জন্য কোনো পিন নেই"
   },
-
   "location": {
     "country": "দেশ",
     "selectCountry": "— দেশ নির্বাচন করুন —",
@@ -625,19 +611,16 @@
     "selectCity": "— শহর নির্বাচন করুন —",
     "chooseRegionFirst": "— আগে অঞ্চল নির্বাচন করুন —"
   },
-
   "gated": {
     "notLoggedIn": "আপনি লগইন করেননি",
     "loginToView": "এই বিষয়বস্তু দেখতে লগইন করুন। বিঘ্ন ছাড়া প্রবাহ চালিয়ে যেতে প্রত্যাবর্তন ঠিকানা সংরক্ষিত আছে।",
     "login": "লগইন"
   },
-
   "demoBanner": {
     "demoMode": "ডেমো মোড সক্রিয়",
     "dataNotReal": "— ডেটা বাস্তব নয় এবং সংরক্ষিত হয় না।",
     "exitDemo": "ডেমো থেকে বের হন"
   },
-
   "pwa": {
     "installSwaply": "Swaply ইনস্টল করুন",
     "installDescription": "ব্রাউজার ছাড়া দ্রুত অ্যাক্সেসের জন্য হোম স্ক্রিনে যোগ করুন।",

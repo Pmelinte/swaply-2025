@@ -24,7 +24,6 @@
     "noImage": "Tiada gambar",
     "freeSlot": "Slot kosong"
   },
-
   "nav": {
     "home": "Laman utama",
     "objects": "Objek",
@@ -52,12 +51,10 @@
     "badgeBenefits": "Manfaat lencana",
     "completeProfile": "Lengkapkan profil anda"
   },
-
   "notifications": {
     "title": "Pemberitahuan (suka/minat/sembang/swaply)",
     "empty": "Tiada pemberitahuan buat masa ini."
   },
-
   "login": {
     "authentication": "Pengesahan",
     "registration": "Pendaftaran",
@@ -94,7 +91,6 @@
     "invalidCredentials": "Kelayakan tidak sah",
     "invalidCredentialsDescription": "Mesej merah + sebutan kata laluan demo. Tiada kejayaan tiruan; kekal di halaman dengan CTA untuk set semula kata laluan."
   },
-
   "profile": {
     "loading": "Memuatkan profil…",
     "loadingDescription": "Memeriksa sesi anda.",
@@ -162,44 +158,50 @@
     "badgeBenefits": "Manfaat lencana",
     "badgeBenefitsDescription": "Temui kelebihan Premium dan Platinum"
   },
-
   "home": {
-    "discoverOpportunities": "Temui peluang pertukaran di kawasan anda",
-    "chooseHowToStart": "Pilih cara untuk bermula: terokai objek, cari di peta, atau analisis padanan.",
-    "viewAvailableObjects": "Lihat objek yang tersedia",
-    "greeting": "Hai, {name}! Peta hanya menunjukkan pengguna Premium dan Platinum. Lencana anda mengawal keterlihatan anda.",
-    "analyzeMatches": "Analisis padanan",
-    "addObject": "Tambah objek",
-    "monitorExchanges": "Pantau pertukaran",
-    "activeUsersMap": "Peta pengguna aktif",
-    "mapDescription": "Pengguna Premium dan Platinum ditonjolkan di peta.",
-    "learnPremiumBenefits": "Ketahui manfaat akaun Premium",
-    "completeProfileAndLocation": "Lengkapkan profil dan lokasi anda",
-    "completeProfileDescription": "Aktifkan ciri berasaskan peta dengan menambah lokasi anggaran anda.",
-    "openProfile": "Buka profil",
-    "mapVisibilityNote": "Paparan peta tersedia untuk akaun Premium. Anda boleh meneroka tawaran dan memulakan pertukaran tanpa kelihatan secara awam.",
-    "announcements": "Pengumuman",
-    "announcementsDescription": "Mesej sistem, diskrit dan boleh ditutup.",
-    "noListedObjects": "Anda belum mempunyai objek yang disenaraikan",
-    "addObjectForProposals": "Tambah objek untuk menerima cadangan yang berkaitan.",
-    "aiFallback": "AI Sandaran",
-    "manualModeActive": "Mod manual aktif apabila perkhidmatan AI tidak tersedia.",
-    "aiDisabled": "AI dinyahaktifkan",
-    "aiDisabledDescription": "Pengkelasan dan penjelasan bergantung pada peraturan manual untuk tidak menyekat aliran kritikal.",
-    "aiActive": "AI aktif",
-    "aiActiveDescription": "Cadangan laman utama mengikut kontrak AI (bahagian pelayan).",
-    "aiOutputNote": "Output AI disimpan sebagai metadata berversi dan tidak mengatasi keutamaan akhir pengguna.",
-    "addObjectCta": "Tambah objek",
-    "addObjectCtaDescription": "Senaraikan sesuatu untuk ditukar",
-    "analyzeMatchesCta": "Analisis padanan",
-    "analyzeMatchesCtaDescription": "Temui cadangan yang serasi",
-    "exploreObjects": "Terokai objek",
-    "exploreObjectsDescription": "Layari apa yang ditawarkan pengguna lain",
-    "loginCta": "Log masuk",
-    "exploreObjectsGuest": "Terokai objek",
-    "exploreObjectsGuestDescription": "Lihat apa yang tersedia tanpa akaun"
+    "welcome": "Welcome back",
+    "greeting": "Hey, {name}!",
+    "heroSubtitle": "Explore objects in your area, discover matches, and propose swaps.",
+    "statItems": "{count} active items",
+    "statSwaps": "{count} swaps",
+    "statTokens": "{count} tokens",
+    "statNotifs": "{count} new notifications",
+    "guestHeadline": "Swap what you have for what you want",
+    "guestSubtitle": "Swaply connects people who want to exchange objects, no money involved. Simple, local, transparent.",
+    "getStarted": "Get started",
+    "browseObjects": "Browse objects",
+    "actionAdd": "Add object",
+    "actionAddDesc": "List something for exchange",
+    "actionExplore": "Explore",
+    "actionExploreDesc": "Discover available objects",
+    "actionMatch": "AI Matches",
+    "actionMatchDesc": "Analyze compatibility",
+    "actionSwaps": "Swaps",
+    "actionSwapsDesc": "Monitor your exchanges",
+    "mapTitle": "Users map",
+    "mapSubtitle": "Premium and Platinum users are visible on the map.",
+    "addLocationHint": "Add your location in profile to enable map-based features",
+    "announcements": "Announcements",
+    "nudgeNoItems": "You don't have any listed objects yet",
+    "nudgeNoItemsDesc": "Add your first object to start receiving swap proposals.",
+    "nudgeProfile": "Complete your profile",
+    "nudgeProfileDesc": "A complete profile increases your trust and visibility.",
+    "nudgeProfileCta": "Edit profile",
+    "nudgeMatches": "{count} matches found",
+    "nudgeMatchesDesc": "AI has identified compatible proposals for your objects.",
+    "nudgeMatchesCta": "View matches",
+    "reputation": "Reputation",
+    "repLevel": "Level",
+    "repPath": "Starter → Trusted → Ambassador",
+    "activeSwaps": "{count} active swaps",
+    "activeSwapsDesc": "You have ongoing swaps that need your attention.",
+    "messagesLink": "Messages",
+    "messagesLinkDesc": "Chat with your swap partners",
+    "guestDiscover": "Discover Swaply",
+    "guestObjects": "View available objects",
+    "guestInfo": "Platform info",
+    "guestBadges": "Badge benefits"
   },
-
   "objects": {
     "createAccount": "Cipta akaun",
     "loginToList": "Log masuk untuk menyenaraikan objek",
@@ -234,7 +236,6 @@
     "loadError": "Ralat memuatkan objek",
     "loadErrorDescription": "Mesej jelas tanpa ranap; membenarkan muat semula halaman."
   },
-
   "objectDetail": {
     "loading": "Memuatkan objek",
     "loadingDescription": "Keadaan pemuatan mengikut kontrak (bukan 404).",
@@ -254,7 +255,6 @@
     "startSecureChat": "Mulakan sembang selamat",
     "proposeExchange": "Cadangkan pertukaran"
   },
-
   "objectEdit": {
     "loading": "Memuatkan penyunting",
     "notFound": "Objek tidak dijumpai",
@@ -262,12 +262,10 @@
     "title": "Sunting objek",
     "editDescription": "Borang dengan nilai yang telah diisi + status yang jelas."
   },
-
   "objectNew": {
     "title": "Tambah objek",
     "description": "Borang lengkap, tanpa merosakkan binaan."
   },
-
   "match": {
     "title": "Analisis padanan",
     "description": "Cadangan berdasarkan keserasian kumulatif. AI menganalisis, anda yang memutuskan.",
@@ -310,7 +308,6 @@
     "aiUnavailableNote": "AI tidak tersedia",
     "analysisContinues": "Analisis diteruskan dengan peraturan setempat. Tiada fungsi yang tersekat."
   },
-
   "chat": {
     "title": "Sembang selamat",
     "description": "Terjemahan (jika aktif) + penyederhanaan + lampiran yang diimbas + CTA ke Swaply",
@@ -341,7 +338,6 @@
     "sendError": "Ralat penghantaran. Cuba lagi.",
     "selectConversation": "Pilih perbualan atau mulakan dari halaman objek."
   },
-
   "change": {
     "title": "Aliran pertukaran (Swaply)",
     "description": "Pengesahan + logistik + peta (tahap) + pemberitahuan + maklum balas",
@@ -383,7 +379,6 @@
     "viewStats": "Lihat statistik",
     "viewStatsDescription": "Semak reputasi dan token anda"
   },
-
   "info": {
     "title": "Statistik Swaply",
     "description": "Statistik global + statistik pengguna + pangkat + token + kadar pertukaran + bantuan/undang-undang",
@@ -426,7 +421,6 @@
     "authentication": "Pengesahan",
     "authenticationDescription": "Cipta akaun atau log masuk"
   },
-
   "itemForm": {
     "conditionNew": "Baru",
     "conditionGood": "Sedikit digunakan",
@@ -521,7 +515,6 @@
     "imageReadError": "Tidak dapat membaca gambar.",
     "uploadingImageButton": "Memuat naik gambar…"
   },
-
   "itemCard": {
     "location": "Lokasi:",
     "ai": "AI:",
@@ -529,7 +522,6 @@
     "edit": "Sunting",
     "delete": "Padam"
   },
-
   "swipeCard": {
     "yes": "YA",
     "no": "TIDAK",
@@ -537,7 +529,6 @@
     "notInterested": "Tidak berminat",
     "interested": "Berminat"
   },
-
   "matchList": {
     "weak": "Lemah",
     "possible": "Mungkin",
@@ -550,7 +541,6 @@
     "sendMessage": "Hantar mesej",
     "proposeExchange": "Cadangkan pertukaran"
   },
-
   "swapTimeline": {
     "proposed": "Dicadangkan",
     "scheduled": "Dijadualkan",
@@ -571,7 +561,6 @@
     "autoNotifications": "Pemberitahuan automatik:",
     "lastUpdate": "Kemas kini terakhir:"
   },
-
   "chatPanel": {
     "you": "Anda",
     "partner": "Rakan",
@@ -591,7 +580,6 @@
     "sendError": "Ralat penghantaran. Cuba lagi.",
     "selectConversation": "Pilih perbualan atau mulakan dari halaman objek."
   },
-
   "statsGrid": {
     "globalExchanges": "Pertukaran global",
     "globalDescription": "Swaply aktif di pelbagai wilayah",
@@ -602,7 +590,6 @@
     "tokensIssued": "Token yang dikeluarkan",
     "tokensDescription": "Lejar selamat, kelihatan di profil"
   },
-
   "map": {
     "unavailable": "Peta tidak tersedia",
     "providerDisabled": "Pembekal peta dinyahaktifkan. Sisa halaman kekal boleh digunakan.",
@@ -614,7 +601,6 @@
     "mapTitle": "Peta lokasi",
     "noPins": "Tiada pin untuk dipaparkan"
   },
-
   "location": {
     "country": "Negara",
     "selectCountry": "— Pilih negara —",
@@ -625,19 +611,16 @@
     "selectCity": "— Pilih bandar —",
     "chooseRegionFirst": "— Pilih wilayah terlebih dahulu —"
   },
-
   "gated": {
     "notLoggedIn": "Anda belum log masuk",
     "loginToView": "Log masuk untuk melihat kandungan ini. Return-to disimpan supaya anda boleh meneruskan aliran tanpa gangguan.",
     "login": "Log masuk"
   },
-
   "demoBanner": {
     "demoMode": "Mod demo aktif",
     "dataNotReal": "— data bukan nyata dan tidak disimpan.",
     "exitDemo": "Keluar dari demo"
   },
-
   "pwa": {
     "installSwaply": "Pasang Swaply",
     "installDescription": "Tambah ke skrin utama untuk akses pantas, tanpa pelayar.",

@@ -24,7 +24,6 @@
     "noImage": "Ni slike",
     "freeSlot": "Prosto mesto"
   },
-
   "nav": {
     "home": "Domov",
     "objects": "Predmeti",
@@ -52,12 +51,10 @@
     "badgeBenefits": "Ugodnosti značke",
     "completeProfile": "Dopolnite svoj profil"
   },
-
   "notifications": {
     "title": "Obvestila (všeček/interes/klepet/swaply)",
     "empty": "Trenutno ni obvestil."
   },
-
   "login": {
     "authentication": "Avtentikacija",
     "registration": "Registracija",
@@ -94,7 +91,6 @@
     "invalidCredentials": "Neveljavne poverilnice",
     "invalidCredentialsDescription": "Rdeče sporočilo + omemba demo gesla. Brez lažnega uspeha; ostane na strani s CTA za ponastavitev gesla."
   },
-
   "profile": {
     "loading": "Nalaganje profila…",
     "loadingDescription": "Preverjamo vašo sejo.",
@@ -162,44 +158,50 @@
     "badgeBenefits": "Ugodnosti značke",
     "badgeBenefitsDescription": "Odkrijte Premium in Platinum prednosti"
   },
-
   "home": {
-    "discoverOpportunities": "Odkrijte priložnosti za menjavo v vaši okolici",
-    "chooseHowToStart": "Izberite, kako želite začeti: razišči predmete, iščite na zemljevidu ali analizirajte ujemanja.",
-    "viewAvailableObjects": "Poglej razpoložljive predmete",
-    "greeting": "Pozdravljeni, {name}! Zemljevid prikazuje samo Premium in Platinum uporabnike. Vaša značka nadzoruje vašo vidnost.",
-    "analyzeMatches": "Analiziraj ujemanja",
-    "addObject": "Dodaj predmet",
-    "monitorExchanges": "Spremljaj menjave",
-    "activeUsersMap": "Zemljevid aktivnih uporabnikov",
-    "mapDescription": "Premium in Platinum uporabniki so označeni na zemljevidu.",
-    "learnPremiumBenefits": "Spoznajte ugodnosti Premium računa",
-    "completeProfileAndLocation": "Dopolnite svoj profil in lokacijo",
-    "completeProfileDescription": "Omogočite funkcije zemljevida z dodajanjem vaše približne lokacije.",
-    "openProfile": "Odpri profil",
-    "mapVisibilityNote": "Vidnost na zemljevidu je na voljo za Premium račune. Ponudbe lahko raziskujete in začnete menjave, ne da bi bili javno vidni.",
-    "announcements": "Obvestila",
-    "announcementsDescription": "Sistemska sporočila, diskretna in zavržljiva.",
-    "noListedObjects": "Še nimate nobenega navedenega predmeta",
-    "addObjectForProposals": "Dodajte predmet, da prejmete ustrezne predloge.",
-    "aiFallback": "AI nadomestek",
-    "manualModeActive": "Ročni način aktiven, ko storitve AI niso na voljo.",
-    "aiDisabled": "AI onemogočen",
-    "aiDisabledDescription": "Klasifikacija in razlage se opirajo na ročna pravila, da se kritični tokovi ne blokirajo.",
-    "aiActive": "AI aktiven",
-    "aiActiveDescription": "Domači predlogi sledijo pogodbi AI (strežniška stran).",
-    "aiOutputNote": "Izhod AI se shrani kot verzionirana metapodatki in ne preglasi končnih uporabnikovih nastavitev.",
-    "addObjectCta": "Dodaj predmet",
-    "addObjectCtaDescription": "Navedite nekaj za menjavo",
-    "analyzeMatchesCta": "Analiziraj ujemanja",
-    "analyzeMatchesCtaDescription": "Odkrijte združljive predloge",
-    "exploreObjects": "Razišči predmete",
-    "exploreObjectsDescription": "Preglejte, kaj ponujajo drugi uporabniki",
-    "loginCta": "Prijava",
-    "exploreObjectsGuest": "Razišči predmete",
-    "exploreObjectsGuestDescription": "Poglejte, kaj je na voljo brez računa"
+    "welcome": "Welcome back",
+    "greeting": "Hey, {name}!",
+    "heroSubtitle": "Explore objects in your area, discover matches, and propose swaps.",
+    "statItems": "{count} active items",
+    "statSwaps": "{count} swaps",
+    "statTokens": "{count} tokens",
+    "statNotifs": "{count} new notifications",
+    "guestHeadline": "Swap what you have for what you want",
+    "guestSubtitle": "Swaply connects people who want to exchange objects, no money involved. Simple, local, transparent.",
+    "getStarted": "Get started",
+    "browseObjects": "Browse objects",
+    "actionAdd": "Add object",
+    "actionAddDesc": "List something for exchange",
+    "actionExplore": "Explore",
+    "actionExploreDesc": "Discover available objects",
+    "actionMatch": "AI Matches",
+    "actionMatchDesc": "Analyze compatibility",
+    "actionSwaps": "Swaps",
+    "actionSwapsDesc": "Monitor your exchanges",
+    "mapTitle": "Users map",
+    "mapSubtitle": "Premium and Platinum users are visible on the map.",
+    "addLocationHint": "Add your location in profile to enable map-based features",
+    "announcements": "Announcements",
+    "nudgeNoItems": "You don't have any listed objects yet",
+    "nudgeNoItemsDesc": "Add your first object to start receiving swap proposals.",
+    "nudgeProfile": "Complete your profile",
+    "nudgeProfileDesc": "A complete profile increases your trust and visibility.",
+    "nudgeProfileCta": "Edit profile",
+    "nudgeMatches": "{count} matches found",
+    "nudgeMatchesDesc": "AI has identified compatible proposals for your objects.",
+    "nudgeMatchesCta": "View matches",
+    "reputation": "Reputation",
+    "repLevel": "Level",
+    "repPath": "Starter → Trusted → Ambassador",
+    "activeSwaps": "{count} active swaps",
+    "activeSwapsDesc": "You have ongoing swaps that need your attention.",
+    "messagesLink": "Messages",
+    "messagesLinkDesc": "Chat with your swap partners",
+    "guestDiscover": "Discover Swaply",
+    "guestObjects": "View available objects",
+    "guestInfo": "Platform info",
+    "guestBadges": "Badge benefits"
   },
-
   "objects": {
     "createAccount": "Ustvari račun",
     "loginToList": "Prijavite se za popis predmetov",
@@ -234,7 +236,6 @@
     "loadError": "Napaka pri nalaganju predmetov",
     "loadErrorDescription": "Jasno sporočilo brez sesutja; omogoča ponovno nalaganje strani."
   },
-
   "objectDetail": {
     "loading": "Nalaganje predmeta",
     "loadingDescription": "Stanje nalaganja po pogodbi (ne 404).",
@@ -254,7 +255,6 @@
     "startSecureChat": "Začni varen klepet",
     "proposeExchange": "Predlagaj menjavo"
   },
-
   "objectEdit": {
     "loading": "Nalaganje urejevalnika",
     "notFound": "Predmet ni najden",
@@ -262,12 +262,10 @@
     "title": "Uredi predmet",
     "editDescription": "Obrazec s predizpolnjenimi vrednostmi + jasni statusi."
   },
-
   "objectNew": {
     "title": "Dodaj predmet",
     "description": "Celoten obrazec, brez prekinitve gradnje."
   },
-
   "match": {
     "title": "Analiza ujemanj",
     "description": "Predlogi na podlagi kumulativne združljivosti. AI analizira, vi se odločite.",
@@ -310,7 +308,6 @@
     "aiUnavailableNote": "AI nedostopen",
     "analysisContinues": "Analiza se nadaljuje z lokalnimi pravili. Nobena funkcionalnost ni blokirana."
   },
-
   "chat": {
     "title": "Varen klepet",
     "description": "Prevod (če vklopljen) + moderacija + skenirane priponke + CTA na Swaply",
@@ -341,7 +338,6 @@
     "sendError": "Napaka pri pošiljanju. Poskusite znova.",
     "selectConversation": "Izberite pogovor ali začnite enega s strani predmetov."
   },
-
   "change": {
     "title": "Tok menjave (Swaply)",
     "description": "Potrditev + logistika + zemljevid (ravni) + obvestila + povratne informacije",
@@ -383,7 +379,6 @@
     "viewStats": "Poglej statistiko",
     "viewStatsDescription": "Preverite svoj ugled in žetone"
   },
-
   "info": {
     "title": "Swaply statistika",
     "description": "Globalna statistika + uporabniška statistika + rang + žetoni + menjalni tečaj + pomoč/pravno",
@@ -426,7 +421,6 @@
     "authentication": "Avtentikacija",
     "authenticationDescription": "Ustvarite račun ali se prijavite"
   },
-
   "itemForm": {
     "conditionNew": "Novo",
     "conditionGood": "Malo rabljeno",
@@ -521,7 +515,6 @@
     "imageReadError": "Slike ni bilo mogoče prebrati.",
     "uploadingImageButton": "Nalaganje slike…"
   },
-
   "itemCard": {
     "location": "Lokacija:",
     "ai": "AI:",
@@ -529,7 +522,6 @@
     "edit": "Uredi",
     "delete": "Izbriši"
   },
-
   "swipeCard": {
     "yes": "DA",
     "no": "NE",
@@ -537,7 +529,6 @@
     "notInterested": "Ni zainteresiran",
     "interested": "Zainteresiran"
   },
-
   "matchList": {
     "weak": "Šibko",
     "possible": "Mogoče",
@@ -550,7 +541,6 @@
     "sendMessage": "Pošlji sporočilo",
     "proposeExchange": "Predlagaj menjavo"
   },
-
   "swapTimeline": {
     "proposed": "Predlagano",
     "scheduled": "Razporejeno",
@@ -571,7 +561,6 @@
     "autoNotifications": "Samodejna obvestila:",
     "lastUpdate": "Zadnja posodobitev:"
   },
-
   "chatPanel": {
     "you": "Vi",
     "partner": "Partner",
@@ -591,7 +580,6 @@
     "sendError": "Napaka pri pošiljanju. Poskusite znova.",
     "selectConversation": "Izberite pogovor ali začnite enega s strani predmetov."
   },
-
   "statsGrid": {
     "globalExchanges": "Globalne menjave",
     "globalDescription": "Swaply je aktiven v več regijah",
@@ -602,7 +590,6 @@
     "tokensIssued": "Izdani žetoni",
     "tokensDescription": "Varna knjiga, vidna v profilu"
   },
-
   "map": {
     "unavailable": "Zemljevid ni na voljo",
     "providerDisabled": "Ponudnik zemljevida onemogočen. Preostali del strani ostane uporaben.",
@@ -614,7 +601,6 @@
     "mapTitle": "Zemljevid lokacij",
     "noPins": "Ni žebljičkov za prikaz"
   },
-
   "location": {
     "country": "Država",
     "selectCountry": "— Izberite državo —",
@@ -625,19 +611,16 @@
     "selectCity": "— Izberite mesto —",
     "chooseRegionFirst": "— Najprej izberite regijo —"
   },
-
   "gated": {
     "notLoggedIn": "Niste prijavljeni",
     "loginToView": "Prijavite se za ogled te vsebine. Povratni naslov je shranjen, tako da lahko nadaljujete tok brez prekinitev.",
     "login": "Prijava"
   },
-
   "demoBanner": {
     "demoMode": "Demo način aktiven",
     "dataNotReal": "— podatki niso resnični in niso shranjeni.",
     "exitDemo": "Zapusti demo"
   },
-
   "pwa": {
     "installSwaply": "Namestite Swaply",
     "installDescription": "Dodajte na domači zaslon za hiter dostop, brez brskalnika.",

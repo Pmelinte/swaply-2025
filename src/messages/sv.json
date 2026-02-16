@@ -24,7 +24,6 @@
     "noImage": "Ingen bild",
     "freeSlot": "Ledig plats"
   },
-
   "nav": {
     "home": "Hem",
     "objects": "Objekt",
@@ -52,12 +51,10 @@
     "badgeBenefits": "Märkesfördelar",
     "completeProfile": "Fyll i din profil"
   },
-
   "notifications": {
     "title": "Aviseringar (gilla/intresse/chatt/swaply)",
     "empty": "Inga aviseringar just nu."
   },
-
   "login": {
     "authentication": "Autentisering",
     "registration": "Registrering",
@@ -94,7 +91,6 @@
     "invalidCredentials": "Ogiltiga inloggningsuppgifter",
     "invalidCredentialsDescription": "Rött meddelande + omnämning av demolösenord. Ingen falsk framgång; stannar på sidan med CTA för att återställa lösenord."
   },
-
   "profile": {
     "loading": "Laddar profil…",
     "loadingDescription": "Kontrollerar din session.",
@@ -162,44 +158,50 @@
     "badgeBenefits": "Märkesfördelar",
     "badgeBenefitsDescription": "Upptäck Premium- och Platinum-fördelar"
   },
-
   "home": {
-    "discoverOpportunities": "Upptäck bytesmöjligheter i ditt område",
-    "chooseHowToStart": "Välj hur du vill börja: utforska objekt, sök på kartan eller analysera matchningar.",
-    "viewAvailableObjects": "Visa tillgängliga objekt",
-    "greeting": "Hej, {name}! Kartan visar bara Premium- och Platinum-användare. Ditt märke styr din synlighet.",
-    "analyzeMatches": "Analysera matchningar",
-    "addObject": "Lägg till ett objekt",
-    "monitorExchanges": "Övervaka byten",
-    "activeUsersMap": "Karta över aktiva användare",
-    "mapDescription": "Premium- och Platinum-användare är markerade på kartan.",
-    "learnPremiumBenefits": "Läs om Premium-kontofördelar",
-    "completeProfileAndLocation": "Fyll i din profil och plats",
-    "completeProfileDescription": "Aktivera kartbaserade funktioner genom att lägga till din ungefärliga plats.",
-    "openProfile": "Öppna profil",
-    "mapVisibilityNote": "Kartsynlighet är tillgänglig för Premium-konton. Du kan utforska erbjudanden och starta byten utan att vara offentligt synlig.",
-    "announcements": "Meddelanden",
-    "announcementsDescription": "Systemmeddelanden, diskreta och stängbara.",
-    "noListedObjects": "Du har inga listade objekt ännu",
-    "addObjectForProposals": "Lägg till ett objekt för att ta emot relevanta förslag.",
-    "aiFallback": "AI-reserv",
-    "manualModeActive": "Manuellt läge aktivt när AI-tjänster inte är tillgängliga.",
-    "aiDisabled": "AI inaktiverad",
-    "aiDisabledDescription": "Klassificering och förklaringar förlitar sig på manuella regler för att inte blockera kritiska flöden.",
-    "aiActive": "AI aktiv",
-    "aiActiveDescription": "Hemförslag följer AI-kontraktet (serversida).",
-    "aiOutputNote": "AI-utdata sparas som versionerade metadata och åsidosätter inte användarens slutgiltiga inställningar.",
-    "addObjectCta": "Lägg till ett objekt",
-    "addObjectCtaDescription": "Lista något för byte",
-    "analyzeMatchesCta": "Analysera matchningar",
-    "analyzeMatchesCtaDescription": "Upptäck kompatibla förslag",
-    "exploreObjects": "Utforska objekt",
-    "exploreObjectsDescription": "Bläddra bland vad andra användare erbjuder",
-    "loginCta": "Logga in",
-    "exploreObjectsGuest": "Utforska objekt",
-    "exploreObjectsGuestDescription": "Se vad som finns utan konto"
+    "welcome": "Welcome back",
+    "greeting": "Hey, {name}!",
+    "heroSubtitle": "Explore objects in your area, discover matches, and propose swaps.",
+    "statItems": "{count} active items",
+    "statSwaps": "{count} swaps",
+    "statTokens": "{count} tokens",
+    "statNotifs": "{count} new notifications",
+    "guestHeadline": "Swap what you have for what you want",
+    "guestSubtitle": "Swaply connects people who want to exchange objects, no money involved. Simple, local, transparent.",
+    "getStarted": "Get started",
+    "browseObjects": "Browse objects",
+    "actionAdd": "Add object",
+    "actionAddDesc": "List something for exchange",
+    "actionExplore": "Explore",
+    "actionExploreDesc": "Discover available objects",
+    "actionMatch": "AI Matches",
+    "actionMatchDesc": "Analyze compatibility",
+    "actionSwaps": "Swaps",
+    "actionSwapsDesc": "Monitor your exchanges",
+    "mapTitle": "Users map",
+    "mapSubtitle": "Premium and Platinum users are visible on the map.",
+    "addLocationHint": "Add your location in profile to enable map-based features",
+    "announcements": "Announcements",
+    "nudgeNoItems": "You don't have any listed objects yet",
+    "nudgeNoItemsDesc": "Add your first object to start receiving swap proposals.",
+    "nudgeProfile": "Complete your profile",
+    "nudgeProfileDesc": "A complete profile increases your trust and visibility.",
+    "nudgeProfileCta": "Edit profile",
+    "nudgeMatches": "{count} matches found",
+    "nudgeMatchesDesc": "AI has identified compatible proposals for your objects.",
+    "nudgeMatchesCta": "View matches",
+    "reputation": "Reputation",
+    "repLevel": "Level",
+    "repPath": "Starter → Trusted → Ambassador",
+    "activeSwaps": "{count} active swaps",
+    "activeSwapsDesc": "You have ongoing swaps that need your attention.",
+    "messagesLink": "Messages",
+    "messagesLinkDesc": "Chat with your swap partners",
+    "guestDiscover": "Discover Swaply",
+    "guestObjects": "View available objects",
+    "guestInfo": "Platform info",
+    "guestBadges": "Badge benefits"
   },
-
   "objects": {
     "createAccount": "Skapa konto",
     "loginToList": "Logga in för att lista objekt",
@@ -234,7 +236,6 @@
     "loadError": "Fel vid laddning av objekt",
     "loadErrorDescription": "Tydligt meddelande utan krasch; tillåter omladdning av sidan."
   },
-
   "objectDetail": {
     "loading": "Laddar objekt",
     "loadingDescription": "Laddningstillstånd enligt kontrakt (inte 404).",
@@ -254,7 +255,6 @@
     "startSecureChat": "Starta säker chatt",
     "proposeExchange": "Föreslå byte"
   },
-
   "objectEdit": {
     "loading": "Laddar redigerare",
     "notFound": "Objekt hittades inte",
@@ -262,12 +262,10 @@
     "title": "Redigera objekt",
     "editDescription": "Formulär med förifyllda värden + tydliga statusar."
   },
-
   "objectNew": {
     "title": "Lägg till objekt",
     "description": "Komplett formulär, utan att bryta bygget."
   },
-
   "match": {
     "title": "Matchanalys",
     "description": "Förslag baserade på kumulativ kompatibilitet. AI analyserar, du bestämmer.",
@@ -310,7 +308,6 @@
     "aiUnavailableNote": "AI otillgänglig",
     "analysisContinues": "Analysen fortsätter med lokala regler. Ingen funktionalitet blockerad."
   },
-
   "chat": {
     "title": "Säker chatt",
     "description": "Översättning (om på) + moderering + skannade bilagor + CTA till Swaply",
@@ -341,7 +338,6 @@
     "sendError": "Fel vid sändning. Försök igen.",
     "selectConversation": "Välj en konversation eller starta en från objektsidan."
   },
-
   "change": {
     "title": "Bytesflöde (Swaply)",
     "description": "Bekräftelse + logistik + karta (nivåer) + aviseringar + feedback",
@@ -383,7 +379,6 @@
     "viewStats": "Visa statistik",
     "viewStatsDescription": "Kontrollera ditt rykte och dina tokens"
   },
-
   "info": {
     "title": "Swaply-statistik",
     "description": "Global statistik + användarstatistik + rang + tokens + växelkurs + hjälp/juridiskt",
@@ -426,7 +421,6 @@
     "authentication": "Autentisering",
     "authenticationDescription": "Skapa konto eller logga in"
   },
-
   "itemForm": {
     "conditionNew": "Nytt",
     "conditionGood": "Lite använt",
@@ -521,7 +515,6 @@
     "imageReadError": "Kunde inte läsa bilden.",
     "uploadingImageButton": "Laddar upp bild…"
   },
-
   "itemCard": {
     "location": "Plats:",
     "ai": "AI:",
@@ -529,7 +522,6 @@
     "edit": "Redigera",
     "delete": "Radera"
   },
-
   "swipeCard": {
     "yes": "JA",
     "no": "NEJ",
@@ -537,7 +529,6 @@
     "notInterested": "Inte intresserad",
     "interested": "Intresserad"
   },
-
   "matchList": {
     "weak": "Svag",
     "possible": "Möjlig",
@@ -550,7 +541,6 @@
     "sendMessage": "Skicka meddelande",
     "proposeExchange": "Föreslå byte"
   },
-
   "swapTimeline": {
     "proposed": "Föreslagen",
     "scheduled": "Schemalagd",
@@ -571,7 +561,6 @@
     "autoNotifications": "Automatiska aviseringar:",
     "lastUpdate": "Senaste uppdatering:"
   },
-
   "chatPanel": {
     "you": "Du",
     "partner": "Partner",
@@ -591,7 +580,6 @@
     "sendError": "Fel vid sändning. Försök igen.",
     "selectConversation": "Välj en konversation eller starta en från objektsidan."
   },
-
   "statsGrid": {
     "globalExchanges": "Globala byten",
     "globalDescription": "Swaply är aktivt i flera regioner",
@@ -602,7 +590,6 @@
     "tokensIssued": "Utfärdade tokens",
     "tokensDescription": "Säker reskontra, synlig i profil"
   },
-
   "map": {
     "unavailable": "Karta otillgänglig",
     "providerDisabled": "Kartleverantör inaktiverad. Resten av sidan förblir användbar.",
@@ -614,7 +601,6 @@
     "mapTitle": "Platskarta",
     "noPins": "Inga nålar att visa"
   },
-
   "location": {
     "country": "Land",
     "selectCountry": "— Välj land —",
@@ -625,19 +611,16 @@
     "selectCity": "— Välj stad —",
     "chooseRegionFirst": "— Välj region först —"
   },
-
   "gated": {
     "notLoggedIn": "Du är inte inloggad",
     "loginToView": "Logga in för att se detta innehåll. Återgångsadressen sparas så att du kan fortsätta flödet utan avbrott.",
     "login": "Logga in"
   },
-
   "demoBanner": {
     "demoMode": "Demoläge aktivt",
     "dataNotReal": "— data är inte riktig och sparas inte.",
     "exitDemo": "Avsluta demo"
   },
-
   "pwa": {
     "installSwaply": "Installera Swaply",
     "installDescription": "Lägg till på hemskärmen för snabb åtkomst, utan webbläsare.",

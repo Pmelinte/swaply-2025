@@ -24,7 +24,6 @@
     "noImage": "Без зображення",
     "freeSlot": "Вільний слот"
   },
-
   "nav": {
     "home": "Головна",
     "objects": "Об'єкти",
@@ -52,12 +51,10 @@
     "badgeBenefits": "Переваги значків",
     "completeProfile": "Заповнити профіль"
   },
-
   "notifications": {
     "title": "Сповіщення (вподобання/інтерес/чат/обмін)",
     "empty": "Наразі немає сповіщень."
   },
-
   "login": {
     "authentication": "Автентифікація",
     "registration": "Реєстрація",
@@ -87,7 +84,6 @@
     "platformInfoDescription": "Ознайомтеся з правилами та перевагами значків",
     "loadingForm": "Завантаження форми автентифікації…"
   },
-
   "profile": {
     "loading": "Завантаження профілю…",
     "loadingDescription": "Перевіряємо вашу сесію.",
@@ -155,44 +151,50 @@
     "badgeBenefits": "Переваги значків",
     "badgeBenefitsDescription": "Дізнайтеся про переваги Premium та Platinum"
   },
-
   "home": {
-    "discoverOpportunities": "Відкрийте можливості обміну у вашому районі",
-    "chooseHowToStart": "Оберіть, як почати: переглядайте об'єкти, шукайте на карті або аналізуйте збіги.",
-    "viewAvailableObjects": "Переглянути доступні об'єкти",
-    "greeting": "Привіт, {name}! Карта показує лише користувачів Premium та Platinum. Ваш значок контролює видимість.",
-    "analyzeMatches": "Аналізувати збіги",
-    "addObject": "Додати об'єкт",
-    "monitorExchanges": "Моніторити обміни",
-    "activeUsersMap": "Карта активних користувачів",
-    "mapDescription": "На карті виділені користувачі Premium та Platinum.",
-    "learnPremiumBenefits": "Дізнатися про переваги Premium акаунтів",
-    "completeProfileAndLocation": "Заповніть профіль та місцезнаходження",
-    "completeProfileDescription": "Увімкніть функції карти, додавши приблизне місцезнаходження.",
-    "openProfile": "Відкрити профіль",
-    "mapVisibilityNote": "Відображення на карті доступне для Premium акаунтів. Ви можете переглядати пропозиції та ініціювати обміни без публічної видимості.",
-    "announcements": "Оголошення",
-    "announcementsDescription": "Системні повідомлення, дискретні та закриваємі.",
-    "noListedObjects": "У вас ще немає розміщених об'єктів",
-    "addObjectForProposals": "Додайте об'єкт, щоб отримувати релевантні пропозиції.",
-    "aiFallback": "Запасний AI",
-    "manualModeActive": "Ручний режим активний, коли сервіси AI недоступні.",
-    "aiDisabled": "AI вимкнено",
-    "aiDisabledDescription": "Класифікація та пояснення базуються на ручних правилах, щоб не блокувати критичні потоки.",
-    "aiActive": "AI активний",
-    "aiActiveDescription": "Пропозиції на головній відповідають контракту AI (серверна сторона).",
-    "aiOutputNote": "Вивід AI зберігається як версіоновані метадані та не перевизначає остаточні уподобання користувачів.",
-    "addObjectCta": "Додати об'єкт",
-    "addObjectCtaDescription": "Розмістіть щось для обміну",
-    "analyzeMatchesCta": "Аналізувати збіги",
-    "analyzeMatchesCtaDescription": "Відкрийте сумісні пропозиції",
-    "exploreObjects": "Переглянути об'єкти",
-    "exploreObjectsDescription": "Подивіться, що пропонують інші користувачі",
-    "loginCta": "Увійти",
-    "exploreObjectsGuest": "Переглянути об'єкти",
-    "exploreObjectsGuestDescription": "Подивіться, що доступне без акаунту"
+    "welcome": "Welcome back",
+    "greeting": "Hey, {name}!",
+    "heroSubtitle": "Explore objects in your area, discover matches, and propose swaps.",
+    "statItems": "{count} active items",
+    "statSwaps": "{count} swaps",
+    "statTokens": "{count} tokens",
+    "statNotifs": "{count} new notifications",
+    "guestHeadline": "Swap what you have for what you want",
+    "guestSubtitle": "Swaply connects people who want to exchange objects, no money involved. Simple, local, transparent.",
+    "getStarted": "Get started",
+    "browseObjects": "Browse objects",
+    "actionAdd": "Add object",
+    "actionAddDesc": "List something for exchange",
+    "actionExplore": "Explore",
+    "actionExploreDesc": "Discover available objects",
+    "actionMatch": "AI Matches",
+    "actionMatchDesc": "Analyze compatibility",
+    "actionSwaps": "Swaps",
+    "actionSwapsDesc": "Monitor your exchanges",
+    "mapTitle": "Users map",
+    "mapSubtitle": "Premium and Platinum users are visible on the map.",
+    "addLocationHint": "Add your location in profile to enable map-based features",
+    "announcements": "Announcements",
+    "nudgeNoItems": "You don't have any listed objects yet",
+    "nudgeNoItemsDesc": "Add your first object to start receiving swap proposals.",
+    "nudgeProfile": "Complete your profile",
+    "nudgeProfileDesc": "A complete profile increases your trust and visibility.",
+    "nudgeProfileCta": "Edit profile",
+    "nudgeMatches": "{count} matches found",
+    "nudgeMatchesDesc": "AI has identified compatible proposals for your objects.",
+    "nudgeMatchesCta": "View matches",
+    "reputation": "Reputation",
+    "repLevel": "Level",
+    "repPath": "Starter → Trusted → Ambassador",
+    "activeSwaps": "{count} active swaps",
+    "activeSwapsDesc": "You have ongoing swaps that need your attention.",
+    "messagesLink": "Messages",
+    "messagesLinkDesc": "Chat with your swap partners",
+    "guestDiscover": "Discover Swaply",
+    "guestObjects": "View available objects",
+    "guestInfo": "Platform info",
+    "guestBadges": "Badge benefits"
   },
-
   "objects": {
     "createAccount": "Створити акаунт",
     "loginToList": "Увійдіть, щоб розміщувати об'єкти",
@@ -221,7 +223,6 @@
     "sendMessage": "Надіслати повідомлення",
     "chatWithUsers": "Спілкуйтеся з іншими користувачами про обміни"
   },
-
   "objectDetail": {
     "loading": "Завантаження об'єкта",
     "loadingDescription": "Стан завантаження відповідно до контракту (не 404).",
@@ -241,7 +242,6 @@
     "startSecureChat": "Розпочати захищений чат",
     "proposeExchange": "Запропонувати обмін"
   },
-
   "objectEdit": {
     "loading": "Завантаження редактора",
     "notFound": "Об'єкт не знайдено",
@@ -249,12 +249,10 @@
     "title": "Редагувати об'єкт",
     "editDescription": "Форма з попередньо заповненими значеннями + чіткі статуси."
   },
-
   "objectNew": {
     "title": "Додати об'єкт",
     "description": "Повна форма без порушення збірки."
   },
-
   "match": {
     "title": "Аналіз збігів",
     "description": "Пропозиції на основі кумулятивної сумісності. AI аналізує, ви вирішуєте.",
@@ -297,7 +295,6 @@
     "aiUnavailableNote": "AI недоступний",
     "analysisContinues": "Аналіз продовжується з локальними правилами. Жодна функціональність не заблокована."
   },
-
   "chat": {
     "title": "Захищений чат",
     "description": "Переклад (якщо увімкнено) + модерація + скановані вкладення + CTA до Swaply",
@@ -328,7 +325,6 @@
     "sendError": "Помилка надсилання. Спробуйте ще раз.",
     "selectConversation": "Оберіть розмову або розпочніть нову зі сторінки об'єктів."
   },
-
   "change": {
     "title": "Потік обміну (Swaply)",
     "description": "Підтвердження + логістика + карта (рівні) + сповіщення + відгук",
@@ -370,7 +366,6 @@
     "viewStats": "Переглянути статистику",
     "viewStatsDescription": "Перевірте свою репутацію та токени"
   },
-
   "info": {
     "title": "Статистика Swaply",
     "description": "Глобальна статистика + статистика користувача + ранг + токени + курс + допомога/юридичне",
@@ -413,7 +408,6 @@
     "authentication": "Автентифікація",
     "authenticationDescription": "Створіть акаунт або увійдіть"
   },
-
   "itemForm": {
     "conditionNew": "Новий",
     "conditionGood": "Трохи використаний",
@@ -508,7 +502,6 @@
     "imageReadError": "Не вдалося прочитати зображення.",
     "uploadingImageButton": "Завантаження зображення…"
   },
-
   "itemCard": {
     "location": "Місцезнаходження:",
     "ai": "AI:",
@@ -516,7 +509,6 @@
     "edit": "Редагувати",
     "delete": "Видалити"
   },
-
   "swipeCard": {
     "yes": "ТАК",
     "no": "НІ",
@@ -524,7 +516,6 @@
     "notInterested": "Не цікавить",
     "interested": "Цікавить"
   },
-
   "matchList": {
     "weak": "Слабкий",
     "possible": "Можливий",
@@ -537,7 +528,6 @@
     "sendMessage": "Надіслати повідомлення",
     "proposeExchange": "Запропонувати обмін"
   },
-
   "swapTimeline": {
     "proposed": "Запропоновано",
     "scheduled": "Заплановано",
@@ -558,7 +548,6 @@
     "autoNotifications": "Автоматичні сповіщення:",
     "lastUpdate": "Останнє оновлення:"
   },
-
   "chatPanel": {
     "you": "Ви",
     "partner": "Партнер",
@@ -578,7 +567,6 @@
     "sendError": "Помилка надсилання. Спробуйте ще раз.",
     "selectConversation": "Оберіть розмову або розпочніть нову зі сторінки об'єктів."
   },
-
   "statsGrid": {
     "globalExchanges": "Глобальні обміни",
     "globalDescription": "Swaply активний у кількох регіонах",
@@ -589,7 +577,6 @@
     "tokensIssued": "Видано токенів",
     "tokensDescription": "Захищений реєстр, видимий у профілі"
   },
-
   "map": {
     "unavailable": "Карта недоступна",
     "providerDisabled": "Провайдер карт вимкнений. Решта сторінки залишається доступною.",
@@ -601,7 +588,6 @@
     "mapTitle": "Карта місцезнаходження",
     "noPins": "Немає пінів для відображення"
   },
-
   "location": {
     "country": "Країна",
     "selectCountry": "— Оберіть країну —",
@@ -612,19 +598,16 @@
     "selectCity": "— Оберіть місто —",
     "chooseRegionFirst": "— Спочатку оберіть регіон —"
   },
-
   "gated": {
     "notLoggedIn": "Ви не увійшли",
     "loginToView": "Увійдіть, щоб переглянути цей вміст. Return-to збережено для продовження потоку без переривань.",
     "login": "Увійти"
   },
-
   "demoBanner": {
     "demoMode": "Демо-режим активний",
     "dataNotReal": "— дані не реальні та не зберігаються.",
     "exitDemo": "Вийти з демо"
   },
-
   "pwa": {
     "installSwaply": "Встановити Swaply",
     "installDescription": "Додайте на головний екран для швидкого доступу без браузера.",

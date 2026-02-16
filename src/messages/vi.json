@@ -24,7 +24,6 @@
     "noImage": "Không có hình ảnh",
     "freeSlot": "Vị trí trống"
   },
-
   "nav": {
     "home": "Trang chủ",
     "objects": "Đồ vật",
@@ -52,12 +51,10 @@
     "badgeBenefits": "Quyền lợi huy hiệu",
     "completeProfile": "Hoàn thiện hồ sơ của bạn"
   },
-
   "notifications": {
     "title": "Thông báo (thích/quan tâm/trò chuyện/swaply)",
     "empty": "Không có thông báo nào lúc này."
   },
-
   "login": {
     "authentication": "Xác thực",
     "registration": "Đăng ký",
@@ -94,7 +91,6 @@
     "invalidCredentials": "Thông tin đăng nhập không hợp lệ",
     "invalidCredentialsDescription": "Thông báo đỏ + đề cập mật khẩu demo. Không có thành công giả; ở lại trang với nút đặt lại mật khẩu."
   },
-
   "profile": {
     "loading": "Đang tải hồ sơ…",
     "loadingDescription": "Đang kiểm tra phiên của bạn.",
@@ -162,44 +158,50 @@
     "badgeBenefits": "Quyền lợi huy hiệu",
     "badgeBenefitsDescription": "Khám phá ưu đãi Premium và Platinum"
   },
-
   "home": {
-    "discoverOpportunities": "Khám phá cơ hội trao đổi trong khu vực của bạn",
-    "chooseHowToStart": "Chọn cách bạn muốn bắt đầu: khám phá đồ vật, tìm kiếm trên bản đồ, hoặc phân tích ghép đôi.",
-    "viewAvailableObjects": "Xem các đồ vật có sẵn",
-    "greeting": "Xin chào, {name}! Bản đồ chỉ hiển thị người dùng Premium và Platinum. Huy hiệu của bạn quyết định mức độ hiển thị.",
-    "analyzeMatches": "Phân tích ghép đôi",
-    "addObject": "Thêm đồ vật",
-    "monitorExchanges": "Theo dõi trao đổi",
-    "activeUsersMap": "Bản đồ người dùng hoạt động",
-    "mapDescription": "Người dùng Premium và Platinum được đánh dấu trên bản đồ.",
-    "learnPremiumBenefits": "Tìm hiểu về quyền lợi tài khoản Premium",
-    "completeProfileAndLocation": "Hoàn thiện hồ sơ và vị trí của bạn",
-    "completeProfileDescription": "Kích hoạt tính năng bản đồ bằng cách thêm vị trí gần đúng của bạn.",
-    "openProfile": "Mở hồ sơ",
-    "mapVisibilityNote": "Hiển thị trên bản đồ dành cho tài khoản Premium. Bạn có thể khám phá các ưu đãi và khởi tạo trao đổi mà không cần hiển thị công khai.",
-    "announcements": "Thông báo",
-    "announcementsDescription": "Tin nhắn hệ thống, kín đáo và có thể bỏ qua.",
-    "noListedObjects": "Bạn chưa có đồ vật nào được đăng",
-    "addObjectForProposals": "Thêm đồ vật để nhận các đề xuất phù hợp.",
-    "aiFallback": "AI dự phòng",
-    "manualModeActive": "Chế độ thủ công hoạt động khi dịch vụ AI không khả dụng.",
-    "aiDisabled": "AI đã tắt",
-    "aiDisabledDescription": "Phân loại và giải thích dựa trên quy tắc thủ công để không chặn các luồng quan trọng.",
-    "aiActive": "AI đang hoạt động",
-    "aiActiveDescription": "Gợi ý trang chủ tuân theo hợp đồng AI (phía máy chủ).",
-    "aiOutputNote": "Kết quả AI được lưu dưới dạng siêu dữ liệu có phiên bản và không ghi đè tùy chọn cuối cùng của người dùng.",
-    "addObjectCta": "Thêm đồ vật",
-    "addObjectCtaDescription": "Đăng đồ để trao đổi",
-    "analyzeMatchesCta": "Phân tích ghép đôi",
-    "analyzeMatchesCtaDescription": "Khám phá các đề xuất tương thích",
-    "exploreObjects": "Khám phá đồ vật",
-    "exploreObjectsDescription": "Duyệt những gì người dùng khác cung cấp",
-    "loginCta": "Đăng nhập",
-    "exploreObjectsGuest": "Khám phá đồ vật",
-    "exploreObjectsGuestDescription": "Xem những gì có sẵn mà không cần tài khoản"
+    "welcome": "Welcome back",
+    "greeting": "Hey, {name}!",
+    "heroSubtitle": "Explore objects in your area, discover matches, and propose swaps.",
+    "statItems": "{count} active items",
+    "statSwaps": "{count} swaps",
+    "statTokens": "{count} tokens",
+    "statNotifs": "{count} new notifications",
+    "guestHeadline": "Swap what you have for what you want",
+    "guestSubtitle": "Swaply connects people who want to exchange objects, no money involved. Simple, local, transparent.",
+    "getStarted": "Get started",
+    "browseObjects": "Browse objects",
+    "actionAdd": "Add object",
+    "actionAddDesc": "List something for exchange",
+    "actionExplore": "Explore",
+    "actionExploreDesc": "Discover available objects",
+    "actionMatch": "AI Matches",
+    "actionMatchDesc": "Analyze compatibility",
+    "actionSwaps": "Swaps",
+    "actionSwapsDesc": "Monitor your exchanges",
+    "mapTitle": "Users map",
+    "mapSubtitle": "Premium and Platinum users are visible on the map.",
+    "addLocationHint": "Add your location in profile to enable map-based features",
+    "announcements": "Announcements",
+    "nudgeNoItems": "You don't have any listed objects yet",
+    "nudgeNoItemsDesc": "Add your first object to start receiving swap proposals.",
+    "nudgeProfile": "Complete your profile",
+    "nudgeProfileDesc": "A complete profile increases your trust and visibility.",
+    "nudgeProfileCta": "Edit profile",
+    "nudgeMatches": "{count} matches found",
+    "nudgeMatchesDesc": "AI has identified compatible proposals for your objects.",
+    "nudgeMatchesCta": "View matches",
+    "reputation": "Reputation",
+    "repLevel": "Level",
+    "repPath": "Starter → Trusted → Ambassador",
+    "activeSwaps": "{count} active swaps",
+    "activeSwapsDesc": "You have ongoing swaps that need your attention.",
+    "messagesLink": "Messages",
+    "messagesLinkDesc": "Chat with your swap partners",
+    "guestDiscover": "Discover Swaply",
+    "guestObjects": "View available objects",
+    "guestInfo": "Platform info",
+    "guestBadges": "Badge benefits"
   },
-
   "objects": {
     "createAccount": "Tạo tài khoản",
     "loginToList": "Đăng nhập để đăng đồ vật",
@@ -234,7 +236,6 @@
     "loadError": "Lỗi tải đồ vật",
     "loadErrorDescription": "Thông báo rõ ràng không gây crash; cho phép tải lại trang."
   },
-
   "objectDetail": {
     "loading": "Đang tải đồ vật",
     "loadingDescription": "Trạng thái tải theo hợp đồng (không phải 404).",
@@ -254,7 +255,6 @@
     "startSecureChat": "Bắt đầu trò chuyện an toàn",
     "proposeExchange": "Đề xuất trao đổi"
   },
-
   "objectEdit": {
     "loading": "Đang tải trình chỉnh sửa",
     "notFound": "Không tìm thấy đồ vật",
@@ -262,12 +262,10 @@
     "title": "Chỉnh sửa đồ vật",
     "editDescription": "Biểu mẫu với giá trị đã điền sẵn + trạng thái rõ ràng."
   },
-
   "objectNew": {
     "title": "Thêm đồ vật",
     "description": "Biểu mẫu hoàn chỉnh, không làm hỏng bản dựng."
   },
-
   "match": {
     "title": "Phân tích ghép đôi",
     "description": "Đề xuất dựa trên khả năng tương thích tích lũy. AI phân tích, bạn quyết định.",
@@ -310,7 +308,6 @@
     "aiUnavailableNote": "AI không khả dụng",
     "analysisContinues": "Phân tích tiếp tục với quy tắc cục bộ. Không có chức năng nào bị chặn."
   },
-
   "chat": {
     "title": "Trò chuyện an toàn",
     "description": "Dịch thuật (nếu bật) + kiểm duyệt + tệp đính kèm đã quét + CTA đến Swaply",
@@ -341,7 +338,6 @@
     "sendError": "Lỗi gửi. Thử lại.",
     "selectConversation": "Chọn một cuộc trò chuyện hoặc bắt đầu từ trang đồ vật."
   },
-
   "change": {
     "title": "Quy trình trao đổi (Swaply)",
     "description": "Xác nhận + vận chuyển + bản đồ (cấp độ) + thông báo + phản hồi",
@@ -383,7 +379,6 @@
     "viewStats": "Xem thống kê",
     "viewStatsDescription": "Kiểm tra uy tín và token của bạn"
   },
-
   "info": {
     "title": "Thống kê Swaply",
     "description": "Thống kê toàn cầu + thống kê người dùng + xếp hạng + token + tỷ lệ trao đổi + trợ giúp/pháp lý",
@@ -426,7 +421,6 @@
     "authentication": "Xác thực",
     "authenticationDescription": "Tạo tài khoản hoặc đăng nhập"
   },
-
   "itemForm": {
     "conditionNew": "Mới",
     "conditionGood": "Đã qua sử dụng nhẹ",
@@ -521,7 +515,6 @@
     "imageReadError": "Không thể đọc hình ảnh.",
     "uploadingImageButton": "Đang tải hình ảnh lên…"
   },
-
   "itemCard": {
     "location": "Vị trí:",
     "ai": "AI:",
@@ -529,7 +522,6 @@
     "edit": "Chỉnh sửa",
     "delete": "Xóa"
   },
-
   "swipeCard": {
     "yes": "CÓ",
     "no": "KHÔNG",
@@ -537,7 +529,6 @@
     "notInterested": "Không quan tâm",
     "interested": "Quan tâm"
   },
-
   "matchList": {
     "weak": "Yếu",
     "possible": "Có thể",
@@ -550,7 +541,6 @@
     "sendMessage": "Gửi tin nhắn",
     "proposeExchange": "Đề xuất trao đổi"
   },
-
   "swapTimeline": {
     "proposed": "Đã đề xuất",
     "scheduled": "Đã lên lịch",
@@ -571,7 +561,6 @@
     "autoNotifications": "Thông báo tự động:",
     "lastUpdate": "Cập nhật lần cuối:"
   },
-
   "chatPanel": {
     "you": "Bạn",
     "partner": "Đối tác",
@@ -591,7 +580,6 @@
     "sendError": "Lỗi gửi. Thử lại.",
     "selectConversation": "Chọn một cuộc trò chuyện hoặc bắt đầu từ trang đồ vật."
   },
-
   "statsGrid": {
     "globalExchanges": "Trao đổi toàn cầu",
     "globalDescription": "Swaply hoạt động ở nhiều khu vực",
@@ -602,7 +590,6 @@
     "tokensIssued": "Token đã phát hành",
     "tokensDescription": "Sổ cái an toàn, hiển thị trong hồ sơ"
   },
-
   "map": {
     "unavailable": "Bản đồ không khả dụng",
     "providerDisabled": "Nhà cung cấp bản đồ đã tắt. Phần còn lại của trang vẫn sử dụng được.",
@@ -614,7 +601,6 @@
     "mapTitle": "Bản đồ vị trí",
     "noPins": "Không có ghim để hiển thị"
   },
-
   "location": {
     "country": "Quốc gia",
     "selectCountry": "— Chọn quốc gia —",
@@ -625,19 +611,16 @@
     "selectCity": "— Chọn thành phố —",
     "chooseRegionFirst": "— Chọn vùng trước —"
   },
-
   "gated": {
     "notLoggedIn": "Bạn chưa đăng nhập",
     "loginToView": "Đăng nhập để xem nội dung này. Trang trước đó được lưu để bạn có thể tiếp tục mà không bị gián đoạn.",
     "login": "Đăng nhập"
   },
-
   "demoBanner": {
     "demoMode": "Chế độ demo đang hoạt động",
     "dataNotReal": "— dữ liệu không thật và không được lưu.",
     "exitDemo": "Thoát demo"
   },
-
   "pwa": {
     "installSwaply": "Cài đặt Swaply",
     "installDescription": "Thêm vào màn hình chính để truy cập nhanh, không cần trình duyệt.",

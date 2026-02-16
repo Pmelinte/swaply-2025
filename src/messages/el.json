@@ -24,7 +24,6 @@
     "noImage": "Χωρίς εικόνα",
     "freeSlot": "Ελεύθερη θέση"
   },
-
   "nav": {
     "home": "Αρχική",
     "objects": "Αντικείμενα",
@@ -52,12 +51,10 @@
     "badgeBenefits": "Πλεονεκτήματα σήματος",
     "completeProfile": "Συμπληρώστε το προφίλ σας"
   },
-
   "notifications": {
     "title": "Ειδοποιήσεις (like/ενδιαφέρον/συνομιλία/swaply)",
     "empty": "Καμία ειδοποίηση αυτή τη στιγμή."
   },
-
   "login": {
     "authentication": "Ταυτοποίηση",
     "registration": "Εγγραφή",
@@ -94,7 +91,6 @@
     "invalidCredentials": "Μη έγκυρα διαπιστευτήρια",
     "invalidCredentialsDescription": "Κόκκινο μήνυμα + αναφορά σε κωδικό demo. Χωρίς εικονική επιτυχία; παραμονή στη σελίδα με CTA για επαναφορά κωδικού."
   },
-
   "profile": {
     "loading": "Φόρτωση προφίλ…",
     "loadingDescription": "Έλεγχος της συνεδρίας σας.",
@@ -162,44 +158,50 @@
     "badgeBenefits": "Πλεονεκτήματα σήματος",
     "badgeBenefitsDescription": "Ανακαλύψτε τα πλεονεκτήματα Premium και Platinum"
   },
-
   "home": {
-    "discoverOpportunities": "Ανακαλύψτε ευκαιρίες ανταλλαγής στην περιοχή σας",
-    "chooseHowToStart": "Επιλέξτε πώς θέλετε να ξεκινήσετε: εξερεύνηση αντικειμένων, αναζήτηση στον χάρτη ή ανάλυση αντιστοιχίσεων.",
-    "viewAvailableObjects": "Προβολή διαθέσιμων αντικειμένων",
-    "greeting": "Γεια σου, {name}! Ο χάρτης δείχνει μόνο χρήστες Premium και Platinum. Το σήμα σας ελέγχει την ορατότητά σας.",
-    "analyzeMatches": "Ανάλυση αντιστοιχίσεων",
-    "addObject": "Προσθήκη αντικειμένου",
-    "monitorExchanges": "Παρακολούθηση ανταλλαγών",
-    "activeUsersMap": "Χάρτης ενεργών χρηστών",
-    "mapDescription": "Οι χρήστες Premium και Platinum επισημαίνονται στον χάρτη.",
-    "learnPremiumBenefits": "Μάθετε για τα πλεονεκτήματα λογαριασμού Premium",
-    "completeProfileAndLocation": "Συμπληρώστε το προφίλ και την τοποθεσία σας",
-    "completeProfileDescription": "Ενεργοποιήστε λειτουργίες χάρτη προσθέτοντας την κατά προσέγγιση τοποθεσία σας.",
-    "openProfile": "Άνοιγμα προφίλ",
-    "mapVisibilityNote": "Η εμφάνιση στον χάρτη είναι διαθέσιμη για λογαριασμούς Premium. Μπορείτε να εξερευνήσετε προσφορές και να ξεκινήσετε ανταλλαγές χωρίς να είστε δημόσια ορατοί.",
-    "announcements": "Ανακοινώσεις",
-    "announcementsDescription": "Μηνύματα συστήματος, διακριτικά και απορρίψιμα.",
-    "noListedObjects": "Δεν έχετε ακόμα καταχωρημένα αντικείμενα",
-    "addObjectForProposals": "Προσθέστε ένα αντικείμενο για να λάβετε σχετικές προτάσεις.",
-    "aiFallback": "Εφεδρική λύση AI",
-    "manualModeActive": "Χειροκίνητη λειτουργία ενεργή όταν οι υπηρεσίες AI δεν είναι διαθέσιμες.",
-    "aiDisabled": "AI απενεργοποιημένο",
-    "aiDisabledDescription": "Η ταξινόμηση και οι εξηγήσεις βασίζονται σε χειροκίνητους κανόνες για να μην μπλοκάρουν κρίσιμες ροές.",
-    "aiActive": "AI ενεργό",
-    "aiActiveDescription": "Οι προτάσεις αρχικής σελίδας ακολουθούν το συμβόλαιο AI (server-side).",
-    "aiOutputNote": "Η έξοδος AI αποθηκεύεται ως εκδοχοποιημένα μεταδεδομένα και δεν αντικαθιστά τις τελικές προτιμήσεις των χρηστών.",
-    "addObjectCta": "Προσθήκη αντικειμένου",
-    "addObjectCtaDescription": "Καταχωρήστε κάτι για ανταλλαγή",
-    "analyzeMatchesCta": "Ανάλυση αντιστοιχίσεων",
-    "analyzeMatchesCtaDescription": "Ανακαλύψτε συμβατές προτάσεις",
-    "exploreObjects": "Εξερεύνηση αντικειμένων",
-    "exploreObjectsDescription": "Δείτε τι προσφέρουν άλλοι χρήστες",
-    "loginCta": "Σύνδεση",
-    "exploreObjectsGuest": "Εξερεύνηση αντικειμένων",
-    "exploreObjectsGuestDescription": "Δείτε τι είναι διαθέσιμο χωρίς λογαριασμό"
+    "welcome": "Welcome back",
+    "greeting": "Hey, {name}!",
+    "heroSubtitle": "Explore objects in your area, discover matches, and propose swaps.",
+    "statItems": "{count} active items",
+    "statSwaps": "{count} swaps",
+    "statTokens": "{count} tokens",
+    "statNotifs": "{count} new notifications",
+    "guestHeadline": "Swap what you have for what you want",
+    "guestSubtitle": "Swaply connects people who want to exchange objects, no money involved. Simple, local, transparent.",
+    "getStarted": "Get started",
+    "browseObjects": "Browse objects",
+    "actionAdd": "Add object",
+    "actionAddDesc": "List something for exchange",
+    "actionExplore": "Explore",
+    "actionExploreDesc": "Discover available objects",
+    "actionMatch": "AI Matches",
+    "actionMatchDesc": "Analyze compatibility",
+    "actionSwaps": "Swaps",
+    "actionSwapsDesc": "Monitor your exchanges",
+    "mapTitle": "Users map",
+    "mapSubtitle": "Premium and Platinum users are visible on the map.",
+    "addLocationHint": "Add your location in profile to enable map-based features",
+    "announcements": "Announcements",
+    "nudgeNoItems": "You don't have any listed objects yet",
+    "nudgeNoItemsDesc": "Add your first object to start receiving swap proposals.",
+    "nudgeProfile": "Complete your profile",
+    "nudgeProfileDesc": "A complete profile increases your trust and visibility.",
+    "nudgeProfileCta": "Edit profile",
+    "nudgeMatches": "{count} matches found",
+    "nudgeMatchesDesc": "AI has identified compatible proposals for your objects.",
+    "nudgeMatchesCta": "View matches",
+    "reputation": "Reputation",
+    "repLevel": "Level",
+    "repPath": "Starter → Trusted → Ambassador",
+    "activeSwaps": "{count} active swaps",
+    "activeSwapsDesc": "You have ongoing swaps that need your attention.",
+    "messagesLink": "Messages",
+    "messagesLinkDesc": "Chat with your swap partners",
+    "guestDiscover": "Discover Swaply",
+    "guestObjects": "View available objects",
+    "guestInfo": "Platform info",
+    "guestBadges": "Badge benefits"
   },
-
   "objects": {
     "createAccount": "Δημιουργία λογαριασμού",
     "loginToList": "Συνδεθείτε για να καταχωρήσετε αντικείμενα",
@@ -234,7 +236,6 @@
     "loadError": "Σφάλμα φόρτωσης αντικειμένων",
     "loadErrorDescription": "Σαφές μήνυμα χωρίς κατάρρευση; επιτρέπει επαναφόρτωση σελίδας."
   },
-
   "objectDetail": {
     "loading": "Φόρτωση αντικειμένου",
     "loadingDescription": "Κατάσταση φόρτωσης σύμφωνα με το συμβόλαιο (όχι 404).",
@@ -254,7 +255,6 @@
     "startSecureChat": "Έναρξη ασφαλούς συνομιλίας",
     "proposeExchange": "Πρόταση ανταλλαγής"
   },
-
   "objectEdit": {
     "loading": "Φόρτωση επεξεργαστή",
     "notFound": "Το αντικείμενο δεν βρέθηκε",
@@ -262,12 +262,10 @@
     "title": "Επεξεργασία αντικειμένου",
     "editDescription": "Φόρμα με προσυμπληρωμένες τιμές + σαφείς καταστάσεις."
   },
-
   "objectNew": {
     "title": "Προσθήκη αντικειμένου",
     "description": "Πλήρης φόρμα, χωρίς σπάσιμο του build."
   },
-
   "match": {
     "title": "Ανάλυση αντιστοίχισης",
     "description": "Προτάσεις βασισμένες σε σωρευτική συμβατότητα. Η AI αναλύει, εσείς αποφασίζετε.",
@@ -310,7 +308,6 @@
     "aiUnavailableNote": "AI μη διαθέσιμο",
     "analysisContinues": "Η ανάλυση συνεχίζεται με τοπικούς κανόνες. Καμία λειτουργικότητα δεν μπλοκάρεται."
   },
-
   "chat": {
     "title": "Ασφαλής συνομιλία",
     "description": "Μετάφραση (αν είναι ενεργή) + εποπτεία + σαρωμένα συνημμένα + CTA στο Swaply",
@@ -341,7 +338,6 @@
     "sendError": "Σφάλμα αποστολής. Δοκιμάστε ξανά.",
     "selectConversation": "Επιλέξτε μια συνομιλία ή ξεκινήστε μία από τη σελίδα αντικειμένων."
   },
-
   "change": {
     "title": "Ροή ανταλλαγής (Swaply)",
     "description": "Επιβεβαίωση + logistics + χάρτης (επίπεδα) + ειδοποιήσεις + σχόλια",
@@ -383,7 +379,6 @@
     "viewStats": "Προβολή στατιστικών",
     "viewStatsDescription": "Ελέγξτε τη φήμη και τα tokens σας"
   },
-
   "info": {
     "title": "Στατιστικά Swaply",
     "description": "Παγκόσμια στατιστικά + στατιστικά χρήστη + κατάταξη + tokens + ισοτιμία ανταλλαγής + βοήθεια/νομικά",
@@ -426,7 +421,6 @@
     "authentication": "Ταυτοποίηση",
     "authenticationDescription": "Δημιουργήστε λογαριασμό ή συνδεθείτε"
   },
-
   "itemForm": {
     "conditionNew": "Καινούργιο",
     "conditionGood": "Ελαφρώς μεταχειρισμένο",
@@ -521,7 +515,6 @@
     "imageReadError": "Δεν ήταν δυνατή η ανάγνωση της εικόνας.",
     "uploadingImageButton": "Μεταφόρτωση εικόνας…"
   },
-
   "itemCard": {
     "location": "Τοποθεσία:",
     "ai": "AI:",
@@ -529,7 +522,6 @@
     "edit": "Επεξεργασία",
     "delete": "Διαγραφή"
   },
-
   "swipeCard": {
     "yes": "ΝΑΙ",
     "no": "ΟΧΙ",
@@ -537,7 +529,6 @@
     "notInterested": "Δεν ενδιαφέρομαι",
     "interested": "Ενδιαφέρομαι"
   },
-
   "matchList": {
     "weak": "Αδύναμη",
     "possible": "Πιθανή",
@@ -550,7 +541,6 @@
     "sendMessage": "Αποστολή μηνύματος",
     "proposeExchange": "Πρόταση ανταλλαγής"
   },
-
   "swapTimeline": {
     "proposed": "Προτεινόμενη",
     "scheduled": "Προγραμματισμένη",
@@ -571,7 +561,6 @@
     "autoNotifications": "Αυτόματες ειδοποιήσεις:",
     "lastUpdate": "Τελευταία ενημέρωση:"
   },
-
   "chatPanel": {
     "you": "Εσύ",
     "partner": "Συνεργάτης",
@@ -591,7 +580,6 @@
     "sendError": "Σφάλμα αποστολής. Δοκιμάστε ξανά.",
     "selectConversation": "Επιλέξτε μια συνομιλία ή ξεκινήστε μία από τη σελίδα αντικειμένων."
   },
-
   "statsGrid": {
     "globalExchanges": "Παγκόσμιες ανταλλαγές",
     "globalDescription": "Το Swaply είναι ενεργό σε πολλές περιοχές",
@@ -602,7 +590,6 @@
     "tokensIssued": "Tokens που εκδόθηκαν",
     "tokensDescription": "Ασφαλές μητρώο, ορατό στο προφίλ"
   },
-
   "map": {
     "unavailable": "Ο χάρτης δεν είναι διαθέσιμος",
     "providerDisabled": "Πάροχος χάρτη απενεργοποιημένος. Το υπόλοιπο της σελίδας παραμένει λειτουργικό.",
@@ -614,7 +601,6 @@
     "mapTitle": "Χάρτης τοποθεσίας",
     "noPins": "Δεν υπάρχουν καρφίτσες για εμφάνιση"
   },
-
   "location": {
     "country": "Χώρα",
     "selectCountry": "— Επιλέξτε χώρα —",
@@ -625,19 +611,16 @@
     "selectCity": "— Επιλέξτε πόλη —",
     "chooseRegionFirst": "— Επιλέξτε πρώτα περιφέρεια —"
   },
-
   "gated": {
     "notLoggedIn": "Δεν έχετε συνδεθεί",
     "loginToView": "Συνδεθείτε για να δείτε αυτό το περιεχόμενο. Η διεύθυνση επιστροφής αποθηκεύεται ώστε να συνεχίσετε τη ροή χωρίς διακοπές.",
     "login": "Σύνδεση"
   },
-
   "demoBanner": {
     "demoMode": "Λειτουργία demo ενεργή",
     "dataNotReal": "— τα δεδομένα δεν είναι πραγματικά και δεν αποθηκεύονται.",
     "exitDemo": "Έξοδος από demo"
   },
-
   "pwa": {
     "installSwaply": "Εγκατάσταση Swaply",
     "installDescription": "Προσθέστε στην αρχική οθόνη για γρήγορη πρόσβαση, χωρίς πρόγραμμα περιήγησης.",

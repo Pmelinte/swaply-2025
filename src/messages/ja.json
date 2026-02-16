@@ -24,7 +24,6 @@
     "noImage": "画像なし",
     "freeSlot": "空きスロット"
   },
-
   "nav": {
     "home": "ホーム",
     "objects": "オブジェクト",
@@ -52,12 +51,10 @@
     "badgeBenefits": "バッジの特典",
     "completeProfile": "プロフィールを完成させる"
   },
-
   "notifications": {
     "title": "通知（いいね/関心/チャット/スワプリー）",
     "empty": "現在、通知はありません。"
   },
-
   "login": {
     "authentication": "認証",
     "registration": "登録",
@@ -94,7 +91,6 @@
     "invalidCredentials": "無効な認証情報",
     "invalidCredentialsDescription": "赤いメッセージ + デモパスワードの記載。モック成功なし、パスワードリセットのCTA付きでページに留まります。"
   },
-
   "profile": {
     "loading": "プロフィールを読み込み中…",
     "loadingDescription": "セッションを確認しています。",
@@ -162,44 +158,50 @@
     "badgeBenefits": "バッジの特典",
     "badgeBenefitsDescription": "プレミアムとプラチナの特典を確認する"
   },
-
   "home": {
-    "discoverOpportunities": "お近くの交換の機会を発見する",
-    "chooseHowToStart": "始め方を選択: オブジェクトを閲覧、地図で検索、またはマッチを分析。",
-    "viewAvailableObjects": "利用可能なオブジェクトを見る",
-    "greeting": "こんにちは、{name}さん！地図にはプレミアムとプラチナユーザーのみ表示されます。バッジがあなたの表示を制御します。",
-    "analyzeMatches": "マッチを分析",
-    "addObject": "オブジェクトを追加",
-    "monitorExchanges": "交換を監視",
-    "activeUsersMap": "アクティブユーザーマップ",
-    "mapDescription": "プレミアムとプラチナユーザーが地図上でハイライトされます。",
-    "learnPremiumBenefits": "プレミアムアカウントの特典について知る",
-    "completeProfileAndLocation": "プロフィールと位置情報を完成させる",
-    "completeProfileDescription": "おおよその位置情報を追加して、地図ベースの機能を有効にしましょう。",
-    "openProfile": "プロフィールを開く",
-    "mapVisibilityNote": "地図への表示はプレミアムアカウント向けです。公開されずにオファーを閲覧し、交換を開始できます。",
-    "announcements": "お知らせ",
-    "announcementsDescription": "システムメッセージ、控えめで閉じることが可能。",
-    "noListedObjects": "まだ掲載されたオブジェクトがありません",
-    "addObjectForProposals": "関連する提案を受け取るにはオブジェクトを追加してください。",
-    "aiFallback": "AIフォールバック",
-    "manualModeActive": "AIサービスが利用できない場合、手動モードが有効。",
-    "aiDisabled": "AI無効",
-    "aiDisabledDescription": "重要なフローをブロックしないために、分類と説明は手動ルールに依存しています。",
-    "aiActive": "AI有効",
-    "aiActiveDescription": "ホームの提案はAI契約に従います（サーバーサイド）。",
-    "aiOutputNote": "AI出力はバージョン管理されたメタデータとして保存され、ユーザーの最終選択を上書きしません。",
-    "addObjectCta": "オブジェクトを追加",
-    "addObjectCtaDescription": "交換するものを掲載する",
-    "analyzeMatchesCta": "マッチを分析",
-    "analyzeMatchesCtaDescription": "互換性のある提案を発見する",
-    "exploreObjects": "オブジェクトを探索",
-    "exploreObjectsDescription": "他のユーザーが提供しているものを閲覧する",
-    "loginCta": "ログイン",
-    "exploreObjectsGuest": "オブジェクトを探索",
-    "exploreObjectsGuestDescription": "アカウントなしで利用可能なものを見る"
+    "welcome": "Welcome back",
+    "greeting": "Hey, {name}!",
+    "heroSubtitle": "Explore objects in your area, discover matches, and propose swaps.",
+    "statItems": "{count} active items",
+    "statSwaps": "{count} swaps",
+    "statTokens": "{count} tokens",
+    "statNotifs": "{count} new notifications",
+    "guestHeadline": "Swap what you have for what you want",
+    "guestSubtitle": "Swaply connects people who want to exchange objects, no money involved. Simple, local, transparent.",
+    "getStarted": "Get started",
+    "browseObjects": "Browse objects",
+    "actionAdd": "Add object",
+    "actionAddDesc": "List something for exchange",
+    "actionExplore": "Explore",
+    "actionExploreDesc": "Discover available objects",
+    "actionMatch": "AI Matches",
+    "actionMatchDesc": "Analyze compatibility",
+    "actionSwaps": "Swaps",
+    "actionSwapsDesc": "Monitor your exchanges",
+    "mapTitle": "Users map",
+    "mapSubtitle": "Premium and Platinum users are visible on the map.",
+    "addLocationHint": "Add your location in profile to enable map-based features",
+    "announcements": "Announcements",
+    "nudgeNoItems": "You don't have any listed objects yet",
+    "nudgeNoItemsDesc": "Add your first object to start receiving swap proposals.",
+    "nudgeProfile": "Complete your profile",
+    "nudgeProfileDesc": "A complete profile increases your trust and visibility.",
+    "nudgeProfileCta": "Edit profile",
+    "nudgeMatches": "{count} matches found",
+    "nudgeMatchesDesc": "AI has identified compatible proposals for your objects.",
+    "nudgeMatchesCta": "View matches",
+    "reputation": "Reputation",
+    "repLevel": "Level",
+    "repPath": "Starter → Trusted → Ambassador",
+    "activeSwaps": "{count} active swaps",
+    "activeSwapsDesc": "You have ongoing swaps that need your attention.",
+    "messagesLink": "Messages",
+    "messagesLinkDesc": "Chat with your swap partners",
+    "guestDiscover": "Discover Swaply",
+    "guestObjects": "View available objects",
+    "guestInfo": "Platform info",
+    "guestBadges": "Badge benefits"
   },
-
   "objects": {
     "createAccount": "アカウントを作成",
     "loginToList": "オブジェクトを掲載するにはログイン",
@@ -234,7 +236,6 @@
     "loadError": "オブジェクトの読み込みエラー",
     "loadErrorDescription": "クラッシュなしの明確なメッセージ。ページの再読み込みが可能。"
   },
-
   "objectDetail": {
     "loading": "オブジェクトを読み込み中",
     "loadingDescription": "契約に基づく読み込み状態（404ではありません）。",
@@ -254,7 +255,6 @@
     "startSecureChat": "セキュアチャットを開始",
     "proposeExchange": "交換を提案"
   },
-
   "objectEdit": {
     "loading": "エディタを読み込み中",
     "notFound": "オブジェクトが見つかりません",
@@ -262,12 +262,10 @@
     "title": "オブジェクトを編集",
     "editDescription": "事前入力された値と明確なステータス付きのフォーム。"
   },
-
   "objectNew": {
     "title": "オブジェクトを追加",
     "description": "完全なフォーム、ビルドを壊さずに。"
   },
-
   "match": {
     "title": "マッチ分析",
     "description": "累積的な互換性に基づく提案。AIが分析し、あなたが決定します。",
@@ -310,7 +308,6 @@
     "aiUnavailableNote": "AI利用不可",
     "analysisContinues": "ローカルルールで分析を続行中。機能はブロックされていません。"
   },
-
   "chat": {
     "title": "セキュアチャット",
     "description": "翻訳（オンの場合）+ モデレーション + スキャン済み添付ファイル + SwaplyへのCTA",
@@ -341,7 +338,6 @@
     "sendError": "送信エラー。再試行してください。",
     "selectConversation": "会話を選択するか、オブジェクトページから始めてください。"
   },
-
   "change": {
     "title": "交換フロー（Swaply）",
     "description": "確認 + 物流 + 地図（レベル）+ 通知 + フィードバック",
@@ -383,7 +379,6 @@
     "viewStats": "統計を見る",
     "viewStatsDescription": "評判とトークンを確認する"
   },
-
   "info": {
     "title": "Swaply統計",
     "description": "グローバル統計 + ユーザー統計 + ランク + トークン + 交換レート + ヘルプ/法的情報",
@@ -426,7 +421,6 @@
     "authentication": "認証",
     "authenticationDescription": "アカウントを作成またはログイン"
   },
-
   "itemForm": {
     "conditionNew": "新品",
     "conditionGood": "やや使用済み",
@@ -521,7 +515,6 @@
     "imageReadError": "画像を読み取れませんでした。",
     "uploadingImageButton": "画像をアップロード中…"
   },
-
   "itemCard": {
     "location": "場所:",
     "ai": "AI:",
@@ -529,7 +522,6 @@
     "edit": "編集",
     "delete": "削除"
   },
-
   "swipeCard": {
     "yes": "はい",
     "no": "いいえ",
@@ -537,7 +529,6 @@
     "notInterested": "興味なし",
     "interested": "興味あり"
   },
-
   "matchList": {
     "weak": "弱い",
     "possible": "可能性あり",
@@ -550,7 +541,6 @@
     "sendMessage": "メッセージを送信",
     "proposeExchange": "交換を提案"
   },
-
   "swapTimeline": {
     "proposed": "提案済み",
     "scheduled": "スケジュール済み",
@@ -571,7 +561,6 @@
     "autoNotifications": "自動通知:",
     "lastUpdate": "最終更新:"
   },
-
   "chatPanel": {
     "you": "あなた",
     "partner": "パートナー",
@@ -591,7 +580,6 @@
     "sendError": "送信エラー。再試行してください。",
     "selectConversation": "会話を選択するか、オブジェクトページから始めてください。"
   },
-
   "statsGrid": {
     "globalExchanges": "グローバル交換",
     "globalDescription": "Swaplyは複数の地域で活動中です",
@@ -602,7 +590,6 @@
     "tokensIssued": "発行済みトークン",
     "tokensDescription": "安全な台帳、プロフィールで確認可能"
   },
-
   "map": {
     "unavailable": "地図利用不可",
     "providerDisabled": "地図プロバイダーが無効です。ページの残りは引き続き使用可能です。",
@@ -614,7 +601,6 @@
     "mapTitle": "位置情報マップ",
     "noPins": "表示するピンがありません"
   },
-
   "location": {
     "country": "国",
     "selectCountry": "— 国を選択 —",
@@ -625,19 +611,16 @@
     "selectCity": "— 都市を選択 —",
     "chooseRegionFirst": "— 先に地域を選択 —"
   },
-
   "gated": {
     "notLoggedIn": "ログインしていません",
     "loginToView": "このコンテンツを見るにはログインしてください。中断なくフローを続行できるよう戻り先が保存されています。",
     "login": "ログイン"
   },
-
   "demoBanner": {
     "demoMode": "デモモード有効",
     "dataNotReal": "— データは実際のものではなく、保存されません。",
     "exitDemo": "デモを終了"
   },
-
   "pwa": {
     "installSwaply": "Swaplyをインストール",
     "installDescription": "ブラウザなしで素早くアクセスするためにホーム画面に追加。",

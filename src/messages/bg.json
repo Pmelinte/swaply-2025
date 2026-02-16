@@ -24,7 +24,6 @@
     "noImage": "Няма изображение",
     "freeSlot": "Свободно място"
   },
-
   "nav": {
     "home": "Начало",
     "objects": "Обекти",
@@ -52,12 +51,10 @@
     "badgeBenefits": "Предимства на значката",
     "completeProfile": "Попълнете профила си"
   },
-
   "notifications": {
     "title": "Известия (харесване/интерес/чат/swaply)",
     "empty": "Няма известия в момента."
   },
-
   "login": {
     "authentication": "Удостоверяване",
     "registration": "Регистрация",
@@ -94,7 +91,6 @@
     "invalidCredentials": "Невалидни данни за вход",
     "invalidCredentialsDescription": "Червено съобщение + споменаване на демо парола. Няма фалшив успех; остава на страницата с опция за нулиране на парола."
   },
-
   "profile": {
     "loading": "Зареждане на профила…",
     "loadingDescription": "Проверка на сесията ви.",
@@ -162,44 +158,50 @@
     "badgeBenefits": "Предимства на значката",
     "badgeBenefitsDescription": "Открийте предимствата на Premium и Platinum"
   },
-
   "home": {
-    "discoverOpportunities": "Открийте възможности за размяна във вашия район",
-    "chooseHowToStart": "Изберете как искате да започнете: разгледайте обекти, търсете на картата или анализирайте съвпадения.",
-    "viewAvailableObjects": "Преглед на налични обекти",
-    "greeting": "Здравейте, {name}! Картата показва само Premium и Platinum потребители. Вашата значка контролира видимостта ви.",
-    "analyzeMatches": "Анализ на съвпадения",
-    "addObject": "Добави обект",
-    "monitorExchanges": "Наблюдение на размени",
-    "activeUsersMap": "Карта на активните потребители",
-    "mapDescription": "Premium и Platinum потребителите са подчертани на картата.",
-    "learnPremiumBenefits": "Научете за предимствата на Premium акаунта",
-    "completeProfileAndLocation": "Попълнете профила и местоположението си",
-    "completeProfileDescription": "Активирайте функциите базирани на карта, като добавите приблизителното си местоположение.",
-    "openProfile": "Отвори профила",
-    "mapVisibilityNote": "Появяването на картата е достъпно за Premium акаунти. Можете да разглеждате оферти и да инициирате размени, без да сте публично видими.",
-    "announcements": "Съобщения",
-    "announcementsDescription": "Системни съобщения, дискретни и скриваеми.",
-    "noListedObjects": "Все още нямате обявени обекти",
-    "addObjectForProposals": "Добавете обект, за да получавате подходящи предложения.",
-    "aiFallback": "AI резервен режим",
-    "manualModeActive": "Ръчен режим е активен, когато AI услугите не са налични.",
-    "aiDisabled": "AI изключен",
-    "aiDisabledDescription": "Класификацията и обясненията разчитат на ръчни правила, за да не блокират критични процеси.",
-    "aiActive": "AI активен",
-    "aiActiveDescription": "Предложенията на началната страница следват AI договора (от страна на сървъра).",
-    "aiOutputNote": "AI изходът се записва като версионирани метаданни и не замества крайните предпочитания на потребителите.",
-    "addObjectCta": "Добави обект",
-    "addObjectCtaDescription": "Обявете нещо за размяна",
-    "analyzeMatchesCta": "Анализ на съвпадения",
-    "analyzeMatchesCtaDescription": "Открийте съвместими предложения",
-    "exploreObjects": "Разгледай обекти",
-    "exploreObjectsDescription": "Вижте какво предлагат другите потребители",
-    "loginCta": "Вход",
-    "exploreObjectsGuest": "Разгледай обекти",
-    "exploreObjectsGuestDescription": "Вижте какво е налично без акаунт"
+    "welcome": "Welcome back",
+    "greeting": "Hey, {name}!",
+    "heroSubtitle": "Explore objects in your area, discover matches, and propose swaps.",
+    "statItems": "{count} active items",
+    "statSwaps": "{count} swaps",
+    "statTokens": "{count} tokens",
+    "statNotifs": "{count} new notifications",
+    "guestHeadline": "Swap what you have for what you want",
+    "guestSubtitle": "Swaply connects people who want to exchange objects, no money involved. Simple, local, transparent.",
+    "getStarted": "Get started",
+    "browseObjects": "Browse objects",
+    "actionAdd": "Add object",
+    "actionAddDesc": "List something for exchange",
+    "actionExplore": "Explore",
+    "actionExploreDesc": "Discover available objects",
+    "actionMatch": "AI Matches",
+    "actionMatchDesc": "Analyze compatibility",
+    "actionSwaps": "Swaps",
+    "actionSwapsDesc": "Monitor your exchanges",
+    "mapTitle": "Users map",
+    "mapSubtitle": "Premium and Platinum users are visible on the map.",
+    "addLocationHint": "Add your location in profile to enable map-based features",
+    "announcements": "Announcements",
+    "nudgeNoItems": "You don't have any listed objects yet",
+    "nudgeNoItemsDesc": "Add your first object to start receiving swap proposals.",
+    "nudgeProfile": "Complete your profile",
+    "nudgeProfileDesc": "A complete profile increases your trust and visibility.",
+    "nudgeProfileCta": "Edit profile",
+    "nudgeMatches": "{count} matches found",
+    "nudgeMatchesDesc": "AI has identified compatible proposals for your objects.",
+    "nudgeMatchesCta": "View matches",
+    "reputation": "Reputation",
+    "repLevel": "Level",
+    "repPath": "Starter → Trusted → Ambassador",
+    "activeSwaps": "{count} active swaps",
+    "activeSwapsDesc": "You have ongoing swaps that need your attention.",
+    "messagesLink": "Messages",
+    "messagesLinkDesc": "Chat with your swap partners",
+    "guestDiscover": "Discover Swaply",
+    "guestObjects": "View available objects",
+    "guestInfo": "Platform info",
+    "guestBadges": "Badge benefits"
   },
-
   "objects": {
     "createAccount": "Създай акаунт",
     "loginToList": "Влезте, за да обявите обекти",
@@ -234,7 +236,6 @@
     "loadError": "Грешка при зареждане на обекти",
     "loadErrorDescription": "Ясно съобщение без срив; позволява презареждане на страницата."
   },
-
   "objectDetail": {
     "loading": "Зареждане на обект",
     "loadingDescription": "Състояние на зареждане по договор (не 404).",
@@ -254,7 +255,6 @@
     "startSecureChat": "Започни защитен чат",
     "proposeExchange": "Предложи размяна"
   },
-
   "objectEdit": {
     "loading": "Зареждане на редактора",
     "notFound": "Обектът не е намерен",
@@ -262,12 +262,10 @@
     "title": "Редактиране на обект",
     "editDescription": "Форма с предварително попълнени стойности + ясни статуси."
   },
-
   "objectNew": {
     "title": "Добави обект",
     "description": "Пълна форма, без прекъсване на build-а."
   },
-
   "match": {
     "title": "Анализ на съвпадения",
     "description": "Предложения базирани на кумулативна съвместимост. AI анализира, вие решавате.",
@@ -310,7 +308,6 @@
     "aiUnavailableNote": "AI недостъпен",
     "analysisContinues": "Анализът продължава с локални правила. Няма блокирана функционалност."
   },
-
   "chat": {
     "title": "Защитен чат",
     "description": "Превод (ако е включен) + модерация + сканирани прикачени файлове + CTA към Swaply",
@@ -341,7 +338,6 @@
     "sendError": "Грешка при изпращане. Опитайте отново.",
     "selectConversation": "Изберете разговор или започнете един от страницата с обекти."
   },
-
   "change": {
     "title": "Процес на размяна (Swaply)",
     "description": "Потвърждение + логистика + карта (нива) + известия + обратна връзка",
@@ -383,7 +379,6 @@
     "viewStats": "Преглед на статистики",
     "viewStatsDescription": "Проверете репутацията и токените си"
   },
-
   "info": {
     "title": "Swaply статистики",
     "description": "Глобални статистики + потребителски статистики + ранг + токени + обменен курс + помощ/правна информация",
@@ -426,7 +421,6 @@
     "authentication": "Удостоверяване",
     "authenticationDescription": "Създайте акаунт или влезте"
   },
-
   "itemForm": {
     "conditionNew": "Ново",
     "conditionGood": "Леко използвано",
@@ -521,7 +515,6 @@
     "imageReadError": "Не може да се прочете изображението.",
     "uploadingImageButton": "Качване на изображение…"
   },
-
   "itemCard": {
     "location": "Местоположение:",
     "ai": "AI:",
@@ -529,7 +522,6 @@
     "edit": "Редактирай",
     "delete": "Изтрий"
   },
-
   "swipeCard": {
     "yes": "ДА",
     "no": "НЕ",
@@ -537,7 +529,6 @@
     "notInterested": "Не се интересувам",
     "interested": "Интересувам се"
   },
-
   "matchList": {
     "weak": "Слабо",
     "possible": "Възможно",
@@ -550,7 +541,6 @@
     "sendMessage": "Изпрати съобщение",
     "proposeExchange": "Предложи размяна"
   },
-
   "swapTimeline": {
     "proposed": "Предложено",
     "scheduled": "Насрочено",
@@ -571,7 +561,6 @@
     "autoNotifications": "Автоматични известия:",
     "lastUpdate": "Последна актуализация:"
   },
-
   "chatPanel": {
     "you": "Вие",
     "partner": "Партньор",
@@ -591,7 +580,6 @@
     "sendError": "Грешка при изпращане. Опитайте отново.",
     "selectConversation": "Изберете разговор или започнете един от страницата с обекти."
   },
-
   "statsGrid": {
     "globalExchanges": "Глобални размени",
     "globalDescription": "Swaply е активен в множество региони",
@@ -602,7 +590,6 @@
     "tokensIssued": "Издадени токени",
     "tokensDescription": "Защитен регистър, видим в профила"
   },
-
   "map": {
     "unavailable": "Картата не е налична",
     "providerDisabled": "Доставчикът на карта е деактивиран. Останалата част от страницата остава използваема.",
@@ -614,7 +601,6 @@
     "mapTitle": "Карта на местоположенията",
     "noPins": "Няма пинове за показване"
   },
-
   "location": {
     "country": "Държава",
     "selectCountry": "— Изберете държава —",
@@ -625,19 +611,16 @@
     "selectCity": "— Изберете град —",
     "chooseRegionFirst": "— Първо изберете регион —"
   },
-
   "gated": {
     "notLoggedIn": "Не сте влезли в системата",
     "loginToView": "Влезте, за да видите това съдържание. Адресът за връщане е запазен, за да можете да продължите без прекъсвания.",
     "login": "Вход"
   },
-
   "demoBanner": {
     "demoMode": "Демо режим е активен",
     "dataNotReal": "— данните не са реални и не се запазват.",
     "exitDemo": "Изход от демото"
   },
-
   "pwa": {
     "installSwaply": "Инсталирай Swaply",
     "installDescription": "Добавете на началния екран за бърз достъп, без браузър.",

@@ -24,7 +24,6 @@
     "noImage": "Walang larawan",
     "freeSlot": "Libreng slot"
   },
-
   "nav": {
     "home": "Home",
     "objects": "Mga Bagay",
@@ -52,12 +51,10 @@
     "badgeBenefits": "Mga benepisyo ng badge",
     "completeProfile": "Kumpletuhin ang iyong profile"
   },
-
   "notifications": {
     "title": "Mga Notipikasyon (like/interes/chat/swaply)",
     "empty": "Walang notipikasyon sa ngayon."
   },
-
   "login": {
     "authentication": "Pagpapatunay",
     "registration": "Pagpaparehistro",
@@ -94,7 +91,6 @@
     "invalidCredentials": "Hindi wastong mga kredensyal",
     "invalidCredentialsDescription": "Pulang mensahe + pagbanggit ng demo password. Walang mock na tagumpay; manatili sa pahina na may CTA para i-reset ang password."
   },
-
   "profile": {
     "loading": "Naglo-load ng profile…",
     "loadingDescription": "Sinusuri ang iyong session.",
@@ -162,44 +158,50 @@
     "badgeBenefits": "Mga benepisyo ng badge",
     "badgeBenefitsDescription": "Tuklasin ang mga kalamangan ng Premium at Platinum"
   },
-
   "home": {
-    "discoverOpportunities": "Tumuklas ng mga pagkakataon sa palitan sa iyong lugar",
-    "chooseHowToStart": "Piliin kung paano mo gustong magsimula: mag-explore ng mga bagay, maghanap sa mapa, o suriin ang mga tugma.",
-    "viewAvailableObjects": "Tingnan ang mga available na bagay",
-    "greeting": "Kumusta, {name}! Ang mapa ay nagpapakita lamang ng Premium at Platinum na mga gumagamit. Ang iyong badge ang kumokontrol sa iyong visibility.",
-    "analyzeMatches": "Suriin ang mga tugma",
-    "addObject": "Magdagdag ng bagay",
-    "monitorExchanges": "Subaybayan ang mga palitan",
-    "activeUsersMap": "Mapa ng mga aktibong gumagamit",
-    "mapDescription": "Ang Premium at Platinum na mga gumagamit ay naka-highlight sa mapa.",
-    "learnPremiumBenefits": "Alamin ang mga benepisyo ng Premium account",
-    "completeProfileAndLocation": "Kumpletuhin ang iyong profile at lokasyon",
-    "completeProfileDescription": "I-enable ang mga feature na batay sa mapa sa pamamagitan ng pagdagdag ng iyong tinatayang lokasyon.",
-    "openProfile": "Buksan ang profile",
-    "mapVisibilityNote": "Ang pagpapakita sa mapa ay available para sa Premium account. Maaari mong i-explore ang mga alok at simulan ang mga palitan nang hindi ka nakikita ng publiko.",
-    "announcements": "Mga Anunsyo",
-    "announcementsDescription": "Mga mensahe ng system, tahimik at maaaring i-dismiss.",
-    "noListedObjects": "Wala ka pang naka-lista na mga bagay",
-    "addObjectForProposals": "Magdagdag ng bagay upang makatanggap ng mga kaugnay na panukala.",
-    "aiFallback": "AI Fallback",
-    "manualModeActive": "Aktibo ang manual mode kapag hindi available ang mga AI service.",
-    "aiDisabled": "Hindi aktibo ang AI",
-    "aiDisabledDescription": "Ang pag-uuri at mga paliwanag ay umaasa sa mga manual na patakaran upang hindi maharangan ang mga kritikal na daloy.",
-    "aiActive": "Aktibo ang AI",
-    "aiActiveDescription": "Ang mga mungkahi sa home ay sumusunod sa AI contract (server-side).",
-    "aiOutputNote": "Ang output ng AI ay sine-save bilang versioned metadata at hindi nag-o-override sa mga huling kagustuhan ng gumagamit.",
-    "addObjectCta": "Magdagdag ng bagay",
-    "addObjectCtaDescription": "Mag-lista ng isang bagay para sa palitan",
-    "analyzeMatchesCta": "Suriin ang mga tugma",
-    "analyzeMatchesCtaDescription": "Tumuklas ng mga compatible na panukala",
-    "exploreObjects": "I-explore ang mga bagay",
-    "exploreObjectsDescription": "I-browse kung ano ang inaalok ng ibang mga gumagamit",
-    "loginCta": "Mag-login",
-    "exploreObjectsGuest": "I-explore ang mga bagay",
-    "exploreObjectsGuestDescription": "Tingnan kung ano ang available nang walang account"
+    "welcome": "Welcome back",
+    "greeting": "Hey, {name}!",
+    "heroSubtitle": "Explore objects in your area, discover matches, and propose swaps.",
+    "statItems": "{count} active items",
+    "statSwaps": "{count} swaps",
+    "statTokens": "{count} tokens",
+    "statNotifs": "{count} new notifications",
+    "guestHeadline": "Swap what you have for what you want",
+    "guestSubtitle": "Swaply connects people who want to exchange objects, no money involved. Simple, local, transparent.",
+    "getStarted": "Get started",
+    "browseObjects": "Browse objects",
+    "actionAdd": "Add object",
+    "actionAddDesc": "List something for exchange",
+    "actionExplore": "Explore",
+    "actionExploreDesc": "Discover available objects",
+    "actionMatch": "AI Matches",
+    "actionMatchDesc": "Analyze compatibility",
+    "actionSwaps": "Swaps",
+    "actionSwapsDesc": "Monitor your exchanges",
+    "mapTitle": "Users map",
+    "mapSubtitle": "Premium and Platinum users are visible on the map.",
+    "addLocationHint": "Add your location in profile to enable map-based features",
+    "announcements": "Announcements",
+    "nudgeNoItems": "You don't have any listed objects yet",
+    "nudgeNoItemsDesc": "Add your first object to start receiving swap proposals.",
+    "nudgeProfile": "Complete your profile",
+    "nudgeProfileDesc": "A complete profile increases your trust and visibility.",
+    "nudgeProfileCta": "Edit profile",
+    "nudgeMatches": "{count} matches found",
+    "nudgeMatchesDesc": "AI has identified compatible proposals for your objects.",
+    "nudgeMatchesCta": "View matches",
+    "reputation": "Reputation",
+    "repLevel": "Level",
+    "repPath": "Starter → Trusted → Ambassador",
+    "activeSwaps": "{count} active swaps",
+    "activeSwapsDesc": "You have ongoing swaps that need your attention.",
+    "messagesLink": "Messages",
+    "messagesLinkDesc": "Chat with your swap partners",
+    "guestDiscover": "Discover Swaply",
+    "guestObjects": "View available objects",
+    "guestInfo": "Platform info",
+    "guestBadges": "Badge benefits"
   },
-
   "objects": {
     "createAccount": "Gumawa ng account",
     "loginToList": "Mag-login upang mag-lista ng mga bagay",
@@ -234,7 +236,6 @@
     "loadError": "Error sa paglo-load ng mga bagay",
     "loadErrorDescription": "Malinaw na mensahe nang walang crash; pinapayagan ang pag-reload ng pahina."
   },
-
   "objectDetail": {
     "loading": "Naglo-load ng bagay",
     "loadingDescription": "Loading state ayon sa kontrata (hindi 404).",
@@ -254,7 +255,6 @@
     "startSecureChat": "Simulan ang ligtas na chat",
     "proposeExchange": "Mag-alok ng palitan"
   },
-
   "objectEdit": {
     "loading": "Naglo-load ng editor",
     "notFound": "Hindi nahanap ang bagay",
@@ -262,12 +262,10 @@
     "title": "I-edit ang bagay",
     "editDescription": "Form na may prefilled na mga value + malinaw na mga estado."
   },
-
   "objectNew": {
     "title": "Magdagdag ng bagay",
     "description": "Kumpletong form, nang hindi sinisira ang build."
   },
-
   "match": {
     "title": "Pagsusuri ng tugma",
     "description": "Mga panukala batay sa pinagsama-samang compatibility. Sinusuri ng AI, ikaw ang magpapasya.",
@@ -310,7 +308,6 @@
     "aiUnavailableNote": "Hindi available ang AI",
     "analysisContinues": "Nagpapatuloy ang pagsusuri gamit ang mga lokal na patakaran. Walang functionality na naka-block."
   },
-
   "chat": {
     "title": "Ligtas na chat",
     "description": "Pagsasalin (kung naka-on) + moderasyon + na-scan na mga attachment + CTA sa Swaply",
@@ -341,7 +338,6 @@
     "sendError": "Error sa pagpapadala. Subukan muli.",
     "selectConversation": "Pumili ng pag-uusap o magsimula ng isa mula sa pahina ng mga bagay."
   },
-
   "change": {
     "title": "Daloy ng palitan (Swaply)",
     "description": "Kumpirmasyon + logistika + mapa (mga antas) + mga notipikasyon + feedback",
@@ -383,7 +379,6 @@
     "viewStats": "Tingnan ang mga istatistika",
     "viewStatsDescription": "Suriin ang iyong reputasyon at mga token"
   },
-
   "info": {
     "title": "Mga Istatistika ng Swaply",
     "description": "Mga global na istatistika + mga istatistika ng gumagamit + ranggo + mga token + exchange rate + tulong/legal",
@@ -426,7 +421,6 @@
     "authentication": "Pagpapatunay",
     "authenticationDescription": "Gumawa ng account o mag-login"
   },
-
   "itemForm": {
     "conditionNew": "Bago",
     "conditionGood": "Bahagyang nagamit",
@@ -521,7 +515,6 @@
     "imageReadError": "Hindi mabasa ang larawan.",
     "uploadingImageButton": "Ina-upload ang larawan…"
   },
-
   "itemCard": {
     "location": "Lokasyon:",
     "ai": "AI:",
@@ -529,7 +522,6 @@
     "edit": "I-edit",
     "delete": "Tanggalin"
   },
-
   "swipeCard": {
     "yes": "OO",
     "no": "HINDI",
@@ -537,7 +529,6 @@
     "notInterested": "Hindi interesado",
     "interested": "Interesado"
   },
-
   "matchList": {
     "weak": "Mahina",
     "possible": "Posible",
@@ -550,7 +541,6 @@
     "sendMessage": "Magpadala ng mensahe",
     "proposeExchange": "Mag-alok ng palitan"
   },
-
   "swapTimeline": {
     "proposed": "Iminungkahi",
     "scheduled": "Naka-iskedyul",
@@ -571,7 +561,6 @@
     "autoNotifications": "Mga awtomatikong notipikasyon:",
     "lastUpdate": "Huling update:"
   },
-
   "chatPanel": {
     "you": "Ikaw",
     "partner": "Kasosyo",
@@ -591,7 +580,6 @@
     "sendError": "Error sa pagpapadala. Subukan muli.",
     "selectConversation": "Pumili ng pag-uusap o magsimula ng isa mula sa pahina ng mga bagay."
   },
-
   "statsGrid": {
     "globalExchanges": "Mga global na palitan",
     "globalDescription": "Aktibo ang Swaply sa maraming rehiyon",
@@ -602,7 +590,6 @@
     "tokensIssued": "Mga naibigay na token",
     "tokensDescription": "Ligtas na ledger, nakikita sa profile"
   },
-
   "map": {
     "unavailable": "Hindi available ang mapa",
     "providerDisabled": "Hindi aktibo ang map provider. Ang natitirang bahagi ng pahina ay magagamit pa rin.",
@@ -614,7 +601,6 @@
     "mapTitle": "Mapa ng lokasyon",
     "noPins": "Walang mga pin na ipapakita"
   },
-
   "location": {
     "country": "Bansa",
     "selectCountry": "— Pumili ng bansa —",
@@ -625,19 +611,16 @@
     "selectCity": "— Pumili ng lungsod —",
     "chooseRegionFirst": "— Pumili muna ng rehiyon —"
   },
-
   "gated": {
     "notLoggedIn": "Hindi ka naka-login",
     "loginToView": "Mag-login upang makita ang nilalamang ito. Nai-save ang return-to para makapagpatuloy ka sa daloy nang walang pagkaantala.",
     "login": "Mag-login"
   },
-
   "demoBanner": {
     "demoMode": "Aktibo ang demo mode",
     "dataNotReal": "— ang data ay hindi totoo at hindi nai-save.",
     "exitDemo": "Lumabas sa demo"
   },
-
   "pwa": {
     "installSwaply": "I-install ang Swaply",
     "installDescription": "Idagdag sa home screen para sa mabilis na access, nang walang browser.",

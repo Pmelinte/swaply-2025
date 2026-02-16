@@ -24,7 +24,6 @@
     "noImage": "无图片",
     "freeSlot": "空闲位置"
   },
-
   "nav": {
     "home": "首页",
     "objects": "物品",
@@ -52,12 +51,10 @@
     "badgeBenefits": "徽章权益",
     "completeProfile": "完善您的个人资料"
   },
-
   "notifications": {
     "title": "通知（点赞/关注/聊天/swaply）",
     "empty": "暂无通知。"
   },
-
   "login": {
     "authentication": "身份验证",
     "registration": "注册",
@@ -94,7 +91,6 @@
     "invalidCredentials": "凭据无效",
     "invalidCredentialsDescription": "红色消息 + 演示密码提示。无模拟成功；停留在页面并提示重置密码。"
   },
-
   "profile": {
     "loading": "正在加载个人资料…",
     "loadingDescription": "正在检查您的会话。",
@@ -162,44 +158,50 @@
     "badgeBenefits": "徽章权益",
     "badgeBenefitsDescription": "了解 Premium 和 Platinum 的优势"
   },
-
   "home": {
-    "discoverOpportunities": "发现您所在区域的交换机会",
-    "chooseHowToStart": "选择您的开始方式：浏览物品、在地图上搜索或分析匹配。",
-    "viewAvailableObjects": "查看可用物品",
-    "greeting": "您好，{name}！地图仅显示 Premium 和 Platinum 用户。您的徽章决定您的可见性。",
-    "analyzeMatches": "分析匹配",
-    "addObject": "添加物品",
-    "monitorExchanges": "监控交换",
-    "activeUsersMap": "活跃用户地图",
-    "mapDescription": "Premium 和 Platinum 用户在地图上高亮显示。",
-    "learnPremiumBenefits": "了解 Premium 账户权益",
-    "completeProfileAndLocation": "完善您的个人资料和位置",
-    "completeProfileDescription": "添加您的大致位置以启用基于地图的功能。",
-    "openProfile": "打开个人资料",
-    "mapVisibilityNote": "地图显示功能仅对 Premium 账户可用。您可以在不公开可见的情况下浏览报价并发起交换。",
-    "announcements": "公告",
-    "announcementsDescription": "系统消息，低调且可关闭。",
-    "noListedObjects": "您还没有列出任何物品",
-    "addObjectForProposals": "添加物品以接收相关建议。",
-    "aiFallback": "AI 备用模式",
-    "manualModeActive": "AI 服务不可用时启用手动模式。",
-    "aiDisabled": "AI 已禁用",
-    "aiDisabledDescription": "分类和解释依赖手动规则，以避免阻塞关键流程。",
-    "aiActive": "AI 已激活",
-    "aiActiveDescription": "首页建议遵循 AI 合约（服务器端）。",
-    "aiOutputNote": "AI 输出保存为版本化元数据，不会覆盖用户的最终偏好。",
-    "addObjectCta": "添加物品",
-    "addObjectCtaDescription": "列出一件交换物品",
-    "analyzeMatchesCta": "分析匹配",
-    "analyzeMatchesCtaDescription": "发现兼容的建议",
-    "exploreObjects": "浏览物品",
-    "exploreObjectsDescription": "查看其他用户提供的物品",
-    "loginCta": "登录",
-    "exploreObjectsGuest": "浏览物品",
-    "exploreObjectsGuestDescription": "无需账户查看可用物品"
+    "welcome": "Welcome back",
+    "greeting": "Hey, {name}!",
+    "heroSubtitle": "Explore objects in your area, discover matches, and propose swaps.",
+    "statItems": "{count} active items",
+    "statSwaps": "{count} swaps",
+    "statTokens": "{count} tokens",
+    "statNotifs": "{count} new notifications",
+    "guestHeadline": "Swap what you have for what you want",
+    "guestSubtitle": "Swaply connects people who want to exchange objects, no money involved. Simple, local, transparent.",
+    "getStarted": "Get started",
+    "browseObjects": "Browse objects",
+    "actionAdd": "Add object",
+    "actionAddDesc": "List something for exchange",
+    "actionExplore": "Explore",
+    "actionExploreDesc": "Discover available objects",
+    "actionMatch": "AI Matches",
+    "actionMatchDesc": "Analyze compatibility",
+    "actionSwaps": "Swaps",
+    "actionSwapsDesc": "Monitor your exchanges",
+    "mapTitle": "Users map",
+    "mapSubtitle": "Premium and Platinum users are visible on the map.",
+    "addLocationHint": "Add your location in profile to enable map-based features",
+    "announcements": "Announcements",
+    "nudgeNoItems": "You don't have any listed objects yet",
+    "nudgeNoItemsDesc": "Add your first object to start receiving swap proposals.",
+    "nudgeProfile": "Complete your profile",
+    "nudgeProfileDesc": "A complete profile increases your trust and visibility.",
+    "nudgeProfileCta": "Edit profile",
+    "nudgeMatches": "{count} matches found",
+    "nudgeMatchesDesc": "AI has identified compatible proposals for your objects.",
+    "nudgeMatchesCta": "View matches",
+    "reputation": "Reputation",
+    "repLevel": "Level",
+    "repPath": "Starter → Trusted → Ambassador",
+    "activeSwaps": "{count} active swaps",
+    "activeSwapsDesc": "You have ongoing swaps that need your attention.",
+    "messagesLink": "Messages",
+    "messagesLinkDesc": "Chat with your swap partners",
+    "guestDiscover": "Discover Swaply",
+    "guestObjects": "View available objects",
+    "guestInfo": "Platform info",
+    "guestBadges": "Badge benefits"
   },
-
   "objects": {
     "createAccount": "创建账户",
     "loginToList": "登录以列出物品",
@@ -234,7 +236,6 @@
     "loadError": "加载物品出错",
     "loadErrorDescription": "清晰的错误消息，无崩溃；允许刷新页面。"
   },
-
   "objectDetail": {
     "loading": "正在加载物品",
     "loadingDescription": "按合约显示加载状态（非 404）。",
@@ -254,7 +255,6 @@
     "startSecureChat": "开始安全聊天",
     "proposeExchange": "提议交换"
   },
-
   "objectEdit": {
     "loading": "正在加载编辑器",
     "notFound": "物品未找到",
@@ -262,12 +262,10 @@
     "title": "编辑物品",
     "editDescription": "预填值表单 + 清晰的状态显示。"
   },
-
   "objectNew": {
     "title": "添加物品",
     "description": "完整表单，不破坏构建。"
   },
-
   "match": {
     "title": "匹配分析",
     "description": "基于累积兼容性的建议。AI 分析，您做决定。",
@@ -310,7 +308,6 @@
     "aiUnavailableNote": "AI 不可用",
     "analysisContinues": "分析使用本地规则继续。功能未被阻塞。"
   },
-
   "chat": {
     "title": "安全聊天",
     "description": "翻译（如开启）+ 审核 + 扫描附件 + Swaply 行动按钮",
@@ -341,7 +338,6 @@
     "sendError": "发送出错。请重试。",
     "selectConversation": "选择一个对话或从物品页面开始一个。"
   },
-
   "change": {
     "title": "交换流程（Swaply）",
     "description": "确认 + 物流 + 地图（级别）+ 通知 + 反馈",
@@ -383,7 +379,6 @@
     "viewStats": "查看统计",
     "viewStatsDescription": "检查您的信誉和代币"
   },
-
   "info": {
     "title": "Swaply 统计",
     "description": "全局统计 + 用户统计 + 排名 + 代币 + 交换率 + 帮助/法律",
@@ -426,7 +421,6 @@
     "authentication": "身份验证",
     "authenticationDescription": "创建账户或登录"
   },
-
   "itemForm": {
     "conditionNew": "全新",
     "conditionGood": "轻微使用",
@@ -521,7 +515,6 @@
     "imageReadError": "无法读取图片。",
     "uploadingImageButton": "正在上传图片…"
   },
-
   "itemCard": {
     "location": "位置：",
     "ai": "AI：",
@@ -529,7 +522,6 @@
     "edit": "编辑",
     "delete": "删除"
   },
-
   "swipeCard": {
     "yes": "是",
     "no": "否",
@@ -537,7 +529,6 @@
     "notInterested": "不感兴趣",
     "interested": "感兴趣"
   },
-
   "matchList": {
     "weak": "弱",
     "possible": "可能",
@@ -550,7 +541,6 @@
     "sendMessage": "发送消息",
     "proposeExchange": "提议交换"
   },
-
   "swapTimeline": {
     "proposed": "已提议",
     "scheduled": "已安排",
@@ -571,7 +561,6 @@
     "autoNotifications": "自动通知：",
     "lastUpdate": "最后更新："
   },
-
   "chatPanel": {
     "you": "你",
     "partner": "对方",
@@ -591,7 +580,6 @@
     "sendError": "发送出错。请重试。",
     "selectConversation": "选择一个对话或从物品页面开始一个。"
   },
-
   "statsGrid": {
     "globalExchanges": "全球交换",
     "globalDescription": "Swaply 活跃于多个地区",
@@ -602,7 +590,6 @@
     "tokensIssued": "已发放代币",
     "tokensDescription": "安全账本，可在个人资料中查看"
   },
-
   "map": {
     "unavailable": "地图不可用",
     "providerDisabled": "地图提供商已禁用。页面其余部分仍可使用。",
@@ -614,7 +601,6 @@
     "mapTitle": "位置地图",
     "noPins": "没有标记可显示"
   },
-
   "location": {
     "country": "国家",
     "selectCountry": "— 选择国家 —",
@@ -625,19 +611,16 @@
     "selectCity": "— 选择城市 —",
     "chooseRegionFirst": "— 请先选择地区 —"
   },
-
   "gated": {
     "notLoggedIn": "您尚未登录",
     "loginToView": "登录以查看此内容。返回地址已保存，您可以无中断地继续操作。",
     "login": "登录"
   },
-
   "demoBanner": {
     "demoMode": "演示模式已激活",
     "dataNotReal": "——数据非真实且不会保存。",
     "exitDemo": "退出演示"
   },
-
   "pwa": {
     "installSwaply": "安装 Swaply",
     "installDescription": "添加到主屏幕以快速访问，无需浏览器。",

@@ -24,7 +24,6 @@
     "noImage": "Nėra nuotraukos",
     "freeSlot": "Laisva vieta"
   },
-
   "nav": {
     "home": "Pradžia",
     "objects": "Daiktai",
@@ -52,12 +51,10 @@
     "badgeBenefits": "Ženklelio privalumai",
     "completeProfile": "Užpildykite savo profilį"
   },
-
   "notifications": {
     "title": "Pranešimai (patiktumas/susidomėjimas/pokalbis/swaply)",
     "empty": "Šiuo metu pranešimų nėra."
   },
-
   "login": {
     "authentication": "Autentifikacija",
     "registration": "Registracija",
@@ -94,7 +91,6 @@
     "invalidCredentials": "Neteisingi prisijungimo duomenys",
     "invalidCredentialsDescription": "Raudonas pranešimas + demo slaptažodžio paminėjimas. Jokio imitacinio sėkmingumo; likti puslapyje su CTA slaptažodžio atstatymui."
   },
-
   "profile": {
     "loading": "Kraunamas profilis…",
     "loadingDescription": "Tikrinama jūsų sesija.",
@@ -162,44 +158,50 @@
     "badgeBenefits": "Ženklelio privalumai",
     "badgeBenefitsDescription": "Atraskite Premium ir Platinum privalumus"
   },
-
   "home": {
-    "discoverOpportunities": "Atraskite mainų galimybes savo vietovėje",
-    "chooseHowToStart": "Pasirinkite, kaip norite pradėti: naršykite daiktus, ieškokite žemėlapyje arba analizuokite atitikmenis.",
-    "viewAvailableObjects": "Peržiūrėti prieinamus daiktus",
-    "greeting": "Sveiki, {name}! Žemėlapyje rodomi tik Premium ir Platinum vartotojai. Jūsų ženklelis kontroliuoja jūsų matomumą.",
-    "analyzeMatches": "Analizuoti atitikmenis",
-    "addObject": "Pridėti daiktą",
-    "monitorExchanges": "Stebėti mainus",
-    "activeUsersMap": "Aktyvių vartotojų žemėlapis",
-    "mapDescription": "Premium ir Platinum vartotojai yra paryškinti žemėlapyje.",
-    "learnPremiumBenefits": "Sužinokite apie Premium paskyros privalumus",
-    "completeProfileAndLocation": "Užpildykite profilį ir vietą",
-    "completeProfileDescription": "Aktyvuokite žemėlapiu pagrįstas funkcijas pridėdami savo apytikslę vietą.",
-    "openProfile": "Atidaryti profilį",
-    "mapVisibilityNote": "Žemėlapio matomumas pasiekiamas Premium paskyroms. Galite naršyti pasiūlymus ir inicijuoti mainus nebūdami viešai matomi.",
-    "announcements": "Skelbimai",
-    "announcementsDescription": "Sistemos pranešimai, diskretūs ir pašalinami.",
-    "noListedObjects": "Jūs dar neturite įrašytų daiktų",
-    "addObjectForProposals": "Pridėkite daiktą, kad gautumėte aktualius pasiūlymus.",
-    "aiFallback": "AI atsarginis režimas",
-    "manualModeActive": "Rankinis režimas aktyvus, kai AI paslaugos neprieinamos.",
-    "aiDisabled": "AI išjungtas",
-    "aiDisabledDescription": "Klasifikavimas ir paaiškinimai naudoja rankines taisykles, kad neblokuotų kritinių procesų.",
-    "aiActive": "AI aktyvus",
-    "aiActiveDescription": "Pradžios pasiūlymai atitinka AI sutartį (serverio pusė).",
-    "aiOutputNote": "AI išvestis išsaugoma kaip versijonuoti metaduomenys ir nepakeičia vartotojų galutinių pasirinkimų.",
-    "addObjectCta": "Pridėti daiktą",
-    "addObjectCtaDescription": "Įrašykite ką nors mainams",
-    "analyzeMatchesCta": "Analizuoti atitikmenis",
-    "analyzeMatchesCtaDescription": "Atraskite suderinamų pasiūlymų",
-    "exploreObjects": "Naršyti daiktus",
-    "exploreObjectsDescription": "Naršykite, ką siūlo kiti vartotojai",
-    "loginCta": "Prisijungti",
-    "exploreObjectsGuest": "Naršyti daiktus",
-    "exploreObjectsGuestDescription": "Pažiūrėkite, kas prieinama be paskyros"
+    "welcome": "Welcome back",
+    "greeting": "Hey, {name}!",
+    "heroSubtitle": "Explore objects in your area, discover matches, and propose swaps.",
+    "statItems": "{count} active items",
+    "statSwaps": "{count} swaps",
+    "statTokens": "{count} tokens",
+    "statNotifs": "{count} new notifications",
+    "guestHeadline": "Swap what you have for what you want",
+    "guestSubtitle": "Swaply connects people who want to exchange objects, no money involved. Simple, local, transparent.",
+    "getStarted": "Get started",
+    "browseObjects": "Browse objects",
+    "actionAdd": "Add object",
+    "actionAddDesc": "List something for exchange",
+    "actionExplore": "Explore",
+    "actionExploreDesc": "Discover available objects",
+    "actionMatch": "AI Matches",
+    "actionMatchDesc": "Analyze compatibility",
+    "actionSwaps": "Swaps",
+    "actionSwapsDesc": "Monitor your exchanges",
+    "mapTitle": "Users map",
+    "mapSubtitle": "Premium and Platinum users are visible on the map.",
+    "addLocationHint": "Add your location in profile to enable map-based features",
+    "announcements": "Announcements",
+    "nudgeNoItems": "You don't have any listed objects yet",
+    "nudgeNoItemsDesc": "Add your first object to start receiving swap proposals.",
+    "nudgeProfile": "Complete your profile",
+    "nudgeProfileDesc": "A complete profile increases your trust and visibility.",
+    "nudgeProfileCta": "Edit profile",
+    "nudgeMatches": "{count} matches found",
+    "nudgeMatchesDesc": "AI has identified compatible proposals for your objects.",
+    "nudgeMatchesCta": "View matches",
+    "reputation": "Reputation",
+    "repLevel": "Level",
+    "repPath": "Starter → Trusted → Ambassador",
+    "activeSwaps": "{count} active swaps",
+    "activeSwapsDesc": "You have ongoing swaps that need your attention.",
+    "messagesLink": "Messages",
+    "messagesLinkDesc": "Chat with your swap partners",
+    "guestDiscover": "Discover Swaply",
+    "guestObjects": "View available objects",
+    "guestInfo": "Platform info",
+    "guestBadges": "Badge benefits"
   },
-
   "objects": {
     "createAccount": "Sukurti paskyrą",
     "loginToList": "Prisijunkite, kad įrašytumėte daiktus",
@@ -234,7 +236,6 @@
     "loadError": "Klaida kraunant daiktus",
     "loadErrorDescription": "Aiškus pranešimas be strigimo; leidžia puslapio perkrovimą."
   },
-
   "objectDetail": {
     "loading": "Kraunamas daiktas",
     "loadingDescription": "Krovimo būsena pagal sutartį (ne 404).",
@@ -254,7 +255,6 @@
     "startSecureChat": "Pradėti saugų pokalbį",
     "proposeExchange": "Pasiūlyti mainus"
   },
-
   "objectEdit": {
     "loading": "Kraunamas redaktorius",
     "notFound": "Daiktas nerastas",
@@ -262,12 +262,10 @@
     "title": "Redaguoti daiktą",
     "editDescription": "Forma su iš anksto užpildytomis reikšmėmis + aiškios būsenos."
   },
-
   "objectNew": {
     "title": "Pridėti daiktą",
     "description": "Pilna forma, nesulaužant build'o."
   },
-
   "match": {
     "title": "Atitikmenų analizė",
     "description": "Pasiūlymai pagal kumuliacinį suderinamumą. AI analizuoja, jūs sprendžiate.",
@@ -310,7 +308,6 @@
     "aiUnavailableNote": "AI neprieinamas",
     "analysisContinues": "Analizė tęsiama su vietinėmis taisyklėmis. Jokia funkcionalumo dalis neblokuojama."
   },
-
   "chat": {
     "title": "Saugus pokalbis",
     "description": "Vertimas (jei įjungtas) + moderavimas + nuskenuoti priedai + CTA į Swaply",
@@ -341,7 +338,6 @@
     "sendError": "Klaida siunčiant. Bandykite dar kartą.",
     "selectConversation": "Pasirinkite pokalbį arba pradėkite vieną iš daiktų puslapio."
   },
-
   "change": {
     "title": "Mainų eiga (Swaply)",
     "description": "Patvirtinimas + logistika + žemėlapis (lygiai) + pranešimai + atsiliepimai",
@@ -383,7 +379,6 @@
     "viewStats": "Peržiūrėti statistiką",
     "viewStatsDescription": "Patikrinkite savo reputaciją ir žetonus"
   },
-
   "info": {
     "title": "Swaply statistika",
     "description": "Globalūs statistikos duomenys + vartotojo statistika + rangas + žetonai + keitimo kursas + pagalba/teisinė informacija",
@@ -426,7 +421,6 @@
     "authentication": "Autentifikacija",
     "authenticationDescription": "Sukurkite paskyrą arba prisijunkite"
   },
-
   "itemForm": {
     "conditionNew": "Naujas",
     "conditionGood": "Šiek tiek naudotas",
@@ -521,7 +515,6 @@
     "imageReadError": "Nepavyko perskaityti nuotraukos.",
     "uploadingImageButton": "Įkeliama nuotrauka…"
   },
-
   "itemCard": {
     "location": "Vieta:",
     "ai": "AI:",
@@ -529,7 +522,6 @@
     "edit": "Redaguoti",
     "delete": "Ištrinti"
   },
-
   "swipeCard": {
     "yes": "TAIP",
     "no": "NE",
@@ -537,7 +529,6 @@
     "notInterested": "Nedomina",
     "interested": "Domina"
   },
-
   "matchList": {
     "weak": "Silpnas",
     "possible": "Galimas",
@@ -550,7 +541,6 @@
     "sendMessage": "Siųsti žinutę",
     "proposeExchange": "Pasiūlyti mainus"
   },
-
   "swapTimeline": {
     "proposed": "Pasiūlyta",
     "scheduled": "Suplanuota",
@@ -571,7 +561,6 @@
     "autoNotifications": "Automatiniai pranešimai:",
     "lastUpdate": "Paskutinis atnaujinimas:"
   },
-
   "chatPanel": {
     "you": "Jūs",
     "partner": "Partneris",
@@ -591,7 +580,6 @@
     "sendError": "Klaida siunčiant. Bandykite dar kartą.",
     "selectConversation": "Pasirinkite pokalbį arba pradėkite vieną iš daiktų puslapio."
   },
-
   "statsGrid": {
     "globalExchanges": "Globalūs mainai",
     "globalDescription": "Swaply veikia keliuose regionuose",
@@ -602,7 +590,6 @@
     "tokensIssued": "Išduoti žetonai",
     "tokensDescription": "Saugus registras, matomas profilyje"
   },
-
   "map": {
     "unavailable": "Žemėlapis neprieinamas",
     "providerDisabled": "Žemėlapio tiekėjas išjungtas. Likusi puslapio dalis lieka naudojama.",
@@ -614,7 +601,6 @@
     "mapTitle": "Vietos žemėlapis",
     "noPins": "Nėra žymeklių rodyti"
   },
-
   "location": {
     "country": "Šalis",
     "selectCountry": "— Pasirinkite šalį —",
@@ -625,19 +611,16 @@
     "selectCity": "— Pasirinkite miestą —",
     "chooseRegionFirst": "— Pirmiausia pasirinkite regioną —"
   },
-
   "gated": {
     "notLoggedIn": "Jūs nesate prisijungę",
     "loginToView": "Prisijunkite, kad peržiūrėtumėte šį turinį. Grįžimo adresas išsaugotas, kad galėtumėte tęsti be pertraukų.",
     "login": "Prisijungti"
   },
-
   "demoBanner": {
     "demoMode": "Demo režimas aktyvus",
     "dataNotReal": "— duomenys nėra tikri ir nėra saugomi.",
     "exitDemo": "Išeiti iš demo"
   },
-
   "pwa": {
     "installSwaply": "Įdiegti Swaply",
     "installDescription": "Pridėkite į pagrindinį ekraną greitai prieigai, be naršyklės.",

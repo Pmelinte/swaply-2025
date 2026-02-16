@@ -24,7 +24,6 @@
     "noImage": "Pilt puudub",
     "freeSlot": "Vaba koht"
   },
-
   "nav": {
     "home": "Avaleht",
     "objects": "Objektid",
@@ -52,12 +51,10 @@
     "badgeBenefits": "Märgi eelised",
     "completeProfile": "Täida oma profiil"
   },
-
   "notifications": {
     "title": "Teavitused (meeldimine/huvi/vestlus/swaply)",
     "empty": "Praegu teavitusi pole."
   },
-
   "login": {
     "authentication": "Autentimine",
     "registration": "Registreerumine",
@@ -94,7 +91,6 @@
     "invalidCredentials": "Valed volitused",
     "invalidCredentialsDescription": "Punane teade + demo parooli mainimine. Pole mock-edu; jää lehele CTA-ga parooli lähtestamiseks."
   },
-
   "profile": {
     "loading": "Profiili laadimine...",
     "loadingDescription": "Kontrollime teie seanssi.",
@@ -162,44 +158,50 @@
     "badgeBenefits": "Märgi eelised",
     "badgeBenefitsDescription": "Avastage Premium ja Platinum eeliseid"
   },
-
   "home": {
-    "discoverOpportunities": "Avastage vahetusvöimalusi oma piirkonnas",
-    "chooseHowToStart": "Valige, kuidas alustada: uurige objekte, otsige kaardilt voi analüüsige sobivusi.",
-    "viewAvailableObjects": "Vaata saadaolevaid objekte",
-    "greeting": "Tere, {name}! Kaart näitab ainult Premium ja Platinum kasutajaid. Teie märk kontrollib teie nähtavust.",
-    "analyzeMatches": "Analüüsi sobivusi",
-    "addObject": "Lisa objekt",
-    "monitorExchanges": "Jälgi vahetusi",
-    "activeUsersMap": "Aktiivsete kasutajate kaart",
-    "mapDescription": "Premium ja Platinum kasutajad on kaardil esile toodud.",
-    "learnPremiumBenefits": "Tutvu Premium konto eelistega",
-    "completeProfileAndLocation": "Täitke oma profiil ja asukoht",
-    "completeProfileDescription": "Lubaga kaardipöhised funktsioonid, lisades oma ligikaudse asukoha.",
-    "openProfile": "Ava profiil",
-    "mapVisibilityNote": "Kaardil kuvamine on saadaval Premium kontodele. Saate uurida pakkumisi ja algatada vahetusi ilma avalikult nähtav olemata.",
-    "announcements": "Teadaanded",
-    "announcementsDescription": "Süsteemisönumid, diskreetsed ja sulgetavad.",
-    "noListedObjects": "Teil pole veel ühtegi loetletud objekti",
-    "addObjectForProposals": "Lisage objekt, et saada asjakohaseid pakkumisi.",
-    "aiFallback": "TI varuvariant",
-    "manualModeActive": "Käsirežiim aktiivne, kui TI teenused pole saadaval.",
-    "aiDisabled": "TI keelatud",
-    "aiDisabledDescription": "Klassifitseerimine ja selgitused tuginevad käsireegilitele, et mitte blokeerida kriitilisi voogusid.",
-    "aiActive": "TI aktiivne",
-    "aiActiveDescription": "Avalehe soovitused järgivad TI lepingut (serveripoolne).",
-    "aiOutputNote": "TI väljund salvestatakse versioonitud metaandmetena ega tühista kasutajate lõplikke eelistusi.",
-    "addObjectCta": "Lisa objekt",
-    "addObjectCtaDescription": "Loetlege midagi vahetuseks",
-    "analyzeMatchesCta": "Analüüsi sobivusi",
-    "analyzeMatchesCtaDescription": "Avastage ühilduvaid pakkumisi",
-    "exploreObjects": "Uuri objekte",
-    "exploreObjectsDescription": "Sirvige, mida teised kasutajad pakuvad",
-    "loginCta": "Logi sisse",
-    "exploreObjectsGuest": "Uuri objekte",
-    "exploreObjectsGuestDescription": "Vaadake, mis on saadaval ilma kontota"
+    "welcome": "Welcome back",
+    "greeting": "Hey, {name}!",
+    "heroSubtitle": "Explore objects in your area, discover matches, and propose swaps.",
+    "statItems": "{count} active items",
+    "statSwaps": "{count} swaps",
+    "statTokens": "{count} tokens",
+    "statNotifs": "{count} new notifications",
+    "guestHeadline": "Swap what you have for what you want",
+    "guestSubtitle": "Swaply connects people who want to exchange objects, no money involved. Simple, local, transparent.",
+    "getStarted": "Get started",
+    "browseObjects": "Browse objects",
+    "actionAdd": "Add object",
+    "actionAddDesc": "List something for exchange",
+    "actionExplore": "Explore",
+    "actionExploreDesc": "Discover available objects",
+    "actionMatch": "AI Matches",
+    "actionMatchDesc": "Analyze compatibility",
+    "actionSwaps": "Swaps",
+    "actionSwapsDesc": "Monitor your exchanges",
+    "mapTitle": "Users map",
+    "mapSubtitle": "Premium and Platinum users are visible on the map.",
+    "addLocationHint": "Add your location in profile to enable map-based features",
+    "announcements": "Announcements",
+    "nudgeNoItems": "You don't have any listed objects yet",
+    "nudgeNoItemsDesc": "Add your first object to start receiving swap proposals.",
+    "nudgeProfile": "Complete your profile",
+    "nudgeProfileDesc": "A complete profile increases your trust and visibility.",
+    "nudgeProfileCta": "Edit profile",
+    "nudgeMatches": "{count} matches found",
+    "nudgeMatchesDesc": "AI has identified compatible proposals for your objects.",
+    "nudgeMatchesCta": "View matches",
+    "reputation": "Reputation",
+    "repLevel": "Level",
+    "repPath": "Starter → Trusted → Ambassador",
+    "activeSwaps": "{count} active swaps",
+    "activeSwapsDesc": "You have ongoing swaps that need your attention.",
+    "messagesLink": "Messages",
+    "messagesLinkDesc": "Chat with your swap partners",
+    "guestDiscover": "Discover Swaply",
+    "guestObjects": "View available objects",
+    "guestInfo": "Platform info",
+    "guestBadges": "Badge benefits"
   },
-
   "objects": {
     "createAccount": "Loo konto",
     "loginToList": "Logige sisse objektide loetlemiseks",
@@ -234,7 +236,6 @@
     "loadError": "Viga objektide laadimisel",
     "loadErrorDescription": "Selge teade ilma kokkujooksmiseta; voimaldab lehe uuesti laadimist."
   },
-
   "objectDetail": {
     "loading": "Objekti laadimine",
     "loadingDescription": "Laadimise olek lepingu kohaselt (mitte 404).",
@@ -254,7 +255,6 @@
     "startSecureChat": "Alusta turvalist vestlust",
     "proposeExchange": "Tee vahetuspakkumine"
   },
-
   "objectEdit": {
     "loading": "Redaktori laadimine",
     "notFound": "Objekti ei leitud",
@@ -262,12 +262,10 @@
     "title": "Muuda objekti",
     "editDescription": "Vorm eeltäidetud väärtustega + selged olekud."
   },
-
   "objectNew": {
     "title": "Lisa objekt",
     "description": "Täielik vorm, ilma ehitust rikkumata."
   },
-
   "match": {
     "title": "Sobivuse analüüs",
     "description": "Pakkumised kumulatiivse ühilduvuse alusel. TI analüüsib, teie otsustate.",
@@ -310,7 +308,6 @@
     "aiUnavailableNote": "TI pole saadaval",
     "analysisContinues": "Analüüs jätkub kohalike reeglitega. Funktsionaalsust pole blokeeritud."
   },
-
   "chat": {
     "title": "Turvaline vestlus",
     "description": "Tölge (kui sees) + modereerimine + skannitud manused + CTA Swaply-le",
@@ -341,7 +338,6 @@
     "sendError": "Viga saatmisel. Proovige uuesti.",
     "selectConversation": "Valige vestlus voi alustage ühte objektide lehelt."
   },
-
   "change": {
     "title": "Vahetusvoog (Swaply)",
     "description": "Kinnitus + logistika + kaart (tasemed) + teavitused + tagasiside",
@@ -383,7 +379,6 @@
     "viewStats": "Vaata statistikat",
     "viewStatsDescription": "Kontrollige oma mainet ja žetoone"
   },
-
   "info": {
     "title": "Swaply statistika",
     "description": "Globaalne statistika + kasutaja statistika + auaste + žetoonid + vahetuskurss + abi/juriidiline",
@@ -426,7 +421,6 @@
     "authentication": "Autentimine",
     "authenticationDescription": "Looge konto voi logige sisse"
   },
-
   "itemForm": {
     "conditionNew": "Uus",
     "conditionGood": "Veidi kasutatud",
@@ -521,7 +515,6 @@
     "imageReadError": "Pilti ei saanud lugeda.",
     "uploadingImageButton": "Pildi üleslaadimine..."
   },
-
   "itemCard": {
     "location": "Asukoht:",
     "ai": "TI:",
@@ -529,7 +522,6 @@
     "edit": "Muuda",
     "delete": "Kustuta"
   },
-
   "swipeCard": {
     "yes": "JAH",
     "no": "EI",
@@ -537,7 +529,6 @@
     "notInterested": "Pole huvitatud",
     "interested": "Huvitatud"
   },
-
   "matchList": {
     "weak": "Nörk",
     "possible": "Voimalik",
@@ -550,7 +541,6 @@
     "sendMessage": "Saada sõnum",
     "proposeExchange": "Tee vahetuspakkumine"
   },
-
   "swapTimeline": {
     "proposed": "Pakutud",
     "scheduled": "Ajastatud",
@@ -571,7 +561,6 @@
     "autoNotifications": "Automaatsed teavitused:",
     "lastUpdate": "Viimane uuendus:"
   },
-
   "chatPanel": {
     "you": "Teie",
     "partner": "Partner",
@@ -591,7 +580,6 @@
     "sendError": "Viga saatmisel. Proovige uuesti.",
     "selectConversation": "Valige vestlus voi alustage ühte objektide lehelt."
   },
-
   "statsGrid": {
     "globalExchanges": "Globaalsed vahetused",
     "globalDescription": "Swaply on aktiivne mitmetes piirkondades",
@@ -602,7 +590,6 @@
     "tokensIssued": "Väljastatud žetoone",
     "tokensDescription": "Turvaline pearaamat, nähtav profiilis"
   },
-
   "map": {
     "unavailable": "Kaart pole saadaval",
     "providerDisabled": "Kaarditeenuse pakkuja keelatud. Ülejäänud leht jääb kasutatavaks.",
@@ -614,7 +601,6 @@
     "mapTitle": "Asukohakaart",
     "noPins": "Pole nöelu kuvamiseks"
   },
-
   "location": {
     "country": "Riik",
     "selectCountry": "— Vali riik —",
@@ -625,19 +611,16 @@
     "selectCity": "— Vali linn —",
     "chooseRegionFirst": "— Vali esmalt piirkond —"
   },
-
   "gated": {
     "notLoggedIn": "Te pole sisse logitud",
     "loginToView": "Logige sisse selle sisu vaatamiseks. Tagasipöördumine on salvestatud, et saaksite voogu jätkata ilma katkestusteta.",
     "login": "Logi sisse"
   },
-
   "demoBanner": {
     "demoMode": "Demorežiim aktiivne",
     "dataNotReal": "— andmed pole reaalsed ega salvestata.",
     "exitDemo": "Välju demost"
   },
-
   "pwa": {
     "installSwaply": "Installi Swaply",
     "installDescription": "Lisa avakuvale kiireks juurdepääsuks, ilma brauserita.",
