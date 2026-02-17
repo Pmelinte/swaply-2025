@@ -83,6 +83,16 @@ function ItemThumb({ photo, title }: { photo?: string; title: string }) {
   );
 }
 
+export type RejectReason = "too_far" | "wrong_category" | "value_mismatch" | "condition" | "not_interested";
+
+const REJECT_REASONS: { key: RejectReason; translationKey: string }[] = [
+  { key: "too_far", translationKey: "reasonTooFar" },
+  { key: "wrong_category", translationKey: "reasonWrongCategory" },
+  { key: "value_mismatch", translationKey: "reasonValueMismatch" },
+  { key: "condition", translationKey: "reasonCondition" },
+  { key: "not_interested", translationKey: "reasonNotInterested" },
+];
+
 export function MatchList({
   matches,
   onAccept,
@@ -92,11 +102,12 @@ export function MatchList({
   matches: MatchCandidate[];
   onAccept?: (match: MatchCandidate) => void;
   onNegotiate?: (match: MatchCandidate) => void;
-  onReject?: (match: MatchCandidate) => void;
+  onReject?: (match: MatchCandidate, reason?: RejectReason) => void;
 }) {
   const t = useTranslations("matchList");
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [rejectedIds, setRejectedIds] = useState<Set<string>>(new Set());
+  const [rejectedIds, setRejectedIds] = useState<Map<string, RejectReason | undefined>>(new Map());
+  const [rejectingId, setRejectingId] = useState<string | null>(null);
 
   const TIER_STYLES: Record<MatchTier, { bg: string; text: string; label: string; ring: string; accent: string }> = {
     weak:     { bg: "bg-red-100 dark:bg-red-950/40",    text: "text-red-800 dark:text-red-200",       label: t("weak"),     ring: "ring-red-200 dark:ring-red-800",       accent: "border-l-red-400" },
@@ -107,9 +118,15 @@ export function MatchList({
 
   const visibleMatches = matches.filter((m) => !rejectedIds.has(m.id));
 
+  const handleRejectWithReason = (match: MatchCandidate, reason?: RejectReason) => {
+    setRejectedIds((prev) => new Map(prev).set(match.id, reason));
+    setRejectingId(null);
+    onReject?.(match, reason);
+  };
+
   const handleUndoReject = (id: string) => {
     setRejectedIds((prev) => {
-      const next = new Set(prev);
+      const next = new Map(prev);
       next.delete(id);
       return next;
     });
@@ -127,7 +144,7 @@ export function MatchList({
             <span className="text-zinc-500">{t("rejectedCount", { count: rejectedIds.size })}</span>
             <button
               type="button"
-              onClick={() => setRejectedIds(new Set())}
+              onClick={() => setRejectedIds(new Map())}
               className="font-semibold text-blue-600 hover:text-blue-800 dark:text-blue-400"
             >
               {t("undoAll")}
@@ -274,16 +291,40 @@ export function MatchList({
                 </button>
               ) : null}
               {onReject ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setRejectedIds((prev) => new Set(prev).add(match.id));
-                    onReject(match);
-                  }}
-                  className="flex flex-1 items-center justify-center gap-1.5 rounded-br-2xl py-3 text-xs font-bold uppercase tracking-wide text-red-600 transition hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30"
-                >
-                  <span>&#10005;</span> {t("reject")}
-                </button>
+                <div className="relative flex flex-1">
+                  <button
+                    type="button"
+                    onClick={() => setRejectingId(rejectingId === match.id ? null : match.id)}
+                    className="flex flex-1 items-center justify-center gap-1.5 rounded-br-2xl py-3 text-xs font-bold uppercase tracking-wide text-red-600 transition hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30"
+                  >
+                    <span>&#10005;</span> {t("reject")}
+                  </button>
+                  {/* Reject reason popup */}
+                  {rejectingId === match.id && (
+                    <div className="absolute bottom-full right-0 z-10 mb-1 w-48 rounded-xl border border-zinc-200 bg-white p-2 shadow-lg dark:border-zinc-700 dark:bg-zinc-900">
+                      <p className="mb-1.5 text-xs font-semibold text-zinc-500 dark:text-zinc-400">{t("rejectReason")}</p>
+                      <div className="space-y-1">
+                        {REJECT_REASONS.map((r) => (
+                          <button
+                            key={r.key}
+                            type="button"
+                            onClick={() => handleRejectWithReason(match, r.key)}
+                            className="flex w-full items-center rounded-lg px-2.5 py-1.5 text-left text-xs text-zinc-700 transition hover:bg-red-50 dark:text-zinc-300 dark:hover:bg-red-950/30"
+                          >
+                            {t(r.translationKey as Parameters<typeof t>[0])}
+                          </button>
+                        ))}
+                        <button
+                          type="button"
+                          onClick={() => handleRejectWithReason(match)}
+                          className="flex w-full items-center rounded-lg px-2.5 py-1.5 text-left text-xs text-zinc-400 transition hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                        >
+                          {t("reasonSkip")}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               ) : null}
             </div>
           </div>
@@ -295,7 +336,7 @@ export function MatchList({
             {t("rejectedCount", { count: rejectedIds.size })}
           </span>
           <div className="flex gap-2">
-            {Array.from(rejectedIds).slice(-3).map((id) => {
+            {Array.from(rejectedIds.keys()).slice(-3).map((id) => {
               const m = matches.find((match) => match.id === id);
               return m ? (
                 <button
@@ -310,7 +351,7 @@ export function MatchList({
             })}
             <button
               type="button"
-              onClick={() => setRejectedIds(new Set())}
+              onClick={() => setRejectedIds(new Map())}
               className="font-semibold text-blue-600 hover:text-blue-800 dark:text-blue-400"
             >
               {t("undoAll")}

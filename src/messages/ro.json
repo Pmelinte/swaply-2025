@@ -365,7 +365,24 @@
     "analysisContinues": "Analiza continuă cu reguli locale. Nicio funcționalitate blocată.",
     "openProfile": "Deschide profil",
     "courier": "Curier",
-    "flexible": "Flexibil"
+    "flexible": "Flexibil",
+    "dealbreakers": "Dealbreakere",
+    "dealbreakersDescription": "Setează filtre dure care exclud automat potrivirile",
+    "minCondition": "Stare minimă",
+    "anyCondition": "Oricare",
+    "conditionNew": "Nou",
+    "conditionGood": "Bun",
+    "conditionUsed": "Utilizat",
+    "excludeCategories": "Exclude categorii",
+    "minScore": "Scor minim",
+    "noMinimum": "Fără minim",
+    "dealbreakersActive": "{count} dealbreaker activ",
+    "dealbreakersFiltered": "{count} potriviri filtrate",
+    "clearDealbreakers": "Șterge toate",
+    "autoModeTitle": "Mod AI",
+    "autoModeDesc": "AI selectează cele mai bune potriviri pe baza analizei de compatibilitate",
+    "manualModeTitle": "Mod Manual",
+    "manualModeDesc": "Navighează toate potrivirile cu control complet asupra filtrelor și sortării"
   },
 
   "chat": {
@@ -661,7 +678,14 @@
     "proposeExchange": "Propune schimb",
     "rejectedCount": "{count} potriviri respinse",
     "undoAll": "Anulează toate",
-    "undo": "Anulează:"
+    "undo": "Anulează:",
+    "rejectReason": "De ce respingi?",
+    "reasonTooFar": "Prea departe",
+    "reasonWrongCategory": "Categorie greșită",
+    "reasonValueMismatch": "Valoare nepotrivită",
+    "reasonCondition": "Problemă de stare",
+    "reasonNotInterested": "Nu mă interesează",
+    "reasonSkip": "Sări"
   },
 
   "swapTimeline": {

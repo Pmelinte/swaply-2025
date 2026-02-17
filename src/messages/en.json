@@ -393,7 +393,24 @@
     "analysisContinues": "Analysis continues with local rules. No functionality blocked.",
     "openProfile": "Open profile",
     "courier": "Courier",
-    "flexible": "Flexible"
+    "flexible": "Flexible",
+    "dealbreakers": "Dealbreakers",
+    "dealbreakersDescription": "Set hard filters that automatically exclude matches",
+    "minCondition": "Minimum condition",
+    "anyCondition": "Any",
+    "conditionNew": "New",
+    "conditionGood": "Good",
+    "conditionUsed": "Used",
+    "excludeCategories": "Exclude categories",
+    "minScore": "Minimum score",
+    "noMinimum": "No minimum",
+    "dealbreakersActive": "{count} dealbreaker active",
+    "dealbreakersFiltered": "{count} matches filtered out",
+    "clearDealbreakers": "Clear all",
+    "autoModeTitle": "AI Mode",
+    "autoModeDesc": "AI curates your best matches based on compatibility analysis",
+    "manualModeTitle": "Manual Mode",
+    "manualModeDesc": "Browse all matches with full control over filters and sorting"
   },
 
   "chat": {
@@ -689,7 +706,14 @@
     "proposeExchange": "Propose exchange",
     "rejectedCount": "{count} matches rejected",
     "undoAll": "Undo all",
-    "undo": "Undo:"
+    "undo": "Undo:",
+    "rejectReason": "Why reject?",
+    "reasonTooFar": "Too far away",
+    "reasonWrongCategory": "Wrong category",
+    "reasonValueMismatch": "Value mismatch",
+    "reasonCondition": "Condition issue",
+    "reasonNotInterested": "Not interested",
+    "reasonSkip": "Skip"
   },
 
   "swapTimeline": {

@@ -5,12 +5,19 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { MatchList } from "@/features/match/MatchList";
+import type { RejectReason } from "@/features/match/MatchList";
 import { LoggedOutGate } from "@/components/gated";
 import { CTAButton, NextStepRecommendation, Pill, SectionCard, StateShowcase } from "@/components/ui";
 import { StaticMapWithMarkers } from "@/components/maps/MapEmbed";
 import type { MatchCandidate, MatchTier } from "@/lib/types";
+import { SlidersHorizontal, Sparkles, Hand, X } from "lucide-react";
 
 type SortOption = "score" | "category" | "location";
+
+const CATEGORIES = [
+  "Electronics", "Books", "Clothing", "Sports", "Home", "Garden",
+  "Toys", "Art", "Music", "Vehicles", "Tools", "Other",
+];
 
 export default function MatchPage() {
   const router = useRouter();
@@ -18,6 +25,11 @@ export default function MatchPage() {
   const [manualMode, setManualMode] = useState(false);
   const [tierFilter, setTierFilter] = useState<MatchTier | "all">("all");
   const [sortBy, setSortBy] = useState<SortOption>("score");
+  const [showDealbreakers, setShowDealbreakers] = useState(false);
+  const [minCondition, setMinCondition] = useState<"any" | "new" | "good" | "used">("any");
+  const [excludedCategories, setExcludedCategories] = useState<Set<string>>(new Set());
+  const [minScore, setMinScore] = useState(0);
+  const [rejectionLog, setRejectionLog] = useState<Array<{ matchId: string; reason?: RejectReason; timestamp: number }>>([]);
   const t = useTranslations("match");
 
   if (!user) {
@@ -41,8 +53,39 @@ export default function MatchPage() {
     router.push(`/chat?to=${encodeURIComponent(match.itemRequested.ownerId)}`);
   };
 
-  // Top 3 AI-recommended matches (best compatibility)
-  const topPicks = useMemo(() => matches.slice(0, 3), [matches]);
+  const handleReject = (match: MatchCandidate, reason?: RejectReason) => {
+    setRejectionLog((prev) => [...prev, { matchId: match.id, reason, timestamp: Date.now() }]);
+  };
+
+  // Dealbreaker counts
+  const dealbreakersCount = (minCondition !== "any" ? 1 : 0) + (excludedCategories.size > 0 ? 1 : 0) + (minScore > 0 ? 1 : 0);
+  const clearDealbreakers = () => {
+    setMinCondition("any");
+    setExcludedCategories(new Set());
+    setMinScore(0);
+  };
+
+  // Apply dealbreakers to matches
+  const conditionRank = { new: 3, good: 2, used: 1 } as const;
+  const dealbrokenMatches = useMemo(() => {
+    return matches.filter((m) => {
+      // Condition filter
+      if (minCondition !== "any") {
+        const itemCond = m.itemRequested.condition;
+        if (conditionRank[itemCond] < conditionRank[minCondition as keyof typeof conditionRank]) return false;
+      }
+      // Category exclusion
+      if (excludedCategories.size > 0 && excludedCategories.has(m.itemRequested.category)) return false;
+      // Min score
+      if (minScore > 0 && m.compatibilityScore < minScore) return false;
+      return true;
+    });
+  }, [matches, minCondition, excludedCategories, minScore]);
+
+  const dealbrokenCount = matches.length - dealbrokenMatches.length;
+
+  // Top 3 AI-recommended matches (best compatibility, after dealbreakers)
+  const topPicks = useMemo(() => dealbrokenMatches.slice(0, 3), [dealbrokenMatches]);
 
   // Map markers from matches — items with location data
   const mapMarkers = useMemo(() => {
@@ -88,13 +131,13 @@ export default function MatchPage() {
   }, [matches, items, user]);
 
   const tierCounts = useMemo(() => {
-    const counts = { all: matches.length, weak: 0, possible: 0, good: 0, strong: 0 };
-    for (const m of matches) counts[m.tier] = (counts[m.tier] ?? 0) + 1;
+    const counts = { all: dealbrokenMatches.length, weak: 0, possible: 0, good: 0, strong: 0 };
+    for (const m of dealbrokenMatches) counts[m.tier] = (counts[m.tier] ?? 0) + 1;
     return counts;
-  }, [matches]);
+  }, [dealbrokenMatches]);
 
   const filteredAndSorted = useMemo(() => {
-    let result = tierFilter === "all" ? matches : matches.filter((m) => m.tier === tierFilter);
+    let result = tierFilter === "all" ? dealbrokenMatches : dealbrokenMatches.filter((m) => m.tier === tierFilter);
     if (manualMode) result = result.slice(0, 1);
 
     if (sortBy === "category") {
@@ -103,7 +146,7 @@ export default function MatchPage() {
       result = [...result].sort((a, b) => (a.itemRequested.location ?? "").localeCompare(b.itemRequested.location ?? ""));
     }
     return result;
-  }, [matches, tierFilter, sortBy, manualMode]);
+  }, [dealbrokenMatches, tierFilter, sortBy, manualMode]);
 
   const TIER_BUTTONS: { key: MatchTier | "all"; color: string }[] = [
     { key: "all", color: "bg-zinc-900 text-white" },
@@ -125,7 +168,7 @@ export default function MatchPage() {
             matches={topPicks}
             onAccept={(match) => void handleProposeSwap(match.id)}
             onNegotiate={(match) => handleNegotiate(match.id)}
-            onReject={() => {}}
+            onReject={(match, reason) => handleReject(match, reason)}
           />
         ) : (
           <div className="rounded-xl bg-zinc-50 p-4 text-center text-sm text-zinc-500 dark:bg-zinc-800/50">
@@ -160,19 +203,168 @@ export default function MatchPage() {
         </div>
       </SectionCard>
 
+      {/* ── Mode Toggle: Auto/Manual ── */}
+      <div className="grid gap-2 sm:grid-cols-2">
+        <button
+          type="button"
+          onClick={() => setManualMode(false)}
+          className={`flex items-start gap-3 rounded-xl border p-3 text-left transition ${
+            !manualMode
+              ? "border-blue-300 bg-blue-50 ring-1 ring-blue-300 dark:border-blue-700 dark:bg-blue-950/40 dark:ring-blue-700"
+              : "border-zinc-200 bg-white hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600"
+          }`}
+        >
+          <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${!manualMode ? "bg-blue-600 text-white" : "bg-zinc-100 text-zinc-500 dark:bg-zinc-700"}`}>
+            <Sparkles className="h-4 w-4" />
+          </div>
+          <div>
+            <p className={`text-sm font-semibold ${!manualMode ? "text-blue-700 dark:text-blue-300" : "text-zinc-900 dark:text-zinc-50"}`}>
+              {t("autoModeTitle")}
+            </p>
+            <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">{t("autoModeDesc")}</p>
+          </div>
+        </button>
+        <button
+          type="button"
+          onClick={() => setManualMode(true)}
+          className={`flex items-start gap-3 rounded-xl border p-3 text-left transition ${
+            manualMode
+              ? "border-blue-300 bg-blue-50 ring-1 ring-blue-300 dark:border-blue-700 dark:bg-blue-950/40 dark:ring-blue-700"
+              : "border-zinc-200 bg-white hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600"
+          }`}
+        >
+          <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${manualMode ? "bg-blue-600 text-white" : "bg-zinc-100 text-zinc-500 dark:bg-zinc-700"}`}>
+            <Hand className="h-4 w-4" />
+          </div>
+          <div>
+            <p className={`text-sm font-semibold ${manualMode ? "text-blue-700 dark:text-blue-300" : "text-zinc-900 dark:text-zinc-50"}`}>
+              {t("manualModeTitle")}
+            </p>
+            <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">{t("manualModeDesc")}</p>
+          </div>
+        </button>
+      </div>
+
+      {/* ── Dealbreakers ── */}
+      <SectionCard
+        title={t("dealbreakers")}
+        description={t("dealbreakersDescription")}
+        action={
+          <button
+            type="button"
+            onClick={() => setShowDealbreakers(!showDealbreakers)}
+            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition ${
+              dealbreakersCount > 0
+                ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
+                : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300"
+            }`}
+          >
+            <SlidersHorizontal className="h-3.5 w-3.5" />
+            {dealbreakersCount > 0 && t("dealbreakersActive", { count: dealbreakersCount })}
+          </button>
+        }
+      >
+        {showDealbreakers && (
+          <div className="space-y-4">
+            {/* Min condition */}
+            <div>
+              <p className="mb-1.5 text-xs font-semibold uppercase text-zinc-500">{t("minCondition")}</p>
+              <div className="flex flex-wrap gap-1.5">
+                {(["any", "new", "good", "used"] as const).map((cond) => (
+                  <button
+                    key={cond}
+                    type="button"
+                    onClick={() => setMinCondition(cond)}
+                    className={`rounded-full px-2.5 py-1 text-xs font-medium transition ${
+                      minCondition === cond
+                        ? "bg-blue-600 text-white"
+                        : "bg-white text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-700 dark:text-zinc-300"
+                    }`}
+                  >
+                    {cond === "any" ? t("anyCondition") : t(`condition${cond.charAt(0).toUpperCase() + cond.slice(1)}` as Parameters<typeof t>[0])}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Excluded categories */}
+            <div>
+              <p className="mb-1.5 text-xs font-semibold uppercase text-zinc-500">{t("excludeCategories")}</p>
+              <div className="flex flex-wrap gap-1.5">
+                {CATEGORIES.map((cat) => {
+                  const excluded = excludedCategories.has(cat);
+                  return (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => {
+                        setExcludedCategories((prev) => {
+                          const next = new Set(prev);
+                          if (excluded) next.delete(cat);
+                          else next.add(cat);
+                          return next;
+                        });
+                      }}
+                      className={`rounded-full px-2.5 py-1 text-xs font-medium transition ${
+                        excluded
+                          ? "bg-red-100 text-red-700 line-through dark:bg-red-900/30 dark:text-red-300"
+                          : "bg-white text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-700 dark:text-zinc-300"
+                      }`}
+                    >
+                      {excluded && <X className="mr-0.5 inline h-3 w-3" />}
+                      {cat}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Min score */}
+            <div>
+              <p className="mb-1.5 text-xs font-semibold uppercase text-zinc-500">{t("minScore")}</p>
+              <div className="flex flex-wrap gap-1.5">
+                {[0, 40, 60, 70, 85].map((score) => (
+                  <button
+                    key={score}
+                    type="button"
+                    onClick={() => setMinScore(score)}
+                    className={`rounded-full px-2.5 py-1 text-xs font-medium transition ${
+                      minScore === score
+                        ? "bg-blue-600 text-white"
+                        : "bg-white text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-700 dark:text-zinc-300"
+                    }`}
+                  >
+                    {score === 0 ? t("noMinimum") : `${score}+`}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Summary */}
+            <div className="flex items-center gap-3">
+              {dealbrokenCount > 0 && (
+                <span className="text-xs text-red-600 dark:text-red-400">
+                  {t("dealbreakersFiltered", { count: dealbrokenCount })}
+                </span>
+              )}
+              {dealbreakersCount > 0 && (
+                <button
+                  type="button"
+                  onClick={clearDealbreakers}
+                  className="text-xs font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400"
+                >
+                  {t("clearDealbreakers")}
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+      </SectionCard>
+
       {/* ── Section 3: All Matches with Filters ── */}
       <SectionCard
         title={t("title")}
         description={t("description")}
-        action={
-          <button
-            type="button"
-            onClick={() => setManualMode((v) => !v)}
-            className="rounded-full bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800"
-          >
-            {manualMode ? t("backToAi") : t("enableManual")}
-          </button>
-        }
       >
         {!featureToggles.aiEnabled ? (
           <div className="rounded-xl bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-900/40 dark:text-amber-100">
