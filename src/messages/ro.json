@@ -239,7 +239,16 @@
     "guestDiscover": "Descoperă Swaply",
     "guestObjects": "Vezi obiectele disponibile",
     "guestInfo": "Informații platformă",
-    "guestBadges": "Beneficii badge-uri"
+    "guestBadges": "Beneficii badge-uri",
+    "howItWorks": "Cum funcționează",
+    "howStep1Title": "Listează-ți obiectele",
+    "howStep1Desc": "Încarcă poze și descrie ce ai și ce vrei",
+    "howStep2Title": "AI-ul găsește potriviri",
+    "howStep2Desc": "Algoritmul nostru analizează 9 factori de compatibilitate",
+    "howStep3Title": "Discută și acordă-te",
+    "howStep3Desc": "Negociază în conversații moderate și securizate",
+    "howStep4Title": "Schimbă în siguranță",
+    "howStep4Desc": "Întâlnire locală, curier sau ridicare cu urmărire completă"
   },
 
   "objects": {

@@ -111,6 +111,29 @@ export default function HomePage() {
         </section>
       )}
 
+      {/* ── How it works (guest) ── */}
+      {!user && (
+        <section>
+          <h2 className="mb-4 text-lg font-bold text-zinc-900 dark:text-zinc-50">{t("howItWorks")}</h2>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              { step: "1", icon: <Box className="h-5 w-5" />, title: t("howStep1Title"), desc: t("howStep1Desc"), gradient: "from-emerald-500 to-teal-600" },
+              { step: "2", icon: <Sparkles className="h-5 w-5" />, title: t("howStep2Title"), desc: t("howStep2Desc"), gradient: "from-blue-500 to-cyan-600" },
+              { step: "3", icon: <MessageCircle className="h-5 w-5" />, title: t("howStep3Title"), desc: t("howStep3Desc"), gradient: "from-violet-500 to-purple-600" },
+              { step: "4", icon: <ArrowRightLeft className="h-5 w-5" />, title: t("howStep4Title"), desc: t("howStep4Desc"), gradient: "from-amber-500 to-orange-600" },
+            ].map((s) => (
+              <div key={s.step} className="rounded-2xl border border-zinc-200 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/80">
+                <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${s.gradient} text-white shadow-sm`}>
+                  {s.icon}
+                </div>
+                <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{s.title}</h3>
+                <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* ── Quick Actions (logged in) ── */}
       {user && (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

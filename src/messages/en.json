@@ -239,7 +239,16 @@
     "guestDiscover": "Discover Swaply",
     "guestObjects": "View available objects",
     "guestInfo": "Platform info",
-    "guestBadges": "Badge benefits"
+    "guestBadges": "Badge benefits",
+    "howItWorks": "How it works",
+    "howStep1Title": "List your items",
+    "howStep1Desc": "Upload photos and describe what you have and what you want",
+    "howStep2Title": "AI finds matches",
+    "howStep2Desc": "Our algorithm analyzes 9 compatibility factors",
+    "howStep3Title": "Chat & agree",
+    "howStep3Desc": "Negotiate in moderated, secure conversations",
+    "howStep4Title": "Swap safely",
+    "howStep4Desc": "Meet locally, ship by courier, or pick up with full tracking"
   },
 
   "objects": {
