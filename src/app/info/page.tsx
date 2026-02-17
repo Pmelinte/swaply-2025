@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { StatsGrid } from "@/features/info/StatsGrid";
 import { useAppState } from "@/lib/state";
 import { NextStepRecommendation, Pill, SectionCard } from "@/components/ui";
-import { ChevronDown, HelpCircle, Package, Search, MessageCircle, Repeat2 } from "lucide-react";
+import { Check, ChevronDown, HelpCircle, Minus, Package, Search, MessageCircle, Repeat2 } from "lucide-react";
 
 function FaqItem({ question, answer }: { question: string; answer: string }) {
   const [open, setOpen] = useState(false);
@@ -113,20 +113,70 @@ export default function InfoPage() {
       {/* Monetization */}
       <div id="monetizare">
         <SectionCard title={t("monetization")} description={t("monetizationDescription")}>
-          <div className="grid gap-3 sm:grid-cols-3">
-            <div className="rounded-xl border border-zinc-200 bg-white/70 p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-800/60">
-              <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">{t("free")}</h4>
-              <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-300">{t("freeDescription")}</p>
-            </div>
-            <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-4 shadow-sm dark:border-blue-900 dark:bg-blue-950/30">
-              <h4 className="text-sm font-semibold text-blue-700 dark:text-blue-300">{t("premium")}</h4>
-              <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-300">{t("premiumDescription")}</p>
-            </div>
-            <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-4 shadow-sm dark:border-amber-900 dark:bg-amber-950/30">
-              <h4 className="text-sm font-semibold text-amber-700 dark:text-amber-300">{t("platinum")}</h4>
-              <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-300">{t("platinumDescription")}</p>
-            </div>
+          {/* Tier cards */}
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {([
+              { key: "tierFree", border: "border-zinc-200 dark:border-zinc-700", bg: "bg-white/70 dark:bg-zinc-800/60", text: "text-zinc-900 dark:text-zinc-50", desc: t("freeDescription") },
+              { key: "tierSilver", border: "border-zinc-300 dark:border-zinc-600", bg: "bg-zinc-50/80 dark:bg-zinc-800/80", text: "text-zinc-700 dark:text-zinc-200", desc: t("premiumDescription") },
+              { key: "tierGold", border: "border-blue-200 dark:border-blue-900", bg: "bg-blue-50/50 dark:bg-blue-950/30", text: "text-blue-700 dark:text-blue-300", desc: t("premium") },
+              { key: "tierPlatinum", border: "border-amber-200 dark:border-amber-900", bg: "bg-amber-50/50 dark:bg-amber-950/30", text: "text-amber-700 dark:text-amber-300", desc: t("platinumDescription") },
+            ] as const).map((tier) => (
+              <div key={tier.key} className={`rounded-xl border ${tier.border} ${tier.bg} p-4 shadow-sm`}>
+                <h4 className={`text-sm font-semibold ${tier.text}`}>{t(tier.key)}</h4>
+                <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-300">{tier.desc}</p>
+              </div>
+            ))}
           </div>
+
+          {/* Feature comparison table */}
+          <div className="mt-4 overflow-x-auto">
+            <h4 className="mb-2 text-sm font-semibold text-zinc-900 dark:text-zinc-50">{t("tierComparison")}</h4>
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b border-zinc-200 dark:border-zinc-700">
+                  <th className="pb-2 text-left font-medium text-zinc-500 dark:text-zinc-400" />
+                  <th className="pb-2 text-center font-semibold text-zinc-700 dark:text-zinc-200">{t("tierFree")}</th>
+                  <th className="pb-2 text-center font-semibold text-zinc-600 dark:text-zinc-300">{t("tierSilver")}</th>
+                  <th className="pb-2 text-center font-semibold text-blue-700 dark:text-blue-300">{t("tierGold")}</th>
+                  <th className="pb-2 text-center font-semibold text-amber-700 dark:text-amber-300">{t("tierPlatinum")}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
+                {([
+                  { feature: "featureSwaps",        free: true,  silver: true,  gold: true,  platinum: true },
+                  { feature: "featureChat",          free: true,  silver: true,  gold: true,  platinum: true },
+                  { feature: "featureMatches",       free: false, silver: true,  gold: true,  platinum: true },
+                  { feature: "featureMapPin",        free: false, silver: true,  gold: true,  platinum: true },
+                  { feature: "featurePriorityMatch", free: false, silver: false, gold: true,  platinum: true },
+                  { feature: "featureAnalytics",     free: false, silver: false, gold: true,  platinum: true },
+                  { feature: "featureBadge",         free: false, silver: false, gold: false, platinum: true },
+                  { feature: "featureSupport",       free: false, silver: false, gold: false, platinum: true },
+                ] as const).map((row) => (
+                  <tr key={row.feature}>
+                    <td className="py-2 pr-4 text-zinc-700 dark:text-zinc-300">{t(row.feature)}</td>
+                    {([row.free, row.silver, row.gold, row.platinum] as const).map((has, i) => (
+                      <td key={i} className="py-2 text-center">
+                        {has ? (
+                          <Check className="mx-auto h-4 w-4 text-emerald-500" />
+                        ) : (
+                          <Minus className="mx-auto h-4 w-4 text-zinc-300 dark:text-zinc-600" />
+                        )}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+                {/* Tokens row — show amounts instead of checkmarks */}
+                <tr>
+                  <td className="py-2 pr-4 text-zinc-700 dark:text-zinc-300">{t("featureTokens")}</td>
+                  <td className="py-2 text-center font-medium text-zinc-600 dark:text-zinc-400">{t("tokensNone")}</td>
+                  <td className="py-2 text-center font-medium text-zinc-600 dark:text-zinc-300">{t("tokensSilver")}</td>
+                  <td className="py-2 text-center font-medium text-blue-600 dark:text-blue-400">{t("tokensGold")}</td>
+                  <td className="py-2 text-center font-medium text-amber-600 dark:text-amber-400">{t("tokensPlatinum")}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
           <div className="mt-3 flex flex-wrap gap-2 text-xs text-zinc-600 dark:text-zinc-300">
             <Pill color="blue">{t("tokenLedger")}</Pill>
             <Pill color="green">{t("accountBenefits")}</Pill>
