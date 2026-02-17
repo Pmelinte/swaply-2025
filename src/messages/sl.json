@@ -53,7 +53,24 @@
   },
   "notifications": {
     "title": "Obvestila (všeček/interes/klepet/swaply)",
-    "empty": "Trenutno ni obvestil."
+    "empty": "Trenutno ni obvestil.",
+    "clearAll": "Počisti vse"
+  },
+  "contextBar": {
+    "itemsActive": "{count} aktivnih predmetov",
+    "swapsInProgress": "{count} aktivnih menjav",
+    "newNotifications": "{count} novih obvestil",
+    "addObject": "Dodaj predmet",
+    "matchAnalysis": "Analiza ujemanj",
+    "addObjectFirst": "Najprej dodajte predmet",
+    "basedOnItems": "na podlagi {count} predmetov",
+    "conversations": "{count} pogovorov",
+    "activeExchanges": "{count} menjav",
+    "pendingAction": "{count} čaka",
+    "inProgress": "{count} v teku",
+    "reputation": "Ugled",
+    "tokens": "Žetoni",
+    "viewInfo": "Info in statistike"
   },
   "login": {
     "authentication": "Avtentikacija",
@@ -334,7 +351,10 @@
     "analyzingCompatibility": "Analiza združljivosti",
     "noMatchesNow": "Trenutno ni ujemanj. Dopolnite več podrobnosti na svojih predmetih ali dodajte nove.",
     "aiUnavailableNote": "AI nedostopen",
-    "analysisContinues": "Analiza se nadaljuje z lokalnimi pravili. Nobena funkcionalnost ni blokirana."
+    "analysisContinues": "Analiza se nadaljuje z lokalnimi pravili. Nobena funkcionalnost ni blokirana.",
+    "openProfile": "Odpri profil",
+    "courier": "Kurirska služba",
+    "flexible": "Prilagodljiv"
   },
   "chat": {
     "title": "Varen klepet",
@@ -405,7 +425,23 @@
     "findAnotherMatch": "Najdi novo ujemanje",
     "findAnotherMatchDescription": "Odkrijte nove priložnosti za menjavo",
     "viewStats": "Poglej statistiko",
-    "viewStatsDescription": "Preverite svoj ugled in žetone"
+    "viewStatsDescription": "Preverite svoj ugled in žetone",
+    "bilateralStatus": "Dvostranski status",
+    "bilateralDescription": "Oglejte si status vsake strani v menjavi",
+    "requester": "Prosilec",
+    "responder": "Partner",
+    "you": "Vi",
+    "proposed": "Predlagano",
+    "scheduled": "Načrtovano",
+    "inProgress": "V teku",
+    "completed": "Zaključeno",
+    "cancelled": "Preklicano",
+    "confirmActionTitle": "Potrdi dejanje",
+    "confirmCancelMessage": "Ali ste prepričani, da želite preklicati to menjavo? Tega dejanja ni mogoče razveljaviti.",
+    "confirmCompleteMessage": "Potrditi zaključek menjave? Obe strani bosta obveščeni.",
+    "rateExperience": "Ocenite izkušnjo",
+    "commentPlaceholder": "Napišite komentar o svoji izkušnji...",
+    "feedbackSent": "Povratna informacija poslana"
   },
   "info": {
     "title": "Swaply statistika",
@@ -588,7 +624,10 @@
     "aiTrace": "AI sled:",
     "viewDetails": "Poglej podrobnosti",
     "sendMessage": "Pošlji sporočilo",
-    "proposeExchange": "Predlagaj menjavo"
+    "proposeExchange": "Predlagaj menjavo",
+    "rejectedCount": "{count} zavrnjenih ujemanj",
+    "undoAll": "Razveljavi vse",
+    "undo": "Razveljavi:"
   },
   "swapTimeline": {
     "proposed": "Predlagano",
@@ -627,7 +666,13 @@
     "send": "Pošlji",
     "blockedByModeration": "Sporočilo blokirano z moderacijo.",
     "sendError": "Napaka pri pošiljanju. Poskusite znova.",
-    "selectConversation": "Izberite pogovor ali začnite enega s strani predmetov."
+    "selectConversation": "Izberite pogovor ali začnite enega s strani predmetov.",
+    "swapContext": "Aktivna menjava",
+    "status_proposed": "Predlagano",
+    "status_scheduled": "Načrtovano",
+    "status_in_progress": "V teku",
+    "status_completed": "Zaključeno",
+    "status_cancelled": "Preklicano"
   },
   "statsGrid": {
     "globalExchanges": "Globalne menjave",

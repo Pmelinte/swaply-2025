@@ -53,7 +53,24 @@
   },
   "notifications": {
     "title": "Pazinojumi (patik/interese/terzesana/swaply)",
-    "empty": "Pašlaik nav pazinojumu."
+    "empty": "Pašlaik nav pazinojumu.",
+    "clearAll": "Notīrīt visu"
+  },
+  "contextBar": {
+    "itemsActive": "{count} aktīvi priekšmeti",
+    "swapsInProgress": "{count} aktīvas apmaiņas",
+    "newNotifications": "{count} jauni paziņojumi",
+    "addObject": "Pievienot priekšmetu",
+    "matchAnalysis": "Atbilstību analīze",
+    "addObjectFirst": "Vispirms pievienojiet priekšmetu",
+    "basedOnItems": "pamatojoties uz {count} priekšmetiem",
+    "conversations": "{count} sarunas",
+    "activeExchanges": "{count} apmaiņas",
+    "pendingAction": "{count} gaida darbību",
+    "inProgress": "{count} norit",
+    "reputation": "Reputācija",
+    "tokens": "Žetoni",
+    "viewInfo": "Info un statistika"
   },
   "login": {
     "authentication": "Autentifikacija",
@@ -334,7 +351,10 @@
     "analyzingCompatibility": "Analizē saderību",
     "noMatchesNow": "Pašlaik nav atbilstību. Aizpildiet vairāk detaļu par saviem objektiem vai pievienojiet jaunus.",
     "aiUnavailableNote": "MI nav pieejams",
-    "analysisContinues": "Analīze turpinās ar lokāliem noteikumiem. Neviena funkcionalitāte nav bloķēta."
+    "analysisContinues": "Analīze turpinās ar lokāliem noteikumiem. Neviena funkcionalitāte nav bloķēta.",
+    "openProfile": "Atvērt profilu",
+    "courier": "Kurjers",
+    "flexible": "Elastīgs"
   },
   "chat": {
     "title": "Droša tērzēšana",
@@ -405,7 +425,23 @@
     "findAnotherMatch": "Atrast citu atbilstību",
     "findAnotherMatchDescription": "Atklājiet jaunas apmaiņas iespējas",
     "viewStats": "Skatīt statistiku",
-    "viewStatsDescription": "Pārbaudiet savu reputāciju un žetonus"
+    "viewStatsDescription": "Pārbaudiet savu reputāciju un žetonus",
+    "bilateralStatus": "Divpusējs statuss",
+    "bilateralDescription": "Skatīt katras puses statusu apmaiņā",
+    "requester": "Pieprasītājs",
+    "responder": "Partneris",
+    "you": "Jūs",
+    "proposed": "Ierosināts",
+    "scheduled": "Ieplānots",
+    "inProgress": "Norit",
+    "completed": "Pabeigts",
+    "cancelled": "Atcelts",
+    "confirmActionTitle": "Apstiprināt darbību",
+    "confirmCancelMessage": "Vai tiešām vēlaties atcelt šo apmaiņu? Šo darbību nevar atsaukt.",
+    "confirmCompleteMessage": "Apstiprināt apmaiņas pabeigšanu? Abas puses tiks informētas.",
+    "rateExperience": "Novērtējiet pieredzi",
+    "commentPlaceholder": "Uzrakstiet komentāru par savu pieredzi...",
+    "feedbackSent": "Atsauksme nosūtīta"
   },
   "info": {
     "title": "Swaply statistika",
@@ -588,7 +624,10 @@
     "aiTrace": "MI izsekošana:",
     "viewDetails": "Skatīt detaļas",
     "sendMessage": "Nosūtīt ziņojumu",
-    "proposeExchange": "Piedāvāt apmaiņu"
+    "proposeExchange": "Piedāvāt apmaiņu",
+    "rejectedCount": "{count} noraidītas atbilstības",
+    "undoAll": "Atsaukt visus",
+    "undo": "Atsaukt:"
   },
   "swapTimeline": {
     "proposed": "Piedāvāts",
@@ -627,7 +666,13 @@
     "send": "Nosūtīt",
     "blockedByModeration": "Ziņojums bloķēts moderācijas dēļ.",
     "sendError": "Kļūda nosūtot. Mēģiniet vēlreiz.",
-    "selectConversation": "Izvēlieties sarunu vai sāciet vienu no objektu lapas."
+    "selectConversation": "Izvēlieties sarunu vai sāciet vienu no objektu lapas.",
+    "swapContext": "Aktīva apmaiņa",
+    "status_proposed": "Ierosināts",
+    "status_scheduled": "Ieplānots",
+    "status_in_progress": "Norit",
+    "status_completed": "Pabeigts",
+    "status_cancelled": "Atcelts"
   },
   "statsGrid": {
     "globalExchanges": "Globālās apmaiņas",

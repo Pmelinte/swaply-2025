@@ -53,7 +53,24 @@
   },
   "notifications": {
     "title": "सूचनाएँ (लाइक/रुचि/चैट/स्वैपली)",
-    "empty": "अभी कोई सूचना नहीं है।"
+    "empty": "अभी कोई सूचना नहीं है।",
+    "clearAll": "सभी साफ़ करें"
+  },
+  "contextBar": {
+    "itemsActive": "{count} सक्रिय आइटम",
+    "swapsInProgress": "{count} सक्रिय विनिमय",
+    "newNotifications": "{count} नई सूचनाएं",
+    "addObject": "आइटम जोड़ें",
+    "matchAnalysis": "मैच विश्लेषण",
+    "addObjectFirst": "पहले एक आइटम जोड़ें",
+    "basedOnItems": "{count} आइटम के आधार पर",
+    "conversations": "{count} बातचीत",
+    "activeExchanges": "{count} विनिमय",
+    "pendingAction": "{count} लंबित",
+    "inProgress": "{count} प्रगति में",
+    "reputation": "प्रतिष्ठा",
+    "tokens": "टोकन",
+    "viewInfo": "जानकारी और आंकड़े"
   },
   "login": {
     "authentication": "प्रमाणीकरण",
@@ -334,7 +351,10 @@
     "analyzingCompatibility": "संगतता का विश्लेषण हो रहा है",
     "noMatchesNow": "अभी कोई मैच नहीं। अपनी वस्तुओं पर अधिक विवरण पूरा करें या नई जोड़ें।",
     "aiUnavailableNote": "AI अनुपलब्ध",
-    "analysisContinues": "विश्लेषण स्थानीय नियमों के साथ जारी है। कोई कार्यक्षमता अवरुद्ध नहीं।"
+    "analysisContinues": "विश्लेषण स्थानीय नियमों के साथ जारी है। कोई कार्यक्षमता अवरुद्ध नहीं।",
+    "openProfile": "प्रोफ़ाइल खोलें",
+    "courier": "कूरियर",
+    "flexible": "लचीला"
   },
   "chat": {
     "title": "सुरक्षित चैट",
@@ -405,7 +425,23 @@
     "findAnotherMatch": "एक और मैच खोजें",
     "findAnotherMatchDescription": "नए विनिमय अवसर खोजें",
     "viewStats": "आंकड़े देखें",
-    "viewStatsDescription": "अपनी प्रतिष्ठा और टोकन जांचें"
+    "viewStatsDescription": "अपनी प्रतिष्ठा और टोकन जांचें",
+    "bilateralStatus": "द्विपक्षीय स्थिति",
+    "bilateralDescription": "विनिमय में प्रत्येक पक्ष की स्थिति देखें",
+    "requester": "अनुरोधकर्ता",
+    "responder": "साथी",
+    "you": "आप",
+    "proposed": "प्रस्तावित",
+    "scheduled": "निर्धारित",
+    "inProgress": "प्रगति में",
+    "completed": "पूर्ण",
+    "cancelled": "रद्द",
+    "confirmActionTitle": "कार्रवाई की पुष्टि करें",
+    "confirmCancelMessage": "क्या आप वाकई इस विनिमय को रद्द करना चाहते हैं? यह क्रिया पूर्ववत नहीं की जा सकती।",
+    "confirmCompleteMessage": "विनिमय पूर्णता की पुष्टि करें? दोनों पक्षों को सूचित किया जाएगा।",
+    "rateExperience": "अनुभव का मूल्यांकन करें",
+    "commentPlaceholder": "अपने अनुभव के बारे में टिप्पणी लिखें...",
+    "feedbackSent": "प्रतिक्रिया भेजी गई"
   },
   "info": {
     "title": "Swaply आंकड़े",
@@ -588,7 +624,10 @@
     "aiTrace": "AI ट्रेस:",
     "viewDetails": "विवरण देखें",
     "sendMessage": "संदेश भेजें",
-    "proposeExchange": "विनिमय प्रस्ताव दें"
+    "proposeExchange": "विनिमय प्रस्ताव दें",
+    "rejectedCount": "{count} मैच अस्वीकृत",
+    "undoAll": "सभी पूर्ववत",
+    "undo": "पूर्ववत:"
   },
   "swapTimeline": {
     "proposed": "प्रस्तावित",
@@ -627,7 +666,13 @@
     "send": "भेजें",
     "blockedByModeration": "संदेश मॉडरेशन द्वारा अवरुद्ध।",
     "sendError": "भेजने में त्रुटि। पुनः प्रयास करें।",
-    "selectConversation": "एक बातचीत चुनें या वस्तु पेज से एक शुरू करें।"
+    "selectConversation": "एक बातचीत चुनें या वस्तु पेज से एक शुरू करें।",
+    "swapContext": "सक्रिय विनिमय",
+    "status_proposed": "प्रस्तावित",
+    "status_scheduled": "निर्धारित",
+    "status_in_progress": "प्रगति में",
+    "status_completed": "पूर्ण",
+    "status_cancelled": "रद्द"
   },
   "statsGrid": {
     "globalExchanges": "वैश्विक विनिमय",

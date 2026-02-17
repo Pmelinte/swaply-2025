@@ -24,6 +24,7 @@
     "noImage": "Intet billede",
     "freeSlot": "Ledig plads"
   },
+
   "nav": {
     "home": "Hjem",
     "objects": "Genstande",
@@ -51,10 +52,30 @@
     "badgeBenefits": "Badge-fordele",
     "completeProfile": "Udfyld din profil"
   },
+
   "notifications": {
-    "title": "Notifikationer (like/interesse/chat/swaply)",
-    "empty": "Ingen notifikationer lige nu."
+    "title": "Notifikationer",
+    "empty": "Ingen notifikationer lige nu.",
+    "clearAll": "Ryd alle"
   },
+
+  "contextBar": {
+    "itemsActive": "{count} aktive genstande",
+    "swapsInProgress": "{count} aktive byttehandler",
+    "newNotifications": "{count} nye notifikationer",
+    "addObject": "Tilføj genstand",
+    "matchAnalysis": "Match-analyse",
+    "addObjectFirst": "Tilføj en genstand først",
+    "basedOnItems": "baseret på {count} genstande",
+    "conversations": "{count} samtaler",
+    "activeExchanges": "{count} byttehandler",
+    "pendingAction": "{count} afventende handling",
+    "inProgress": "{count} i gang",
+    "reputation": "Omdømme",
+    "tokens": "Tokens",
+    "viewInfo": "Info & Statistikker"
+  },
+
   "login": {
     "authentication": "Godkendelse",
     "registration": "Registrering",
@@ -91,6 +112,7 @@
     "invalidCredentials": "Ugyldige legitimationsoplysninger",
     "invalidCredentialsDescription": "Rød besked + demo-adgangskode omtalt. Ingen mock-succes; bliv på siden med CTA til nulstilling af adgangskode."
   },
+
   "profile": {
     "loading": "Indlæser profil…",
     "loadingDescription": "Tjekker din session.",
@@ -174,50 +196,52 @@
     "badgeBenefits": "Badge-fordele",
     "badgeBenefitsDescription": "Opdag Premium og Platinum fordele"
   },
+
   "home": {
-    "welcome": "Welcome back",
-    "greeting": "Hey, {name}!",
-    "heroSubtitle": "Explore objects in your area, discover matches, and propose swaps.",
-    "statItems": "{count} active items",
-    "statSwaps": "{count} swaps",
+    "welcome": "Velkommen tilbage",
+    "greeting": "Hej, {name}!",
+    "heroSubtitle": "Udforsk genstande i dit område, opdag matches og foreslå byttehandler.",
+    "statItems": "{count} aktive genstande",
+    "statSwaps": "{count} byttehandler",
     "statTokens": "{count} tokens",
-    "statNotifs": "{count} new notifications",
-    "guestHeadline": "Swap what you have for what you want",
-    "guestSubtitle": "Swaply connects people who want to exchange objects, no money involved. Simple, local, transparent.",
-    "getStarted": "Get started",
-    "browseObjects": "Browse objects",
-    "actionAdd": "Add object",
-    "actionAddDesc": "List something for exchange",
-    "actionExplore": "Explore",
-    "actionExploreDesc": "Discover available objects",
+    "statNotifs": "{count} nye notifikationer",
+    "guestHeadline": "Byt hvad du har for hvad du vil have",
+    "guestSubtitle": "Swaply forbinder folk der vil bytte genstande, ingen penge involveret. Simpelt, lokalt, gennemsigtigt.",
+    "getStarted": "Kom i gang",
+    "browseObjects": "Gennemse genstande",
+    "actionAdd": "Tilføj genstand",
+    "actionAddDesc": "Opret noget til bytte",
+    "actionExplore": "Udforsk",
+    "actionExploreDesc": "Opdag tilgængelige genstande",
     "actionMatch": "AI Matches",
-    "actionMatchDesc": "Analyze compatibility",
-    "actionSwaps": "Swaps",
-    "actionSwapsDesc": "Monitor your exchanges",
-    "mapTitle": "Users map",
-    "mapSubtitle": "Premium and Platinum users are visible on the map.",
-    "addLocationHint": "Add your location in profile to enable map-based features",
-    "announcements": "Announcements",
-    "nudgeNoItems": "You don't have any listed objects yet",
-    "nudgeNoItemsDesc": "Add your first object to start receiving swap proposals.",
-    "nudgeProfile": "Complete your profile",
-    "nudgeProfileDesc": "A complete profile increases your trust and visibility.",
-    "nudgeProfileCta": "Edit profile",
-    "nudgeMatches": "{count} matches found",
-    "nudgeMatchesDesc": "AI has identified compatible proposals for your objects.",
-    "nudgeMatchesCta": "View matches",
-    "reputation": "Reputation",
-    "repLevel": "Level",
-    "repPath": "Starter → Trusted → Ambassador",
-    "activeSwaps": "{count} active swaps",
-    "activeSwapsDesc": "You have ongoing swaps that need your attention.",
-    "messagesLink": "Messages",
-    "messagesLinkDesc": "Chat with your swap partners",
-    "guestDiscover": "Discover Swaply",
-    "guestObjects": "View available objects",
-    "guestInfo": "Platform info",
-    "guestBadges": "Badge benefits"
+    "actionMatchDesc": "Analysér kompatibilitet",
+    "actionSwaps": "Byttehandler",
+    "actionSwapsDesc": "Følg dine byttehandler",
+    "mapTitle": "Brugerkort",
+    "mapSubtitle": "Premium og Platinum brugere er synlige på kortet.",
+    "addLocationHint": "Tilføj din lokation i profilen for at aktivere kortbaserede funktioner",
+    "announcements": "Meddelelser",
+    "nudgeNoItems": "Du har endnu ingen oplistede genstande",
+    "nudgeNoItemsDesc": "Tilføj din første genstand for at begynde at modtage bytteforslag.",
+    "nudgeProfile": "Udfyld din profil",
+    "nudgeProfileDesc": "En komplet profil øger din tillid og synlighed.",
+    "nudgeProfileCta": "Rediger profil",
+    "nudgeMatches": "{count} matches fundet",
+    "nudgeMatchesDesc": "AI har identificeret kompatible forslag til dine genstande.",
+    "nudgeMatchesCta": "Se matches",
+    "reputation": "Omdømme",
+    "repLevel": "Niveau",
+    "repPath": "Starter → Betroet → Ambassadør",
+    "activeSwaps": "{count} aktive byttehandler",
+    "activeSwapsDesc": "Du har igangværende byttehandler der kræver din opmærksomhed.",
+    "messagesLink": "Beskeder",
+    "messagesLinkDesc": "Chat med dine byttepartnere",
+    "guestDiscover": "Opdag Swaply",
+    "guestObjects": "Se tilgængelige genstande",
+    "guestInfo": "Platforminformation",
+    "guestBadges": "Badge-fordele"
   },
+
   "objects": {
     "createAccount": "Opret konto",
     "loginToList": "Log ind for at opslå genstande",
@@ -252,6 +276,7 @@
     "loadError": "Fejl ved indlæsning af genstande",
     "loadErrorDescription": "Tydelig besked uden nedbrud; tillader genindlæsning af side."
   },
+
   "objectDetail": {
     "loading": "Indlæser genstand",
     "loadingDescription": "Indlæsningstilstand per kontrakt (ikke 404).",
@@ -271,6 +296,7 @@
     "startSecureChat": "Start sikker chat",
     "proposeExchange": "Foreslå bytte"
   },
+
   "objectEdit": {
     "loading": "Indlæser editor",
     "notFound": "Genstand ikke fundet",
@@ -278,10 +304,12 @@
     "title": "Rediger genstand",
     "editDescription": "Formular med forudfyldte værdier + tydelige statusser."
   },
+
   "objectNew": {
     "title": "Tilføj genstand",
     "description": "Komplet formular, uden at bryde buildet."
   },
+
   "match": {
     "title": "Match-analyse",
     "description": "Forslag baseret på kumulativ kompatibilitet. AI analyserer, du beslutter.",
@@ -334,8 +362,12 @@
     "analyzingCompatibility": "Analyserer kompatibilitet",
     "noMatchesNow": "Ingen matches lige nu. Udfyld flere detaljer på dine genstande eller tilføj nye.",
     "aiUnavailableNote": "AI utilgængelig",
-    "analysisContinues": "Analysen fortsætter med lokale regler. Ingen funktionalitet blokeret."
+    "analysisContinues": "Analysen fortsætter med lokale regler. Ingen funktionalitet blokeret.",
+    "openProfile": "Åbn profil",
+    "courier": "Kurer",
+    "flexible": "Fleksibel"
   },
+
   "chat": {
     "title": "Sikker chat",
     "description": "Oversættelse (hvis aktiveret) + moderering + scannede vedhæftninger + CTA til Swaply",
@@ -359,13 +391,14 @@
     "noConversations": "Ingen samtaler. Start en fra genstandssiden eller matchsiden.",
     "secureChat": "Sikker chat",
     "translation": "Oversættelse:",
-    "on": "TIL",
-    "off": "FRA",
+    "on": "ON",
+    "off": "OFF",
     "writeMessage": "Skriv en besked…",
     "blockedByModeration": "Besked blokeret af moderering.",
     "sendError": "Fejl ved afsendelse. Prøv igen.",
     "selectConversation": "Vælg en samtale eller start en fra genstandssiden."
   },
+
   "change": {
     "title": "Bytteforløb (Swaply)",
     "description": "Bekræftelse + logistik + kort (niveauer) + notifikationer + feedback",
@@ -405,8 +438,25 @@
     "findAnotherMatch": "Find et nyt match",
     "findAnotherMatchDescription": "Opdag nye byttemuligheder",
     "viewStats": "Se statistikker",
-    "viewStatsDescription": "Tjek dit omdømme og tokens"
+    "viewStatsDescription": "Tjek dit omdømme og tokens",
+    "bilateralStatus": "Bilateral status",
+    "bilateralDescription": "Se status for hver part i byttehandlen",
+    "requester": "Anmoder",
+    "responder": "Partner",
+    "you": "Dig",
+    "proposed": "Foreslået",
+    "scheduled": "Planlagt",
+    "inProgress": "I gang",
+    "completed": "Fuldført",
+    "cancelled": "Annulleret",
+    "confirmActionTitle": "Bekræft handling",
+    "confirmCancelMessage": "Er du sikker på at du vil annullere denne byttehandel? Denne handling kan ikke fortrydes.",
+    "confirmCompleteMessage": "Bekræft byttehandlens fuldførelse? Begge parter vil blive underrettet.",
+    "rateExperience": "Bedøm oplevelsen",
+    "commentPlaceholder": "Skriv en kommentar om din oplevelse...",
+    "feedbackSent": "Feedback sendt"
   },
+
   "info": {
     "title": "Swaply Statistikker",
     "description": "Globale statistikker + brugerstatistikker + rang + tokens + vekselkurs + hjælp/juridisk",
@@ -449,6 +499,7 @@
     "authentication": "Godkendelse",
     "authenticationDescription": "Opret konto eller log ind"
   },
+
   "itemForm": {
     "conditionNew": "Ny",
     "conditionGood": "Let brugt",
@@ -543,6 +594,7 @@
     "imageReadError": "Kunne ikke læse billedet.",
     "uploadingImageButton": "Uploader billede…"
   },
+
   "itemCard": {
     "location": "Lokation:",
     "ai": "AI:",
@@ -550,6 +602,7 @@
     "edit": "Rediger",
     "delete": "Slet"
   },
+
   "swipeCard": {
     "yes": "JA",
     "no": "NEJ",
@@ -557,6 +610,7 @@
     "notInterested": "Ikke interesseret",
     "interested": "Interesseret"
   },
+
   "matchList": {
     "weak": "Svag",
     "possible": "Mulig",
@@ -588,8 +642,12 @@
     "aiTrace": "AI-spor:",
     "viewDetails": "Se detaljer",
     "sendMessage": "Send en besked",
-    "proposeExchange": "Foreslå bytte"
+    "proposeExchange": "Foreslå bytte",
+    "rejectedCount": "{count} matches afvist",
+    "undoAll": "Fortryd alle",
+    "undo": "Fortryd:"
   },
+
   "swapTimeline": {
     "proposed": "Foreslået",
     "scheduled": "Planlagt",
@@ -610,6 +668,7 @@
     "autoNotifications": "Auto-notifikationer:",
     "lastUpdate": "Seneste opdatering:"
   },
+
   "chatPanel": {
     "you": "Dig",
     "partner": "Partner",
@@ -621,14 +680,21 @@
     "noConversations": "Ingen samtaler. Start en fra genstandssiden eller matchsiden.",
     "secureChat": "Sikker chat",
     "translation": "Oversættelse:",
-    "on": "TIL",
-    "off": "FRA",
+    "on": "ON",
+    "off": "OFF",
     "writeMessage": "Skriv en besked…",
     "send": "Send",
     "blockedByModeration": "Besked blokeret af moderering.",
     "sendError": "Fejl ved afsendelse. Prøv igen.",
-    "selectConversation": "Vælg en samtale eller start en fra genstandssiden."
+    "selectConversation": "Vælg en samtale eller start en fra genstandssiden.",
+    "swapContext": "Aktivt bytte",
+    "status_proposed": "Foreslået",
+    "status_scheduled": "Planlagt",
+    "status_in_progress": "I gang",
+    "status_completed": "Fuldført",
+    "status_cancelled": "Annulleret"
   },
+
   "statsGrid": {
     "globalExchanges": "Globale byttehandler",
     "globalDescription": "Swaply er aktiv i flere regioner",
@@ -639,6 +705,7 @@
     "tokensIssued": "Tokens udstedt",
     "tokensDescription": "Sikker hovedbog, synlig i profil"
   },
+
   "map": {
     "unavailable": "Kort utilgængeligt",
     "providerDisabled": "Kortudbyder deaktiveret. Resten af siden forbliver brugbar.",
@@ -650,6 +717,7 @@
     "mapTitle": "Lokationskort",
     "noPins": "Ingen pins at vise"
   },
+
   "location": {
     "country": "Land",
     "selectCountry": "— Vælg land —",
@@ -660,16 +728,19 @@
     "selectCity": "— Vælg by —",
     "chooseRegionFirst": "— Vælg region først —"
   },
+
   "gated": {
     "notLoggedIn": "Du er ikke logget ind",
     "loginToView": "Log ind for at se dette indhold. Returadresse er gemt, så du kan fortsætte flowet uden afbrydelser.",
     "login": "Log ind"
   },
+
   "demoBanner": {
     "demoMode": "Demotilstand aktiv",
     "dataNotReal": "— data er ikke virkelig og gemmes ikke.",
     "exitDemo": "Afslut demo"
   },
+
   "pwa": {
     "installSwaply": "Installér Swaply",
     "installDescription": "Føj til startskærmen for hurtig adgang, uden browser.",

@@ -53,7 +53,24 @@
   },
   "notifications": {
     "title": "Varsler (lik/interesse/chat/swaply)",
-    "empty": "Ingen varsler akkurat nå."
+    "empty": "Ingen varsler akkurat nå.",
+    "clearAll": "Fjern alle"
+  },
+  "contextBar": {
+    "itemsActive": "{count} aktive objekter",
+    "swapsInProgress": "{count} aktive bytter",
+    "newNotifications": "{count} nye varsler",
+    "addObject": "Legg til objekt",
+    "matchAnalysis": "Treffanalyse",
+    "addObjectFirst": "Legg til et objekt først",
+    "basedOnItems": "basert på {count} objekter",
+    "conversations": "{count} samtaler",
+    "activeExchanges": "{count} bytter",
+    "pendingAction": "{count} venter",
+    "inProgress": "{count} pågår",
+    "reputation": "Omdømme",
+    "tokens": "Tokens",
+    "viewInfo": "Info & Statistikk"
   },
   "login": {
     "authentication": "Autentisering",
@@ -334,7 +351,10 @@
     "analyzingCompatibility": "Analyserer kompatibilitet",
     "noMatchesNow": "Ingen treff akkurat nå. Fullfør flere detaljer på gjenstandene dine eller legg til nye.",
     "aiUnavailableNote": "AI utilgjengelig",
-    "analysisContinues": "Analysen fortsetter med lokale regler. Ingen funksjonalitet blokkert."
+    "analysisContinues": "Analysen fortsetter med lokale regler. Ingen funksjonalitet blokkert.",
+    "openProfile": "Åpne profil",
+    "courier": "Bud",
+    "flexible": "Fleksibel"
   },
   "chat": {
     "title": "Sikker chat",
@@ -405,7 +425,23 @@
     "findAnotherMatch": "Finn et nytt treff",
     "findAnotherMatchDescription": "Oppdag nye byttemuligheter",
     "viewStats": "Se statistikk",
-    "viewStatsDescription": "Sjekk omdømmet og tokenene dine"
+    "viewStatsDescription": "Sjekk omdømmet og tokenene dine",
+    "bilateralStatus": "Bilateral status",
+    "bilateralDescription": "Se statusen til hver part i byttet",
+    "requester": "Forespørrende",
+    "responder": "Partner",
+    "you": "Du",
+    "proposed": "Foreslått",
+    "scheduled": "Planlagt",
+    "inProgress": "Pågår",
+    "completed": "Fullført",
+    "cancelled": "Avbrutt",
+    "confirmActionTitle": "Bekreft handling",
+    "confirmCancelMessage": "Er du sikker på at du vil avbryte dette byttet? Denne handlingen kan ikke angres.",
+    "confirmCompleteMessage": "Bekrefte fullføring av byttet? Begge parter vil bli varslet.",
+    "rateExperience": "Vurder opplevelsen",
+    "commentPlaceholder": "Skriv en kommentar om opplevelsen din...",
+    "feedbackSent": "Tilbakemelding sendt"
   },
   "info": {
     "title": "Swaply-statistikk",
@@ -588,7 +624,10 @@
     "aiTrace": "AI-spor:",
     "viewDetails": "Se detaljer",
     "sendMessage": "Send en melding",
-    "proposeExchange": "Foreslå bytte"
+    "proposeExchange": "Foreslå bytte",
+    "rejectedCount": "{count} avviste treff",
+    "undoAll": "Angre alle",
+    "undo": "Angre:"
   },
   "swapTimeline": {
     "proposed": "Foreslått",
@@ -627,7 +666,13 @@
     "send": "Send",
     "blockedByModeration": "Melding blokkert av moderering.",
     "sendError": "Feil ved sending. Prøv igjen.",
-    "selectConversation": "Velg en samtale eller start en fra gjenstandssiden."
+    "selectConversation": "Velg en samtale eller start en fra gjenstandssiden.",
+    "swapContext": "Aktivt bytte",
+    "status_proposed": "Foreslått",
+    "status_scheduled": "Planlagt",
+    "status_in_progress": "Pågår",
+    "status_completed": "Fullført",
+    "status_cancelled": "Avbrutt"
   },
   "statsGrid": {
     "globalExchanges": "Globale bytter",

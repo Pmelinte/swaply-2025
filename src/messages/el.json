@@ -53,7 +53,24 @@
   },
   "notifications": {
     "title": "Ειδοποιήσεις (like/ενδιαφέρον/συνομιλία/swaply)",
-    "empty": "Καμία ειδοποίηση αυτή τη στιγμή."
+    "empty": "Καμία ειδοποίηση αυτή τη στιγμή.",
+    "clearAll": "Εκκαθάριση όλων"
+  },
+  "contextBar": {
+    "itemsActive": "{count} ενεργά αντικείμενα",
+    "swapsInProgress": "{count} ενεργές ανταλλαγές",
+    "newNotifications": "{count} νέες ειδοποιήσεις",
+    "addObject": "Προσθήκη αντικειμένου",
+    "matchAnalysis": "Ανάλυση αντιστοιχίσεων",
+    "addObjectFirst": "Προσθέστε πρώτα ένα αντικείμενο",
+    "basedOnItems": "βάσει {count} αντικειμένων",
+    "conversations": "{count} συνομιλίες",
+    "activeExchanges": "{count} ανταλλαγές",
+    "pendingAction": "{count} σε αναμονή",
+    "inProgress": "{count} σε εξέλιξη",
+    "reputation": "Φήμη",
+    "tokens": "Κουπόνια",
+    "viewInfo": "Πληροφορίες & Στατιστικά"
   },
   "login": {
     "authentication": "Ταυτοποίηση",
@@ -334,7 +351,10 @@
     "analyzingCompatibility": "Ανάλυση συμβατότητας",
     "noMatchesNow": "Καμία αντιστοίχιση αυτή τη στιγμή. Συμπληρώστε περισσότερες λεπτομέρειες στα αντικείμενά σας ή προσθέστε νέα.",
     "aiUnavailableNote": "AI μη διαθέσιμο",
-    "analysisContinues": "Η ανάλυση συνεχίζεται με τοπικούς κανόνες. Καμία λειτουργικότητα δεν μπλοκάρεται."
+    "analysisContinues": "Η ανάλυση συνεχίζεται με τοπικούς κανόνες. Καμία λειτουργικότητα δεν μπλοκάρεται.",
+    "openProfile": "Άνοιγμα προφίλ",
+    "courier": "Ταχυμεταφορά",
+    "flexible": "Ευέλικτο"
   },
   "chat": {
     "title": "Ασφαλής συνομιλία",
@@ -405,7 +425,23 @@
     "findAnotherMatch": "Βρείτε άλλη αντιστοίχιση",
     "findAnotherMatchDescription": "Ανακαλύψτε νέες ευκαιρίες ανταλλαγής",
     "viewStats": "Προβολή στατιστικών",
-    "viewStatsDescription": "Ελέγξτε τη φήμη και τα tokens σας"
+    "viewStatsDescription": "Ελέγξτε τη φήμη και τα tokens σας",
+    "bilateralStatus": "Αμφίπλευρη κατάσταση",
+    "bilateralDescription": "Δείτε την κατάσταση κάθε μέρους στην ανταλλαγή",
+    "requester": "Αιτών",
+    "responder": "Συνεργάτης",
+    "you": "Εσείς",
+    "proposed": "Προτεινόμενο",
+    "scheduled": "Προγραμματισμένο",
+    "inProgress": "Σε εξέλιξη",
+    "completed": "Ολοκληρώθηκε",
+    "cancelled": "Ακυρώθηκε",
+    "confirmActionTitle": "Επιβεβαίωση ενέργειας",
+    "confirmCancelMessage": "Είστε σίγουροι ότι θέλετε να ακυρώσετε αυτή την ανταλλαγή; Αυτή η ενέργεια δεν μπορεί να αναιρεθεί.",
+    "confirmCompleteMessage": "Επιβεβαίωση ολοκλήρωσης ανταλλαγής; Και τα δύο μέρη θα ειδοποιηθούν.",
+    "rateExperience": "Αξιολογήστε την εμπειρία",
+    "commentPlaceholder": "Γράψτε ένα σχόλιο για την εμπειρία σας...",
+    "feedbackSent": "Η αξιολόγηση στάλθηκε"
   },
   "info": {
     "title": "Στατιστικά Swaply",
@@ -588,7 +624,10 @@
     "aiTrace": "Ίχνος AI:",
     "viewDetails": "Προβολή λεπτομερειών",
     "sendMessage": "Αποστολή μηνύματος",
-    "proposeExchange": "Πρόταση ανταλλαγής"
+    "proposeExchange": "Πρόταση ανταλλαγής",
+    "rejectedCount": "{count} απορριφθείσες αντιστοιχίσεις",
+    "undoAll": "Αναίρεση όλων",
+    "undo": "Αναίρεση:"
   },
   "swapTimeline": {
     "proposed": "Προτεινόμενη",
@@ -627,7 +666,13 @@
     "send": "Αποστολή",
     "blockedByModeration": "Μήνυμα μπλοκαρισμένο από την εποπτεία.",
     "sendError": "Σφάλμα αποστολής. Δοκιμάστε ξανά.",
-    "selectConversation": "Επιλέξτε μια συνομιλία ή ξεκινήστε μία από τη σελίδα αντικειμένων."
+    "selectConversation": "Επιλέξτε μια συνομιλία ή ξεκινήστε μία από τη σελίδα αντικειμένων.",
+    "swapContext": "Ενεργή ανταλλαγή",
+    "status_proposed": "Προτεινόμενο",
+    "status_scheduled": "Προγραμματισμένο",
+    "status_in_progress": "Σε εξέλιξη",
+    "status_completed": "Ολοκληρώθηκε",
+    "status_cancelled": "Ακυρώθηκε"
   },
   "statsGrid": {
     "globalExchanges": "Παγκόσμιες ανταλλαγές",

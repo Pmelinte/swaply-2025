@@ -53,7 +53,24 @@
   },
   "notifications": {
     "title": "알림 (좋아요/관심/채팅/교환)",
-    "empty": "현재 알림이 없습니다."
+    "empty": "현재 알림이 없습니다.",
+    "clearAll": "모두 지우기"
+  },
+  "contextBar": {
+    "itemsActive": "{count}개 활성 아이템",
+    "swapsInProgress": "{count}개 진행 중인 교환",
+    "newNotifications": "{count}개 새 알림",
+    "addObject": "아이템 추가",
+    "matchAnalysis": "매칭 분석",
+    "addObjectFirst": "먼저 아이템을 추가하세요",
+    "basedOnItems": "{count}개 아이템 기반",
+    "conversations": "{count}개 대화",
+    "activeExchanges": "{count}개 교환",
+    "pendingAction": "{count}개 대기 중",
+    "inProgress": "{count}개 진행 중",
+    "reputation": "평판",
+    "tokens": "토큰",
+    "viewInfo": "정보 및 통계"
   },
   "login": {
     "authentication": "인증",
@@ -334,7 +351,10 @@
     "analyzingCompatibility": "호환성 분석 중",
     "noMatchesNow": "현재 매칭이 없습니다. 물건에 더 많은 세부 정보를 추가하거나 새 물건을 등록하세요.",
     "aiUnavailableNote": "AI 사용 불가",
-    "analysisContinues": "로컬 규칙으로 분석이 계속됩니다. 기능이 차단되지 않습니다."
+    "analysisContinues": "로컬 규칙으로 분석이 계속됩니다. 기능이 차단되지 않습니다.",
+    "openProfile": "프로필 열기",
+    "courier": "택배",
+    "flexible": "유연"
   },
   "chat": {
     "title": "보안 채팅",
@@ -405,7 +425,23 @@
     "findAnotherMatch": "다른 매칭 찾기",
     "findAnotherMatchDescription": "새로운 교환 기회 찾기",
     "viewStats": "통계 보기",
-    "viewStatsDescription": "평판과 토큰을 확인하세요"
+    "viewStatsDescription": "평판과 토큰을 확인하세요",
+    "bilateralStatus": "양측 상태",
+    "bilateralDescription": "교환에서 각 당사자의 상태를 확인하세요",
+    "requester": "요청자",
+    "responder": "파트너",
+    "you": "나",
+    "proposed": "제안됨",
+    "scheduled": "예정됨",
+    "inProgress": "진행 중",
+    "completed": "완료",
+    "cancelled": "취소됨",
+    "confirmActionTitle": "작업 확인",
+    "confirmCancelMessage": "이 교환을 취소하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+    "confirmCompleteMessage": "교환 완료를 확인하시겠습니까? 양측 모두에게 알림이 전송됩니다.",
+    "rateExperience": "경험 평가",
+    "commentPlaceholder": "경험에 대한 댓글을 작성하세요...",
+    "feedbackSent": "피드백 전송됨"
   },
   "info": {
     "title": "Swaply 통계",
@@ -588,7 +624,10 @@
     "aiTrace": "AI 추적:",
     "viewDetails": "세부 정보 보기",
     "sendMessage": "메시지 보내기",
-    "proposeExchange": "교환 제안"
+    "proposeExchange": "교환 제안",
+    "rejectedCount": "{count}개 매칭 거부됨",
+    "undoAll": "모두 되돌리기",
+    "undo": "되돌리기:"
   },
   "swapTimeline": {
     "proposed": "제안됨",
@@ -627,7 +666,13 @@
     "send": "보내기",
     "blockedByModeration": "중재에 의해 메시지가 차단되었습니다.",
     "sendError": "전송 오류. 다시 시도하세요.",
-    "selectConversation": "대화를 선택하거나 물건 페이지에서 새로 시작하세요."
+    "selectConversation": "대화를 선택하거나 물건 페이지에서 새로 시작하세요.",
+    "swapContext": "활성 교환",
+    "status_proposed": "제안됨",
+    "status_scheduled": "예정됨",
+    "status_in_progress": "진행 중",
+    "status_completed": "완료",
+    "status_cancelled": "취소됨"
   },
   "statsGrid": {
     "globalExchanges": "전체 교환",

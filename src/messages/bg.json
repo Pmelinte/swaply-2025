@@ -53,7 +53,24 @@
   },
   "notifications": {
     "title": "Известия (харесване/интерес/чат/swaply)",
-    "empty": "Няма известия в момента."
+    "empty": "Няма известия в момента.",
+    "clearAll": "Изчисти всички"
+  },
+  "contextBar": {
+    "itemsActive": "{count} активни обекти",
+    "swapsInProgress": "{count} активни размени",
+    "newNotifications": "{count} нови известия",
+    "addObject": "Добави обект",
+    "matchAnalysis": "Анализ на съвпадения",
+    "addObjectFirst": "Първо добавете обект",
+    "basedOnItems": "на база {count} обекта",
+    "conversations": "{count} разговори",
+    "activeExchanges": "{count} размени",
+    "pendingAction": "{count} в очакване",
+    "inProgress": "{count} в ход",
+    "reputation": "Репутация",
+    "tokens": "Токени",
+    "viewInfo": "Информация и статистики"
   },
   "login": {
     "authentication": "Удостоверяване",
@@ -334,7 +351,10 @@
     "analyzingCompatibility": "Анализиране на съвместимостта",
     "noMatchesNow": "Няма съвпадения в момента. Попълнете повече детайли за обектите си или добавете нови.",
     "aiUnavailableNote": "AI недостъпен",
-    "analysisContinues": "Анализът продължава с локални правила. Няма блокирана функционалност."
+    "analysisContinues": "Анализът продължава с локални правила. Няма блокирана функционалност.",
+    "openProfile": "Отвори профил",
+    "courier": "Куриер",
+    "flexible": "Гъвкав"
   },
   "chat": {
     "title": "Защитен чат",
@@ -405,7 +425,23 @@
     "findAnotherMatch": "Намерете друго съвпадение",
     "findAnotherMatchDescription": "Открийте нови възможности за размяна",
     "viewStats": "Преглед на статистики",
-    "viewStatsDescription": "Проверете репутацията и токените си"
+    "viewStatsDescription": "Проверете репутацията и токените си",
+    "bilateralStatus": "Двустранен статус",
+    "bilateralDescription": "Вижте статуса на всяка страна в размяната",
+    "requester": "Заявител",
+    "responder": "Партньор",
+    "you": "Вие",
+    "proposed": "Предложен",
+    "scheduled": "Насрочен",
+    "inProgress": "В ход",
+    "completed": "Завършен",
+    "cancelled": "Отменен",
+    "confirmActionTitle": "Потвърдете действието",
+    "confirmCancelMessage": "Сигурни ли сте, че искате да отмените тази размяна? Това действие не може да бъде отменено.",
+    "confirmCompleteMessage": "Потвърдете завършването на размяната? И двете страни ще бъдат уведомени.",
+    "rateExperience": "Оценете преживяването",
+    "commentPlaceholder": "Напишете коментар за вашето преживяване...",
+    "feedbackSent": "Отзивът е изпратен"
   },
   "info": {
     "title": "Swaply статистики",
@@ -588,7 +624,10 @@
     "aiTrace": "AI проследяване:",
     "viewDetails": "Преглед на детайли",
     "sendMessage": "Изпрати съобщение",
-    "proposeExchange": "Предложи размяна"
+    "proposeExchange": "Предложи размяна",
+    "rejectedCount": "{count} отхвърлени съвпадения",
+    "undoAll": "Отмени всички",
+    "undo": "Отмени:"
   },
   "swapTimeline": {
     "proposed": "Предложено",
@@ -627,7 +666,13 @@
     "send": "Изпрати",
     "blockedByModeration": "Съобщението е блокирано от модерацията.",
     "sendError": "Грешка при изпращане. Опитайте отново.",
-    "selectConversation": "Изберете разговор или започнете един от страницата с обекти."
+    "selectConversation": "Изберете разговор или започнете един от страницата с обекти.",
+    "swapContext": "Активна размяна",
+    "status_proposed": "Предложен",
+    "status_scheduled": "Насрочен",
+    "status_in_progress": "В ход",
+    "status_completed": "Завършен",
+    "status_cancelled": "Отменен"
   },
   "statsGrid": {
     "globalExchanges": "Глобални размени",

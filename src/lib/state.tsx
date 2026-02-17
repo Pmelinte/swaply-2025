@@ -458,7 +458,15 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [lastError, setLastError] = useState<string | null>(null);
   const [user, setUser] = useState<UserProfile | null>(null);
   const userRef = useRef<UserProfile | null>(null);
-  const [announcements] = useState<Announcement[]>(mockAnnouncements);
+  const announcements = useMemo<Announcement[]>(() => {
+    return mockAnnouncements.filter((ann) => {
+      // Hide location warning once user has set city + country
+      if (ann.id === "ann-2" && user?.location?.city && user?.location?.country) {
+        return false;
+      }
+      return true;
+    });
+  }, [user?.location?.city, user?.location?.country]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [items, setItems] = useState<Item[]>([]);
   const [matches, setMatches] = useState<MatchCandidate[]>([]);

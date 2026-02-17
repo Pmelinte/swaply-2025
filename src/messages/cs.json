@@ -53,7 +53,24 @@
   },
   "notifications": {
     "title": "Oznámení (like/zájem/chat/swaply)",
-    "empty": "Momentálně žádná oznámení."
+    "empty": "Momentálně žádná oznámení.",
+    "clearAll": "Vymazat vše"
+  },
+  "contextBar": {
+    "itemsActive": "{count} aktivních objektů",
+    "swapsInProgress": "{count} aktivních výměn",
+    "newNotifications": "{count} nových oznámení",
+    "addObject": "Přidat objekt",
+    "matchAnalysis": "Analýza shod",
+    "addObjectFirst": "Nejprve přidejte objekt",
+    "basedOnItems": "na základě {count} objektů",
+    "conversations": "{count} konverzací",
+    "activeExchanges": "{count} výměn",
+    "pendingAction": "{count} čeká na akci",
+    "inProgress": "{count} probíhá",
+    "reputation": "Reputace",
+    "tokens": "Tokeny",
+    "viewInfo": "Info a statistiky"
   },
   "login": {
     "authentication": "Ověření",
@@ -334,7 +351,10 @@
     "analyzingCompatibility": "Analýza kompatibility",
     "noMatchesNow": "Momentálně žádné shody. Doplňte více detailů k objektům nebo přidejte nové.",
     "aiUnavailableNote": "AI nedostupné",
-    "analysisContinues": "Analýza pokračuje s lokálními pravidly. Žádná funkce není blokována."
+    "analysisContinues": "Analýza pokračuje s lokálními pravidly. Žádná funkce není blokována.",
+    "openProfile": "Otevřít profil",
+    "courier": "Kurýr",
+    "flexible": "Flexibilní"
   },
   "chat": {
     "title": "Zabezpečený chat",
@@ -405,7 +425,23 @@
     "findAnotherMatch": "Najít další shodu",
     "findAnotherMatchDescription": "Objevte nové možnosti výměny",
     "viewStats": "Zobrazit statistiky",
-    "viewStatsDescription": "Zkontrolujte svou reputaci a tokeny"
+    "viewStatsDescription": "Zkontrolujte svou reputaci a tokeny",
+    "bilateralStatus": "Oboustranný stav",
+    "bilateralDescription": "Zobrazit stav každé strany ve výměně",
+    "requester": "Žadatel",
+    "responder": "Partner",
+    "you": "Vy",
+    "proposed": "Navrženo",
+    "scheduled": "Naplánováno",
+    "inProgress": "Probíhá",
+    "completed": "Dokončeno",
+    "cancelled": "Zrušeno",
+    "confirmActionTitle": "Potvrdit akci",
+    "confirmCancelMessage": "Opravdu chcete zrušit tuto výměnu? Tuto akci nelze vrátit zpět.",
+    "confirmCompleteMessage": "Potvrdit dokončení výměny? Obě strany budou informovány.",
+    "rateExperience": "Ohodnoťte zkušenost",
+    "commentPlaceholder": "Napište komentář o svém zážitku...",
+    "feedbackSent": "Zpětná vazba odeslána"
   },
   "info": {
     "title": "Swaply statistiky",
@@ -588,7 +624,10 @@
     "aiTrace": "AI stopa:",
     "viewDetails": "Zobrazit detaily",
     "sendMessage": "Odeslat zprávu",
-    "proposeExchange": "Navrhnout výměnu"
+    "proposeExchange": "Navrhnout výměnu",
+    "rejectedCount": "{count} odmítnutých shod",
+    "undoAll": "Vrátit vše",
+    "undo": "Vrátit:"
   },
   "swapTimeline": {
     "proposed": "Navrženo",
@@ -627,7 +666,13 @@
     "send": "Odeslat",
     "blockedByModeration": "Zpráva blokována moderací.",
     "sendError": "Chyba při odesílání. Zkuste to znovu.",
-    "selectConversation": "Vyberte konverzaci nebo začněte jednu ze stránky objektů."
+    "selectConversation": "Vyberte konverzaci nebo začněte jednu ze stránky objektů.",
+    "swapContext": "Aktivní výměna",
+    "status_proposed": "Navrženo",
+    "status_scheduled": "Naplánováno",
+    "status_in_progress": "Probíhá",
+    "status_completed": "Dokončeno",
+    "status_cancelled": "Zrušeno"
   },
   "statsGrid": {
     "globalExchanges": "Globální výměny",

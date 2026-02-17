@@ -53,7 +53,24 @@
   },
   "notifications": {
     "title": "Meldingen (like/interesse/chat/swaply)",
-    "empty": "Geen meldingen op dit moment."
+    "empty": "Geen meldingen op dit moment.",
+    "clearAll": "Alles wissen"
+  },
+  "contextBar": {
+    "itemsActive": "{count} actieve objecten",
+    "swapsInProgress": "{count} actieve ruilingen",
+    "newNotifications": "{count} nieuwe meldingen",
+    "addObject": "Object toevoegen",
+    "matchAnalysis": "Match-analyse",
+    "addObjectFirst": "Voeg eerst een object toe",
+    "basedOnItems": "gebaseerd op {count} objecten",
+    "conversations": "{count} gesprekken",
+    "activeExchanges": "{count} ruilingen",
+    "pendingAction": "{count} in afwachting",
+    "inProgress": "{count} bezig",
+    "reputation": "Reputatie",
+    "tokens": "Tokens",
+    "viewInfo": "Info & Statistieken"
   },
   "login": {
     "authentication": "Authenticatie",
@@ -334,7 +351,10 @@
     "analyzingCompatibility": "Compatibiliteit analyseren",
     "noMatchesNow": "Geen matches op dit moment. Vul meer details in bij je objecten of voeg nieuwe toe.",
     "aiUnavailableNote": "AI niet beschikbaar",
-    "analysisContinues": "Analyse gaat verder met lokale regels. Geen functionaliteit geblokkeerd."
+    "analysisContinues": "Analyse gaat verder met lokale regels. Geen functionaliteit geblokkeerd.",
+    "openProfile": "Profiel openen",
+    "courier": "Koerier",
+    "flexible": "Flexibel"
   },
   "chat": {
     "title": "Beveiligde chat",
@@ -405,7 +425,23 @@
     "findAnotherMatch": "Nog een match vinden",
     "findAnotherMatchDescription": "Ontdek nieuwe ruilmogelijkheden",
     "viewStats": "Statistieken bekijken",
-    "viewStatsDescription": "Bekijk je reputatie en tokens"
+    "viewStatsDescription": "Bekijk je reputatie en tokens",
+    "bilateralStatus": "Bilaterale status",
+    "bilateralDescription": "Bekijk de status van elke partij in de ruiling",
+    "requester": "Aanvrager",
+    "responder": "Partner",
+    "you": "Jij",
+    "proposed": "Voorgesteld",
+    "scheduled": "Gepland",
+    "inProgress": "Bezig",
+    "completed": "Voltooid",
+    "cancelled": "Geannuleerd",
+    "confirmActionTitle": "Actie bevestigen",
+    "confirmCancelMessage": "Weet je zeker dat je deze ruiling wilt annuleren? Deze actie kan niet ongedaan worden gemaakt.",
+    "confirmCompleteMessage": "Voltooiing van de ruiling bevestigen? Beide partijen worden op de hoogte gesteld.",
+    "rateExperience": "Beoordeel de ervaring",
+    "commentPlaceholder": "Schrijf een opmerking over je ervaring...",
+    "feedbackSent": "Feedback verzonden"
   },
   "info": {
     "title": "Swaply Statistieken",
@@ -588,7 +624,10 @@
     "aiTrace": "AI-trace:",
     "viewDetails": "Details bekijken",
     "sendMessage": "Bericht versturen",
-    "proposeExchange": "Ruil voorstellen"
+    "proposeExchange": "Ruil voorstellen",
+    "rejectedCount": "{count} afgewezen matches",
+    "undoAll": "Alles ongedaan maken",
+    "undo": "Ongedaan maken:"
   },
   "swapTimeline": {
     "proposed": "Voorgesteld",
@@ -627,7 +666,13 @@
     "send": "Verzenden",
     "blockedByModeration": "Bericht geblokkeerd door moderatie.",
     "sendError": "Fout bij verzenden. Probeer opnieuw.",
-    "selectConversation": "Selecteer een gesprek of start er een vanuit de objectenpagina."
+    "selectConversation": "Selecteer een gesprek of start er een vanuit de objectenpagina.",
+    "swapContext": "Actieve ruiling",
+    "status_proposed": "Voorgesteld",
+    "status_scheduled": "Gepland",
+    "status_in_progress": "Bezig",
+    "status_completed": "Voltooid",
+    "status_cancelled": "Geannuleerd"
   },
   "statsGrid": {
     "globalExchanges": "Globale ruilen",

@@ -53,7 +53,24 @@
   },
   "notifications": {
     "title": "通知（いいね/関心/チャット/スワプリー）",
-    "empty": "現在、通知はありません。"
+    "empty": "現在、通知はありません。",
+    "clearAll": "すべてクリア"
+  },
+  "contextBar": {
+    "itemsActive": "{count}件のアクティブなアイテム",
+    "swapsInProgress": "{count}件のアクティブな交換",
+    "newNotifications": "{count}件の新しい通知",
+    "addObject": "アイテムを追加",
+    "matchAnalysis": "マッチ分析",
+    "addObjectFirst": "まずアイテムを追加してください",
+    "basedOnItems": "{count}件のアイテムに基づく",
+    "conversations": "{count}件の会話",
+    "activeExchanges": "{count}件の交換",
+    "pendingAction": "{count}件保留中",
+    "inProgress": "{count}件進行中",
+    "reputation": "評判",
+    "tokens": "トークン",
+    "viewInfo": "情報と統計"
   },
   "login": {
     "authentication": "認証",
@@ -334,7 +351,10 @@
     "analyzingCompatibility": "互換性を分析中",
     "noMatchesNow": "現在マッチはありません。オブジェクトの詳細を追加するか、新しいものを追加してください。",
     "aiUnavailableNote": "AI利用不可",
-    "analysisContinues": "ローカルルールで分析を続行中。機能はブロックされていません。"
+    "analysisContinues": "ローカルルールで分析を続行中。機能はブロックされていません。",
+    "openProfile": "プロフィールを開く",
+    "courier": "配送",
+    "flexible": "柔軟"
   },
   "chat": {
     "title": "セキュアチャット",
@@ -405,7 +425,23 @@
     "findAnotherMatch": "別のマッチを見つける",
     "findAnotherMatchDescription": "新しい交換の機会を発見する",
     "viewStats": "統計を見る",
-    "viewStatsDescription": "評判とトークンを確認する"
+    "viewStatsDescription": "評判とトークンを確認する",
+    "bilateralStatus": "双方のステータス",
+    "bilateralDescription": "交換の各当事者のステータスを表示",
+    "requester": "リクエスター",
+    "responder": "パートナー",
+    "you": "あなた",
+    "proposed": "提案済み",
+    "scheduled": "予定済み",
+    "inProgress": "進行中",
+    "completed": "完了",
+    "cancelled": "キャンセル済み",
+    "confirmActionTitle": "アクションの確認",
+    "confirmCancelMessage": "この交換をキャンセルしてよろしいですか？この操作は元に戻せません。",
+    "confirmCompleteMessage": "交換の完了を確認しますか？両方の当事者に通知されます。",
+    "rateExperience": "体験を評価",
+    "commentPlaceholder": "体験についてコメントを書いてください...",
+    "feedbackSent": "フィードバック送信済み"
   },
   "info": {
     "title": "Swaply統計",
@@ -588,7 +624,10 @@
     "aiTrace": "AIトレース:",
     "viewDetails": "詳細を見る",
     "sendMessage": "メッセージを送信",
-    "proposeExchange": "交換を提案"
+    "proposeExchange": "交換を提案",
+    "rejectedCount": "{count}件のマッチを拒否",
+    "undoAll": "すべて元に戻す",
+    "undo": "元に戻す:"
   },
   "swapTimeline": {
     "proposed": "提案済み",
@@ -627,7 +666,13 @@
     "send": "送信",
     "blockedByModeration": "メッセージはモデレーションによりブロックされました。",
     "sendError": "送信エラー。再試行してください。",
-    "selectConversation": "会話を選択するか、オブジェクトページから始めてください。"
+    "selectConversation": "会話を選択するか、オブジェクトページから始めてください。",
+    "swapContext": "アクティブな交換",
+    "status_proposed": "提案済み",
+    "status_scheduled": "予定済み",
+    "status_in_progress": "進行中",
+    "status_completed": "完了",
+    "status_cancelled": "キャンセル済み"
   },
   "statsGrid": {
     "globalExchanges": "グローバル交換",

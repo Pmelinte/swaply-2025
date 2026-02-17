@@ -53,7 +53,24 @@
   },
   "notifications": {
     "title": "বিজ্ঞপ্তি (লাইক/আগ্রহ/চ্যাট/স্বাপলি)",
-    "empty": "এই মুহূর্তে কোনো বিজ্ঞপ্তি নেই।"
+    "empty": "এই মুহূর্তে কোনো বিজ্ঞপ্তি নেই।",
+    "clearAll": "সব মুছুন"
+  },
+  "contextBar": {
+    "itemsActive": "{count} সক্রিয় আইটেম",
+    "swapsInProgress": "{count} সক্রিয় বিনিময়",
+    "newNotifications": "{count} নতুন বিজ্ঞপ্তি",
+    "addObject": "আইটেম যোগ করুন",
+    "matchAnalysis": "ম্যাচ বিশ্লেষণ",
+    "addObjectFirst": "প্রথমে একটি আইটেম যোগ করুন",
+    "basedOnItems": "{count} আইটেমের ভিত্তিতে",
+    "conversations": "{count} কথোপকথন",
+    "activeExchanges": "{count} বিনিময়",
+    "pendingAction": "{count} অপেক্ষমাণ",
+    "inProgress": "{count} চলমান",
+    "reputation": "সুনাম",
+    "tokens": "টোকেন",
+    "viewInfo": "তথ্য ও পরিসংখ্যান"
   },
   "login": {
     "authentication": "প্রমাণীকরণ",
@@ -334,7 +351,10 @@
     "analyzingCompatibility": "সামঞ্জস্যতা বিশ্লেষণ হচ্ছে",
     "noMatchesNow": "এই মুহূর্তে কোনো ম্যাচ নেই। আপনার বস্তুগুলোতে আরো বিবরণ সম্পূর্ণ করুন বা নতুন যোগ করুন।",
     "aiUnavailableNote": "AI অনুপলব্ধ",
-    "analysisContinues": "স্থানীয় নিয়ম দিয়ে বিশ্লেষণ চলছে। কোনো কার্যকারিতা অবরুদ্ধ নয়।"
+    "analysisContinues": "স্থানীয় নিয়ম দিয়ে বিশ্লেষণ চলছে। কোনো কার্যকারিতা অবরুদ্ধ নয়।",
+    "openProfile": "প্রোফাইল খুলুন",
+    "courier": "কুরিয়ার",
+    "flexible": "নমনীয়"
   },
   "chat": {
     "title": "নিরাপদ চ্যাট",
@@ -405,7 +425,23 @@
     "findAnotherMatch": "আরেকটি ম্যাচ খুঁজুন",
     "findAnotherMatchDescription": "নতুন বিনিময় সুযোগ আবিষ্কার করুন",
     "viewStats": "পরিসংখ্যান দেখুন",
-    "viewStatsDescription": "আপনার সুনাম ও টোকেন পরীক্ষা করুন"
+    "viewStatsDescription": "আপনার সুনাম ও টোকেন পরীক্ষা করুন",
+    "bilateralStatus": "দ্বিপক্ষীয় অবস্থা",
+    "bilateralDescription": "বিনিময়ে প্রতিটি পক্ষের অবস্থা দেখুন",
+    "requester": "অনুরোধকারী",
+    "responder": "অংশীদার",
+    "you": "আপনি",
+    "proposed": "প্রস্তাবিত",
+    "scheduled": "নির্ধারিত",
+    "inProgress": "চলমান",
+    "completed": "সম্পন্ন",
+    "cancelled": "বাতিল",
+    "confirmActionTitle": "কর্ম নিশ্চিত করুন",
+    "confirmCancelMessage": "আপনি কি এই বিনিময় বাতিল করতে চান? এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না।",
+    "confirmCompleteMessage": "বিনিময় সম্পন্ন নিশ্চিত করুন? উভয় পক্ষকে জানানো হবে।",
+    "rateExperience": "অভিজ্ঞতা মূল্যায়ন করুন",
+    "commentPlaceholder": "আপনার অভিজ্ঞতা সম্পর্কে মন্তব্য লিখুন...",
+    "feedbackSent": "প্রতিক্রিয়া পাঠানো হয়েছে"
   },
   "info": {
     "title": "Swaply পরিসংখ্যান",
@@ -588,7 +624,10 @@
     "aiTrace": "AI ট্রেস:",
     "viewDetails": "বিবরণ দেখুন",
     "sendMessage": "বার্তা পাঠান",
-    "proposeExchange": "বিনিময় প্রস্তাব করুন"
+    "proposeExchange": "বিনিময় প্রস্তাব করুন",
+    "rejectedCount": "{count} ম্যাচ প্রত্যাখ্যাত",
+    "undoAll": "সব পূর্বাবস্থায়",
+    "undo": "পূর্বাবস্থায়:"
   },
   "swapTimeline": {
     "proposed": "প্রস্তাবিত",
@@ -627,7 +666,13 @@
     "send": "পাঠান",
     "blockedByModeration": "বার্তা মডারেশন দ্বারা অবরুদ্ধ।",
     "sendError": "পাঠাতে ত্রুটি। আবার চেষ্টা করুন।",
-    "selectConversation": "একটি কথোপকথন নির্বাচন করুন বা বস্তু পাতা থেকে একটি শুরু করুন।"
+    "selectConversation": "একটি কথোপকথন নির্বাচন করুন বা বস্তু পাতা থেকে একটি শুরু করুন।",
+    "swapContext": "সক্রিয় বিনিময়",
+    "status_proposed": "প্রস্তাবিত",
+    "status_scheduled": "নির্ধারিত",
+    "status_in_progress": "চলমান",
+    "status_completed": "সম্পন্ন",
+    "status_cancelled": "বাতিল"
   },
   "statsGrid": {
     "globalExchanges": "বৈশ্বিক বিনিময়",

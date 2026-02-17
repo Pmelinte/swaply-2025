@@ -53,7 +53,24 @@
   },
   "notifications": {
     "title": "Fograí (maith liom/speis/comhrá/swaply)",
-    "empty": "Nil aon fhograí faoi lathair."
+    "empty": "Nil aon fhograí faoi lathair.",
+    "clearAll": "Glan gach ceann"
+  },
+  "contextBar": {
+    "itemsActive": "{count} míreanna gníomhacha",
+    "swapsInProgress": "{count} malartuithe gníomhacha",
+    "newNotifications": "{count} fógraí nua",
+    "addObject": "Cuir mír leis",
+    "matchAnalysis": "Anailís meaitseála",
+    "addObjectFirst": "Cuir mír leis ar dtús",
+    "basedOnItems": "bunaithe ar {count} mír",
+    "conversations": "{count} comhrá",
+    "activeExchanges": "{count} malartú",
+    "pendingAction": "{count} ag fanacht",
+    "inProgress": "{count} ar siúl",
+    "reputation": "Cáil",
+    "tokens": "Comharthaí",
+    "viewInfo": "Eolas & Staitisticí"
   },
   "login": {
     "authentication": "Fiosrú",
@@ -334,7 +351,10 @@
     "analyzingCompatibility": "Ag anailisiú comhoiriúnachta",
     "noMatchesNow": "Nil aon mheaitsealacha faoi lathair. Comhlanaigh tuilleadh sonrai ar do rudai no cuir cinn nua leis.",
     "aiUnavailableNote": "IS gan a bheith ar fail",
-    "analysisContinues": "Leanann an anailis le rialacha aitiúla. Nil aon fheidhmíocht blocailte."
+    "analysisContinues": "Leanann an anailis le rialacha aitiúla. Nil aon fheidhmíocht blocailte.",
+    "openProfile": "Oscail próifíl",
+    "courier": "Cúiréir",
+    "flexible": "Solúbtha"
   },
   "chat": {
     "title": "Comhrá slán",
@@ -405,7 +425,23 @@
     "findAnotherMatch": "Aimsigh meaitseal eile",
     "findAnotherMatchDescription": "Aimsigh deiseanna nua malartaithe",
     "viewStats": "Feach ar staitistici",
-    "viewStatsDescription": "Seiceail do cháil agus comharthói"
+    "viewStatsDescription": "Seiceail do cháil agus comharthói",
+    "bilateralStatus": "Stádas déthaobhach",
+    "bilateralDescription": "Féach ar stádas gach páirtí sa mhalartú",
+    "requester": "Iarratasóir",
+    "responder": "Comhpháirtí",
+    "you": "Tú",
+    "proposed": "Molta",
+    "scheduled": "Sceidealta",
+    "inProgress": "Ar siúl",
+    "completed": "Críochnaithe",
+    "cancelled": "Curtha ar ceal",
+    "confirmActionTitle": "Deimhnigh gníomh",
+    "confirmCancelMessage": "An bhfuil tú cinnte gur mhaith leat an malartú seo a chur ar ceal? Ní féidir é seo a chur ar ais.",
+    "confirmCompleteMessage": "Deimhnigh críochnú an mhalartaithe? Cuirfear an dá pháirtí ar an eolas.",
+    "rateExperience": "Meas an taithí",
+    "commentPlaceholder": "Scríobh nóta tráchta faoi do thaithí...",
+    "feedbackSent": "Aiseolas seolta"
   },
   "info": {
     "title": "Staitistici Swaply",
@@ -588,7 +624,10 @@
     "aiTrace": "Rian IS:",
     "viewDetails": "Feach ar shonrai",
     "sendMessage": "Seol teachtaireacht",
-    "proposeExchange": "Mol malartú"
+    "proposeExchange": "Mol malartú",
+    "rejectedCount": "{count} meaitseáil diúltaithe",
+    "undoAll": "Cealaigh gach ceann",
+    "undo": "Cealaigh:"
   },
   "swapTimeline": {
     "proposed": "Molta",
@@ -627,7 +666,13 @@
     "send": "Seol",
     "blockedByModeration": "Teachtaireacht blocailte ag modhnoireacht.",
     "sendError": "Earraid ag seoladh. Bain triail eile as.",
-    "selectConversation": "Roghnaigh comhrá no tosigh ceann o leathanach na rudai."
+    "selectConversation": "Roghnaigh comhrá no tosigh ceann o leathanach na rudai.",
+    "swapContext": "Malartú gníomhach",
+    "status_proposed": "Molta",
+    "status_scheduled": "Sceidealta",
+    "status_in_progress": "Ar siúl",
+    "status_completed": "Críochnaithe",
+    "status_cancelled": "Curtha ar ceal"
   },
   "statsGrid": {
     "globalExchanges": "Malartuithe domhanda",

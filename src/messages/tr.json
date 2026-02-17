@@ -53,7 +53,24 @@
   },
   "notifications": {
     "title": "Bildirimler (beğeni/ilgi/sohbet/swaply)",
-    "empty": "Şu anda bildirim yok."
+    "empty": "Şu anda bildirim yok.",
+    "clearAll": "Tümünü temizle"
+  },
+  "contextBar": {
+    "itemsActive": "{count} aktif nesne",
+    "swapsInProgress": "{count} aktif takas",
+    "newNotifications": "{count} yeni bildirim",
+    "addObject": "Nesne ekle",
+    "matchAnalysis": "Eşleşme analizi",
+    "addObjectFirst": "Önce bir nesne ekleyin",
+    "basedOnItems": "{count} nesneye dayalı",
+    "conversations": "{count} konuşma",
+    "activeExchanges": "{count} takas",
+    "pendingAction": "{count} bekliyor",
+    "inProgress": "{count} devam ediyor",
+    "reputation": "İtibar",
+    "tokens": "Jetonlar",
+    "viewInfo": "Bilgi & İstatistikler"
   },
   "login": {
     "authentication": "Kimlik Doğrulama",
@@ -334,7 +351,10 @@
     "analyzingCompatibility": "Uyumluluk analiz ediliyor",
     "noMatchesNow": "Şu anda eşleşme yok. Nesneleriniz hakkında daha fazla detay tamamlayın veya yenilerini ekleyin.",
     "aiUnavailableNote": "Yapay zeka kullanılamıyor",
-    "analysisContinues": "Analiz yerel kurallarla devam ediyor. Hiçbir işlevsellik engellenmedi."
+    "analysisContinues": "Analiz yerel kurallarla devam ediyor. Hiçbir işlevsellik engellenmedi.",
+    "openProfile": "Profili aç",
+    "courier": "Kurye",
+    "flexible": "Esnek"
   },
   "chat": {
     "title": "Güvenli sohbet",
@@ -405,7 +425,23 @@
     "findAnotherMatch": "Başka eşleşme bul",
     "findAnotherMatchDescription": "Yeni takas fırsatlarını keşfedin",
     "viewStats": "İstatistikleri görüntüle",
-    "viewStatsDescription": "İtibarınızı ve tokenlerinizi kontrol edin"
+    "viewStatsDescription": "İtibarınızı ve tokenlerinizi kontrol edin",
+    "bilateralStatus": "İki taraflı durum",
+    "bilateralDescription": "Takastaki her tarafın durumunu görüntüleyin",
+    "requester": "Talep eden",
+    "responder": "Partner",
+    "you": "Siz",
+    "proposed": "Önerildi",
+    "scheduled": "Planlandı",
+    "inProgress": "Devam ediyor",
+    "completed": "Tamamlandı",
+    "cancelled": "İptal edildi",
+    "confirmActionTitle": "Eylemi onayla",
+    "confirmCancelMessage": "Bu takası iptal etmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+    "confirmCompleteMessage": "Takas tamamlanmasını onaylıyor musunuz? Her iki taraf da bilgilendirilecek.",
+    "rateExperience": "Deneyimi değerlendirin",
+    "commentPlaceholder": "Deneyiminiz hakkında bir yorum yazın...",
+    "feedbackSent": "Geri bildirim gönderildi"
   },
   "info": {
     "title": "Swaply İstatistikleri",
@@ -588,7 +624,10 @@
     "aiTrace": "YZ izi:",
     "viewDetails": "Detayları görüntüle",
     "sendMessage": "Mesaj gönder",
-    "proposeExchange": "Takas öner"
+    "proposeExchange": "Takas öner",
+    "rejectedCount": "{count} reddedilen eşleşme",
+    "undoAll": "Tümünü geri al",
+    "undo": "Geri al:"
   },
   "swapTimeline": {
     "proposed": "Önerildi",
@@ -627,7 +666,13 @@
     "send": "Gönder",
     "blockedByModeration": "Mesaj moderasyon tarafından engellendi.",
     "sendError": "Gönderme hatası. Tekrar deneyin.",
-    "selectConversation": "Bir konuşma seçin veya nesneler sayfasından bir tane başlatın."
+    "selectConversation": "Bir konuşma seçin veya nesneler sayfasından bir tane başlatın.",
+    "swapContext": "Aktif takas",
+    "status_proposed": "Önerildi",
+    "status_scheduled": "Planlandı",
+    "status_in_progress": "Devam ediyor",
+    "status_completed": "Tamamlandı",
+    "status_cancelled": "İptal edildi"
   },
   "statsGrid": {
     "globalExchanges": "Küresel takaslar",

@@ -53,7 +53,24 @@
   },
   "notifications": {
     "title": "Pranešimai (patiktumas/susidomėjimas/pokalbis/swaply)",
-    "empty": "Šiuo metu pranešimų nėra."
+    "empty": "Šiuo metu pranešimų nėra.",
+    "clearAll": "Išvalyti viską"
+  },
+  "contextBar": {
+    "itemsActive": "{count} aktyvių objektų",
+    "swapsInProgress": "{count} aktyvių mainų",
+    "newNotifications": "{count} naujų pranešimų",
+    "addObject": "Pridėti objektą",
+    "matchAnalysis": "Atitikmenų analizė",
+    "addObjectFirst": "Pirmiausia pridėkite objektą",
+    "basedOnItems": "remiantis {count} objektais",
+    "conversations": "{count} pokalbių",
+    "activeExchanges": "{count} mainų",
+    "pendingAction": "{count} laukia",
+    "inProgress": "{count} vykdoma",
+    "reputation": "Reputacija",
+    "tokens": "Žetonai",
+    "viewInfo": "Info ir statistika"
   },
   "login": {
     "authentication": "Autentifikacija",
@@ -334,7 +351,10 @@
     "analyzingCompatibility": "Analizuojamas suderinamumas",
     "noMatchesNow": "Šiuo metu atitikmenų nėra. Užpildykite daugiau detalių apie savo daiktus arba pridėkite naujų.",
     "aiUnavailableNote": "AI neprieinamas",
-    "analysisContinues": "Analizė tęsiama su vietinėmis taisyklėmis. Jokia funkcionalumo dalis neblokuojama."
+    "analysisContinues": "Analizė tęsiama su vietinėmis taisyklėmis. Jokia funkcionalumo dalis neblokuojama.",
+    "openProfile": "Atidaryti profilį",
+    "courier": "Kurjeris",
+    "flexible": "Lankstus"
   },
   "chat": {
     "title": "Saugus pokalbis",
@@ -405,7 +425,23 @@
     "findAnotherMatch": "Rasti kitą atitikmenį",
     "findAnotherMatchDescription": "Atraskite naujas mainų galimybes",
     "viewStats": "Peržiūrėti statistiką",
-    "viewStatsDescription": "Patikrinkite savo reputaciją ir žetonus"
+    "viewStatsDescription": "Patikrinkite savo reputaciją ir žetonus",
+    "bilateralStatus": "Dvišalė būsena",
+    "bilateralDescription": "Peržiūrėkite kiekvienos šalies būseną mainuose",
+    "requester": "Prašytojas",
+    "responder": "Partneris",
+    "you": "Jūs",
+    "proposed": "Pasiūlyta",
+    "scheduled": "Suplanuota",
+    "inProgress": "Vykdoma",
+    "completed": "Baigta",
+    "cancelled": "Atšaukta",
+    "confirmActionTitle": "Patvirtinti veiksmą",
+    "confirmCancelMessage": "Ar tikrai norite atšaukti šiuos mainus? Šio veiksmo negalima atšaukti.",
+    "confirmCompleteMessage": "Patvirtinti mainų užbaigimą? Abi šalys bus informuotos.",
+    "rateExperience": "Įvertinkite patirtį",
+    "commentPlaceholder": "Parašykite komentarą apie savo patirtį...",
+    "feedbackSent": "Atsiliepimas išsiųstas"
   },
   "info": {
     "title": "Swaply statistika",
@@ -588,7 +624,10 @@
     "aiTrace": "AI pėdsakas:",
     "viewDetails": "Peržiūrėti detales",
     "sendMessage": "Siųsti žinutę",
-    "proposeExchange": "Pasiūlyti mainus"
+    "proposeExchange": "Pasiūlyti mainus",
+    "rejectedCount": "{count} atmestų atitikmenų",
+    "undoAll": "Anuliuoti visus",
+    "undo": "Anuliuoti:"
   },
   "swapTimeline": {
     "proposed": "Pasiūlyta",
@@ -627,7 +666,13 @@
     "send": "Siųsti",
     "blockedByModeration": "Žinutė užblokuota moderavimo.",
     "sendError": "Klaida siunčiant. Bandykite dar kartą.",
-    "selectConversation": "Pasirinkite pokalbį arba pradėkite vieną iš daiktų puslapio."
+    "selectConversation": "Pasirinkite pokalbį arba pradėkite vieną iš daiktų puslapio.",
+    "swapContext": "Aktyvūs mainai",
+    "status_proposed": "Pasiūlyta",
+    "status_scheduled": "Suplanuota",
+    "status_in_progress": "Vykdoma",
+    "status_completed": "Baigta",
+    "status_cancelled": "Atšaukta"
   },
   "statsGrid": {
     "globalExchanges": "Globalūs mainai",

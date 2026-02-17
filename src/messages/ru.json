@@ -53,7 +53,24 @@
   },
   "notifications": {
     "title": "Уведомления (лайк/интерес/чат/swaply)",
-    "empty": "Сейчас уведомлений нет."
+    "empty": "Сейчас уведомлений нет.",
+    "clearAll": "Очистить все"
+  },
+  "contextBar": {
+    "itemsActive": "{count} активных объектов",
+    "swapsInProgress": "{count} активных обменов",
+    "newNotifications": "{count} новых уведомлений",
+    "addObject": "Добавить объект",
+    "matchAnalysis": "Анализ совпадений",
+    "addObjectFirst": "Сначала добавьте объект",
+    "basedOnItems": "на основе {count} объектов",
+    "conversations": "{count} бесед",
+    "activeExchanges": "{count} обменов",
+    "pendingAction": "{count} ожидает",
+    "inProgress": "{count} в процессе",
+    "reputation": "Репутация",
+    "tokens": "Токены",
+    "viewInfo": "Инфо и статистика"
   },
   "login": {
     "authentication": "Аутентификация",
@@ -334,7 +351,10 @@
     "analyzingCompatibility": "Анализ совместимости",
     "noMatchesNow": "Сейчас нет совпадений. Заполните больше деталей о ваших объектах или добавьте новые.",
     "aiUnavailableNote": "ИИ недоступен",
-    "analysisContinues": "Анализ продолжается с локальными правилами. Функциональность не заблокирована."
+    "analysisContinues": "Анализ продолжается с локальными правилами. Функциональность не заблокирована.",
+    "openProfile": "Открыть профиль",
+    "courier": "Курьер",
+    "flexible": "Гибкий"
   },
   "chat": {
     "title": "Защищённый чат",
@@ -405,7 +425,23 @@
     "findAnotherMatch": "Найти другое совпадение",
     "findAnotherMatchDescription": "Откройте новые возможности обмена",
     "viewStats": "Просмотр статистики",
-    "viewStatsDescription": "Проверьте свою репутацию и токены"
+    "viewStatsDescription": "Проверьте свою репутацию и токены",
+    "bilateralStatus": "Двусторонний статус",
+    "bilateralDescription": "Просмотр статуса каждой стороны в обмене",
+    "requester": "Заявитель",
+    "responder": "Партнёр",
+    "you": "Вы",
+    "proposed": "Предложено",
+    "scheduled": "Запланировано",
+    "inProgress": "В процессе",
+    "completed": "Завершено",
+    "cancelled": "Отменено",
+    "confirmActionTitle": "Подтвердить действие",
+    "confirmCancelMessage": "Вы уверены, что хотите отменить этот обмен? Это действие нельзя отменить.",
+    "confirmCompleteMessage": "Подтвердить завершение обмена? Обе стороны будут уведомлены.",
+    "rateExperience": "Оцените опыт",
+    "commentPlaceholder": "Напишите комментарий о вашем опыте...",
+    "feedbackSent": "Отзыв отправлен"
   },
   "info": {
     "title": "Статистика Swaply",
@@ -588,7 +624,10 @@
     "aiTrace": "Трассировка ИИ:",
     "viewDetails": "Подробности",
     "sendMessage": "Отправить сообщение",
-    "proposeExchange": "Предложить обмен"
+    "proposeExchange": "Предложить обмен",
+    "rejectedCount": "{count} отклонённых совпадений",
+    "undoAll": "Отменить все",
+    "undo": "Отменить:"
   },
   "swapTimeline": {
     "proposed": "Предложено",
@@ -627,7 +666,13 @@
     "send": "Отправить",
     "blockedByModeration": "Сообщение заблокировано модерацией.",
     "sendError": "Ошибка отправки. Попробуйте снова.",
-    "selectConversation": "Выберите разговор или начните один со страницы объектов."
+    "selectConversation": "Выберите разговор или начните один со страницы объектов.",
+    "swapContext": "Активный обмен",
+    "status_proposed": "Предложено",
+    "status_scheduled": "Запланировано",
+    "status_in_progress": "В процессе",
+    "status_completed": "Завершено",
+    "status_cancelled": "Отменено"
   },
   "statsGrid": {
     "globalExchanges": "Глобальные обмены",

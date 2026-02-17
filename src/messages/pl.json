@@ -53,7 +53,24 @@
   },
   "notifications": {
     "title": "Powiadomienia (polubienie/zainteresowanie/czat/swaply)",
-    "empty": "Brak powiadomień w tej chwili."
+    "empty": "Brak powiadomień w tej chwili.",
+    "clearAll": "Wyczyść wszystkie"
+  },
+  "contextBar": {
+    "itemsActive": "{count} aktywnych obiektów",
+    "swapsInProgress": "{count} aktywnych wymian",
+    "newNotifications": "{count} nowych powiadomień",
+    "addObject": "Dodaj obiekt",
+    "matchAnalysis": "Analiza dopasowań",
+    "addObjectFirst": "Najpierw dodaj obiekt",
+    "basedOnItems": "na podstawie {count} obiektów",
+    "conversations": "{count} rozmów",
+    "activeExchanges": "{count} wymian",
+    "pendingAction": "{count} oczekuje",
+    "inProgress": "{count} w toku",
+    "reputation": "Reputacja",
+    "tokens": "Żetony",
+    "viewInfo": "Info i statystyki"
   },
   "login": {
     "authentication": "Uwierzytelnianie",
@@ -334,7 +351,10 @@
     "analyzingCompatibility": "Analizowanie kompatybilności",
     "noMatchesNow": "Brak dopasowań w tej chwili. Uzupełnij więcej szczegółów obiektów lub dodaj nowe.",
     "aiUnavailableNote": "AI niedostępne",
-    "analysisContinues": "Analiza kontynuowana z lokalnymi regułami. Żadna funkcjonalność nie jest zablokowana."
+    "analysisContinues": "Analiza kontynuowana z lokalnymi regułami. Żadna funkcjonalność nie jest zablokowana.",
+    "openProfile": "Otwórz profil",
+    "courier": "Kurier",
+    "flexible": "Elastyczny"
   },
   "chat": {
     "title": "Bezpieczny czat",
@@ -405,7 +425,23 @@
     "findAnotherMatch": "Znajdź kolejne dopasowanie",
     "findAnotherMatchDescription": "Odkryj nowe możliwości wymiany",
     "viewStats": "Zobacz statystyki",
-    "viewStatsDescription": "Sprawdź swoją reputację i tokeny"
+    "viewStatsDescription": "Sprawdź swoją reputację i tokeny",
+    "bilateralStatus": "Status dwustronny",
+    "bilateralDescription": "Zobacz status każdej strony w wymianie",
+    "requester": "Wnioskujący",
+    "responder": "Partner",
+    "you": "Ty",
+    "proposed": "Zaproponowano",
+    "scheduled": "Zaplanowano",
+    "inProgress": "W toku",
+    "completed": "Zakończono",
+    "cancelled": "Anulowano",
+    "confirmActionTitle": "Potwierdź akcję",
+    "confirmCancelMessage": "Czy na pewno chcesz anulować tę wymianę? Tej akcji nie można cofnąć.",
+    "confirmCompleteMessage": "Potwierdzić zakończenie wymiany? Obie strony zostaną powiadomione.",
+    "rateExperience": "Oceń doświadczenie",
+    "commentPlaceholder": "Napisz komentarz o swoim doświadczeniu...",
+    "feedbackSent": "Opinia wysłana"
   },
   "info": {
     "title": "Statystyki Swaply",
@@ -588,7 +624,10 @@
     "aiTrace": "Ślad AI:",
     "viewDetails": "Zobacz szczegóły",
     "sendMessage": "Wyślij wiadomość",
-    "proposeExchange": "Zaproponuj wymianę"
+    "proposeExchange": "Zaproponuj wymianę",
+    "rejectedCount": "{count} odrzuconych dopasowań",
+    "undoAll": "Cofnij wszystkie",
+    "undo": "Cofnij:"
   },
   "swapTimeline": {
     "proposed": "Zaproponowana",
@@ -627,7 +666,13 @@
     "send": "Wyślij",
     "blockedByModeration": "Wiadomość zablokowana przez moderację.",
     "sendError": "Błąd wysyłania. Spróbuj ponownie.",
-    "selectConversation": "Wybierz rozmowę lub rozpocznij jedną ze strony obiektów."
+    "selectConversation": "Wybierz rozmowę lub rozpocznij jedną ze strony obiektów.",
+    "swapContext": "Aktywna wymiana",
+    "status_proposed": "Zaproponowano",
+    "status_scheduled": "Zaplanowano",
+    "status_in_progress": "W toku",
+    "status_completed": "Zakończono",
+    "status_cancelled": "Anulowano"
   },
   "statsGrid": {
     "globalExchanges": "Wymiany globalne",

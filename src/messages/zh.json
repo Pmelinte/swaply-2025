@@ -53,7 +53,24 @@
   },
   "notifications": {
     "title": "通知（点赞/关注/聊天/swaply）",
-    "empty": "暂无通知。"
+    "empty": "暂无通知。",
+    "clearAll": "清除全部"
+  },
+  "contextBar": {
+    "itemsActive": "{count}个活跃物品",
+    "swapsInProgress": "{count}个进行中的交换",
+    "newNotifications": "{count}条新通知",
+    "addObject": "添加物品",
+    "matchAnalysis": "匹配分析",
+    "addObjectFirst": "请先添加物品",
+    "basedOnItems": "基于{count}个物品",
+    "conversations": "{count}个对话",
+    "activeExchanges": "{count}个交换",
+    "pendingAction": "{count}个待处理",
+    "inProgress": "{count}个进行中",
+    "reputation": "声誉",
+    "tokens": "代币",
+    "viewInfo": "信息与统计"
   },
   "login": {
     "authentication": "身份验证",
@@ -334,7 +351,10 @@
     "analyzingCompatibility": "正在分析兼容性",
     "noMatchesNow": "目前没有匹配。请完善物品详情或添加新物品。",
     "aiUnavailableNote": "AI 不可用",
-    "analysisContinues": "分析使用本地规则继续。功能未被阻塞。"
+    "analysisContinues": "分析使用本地规则继续。功能未被阻塞。",
+    "openProfile": "查看资料",
+    "courier": "快递",
+    "flexible": "灵活"
   },
   "chat": {
     "title": "安全聊天",
@@ -405,7 +425,23 @@
     "findAnotherMatch": "寻找另一个匹配",
     "findAnotherMatchDescription": "发现新的交换机会",
     "viewStats": "查看统计",
-    "viewStatsDescription": "检查您的信誉和代币"
+    "viewStatsDescription": "检查您的信誉和代币",
+    "bilateralStatus": "双方状态",
+    "bilateralDescription": "查看交换中各方的状态",
+    "requester": "请求者",
+    "responder": "合作伙伴",
+    "you": "您",
+    "proposed": "已提议",
+    "scheduled": "已安排",
+    "inProgress": "进行中",
+    "completed": "已完成",
+    "cancelled": "已取消",
+    "confirmActionTitle": "确认操作",
+    "confirmCancelMessage": "确定要取消此交换吗？此操作无法撤销。",
+    "confirmCompleteMessage": "确认交换完成？双方都将收到通知。",
+    "rateExperience": "评价体验",
+    "commentPlaceholder": "写下您的体验评价...",
+    "feedbackSent": "反馈已发送"
   },
   "info": {
     "title": "Swaply 统计",
@@ -588,7 +624,10 @@
     "aiTrace": "AI 追踪：",
     "viewDetails": "查看详情",
     "sendMessage": "发送消息",
-    "proposeExchange": "提议交换"
+    "proposeExchange": "提议交换",
+    "rejectedCount": "{count}个已拒绝的匹配",
+    "undoAll": "撤销全部",
+    "undo": "撤销:"
   },
   "swapTimeline": {
     "proposed": "已提议",
@@ -627,7 +666,13 @@
     "send": "发送",
     "blockedByModeration": "消息被审核拦截。",
     "sendError": "发送出错。请重试。",
-    "selectConversation": "选择一个对话或从物品页面开始一个。"
+    "selectConversation": "选择一个对话或从物品页面开始一个。",
+    "swapContext": "活跃交换",
+    "status_proposed": "已提议",
+    "status_scheduled": "已安排",
+    "status_in_progress": "进行中",
+    "status_completed": "已完成",
+    "status_cancelled": "已取消"
   },
   "statsGrid": {
     "globalExchanges": "全球交换",

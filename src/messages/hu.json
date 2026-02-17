@@ -53,7 +53,24 @@
   },
   "notifications": {
     "title": "Értesítések (kedvelés/érdeklődés/csevegés/swaply)",
-    "empty": "Jelenleg nincsenek értesítések."
+    "empty": "Jelenleg nincsenek értesítések.",
+    "clearAll": "Összes törlése"
+  },
+  "contextBar": {
+    "itemsActive": "{count} aktív tárgy",
+    "swapsInProgress": "{count} aktív csere",
+    "newNotifications": "{count} új értesítés",
+    "addObject": "Tárgy hozzáadása",
+    "matchAnalysis": "Egyezés elemzés",
+    "addObjectFirst": "Először adjon hozzá egy tárgyat",
+    "basedOnItems": "{count} tárgy alapján",
+    "conversations": "{count} beszélgetés",
+    "activeExchanges": "{count} csere",
+    "pendingAction": "{count} függőben",
+    "inProgress": "{count} folyamatban",
+    "reputation": "Hírnév",
+    "tokens": "Tokenek",
+    "viewInfo": "Infó és statisztikák"
   },
   "login": {
     "authentication": "Hitelesítés",
@@ -334,7 +351,10 @@
     "analyzingCompatibility": "Kompatibilitás elemzése",
     "noMatchesNow": "Jelenleg nincs egyezés. Egészítse ki a tárgyak adatait vagy adjon hozzá újakat.",
     "aiUnavailableNote": "MI nem elérhető",
-    "analysisContinues": "Az elemzés helyi szabályokkal folytatódik. Nincs blokkolt funkció."
+    "analysisContinues": "Az elemzés helyi szabályokkal folytatódik. Nincs blokkolt funkció.",
+    "openProfile": "Profil megnyitása",
+    "courier": "Futár",
+    "flexible": "Rugalmas"
   },
   "chat": {
     "title": "Biztonságos csevegés",
@@ -405,7 +425,23 @@
     "findAnotherMatch": "Másik egyezés keresése",
     "findAnotherMatchDescription": "Új csere lehetőségek felfedezése",
     "viewStats": "Statisztikák megtekintése",
-    "viewStatsDescription": "Hírnév és tokenek ellenőrzése"
+    "viewStatsDescription": "Hírnév és tokenek ellenőrzése",
+    "bilateralStatus": "Kétoldalú státusz",
+    "bilateralDescription": "Tekintse meg mindkét fél státuszát a cserében",
+    "requester": "Kérelmező",
+    "responder": "Partner",
+    "you": "Ön",
+    "proposed": "Javasolt",
+    "scheduled": "Ütemezve",
+    "inProgress": "Folyamatban",
+    "completed": "Befejezve",
+    "cancelled": "Törölve",
+    "confirmActionTitle": "Művelet megerősítése",
+    "confirmCancelMessage": "Biztosan törölni szeretné ezt a cserét? Ez a művelet nem vonható vissza.",
+    "confirmCompleteMessage": "Megerősíti a csere befejezését? Mindkét felet értesítjük.",
+    "rateExperience": "Értékelje az élményt",
+    "commentPlaceholder": "Írjon véleményt az élményéről...",
+    "feedbackSent": "Visszajelzés elküldve"
   },
   "info": {
     "title": "Swaply statisztikák",
@@ -588,7 +624,10 @@
     "aiTrace": "MI nyomvonal:",
     "viewDetails": "Részletek megtekintése",
     "sendMessage": "Üzenet küldése",
-    "proposeExchange": "Csere javaslata"
+    "proposeExchange": "Csere javaslata",
+    "rejectedCount": "{count} elutasított egyezés",
+    "undoAll": "Összes visszavonása",
+    "undo": "Visszavonás:"
   },
   "swapTimeline": {
     "proposed": "Javasolt",
@@ -627,7 +666,13 @@
     "send": "Küldés",
     "blockedByModeration": "Üzenet blokkolva a moderáció által.",
     "sendError": "Hiba a küldés során. Próbálja újra.",
-    "selectConversation": "Válasszon egy beszélgetést vagy kezdjen egyet a tárgyak oldalon."
+    "selectConversation": "Válasszon egy beszélgetést vagy kezdjen egyet a tárgyak oldalon.",
+    "swapContext": "Aktív csere",
+    "status_proposed": "Javasolt",
+    "status_scheduled": "Ütemezve",
+    "status_in_progress": "Folyamatban",
+    "status_completed": "Befejezve",
+    "status_cancelled": "Törölve"
   },
   "statsGrid": {
     "globalExchanges": "Globális cserék",

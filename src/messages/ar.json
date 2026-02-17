@@ -53,7 +53,24 @@
   },
   "notifications": {
     "title": "الإشعارات (إعجاب/اهتمام/محادثة/swaply)",
-    "empty": "لا توجد إشعارات حالياً."
+    "empty": "لا توجد إشعارات حالياً.",
+    "clearAll": "مسح الكل"
+  },
+  "contextBar": {
+    "itemsActive": "{count} عناصر نشطة",
+    "swapsInProgress": "{count} مقايضات نشطة",
+    "newNotifications": "{count} إشعارات جديدة",
+    "addObject": "إضافة عنصر",
+    "matchAnalysis": "تحليل التطابق",
+    "addObjectFirst": "أضف عنصراً أولاً",
+    "basedOnItems": "بناءً على {count} عناصر",
+    "conversations": "{count} محادثات",
+    "activeExchanges": "{count} مقايضات",
+    "pendingAction": "{count} بانتظار الإجراء",
+    "inProgress": "{count} قيد التنفيذ",
+    "reputation": "السمعة",
+    "tokens": "الرموز",
+    "viewInfo": "المعلومات والإحصائيات"
   },
   "login": {
     "authentication": "المصادقة",
@@ -334,7 +351,10 @@
     "analyzingCompatibility": "جارٍ تحليل التوافق",
     "noMatchesNow": "لا توجد مطابقات حالياً. أكمل المزيد من التفاصيل عن أغراضك أو أضف أغراضاً جديدة.",
     "aiUnavailableNote": "الذكاء الاصطناعي غير متاح",
-    "analysisContinues": "يستمر التحليل بالقواعد المحلية. لا وظائف محظورة."
+    "analysisContinues": "يستمر التحليل بالقواعد المحلية. لا وظائف محظورة.",
+    "openProfile": "فتح الملف الشخصي",
+    "courier": "شحن",
+    "flexible": "مرن"
   },
   "chat": {
     "title": "محادثة آمنة",
@@ -405,7 +425,23 @@
     "findAnotherMatch": "البحث عن مطابقة أخرى",
     "findAnotherMatchDescription": "اكتشف فرص تبادل جديدة",
     "viewStats": "عرض الإحصائيات",
-    "viewStatsDescription": "تحقق من سمعتك ورموزك"
+    "viewStatsDescription": "تحقق من سمعتك ورموزك",
+    "bilateralStatus": "الحالة الثنائية",
+    "bilateralDescription": "عرض حالة كل طرف في المقايضة",
+    "requester": "مقدم الطلب",
+    "responder": "الشريك",
+    "you": "أنت",
+    "proposed": "مقترح",
+    "scheduled": "مجدول",
+    "inProgress": "قيد التنفيذ",
+    "completed": "مكتمل",
+    "cancelled": "ملغى",
+    "confirmActionTitle": "تأكيد الإجراء",
+    "confirmCancelMessage": "هل أنت متأكد من إلغاء هذه المقايضة؟ لا يمكن التراجع عن هذا الإجراء.",
+    "confirmCompleteMessage": "تأكيد إتمام المقايضة؟ سيتم إخطار كلا الطرفين.",
+    "rateExperience": "قيّم التجربة",
+    "commentPlaceholder": "اكتب تعليقاً عن تجربتك...",
+    "feedbackSent": "تم إرسال التقييم"
   },
   "info": {
     "title": "إحصائيات Swaply",
@@ -588,7 +624,10 @@
     "aiTrace": "تتبع الذكاء الاصطناعي:",
     "viewDetails": "عرض التفاصيل",
     "sendMessage": "إرسال رسالة",
-    "proposeExchange": "اقتراح تبادل"
+    "proposeExchange": "اقتراح تبادل",
+    "rejectedCount": "{count} تطابقات مرفوضة",
+    "undoAll": "تراجع عن الكل",
+    "undo": "تراجع:"
   },
   "swapTimeline": {
     "proposed": "مقترح",
@@ -627,7 +666,13 @@
     "send": "إرسال",
     "blockedByModeration": "تم حظر الرسالة بواسطة الإشراف.",
     "sendError": "خطأ في الإرسال. حاول مرة أخرى.",
-    "selectConversation": "اختر محادثة أو ابدأ واحدة من صفحة الأغراض."
+    "selectConversation": "اختر محادثة أو ابدأ واحدة من صفحة الأغراض.",
+    "swapContext": "مقايضة نشطة",
+    "status_proposed": "مقترح",
+    "status_scheduled": "مجدول",
+    "status_in_progress": "قيد التنفيذ",
+    "status_completed": "مكتمل",
+    "status_cancelled": "ملغى"
   },
   "statsGrid": {
     "globalExchanges": "التبادلات العالمية",

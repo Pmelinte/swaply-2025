@@ -53,7 +53,24 @@
   },
   "notifications": {
     "title": "Teavitused (meeldimine/huvi/vestlus/swaply)",
-    "empty": "Praegu teavitusi pole."
+    "empty": "Praegu teavitusi pole.",
+    "clearAll": "Tühjenda kõik"
+  },
+  "contextBar": {
+    "itemsActive": "{count} aktiivset eset",
+    "swapsInProgress": "{count} aktiivset vahetust",
+    "newNotifications": "{count} uut teavitust",
+    "addObject": "Lisa ese",
+    "matchAnalysis": "Sobivuste analüüs",
+    "addObjectFirst": "Lisa kõigepealt ese",
+    "basedOnItems": "{count} eseme põhjal",
+    "conversations": "{count} vestlust",
+    "activeExchanges": "{count} vahetust",
+    "pendingAction": "{count} ootel",
+    "inProgress": "{count} käimas",
+    "reputation": "Maine",
+    "tokens": "Märgid",
+    "viewInfo": "Info ja statistika"
   },
   "login": {
     "authentication": "Autentimine",
@@ -334,7 +351,10 @@
     "analyzingCompatibility": "Ühilduvuse analüüsimine",
     "noMatchesNow": "Praegu sobivusi pole. Täitke rohkem üksikasju oma objektide kohta voi lisage uusi.",
     "aiUnavailableNote": "TI pole saadaval",
-    "analysisContinues": "Analüüs jätkub kohalike reeglitega. Funktsionaalsust pole blokeeritud."
+    "analysisContinues": "Analüüs jätkub kohalike reeglitega. Funktsionaalsust pole blokeeritud.",
+    "openProfile": "Ava profiil",
+    "courier": "Kuller",
+    "flexible": "Paindlik"
   },
   "chat": {
     "title": "Turvaline vestlus",
@@ -405,7 +425,23 @@
     "findAnotherMatch": "Leia teine sobivus",
     "findAnotherMatchDescription": "Avastage uusi vahetusvoimalusi",
     "viewStats": "Vaata statistikat",
-    "viewStatsDescription": "Kontrollige oma mainet ja žetoone"
+    "viewStatsDescription": "Kontrollige oma mainet ja žetoone",
+    "bilateralStatus": "Kahepoolne olek",
+    "bilateralDescription": "Vaadake iga osapoole olekut vahetuses",
+    "requester": "Taotleja",
+    "responder": "Partner",
+    "you": "Sina",
+    "proposed": "Pakutud",
+    "scheduled": "Ajastatud",
+    "inProgress": "Käimas",
+    "completed": "Lõpetatud",
+    "cancelled": "Tühistatud",
+    "confirmActionTitle": "Kinnita tegevus",
+    "confirmCancelMessage": "Kas olete kindel, et soovite selle vahetuse tühistada? Seda toimingut ei saa tagasi võtta.",
+    "confirmCompleteMessage": "Kinnitada vahetuse lõpetamine? Mõlemaid osapooli teavitatakse.",
+    "rateExperience": "Hinda kogemust",
+    "commentPlaceholder": "Kirjutage kommentaar oma kogemuse kohta...",
+    "feedbackSent": "Tagasiside saadetud"
   },
   "info": {
     "title": "Swaply statistika",
@@ -588,7 +624,10 @@
     "aiTrace": "TI jälg:",
     "viewDetails": "Vaata üksikasju",
     "sendMessage": "Saada sõnum",
-    "proposeExchange": "Tee vahetuspakkumine"
+    "proposeExchange": "Tee vahetuspakkumine",
+    "rejectedCount": "{count} tagasilükatud sobivust",
+    "undoAll": "Võta kõik tagasi",
+    "undo": "Võta tagasi:"
   },
   "swapTimeline": {
     "proposed": "Pakutud",
@@ -627,7 +666,13 @@
     "send": "Saada",
     "blockedByModeration": "Sõnum blokeeriti modereerimise töttu.",
     "sendError": "Viga saatmisel. Proovige uuesti.",
-    "selectConversation": "Valige vestlus voi alustage ühte objektide lehelt."
+    "selectConversation": "Valige vestlus voi alustage ühte objektide lehelt.",
+    "swapContext": "Aktiivne vahetus",
+    "status_proposed": "Pakutud",
+    "status_scheduled": "Ajastatud",
+    "status_in_progress": "Käimas",
+    "status_completed": "Lõpetatud",
+    "status_cancelled": "Tühistatud"
   },
   "statsGrid": {
     "globalExchanges": "Globaalsed vahetused",

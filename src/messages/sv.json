@@ -53,7 +53,24 @@
   },
   "notifications": {
     "title": "Aviseringar (gilla/intresse/chatt/swaply)",
-    "empty": "Inga aviseringar just nu."
+    "empty": "Inga aviseringar just nu.",
+    "clearAll": "Rensa alla"
+  },
+  "contextBar": {
+    "itemsActive": "{count} aktiva objekt",
+    "swapsInProgress": "{count} aktiva byten",
+    "newNotifications": "{count} nya aviseringar",
+    "addObject": "Lägg till objekt",
+    "matchAnalysis": "Matchningsanalys",
+    "addObjectFirst": "Lägg till ett objekt först",
+    "basedOnItems": "baserat på {count} objekt",
+    "conversations": "{count} konversationer",
+    "activeExchanges": "{count} byten",
+    "pendingAction": "{count} väntar",
+    "inProgress": "{count} pågår",
+    "reputation": "Rykte",
+    "tokens": "Tokens",
+    "viewInfo": "Info & Statistik"
   },
   "login": {
     "authentication": "Autentisering",
@@ -334,7 +351,10 @@
     "analyzingCompatibility": "Analyserar kompatibilitet",
     "noMatchesNow": "Inga matchningar just nu. Fyll i mer detaljer på dina objekt eller lägg till nya.",
     "aiUnavailableNote": "AI otillgänglig",
-    "analysisContinues": "Analysen fortsätter med lokala regler. Ingen funktionalitet blockerad."
+    "analysisContinues": "Analysen fortsätter med lokala regler. Ingen funktionalitet blockerad.",
+    "openProfile": "Öppna profil",
+    "courier": "Bud",
+    "flexible": "Flexibel"
   },
   "chat": {
     "title": "Säker chatt",
@@ -405,7 +425,23 @@
     "findAnotherMatch": "Hitta en ny matchning",
     "findAnotherMatchDescription": "Upptäck nya bytesmöjligheter",
     "viewStats": "Visa statistik",
-    "viewStatsDescription": "Kontrollera ditt rykte och dina tokens"
+    "viewStatsDescription": "Kontrollera ditt rykte och dina tokens",
+    "bilateralStatus": "Bilateral status",
+    "bilateralDescription": "Se statusen för varje part i bytet",
+    "requester": "Förfrågan",
+    "responder": "Partner",
+    "you": "Du",
+    "proposed": "Föreslagen",
+    "scheduled": "Schemalagd",
+    "inProgress": "Pågår",
+    "completed": "Slutförd",
+    "cancelled": "Avbruten",
+    "confirmActionTitle": "Bekräfta åtgärd",
+    "confirmCancelMessage": "Är du säker på att du vill avbryta detta byte? Denna åtgärd kan inte ångras.",
+    "confirmCompleteMessage": "Bekräfta slutförande av bytet? Båda parter kommer att meddelas.",
+    "rateExperience": "Betygsätt upplevelsen",
+    "commentPlaceholder": "Skriv en kommentar om din upplevelse...",
+    "feedbackSent": "Feedback skickad"
   },
   "info": {
     "title": "Swaply-statistik",
@@ -588,7 +624,10 @@
     "aiTrace": "AI-spårning:",
     "viewDetails": "Visa detaljer",
     "sendMessage": "Skicka meddelande",
-    "proposeExchange": "Föreslå byte"
+    "proposeExchange": "Föreslå byte",
+    "rejectedCount": "{count} avvisade matchningar",
+    "undoAll": "Ångra alla",
+    "undo": "Ångra:"
   },
   "swapTimeline": {
     "proposed": "Föreslagen",
@@ -627,7 +666,13 @@
     "send": "Skicka",
     "blockedByModeration": "Meddelande blockerat av moderering.",
     "sendError": "Fel vid sändning. Försök igen.",
-    "selectConversation": "Välj en konversation eller starta en från objektsidan."
+    "selectConversation": "Välj en konversation eller starta en från objektsidan.",
+    "swapContext": "Aktivt byte",
+    "status_proposed": "Föreslagen",
+    "status_scheduled": "Schemalagd",
+    "status_in_progress": "Pågår",
+    "status_completed": "Slutförd",
+    "status_cancelled": "Avbruten"
   },
   "statsGrid": {
     "globalExchanges": "Globala byten",

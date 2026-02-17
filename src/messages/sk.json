@@ -53,7 +53,24 @@
   },
   "notifications": {
     "title": "Oznámenia (like/záujem/chat/swaply)",
-    "empty": "Momentálne žiadne oznámenia."
+    "empty": "Momentálne žiadne oznámenia.",
+    "clearAll": "Vymazať všetky"
+  },
+  "contextBar": {
+    "itemsActive": "{count} aktívnych objektov",
+    "swapsInProgress": "{count} aktívnych výmen",
+    "newNotifications": "{count} nových oznámení",
+    "addObject": "Pridať objekt",
+    "matchAnalysis": "Analýza zhôd",
+    "addObjectFirst": "Najprv pridajte objekt",
+    "basedOnItems": "na základe {count} objektov",
+    "conversations": "{count} konverzácií",
+    "activeExchanges": "{count} výmen",
+    "pendingAction": "{count} čaká",
+    "inProgress": "{count} prebieha",
+    "reputation": "Reputácia",
+    "tokens": "Tokeny",
+    "viewInfo": "Info a štatistiky"
   },
   "login": {
     "authentication": "Overenie",
@@ -334,7 +351,10 @@
     "analyzingCompatibility": "Analýza kompatibility",
     "noMatchesNow": "Momentálne žiadne zhody. Doplňte viac detailov k objektom alebo pridajte nové.",
     "aiUnavailableNote": "AI nedostupné",
-    "analysisContinues": "Analýza pokračuje s lokálnymi pravidlami. Žiadna funkcia nie je blokovaná."
+    "analysisContinues": "Analýza pokračuje s lokálnymi pravidlami. Žiadna funkcia nie je blokovaná.",
+    "openProfile": "Otvoriť profil",
+    "courier": "Kuriér",
+    "flexible": "Flexibilný"
   },
   "chat": {
     "title": "Zabezpečený chat",
@@ -405,7 +425,23 @@
     "findAnotherMatch": "Nájsť ďalšiu zhodu",
     "findAnotherMatchDescription": "Objavte nové možnosti výmeny",
     "viewStats": "Zobraziť štatistiky",
-    "viewStatsDescription": "Skontrolujte svoju reputáciu a tokeny"
+    "viewStatsDescription": "Skontrolujte svoju reputáciu a tokeny",
+    "bilateralStatus": "Obojstranný stav",
+    "bilateralDescription": "Zobraziť stav každej strany vo výmene",
+    "requester": "Žiadateľ",
+    "responder": "Partner",
+    "you": "Vy",
+    "proposed": "Navrhnuté",
+    "scheduled": "Naplánované",
+    "inProgress": "Prebieha",
+    "completed": "Dokončené",
+    "cancelled": "Zrušené",
+    "confirmActionTitle": "Potvrdiť akciu",
+    "confirmCancelMessage": "Naozaj chcete zrušiť túto výmenu? Túto akciu nie je možné vrátiť späť.",
+    "confirmCompleteMessage": "Potvrdiť dokončenie výmeny? Obe strany budú informované.",
+    "rateExperience": "Ohodnoťte skúsenosť",
+    "commentPlaceholder": "Napíšte komentár o svojej skúsenosti...",
+    "feedbackSent": "Spätná väzba odoslaná"
   },
   "info": {
     "title": "Swaply štatistiky",
@@ -588,7 +624,10 @@
     "aiTrace": "AI stopa:",
     "viewDetails": "Zobraziť detaily",
     "sendMessage": "Odoslať správu",
-    "proposeExchange": "Navrhnúť výmenu"
+    "proposeExchange": "Navrhnúť výmenu",
+    "rejectedCount": "{count} zamietnutých zhôd",
+    "undoAll": "Vrátiť všetky",
+    "undo": "Vrátiť:"
   },
   "swapTimeline": {
     "proposed": "Navrhnuté",
@@ -627,7 +666,13 @@
     "send": "Odoslať",
     "blockedByModeration": "Správa blokovaná moderáciou.",
     "sendError": "Chyba pri odosielaní. Skúste to znova.",
-    "selectConversation": "Vyberte konverzáciu alebo začnite jednu zo stránky objektov."
+    "selectConversation": "Vyberte konverzáciu alebo začnite jednu zo stránky objektov.",
+    "swapContext": "Aktívna výmena",
+    "status_proposed": "Navrhnuté",
+    "status_scheduled": "Naplánované",
+    "status_in_progress": "Prebieha",
+    "status_completed": "Dokončené",
+    "status_cancelled": "Zrušené"
   },
   "statsGrid": {
     "globalExchanges": "Globálne výmeny",

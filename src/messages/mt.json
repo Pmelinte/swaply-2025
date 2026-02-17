@@ -53,7 +53,24 @@
   },
   "notifications": {
     "title": "Notifiki (like/interess/chat/swaply)",
-    "empty": "L-ebda notifiki bħalissa."
+    "empty": "L-ebda notifiki bħalissa.",
+    "clearAll": "Ħassar kollox"
+  },
+  "contextBar": {
+    "itemsActive": "{count} oġġetti attivi",
+    "swapsInProgress": "{count} skambji attivi",
+    "newNotifications": "{count} notifiki ġodda",
+    "addObject": "Żid oġġett",
+    "matchAnalysis": "Analiżi tat-tqabbil",
+    "addObjectFirst": "Żid oġġett l-ewwel",
+    "basedOnItems": "ibbażat fuq {count} oġġetti",
+    "conversations": "{count} konversazzjonijiet",
+    "activeExchanges": "{count} skambji",
+    "pendingAction": "{count} jistennew",
+    "inProgress": "{count} għaddejjin",
+    "reputation": "Reputazzjoni",
+    "tokens": "Tokens",
+    "viewInfo": "Info u Statistika"
   },
   "login": {
     "authentication": "Awtentikazzjoni",
@@ -334,7 +351,10 @@
     "analyzingCompatibility": "Qed janalizza l-kompatibbiltà",
     "noMatchesNow": "L-ebda tqabbil bħalissa. Ikkompleta aktar dettalji fuq l-oġġetti tiegħek jew żid oħrajn ġodda.",
     "aiUnavailableNote": "AI mhux disponibbli",
-    "analysisContinues": "L-analiżi tkompli b'regoli lokali. L-ebda funzjonalità hija mblukkata."
+    "analysisContinues": "L-analiżi tkompli b'regoli lokali. L-ebda funzjonalità hija mblukkata.",
+    "openProfile": "Iftaħ il-profil",
+    "courier": "Kurrier",
+    "flexible": "Flessibbli"
   },
   "chat": {
     "title": "Chat sigur",
@@ -405,7 +425,23 @@
     "findAnotherMatch": "Sib tqabbil ieħor",
     "findAnotherMatchDescription": "Iskopri opportunitajiet ġodda ta' skambju",
     "viewStats": "Ara l-istatistika",
-    "viewStatsDescription": "Iċċekkja r-reputazzjoni u t-tokens tiegħek"
+    "viewStatsDescription": "Iċċekkja r-reputazzjoni u t-tokens tiegħek",
+    "bilateralStatus": "Status bilaterali",
+    "bilateralDescription": "Ara l-istatus ta' kull parti fl-iskambju",
+    "requester": "Min talab",
+    "responder": "Sieħeb",
+    "you": "Int",
+    "proposed": "Propost",
+    "scheduled": "Skedat",
+    "inProgress": "Għaddej",
+    "completed": "Lest",
+    "cancelled": "Ikkanċellat",
+    "confirmActionTitle": "Ikkonferma l-azzjoni",
+    "confirmCancelMessage": "Int ċert li trid tikkanċella dan l-iskambju? Din l-azzjoni ma tistax tiġi annullata.",
+    "confirmCompleteMessage": "Ikkonferma t-tlestija tal-iskambju? Iż-żewġ partijiet se jiġu notifikati.",
+    "rateExperience": "Ivvaluta l-esperjenza",
+    "commentPlaceholder": "Ikteb kumment dwar l-esperjenza tiegħek...",
+    "feedbackSent": "Feedback mibgħut"
   },
   "info": {
     "title": "Statistika ta' Swaply",
@@ -588,7 +624,10 @@
     "aiTrace": "Traċċa AI:",
     "viewDetails": "Ara d-dettalji",
     "sendMessage": "Ibgħat messaġġ",
-    "proposeExchange": "Ipproponi skambju"
+    "proposeExchange": "Ipproponi skambju",
+    "rejectedCount": "{count} tqabbil irrifjutati",
+    "undoAll": "Annulla kollox",
+    "undo": "Annulla:"
   },
   "swapTimeline": {
     "proposed": "Propost",
@@ -627,7 +666,13 @@
     "send": "Ibgħat",
     "blockedByModeration": "Il-messaġġ ġie mblukkat mill-moderazzjoni.",
     "sendError": "Żball fl-ibgħat. Erġa' pprova.",
-    "selectConversation": "Agħżel konversazzjoni jew ibda waħda mill-paġna tal-oġġetti."
+    "selectConversation": "Agħżel konversazzjoni jew ibda waħda mill-paġna tal-oġġetti.",
+    "swapContext": "Skambju attiv",
+    "status_proposed": "Propost",
+    "status_scheduled": "Skedat",
+    "status_in_progress": "Għaddej",
+    "status_completed": "Lest",
+    "status_cancelled": "Ikkanċellat"
   },
   "statsGrid": {
     "globalExchanges": "Skambji globali",

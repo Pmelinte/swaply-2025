@@ -53,7 +53,24 @@
   },
   "notifications": {
     "title": "Obaveštenja (lajk/interes/ćaskanje/swaply)",
-    "empty": "Trenutno nema obaveštenja."
+    "empty": "Trenutno nema obaveštenja.",
+    "clearAll": "Obriši sve"
+  },
+  "contextBar": {
+    "itemsActive": "{count} aktivnih objekata",
+    "swapsInProgress": "{count} aktivnih razmena",
+    "newNotifications": "{count} novih obaveštenja",
+    "addObject": "Dodaj objekat",
+    "matchAnalysis": "Analiza podudaranja",
+    "addObjectFirst": "Prvo dodajte objekat",
+    "basedOnItems": "na osnovu {count} objekata",
+    "conversations": "{count} razgovora",
+    "activeExchanges": "{count} razmena",
+    "pendingAction": "{count} na čekanju",
+    "inProgress": "{count} u toku",
+    "reputation": "Reputacija",
+    "tokens": "Tokeni",
+    "viewInfo": "Info i statistika"
   },
   "login": {
     "authentication": "Autentifikacija",
@@ -334,7 +351,10 @@
     "analyzingCompatibility": "Analiza kompatibilnosti",
     "noMatchesNow": "Trenutno nema podudaranja. Dopunite više detalja na svojim predmetima ili dodajte nove.",
     "aiUnavailableNote": "AI nedostupan",
-    "analysisContinues": "Analiza se nastavlja sa lokalnim pravilima. Nijedna funkcionalnost nije blokirana."
+    "analysisContinues": "Analiza se nastavlja sa lokalnim pravilima. Nijedna funkcionalnost nije blokirana.",
+    "openProfile": "Otvori profil",
+    "courier": "Kurir",
+    "flexible": "Fleksibilan"
   },
   "chat": {
     "title": "Sigurno ćaskanje",
@@ -405,7 +425,23 @@
     "findAnotherMatch": "Pronađi novo podudaranje",
     "findAnotherMatchDescription": "Otkrijte nove prilike za zamenu",
     "viewStats": "Pogledaj statistiku",
-    "viewStatsDescription": "Proverite svoju reputaciju i tokene"
+    "viewStatsDescription": "Proverite svoju reputaciju i tokene",
+    "bilateralStatus": "Bilateralni status",
+    "bilateralDescription": "Pogledajte status svake strane u razmeni",
+    "requester": "Podnosilac zahteva",
+    "responder": "Partner",
+    "you": "Vi",
+    "proposed": "Predloženo",
+    "scheduled": "Zakazano",
+    "inProgress": "U toku",
+    "completed": "Završeno",
+    "cancelled": "Otkazano",
+    "confirmActionTitle": "Potvrdite radnju",
+    "confirmCancelMessage": "Da li ste sigurni da želite da otkažete ovu razmenu? Ova radnja se ne može poništiti.",
+    "confirmCompleteMessage": "Potvrditi završetak razmene? Obe strane će biti obaveštene.",
+    "rateExperience": "Ocenite iskustvo",
+    "commentPlaceholder": "Napišite komentar o svom iskustvu...",
+    "feedbackSent": "Povratna informacija poslata"
   },
   "info": {
     "title": "Swaply statistika",
@@ -588,7 +624,10 @@
     "aiTrace": "AI trag:",
     "viewDetails": "Pogledaj detalje",
     "sendMessage": "Pošalji poruku",
-    "proposeExchange": "Predloži zamenu"
+    "proposeExchange": "Predloži zamenu",
+    "rejectedCount": "{count} odbijenih podudaranja",
+    "undoAll": "Poništi sve",
+    "undo": "Poništi:"
   },
   "swapTimeline": {
     "proposed": "Predloženo",
@@ -627,7 +666,13 @@
     "send": "Pošalji",
     "blockedByModeration": "Poruka blokirana moderacijom.",
     "sendError": "Greška pri slanju. Pokušajte ponovo.",
-    "selectConversation": "Izaberite razgovor ili započnite jedan sa stranice predmeta."
+    "selectConversation": "Izaberite razgovor ili započnite jedan sa stranice predmeta.",
+    "swapContext": "Aktivna razmena",
+    "status_proposed": "Predloženo",
+    "status_scheduled": "Zakazano",
+    "status_in_progress": "U toku",
+    "status_completed": "Završeno",
+    "status_cancelled": "Otkazano"
   },
   "statsGrid": {
     "globalExchanges": "Globalne zamene",
