@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
-import { Bell, ChevronDown, Languages, LogOut } from "lucide-react";
+import { Bell, ChevronDown, LogOut } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { locales, languageNames, type Locale } from "@/i18n/config";
@@ -84,7 +84,7 @@ export function TopBar() {
               className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs text-zinc-500 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
               onClick={() => setLangOpen((prev) => !prev)}
             >
-              <Languages className="h-3.5 w-3.5" />
+              <span className="text-base leading-none">{languageNames[language as Locale]?.flag}</span>
               <span className="font-semibold uppercase">{language}</span>
               <ChevronDown className="h-2.5 w-2.5" />
             </button>
@@ -115,7 +115,7 @@ export function TopBar() {
                             : "text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-700"
                         }`}
                       >
-                        <span className="w-8 font-mono text-xs uppercase text-zinc-400">{loc}</span>
+                        <span className="w-7 text-base leading-none">{info.flag}</span>
                         <span className="flex-1">{info.nativeName}</span>
                         <span className="text-xs text-zinc-400">{info.name}</span>
                       </button>
