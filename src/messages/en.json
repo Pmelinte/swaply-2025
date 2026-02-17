@@ -289,6 +289,7 @@
     "save": "Save",
     "filterLocation": "Location",
     "locationFilterPlaceholder": "Filter by city…",
+    "swipeMode": "Swipe mode",
     "resultsCount": "{count} objects found",
     "createAccount": "Create account",
     "loginToList": "Login to list objects",
