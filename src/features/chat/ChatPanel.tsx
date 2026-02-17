@@ -1,23 +1,41 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 import { Conversation, ChatMessage } from "@/lib/types";
 import { useAppState } from "@/lib/state";
 import { formatDate } from "@/lib/utils";
 import { Badge, Pill } from "@/components/ui";
-import { Paperclip, Search, X } from "lucide-react";
+import {
+  AlertTriangle,
+  ChevronDown,
+  ChevronUp,
+  ExternalLink,
+  Paperclip,
+  Search,
+  Shield,
+  X,
+} from "lucide-react";
+
+const BLOCKED_EXTENSIONS = [".exe", ".bat", ".sh", ".cmd", ".zip", ".rar", ".7z", ".tar"];
+const URL_REGEX = /https?:\/\/[^\s]+/i;
 
 function MessageBubble({
   msg,
   isMe,
   targetLang,
+  showOriginal,
+  onToggleOriginal,
 }: {
   msg: ChatMessage;
   isMe: boolean;
   targetLang: string;
+  showOriginal: boolean;
+  onToggleOriginal: () => void;
 }) {
   const t = useTranslations("chatPanel");
+  const tc = useTranslations("chat");
   const [translatedText, setTranslatedText] = useState<string | null>(null);
   const [translating, setTranslating] = useState(false);
 
@@ -59,12 +77,14 @@ function MessageBubble({
         <span>{isMe ? t("you") : t("partner")}</span>
         <span>{formatDate(msg.createdAt)}</span>
       </div>
-      <p className="mt-1 text-sm text-zinc-800 dark:text-zinc-100">{msg.content}</p>
-      {translatedText ? (
-        <p className="mt-1 rounded-lg bg-purple-50 p-2 text-xs text-purple-800 dark:bg-purple-950/30 dark:text-purple-200">
+      {/* Show original or translated content based on toggle */}
+      {translatedText && !showOriginal ? (
+        <p className="mt-1 rounded-lg bg-purple-50 p-2 text-sm text-purple-800 dark:bg-purple-950/30 dark:text-purple-200">
           {translatedText}
         </p>
-      ) : null}
+      ) : (
+        <p className="mt-1 text-sm text-zinc-800 dark:text-zinc-100">{msg.content}</p>
+      )}
       <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px]">
         {msg.translated ? <Pill color="blue">{t("translated")}</Pill> : null}
         {msg.moderated ? <Pill color="amber">{t("moderated")}</Pill> : null}
@@ -83,6 +103,16 @@ function MessageBubble({
             {translating ? "..." : t("translate")}
           </button>
         ) : null}
+        {/* Show original / Show translation toggle for translated messages */}
+        {translatedText ? (
+          <button
+            type="button"
+            onClick={onToggleOriginal}
+            className="rounded-full bg-purple-100 px-2 py-0.5 text-[10px] font-medium text-purple-700 hover:bg-purple-200 dark:bg-purple-900/40 dark:text-purple-300 dark:hover:bg-purple-900/60"
+          >
+            {showOriginal ? tc("showTranslation") : tc("showOriginal")}
+          </button>
+        ) : null}
       </div>
     </div>
   );
@@ -96,6 +126,7 @@ export function ChatPanel({
   initialConversationId?: string;
 }) {
   const t = useTranslations("chatPanel");
+  const tc = useTranslations("chat");
   const { addMessage, toggleConversationTranslation, language, items, swaps, user } = useAppState();
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
   const [draft, setDraft] = useState("");
@@ -104,8 +135,31 @@ export function ChatPanel({
   const [readCounts, setReadCounts] = useState<Record<string, number>>({});
   const [searchQuery, setSearchQuery] = useState("");
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
+  const [safetyWarning, setSafetyWarning] = useState<string | null>(null);
+  const [showOriginalMap, setShowOriginalMap] = useState<Record<string, boolean>>({});
+  const [summaryExpanded, setSummaryExpanded] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const safetyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Show safety warning for 3 seconds then auto-clear
+  const showSafetyWarning = useCallback((message: string) => {
+    setSafetyWarning(message);
+    if (safetyTimerRef.current) clearTimeout(safetyTimerRef.current);
+    safetyTimerRef.current = setTimeout(() => setSafetyWarning(null), 3000);
+  }, []);
+
+  // Clean up timer on unmount
+  useEffect(() => {
+    return () => {
+      if (safetyTimerRef.current) clearTimeout(safetyTimerRef.current);
+    };
+  }, []);
+
+  // Toggle show-original for a specific message
+  const toggleShowOriginal = useCallback((messageId: string) => {
+    setShowOriginalMap((prev) => ({ ...prev, [messageId]: !prev[messageId] }));
+  }, []);
 
   // Filter conversations by search
   const filteredConversations = useMemo(() => {
@@ -156,6 +210,13 @@ export function ChatPanel({
 
   const handleSend = async () => {
     if (!draft.trim() || !active) return;
+
+    // Safety: block messages containing URLs
+    if (URL_REGEX.test(draft)) {
+      showSafetyWarning(tc("linkBlocked"));
+      return;
+    }
+
     setSending(true);
     setModerationError(null);
 
@@ -180,6 +241,17 @@ export function ChatPanel({
     } finally {
       setSending(false);
     }
+  };
+
+  // Safety: validate attached file extension
+  const handleFileSelect = (file: File) => {
+    const ext = file.name.substring(file.name.lastIndexOf(".")).toLowerCase();
+    if (BLOCKED_EXTENSIONS.includes(ext)) {
+      showSafetyWarning(tc("fileBlocked"));
+      setAttachedFile(null);
+      return;
+    }
+    setAttachedFile(file);
   };
 
   return (
@@ -274,17 +346,129 @@ export function ChatPanel({
               </div>
             ) : null}
 
+            {/* AI Summary — collapsible */}
+            {swapContext ? (
+              <div className="mt-2 rounded-lg border border-zinc-200 bg-zinc-50/80 dark:border-zinc-700 dark:bg-zinc-800/60">
+                <button
+                  type="button"
+                  onClick={() => setSummaryExpanded((prev) => !prev)}
+                  className="flex w-full items-center justify-between px-3 py-2 text-left"
+                >
+                  <div className="flex items-center gap-2">
+                    <Shield className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                    <span className="text-xs font-semibold text-zinc-800 dark:text-zinc-100">
+                      {tc("aiSummary")}
+                    </span>
+                    <span className="text-[10px] text-zinc-500 dark:text-zinc-400">
+                      {tc("aiSummaryDesc")}
+                    </span>
+                  </div>
+                  {summaryExpanded ? (
+                    <ChevronUp className="h-3.5 w-3.5 text-zinc-400" />
+                  ) : (
+                    <ChevronDown className="h-3.5 w-3.5 text-zinc-400" />
+                  )}
+                </button>
+                {summaryExpanded && (
+                  <div className="space-y-2 border-t border-zinc-200 px-3 pb-3 pt-2 dark:border-zinc-700">
+                    {/* Agreed section */}
+                    <div>
+                      <p className="mb-1 text-[10px] font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-400">
+                        {tc("agreedItems")}
+                      </p>
+                      <ul className="space-y-1 text-xs text-zinc-700 dark:text-zinc-300">
+                        <li className="flex items-center gap-1.5">
+                          <span className="text-emerald-500">&#10003;</span>
+                          {tc("summaryItems", {
+                            req: swapContext.reqItem?.title ?? "?",
+                            res: swapContext.resItem?.title ?? "?",
+                          })}
+                        </li>
+                        {swapContext.swap.logistics.locationType ? (
+                          <li className="flex items-center gap-1.5">
+                            <span className="text-emerald-500">&#10003;</span>
+                            {tc("summaryLogistics", {
+                              method: swapContext.swap.logistics.locationType,
+                            })}
+                          </li>
+                        ) : null}
+                        {swapContext.swap.logistics.meetupPoint ? (
+                          <li className="flex items-center gap-1.5">
+                            <span className="text-emerald-500">&#10003;</span>
+                            {tc("summaryMeetup", {
+                              point: swapContext.swap.logistics.meetupPoint,
+                            })}
+                          </li>
+                        ) : null}
+                      </ul>
+                    </div>
+                    {/* Pending section */}
+                    <div>
+                      <p className="mb-1 text-[10px] font-bold uppercase tracking-wide text-amber-700 dark:text-amber-400">
+                        {tc("pendingItems")}
+                      </p>
+                      <ul className="space-y-1 text-xs text-zinc-600 dark:text-zinc-400">
+                        {!swapContext.swap.logistics.locationType && (
+                          <li className="flex items-center gap-1.5">
+                            <span className="text-zinc-400">&#9744;</span>
+                            {tc("summaryLogistics", { method: tc("summaryNotAgreed") })}
+                          </li>
+                        )}
+                        {!swapContext.swap.logistics.meetupPoint && (
+                          <li className="flex items-center gap-1.5">
+                            <span className="text-zinc-400">&#9744;</span>
+                            {tc("summaryMeetup", { point: tc("summaryNotAgreed") })}
+                          </li>
+                        )}
+                      </ul>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : null}
+
+            {/* Go to Exchange CTA */}
+            {swapContext ? (
+              <div className="mt-2 flex items-center gap-3">
+                <Link
+                  href="/change"
+                  className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:from-blue-700 hover:to-emerald-700"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  {tc("goToExchange")}
+                </Link>
+                <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                  {tc("goToExchangeDesc")}
+                </span>
+              </div>
+            ) : null}
+
             {/* Messages — responsive height */}
             <div
               className="mt-3 flex-1 space-y-3 overflow-y-auto rounded-xl border border-zinc-100 bg-zinc-50/80 p-3 dark:border-zinc-800 dark:bg-zinc-800/50"
               style={{ maxHeight: "calc(100vh - 380px)", minHeight: "200px" }}
             >
+              {/* Safety / moderation warning banner */}
+              {safetyWarning ? (
+                <div className="flex items-center gap-2 rounded-lg bg-amber-50 px-3 py-1.5 dark:bg-amber-950/30">
+                  <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-600 dark:text-amber-400" />
+                  <p className="text-xs font-medium text-amber-700 dark:text-amber-300">
+                    {safetyWarning}
+                  </p>
+                </div>
+              ) : null}
+              {/* Persistent moderation reminder */}
+              <p className="text-center text-[10px] text-amber-600/70 dark:text-amber-400/60">
+                {tc("safetyWarning")}
+              </p>
               {active.messages.map((msg) => (
                 <MessageBubble
                   key={msg.id}
                   msg={msg}
                   isMe={msg.senderId !== active.participantId}
                   targetLang={language}
+                  showOriginal={showOriginalMap[msg.id] ?? true}
+                  onToggleOriginal={() => toggleShowOriginal(msg.id)}
                 />
               ))}
               <div ref={messagesEndRef} />
@@ -330,7 +514,7 @@ export function ChatPanel({
                 accept="image/*,.pdf,.doc,.docx"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
-                  if (file) setAttachedFile(file);
+                  if (file) handleFileSelect(file);
                   e.target.value = "";
                 }}
               />

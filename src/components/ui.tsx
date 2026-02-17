@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import clsx from "clsx";
 import Link from "next/link";
-import { BadgeTier } from "@/lib/types";
+import type { BadgeTier } from "@/lib/types";
 
 export function SectionCard({
   title,
@@ -186,6 +186,65 @@ export function StateShowcase({
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+/** Reusable loading state placeholder */
+export function LoadingState({ message }: { message?: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-3 py-12 text-zinc-400 dark:text-zinc-500">
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-300 border-t-blue-500 dark:border-zinc-600 dark:border-t-blue-400" />
+      {message && <p className="text-sm">{message}</p>}
+    </div>
+  );
+}
+
+/** Reusable empty state with optional CTA */
+export function EmptyState({
+  message,
+  ctaLabel,
+  ctaHref,
+}: {
+  message: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-zinc-200 py-12 text-center dark:border-zinc-700">
+      <p className="text-sm text-zinc-500 dark:text-zinc-400">{message}</p>
+      {ctaLabel && ctaHref && (
+        <Link
+          href={ctaHref}
+          className="rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+        >
+          {ctaLabel}
+        </Link>
+      )}
+    </div>
+  );
+}
+
+/** Reusable error state with retry */
+export function ErrorState({
+  message,
+  onRetry,
+}: {
+  message: string;
+  onRetry?: () => void;
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-red-200 bg-red-50/50 py-8 text-center dark:border-red-900 dark:bg-red-950/20">
+      <p className="text-sm font-medium text-red-700 dark:text-red-300">{message}</p>
+      {onRetry && (
+        <button
+          type="button"
+          onClick={onRetry}
+          className="rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700"
+        >
+          Try again
+        </button>
+      )}
     </div>
   );
 }

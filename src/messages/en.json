@@ -22,7 +22,12 @@
     "search": "Search",
     "unknown": "unknown",
     "noImage": "No image",
-    "freeSlot": "Free slot"
+    "freeSlot": "Free slot",
+    "loadingData": "Loading data…",
+    "noData": "No data available",
+    "errorOccurred": "Something went wrong",
+    "tryAgain": "Try again",
+    "nextStep": "Recommended next step"
   },
 
   "nav": {
@@ -282,6 +287,8 @@
     "proposeSwap": "Propose swap",
     "message": "Message",
     "save": "Save",
+    "filterLocation": "Location",
+    "locationFilterPlaceholder": "Filter by city…",
     "resultsCount": "{count} objects found",
     "createAccount": "Create account",
     "loginToList": "Login to list objects",
@@ -456,7 +463,18 @@
     "autoModeTitle": "AI Mode",
     "autoModeDesc": "AI curates your best matches based on compatibility analysis",
     "manualModeTitle": "Manual Mode",
-    "manualModeDesc": "Browse all matches with full control over filters and sorting"
+    "manualModeDesc": "Browse all matches with full control over filters and sorting",
+    "strictness": "Match strictness",
+    "strictLabel": "Strict",
+    "relaxedLabel": "Relaxed",
+    "maxDistance": "Max distance",
+    "anyDistance": "Any",
+    "swapTypeFilter": "Exchange types",
+    "swapAll": "All types",
+    "swapLocal": "Local",
+    "swapCourier": "Courier",
+    "swapVacation": "Vacation",
+    "swapService": "Service"
   },
 
   "chat": {
@@ -492,7 +510,22 @@
     "attach": "Attach",
     "attachFile": "Attach a file",
     "fileSelected": "File: {name}",
-    "removeFile": "Remove"
+    "removeFile": "Remove",
+    "aiSummary": "AI Summary",
+    "aiSummaryDesc": "What's been discussed and agreed",
+    "agreedItems": "Agreed",
+    "pendingItems": "Pending",
+    "summaryItems": "Items: {req} ↔ {res}",
+    "summaryLogistics": "Logistics: {method}",
+    "summaryMeetup": "Meetup: {point}",
+    "summaryNotAgreed": "Not yet discussed",
+    "goToExchange": "Go to Exchange",
+    "goToExchangeDesc": "Proceed to logistics and completion",
+    "linkBlocked": "External links are blocked for safety",
+    "fileBlocked": "This file type is not allowed (.exe, .bat, .sh, .zip, .rar)",
+    "showOriginal": "Show original",
+    "showTranslation": "Show translation",
+    "safetyWarning": "Keep conversations respectful. Violations affect reputation."
   },
 
   "change": {
@@ -566,7 +599,40 @@
     "saveLogistics": "Save logistics",
     "logisticsSaved": "Logistics saved",
     "logisticsHelp": "Both parties should agree on the method before proceeding.",
-    "methodNotSet": "Not selected yet"
+    "methodNotSet": "Not selected yet",
+    "swapType": "Exchange type",
+    "swapTypeDesc": "Choose the type of exchange that fits your situation",
+    "typeLocal": "Local meetup",
+    "typeLocalDesc": "Meet in person at a public spot",
+    "typeCourierNational": "National courier",
+    "typeCourierNationalDesc": "Ship within the country via courier",
+    "typeCourierInternational": "International courier",
+    "typeCourierInternationalDesc": "Cross-border shipping with multi-leg tracking",
+    "typeVacation": "Vacation swap",
+    "typeVacationDesc": "Exchange items while traveling or on vacation",
+    "typeHouseSwap": "House swap",
+    "typeHouseSwapDesc": "Exchange living spaces temporarily",
+    "typeServiceSwap": "Service swap",
+    "typeServiceSwapDesc": "Exchange skills, time, or services",
+    "checklist": "Pre-exchange checklist",
+    "checkVerifyPhotos": "Verify item photos match description",
+    "checkAgreeLogistics": "Both parties agree on logistics method",
+    "checkConfirmCondition": "Confirm item condition is as described",
+    "checkSetMeetup": "Set meeting point / tracking number",
+    "checkBothConfirm": "Both parties confirm readiness",
+    "meetupDateTime": "Meeting date & time",
+    "meetupDateTimePlaceholder": "e.g. Saturday, Feb 22 at 2 PM",
+    "awbOutgoing": "Outgoing AWB (your shipment)",
+    "awbIncoming": "Incoming AWB (their shipment)",
+    "travelDates": "Travel dates",
+    "travelDatesPlaceholder": "e.g. June 15-22, 2026",
+    "serviceDescription": "Service description",
+    "serviceDescPlaceholder": "Describe the service you'll provide",
+    "houseDuration": "Stay duration",
+    "houseDurationPlaceholder": "e.g. 1 week, June 10-17",
+    "dualConfirmRequired": "Both parties must confirm each step",
+    "internationalLeg1": "Leg 1: Sender → Hub",
+    "internationalLeg2": "Leg 2: Hub → Recipient"
   },
 
   "info": {
@@ -744,7 +810,11 @@
     "aiImageError": "AI could not analyze the image. Fill in title and category manually.",
     "aiNetworkError": "Network error during image analysis.",
     "imageReadError": "Could not read the image.",
-    "uploadingImageButton": "Uploading image…"
+    "uploadingImageButton": "Uploading image…",
+    "aiConfidence": "AI Confidence: {score}%",
+    "aiConfidenceHigh": "High confidence",
+    "aiConfidenceMedium": "Medium confidence — review suggested",
+    "aiConfidenceLow": "Low confidence — please verify manually"
   },
 
   "itemCard": {
@@ -804,7 +874,17 @@
     "reasonValueMismatch": "Value mismatch",
     "reasonCondition": "Condition issue",
     "reasonNotInterested": "Not interested",
-    "reasonSkip": "Skip"
+    "reasonSkip": "Skip",
+    "counterOffers": "Counter-offers",
+    "counterOffersDesc": "AI-generated suggestions to improve the deal",
+    "loadingCounterOffers": "Generating suggestions…",
+    "noCounterOffers": "No suggestions available",
+    "counterAddItem": "Add another item to sweeten the deal",
+    "counterChangeDelivery": "Switch delivery method to {method}",
+    "counterTimeWindow": "Propose a specific time window",
+    "counterBundleOffer": "Offer a bundle of smaller items instead",
+    "applyCounter": "Send as message",
+    "whyBullet": "Why: {reason}"
   },
 
   "swapTimeline": {
@@ -927,7 +1007,10 @@
     "proposals": "Proposals",
     "chats": "Chats",
     "confirmDelete": "Are you sure you want to delete this object? This cannot be undone.",
-    "addNew": "Add object"
+    "confirmArchive": "Move to archive? The object will be hidden from marketplace but can be restored later.",
+    "addNew": "Add object",
+    "softDelete": "Archive instead",
+    "permanentDelete": "Delete permanently"
   },
 
   "pwa": {

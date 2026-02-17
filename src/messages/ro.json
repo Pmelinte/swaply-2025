@@ -22,7 +22,12 @@
     "search": "Caută",
     "unknown": "necunoscut",
     "noImage": "Fără imagine",
-    "freeSlot": "Slot liber"
+    "freeSlot": "Slot liber",
+    "loadingData": "Se încarcă datele…",
+    "noData": "Nu sunt date disponibile",
+    "errorOccurred": "Ceva nu a mers bine",
+    "tryAgain": "Încearcă din nou",
+    "nextStep": "Pasul următor recomandat"
   },
 
   "nav": {
@@ -428,7 +433,18 @@
     "autoModeTitle": "Mod AI",
     "autoModeDesc": "AI selectează cele mai bune potriviri pe baza analizei de compatibilitate",
     "manualModeTitle": "Mod Manual",
-    "manualModeDesc": "Navighează toate potrivirile cu control complet asupra filtrelor și sortării"
+    "manualModeDesc": "Navighează toate potrivirile cu control complet asupra filtrelor și sortării",
+    "strictness": "Strictețe potrivire",
+    "strictLabel": "Strict",
+    "relaxedLabel": "Relaxat",
+    "maxDistance": "Distanță maximă",
+    "anyDistance": "Oricare",
+    "swapTypeFilter": "Tipuri de schimb",
+    "swapAll": "Toate tipurile",
+    "swapLocal": "Local",
+    "swapCourier": "Curier",
+    "swapVacation": "Vacanță",
+    "swapService": "Servicii"
   },
 
   "chat": {
@@ -464,7 +480,22 @@
     "attach": "Atașează",
     "attachFile": "Atașează un fișier",
     "fileSelected": "Fișier: {name}",
-    "removeFile": "Elimină"
+    "removeFile": "Elimină",
+    "aiSummary": "Sumar AI",
+    "aiSummaryDesc": "Ce s-a discutat și stabilit",
+    "agreedItems": "Stabilit",
+    "pendingItems": "De rezolvat",
+    "summaryItems": "Obiecte: {req} ↔ {res}",
+    "summaryLogistics": "Logistică: {method}",
+    "summaryMeetup": "Întâlnire: {point}",
+    "summaryNotAgreed": "Încă nediscutat",
+    "goToExchange": "Mergi la Schimb",
+    "goToExchangeDesc": "Treci la logistică și finalizare",
+    "linkBlocked": "Link-urile externe sunt blocate pentru siguranță",
+    "fileBlocked": "Acest tip de fișier nu este permis (.exe, .bat, .sh, .zip, .rar)",
+    "showOriginal": "Arată originalul",
+    "showTranslation": "Arată traducerea",
+    "safetyWarning": "Păstrează conversațiile respectuoase. Încălcările afectează reputația."
   },
 
   "change": {
@@ -538,7 +569,40 @@
     "saveLogistics": "Salvează logistica",
     "logisticsSaved": "Logistica salvată",
     "logisticsHelp": "Ambele părți trebuie să fie de acord cu metoda înainte de a continua.",
-    "methodNotSet": "Neselectat încă"
+    "methodNotSet": "Neselectat încă",
+    "swapType": "Tip de schimb",
+    "swapTypeDesc": "Alege tipul de schimb potrivit pentru situația ta",
+    "typeLocal": "Întâlnire locală",
+    "typeLocalDesc": "Întâlnire într-un loc public",
+    "typeCourierNational": "Curier național",
+    "typeCourierNationalDesc": "Livrare prin curier în interiorul țării",
+    "typeCourierInternational": "Curier internațional",
+    "typeCourierInternationalDesc": "Livrare transfrontalieră cu urmărire multi-etapă",
+    "typeVacation": "Schimb de vacanță",
+    "typeVacationDesc": "Schimbă obiecte în timp ce călătorești",
+    "typeHouseSwap": "Schimb de case",
+    "typeHouseSwapDesc": "Schimb temporar de locuințe",
+    "typeServiceSwap": "Schimb de servicii",
+    "typeServiceSwapDesc": "Schimbă abilități, timp sau servicii",
+    "checklist": "Checklist pre-schimb",
+    "checkVerifyPhotos": "Verifică pozele obiectului",
+    "checkAgreeLogistics": "Ambele părți sunt de acord cu logistica",
+    "checkConfirmCondition": "Confirmă starea obiectului",
+    "checkSetMeetup": "Setează punctul de întâlnire / AWB",
+    "checkBothConfirm": "Ambele părți confirmă disponibilitatea",
+    "meetupDateTime": "Data și ora întâlnirii",
+    "meetupDateTimePlaceholder": "ex. Sâmbătă, 22 Feb la 14:00",
+    "awbOutgoing": "AWB expediere (coletul tău)",
+    "awbIncoming": "AWB primire (coletul lor)",
+    "travelDates": "Date călătorie",
+    "travelDatesPlaceholder": "ex. 15-22 Iunie 2026",
+    "serviceDescription": "Descriere serviciu",
+    "serviceDescPlaceholder": "Descrie serviciul pe care îl oferi",
+    "houseDuration": "Durata șederii",
+    "houseDurationPlaceholder": "ex. 1 săptămână, 10-17 Iunie",
+    "dualConfirmRequired": "Ambele părți trebuie să confirme fiecare pas",
+    "internationalLeg1": "Etapa 1: Expeditor → Hub",
+    "internationalLeg2": "Etapa 2: Hub → Destinatar"
   },
 
   "info": {
@@ -716,7 +780,11 @@
     "aiImageError": "AI nu a putut analiza imaginea. Completează manual titlul și categoria.",
     "aiNetworkError": "Eroare de rețea la analiza imaginii.",
     "imageReadError": "Nu s-a putut citi imaginea.",
-    "uploadingImageButton": "Se încarcă imaginea…"
+    "uploadingImageButton": "Se încarcă imaginea…",
+    "aiConfidence": "Încredere AI: {score}%",
+    "aiConfidenceHigh": "Încredere ridicată",
+    "aiConfidenceMedium": "Încredere medie — verificare sugerată",
+    "aiConfidenceLow": "Încredere scăzută — verifică manual"
   },
 
   "itemCard": {
@@ -776,7 +844,17 @@
     "reasonValueMismatch": "Valoare nepotrivită",
     "reasonCondition": "Problemă de stare",
     "reasonNotInterested": "Nu mă interesează",
-    "reasonSkip": "Sări"
+    "reasonSkip": "Sări",
+    "counterOffers": "Contra-oferte",
+    "counterOffersDesc": "Sugestii generate de AI pentru a îmbunătăți oferta",
+    "loadingCounterOffers": "Se generează sugestii…",
+    "noCounterOffers": "Nicio sugestie disponibilă",
+    "counterAddItem": "Adaugă un alt obiect pentru a îndulci oferta",
+    "counterChangeDelivery": "Schimbă metoda de livrare la {method}",
+    "counterTimeWindow": "Propune o fereastră de timp specifică",
+    "counterBundleOffer": "Oferă un pachet de obiecte mai mici",
+    "applyCounter": "Trimite ca mesaj",
+    "whyBullet": "De ce: {reason}"
   },
 
   "swapTimeline": {
@@ -899,7 +977,10 @@
     "proposals": "Propuneri",
     "chats": "Conversații",
     "confirmDelete": "Ești sigur că vrei să ștergi acest obiect? Acțiunea nu poate fi anulată.",
-    "addNew": "Adaugă obiect"
+    "confirmArchive": "Mută în arhivă? Obiectul va fi ascuns din marketplace dar poate fi restaurat ulterior.",
+    "addNew": "Adaugă obiect",
+    "softDelete": "Arhivează",
+    "permanentDelete": "Șterge permanent"
   },
 
   "pwa": {

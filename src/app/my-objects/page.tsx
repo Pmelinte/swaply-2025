@@ -158,6 +158,7 @@ export default function MyObjectsPage() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [deleteStage, setDeleteStage] = useState<"choose" | "confirmPermanent">("choose");
 
   if (!user) {
     return (
@@ -184,6 +185,18 @@ export default function MyObjectsPage() {
   const handleDelete = async (id: string) => {
     await deleteItem(id);
     setDeleteConfirmId(null);
+    setDeleteStage("choose");
+  };
+
+  const handleArchive = async (id: string) => {
+    await setItemStatus(id, "archived");
+    setDeleteConfirmId(null);
+    setDeleteStage("choose");
+  };
+
+  const cancelDelete = () => {
+    setDeleteConfirmId(null);
+    setDeleteStage("choose");
   };
 
   const filters: { key: StatusFilter; label: string }[] = [
@@ -356,7 +369,7 @@ export default function MyObjectsPage() {
 
                   {/* Actions */}
                   <div className="mt-4">
-                    {isDeleting ? (
+                    {isDeleting && deleteStage === "confirmPermanent" ? (
                       <div className="flex items-center gap-3 rounded-lg bg-red-50 p-3 dark:bg-red-900/20">
                         <p className="flex-1 text-xs text-red-700 dark:text-red-300">{t("confirmDelete")}</p>
                         <button
@@ -366,11 +379,36 @@ export default function MyObjectsPage() {
                           {tc("delete")}
                         </button>
                         <button
-                          onClick={() => setDeleteConfirmId(null)}
+                          onClick={cancelDelete}
                           className="rounded-lg bg-zinc-200 px-3 py-1.5 text-xs font-semibold text-zinc-700 hover:bg-zinc-300 dark:bg-zinc-600 dark:text-zinc-200"
                         >
                           {tc("cancel")}
                         </button>
+                      </div>
+                    ) : isDeleting && deleteStage === "choose" ? (
+                      <div className="space-y-2 rounded-lg bg-amber-50 p-3 dark:bg-amber-900/20">
+                        <p className="text-xs text-amber-700 dark:text-amber-300">{t("confirmArchive")}</p>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => void handleArchive(item.id)}
+                            className="inline-flex items-center gap-1 rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-amber-700"
+                          >
+                            <Archive className="h-3 w-3" />
+                            {t("softDelete")}
+                          </button>
+                          <button
+                            onClick={() => setDeleteStage("confirmPermanent")}
+                            className="rounded-lg bg-zinc-200 px-3 py-1.5 text-xs font-semibold text-zinc-500 hover:bg-zinc-300 dark:bg-zinc-600 dark:text-zinc-400"
+                          >
+                            {t("permanentDelete")}
+                          </button>
+                          <button
+                            onClick={cancelDelete}
+                            className="rounded-lg bg-zinc-100 px-3 py-1.5 text-xs font-semibold text-zinc-500 hover:bg-zinc-200 dark:bg-zinc-700 dark:text-zinc-400"
+                          >
+                            {tc("cancel")}
+                          </button>
+                        </div>
                       </div>
                     ) : (
                       <ItemActions

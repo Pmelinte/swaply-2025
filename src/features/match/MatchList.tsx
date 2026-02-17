@@ -108,6 +108,7 @@ export function MatchList({
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [rejectedIds, setRejectedIds] = useState<Map<string, RejectReason | undefined>>(new Map());
   const [rejectingId, setRejectingId] = useState<string | null>(null);
+  const [negotiatingId, setNegotiatingId] = useState<string | null>(null);
 
   const TIER_STYLES: Record<MatchTier, { bg: string; text: string; label: string; ring: string; accent: string }> = {
     weak:     { bg: "bg-red-100 dark:bg-red-950/40",    text: "text-red-800 dark:text-red-200",       label: t("weak"),     ring: "ring-red-200 dark:ring-red-800",       accent: "border-l-red-400" },
@@ -243,13 +244,14 @@ export function MatchList({
               </div>
 
               <p className="mb-1 text-xs font-semibold uppercase text-zinc-400">{t("whyMatch")}</p>
-              <div className="flex flex-wrap gap-1">
+              <ul className="space-y-1">
                 {(match.reasons ?? []).slice(0, 3).map((r, i) => (
-                  <span key={i} className="inline-block rounded-full bg-zinc-100 px-2.5 py-1 text-xs text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
-                    {r}
-                  </span>
+                  <li key={i} className="flex items-start gap-1.5 text-xs text-zinc-700 dark:text-zinc-300">
+                    <span className="mt-0.5 shrink-0 text-green-600 dark:text-green-400">&#10003;</span>
+                    <span>{r}</span>
+                  </li>
                 ))}
-              </div>
+              </ul>
 
               {match.aiTrace ? (
                 <p className="mt-1 text-xs text-blue-700 dark:text-blue-200">
@@ -284,7 +286,7 @@ export function MatchList({
               {onNegotiate ? (
                 <button
                   type="button"
-                  onClick={() => onNegotiate(match)}
+                  onClick={() => setNegotiatingId(negotiatingId === match.id ? null : match.id)}
                   className="flex flex-1 items-center justify-center gap-1.5 border-x border-zinc-100 py-3 text-xs font-bold uppercase tracking-wide text-blue-700 transition hover:bg-blue-50 dark:border-zinc-800 dark:text-blue-400 dark:hover:bg-blue-950/30"
                 >
                   <span>&#9998;</span> {t("negotiate")}
@@ -327,6 +329,56 @@ export function MatchList({
                 </div>
               ) : null}
             </div>
+
+            {/* Counter-offers panel */}
+            {negotiatingId === match.id && (
+              <div className="border-t border-zinc-100 px-4 py-3 dark:border-zinc-800">
+                <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">{t("counterOffers")}</p>
+                <p className="mb-3 text-xs text-zinc-500 dark:text-zinc-400">{t("counterOffersDesc")}</p>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-800/50">
+                    <span className="text-xs text-zinc-700 dark:text-zinc-300">{t("counterAddItem")}</span>
+                    <button
+                      type="button"
+                      onClick={() => onNegotiate?.(match)}
+                      className="rounded-full bg-blue-600 px-3 py-1 text-[10px] font-semibold text-white transition hover:bg-blue-700"
+                    >
+                      {t("applyCounter")}
+                    </button>
+                  </div>
+                  <div className="flex items-center justify-between rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-800/50">
+                    <span className="text-xs text-zinc-700 dark:text-zinc-300">{t("counterChangeDelivery")}</span>
+                    <button
+                      type="button"
+                      onClick={() => onNegotiate?.(match)}
+                      className="rounded-full bg-blue-600 px-3 py-1 text-[10px] font-semibold text-white transition hover:bg-blue-700"
+                    >
+                      {t("applyCounter")}
+                    </button>
+                  </div>
+                  <div className="flex items-center justify-between rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-800/50">
+                    <span className="text-xs text-zinc-700 dark:text-zinc-300">{t("counterTimeWindow")}</span>
+                    <button
+                      type="button"
+                      onClick={() => onNegotiate?.(match)}
+                      className="rounded-full bg-blue-600 px-3 py-1 text-[10px] font-semibold text-white transition hover:bg-blue-700"
+                    >
+                      {t("applyCounter")}
+                    </button>
+                  </div>
+                  <div className="flex items-center justify-between rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-800/50">
+                    <span className="text-xs text-zinc-700 dark:text-zinc-300">{t("counterBundleOffer")}</span>
+                    <button
+                      type="button"
+                      onClick={() => onNegotiate?.(match)}
+                      className="rounded-full bg-blue-600 px-3 py-1 text-[10px] font-semibold text-white transition hover:bg-blue-700"
+                    >
+                      {t("applyCounter")}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         );
       })}

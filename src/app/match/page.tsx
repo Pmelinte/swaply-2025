@@ -21,7 +21,7 @@ const CATEGORIES = [
 
 export default function MatchPage() {
   const router = useRouter();
-  const { user, matches, items, featureToggles, proposeSwap } = useAppState();
+  const { user, matches, items, featureToggles, proposeSwap, trackEvent } = useAppState();
   const [manualMode, setManualMode] = useState(false);
   const [tierFilter, setTierFilter] = useState<MatchTier | "all">("all");
   const [sortBy, setSortBy] = useState<SortOption>("score");
@@ -30,6 +30,9 @@ export default function MatchPage() {
   const [excludedCategories, setExcludedCategories] = useState<Set<string>>(new Set());
   const [minScore, setMinScore] = useState(0);
   const [rejectionLog, setRejectionLog] = useState<Array<{ matchId: string; reason?: RejectReason; timestamp: number }>>([]);
+  const [strictnessThreshold, setStrictnessThreshold] = useState(0);
+  const [maxDistanceKm, setMaxDistanceKm] = useState(0);
+  const [swapTypeFilter, setSwapTypeFilter] = useState<"all" | "local" | "courier" | "vacation" | "service">("all");
   const t = useTranslations("match");
 
   if (!user) {
@@ -39,11 +42,13 @@ export default function MatchPage() {
   const handleProposeSwap = async (matchId: string) => {
     const match = matches.find((m) => m.id === matchId);
     if (!match) return;
+    trackEvent("match_accepted", { matchId, score: match.compatibilityScore });
     const swap = await proposeSwap({
       requesterItemId: match.itemOffered.id,
       responderItemId: match.itemRequested.id,
       responderId: match.itemRequested.ownerId,
     });
+    if (swap) trackEvent("exchange_started", { swapId: swap.id });
     router.push(swap ? `/change?swap=${swap.id}` : "/change");
   };
 
@@ -55,6 +60,7 @@ export default function MatchPage() {
 
   const handleReject = (match: MatchCandidate, reason?: RejectReason) => {
     setRejectionLog((prev) => [...prev, { matchId: match.id, reason, timestamp: Date.now() }]);
+    trackEvent("match_rejected", { matchId: match.id, reason: reason ?? "none", score: match.compatibilityScore });
   };
 
   // Dealbreaker counts
@@ -78,9 +84,11 @@ export default function MatchPage() {
       if (excludedCategories.size > 0 && excludedCategories.has(m.itemRequested.category)) return false;
       // Min score
       if (minScore > 0 && m.compatibilityScore < minScore) return false;
+      // Strictness threshold
+      if (strictnessThreshold > 0 && m.compatibilityScore < strictnessThreshold) return false;
       return true;
     });
-  }, [matches, minCondition, excludedCategories, minScore]);
+  }, [matches, minCondition, excludedCategories, minScore, strictnessThreshold]);
 
   const dealbrokenCount = matches.length - dealbrokenMatches.length;
 
@@ -360,6 +368,67 @@ export default function MatchPage() {
           </div>
         )}
       </SectionCard>
+
+      {/* ── Advanced Filters Row ── */}
+      <div className="flex flex-wrap gap-4">
+        {/* Strictness Slider */}
+        <div className="min-w-[200px] flex-1 rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-800">
+          <p className="mb-1.5 text-xs font-semibold uppercase text-zinc-500 dark:text-zinc-400">{t("strictness")}</p>
+          <input
+            type="range"
+            min={0}
+            max={100}
+            value={strictnessThreshold}
+            onChange={(e) => setStrictnessThreshold(Number(e.target.value))}
+            className="w-full accent-blue-600"
+          />
+          <div className="mt-1 flex items-center justify-between text-[10px] text-zinc-400">
+            <span>{t("relaxedLabel")}</span>
+            <span className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">{strictnessThreshold}</span>
+            <span>{t("strictLabel")}</span>
+          </div>
+        </div>
+
+        {/* Max Distance Filter */}
+        <div className="min-w-[160px] flex-1 rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-800">
+          <p className="mb-1.5 text-xs font-semibold uppercase text-zinc-500 dark:text-zinc-400">{t("maxDistance")}</p>
+          <select
+            value={maxDistanceKm}
+            onChange={(e) => setMaxDistanceKm(Number(e.target.value))}
+            className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-200"
+          >
+            <option value={0}>{t("anyDistance")}</option>
+            <option value={10}>10 km</option>
+            <option value={25}>25 km</option>
+            <option value={50}>50 km</option>
+            <option value={100}>100 km</option>
+          </select>
+        </div>
+
+        {/* Swap Type Filter */}
+        <div className="min-w-[240px] flex-1 rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-800">
+          <p className="mb-1.5 text-xs font-semibold uppercase text-zinc-500 dark:text-zinc-400">{t("swapTypeFilter")}</p>
+          <div className="flex flex-wrap gap-1.5">
+            {(["all", "local", "courier", "vacation", "service"] as const).map((type) => {
+              const labelKey = type === "all" ? "swapAll" : type === "local" ? "swapLocal" : type === "courier" ? "swapCourier" : type === "vacation" ? "swapVacation" : "swapService";
+              return (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => setSwapTypeFilter(type)}
+                  className={`rounded-full px-2.5 py-1 text-xs font-medium transition ${
+                    swapTypeFilter === type
+                      ? "bg-blue-600 text-white"
+                      : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-700 dark:text-zinc-300"
+                  }`}
+                >
+                  {t(labelKey)}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
 
       {/* ── Section 3: All Matches with Filters ── */}
       <SectionCard

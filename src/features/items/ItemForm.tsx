@@ -120,6 +120,7 @@ export function ItemForm({
   const [imageUrlInput, setImageUrlInput] = useState("");
   const [imageUrlError, setImageUrlError] = useState<string | null>(null);
   const [loadingUrl, setLoadingUrl] = useState(false);
+  const [aiConfidence, setAiConfidence] = useState<number | null>(null);
   const aiTriggered = useRef(false);
 
   const triggerAiOnBlur = useCallback(() => {
@@ -222,6 +223,12 @@ export function ItemForm({
         updates.aiSuggestedTags = data.tags;
       }
       setDraft((prev) => ({ ...prev, ...updates }));
+      // Compute confidence: ok=high, fallback=medium, with category & tags presence
+      const hasCategory = !!updates.category;
+      const hasTags = (updates.aiSuggestedTags ?? []).length > 0;
+      const baseScore = data.status === "ok" ? 80 : data.status === "fallback" ? 40 : 10;
+      const bonus = (hasCategory ? 10 : 0) + (hasTags ? 10 : 0);
+      setAiConfidence(Math.min(100, baseScore + bonus));
       setAiStatus(
         data.status === "ok"
           ? t("aiCategoryAndTags")
@@ -231,6 +238,7 @@ export function ItemForm({
       );
     } catch {
       setAiStatus(t("networkError"));
+      setAiConfidence(null);
     } finally {
       setAiLoading(false);
     }
@@ -297,6 +305,13 @@ export function ItemForm({
         }
         setDraft((prev) => ({ ...prev, ...updates }));
 
+        // Compute confidence for image AI
+        const hasTitle = !!updates.title;
+        const hasCategory = !!updates.category;
+        const imgBase = data.status === "ok" ? 75 : 35;
+        const imgBonus = (hasTitle ? 15 : 0) + (hasCategory ? 10 : 0);
+        setAiConfidence(Math.min(100, imgBase + imgBonus));
+
         const debugInfo = data.attempted?.length ? ` [${data.attempted.join(", ")}]` : "";
         setImageAiStatus(
           data.status === "ok"
@@ -308,6 +323,7 @@ export function ItemForm({
         }
       } else {
         console.warn("Image AI error:", data.attempted);
+        setAiConfidence(null);
         // Show user-friendly message, not technical details
         const isQuota = data.attempted?.some((a: string) => a.includes("429") || a.includes("quota"));
         setImageAiStatus(
@@ -318,6 +334,7 @@ export function ItemForm({
       }
     } catch {
       setImageAiStatus(t("aiNetworkError"));
+      setAiConfidence(null);
     } finally {
       setImageAiLoading(false);
     }
@@ -486,7 +503,7 @@ export function ItemForm({
         </div>
       </div>
 
-      {/* Image AI status */}
+      {/* Image AI status + confidence */}
       {(imageAiLoading || imageAiStatus) && (
         <div
           className={`rounded-xl p-3 text-sm font-medium ${
@@ -497,7 +514,27 @@ export function ItemForm({
                 : "bg-yellow-50 text-yellow-900 dark:bg-yellow-900/30 dark:text-yellow-100"
           }`}
         >
-          {imageAiLoading ? t("analyzingWithAi") : imageAiStatus}
+          <div className="flex items-center justify-between gap-2">
+            <span>{imageAiLoading ? t("analyzingWithAi") : imageAiStatus}</span>
+            {aiConfidence !== null && !imageAiLoading && (
+              <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${
+                aiConfidence >= 70
+                  ? "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200"
+                  : aiConfidence >= 40
+                    ? "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200"
+                    : "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200"
+              }`}>
+                {t("aiConfidence", { score: String(aiConfidence) })}
+              </span>
+            )}
+          </div>
+          {aiConfidence !== null && !imageAiLoading && (
+            <p className={`mt-1 text-xs ${
+              aiConfidence >= 70 ? "text-green-600 dark:text-green-400" : aiConfidence >= 40 ? "text-amber-600 dark:text-amber-400" : "text-red-600 dark:text-red-400"
+            }`}>
+              {aiConfidence >= 70 ? t("aiConfidenceHigh") : aiConfidence >= 40 ? t("aiConfidenceMedium") : t("aiConfidenceLow")}
+            </p>
+          )}
         </div>
       )}
 
@@ -556,7 +593,7 @@ export function ItemForm({
       </div>
 
       {/* AI Suggestions */}
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <button
           type="button"
           onClick={fetchAiSuggestions}
@@ -570,6 +607,17 @@ export function ItemForm({
         ) : (
           <span className="text-xs text-zinc-400 dark:text-zinc-500">
             {t("aiSuggestsFromTitle")}
+          </span>
+        )}
+        {aiConfidence !== null && !aiLoading && !imageAiLoading && (
+          <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${
+            aiConfidence >= 70
+              ? "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200"
+              : aiConfidence >= 40
+                ? "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200"
+                : "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200"
+          }`}>
+            {t("aiConfidence", { score: String(aiConfidence) })}
           </span>
         )}
       </div>

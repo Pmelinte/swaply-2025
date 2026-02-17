@@ -185,6 +185,15 @@ export default function InfoPage() {
         </SectionCard>
       </div>
 
+      {/* Ad Zone — Stories / YouTube / AdSense (info page only, never in critical flows) */}
+      <div id="ad-zone" className="rounded-xl border border-dashed border-zinc-200 bg-zinc-50/50 p-4 text-center dark:border-zinc-700 dark:bg-zinc-800/30">
+        <p className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Sponsored content</p>
+        <div className="mt-2 flex min-h-[90px] items-center justify-center rounded-lg bg-zinc-100 text-xs text-zinc-400 dark:bg-zinc-800 dark:text-zinc-500">
+          AdSense / YouTube / Partner Stories — slot reserved
+        </div>
+        <p className="mt-1 text-[10px] text-zinc-400 dark:text-zinc-500">Ads appear only on Info & Stories pages, never during swaps or matching.</p>
+      </div>
+
       {/* AI Contract */}
       <div id="ai-contract">
         <SectionCard title={t("aiContract")} description={t("aiContractDescription")}>

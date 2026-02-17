@@ -118,6 +118,7 @@ export default function ObjectsPage() {
   const [sortMode, setSortMode] = useState<SortMode>("newest");
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [conditionFilter, setConditionFilter] = useState<string | null>(null);
+  const [locationFilter, setLocationFilter] = useState("");
   const [showFilters, setShowFilters] = useState(false);
 
   // All active objects (exclude current user's)
@@ -150,6 +151,11 @@ export default function ObjectsPage() {
       result = result.filter((i) => i.condition === conditionFilter);
     }
 
+    if (locationFilter.trim()) {
+      const loc = locationFilter.toLowerCase();
+      result = result.filter((i) => i.location?.toLowerCase().includes(loc));
+    }
+
     // Sort
     switch (sortMode) {
       case "newest":
@@ -164,14 +170,15 @@ export default function ObjectsPage() {
     }
 
     return result;
-  }, [allObjects, search, categoryFilter, conditionFilter, sortMode]);
+  }, [allObjects, search, categoryFilter, conditionFilter, locationFilter, sortMode]);
 
-  const hasFilters = !!search || !!categoryFilter || !!conditionFilter;
+  const hasFilters = !!search || !!categoryFilter || !!conditionFilter || !!locationFilter;
 
   const clearAllFilters = () => {
     setSearch("");
     setCategoryFilter(null);
     setConditionFilter(null);
+    setLocationFilter("");
   };
 
   // Get unique categories from actual data
@@ -323,6 +330,29 @@ export default function ObjectsPage() {
                     {t(`condition${cond.charAt(0).toUpperCase() + cond.slice(1)}` as Parameters<typeof t>[0])}
                   </button>
                 ))}
+              </div>
+            </div>
+
+            {/* Location */}
+            <div>
+              <p className="mb-1.5 text-xs font-semibold text-zinc-500 uppercase">{t("filterLocation")}</p>
+              <div className="relative">
+                <MapPin className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-400" />
+                <input
+                  type="text"
+                  value={locationFilter}
+                  onChange={(e) => setLocationFilter(e.target.value)}
+                  placeholder={t("locationFilterPlaceholder")}
+                  className="w-full rounded-lg border border-zinc-200 bg-white py-1.5 pl-8 pr-3 text-xs outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                />
+                {locationFilter && (
+                  <button
+                    onClick={() => setLocationFilter("")}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
               </div>
             </div>
           </div>

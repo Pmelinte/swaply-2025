@@ -13,6 +13,7 @@ import {
 import { nanoid } from "nanoid";
 import { getSupabaseClient } from "./supabase/client";
 import {
+  AnalyticsEvent,
   Announcement,
   ChatMessage,
   Conversation,
@@ -22,6 +23,8 @@ import {
   MatchCandidate,
   Notification,
   SwapIntent,
+  TierBenefits,
+  TokenLedgerEntry,
   UserProfile,
 } from "./types";
 import {
@@ -409,6 +412,9 @@ interface AppStateContextProps {
   clearNotifications: () => void;
   startNewItem: () => Item | null;
   infoStats: typeof mockInfoStats;
+  tierBenefits: TierBenefits;
+  tokenLedger: TokenLedgerEntry[];
+  trackEvent: (event: string, properties?: Record<string, string | number | boolean>) => void;
 }
 
 const AppStateContext = createContext<AppStateContextProps | undefined>(
@@ -432,6 +438,18 @@ function computeFeatureToggles(): FeatureToggle {
   );
 
   return { aiEnabled, mapsEnabled, cloudinaryEnabled, supabaseConfigured };
+}
+
+/** Compute tier benefits based on badge level */
+function computeTierBenefits(badge: UserProfile["badge"]): TierBenefits {
+  switch (badge) {
+    case "platinum":
+      return { mapPinVisible: true, priorityMatching: true, aiSuggestions: true, swapAnalytics: true, profileBadge: true, prioritySupport: true, monthlyTokens: 999, boostSlots: 5 };
+    case "premium":
+      return { mapPinVisible: true, priorityMatching: false, aiSuggestions: true, swapAnalytics: false, profileBadge: false, prioritySupport: false, monthlyTokens: 50, boostSlots: 2 };
+    default:
+      return { mapPinVisible: false, priorityMatching: false, aiSuggestions: false, swapAnalytics: false, profileBadge: false, prioritySupport: false, monthlyTokens: 10, boostSlots: 0 };
+  }
 }
 
 const SESSION_KEY = "swaply_logged_in";
@@ -1723,6 +1741,68 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     setNotifications([]);
   }, []);
 
+  // --- Monetization: Tier benefits + Token ledger ---
+  const [tokenLedger, setTokenLedger] = useState<TokenLedgerEntry[]>(() => {
+    if (!user) return [];
+    // Seed with signup bonus
+    return [{
+      id: nanoid(),
+      userId: user?.id ?? "",
+      amount: 10,
+      reason: "signup_bonus" as const,
+      description: "Welcome bonus",
+      createdAt: new Date().toISOString(),
+    }];
+  });
+
+  const tierBenefits = useMemo(
+    () => computeTierBenefits(user?.badge ?? "free"),
+    [user?.badge],
+  );
+
+  // --- Observability: Analytics event tracking ---
+  const analyticsBuffer = useRef<AnalyticsEvent[]>([]);
+  const trackEvent = useCallback(
+    (event: string, properties?: Record<string, string | number | boolean>) => {
+      const entry: AnalyticsEvent = {
+        event,
+        properties,
+        timestamp: new Date().toISOString(),
+      };
+      analyticsBuffer.current.push(entry);
+      // Console log in development for debugging
+      if (process.env.NODE_ENV === "development") {
+        console.debug("[analytics]", event, properties ?? "");
+      }
+    },
+    [],
+  );
+
+  // Grant tokens when swap is completed
+  useEffect(() => {
+    const completedSwaps = swaps.filter((s) => s.status === "completed");
+    const grantedSwapIds = new Set(
+      tokenLedger.filter((e) => e.reason === "swap_completed").map((e) => e.description),
+    );
+    for (const swap of completedSwaps) {
+      if (!grantedSwapIds.has(swap.id) && user?.id) {
+        setTokenLedger((prev) => [
+          ...prev,
+          {
+            id: nanoid(),
+            userId: user.id,
+            amount: 5,
+            reason: "swap_completed" as const,
+            description: swap.id,
+            createdAt: new Date().toISOString(),
+          },
+        ]);
+        trackEvent("tokens_granted", { amount: 5, reason: "swap_completed", swapId: swap.id });
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [swaps, user?.id]);
+
   const value = useMemo(
     () => ({
       user,
@@ -1759,6 +1839,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       clearNotifications,
       startNewItem,
       infoStats: mockInfoStats,
+      tierBenefits,
+      tokenLedger,
+      trackEvent,
     }),
     [
       dataSource,
@@ -1794,6 +1877,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       language,
       setLanguage,
       user,
+      tierBenefits,
+      tokenLedger,
+      trackEvent,
     ],
   );
 

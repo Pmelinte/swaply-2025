@@ -176,3 +176,32 @@ export interface FeatureToggle {
   cloudinaryEnabled: boolean;
   supabaseConfigured: boolean;
 }
+
+/** Tier benefits definition */
+export interface TierBenefits {
+  mapPinVisible: boolean;
+  priorityMatching: boolean;
+  aiSuggestions: boolean;
+  swapAnalytics: boolean;
+  profileBadge: boolean;
+  prioritySupport: boolean;
+  monthlyTokens: number;
+  boostSlots: number;
+}
+
+/** Token ledger entry */
+export interface TokenLedgerEntry {
+  id: string;
+  userId: string;
+  amount: number;
+  reason: "swap_completed" | "monthly_grant" | "boost_spent" | "referral" | "signup_bonus";
+  description: string;
+  createdAt: string;
+}
+
+/** Analytics event */
+export interface AnalyticsEvent {
+  event: string;
+  properties?: Record<string, string | number | boolean>;
+  timestamp: string;
+}

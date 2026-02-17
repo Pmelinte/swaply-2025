@@ -7,7 +7,7 @@ import { LoggedOutGate } from "@/components/gated";
 import { CTAButton, NextStepRecommendation, Pill, SectionCard, StateShowcase } from "@/components/ui";
 import { SwapTimeline } from "@/features/change/SwapTimeline";
 import type { SwapIntent } from "@/lib/types";
-import { MapPin, Truck, Package, Check } from "lucide-react";
+import { MapPin, Truck, Package, Check, Globe, Plane, Home, Wrench } from "lucide-react";
 
 const VALID_TRANSITIONS: Record<SwapIntent["status"], SwapIntent["status"][]> = {
   proposed: ["scheduled", "cancelled"],
@@ -111,8 +111,27 @@ const METHOD_DESC_KEYS: Record<SwapIntent["logistics"]["locationType"], string> 
   pickup: "methodPickupDesc",
 };
 
+type SwapType = "local" | "courier_national" | "courier_international" | "vacation" | "house_swap" | "service_swap";
+
+const SWAP_TYPES: { key: SwapType; icon: typeof MapPin; titleKey: string; descKey: string }[] = [
+  { key: "local", icon: MapPin, titleKey: "typeLocal", descKey: "typeLocalDesc" },
+  { key: "courier_national", icon: Truck, titleKey: "typeCourierNational", descKey: "typeCourierNationalDesc" },
+  { key: "courier_international", icon: Globe, titleKey: "typeCourierInternational", descKey: "typeCourierInternationalDesc" },
+  { key: "vacation", icon: Plane, titleKey: "typeVacation", descKey: "typeVacationDesc" },
+  { key: "house_swap", icon: Home, titleKey: "typeHouseSwap", descKey: "typeHouseSwapDesc" },
+  { key: "service_swap", icon: Wrench, titleKey: "typeServiceSwap", descKey: "typeServiceSwapDesc" },
+];
+
+const CHECKLIST_KEYS = [
+  "checkVerifyPhotos",
+  "checkAgreeLogistics",
+  "checkConfirmCondition",
+  "checkSetMeetup",
+  "checkBothConfirm",
+] as const;
+
 export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null }) {
-  const { user, swaps, updateSwapStatus, addSwapFeedback, updateSwapLogistics, items } = useAppState();
+  const { user, swaps, updateSwapStatus, addSwapFeedback, updateSwapLogistics, items, trackEvent } = useAppState();
   const t = useTranslations("change");
   const [feedback, setFeedback] = useState({ rating: 5, comment: "" });
   const [statusError, setStatusError] = useState<string | null>(null);
@@ -122,6 +141,20 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
     label: string;
     color: string;
   } | null>(null);
+
+  // Swap type state
+  const [swapType, setSwapType] = useState<SwapType>("local");
+  const [checklistState, setChecklistState] = useState([false, false, false, false, false]);
+
+  // Swap-type-specific field states
+  const [meetupDateTime, setMeetupDateTime] = useState("");
+  const [awbOutgoing, setAwbOutgoing] = useState("");
+  const [awbIncoming, setAwbIncoming] = useState("");
+  const [internationalLeg1, setInternationalLeg1] = useState("");
+  const [internationalLeg2, setInternationalLeg2] = useState("");
+  const [travelDates, setTravelDates] = useState("");
+  const [houseDuration, setHouseDuration] = useState("");
+  const [serviceDescription, setServiceDescription] = useState("");
 
   // Logistics local state
   const [logisticsType, setLogisticsType] = useState<SwapIntent["logistics"]["locationType"]>("public_spot");
@@ -161,6 +194,10 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
     if (!confirmAction || !swap) return;
     setStatusError(null);
     void updateSwapStatus(swap.id, confirmAction.status);
+    trackEvent("exchange_status_change", { swapId: swap.id, newStatus: confirmAction.status });
+    if (confirmAction.status === "completed") {
+      trackEvent("exchange_confirmed", { swapId: swap.id });
+    }
     setConfirmAction(null);
   };
 
@@ -254,6 +291,228 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
               </div>
             </div>
           </SectionCard>
+
+          {/* Swap Type Selector */}
+          {swap.status !== "completed" && swap.status !== "cancelled" && (
+            <SectionCard title={t("swapType")} description={t("swapTypeDesc")}>
+              {/* Type grid */}
+              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                {SWAP_TYPES.map((st) => {
+                  const Icon = st.icon;
+                  const active = swapType === st.key;
+                  return (
+                    <button
+                      key={st.key}
+                      type="button"
+                      onClick={() => setSwapType(st.key)}
+                      className={`flex items-start gap-3 rounded-xl border p-3 text-left transition ${
+                        active
+                          ? "border-blue-300 bg-blue-50 ring-1 ring-blue-300 dark:border-blue-700 dark:bg-blue-950/40 dark:ring-blue-700"
+                          : "border-zinc-200 bg-white hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600"
+                      }`}
+                    >
+                      <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
+                        active ? "bg-blue-600 text-white" : "bg-zinc-100 text-zinc-500 dark:bg-zinc-700 dark:text-zinc-300"
+                      }`}>
+                        <Icon className="h-4 w-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className={`text-sm font-semibold ${active ? "text-blue-700 dark:text-blue-300" : "text-zinc-900 dark:text-zinc-50"}`}>
+                          {t(st.titleKey as Parameters<typeof t>[0])}
+                        </p>
+                        <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
+                          {t(st.descKey as Parameters<typeof t>[0])}
+                        </p>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Conditional fields per swap type */}
+              <div className="mt-4 space-y-3">
+                {/* local: meetupPoint + meetupDateTime */}
+                {swapType === "local" && (
+                  <>
+                    <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-200">
+                      {t("meetupPoint")}
+                      <div className="relative mt-1">
+                        <MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+                        <input
+                          type="text"
+                          value={meetupPoint}
+                          onChange={(e) => {
+                            setMeetupPoint(e.target.value);
+                            setLogisticsSaved(false);
+                          }}
+                          placeholder={t("meetupPointPlaceholder")}
+                          className="w-full rounded-lg border border-zinc-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                        />
+                      </div>
+                    </label>
+                    <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-200">
+                      {t("meetupDateTime")}
+                      <input
+                        type="text"
+                        value={meetupDateTime}
+                        onChange={(e) => setMeetupDateTime(e.target.value)}
+                        placeholder={t("meetupDateTimePlaceholder")}
+                        className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                      />
+                    </label>
+                  </>
+                )}
+
+                {/* courier_national: awbOutgoing + awbIncoming */}
+                {swapType === "courier_national" && (
+                  <>
+                    <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-200">
+                      {t("awbOutgoing")}
+                      <div className="relative mt-1">
+                        <Truck className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+                        <input
+                          type="text"
+                          value={awbOutgoing}
+                          onChange={(e) => setAwbOutgoing(e.target.value)}
+                          placeholder={t("courierTrackingPlaceholder")}
+                          className="w-full rounded-lg border border-zinc-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                        />
+                      </div>
+                    </label>
+                    <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-200">
+                      {t("awbIncoming")}
+                      <div className="relative mt-1">
+                        <Truck className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+                        <input
+                          type="text"
+                          value={awbIncoming}
+                          onChange={(e) => setAwbIncoming(e.target.value)}
+                          placeholder={t("courierTrackingPlaceholder")}
+                          className="w-full rounded-lg border border-zinc-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                        />
+                      </div>
+                    </label>
+                  </>
+                )}
+
+                {/* courier_international: internationalLeg1 + internationalLeg2 */}
+                {swapType === "courier_international" && (
+                  <>
+                    <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-200">
+                      {t("internationalLeg1")}
+                      <div className="relative mt-1">
+                        <Globe className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+                        <input
+                          type="text"
+                          value={internationalLeg1}
+                          onChange={(e) => setInternationalLeg1(e.target.value)}
+                          placeholder={t("courierTrackingPlaceholder")}
+                          className="w-full rounded-lg border border-zinc-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                        />
+                      </div>
+                    </label>
+                    <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-200">
+                      {t("internationalLeg2")}
+                      <div className="relative mt-1">
+                        <Globe className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+                        <input
+                          type="text"
+                          value={internationalLeg2}
+                          onChange={(e) => setInternationalLeg2(e.target.value)}
+                          placeholder={t("courierTrackingPlaceholder")}
+                          className="w-full rounded-lg border border-zinc-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                        />
+                      </div>
+                    </label>
+                  </>
+                )}
+
+                {/* vacation: travelDates + meetupPoint */}
+                {swapType === "vacation" && (
+                  <>
+                    <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-200">
+                      {t("travelDates")}
+                      <div className="relative mt-1">
+                        <Plane className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+                        <input
+                          type="text"
+                          value={travelDates}
+                          onChange={(e) => setTravelDates(e.target.value)}
+                          placeholder={t("travelDatesPlaceholder")}
+                          className="w-full rounded-lg border border-zinc-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                        />
+                      </div>
+                    </label>
+                    <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-200">
+                      {t("meetupPoint")}
+                      <div className="relative mt-1">
+                        <MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+                        <input
+                          type="text"
+                          value={meetupPoint}
+                          onChange={(e) => {
+                            setMeetupPoint(e.target.value);
+                            setLogisticsSaved(false);
+                          }}
+                          placeholder={t("meetupPointPlaceholder")}
+                          className="w-full rounded-lg border border-zinc-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                        />
+                      </div>
+                    </label>
+                  </>
+                )}
+
+                {/* house_swap: houseDuration + meetupPoint */}
+                {swapType === "house_swap" && (
+                  <>
+                    <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-200">
+                      {t("houseDuration")}
+                      <div className="relative mt-1">
+                        <Home className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+                        <input
+                          type="text"
+                          value={houseDuration}
+                          onChange={(e) => setHouseDuration(e.target.value)}
+                          placeholder={t("houseDurationPlaceholder")}
+                          className="w-full rounded-lg border border-zinc-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                        />
+                      </div>
+                    </label>
+                    <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-200">
+                      {t("meetupPoint")}
+                      <div className="relative mt-1">
+                        <MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+                        <input
+                          type="text"
+                          value={meetupPoint}
+                          onChange={(e) => {
+                            setMeetupPoint(e.target.value);
+                            setLogisticsSaved(false);
+                          }}
+                          placeholder={t("meetupPointPlaceholder")}
+                          className="w-full rounded-lg border border-zinc-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                        />
+                      </div>
+                    </label>
+                  </>
+                )}
+
+                {/* service_swap: serviceDescription textarea */}
+                {swapType === "service_swap" && (
+                  <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-200">
+                    {t("serviceDescription")}
+                    <textarea
+                      value={serviceDescription}
+                      onChange={(e) => setServiceDescription(e.target.value)}
+                      placeholder={t("serviceDescPlaceholder")}
+                      rows={3}
+                      className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                    />
+                  </label>
+                )}
+              </div>
+            </SectionCard>
+          )}
 
           {/* Logistics */}
           {swap.status !== "completed" && swap.status !== "cancelled" && (
@@ -364,6 +623,45 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
               </div>
               <p className="mt-2 text-xs text-zinc-400 dark:text-zinc-500">
                 {t("logisticsHelp")}
+              </p>
+            </SectionCard>
+          )}
+
+          {/* Pre-exchange checklist */}
+          {swap.status !== "completed" && swap.status !== "cancelled" && (
+            <SectionCard title={t("checklist")}>
+              <div className="space-y-2">
+                {CHECKLIST_KEYS.map((key, idx) => (
+                  <label
+                    key={key}
+                    className="flex items-center gap-3 rounded-lg border border-zinc-200 bg-white p-3 transition hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={checklistState[idx]}
+                      onChange={() => {
+                        setChecklistState((prev) => {
+                          const next = [...prev];
+                          next[idx] = !next[idx];
+                          return next;
+                        });
+                      }}
+                      className="h-4 w-4 rounded border-zinc-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span
+                      className={`text-sm ${
+                        checklistState[idx]
+                          ? "text-zinc-500 line-through dark:text-zinc-400"
+                          : "text-zinc-700 dark:text-zinc-200"
+                      }`}
+                    >
+                      {t(key as Parameters<typeof t>[0])}
+                    </span>
+                  </label>
+                ))}
+              </div>
+              <p className="mt-3 text-xs font-medium text-amber-600 dark:text-amber-400">
+                {t("dualConfirmRequired")}
               </p>
             </SectionCard>
           )}
