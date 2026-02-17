@@ -402,6 +402,7 @@ interface AppStateContextProps {
   }) => Promise<SwapIntent | null>;
   updateSwapStatus: (swapId: string, status: SwapIntent["status"]) => Promise<void>;
   addSwapFeedback: (swapId: string, rating: number, comment: string) => Promise<void>;
+  updateSwapLogistics: (swapId: string, logistics: SwapIntent["logistics"]) => Promise<void>;
   changeEmail: (newEmail: string) => Promise<{ error?: string }>;
   changePassword: (newPassword: string) => Promise<{ error?: string }>;
   markNotificationRead: (notificationId: string) => Promise<void>;
@@ -1645,6 +1646,48 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     [dataSource, mapSwapIntent, supabase, swaps],
   );
 
+  const updateSwapLogistics = useCallback(
+    async (swapId: string, logistics: SwapIntent["logistics"]) => {
+      if (!swapId) return;
+      setLastError(null);
+
+      const existing = swaps.find((s) => s.id === swapId);
+      const note = `Logistics updated: ${logistics.locationType}`;
+      const nextNotifications = [...(existing?.notifications ?? []), note];
+
+      if (dataSource === "supabase" && supabase) {
+        const { data, error } = await supabase
+          .from("swap_intents")
+          .update({
+            logistics,
+            notifications: nextNotifications,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", swapId)
+          .select("*")
+          .maybeSingle();
+        if (error) {
+          setLastError(error.message);
+          return;
+        }
+        if (data) {
+          const mapped = mapSwapIntent(data);
+          setSwaps((prev) => prev.map((swap) => (swap.id === swapId ? mapped : swap)));
+        }
+        return;
+      }
+
+      setSwaps((prev) =>
+        prev.map((swap) =>
+          swap.id === swapId
+            ? { ...swap, logistics, notifications: nextNotifications }
+            : swap,
+        ),
+      );
+    },
+    [dataSource, mapSwapIntent, supabase, swaps],
+  );
+
   const markNotificationRead = useCallback(
     async (notificationId: string) => {
       if (!notificationId) return;
@@ -1711,6 +1754,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       proposeSwap,
       updateSwapStatus,
       addSwapFeedback,
+      updateSwapLogistics,
       markNotificationRead,
       clearNotifications,
       startNewItem,
@@ -1744,6 +1788,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       proposeSwap,
       updateSwapStatus,
       addSwapFeedback,
+      updateSwapLogistics,
       startNewItem,
       markNotificationRead,
       language,

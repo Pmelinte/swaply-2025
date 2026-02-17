@@ -454,7 +454,23 @@
     "confirmCompleteMessage": "Confirmi finalizarea schimbului? Ambele părți vor primi notificare.",
     "rateExperience": "Evaluează experiența",
     "commentPlaceholder": "Scrie un comentariu despre experiența ta...",
-    "feedbackSent": "Feedback trimis"
+    "feedbackSent": "Feedback trimis",
+    "logistics": "Logistică",
+    "logisticsDescription": "Alege cum vrei să faci schimbul",
+    "methodPublicSpot": "Întâlnire locală",
+    "methodPublicSpotDesc": "Întâlnire într-un loc public pentru schimb în persoană",
+    "methodCourier": "Curier / Livrare",
+    "methodCourierDesc": "Trimite prin curier — adaugă numărul de urmărire mai jos",
+    "methodPickup": "Ridicare",
+    "methodPickupDesc": "O parte ridică de la locația celeilalte",
+    "meetupPoint": "Punct de întâlnire",
+    "meetupPointPlaceholder": "ex. Parcul Central, intrarea Gării…",
+    "courierTracking": "Număr de urmărire (AWB)",
+    "courierTrackingPlaceholder": "ex. RO123456789",
+    "saveLogistics": "Salvează logistica",
+    "logisticsSaved": "Logistica salvată",
+    "logisticsHelp": "Ambele părți trebuie să fie de acord cu metoda înainte de a continua.",
+    "methodNotSet": "Neselectat încă"
   },
 
   "info": {

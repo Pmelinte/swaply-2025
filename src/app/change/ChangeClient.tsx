@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { LoggedOutGate } from "@/components/gated";
 import { CTAButton, NextStepRecommendation, Pill, SectionCard, StateShowcase } from "@/components/ui";
 import { SwapTimeline } from "@/features/change/SwapTimeline";
 import type { SwapIntent } from "@/lib/types";
+import { MapPin, Truck, Package, Check } from "lucide-react";
 
 const VALID_TRANSITIONS: Record<SwapIntent["status"], SwapIntent["status"][]> = {
   proposed: ["scheduled", "cancelled"],
@@ -90,8 +91,28 @@ const STATUS_LABELS: Record<SwapIntent["status"], string> = {
   cancelled: "cancelled",
 };
 
+const LOCATION_TYPES: SwapIntent["logistics"]["locationType"][] = ["public_spot", "courier", "pickup"];
+
+const METHOD_ICONS: Record<SwapIntent["logistics"]["locationType"], typeof MapPin> = {
+  public_spot: MapPin,
+  courier: Truck,
+  pickup: Package,
+};
+
+const METHOD_KEYS: Record<SwapIntent["logistics"]["locationType"], string> = {
+  public_spot: "methodPublicSpot",
+  courier: "methodCourier",
+  pickup: "methodPickup",
+};
+
+const METHOD_DESC_KEYS: Record<SwapIntent["logistics"]["locationType"], string> = {
+  public_spot: "methodPublicSpotDesc",
+  courier: "methodCourierDesc",
+  pickup: "methodPickupDesc",
+};
+
 export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null }) {
-  const { user, swaps, updateSwapStatus, addSwapFeedback, items } = useAppState();
+  const { user, swaps, updateSwapStatus, addSwapFeedback, updateSwapLogistics, items } = useAppState();
   const t = useTranslations("change");
   const [feedback, setFeedback] = useState({ rating: 5, comment: "" });
   const [statusError, setStatusError] = useState<string | null>(null);
@@ -102,7 +123,23 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
     color: string;
   } | null>(null);
 
+  // Logistics local state
+  const [logisticsType, setLogisticsType] = useState<SwapIntent["logistics"]["locationType"]>("public_spot");
+  const [meetupPoint, setMeetupPoint] = useState("");
+  const [courierTracking, setCourierTracking] = useState("");
+  const [logisticsSaved, setLogisticsSaved] = useState(false);
+
   const swap = swaps.find((s) => s.id === activeSwapId) ?? swaps[0];
+
+  // Sync local logistics state when swap changes
+  useEffect(() => {
+    if (swap) {
+      setLogisticsType(swap.logistics.locationType);
+      setMeetupPoint(swap.logistics.meetupPoint ?? "");
+      setCourierTracking(swap.logistics.courierTracking ?? "");
+      setLogisticsSaved(false);
+    }
+  }, [swap?.id, swap?.logistics.locationType, swap?.logistics.meetupPoint, swap?.logistics.courierTracking]);
   const requesterItem = swap ? items.find((i) => i.id === swap.requesterItemId) : null;
   const responderItem = swap ? items.find((i) => i.id === swap.responderItemId) : null;
   const isRequester = swap && user ? swap.requesterId === user.id : false;
@@ -217,6 +254,119 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
               </div>
             </div>
           </SectionCard>
+
+          {/* Logistics */}
+          {swap.status !== "completed" && swap.status !== "cancelled" && (
+            <SectionCard title={t("logistics")} description={t("logisticsDescription")}>
+              {/* Method chooser */}
+              <div className="grid gap-2 sm:grid-cols-3">
+                {LOCATION_TYPES.map((type) => {
+                  const Icon = METHOD_ICONS[type];
+                  const active = logisticsType === type;
+                  return (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() => {
+                        setLogisticsType(type);
+                        setLogisticsSaved(false);
+                      }}
+                      className={`flex items-start gap-3 rounded-xl border p-3 text-left transition ${
+                        active
+                          ? "border-blue-300 bg-blue-50 ring-1 ring-blue-300 dark:border-blue-700 dark:bg-blue-950/40 dark:ring-blue-700"
+                          : "border-zinc-200 bg-white hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600"
+                      }`}
+                    >
+                      <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
+                        active ? "bg-blue-600 text-white" : "bg-zinc-100 text-zinc-500 dark:bg-zinc-700 dark:text-zinc-300"
+                      }`}>
+                        <Icon className="h-4 w-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className={`text-sm font-semibold ${active ? "text-blue-700 dark:text-blue-300" : "text-zinc-900 dark:text-zinc-50"}`}>
+                          {t(METHOD_KEYS[type] as Parameters<typeof t>[0])}
+                        </p>
+                        <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
+                          {t(METHOD_DESC_KEYS[type] as Parameters<typeof t>[0])}
+                        </p>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Meetup point input */}
+              {(logisticsType === "public_spot" || logisticsType === "pickup") && (
+                <div className="mt-3">
+                  <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-200">
+                    {t("meetupPoint")}
+                    <div className="relative mt-1">
+                      <MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+                      <input
+                        type="text"
+                        value={meetupPoint}
+                        onChange={(e) => {
+                          setMeetupPoint(e.target.value);
+                          setLogisticsSaved(false);
+                        }}
+                        placeholder={t("meetupPointPlaceholder")}
+                        className="w-full rounded-lg border border-zinc-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                      />
+                    </div>
+                  </label>
+                </div>
+              )}
+
+              {/* Courier tracking input */}
+              {logisticsType === "courier" && (
+                <div className="mt-3">
+                  <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-200">
+                    {t("courierTracking")}
+                    <div className="relative mt-1">
+                      <Truck className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+                      <input
+                        type="text"
+                        value={courierTracking}
+                        onChange={(e) => {
+                          setCourierTracking(e.target.value);
+                          setLogisticsSaved(false);
+                        }}
+                        placeholder={t("courierTrackingPlaceholder")}
+                        className="w-full rounded-lg border border-zinc-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                      />
+                    </div>
+                  </label>
+                </div>
+              )}
+
+              {/* Save + help */}
+              <div className="mt-3 flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    void updateSwapLogistics(swap.id, {
+                      locationType: logisticsType,
+                      meetupPoint: logisticsType !== "courier" ? meetupPoint || undefined : undefined,
+                      courierTracking: logisticsType === "courier" ? courierTracking || undefined : undefined,
+                    });
+                    setLogisticsSaved(true);
+                  }}
+                  className="rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+                >
+                  {t("saveLogistics")}
+                </button>
+                {logisticsSaved && (
+                  <span className="flex items-center gap-1 text-xs font-medium text-green-600 dark:text-green-400">
+                    <Check className="h-3.5 w-3.5" />
+                    {t("logisticsSaved")}
+                  </span>
+                )}
+              </div>
+              <p className="mt-2 text-xs text-zinc-400 dark:text-zinc-500">
+                {t("logisticsHelp")}
+              </p>
+            </SectionCard>
+          )}
 
           {/* Status transitions + Feedback */}
           <SectionCard title={t("confirmations")} description={t("updateStatus")}>

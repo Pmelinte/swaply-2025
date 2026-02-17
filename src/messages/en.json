@@ -482,7 +482,23 @@
     "confirmCompleteMessage": "Confirm the exchange completion? Both parties will be notified.",
     "rateExperience": "Rate the experience",
     "commentPlaceholder": "Write a comment about your experience...",
-    "feedbackSent": "Feedback sent"
+    "feedbackSent": "Feedback sent",
+    "logistics": "Logistics",
+    "logisticsDescription": "Choose how you want to exchange",
+    "methodPublicSpot": "Local meetup",
+    "methodPublicSpotDesc": "Meet at a public location to exchange in person",
+    "methodCourier": "Courier / Shipping",
+    "methodCourierDesc": "Ship via courier — add tracking number below",
+    "methodPickup": "Pickup",
+    "methodPickupDesc": "One party picks up from the other's location",
+    "meetupPoint": "Meeting point",
+    "meetupPointPlaceholder": "e.g. Central Park, Main Station entrance…",
+    "courierTracking": "Tracking number (AWB)",
+    "courierTrackingPlaceholder": "e.g. RO123456789",
+    "saveLogistics": "Save logistics",
+    "logisticsSaved": "Logistics saved",
+    "logisticsHelp": "Both parties should agree on the method before proceeding.",
+    "methodNotSet": "Not selected yet"
   },
 
   "info": {
