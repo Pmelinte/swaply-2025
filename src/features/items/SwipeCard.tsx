@@ -6,6 +6,18 @@ import { useTranslations } from "next-intl";
 import { Item } from "@/lib/types";
 import { NO_IMAGE_URL } from "@/lib/storage";
 import { Pill } from "@/components/ui";
+import { MapPin, Tag } from "lucide-react";
+
+/** Tiny label→value row used for semantic fields */
+function Field({ label, value }: { label: string; value?: string | null }) {
+  if (!value) return null;
+  return (
+    <div className="flex items-center gap-1.5 text-[11px]">
+      <span className="font-medium text-zinc-400 dark:text-zinc-500">{label}</span>
+      <span className="text-zinc-700 dark:text-zinc-300">{value}</span>
+    </div>
+  );
+}
 
 export function SwipeCard({
   item,
@@ -19,6 +31,7 @@ export function SwipeCard({
   disabled?: boolean;
 }) {
   const t = useTranslations("swipeCard");
+  const td = useTranslations("objectDetail");
   const [offset, setOffset] = useState(0);
   const [swiping, setSwiping] = useState(false);
   const startX = useRef(0);
@@ -48,6 +61,15 @@ export function SwipeCard({
   };
 
   const direction = offset > 30 ? "right" : offset < -30 ? "left" : null;
+
+  // Resolve semantic field display values
+  const intentLabel = item.intent ? td(`intent${item.intent.charAt(0).toUpperCase() + item.intent.slice(1).replace(/_([a-z])/g, (_, c) => c.toUpperCase())}` as Parameters<typeof td>[0]) : null;
+  const flexLabel = item.flexibility ? td(`flexibility${item.flexibility.charAt(0).toUpperCase() + item.flexibility.slice(1)}` as Parameters<typeof td>[0]) : null;
+  const valueLabel = item.perceivedValue ? td(`value${item.perceivedValue.charAt(0).toUpperCase() + item.perceivedValue.slice(1)}` as Parameters<typeof td>[0]) : null;
+  const clarityLabel = item.clarity ? td(`clarity${item.clarity.charAt(0).toUpperCase() + item.clarity.slice(1).replace(/_([a-z])/g, (_, c) => c.toUpperCase())}` as Parameters<typeof td>[0]) : null;
+  const contextLabel = item.context ? td(`context${item.context.charAt(0).toUpperCase() + item.context.slice(1)}` as Parameters<typeof td>[0]) : null;
+
+  const tags = item.userFinalTags?.length ? item.userFinalTags : item.aiSuggestedTags;
 
   return (
     <div className="relative select-none">
@@ -83,25 +105,67 @@ export function SwipeCard({
             sizes="(max-width: 640px) 100vw, 400px"
             unoptimized={!item.photos?.[0]}
           />
+          {item.photos && item.photos.length > 1 && (
+            <span className="absolute bottom-1.5 right-1.5 rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-semibold text-white">
+              1/{item.photos.length}
+            </span>
+          )}
         </div>
 
-        <div className="mt-3 space-y-1">
+        <div className="mt-3 space-y-1.5">
           <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-50">
             {item.title}
           </h3>
+
+          {/* Primary pills: category, condition, location */}
           <div className="flex flex-wrap gap-1">
             <Pill color="blue">{item.category}</Pill>
             <Pill color="zinc">{item.condition}</Pill>
-            <Pill color="zinc">{item.location || "?"}</Pill>
+            {item.location && (
+              <span className="inline-flex items-center gap-0.5 rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-semibold text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
+                <MapPin className="h-2.5 w-2.5" />
+                {item.location}
+              </span>
+            )}
           </div>
+
+          {/* Description */}
           <p className="line-clamp-2 text-sm text-zinc-600 dark:text-zinc-300">
             {item.description}
           </p>
-          {item.wishlist ? (
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+
+          {/* Wishlist */}
+          {item.wishlist && (
+            <p className="text-xs font-medium text-blue-600 dark:text-blue-400">
               {t("wants")} {item.wishlist}
             </p>
-          ) : null}
+          )}
+
+          {/* Semantic fields */}
+          {(intentLabel || flexLabel || valueLabel || clarityLabel || contextLabel) && (
+            <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 rounded-lg bg-zinc-50 px-2.5 py-1.5 dark:bg-zinc-800/60">
+              <Field label={td("intent")} value={intentLabel} />
+              <Field label={td("flexibility")} value={flexLabel} />
+              <Field label={td("perceivedValue")} value={valueLabel} />
+              <Field label={td("clarity")} value={clarityLabel} />
+              <Field label={td("context")} value={contextLabel} />
+              {item.acceptsBundle && (
+                <div className="text-[11px] text-emerald-600 dark:text-emerald-400">{td("acceptsBundle")}</div>
+              )}
+            </div>
+          )}
+
+          {/* Tags */}
+          {tags && tags.length > 0 && (
+            <div className="flex flex-wrap items-center gap-1">
+              <Tag className="h-3 w-3 text-zinc-400" />
+              {tags.slice(0, 5).map((tag) => (
+                <span key={tag} className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
