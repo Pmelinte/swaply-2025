@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Conversation, ChatMessage } from "@/lib/types";
 import { useAppState } from "@/lib/state";
 import { formatDate } from "@/lib/utils";
 import { Badge, Pill } from "@/components/ui";
+import { Paperclip, Search, X } from "lucide-react";
 
 function MessageBubble({
   msg,
@@ -101,7 +102,21 @@ export function ChatPanel({
   const [moderationError, setModerationError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [readCounts, setReadCounts] = useState<Record<string, number>>({});
+  const [searchQuery, setSearchQuery] = useState("");
+  const [attachedFile, setAttachedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Filter conversations by search
+  const filteredConversations = useMemo(() => {
+    if (!searchQuery.trim()) return conversations;
+    const q = searchQuery.toLowerCase();
+    return conversations.filter(
+      (c) =>
+        c.participantName.toLowerCase().includes(q) ||
+        c.lastMessage?.toLowerCase().includes(q),
+    );
+  }, [conversations, searchQuery]);
 
   const effectiveActiveId =
     (selectedId && conversations.some((c) => c.id === selectedId) ? selectedId : undefined) ??
@@ -172,12 +187,25 @@ export function ChatPanel({
       {/* Conversation list */}
       <div className="space-y-2 rounded-2xl border border-zinc-200 bg-white/80 p-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/80">
         <h3 className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">{t("conversations")}</h3>
-        {conversations.length === 0 ? (
+        {/* Search conversations */}
+        {conversations.length > 1 && (
+          <div className="relative">
+            <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={t("searchConversations")}
+              className="w-full rounded-lg border border-zinc-200 bg-white py-1.5 pl-8 pr-3 text-xs outline-none focus:border-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+            />
+          </div>
+        )}
+        {filteredConversations.length === 0 ? (
           <p className="text-xs text-zinc-500 dark:text-zinc-400">
             {t("noConversations")}
           </p>
         ) : null}
-        {conversations.map((conv) => {
+        {filteredConversations.map((conv) => {
           const readCount = readCounts[conv.id] ?? 0;
           const totalMessages = conv.messages.length;
           const unread = totalMessages > readCount ? totalMessages - readCount : 0;
@@ -269,6 +297,23 @@ export function ChatPanel({
               </div>
             ) : null}
 
+            {/* Attached file preview */}
+            {attachedFile && (
+              <div className="mt-2 flex items-center gap-2 rounded-lg bg-blue-50 px-3 py-1.5 text-xs dark:bg-blue-950/30">
+                <Paperclip className="h-3 w-3 text-blue-600 dark:text-blue-400" />
+                <span className="flex-1 truncate text-blue-800 dark:text-blue-200">
+                  {t("fileSelected", { name: attachedFile.name })}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setAttachedFile(null)}
+                  className="text-blue-600 hover:text-blue-800 dark:text-blue-400"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            )}
+
             {/* Input */}
             <form
               className="mt-3 flex items-center gap-2"
@@ -277,6 +322,26 @@ export function ChatPanel({
                 void handleSend();
               }}
             >
+              {/* Hidden file input */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                className="hidden"
+                accept="image/*,.pdf,.doc,.docx"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) setAttachedFile(file);
+                  e.target.value = "";
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                title={t("attachFile")}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-zinc-200 text-zinc-500 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
+              >
+                <Paperclip className="h-4 w-4" />
+              </button>
               <input
                 value={draft}
                 onChange={(e) => {

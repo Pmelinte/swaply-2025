@@ -447,7 +447,12 @@
     "writeMessage": "Scrie un mesaj…",
     "blockedByModeration": "Mesaj blocat de moderare.",
     "sendError": "Eroare la trimitere. Încearcă din nou.",
-    "selectConversation": "Selectează o conversație sau inițiază una din pagina de obiecte."
+    "selectConversation": "Selectează o conversație sau inițiază una din pagina de obiecte.",
+    "searchConversations": "Caută conversații…",
+    "attach": "Atașează",
+    "attachFile": "Atașează un fișier",
+    "fileSelected": "Fișier: {name}",
+    "removeFile": "Elimină"
   },
 
   "change": {
@@ -564,7 +569,29 @@
     "discoverMatches": "Descoperă match-uri",
     "discoverMatchesDescription": "Lasă AI-ul să găsească potriviri",
     "authentication": "Autentificare",
-    "authenticationDescription": "Creează cont sau conectează-te"
+    "authenticationDescription": "Creează cont sau conectează-te",
+    "faq": "Întrebări frecvente",
+    "faqDescription": "Întrebări comune despre Swaply",
+    "faqQ1": "Cum funcționează schimbul?",
+    "faqA1": "Listează-ți obiectele, navighează obiectele altora și propune schimburi. AI-ul ajută la potrivirea obiectelor compatibile pe baza categoriei, valorii și preferințelor.",
+    "faqQ2": "Este gratuit?",
+    "faqA2": "Da! Planul de bază este gratuit cu schimburi nelimitate. Abonamentele premium oferă funcții suplimentare precum potrivire prioritară, pini pe hartă și mai multe token-uri.",
+    "faqQ3": "Cum este asigurată siguranța?",
+    "faqA3": "Toate mesajele sunt moderate, locurile de întâlnire publice sunt recomandate, iar ambele părți trebuie să confirme fiecare pas al procesului de schimb.",
+    "faqQ4": "Ce se întâmplă dacă celălalt nu apare?",
+    "faqA4": "Poți anula schimbul în orice moment. Scorul de reputație reflectă fiabilitatea, deci utilizatorii nesiguri primesc prioritate mai scăzută la potriviri.",
+    "faqQ5": "Cum funcționează potrivirea AI?",
+    "faqA5": "Algoritmul nostru de scoring ia în considerare 9 factori: potrivirea categoriei, compatibilitatea intenției, flexibilitatea, valoarea percepută, locația, acceptarea pachetelor, subcategoria, suprapunerea tag-urilor și valoarea sentimentală.",
+    "howItWorks": "Cum funcționează Swaply",
+    "howItWorksDescription": "Schimburi simple, sigure și inteligente",
+    "howStep1": "Listează-ți obiectele",
+    "howStep1Desc": "Adaugă poze, descriere și ce ai dori în schimb",
+    "howStep2": "Găsește potriviri",
+    "howStep2Desc": "AI-ul analizează compatibilitatea și sugerează cele mai bune schimburi",
+    "howStep3": "Discută și acordă-te",
+    "howStep3Desc": "Discută detaliile în chat securizat și moderat",
+    "howStep4": "Schimbă în siguranță",
+    "howStep4Desc": "Întâlnire locală, curier sau ridicare — cu urmărire completă"
   },
 
   "itemForm": {

@@ -475,7 +475,12 @@
     "writeMessage": "Write a message…",
     "blockedByModeration": "Message blocked by moderation.",
     "sendError": "Error sending. Try again.",
-    "selectConversation": "Select a conversation or start one from the objects page."
+    "selectConversation": "Select a conversation or start one from the objects page.",
+    "searchConversations": "Search conversations…",
+    "attach": "Attach",
+    "attachFile": "Attach a file",
+    "fileSelected": "File: {name}",
+    "removeFile": "Remove"
   },
 
   "change": {
@@ -592,7 +597,29 @@
     "discoverMatches": "Discover matches",
     "discoverMatchesDescription": "Let AI find matches",
     "authentication": "Authentication",
-    "authenticationDescription": "Create account or login"
+    "authenticationDescription": "Create account or login",
+    "faq": "Frequently Asked Questions",
+    "faqDescription": "Common questions about Swaply",
+    "faqQ1": "How does swapping work?",
+    "faqA1": "List your items, browse others' items, and propose swaps. AI helps match compatible items based on category, value, and preferences.",
+    "faqQ2": "Is it free to use?",
+    "faqA2": "Yes! The basic plan is free with unlimited swaps. Premium tiers offer additional features like priority matching, map pins, and more tokens.",
+    "faqQ3": "How is safety ensured?",
+    "faqA3": "All messages are moderated, public meeting spots are recommended, and both parties must confirm each step of the exchange process.",
+    "faqQ4": "What if the other person doesn't show up?",
+    "faqA4": "You can cancel the swap at any stage. Reputation scores reflect reliability, so unreliable users get lower match priority.",
+    "faqQ5": "How does AI matching work?",
+    "faqA5": "Our scoring algorithm considers 9 factors: category match, intent compatibility, flexibility, perceived value, location, bundle acceptance, subcategory, tag overlap, and sentimental value.",
+    "howItWorks": "How Swaply Works",
+    "howItWorksDescription": "Simple, safe, and smart exchanges",
+    "howStep1": "List your items",
+    "howStep1Desc": "Add photos, description, and what you'd like in exchange",
+    "howStep2": "Find matches",
+    "howStep2Desc": "AI analyzes compatibility and suggests the best swaps",
+    "howStep3": "Chat & agree",
+    "howStep3Desc": "Discuss details in secure moderated chat",
+    "howStep4": "Exchange safely",
+    "howStep4Desc": "Meet locally, ship by courier, or pick up — with full tracking"
   },
 
   "itemForm": {
