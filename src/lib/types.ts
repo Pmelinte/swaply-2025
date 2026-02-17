@@ -70,7 +70,7 @@ export interface Item {
   condition: "new" | "good" | "used";
   description: string;
   wishlist: string;
-  status: "active" | "reserved" | "swapped";
+  status: "active" | "paused" | "reserved" | "swapped" | "archived";
   isDemo?: boolean;
   isActive: boolean;
   createdAt: string;

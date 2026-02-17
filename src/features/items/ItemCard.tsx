@@ -20,11 +20,13 @@ export function ItemCard({
   const t = useTranslations("itemCard");
   const tc = useTranslations("common");
 
-  const statusColor = {
+  const statusColor: Record<string, "green" | "amber" | "zinc" | "blue" | "red"> = {
     active: "green",
-    reserved: "amber",
+    paused: "amber",
+    reserved: "blue",
     swapped: "zinc",
-  } as const;
+    archived: "zinc",
+  };
 
   return (
     <div className="flex gap-3 rounded-2xl border border-zinc-200 bg-white/80 p-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/80">

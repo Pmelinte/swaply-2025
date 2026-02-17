@@ -741,6 +741,36 @@
     "exitDemo": "Ieși din demo"
   },
 
+  "myObjects": {
+    "title": "Obiectele mele",
+    "subtitle": "Gestionează inventarul tău",
+    "empty": "Nu ai niciun obiect încă.",
+    "emptyCta": "Adaugă primul obiect",
+    "statusAll": "Toate",
+    "statusActive": "Active",
+    "statusPaused": "Pauză",
+    "statusReserved": "Rezervate",
+    "statusSwapped": "Schimbate",
+    "statusArchived": "Arhivate",
+    "pause": "Pauză",
+    "resume": "Reia",
+    "archive": "Arhivează",
+    "duplicate": "Duplică",
+    "health": "Sănătate",
+    "healthOk": "Listarea arată bine",
+    "healthNoPhoto": "Fără poze — adaugă cel puțin o imagine",
+    "healthNoWishlist": "Fără dorințe — descrie ce cauți",
+    "healthNoLocation": "Fără locație — adaugă o locație",
+    "healthShortDesc": "Descriere scurtă — adaugă mai multe detalii",
+    "insights": "Statistici",
+    "views": "Vizualizări",
+    "likes": "Aprecieri",
+    "proposals": "Propuneri",
+    "chats": "Conversații",
+    "confirmDelete": "Ești sigur că vrei să ștergi acest obiect? Acțiunea nu poate fi anulată.",
+    "addNew": "Adaugă obiect"
+  },
+
   "pwa": {
     "installSwaply": "Instalează Swaply",
     "installDescription": "Adaugă pe ecranul principal pentru acces rapid, fără browser.",

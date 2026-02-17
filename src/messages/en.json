@@ -741,6 +741,36 @@
     "exitDemo": "Exit demo"
   },
 
+  "myObjects": {
+    "title": "My Objects",
+    "subtitle": "Manage your inventory",
+    "empty": "You don't have any objects yet.",
+    "emptyCta": "Add your first object",
+    "statusAll": "All",
+    "statusActive": "Active",
+    "statusPaused": "Paused",
+    "statusReserved": "Reserved",
+    "statusSwapped": "Swapped",
+    "statusArchived": "Archived",
+    "pause": "Pause",
+    "resume": "Resume",
+    "archive": "Archive",
+    "duplicate": "Duplicate",
+    "health": "Health",
+    "healthOk": "Listing looks good",
+    "healthNoPhoto": "No photos — add at least one image",
+    "healthNoWishlist": "No wishlist — describe what you want",
+    "healthNoLocation": "No location — add a location",
+    "healthShortDesc": "Short description — add more details",
+    "insights": "Insights",
+    "views": "Views",
+    "likes": "Likes",
+    "proposals": "Proposals",
+    "chats": "Chats",
+    "confirmDelete": "Are you sure you want to delete this object? This cannot be undone.",
+    "addNew": "Add object"
+  },
+
   "pwa": {
     "installSwaply": "Install Swaply",
     "installDescription": "Add to home screen for quick access, without browser.",

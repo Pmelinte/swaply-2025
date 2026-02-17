@@ -390,6 +390,8 @@ interface AppStateContextProps {
   ) => Promise<void>;
   upsertItem: (item: Item) => Promise<Item | null>;
   deleteItem: (id: string) => Promise<void>;
+  duplicateItem: (id: string) => Promise<Item | null>;
+  setItemStatus: (id: string, status: Item["status"]) => Promise<void>;
   ensureConversation: (participantId: string) => Promise<string | null>;
   addMessage: (conversationId: string, content: string) => Promise<void>;
   toggleConversationTranslation: (conversationId: string) => void;
@@ -1279,6 +1281,37 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     [dataSource, supabase],
   );
 
+  const duplicateItem = useCallback(
+    async (id: string) => {
+      const source = items.find((i) => i.id === id);
+      if (!source || !user?.id) return null;
+      const copy: Item = {
+        ...source,
+        id: crypto.randomUUID(),
+        title: `${source.title} (copy)`,
+        status: "active",
+        isActive: true,
+        createdAt: new Date().toISOString(),
+      };
+      return upsertItem(copy);
+    },
+    [items, upsertItem, user],
+  );
+
+  const setItemStatus = useCallback(
+    async (id: string, status: Item["status"]) => {
+      const item = items.find((i) => i.id === id);
+      if (!item) return;
+      const updated: Item = {
+        ...item,
+        status,
+        isActive: status === "active",
+      };
+      await upsertItem(updated);
+    },
+    [items, upsertItem],
+  );
+
   const ensureConversation = useCallback(
     async (participantId: string) => {
       if (!user?.id) return null;
@@ -1670,6 +1703,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       updateProfile,
       upsertItem,
       deleteItem,
+      duplicateItem,
+      setItemStatus,
       ensureConversation,
       addMessage,
       toggleConversationTranslation,
@@ -1701,6 +1736,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       updateProfile,
       upsertItem,
       deleteItem,
+      duplicateItem,
+      setItemStatus,
       ensureConversation,
       addMessage,
       toggleConversationTranslation,
