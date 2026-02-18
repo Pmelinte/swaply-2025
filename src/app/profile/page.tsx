@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { X, Plus } from "lucide-react";
+import { X, Plus, Download, Pause, Play, ShoppingCart, Trophy, Lock } from "lucide-react";
 import { useAppState } from "@/lib/state";
 import { LoggedOutGate, MissingDataCallout } from "@/components/gated";
 import { Badge, NextStepRecommendation, Pill, SectionCard, StateShowcase } from "@/components/ui";
@@ -13,7 +13,10 @@ import LocationPicker from "@/components/LocationPicker";
 
 export default function ProfilePage() {
   const t = useTranslations("profile");
-  const { user, updateProfile, changeEmail, changePassword, deleteAccount, logout, loading, lastError } = useAppState();
+  const {
+    user, updateProfile, changeEmail, changePassword, deleteAccount, logout, loading, lastError,
+    achievements, shopItems, purchaseShopItem, exportUserData, accountStatus, pauseAccount, resumeAccount, tokenLedger,
+  } = useAppState();
   const router = useRouter();
   const [draft, setDraft] = useState<UserProfile | null>(user);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
@@ -610,7 +613,7 @@ export default function ProfilePage() {
         <div className="grid gap-3 sm:grid-cols-4">
           <div>
             <p className="text-xs uppercase text-zinc-500">{t("tokens")}</p>
-            <p className="text-xl font-bold">{draft.stats.tokens}</p>
+            <p className="text-xl font-bold">{tokenLedger.reduce((s, e) => s + e.amount, 0)}</p>
           </div>
           <div>
             <p className="text-xs uppercase text-zinc-500">{t("completedSwaps")}</p>
@@ -627,8 +630,138 @@ export default function ProfilePage() {
         </div>
       </SectionCard>
 
+      {/* Achievements */}
+      <SectionCard title={t("achievements")} description={t("achievementsDesc")}>
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          {achievements.map((ach) => (
+            <div
+              key={ach.id}
+              className={`rounded-xl border p-3 transition ${
+                ach.unlockedAt
+                  ? "border-amber-200 bg-amber-50/50 dark:border-amber-900 dark:bg-amber-950/20"
+                  : "border-zinc-200 bg-zinc-50 opacity-60 dark:border-zinc-700 dark:bg-zinc-800/50"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">{ach.icon}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">{ach.title}</p>
+                  <p className="text-[10px] text-zinc-500">{ach.description}</p>
+                </div>
+                {ach.unlockedAt ? (
+                  <Trophy className="h-4 w-4 text-amber-500" />
+                ) : (
+                  <Lock className="h-4 w-4 text-zinc-400" />
+                )}
+              </div>
+              <div className="mt-2">
+                <div className="flex items-center justify-between text-[10px] text-zinc-500">
+                  <span>{ach.current}/{ach.target}</span>
+                  <span>{ach.progress}%</span>
+                </div>
+                <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-700">
+                  <div
+                    className={`h-full rounded-full transition-all ${ach.unlockedAt ? "bg-amber-400" : "bg-blue-400"}`}
+                    style={{ width: `${ach.progress}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </SectionCard>
+
+      {/* Token Shop */}
+      <SectionCard
+        title={t("tokenShop")}
+        description={t("tokenShopDesc")}
+        action={<Pill color="blue">{t("balance")}: {tokenLedger.reduce((s, e) => s + e.amount, 0)}</Pill>}
+      >
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          {shopItems.map((item) => {
+            const balance = tokenLedger.reduce((s, e) => s + e.amount, 0);
+            const canAfford = balance >= item.cost;
+            return (
+              <div key={item.id} className="rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-800">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">{item.icon}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">{item.title}</p>
+                    <p className="text-[10px] text-zinc-500">{item.description}</p>
+                  </div>
+                </div>
+                <div className="mt-2 flex items-center justify-between">
+                  <span className="text-sm font-bold text-amber-600 dark:text-amber-400">{item.cost} tokens</span>
+                  <button
+                    type="button"
+                    disabled={!canAfford}
+                    onClick={() => void purchaseShopItem(item.id)}
+                    className="inline-flex items-center gap-1 rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold text-white hover:bg-blue-700 disabled:opacity-40"
+                  >
+                    <ShoppingCart className="h-3 w-3" />
+                    {t("buy")}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </SectionCard>
+
         </>
       ) : null}
+
+      {/* Account Status & GDPR - always visible at bottom of "cont" tab */}
+      {activeTab === "cont" && (
+        <>
+          {/* Account Pause */}
+          <SectionCard title={t("accountPause")} description={t("accountPauseDesc")}>
+            {accountStatus === "active" ? (
+              <button
+                type="button"
+                onClick={() => void pauseAccount()}
+                className="inline-flex items-center gap-2 rounded-full bg-amber-500 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-600"
+              >
+                <Pause className="h-4 w-4" />
+                {t("pauseAccountButton")}
+              </button>
+            ) : (
+              <div className="space-y-2">
+                <Pill color="amber">{t("accountPaused")}</Pill>
+                <button
+                  type="button"
+                  onClick={() => void resumeAccount()}
+                  className="inline-flex items-center gap-2 rounded-full bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700"
+                >
+                  <Play className="h-4 w-4" />
+                  {t("resumeAccountButton")}
+                </button>
+              </div>
+            )}
+          </SectionCard>
+
+          {/* GDPR Data Export */}
+          <SectionCard title={t("dataExport")} description={t("dataExportDesc")}>
+            <button
+              type="button"
+              onClick={async () => {
+                const json = await exportUserData();
+                const blob = new Blob([json], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `swaply-data-${new Date().toISOString().slice(0, 10)}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+              }}
+              className="inline-flex items-center gap-2 rounded-full bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+            >
+              <Download className="h-4 w-4" />
+              {t("downloadMyData")}
+            </button>
+          </SectionCard>
+        </>
+      )}
 
       <SectionCard
         title={t("saveProfile")}

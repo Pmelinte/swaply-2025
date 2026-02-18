@@ -13,6 +13,9 @@ import {
 import { nanoid } from "nanoid";
 import { getSupabaseClient } from "./supabase/client";
 import {
+  Achievement,
+  AchievementId,
+  AccountStatus,
   AnalyticsEvent,
   Announcement,
   ChatMessage,
@@ -22,9 +25,11 @@ import {
   Item,
   MatchCandidate,
   Notification,
+  ShopItem,
   SwapIntent,
   TierBenefits,
   TokenLedgerEntry,
+  TokenShopItem,
   UserProfile,
 } from "./types";
 import {
@@ -421,6 +426,14 @@ interface AppStateContextProps {
   tierBenefits: TierBenefits;
   tokenLedger: TokenLedgerEntry[];
   trackEvent: (event: string, properties?: Record<string, string | number | boolean>) => void;
+  achievements: Achievement[];
+  shopItems: ShopItem[];
+  purchaseShopItem: (itemId: TokenShopItem) => Promise<{ error?: string }>;
+  exportUserData: () => Promise<string>;
+  accountStatus: AccountStatus;
+  pauseAccount: () => Promise<void>;
+  resumeAccount: () => Promise<void>;
+  itemLimitReached: boolean;
 }
 
 const AppStateContext = createContext<AppStateContextProps | undefined>(
@@ -1910,6 +1923,101 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [swaps, user?.id]);
 
+  // ── Achievements ──
+  const achievements = useMemo<Achievement[]>(() => {
+    if (!user) return [];
+    const completedSwaps = user.stats.completedSwaps;
+    const totalItems = items.filter((i) => i.ownerId === user.id).length;
+    const defs: { id: AchievementId; title: string; icon: string; target: number; current: number; desc: string }[] = [
+      { id: "first_swap", title: "First Swap", icon: "🔄", target: 1, current: completedSwaps, desc: "Complete your first swap" },
+      { id: "five_swaps", title: "Swap Veteran", icon: "🏅", target: 5, current: completedSwaps, desc: "Complete 5 swaps" },
+      { id: "ten_swaps", title: "Swap Master", icon: "🏆", target: 10, current: completedSwaps, desc: "Complete 10 swaps" },
+      { id: "twenty_five_swaps", title: "Swap Legend", icon: "👑", target: 25, current: completedSwaps, desc: "Complete 25 swaps" },
+      { id: "first_listing", title: "First Listing", icon: "📦", target: 1, current: totalItems, desc: "List your first item" },
+      { id: "ten_listings", title: "Collector", icon: "🗄️", target: 10, current: totalItems, desc: "List 10 items" },
+      { id: "eco_warrior", title: "Eco Warrior", icon: "🌿", target: 3, current: completedSwaps, desc: "Save the planet with 3 swaps" },
+      { id: "house_swapper", title: "Home Exchange", icon: "🏠", target: 1, current: 0, desc: "Complete a house swap" },
+      { id: "service_provider", title: "Service Star", icon: "⚡", target: 1, current: 0, desc: "Complete a service swap" },
+      { id: "premium_member", title: "Premium", icon: "💎", target: 1, current: user.badge !== "free" ? 1 : 0, desc: "Upgrade to premium" },
+      { id: "early_adopter", title: "Early Adopter", icon: "🚀", target: 1, current: 1, desc: "Join Swaply early" },
+    ];
+    return defs.map((d) => ({
+      id: d.id,
+      title: d.title,
+      description: d.desc,
+      icon: d.icon,
+      progress: Math.min(100, Math.round((d.current / d.target) * 100)),
+      target: d.target,
+      current: Math.min(d.current, d.target),
+      unlockedAt: d.current >= d.target ? new Date().toISOString() : undefined,
+    }));
+  }, [user, items]);
+
+  // ── Token Shop ──
+  const shopItems = useMemo<ShopItem[]>(() => [
+    { id: "boost_listing", title: "Boost Listing", description: "Pin your item to top for 24h", cost: 10, icon: "🚀" },
+    { id: "premium_badge_7d", title: "Premium Trial", description: "7-day premium experience", cost: 50, icon: "💎" },
+    { id: "extra_listings_5", title: "+5 Listings", description: "Expand your inventory limit", cost: 15, icon: "📦" },
+    { id: "priority_matching_24h", title: "Priority Match", description: "24h priority in matching queue", cost: 20, icon: "⚡" },
+    { id: "highlight_profile_7d", title: "Profile Highlight", description: "Highlighted profile for 7 days", cost: 25, icon: "✨" },
+  ], []);
+
+  const purchaseShopItem = useCallback(async (itemId: TokenShopItem): Promise<{ error?: string }> => {
+    if (!user) return { error: "Not logged in" };
+    const item = shopItems.find((si) => si.id === itemId);
+    if (!item) return { error: "Item not found" };
+    const balance = tokenLedger.reduce((sum, e) => sum + e.amount, 0);
+    if (balance < item.cost) return { error: "Insufficient tokens" };
+    setTokenLedger((prev) => [...prev, {
+      id: nanoid(), userId: user.id, amount: -item.cost,
+      reason: "boost_spent" as const, description: `Purchased: ${item.title}`,
+      createdAt: new Date().toISOString(),
+    }]);
+    trackEvent("shop_purchase", { itemId, cost: item.cost });
+    return {};
+  }, [user, shopItems, tokenLedger, trackEvent]);
+
+  // ── GDPR Data Export ──
+  const exportUserData = useCallback(async (): Promise<string> => {
+    if (!user) return "{}";
+    const data = {
+      profile: user,
+      items: items.filter((i) => i.ownerId === user.id),
+      conversations: conversations,
+      swaps: swaps.filter((s) => s.requesterId === user.id || s.responderId === user.id),
+      notifications: notifications.filter((n) => n.userId === user.id),
+      tokenLedger: tokenLedger.filter((t) => t.userId === user.id),
+      achievements: achievements.filter((a) => a.unlockedAt),
+      exportedAt: new Date().toISOString(),
+    };
+    return JSON.stringify(data, null, 2);
+  }, [user, items, conversations, swaps, notifications, tokenLedger, achievements]);
+
+  // ── Account Pause / Resume ──
+  const [accountStatus, setAccountStatus] = useState<AccountStatus>("active");
+
+  const pauseAccount = useCallback(async () => {
+    setAccountStatus("paused");
+    // Hide all user items
+    for (const item of items.filter((i) => i.ownerId === user?.id && i.status === "active")) {
+      await setItemStatus(item.id, "paused");
+    }
+    trackEvent("account_paused");
+  }, [items, user?.id, setItemStatus, trackEvent]);
+
+  const resumeAccount = useCallback(async () => {
+    setAccountStatus("active");
+    trackEvent("account_resumed");
+  }, [trackEvent]);
+
+  // ── Item Limit per Tier ──
+  const itemLimitReached = useMemo(() => {
+    if (!user) return false;
+    const ownItems = items.filter((i) => i.ownerId === user.id && i.status !== "archived");
+    const limit = user.badge === "free" ? 10 : user.badge === "premium" ? 50 : 999;
+    return ownItems.length >= limit;
+  }, [user, items]);
+
   const value = useMemo(
     () => ({
       user,
@@ -1955,6 +2063,14 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       tierBenefits,
       tokenLedger,
       trackEvent,
+      achievements,
+      shopItems,
+      purchaseShopItem,
+      exportUserData,
+      accountStatus,
+      pauseAccount,
+      resumeAccount,
+      itemLimitReached,
     }),
     [
       dataSource,
@@ -1999,6 +2115,14 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       tierBenefits,
       tokenLedger,
       trackEvent,
+      achievements,
+      shopItems,
+      purchaseShopItem,
+      exportUserData,
+      accountStatus,
+      pauseAccount,
+      resumeAccount,
+      itemLimitReached,
     ],
   );
 

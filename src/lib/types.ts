@@ -205,3 +205,146 @@ export interface AnalyticsEvent {
   properties?: Record<string, string | number | boolean>;
   timestamp: string;
 }
+
+/* ─── House Swap Types ─── */
+
+export type PropertyType = "apartment" | "house" | "villa" | "cabin" | "studio" | "room";
+export type HouseSwapMode = "simultaneous" | "non_simultaneous" | "one_way_hosting" | "permanent";
+
+export interface HouseProfile {
+  propertyType: PropertyType;
+  bedrooms: number;
+  bathrooms: number;
+  maxGuests: number;
+  squareMeters?: number;
+  amenities: HouseAmenity[];
+  rules: HouseRule[];
+  description: string;
+  neighborhood: string;
+  nearbyAttractions: string;
+  transport: string;
+  photos: string[];
+  availableDates: { from: string; to: string }[];
+  minStayDays: number;
+  maxStayDays: number;
+  swapMode: HouseSwapMode;
+  verified: boolean;
+  emergencyContact?: string;
+  insuranceReminder: boolean;
+}
+
+export type HouseAmenity =
+  | "wifi" | "parking" | "ac" | "heating" | "washer" | "dryer"
+  | "kitchen" | "pool" | "garden" | "balcony" | "elevator"
+  | "pet_friendly" | "wheelchair" | "tv" | "workspace";
+
+export type HouseRule =
+  | "no_smoking" | "no_pets" | "no_parties" | "no_shoes"
+  | "quiet_hours" | "check_in_time" | "check_out_time" | "max_guests";
+
+export interface HouseInspection {
+  id: string;
+  swapId: string;
+  type: "before" | "after";
+  photos: string[];
+  notes: string;
+  createdAt: string;
+}
+
+/* ─── Service Swap Types ─── */
+
+export type ServiceCategory =
+  | "creative" | "technical" | "education" | "physical" | "professional";
+
+export type SkillLevel = "beginner" | "intermediate" | "expert";
+export type ServiceDelivery = "remote" | "in_person" | "hybrid";
+
+export interface ServiceProfile {
+  category: ServiceCategory;
+  skillName: string;
+  skillLevel: SkillLevel;
+  description: string;
+  portfolio: string[];
+  hoursPerWeek: number;
+  delivery: ServiceDelivery;
+  hourlyEquivalent: number;
+}
+
+export interface ServiceMilestone {
+  id: string;
+  title: string;
+  description: string;
+  completed: boolean;
+  confirmedByProvider: boolean;
+  confirmedByReceiver: boolean;
+  dueDate?: string;
+}
+
+export interface ServiceRating {
+  quality: number;
+  punctuality: number;
+  communication: number;
+  comment: string;
+}
+
+export interface TimeWallet {
+  userId: string;
+  hoursEarned: number;
+  hoursSpent: number;
+  balance: number;
+  transactions: TimeTransaction[];
+}
+
+export interface TimeTransaction {
+  id: string;
+  type: "earned" | "spent";
+  hours: number;
+  serviceDescription: string;
+  partnerId: string;
+  partnerName: string;
+  createdAt: string;
+}
+
+/* ─── Achievement System ─── */
+
+export type AchievementId =
+  | "first_swap" | "five_swaps" | "ten_swaps" | "twenty_five_swaps"
+  | "first_listing" | "ten_listings" | "first_rating" | "five_star_rating"
+  | "streak_7" | "streak_30" | "eco_warrior" | "house_swapper"
+  | "service_provider" | "multilingual" | "community_helper"
+  | "verified_profile" | "premium_member" | "early_adopter";
+
+export interface Achievement {
+  id: AchievementId;
+  title: string;
+  description: string;
+  icon: string;
+  unlockedAt?: string;
+  progress: number;
+  target: number;
+  current: number;
+}
+
+/* ─── Cancel Reason ─── */
+
+export type CancelReason =
+  | "changed_mind" | "found_better" | "no_response" | "condition_mismatch"
+  | "logistics_issue" | "safety_concern" | "other";
+
+/* ─── Token Shop ─── */
+
+export type TokenShopItem =
+  | "boost_listing" | "premium_badge_7d" | "extra_listings_5"
+  | "priority_matching_24h" | "highlight_profile_7d";
+
+export interface ShopItem {
+  id: TokenShopItem;
+  title: string;
+  description: string;
+  cost: number;
+  icon: string;
+}
+
+/* ─── Account Status ─── */
+
+export type AccountStatus = "active" | "paused" | "deleted";

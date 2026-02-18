@@ -200,6 +200,57 @@ export function LoadingState({ message }: { message?: string }) {
   );
 }
 
+/** Skeleton shimmer block for loading placeholders */
+export function Skeleton({ className = "" }: { className?: string }) {
+  return (
+    <div className={`animate-pulse rounded-lg bg-zinc-200 dark:bg-zinc-700 ${className}`} />
+  );
+}
+
+/** Skeleton card placeholder */
+export function SkeletonCard() {
+  return (
+    <div className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800">
+      <Skeleton className="mb-3 h-4 w-3/4" />
+      <Skeleton className="mb-2 h-3 w-full" />
+      <Skeleton className="mb-2 h-3 w-5/6" />
+      <Skeleton className="h-3 w-2/3" />
+    </div>
+  );
+}
+
+/** Skeleton list for items/matches loading state */
+export function SkeletonList({ count = 3 }: { count?: number }) {
+  return (
+    <div className="space-y-3">
+      {Array.from({ length: count }).map((_, i) => (
+        <div key={i} className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-800">
+          <Skeleton className="h-12 w-12 shrink-0 rounded-lg" />
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-4 w-2/3" />
+            <Skeleton className="h-3 w-1/2" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** Skeleton grid for items/products loading state */
+export function SkeletonGrid({ count = 4 }: { count?: number }) {
+  return (
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      {Array.from({ length: count }).map((_, i) => (
+        <div key={i} className="rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-800">
+          <Skeleton className="mb-3 aspect-square w-full rounded-lg" />
+          <Skeleton className="mb-2 h-4 w-3/4" />
+          <Skeleton className="h-3 w-1/2" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 /** Reusable empty state with optional CTA */
 export function EmptyState({
   message,
