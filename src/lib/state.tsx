@@ -406,8 +406,14 @@ interface AppStateContextProps {
   updateSwapStatus: (swapId: string, status: SwapIntent["status"]) => Promise<void>;
   addSwapFeedback: (swapId: string, rating: number, comment: string) => Promise<void>;
   updateSwapLogistics: (swapId: string, logistics: SwapIntent["logistics"]) => Promise<void>;
+  resetPassword: (email: string) => Promise<{ error?: string }>;
+  deleteAccount: () => Promise<{ error?: string }>;
   changeEmail: (newEmail: string) => Promise<{ error?: string }>;
   changePassword: (newPassword: string) => Promise<{ error?: string }>;
+  reportUser: (params: { reportedUserId: string; reportedItemId?: string; reason: string; description?: string }) => Promise<void>;
+  blockUser: (targetUserId: string) => Promise<void>;
+  unblockUser: (targetUserId: string) => Promise<void>;
+  blockedUsers: string[];
   markNotificationRead: (notificationId: string) => Promise<void>;
   clearNotifications: () => void;
   startNewItem: () => Item | null;
@@ -493,6 +499,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [matches, setMatches] = useState<MatchCandidate[]>([]);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [swaps, setSwaps] = useState<SwapIntent[]>([]);
+  const [blockedUsers, setBlockedUsers] = useState<string[]>([]);
   const [featureToggles] = useState<FeatureToggle>(computeFeatureToggles());
   const [language, setLanguage] = useState<LanguageCode>(() => {
     if (typeof window === "undefined") return "en";
@@ -1119,6 +1126,53 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     [supabaseConfigured, supabase],
   );
 
+  const resetPassword = useCallback(
+    async (email: string): Promise<{ error?: string }> => {
+      setLastError(null);
+      if (!email.trim()) {
+        const error = "Introduceți adresa de email.";
+        setLastError(error);
+        return { error };
+      }
+      if (supabaseConfigured && supabase) {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${typeof window !== "undefined" ? window.location.origin : ""}/login`,
+        });
+        if (error) {
+          setLastError(error.message);
+          return { error: error.message };
+        }
+        return {};
+      }
+      return {};
+    },
+    [supabaseConfigured, supabase],
+  );
+
+  const deleteAccount = useCallback(
+    async (): Promise<{ error?: string }> => {
+      setLastError(null);
+      if (supabaseConfigured && supabase && user?.id) {
+        // Delete user items
+        await supabase.from("items").delete().eq("owner_id", user.id);
+        // Delete user notifications
+        await supabase.from("notifications").delete().eq("user_id", user.id);
+        // Delete user profile
+        await supabase.from("profiles").delete().eq("user_id", user.id);
+        // Sign out
+        await supabase.auth.signOut();
+      }
+      setLoggedIn(false);
+      setUser(null);
+      setItems([]);
+      setConversations([]);
+      setSwaps([]);
+      setNotifications([]);
+      return {};
+    },
+    [supabaseConfigured, supabase, user?.id],
+  );
+
   const register = useCallback(
     async (
       email: string,
@@ -1706,6 +1760,59 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     [dataSource, mapSwapIntent, supabase, swaps],
   );
 
+  const reportUser = useCallback(
+    async (params: { reportedUserId: string; reportedItemId?: string; reason: string; description?: string }) => {
+      if (!user?.id) return;
+      setLastError(null);
+      if (dataSource === "supabase" && supabase) {
+        const payload: Record<string, unknown> = {
+          reporter_id: user.id,
+          reported_user_id: params.reportedUserId,
+          reason: params.reason,
+          description: params.description ?? "",
+          status: "pending",
+        };
+        if (params.reportedItemId) payload.reported_item_id = params.reportedItemId;
+        const { error } = await supabase.from("abuse_reports").insert(payload);
+        if (error) setLastError(error.message);
+      }
+    },
+    [dataSource, supabase, user?.id],
+  );
+
+  const blockUser = useCallback(
+    async (targetUserId: string) => {
+      if (!user?.id || !targetUserId) return;
+      setLastError(null);
+      if (dataSource === "supabase" && supabase) {
+        const { error } = await supabase.from("blocked_users").insert({
+          blocker_id: user.id,
+          blocked_id: targetUserId,
+        });
+        if (error) setLastError(error.message);
+      }
+      setBlockedUsers((prev) => [...prev, targetUserId]);
+    },
+    [dataSource, supabase, user?.id],
+  );
+
+  const unblockUser = useCallback(
+    async (targetUserId: string) => {
+      if (!user?.id || !targetUserId) return;
+      setLastError(null);
+      if (dataSource === "supabase" && supabase) {
+        const { error } = await supabase
+          .from("blocked_users")
+          .delete()
+          .eq("blocker_id", user.id)
+          .eq("blocked_id", targetUserId);
+        if (error) setLastError(error.message);
+      }
+      setBlockedUsers((prev) => prev.filter((id) => id !== targetUserId));
+    },
+    [dataSource, supabase, user?.id],
+  );
+
   const markNotificationRead = useCallback(
     async (notificationId: string) => {
       if (!notificationId) return;
@@ -1821,6 +1928,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       login,
       logout,
       register,
+      resetPassword,
+      deleteAccount,
       changeEmail,
       changePassword,
       updateProfile,
@@ -1835,6 +1944,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       updateSwapStatus,
       addSwapFeedback,
       updateSwapLogistics,
+      reportUser,
+      blockUser,
+      unblockUser,
+      blockedUsers,
       markNotificationRead,
       clearNotifications,
       startNewItem,
@@ -1853,6 +1966,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       featureToggles,
       items,
       login,
+      resetPassword,
+      deleteAccount,
       changeEmail,
       changePassword,
       clearNotifications,
@@ -1872,6 +1987,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       updateSwapStatus,
       addSwapFeedback,
       updateSwapLogistics,
+      reportUser,
+      blockUser,
+      unblockUser,
+      blockedUsers,
       startNewItem,
       markNotificationRead,
       language,

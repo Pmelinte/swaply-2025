@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { X, Plus } from "lucide-react";
 import { useAppState } from "@/lib/state";
@@ -12,7 +13,8 @@ import LocationPicker from "@/components/LocationPicker";
 
 export default function ProfilePage() {
   const t = useTranslations("profile");
-  const { user, updateProfile, changeEmail, changePassword, loading, lastError } = useAppState();
+  const { user, updateProfile, changeEmail, changePassword, deleteAccount, logout, loading, lastError } = useAppState();
+  const router = useRouter();
   const [draft, setDraft] = useState<UserProfile | null>(user);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"profil" | "cont" | "reputatie">("profil");
@@ -22,6 +24,8 @@ export default function ProfilePage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [emailMessage, setEmailMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [passwordMessage, setPasswordMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const profileTabs = [
     { key: "profil" as const, label: t("title") },
     { key: "cont" as const, label: t("accountAndSettings") },
@@ -543,6 +547,54 @@ export default function ProfilePage() {
           <Pill color="blue">{t("logoutAllSessions")}</Pill>
           <Pill color="amber">{t("reportIssues")}</Pill>
         </div>
+      </SectionCard>
+
+      <SectionCard
+        title={t("deleteAccount")}
+        description={t("deleteAccountDescription")}
+      >
+        {!showDeleteConfirm ? (
+          <button
+            type="button"
+            onClick={() => setShowDeleteConfirm(true)}
+            className="rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700"
+          >
+            {t("deleteAccountButton")}
+          </button>
+        ) : (
+          <div className="space-y-3">
+            <p className="text-sm font-medium text-red-600 dark:text-red-400">{t("deleteAccountWarning")}</p>
+            <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
+              {t("typeDeleteToConfirm")}
+              <input
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                placeholder="DELETE"
+                className="mt-1 w-full rounded-lg border border-red-300 bg-white px-3 py-2 text-sm dark:border-red-800 dark:bg-zinc-800"
+              />
+            </label>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                disabled={deleteConfirmText !== "DELETE"}
+                onClick={async () => {
+                  await deleteAccount();
+                  router.replace("/login");
+                }}
+                className="rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50"
+              >
+                {t("confirmDeleteAccount")}
+              </button>
+              <button
+                type="button"
+                onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText(""); }}
+                className="rounded-full bg-zinc-200 px-4 py-2 text-sm font-semibold text-zinc-700 hover:bg-zinc-300 dark:bg-zinc-700 dark:text-zinc-200"
+              >
+                {t("cancelDelete")}
+              </button>
+            </div>
+          </div>
+        )}
       </SectionCard>
 
         </>

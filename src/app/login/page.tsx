@@ -18,7 +18,7 @@ function LoginContent() {
   const [message, setMessage] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "error" | "success">("idle");
   const [processing, setProcessing] = useState(false);
-  const { login, register, user } = useAppState();
+  const { login, register, resetPassword, user } = useAppState();
 
   const tabs = [
     { key: "login", label: t("authentication") },
@@ -72,8 +72,14 @@ function LoginContent() {
           setStatus("success");
         }
       } else {
-        setMessage(t("resetSent"));
-        setStatus("success");
+        const { error } = await resetPassword(email);
+        if (error) {
+          setMessage(error);
+          setStatus("error");
+        } else {
+          setMessage(t("resetSent"));
+          setStatus("success");
+        }
       }
     } catch (err) {
       setMessage(t("unexpectedError", { error: err instanceof Error ? err.message : String(err) }));

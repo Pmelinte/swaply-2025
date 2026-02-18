@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { Pill, SectionCard } from "@/components/ui";
+import { ReportBlockButtons } from "@/components/safety/ReportBlockButtons";
 import { NO_IMAGE_URL } from "@/lib/storage";
 import {
   ChevronLeft,
@@ -424,6 +425,13 @@ export default function ObjectDetailsPage() {
               >
                 Login
               </Link>
+            </div>
+          )}
+
+          {/* Report / Block */}
+          {user && !isOwner && (
+            <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
+              <ReportBlockButtons targetUserId={item.ownerId} targetItemId={item.id} />
             </div>
           )}
 

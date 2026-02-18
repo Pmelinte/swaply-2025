@@ -97,10 +97,10 @@ export default function InfoPage() {
             <li>{t("faqSwap")}</li>
           </ul>
           <div className="flex flex-wrap gap-2 text-xs font-semibold">
-            <Link className="rounded-full bg-blue-600 px-3 py-1 text-white hover:bg-blue-700" href="/info#legal">
+            <Link className="rounded-full bg-blue-600 px-3 py-1 text-white hover:bg-blue-700" href="/terms">
               {t("terms")}
             </Link>
-            <Link className="rounded-full bg-zinc-900 px-3 py-1 text-white hover:bg-zinc-800" href="/info#legal">
+            <Link className="rounded-full bg-zinc-900 px-3 py-1 text-white hover:bg-zinc-800 dark:bg-zinc-200 dark:text-zinc-900" href="/privacy">
               {t("gdpr")}
             </Link>
             <Link className="rounded-full bg-emerald-600 px-3 py-1 text-white hover:bg-emerald-700" href="/info#stats">
