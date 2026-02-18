@@ -63,8 +63,9 @@ export function MapEmbed({
 }
 
 /**
- * Static map showing multiple markers (uses Google Static Maps API).
- * Falls back gracefully when token is missing.
+ * Static map showing multiple markers.
+ * Uses Google Embed API (iframe, free tier) centered on the first marker.
+ * Falls back gracefully when token is missing or no markers provided.
  */
 export function StaticMapWithMarkers({
   markers,
@@ -89,29 +90,36 @@ export function StaticMapWithMarkers({
     );
   }
 
-  const markerParams = markers
-    .slice(0, 20) // max 20 markers for URL length
-    .map((m) => {
-      const color = m.color || "red";
-      const label = m.label?.charAt(0).toUpperCase() || "";
-      return `markers=color:${color}|label:${label}|${m.lat},${m.lng}`;
-    })
-    .join("&");
-
   const center = markers[0];
-  const src = `https://maps.googleapis.com/maps/api/staticmap?center=${center.lat},${center.lng}&zoom=${zoom}&size=600x${height}&${markerParams}&key=${mapsToken}`;
+  const embedUrl = `https://www.google.com/maps/embed/v1/view?key=${mapsToken}&center=${center.lat},${center.lng}&zoom=${zoom}`;
 
   return (
-    <div className="overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-700">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={src}
-        alt={t("mapTitle")}
-        width={600}
+    <div className="relative overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-700">
+      <iframe
+        src={embedUrl}
+        width="100%"
         height={height}
-        className="w-full object-cover"
+        style={{ border: 0 }}
+        allowFullScreen={false}
         loading="lazy"
+        referrerPolicy="no-referrer-when-downgrade"
+        title={t("mapTitle")}
       />
+      {/* Marker legend overlay */}
+      {markers.length > 1 && (
+        <div className="absolute bottom-2 left-2 flex flex-wrap gap-1.5">
+          {markers.slice(0, 10).map((m, i) => (
+            <span
+              key={i}
+              className="flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold text-white shadow-md"
+              style={{ backgroundColor: m.color === "blue" ? "#3b82f6" : m.color === "green" ? "#22c55e" : m.color === "orange" ? "#f59e0b" : "#ef4444" }}
+              title={m.label || ""}
+            >
+              {m.label?.charAt(0) || ""}
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
