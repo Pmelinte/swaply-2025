@@ -8,7 +8,7 @@ import { MatchList } from "@/features/match/MatchList";
 import type { RejectReason } from "@/features/match/MatchList";
 import { LoggedOutGate } from "@/components/gated";
 import { CTAButton, NextStepRecommendation, Pill, SectionCard, StateShowcase } from "@/components/ui";
-import { StaticMapWithMarkers } from "@/components/maps/MapEmbed";
+import { MapEmbed } from "@/components/maps/MapEmbed";
 import type { MatchCandidate, MatchTier } from "@/lib/types";
 import { SlidersHorizontal, Sparkles, Hand, X } from "lucide-react";
 
@@ -21,7 +21,7 @@ const CATEGORIES = [
 
 export default function MatchPage() {
   const router = useRouter();
-  const { user, matches, items, featureToggles, proposeSwap, trackEvent } = useAppState();
+  const { user, matches, featureToggles, proposeSwap, trackEvent } = useAppState();
   const [manualMode, setManualMode] = useState(false);
   const [tierFilter, setTierFilter] = useState<MatchTier | "all">("all");
   const [sortBy, setSortBy] = useState<SortOption>("score");
@@ -95,48 +95,18 @@ export default function MatchPage() {
   // Top 3 AI-recommended matches (best compatibility, after dealbreakers)
   const topPicks = useMemo(() => dealbrokenMatches.slice(0, 3), [dealbrokenMatches]);
 
-  // Map markers from matches — items with location data
-  const mapMarkers = useMemo(() => {
-    const seen = new Set<string>();
-    const markers: Array<{ lat: number; lng: number; label: string; color: string }> = [];
-
-    // User location as blue marker
-    if (user.location?.coordinates?.lat && user.location?.coordinates?.lng) {
-      markers.push({
-        lat: user.location.coordinates.lat,
-        lng: user.location.coordinates.lng,
-        label: "U",
-        color: "blue",
-      });
+  // Map center: user city, or first match location, or fallback
+  const mapCenter = useMemo(() => {
+    if (user.location?.city) {
+      return `${user.location.city}${user.location.country ? `, ${user.location.country}` : ""}`;
     }
-
-    for (const match of matches) {
-      // Try to get location from all items of the other user
-      const otherItem = match.itemRequested;
-      const key = otherItem.ownerId;
-      if (seen.has(key)) continue;
-      seen.add(key);
-
-      // Look for coordinates in items from this owner
-      const ownerItems = items.filter((it) => it.ownerId === otherItem.ownerId && it.isActive);
-      for (const oi of ownerItems) {
-        // Items don't have coordinates directly, but we can use location string for map label
-        // If we have user coordinates, offset slightly for visual distinction
-        if (user.location?.coordinates?.lat && user.location?.coordinates?.lng) {
-          const offset = (markers.length * 0.02) + (Math.random() * 0.01);
-          const tierColor = match.tier === "strong" ? "green" : match.tier === "good" ? "blue" : match.tier === "possible" ? "orange" : "red";
-          markers.push({
-            lat: user.location.coordinates.lat + offset * (Math.random() > 0.5 ? 1 : -1),
-            lng: user.location.coordinates.lng + offset * (Math.random() > 0.5 ? 1 : -1),
-            label: otherItem.title.charAt(0).toUpperCase(),
-            color: tierColor,
-          });
-          break;
-        }
-      }
+    // Fallback: use the first match's item location
+    for (const m of matches) {
+      if (m.itemRequested.location) return m.itemRequested.location;
+      if (m.itemOffered.location) return m.itemOffered.location;
     }
-    return markers;
-  }, [matches, items, user]);
+    return null;
+  }, [user, matches]);
 
   const tierCounts = useMemo(() => {
     const counts = { all: dealbrokenMatches.length, weak: 0, possible: 0, good: 0, strong: 0 };
@@ -190,25 +160,18 @@ export default function MatchPage() {
         title={t("mapProposals")}
         description={t("mapProposalsDescription")}
       >
-        <StaticMapWithMarkers
-          markers={mapMarkers}
+        <MapEmbed
+          center={mapCenter ?? undefined}
+          lat={user.location?.coordinates?.lat}
+          lng={user.location?.coordinates?.lng}
           height={300}
-          zoom={user.location?.travelRadiusKm && user.location.travelRadiusKm < 30 ? 10 : 7}
+          zoom={user.location?.travelRadiusKm && user.location.travelRadiusKm < 30 ? 12 : 8}
         />
-        <div className="mt-2 flex flex-wrap gap-2 text-xs">
-          <span className="flex items-center gap-1">
-            <span className="inline-block h-3 w-3 rounded-full bg-blue-500" /> {t("yourLocation")}
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="inline-block h-3 w-3 rounded-full bg-green-500" /> {t("veryGood")}
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="inline-block h-3 w-3 rounded-full bg-amber-500" /> {t("possible")}
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="inline-block h-3 w-3 rounded-full bg-red-500" /> {t("weak")}
-          </span>
-        </div>
+        {mapCenter && (
+          <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+            {t("yourLocation")}: {mapCenter}
+          </p>
+        )}
       </SectionCard>
 
       {/* ── Mode Toggle: Auto/Manual ── */}
