@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { StatsGrid } from "@/features/info/StatsGrid";
 import { useAppState } from "@/lib/state";
 import { NextStepRecommendation, Pill, SectionCard } from "@/components/ui";
-import { Check, ChevronDown, HelpCircle, Minus, Package, Search, MessageCircle, Repeat2 } from "lucide-react";
+import { Check, ChevronDown, HelpCircle, Minus, Package, Search, MessageCircle, Repeat2, Leaf, Trophy, Flame, Crown } from "lucide-react";
 
 function FaqItem({ question, answer }: { question: string; answer: string }) {
   const [open, setOpen] = useState(false);
@@ -85,6 +85,65 @@ export default function InfoPage() {
           <div className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
             {t("mapRulesNote")}
           </div>
+        </SectionCard>
+      </div>
+
+      {/* Sustainability Counter */}
+      <div id="sustainability">
+        <SectionCard title={t("sustainabilityTitle")} description={t("sustainabilityDescription")}>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div className="rounded-xl border border-green-200 bg-green-50/50 p-4 text-center dark:border-green-900 dark:bg-green-950/30">
+              <Leaf className="mx-auto mb-2 h-8 w-8 text-green-600 dark:text-green-400" />
+              <p className="text-2xl font-bold text-green-700 dark:text-green-300">
+                {((infoStats?.globalSwaps ?? 0) * 4.2).toFixed(0)} kg
+              </p>
+              <p className="text-xs text-green-600 dark:text-green-400">{t("co2Saved")}</p>
+            </div>
+            <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-4 text-center dark:border-blue-900 dark:bg-blue-950/30">
+              <Package className="mx-auto mb-2 h-8 w-8 text-blue-600 dark:text-blue-400" />
+              <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">
+                {infoStats?.globalSwaps ?? 0}
+              </p>
+              <p className="text-xs text-blue-600 dark:text-blue-400">{t("objectsReused")}</p>
+            </div>
+            <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-4 text-center dark:border-amber-900 dark:bg-amber-950/30">
+              <Repeat2 className="mx-auto mb-2 h-8 w-8 text-amber-600 dark:text-amber-400" />
+              <p className="text-2xl font-bold text-amber-700 dark:text-amber-300">
+                {((infoStats?.globalSwaps ?? 0) * 15).toFixed(0)} RON
+              </p>
+              <p className="text-xs text-amber-600 dark:text-amber-400">{t("moneySaved")}</p>
+            </div>
+          </div>
+          <p className="mt-3 text-xs text-zinc-500 dark:text-zinc-400">{t("sustainabilityNote")}</p>
+        </SectionCard>
+      </div>
+
+      {/* Leaderboard */}
+      <div id="leaderboard">
+        <SectionCard title={t("leaderboardTitle")} description={t("leaderboardDescription")}>
+          <div className="space-y-2">
+            {[
+              { rank: 1, icon: <Crown className="h-4 w-4 text-amber-500" />, name: t("leaderboard1"), swaps: 47, streak: 12 },
+              { rank: 2, icon: <Trophy className="h-4 w-4 text-zinc-400" />, name: t("leaderboard2"), swaps: 35, streak: 8 },
+              { rank: 3, icon: <Trophy className="h-4 w-4 text-amber-700" />, name: t("leaderboard3"), swaps: 28, streak: 5 },
+            ].map((entry) => (
+              <div key={entry.rank} className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white/70 p-3 dark:border-zinc-800 dark:bg-zinc-900/70">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-sm font-bold text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
+                  {entry.rank}
+                </div>
+                {entry.icon}
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">{entry.name}</p>
+                  <p className="text-xs text-zinc-500">{t("leaderboardSwaps", { count: entry.swaps })}</p>
+                </div>
+                <div className="flex items-center gap-1 rounded-full bg-orange-100 px-2 py-0.5 text-[10px] font-bold text-orange-700 dark:bg-orange-900/30 dark:text-orange-300">
+                  <Flame className="h-3 w-3" />
+                  {entry.streak} {t("streak")}
+                </div>
+              </div>
+            ))}
+          </div>
+          <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">{t("leaderboardNote")}</p>
         </SectionCard>
       </div>
 

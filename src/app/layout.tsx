@@ -7,6 +7,7 @@ import { FooterNav } from "@/components/layout/FooterNav";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { GlobalNudge } from "@/components/layout/GlobalNudge";
 import { CookieConsent } from "@/components/legal/CookieConsent";
+import { OnboardingTutorial } from "@/components/onboarding/OnboardingTutorial";
 
 export const metadata: Metadata = {
   title: {
@@ -73,6 +74,7 @@ export default function RootLayout({
           <FooterNav />
           <InstallPrompt />
           <CookieConsent />
+          <OnboardingTutorial />
         </Providers>
       </body>
     </html>

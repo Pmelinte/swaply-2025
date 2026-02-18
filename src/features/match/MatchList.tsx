@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { formatScore } from "@/lib/utils";
 import type { MatchCandidate, MatchTier } from "@/lib/types";
 import { Pill } from "@/components/ui";
+import { Columns2 } from "lucide-react";
 
 const SCORE_FACTORS = [
   { key: "category", max: 30 },
@@ -106,6 +107,7 @@ export function MatchList({
 }) {
   const t = useTranslations("matchList");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [compareId, setCompareId] = useState<string | null>(null);
   const [rejectedIds, setRejectedIds] = useState<Map<string, RejectReason | undefined>>(new Map());
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [negotiatingId, setNegotiatingId] = useState<string | null>(null);
@@ -215,6 +217,26 @@ export function MatchList({
               </div>
             </div>
 
+            {/* Tradeometer — fairness indicator */}
+            <div className="border-t border-zinc-100 px-4 py-2 dark:border-zinc-800">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-semibold uppercase text-zinc-400">{t("fairness")}</span>
+                <div className="relative h-2 flex-1 overflow-hidden rounded-full bg-gradient-to-r from-red-300 via-amber-300 to-green-400 dark:from-red-800 dark:via-amber-700 dark:to-green-600">
+                  <div
+                    className="absolute top-0 h-full w-1 rounded-full bg-zinc-900 shadow dark:bg-white"
+                    style={{ left: `${Math.min(100, Math.max(0, match.compatibilityScore))}%` }}
+                  />
+                </div>
+                <span className={`text-[10px] font-bold ${
+                  match.compatibilityScore >= 70 ? "text-green-600 dark:text-green-400" :
+                  match.compatibilityScore >= 40 ? "text-amber-600 dark:text-amber-400" :
+                  "text-red-600 dark:text-red-400"
+                }`}>
+                  {match.compatibilityScore >= 70 ? t("fairnessGood") : match.compatibilityScore >= 40 ? t("fairnessOk") : t("fairnessLow")}
+                </span>
+              </div>
+            </div>
+
             {/* Inline top factors + reasons */}
             <div className="border-t border-zinc-100 px-4 py-3 dark:border-zinc-800">
               {/* Inline top factors (always visible) */}
@@ -259,17 +281,49 @@ export function MatchList({
                 </p>
               ) : null}
 
-              <button
-                type="button"
-                onClick={() => setExpandedId(isExpanded ? null : match.id)}
-                className="mt-1 text-xs font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"
-              >
-                {isExpanded ? t("hideDetails") : t("showDetails")}
-              </button>
+              <div className="mt-1 flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setExpandedId(isExpanded ? null : match.id)}
+                  className="text-xs font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"
+                >
+                  {isExpanded ? t("hideDetails") : t("showDetails")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCompareId(compareId === match.id ? null : match.id)}
+                  className="inline-flex items-center gap-1 text-xs font-medium text-violet-600 hover:text-violet-800 dark:text-violet-400"
+                >
+                  <Columns2 className="h-3 w-3" />
+                  {t("compare")}
+                </button>
+              </div>
 
               {isExpanded ? (
                 <ScoreBreakdown reasons={match.reasons ?? []} score={match.compatibilityScore} t={t} />
               ) : null}
+
+              {/* Compare split-screen */}
+              {compareId === match.id && (
+                <div className="mt-3 grid grid-cols-2 gap-3 rounded-xl border border-violet-200 bg-violet-50/50 p-3 dark:border-violet-800 dark:bg-violet-950/20">
+                  {[
+                    { label: t("iOffer"), item: match.itemOffered, photo: offeredPhoto },
+                    { label: t("iGet"), item: match.itemRequested, photo: requestedPhoto },
+                  ].map((side) => (
+                    <div key={side.label} className="space-y-1">
+                      <p className="text-[10px] font-bold uppercase text-violet-600 dark:text-violet-300">{side.label}</p>
+                      {side.photo && (
+                        <div className="relative aspect-square overflow-hidden rounded-lg">
+                          <Image src={side.photo} alt={side.item.title} fill className="object-cover" sizes="150px" unoptimized />
+                        </div>
+                      )}
+                      <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-50">{side.item.title}</p>
+                      <p className="text-[10px] text-zinc-500">{side.item.category} · {side.item.condition}</p>
+                      {side.item.location && <p className="text-[10px] text-zinc-400">{side.item.location}</p>}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* 3 Action buttons: ACCEPT / NEGOCIAZA / RESPINGE */}

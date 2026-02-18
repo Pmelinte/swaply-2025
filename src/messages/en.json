@@ -263,7 +263,8 @@
     "howStep3Title": "Chat & agree",
     "howStep3Desc": "Negotiate in moderated, secure conversations",
     "howStep4Title": "Swap safely",
-    "howStep4Desc": "Meet locally, ship by courier, or pick up with full tracking"
+    "howStep4Desc": "Meet locally, ship by courier, or pick up with full tracking",
+    "recommendedForYou": "Recommended for you"
   },
 
   "objects": {
@@ -386,7 +387,8 @@
     "similarItemsDesc": "Other items in the same category",
     "viewAll": "View all",
     "loginToInteract": "Login to propose swaps and chat",
-    "photoCount": "{current} / {total}"
+    "photoCount": "{current} / {total}",
+    "share": "Share"
   },
 
   "objectEdit": {
@@ -643,7 +645,27 @@
     "houseDurationPlaceholder": "e.g. 1 week, June 10-17",
     "dualConfirmRequired": "Both parties must confirm each step",
     "internationalLeg1": "Leg 1: Sender → Hub",
-    "internationalLeg2": "Leg 2: Hub → Recipient"
+    "internationalLeg2": "Leg 2: Hub → Recipient",
+    "safeMeetingPoints": "Safe meeting point suggestions",
+    "safePointPolice": "Police station entrance",
+    "safePointMall": "Mall food court",
+    "safePointCafe": "Popular café",
+    "safePointBank": "Bank lobby",
+    "safePointMetro": "Metro station",
+    "safeMeetingTip": "Always meet in public, well-lit places with cameras. Avoid private locations.",
+    "qrConfirmation": "QR Confirmation",
+    "qrConfirmationDesc": "Use this code to confirm the exchange when you meet",
+    "qrSwapCode": "Swap Code",
+    "qrInstructions": "When you meet your swap partner, share this code to confirm:",
+    "qrStep1": "Show this code to your partner",
+    "qrStep2": "Both verify the code matches",
+    "qrStep3": "Confirm the exchange in the app",
+    "qrCopyCode": "Copy code",
+    "availability": "Your Availability",
+    "availabilityDesc": "Let your partner know when you're free to meet",
+    "availMorning": "Morning",
+    "availAfternoon": "Afternoon",
+    "availEvening": "Evening"
   },
 
   "info": {
@@ -726,7 +748,21 @@
     "howStep3": "Chat & agree",
     "howStep3Desc": "Discuss details in secure moderated chat",
     "howStep4": "Exchange safely",
-    "howStep4Desc": "Meet locally, ship by courier, or pick up — with full tracking"
+    "howStep4Desc": "Meet locally, ship by courier, or pick up — with full tracking",
+    "sustainabilityTitle": "Environmental Impact",
+    "sustainabilityDescription": "Every swap saves resources and reduces waste",
+    "co2Saved": "CO₂ saved",
+    "objectsReused": "Objects reused",
+    "moneySaved": "Money saved",
+    "sustainabilityNote": "Estimates based on average product lifecycle analysis. Each reused object avoids ~4.2 kg CO₂ from manufacturing.",
+    "leaderboardTitle": "Top Swappers",
+    "leaderboardDescription": "Most active community members this month",
+    "leaderboard1": "SwapMaster",
+    "leaderboard2": "TradeQueen",
+    "leaderboard3": "EcoSwapper",
+    "leaderboardSwaps": "{count} swaps",
+    "streak": "day streak",
+    "leaderboardNote": "Leaderboard resets monthly. Activity includes completed swaps, positive ratings, and consistent engagement."
   },
 
   "itemForm": {
@@ -825,7 +861,8 @@
     "aiConfidence": "AI Confidence: {score}%",
     "aiConfidenceHigh": "High confidence",
     "aiConfidenceMedium": "Medium confidence — review suggested",
-    "aiConfidenceLow": "Low confidence — please verify manually"
+    "aiConfidenceLow": "Low confidence — please verify manually",
+    "aiWriteDescription": "Write description for me"
   },
 
   "itemCard": {
@@ -895,7 +932,12 @@
     "counterTimeWindow": "Propose a specific time window",
     "counterBundleOffer": "Offer a bundle of smaller items instead",
     "applyCounter": "Send as message",
-    "whyBullet": "Why: {reason}"
+    "whyBullet": "Why: {reason}",
+    "fairness": "Fairness",
+    "fairnessGood": "Fair deal",
+    "fairnessOk": "Moderate",
+    "fairnessLow": "Uneven",
+    "compare": "Compare"
   },
 
   "swapTimeline": {
@@ -1021,7 +1063,11 @@
     "confirmArchive": "Move to archive? The object will be hidden from marketplace but can be restored later.",
     "addNew": "Add object",
     "softDelete": "Archive instead",
-    "permanentDelete": "Delete permanently"
+    "permanentDelete": "Delete permanently",
+    "analyticsTotal": "Total objects",
+    "analyticsActive": "Active",
+    "analyticsSwapped": "Swapped",
+    "analyticsScore": "Active rate"
   },
 
   "safety": {
@@ -1085,6 +1131,20 @@
     "cookieAccept": "Accept all",
     "cookieReject": "Essential only",
     "cookieLearnMore": "Learn more"
+  },
+
+  "onboarding": {
+    "step1Title": "List your items",
+    "step1Desc": "Take a photo or add a link. AI will auto-fill the category, tags, and suggest a description for you.",
+    "step2Title": "Discover matches",
+    "step2Desc": "Our AI analyzes 9 compatibility factors to find the best swaps for your items. No manual searching needed.",
+    "step3Title": "Chat safely",
+    "step3Desc": "All conversations are moderated for safety. Share photos, translate messages, and agree on exchange details.",
+    "step4Title": "Swap & grow",
+    "step4Desc": "Meet in safe public spots or ship via courier. Confirm with QR codes, rate your experience, and earn reputation.",
+    "back": "Back",
+    "next": "Next",
+    "start": "Start swapping!"
   },
 
   "pwa": {

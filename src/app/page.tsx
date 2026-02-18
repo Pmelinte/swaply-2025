@@ -1,5 +1,7 @@
 "use client";
 
+import { useMemo } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRightLeft,
@@ -312,6 +314,39 @@ export default function HomePage() {
           )}
         </div>
       </div>
+
+      {/* ── Personalized Recommendations ── */}
+      {user && (() => {
+        const myCategories = new Set(myItems.map((i) => i.category));
+        const recommended = items
+          .filter((i) => i.ownerId !== user.id && i.isActive && i.status === "active" && myCategories.has(i.category))
+          .slice(0, 4);
+        if (recommended.length === 0) return null;
+        return (
+          <section>
+            <h2 className="mb-3 text-lg font-bold text-zinc-900 dark:text-zinc-50">{t("recommendedForYou")}</h2>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {recommended.map((item) => (
+                <Link
+                  key={item.id}
+                  href={`/objects/${item.id}`}
+                  className="group rounded-2xl border border-zinc-200 bg-white/80 p-3 shadow-sm backdrop-blur transition hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900/80"
+                >
+                  {item.photos?.[0] ? (
+                    <div className="relative mb-2 aspect-square overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
+                      <Image src={item.photos[0]} alt={item.title} fill className="object-cover transition group-hover:scale-105" sizes="160px" unoptimized />
+                    </div>
+                  ) : (
+                    <div className="mb-2 flex aspect-square items-center justify-center rounded-xl bg-zinc-100 text-2xl font-bold text-zinc-300 dark:bg-zinc-800">{item.title.charAt(0).toUpperCase()}</div>
+                  )}
+                  <p className="truncate text-sm font-semibold text-zinc-900 dark:text-zinc-50">{item.title}</p>
+                  <p className="truncate text-xs text-zinc-500">{item.category}{item.location ? ` · ${item.location}` : ""}</p>
+                </Link>
+              ))}
+            </div>
+          </section>
+        );
+      })()}
 
       {/* ── Active Swaps Banner ── */}
       {user && pendingSwaps > 0 && (

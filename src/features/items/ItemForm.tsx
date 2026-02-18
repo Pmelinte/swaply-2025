@@ -633,8 +633,41 @@ export function ItemForm({
           className={errors.description ? inputError : inputNormal}
           rows={4}
         />
-        <div className="mt-1 flex justify-between">
-          <FieldError message={errors.description} />
+        <div className="mt-1 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <FieldError message={errors.description} />
+            <button
+              type="button"
+              disabled={!draft.title || aiLoading}
+              onClick={async () => {
+                if (!draft.title) return;
+                setAiLoading(true);
+                try {
+                  const res = await fetch("/api/ai", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      title: draft.title,
+                      category: draft.category,
+                      condition: draft.condition,
+                      prompt: "generate_description",
+                    }),
+                  });
+                  if (res.ok) {
+                    const data = await res.json();
+                    if (data.description) {
+                      setDraft((prev) => ({ ...prev, description: data.description }));
+                    }
+                  }
+                } finally {
+                  setAiLoading(false);
+                }
+              }}
+              className="inline-flex items-center gap-1 rounded-full bg-violet-100 px-2.5 py-1 text-[10px] font-semibold text-violet-700 hover:bg-violet-200 disabled:opacity-40 dark:bg-violet-900/30 dark:text-violet-300 dark:hover:bg-violet-900/50"
+            >
+              {aiLoading ? "..." : "✨"} {t("aiWriteDescription")}
+            </button>
+          </div>
           <span className="text-xs text-zinc-400">
             {draft.description.length}/2000
           </span>

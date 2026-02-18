@@ -26,6 +26,8 @@ import {
   ChevronDown,
   ChevronUp,
   Package,
+  BarChart3,
+  TrendingUp,
 } from "lucide-react";
 
 type StatusFilter = "all" | Item["status"];
@@ -223,6 +225,40 @@ export default function MyObjectsPage() {
           <Plus className="h-4 w-4" />
           {t("addNew")}
         </Link>
+      </div>
+
+      {/* Analytics Dashboard */}
+      <div className="mb-4 grid gap-3 sm:grid-cols-4">
+        <div className="rounded-xl border border-zinc-200 bg-white/70 p-3 dark:border-zinc-800 dark:bg-zinc-900/70">
+          <div className="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
+            <BarChart3 className="h-3.5 w-3.5" />
+            {t("analyticsTotal")}
+          </div>
+          <p className="mt-1 text-xl font-bold text-zinc-900 dark:text-zinc-50">{myItems.length}</p>
+        </div>
+        <div className="rounded-xl border border-green-200 bg-green-50/50 p-3 dark:border-green-900 dark:bg-green-950/20">
+          <div className="flex items-center gap-2 text-xs text-green-600 dark:text-green-400">
+            <CheckCircle2 className="h-3.5 w-3.5" />
+            {t("analyticsActive")}
+          </div>
+          <p className="mt-1 text-xl font-bold text-green-700 dark:text-green-300">{statusCounts.active}</p>
+        </div>
+        <div className="rounded-xl border border-purple-200 bg-purple-50/50 p-3 dark:border-purple-900 dark:bg-purple-950/20">
+          <div className="flex items-center gap-2 text-xs text-purple-600 dark:text-purple-400">
+            <ArrowRightLeft className="h-3.5 w-3.5" />
+            {t("analyticsSwapped")}
+          </div>
+          <p className="mt-1 text-xl font-bold text-purple-700 dark:text-purple-300">{statusCounts.swapped}</p>
+        </div>
+        <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-3 dark:border-blue-900 dark:bg-blue-950/20">
+          <div className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400">
+            <TrendingUp className="h-3.5 w-3.5" />
+            {t("analyticsScore")}
+          </div>
+          <p className="mt-1 text-xl font-bold text-blue-700 dark:text-blue-300">
+            {myItems.length > 0 ? Math.round((statusCounts.active / myItems.length) * 100) : 0}%
+          </p>
+        </div>
       </div>
 
       {/* Status filter tabs */}

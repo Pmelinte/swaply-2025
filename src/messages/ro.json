@@ -263,7 +263,8 @@
     "howStep3Title": "Discută și acordă-te",
     "howStep3Desc": "Negociază în conversații moderate și securizate",
     "howStep4Title": "Schimbă în siguranță",
-    "howStep4Desc": "Întâlnire locală, curier sau ridicare cu urmărire completă"
+    "howStep4Desc": "Întâlnire locală, curier sau ridicare cu urmărire completă",
+    "recommendedForYou": "Recomandate pentru tine"
   },
 
   "objects": {
@@ -387,7 +388,8 @@
     "similarItemsDesc": "Alte obiecte din aceeași categorie",
     "viewAll": "Vezi toate",
     "loginToInteract": "Conectează-te pentru a propune schimburi și a discuta",
-    "photoCount": "{current} / {total}"
+    "photoCount": "{current} / {total}",
+    "share": "Distribuie"
   },
 
   "objectEdit": {
@@ -644,7 +646,27 @@
     "houseDurationPlaceholder": "ex. 1 săptămână, 10-17 Iunie",
     "dualConfirmRequired": "Ambele părți trebuie să confirme fiecare pas",
     "internationalLeg1": "Etapa 1: Expeditor → Hub",
-    "internationalLeg2": "Etapa 2: Hub → Destinatar"
+    "internationalLeg2": "Etapa 2: Hub → Destinatar",
+    "safeMeetingPoints": "Sugestii locuri sigure de întâlnire",
+    "safePointPolice": "Intrare secție de poliție",
+    "safePointMall": "Food court mall",
+    "safePointCafe": "Cafenea populară",
+    "safePointBank": "Hol bancă",
+    "safePointMetro": "Stație de metrou",
+    "safeMeetingTip": "Întâlnește-te mereu în locuri publice, bine iluminate, cu camere. Evită locațiile private.",
+    "qrConfirmation": "Confirmare QR",
+    "qrConfirmationDesc": "Folosește acest cod pentru a confirma schimbul la întâlnire",
+    "qrSwapCode": "Cod Schimb",
+    "qrInstructions": "La întâlnire cu partenerul, partajează acest cod pentru confirmare:",
+    "qrStep1": "Arată acest cod partenerului",
+    "qrStep2": "Ambii verificați că codul se potrivește",
+    "qrStep3": "Confirmă schimbul în aplicație",
+    "qrCopyCode": "Copiază codul",
+    "availability": "Disponibilitatea ta",
+    "availabilityDesc": "Anunță partenerul când ești liber pentru întâlnire",
+    "availMorning": "Dimineața",
+    "availAfternoon": "După-amiaza",
+    "availEvening": "Seara"
   },
 
   "info": {
@@ -727,7 +749,21 @@
     "howStep3": "Discută și acordă-te",
     "howStep3Desc": "Discută detaliile în chat securizat și moderat",
     "howStep4": "Schimbă în siguranță",
-    "howStep4Desc": "Întâlnire locală, curier sau ridicare — cu urmărire completă"
+    "howStep4Desc": "Întâlnire locală, curier sau ridicare — cu urmărire completă",
+    "sustainabilityTitle": "Impact Ecologic",
+    "sustainabilityDescription": "Fiecare schimb economisește resurse și reduce deșeurile",
+    "co2Saved": "CO₂ economisit",
+    "objectsReused": "Obiecte reutilizate",
+    "moneySaved": "Bani economisiți",
+    "sustainabilityNote": "Estimări bazate pe analiza ciclului de viață al produselor. Fiecare obiect reutilizat evită ~4.2 kg CO₂.",
+    "leaderboardTitle": "Top Swappers",
+    "leaderboardDescription": "Cei mai activi membri ai comunității luna aceasta",
+    "leaderboard1": "SwapMaster",
+    "leaderboard2": "TradeQueen",
+    "leaderboard3": "EcoSwapper",
+    "leaderboardSwaps": "{count} schimburi",
+    "streak": "zile consecutive",
+    "leaderboardNote": "Clasamentul se resetează lunar. Activitatea include schimburi completate, evaluări pozitive și engagement constant."
   },
 
   "itemForm": {
@@ -826,7 +862,8 @@
     "aiConfidence": "Încredere AI: {score}%",
     "aiConfidenceHigh": "Încredere ridicată",
     "aiConfidenceMedium": "Încredere medie — verificare sugerată",
-    "aiConfidenceLow": "Încredere scăzută — verifică manual"
+    "aiConfidenceLow": "Încredere scăzută — verifică manual",
+    "aiWriteDescription": "Scrie descrierea pentru mine"
   },
 
   "itemCard": {
@@ -896,7 +933,12 @@
     "counterTimeWindow": "Propune o fereastră de timp specifică",
     "counterBundleOffer": "Oferă un pachet de obiecte mai mici",
     "applyCounter": "Trimite ca mesaj",
-    "whyBullet": "De ce: {reason}"
+    "whyBullet": "De ce: {reason}",
+    "fairness": "Echitate",
+    "fairnessGood": "Schimb echitabil",
+    "fairnessOk": "Moderat",
+    "fairnessLow": "Dezechilibrat",
+    "compare": "Compară"
   },
 
   "swapTimeline": {
@@ -1022,7 +1064,11 @@
     "confirmArchive": "Mută în arhivă? Obiectul va fi ascuns din marketplace dar poate fi restaurat ulterior.",
     "addNew": "Adaugă obiect",
     "softDelete": "Arhivează",
-    "permanentDelete": "Șterge permanent"
+    "permanentDelete": "Șterge permanent",
+    "analyticsTotal": "Total obiecte",
+    "analyticsActive": "Active",
+    "analyticsSwapped": "Schimbate",
+    "analyticsScore": "Rată activă"
   },
 
   "safety": {
@@ -1086,6 +1132,20 @@
     "cookieAccept": "Acceptă toate",
     "cookieReject": "Doar esențiale",
     "cookieLearnMore": "Află mai multe"
+  },
+
+  "onboarding": {
+    "step1Title": "Listează obiectele",
+    "step1Desc": "Fă o poză sau adaugă un link. AI completează automat categoria, tag-urile și sugerează o descriere.",
+    "step2Title": "Descoperă potriviri",
+    "step2Desc": "AI-ul nostru analizează 9 factori de compatibilitate pentru a găsi cele mai bune schimburi.",
+    "step3Title": "Chat în siguranță",
+    "step3Desc": "Toate conversațiile sunt moderate. Trimite poze, traduce mesaje și stabilește detaliile schimbului.",
+    "step4Title": "Schimbă și crește",
+    "step4Desc": "Întâlnește-te în locuri publice sau trimite prin curier. Confirmă cu cod QR și câștigă reputație.",
+    "back": "Înapoi",
+    "next": "Următorul",
+    "start": "Începe să schimbi!"
   },
 
   "pwa": {

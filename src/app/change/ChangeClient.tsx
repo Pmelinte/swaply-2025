@@ -7,7 +7,7 @@ import { LoggedOutGate } from "@/components/gated";
 import { CTAButton, NextStepRecommendation, Pill, SectionCard, StateShowcase } from "@/components/ui";
 import { SwapTimeline } from "@/features/change/SwapTimeline";
 import type { SwapIntent } from "@/lib/types";
-import { MapPin, Truck, Package, Check, Globe, Plane, Home, Wrench } from "lucide-react";
+import { MapPin, Truck, Package, Check, Globe, Plane, Home, Wrench, QrCode, Shield, Calendar } from "lucide-react";
 
 const VALID_TRANSITIONS: Record<SwapIntent["status"], SwapIntent["status"][]> = {
   proposed: ["scheduled", "cancelled"],
@@ -556,7 +556,7 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
 
               {/* Meetup point input */}
               {(logisticsType === "public_spot" || logisticsType === "pickup") && (
-                <div className="mt-3">
+                <div className="mt-3 space-y-2">
                   <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-200">
                     {t("meetupPoint")}
                     <div className="relative mt-1">
@@ -573,6 +573,32 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
                       />
                     </div>
                   </label>
+                  {/* Safe Meeting Points Suggestions */}
+                  <div className="rounded-xl border border-green-200 bg-green-50/50 p-3 dark:border-green-900 dark:bg-green-950/20">
+                    <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-green-700 dark:text-green-300">
+                      <Shield className="h-3.5 w-3.5" />
+                      {t("safeMeetingPoints")}
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {[
+                        t("safePointPolice"),
+                        t("safePointMall"),
+                        t("safePointCafe"),
+                        t("safePointBank"),
+                        t("safePointMetro"),
+                      ].map((point) => (
+                        <button
+                          key={point}
+                          type="button"
+                          onClick={() => { setMeetupPoint(point); setLogisticsSaved(false); }}
+                          className="rounded-full border border-green-200 bg-white px-2.5 py-1 text-[11px] font-medium text-green-700 hover:bg-green-100 dark:border-green-800 dark:bg-green-950/40 dark:text-green-300 dark:hover:bg-green-900/50"
+                        >
+                          {point}
+                        </button>
+                      ))}
+                    </div>
+                    <p className="mt-2 text-[10px] text-green-600 dark:text-green-400">{t("safeMeetingTip")}</p>
+                  </div>
                 </div>
               )}
 
@@ -663,6 +689,66 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
               <p className="mt-3 text-xs font-medium text-amber-600 dark:text-amber-400">
                 {t("dualConfirmRequired")}
               </p>
+            </SectionCard>
+          )}
+
+          {/* QR Code Confirmation */}
+          {swap.status === "in_progress" && (
+            <SectionCard title={t("qrConfirmation")} description={t("qrConfirmationDesc")}>
+              <div className="flex flex-col items-center gap-4 sm:flex-row">
+                <div className="flex h-40 w-40 items-center justify-center rounded-2xl border-2 border-dashed border-blue-300 bg-blue-50 dark:border-blue-700 dark:bg-blue-950/30">
+                  <div className="text-center">
+                    <QrCode className="mx-auto h-12 w-12 text-blue-500" />
+                    <p className="mt-2 text-xs font-medium text-blue-600 dark:text-blue-400">
+                      {t("qrSwapCode")}
+                    </p>
+                    <p className="mt-0.5 font-mono text-sm font-bold text-blue-800 dark:text-blue-200">
+                      {swap.id.slice(0, 8).toUpperCase()}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex-1 space-y-2">
+                  <p className="text-sm text-zinc-700 dark:text-zinc-300">{t("qrInstructions")}</p>
+                  <div className="space-y-1.5 text-xs text-zinc-500 dark:text-zinc-400">
+                    <p>1. {t("qrStep1")}</p>
+                    <p>2. {t("qrStep2")}</p>
+                    <p>3. {t("qrStep3")}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      void navigator.clipboard.writeText(swap.id.slice(0, 8).toUpperCase());
+                    }}
+                    className="rounded-full bg-blue-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-blue-700"
+                  >
+                    {t("qrCopyCode")}
+                  </button>
+                </div>
+              </div>
+            </SectionCard>
+          )}
+
+          {/* Calendar / Availability */}
+          {swap.status !== "completed" && swap.status !== "cancelled" && (
+            <SectionCard title={t("availability")} description={t("availabilityDesc")}>
+              <div className="grid gap-2 sm:grid-cols-3">
+                {[
+                  { day: t("availMorning"), time: "09:00 - 12:00" },
+                  { day: t("availAfternoon"), time: "12:00 - 18:00" },
+                  { day: t("availEvening"), time: "18:00 - 21:00" },
+                ].map((slot) => (
+                  <label
+                    key={slot.day}
+                    className="flex items-center gap-2 rounded-xl border border-zinc-200 bg-white p-3 hover:border-blue-300 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-blue-700"
+                  >
+                    <Calendar className="h-4 w-4 text-zinc-400" />
+                    <div>
+                      <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">{slot.day}</p>
+                      <p className="text-[10px] text-zinc-500">{slot.time}</p>
+                    </div>
+                  </label>
+                ))}
+              </div>
             </SectionCard>
           )}
 

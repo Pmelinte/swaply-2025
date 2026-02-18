@@ -25,6 +25,7 @@ import {
   Clock,
   Package,
   Heart,
+  Share2,
 } from "lucide-react";
 
 const INTENT_LABELS: Record<string, string> = {
@@ -201,9 +202,26 @@ export default function ObjectDetailsPage() {
             </div>
           )}
 
-          {/* Title + metadata */}
+          {/* Title + metadata + share */}
           <div>
-            <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{item.title}</h1>
+            <div className="flex items-start justify-between gap-2">
+              <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{item.title}</h1>
+              <button
+                type="button"
+                onClick={() => {
+                  const url = `${window.location.origin}/objects/${item.id}`;
+                  if (navigator.share) {
+                    void navigator.share({ title: item.title, text: item.description || item.title, url });
+                  } else {
+                    void navigator.clipboard.writeText(url);
+                  }
+                }}
+                className="shrink-0 rounded-full bg-zinc-100 p-2 text-zinc-500 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700"
+                title={t("share")}
+              >
+                <Share2 className="h-4 w-4" />
+              </button>
+            </div>
             <div className="mt-2 flex flex-wrap gap-2">
               <Pill color="blue">{item.category}</Pill>
               <Pill color="zinc">{item.condition}</Pill>

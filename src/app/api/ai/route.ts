@@ -22,11 +22,20 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json().catch(() => ({}));
-  const { title, description, action } = body as {
+  const { title, description, action, prompt, category, condition } = body as {
     title?: string;
     description?: string;
     action?: "classify" | "tags" | "both";
+    prompt?: string;
+    category?: string;
+    condition?: string;
   };
+
+  // AI Description Generator
+  if (prompt === "generate_description" && title) {
+    const desc = generateDescription(title, category, condition);
+    return NextResponse.json({ status: "ok", description: desc });
+  }
 
   const text = [title, description].filter(Boolean).join(". ");
   if (!text) {
@@ -146,4 +155,21 @@ function keywordCategory(text: string): string {
 function keywordTags(text: string): string[] {
   const t = text.toLowerCase();
   return TAG_CANDIDATES.filter((tag) => t.includes(tag)).slice(0, 5);
+}
+
+/** Generate a swap-friendly description from title + metadata */
+function generateDescription(title: string, category?: string, condition?: string): string {
+  const condDesc = condition === "new" ? "nou, nefolosit" :
+    condition === "used" ? "folosit, în stare bună" :
+    condition === "good" ? "stare foarte bună" : "stare bună";
+
+  const lines = [
+    `${title} — ${condDesc}.`,
+    category ? `Categorie: ${category}.` : "",
+    "Disponibil pentru schimb cu obiecte similare sau conform listei de dorințe.",
+    "Fotografiile reflectă starea actuală a obiectului.",
+    "Deschis la propuneri — nu ezita să mă contactezi!",
+  ].filter(Boolean);
+
+  return lines.join(" ");
 }
