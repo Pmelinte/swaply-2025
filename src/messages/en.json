@@ -322,7 +322,10 @@
     "noObjects": "No objects",
     "noObjectsDescription": "Empty state with CTA to add new object.",
     "loadError": "Error loading objects",
-    "loadErrorDescription": "Clear message without crash; allows page reload."
+    "loadErrorDescription": "Clear message without crash; allows page reload.",
+    "viewButton": "View",
+    "removeButton": "Remove",
+    "loginButton": "Login"
   },
 
   "objectDetail": {

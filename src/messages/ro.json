@@ -312,7 +312,21 @@
     "resultsCount": "{count} obiecte găsite",
     "noResults": "Niciun obiect nu se potrivește filtrelor tale",
     "clearFilters": "Șterge filtrele",
-    "lookingFor": "Caută:"
+    "lookingFor": "Caută:",
+    "noObjects": "Niciun obiect",
+    "gridView": "Grilă",
+    "listView": "Listă",
+    "swipeView": "Swipe",
+    "filterLogistics": "Logistică",
+    "logisticsInPerson": "În persoană",
+    "logisticsCourier": "Curier",
+    "logisticsFlexible": "Flexibil",
+    "proposeSwap": "Propune schimb",
+    "message": "Mesaj",
+    "save": "Salvează",
+    "viewButton": "Vezi",
+    "removeButton": "Elimină",
+    "loginButton": "Autentificare"
   },
 
   "objectDetail": {

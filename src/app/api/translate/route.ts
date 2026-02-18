@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { rateLimit } from "@/lib/rate-limit";
 
 const LANG_PAIRS: Record<string, string> = {
   "ro-en": "Helsinki-NLP/opus-mt-ro-en",
@@ -10,6 +11,12 @@ const LANG_PAIRS: Record<string, string> = {
 };
 
 export async function POST(request: Request) {
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const { allowed } = rateLimit(ip, { limit: 30, windowMs: 60_000 });
+  if (!allowed) {
+    return NextResponse.json({ translated: "", status: "error", message: "Rate limited" }, { status: 429 });
+  }
+
   const body = await request.json().catch(() => ({}));
   const { text, from, to } = body as { text?: string; from?: string; to?: string };
 

@@ -1,10 +1,44 @@
 import { NextResponse } from "next/server";
 import { CATEGORIES_TAXONOMY } from "@/lib/categories";
+import { rateLimit } from "@/lib/rate-limit";
 
 /** All category names (top-level + subcategories) for AI matching */
 const ALL_CATEGORY_NAMES = CATEGORIES_TAXONOMY.map((c) => c.name);
 
+/** Block SSRF: reject private/internal IP ranges and non-https URLs */
+function isPublicUrl(url: string): boolean {
+  try {
+    const u = new URL(url);
+    if (u.protocol !== "https:" && u.protocol !== "http:") return false;
+    const host = u.hostname.toLowerCase();
+    if (
+      host === "localhost" ||
+      host === "0.0.0.0" ||
+      host === "[::1]" ||
+      host.endsWith(".local") ||
+      host.endsWith(".internal") ||
+      /^127\./.test(host) ||
+      /^10\./.test(host) ||
+      /^192\.168\./.test(host) ||
+      /^172\.(1[6-9]|2\d|3[01])\./.test(host) ||
+      /^169\.254\./.test(host) ||
+      /^100\.(6[4-9]|[7-9]\d|1[01]\d|12[0-7])\./.test(host)
+    ) {
+      return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function POST(request: Request) {
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const { allowed } = rateLimit(ip, { limit: 10, windowMs: 60_000 });
+  if (!allowed) {
+    return NextResponse.json({ status: "error", message: "Prea multe cereri. Încearcă din nou în 1 minut." }, { status: 429 });
+  }
+
   const body = await request.json().catch(() => ({}));
   const { imageUrl, imageBase64 } = body as {
     imageUrl?: string;
@@ -35,6 +69,9 @@ export async function POST(request: Request) {
         mimeType = "image/jpeg";
       }
     } else if (imageUrl) {
+      if (!isPublicUrl(imageUrl)) {
+        return NextResponse.json({ status: "error", message: "URL invalid sau blocat." }, { status: 400 });
+      }
       try {
         const imgRes = await fetch(imageUrl, { signal: AbortSignal.timeout(10000) });
         if (!imgRes.ok) {

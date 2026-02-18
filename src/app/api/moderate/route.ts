@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { rateLimit } from "@/lib/rate-limit";
 
 /** Words/patterns that indicate content needing moderation */
 const BLOCKED_PATTERNS = [
@@ -29,6 +30,12 @@ const PROFANITY_ES = [
 const ALL_PROFANITY = [...PROFANITY_RO, ...PROFANITY_EN, ...PROFANITY_ES];
 
 export async function POST(request: Request) {
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const { allowed } = rateLimit(ip, { limit: 60, windowMs: 60_000 });
+  if (!allowed) {
+    return NextResponse.json({ safe: true, flags: [], message: "Rate limited" }, { status: 429 });
+  }
+
   const body = await request.json().catch(() => ({}));
   const { text } = body as { text?: string };
 

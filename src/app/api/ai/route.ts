@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { CATEGORIES_TAXONOMY, CATEGORY_NAMES } from "@/lib/categories";
+import { rateLimit } from "@/lib/rate-limit";
 
 const CATEGORIES = CATEGORY_NAMES;
 
@@ -14,6 +15,12 @@ const TAG_CANDIDATES = [
 ];
 
 export async function POST(request: Request) {
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const { allowed } = rateLimit(ip, { limit: 30, windowMs: 60_000 });
+  if (!allowed) {
+    return NextResponse.json({ status: "error", message: "Prea multe cereri." }, { status: 429 });
+  }
+
   const body = await request.json().catch(() => ({}));
   const { title, description, action } = body as {
     title?: string;

@@ -112,7 +112,7 @@ function SlotCard({
             onClick={onView}
             className="rounded-full bg-zinc-200 px-2 py-0.5 text-[10px] font-semibold text-zinc-700 hover:bg-zinc-300 dark:bg-zinc-700 dark:text-zinc-200"
           >
-            View
+            {t("viewButton")}
           </button>
         )}
         {onRemove && (
@@ -121,7 +121,7 @@ function SlotCard({
             onClick={onRemove}
             className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-semibold text-red-700 hover:bg-red-200 dark:bg-red-900/40 dark:text-red-200"
           >
-            X
+            {t("removeButton")}
           </button>
         )}
       </div>
@@ -550,7 +550,7 @@ export default function ObjectsPage() {
               {!user ? (
                 <div className="rounded-2xl border-2 border-dashed border-blue-200 bg-blue-50/50 p-8 text-center dark:border-blue-800 dark:bg-blue-950/20">
                   <p className="text-sm text-zinc-500">{t("loginToList")}</p>
-                  <CTAButton href="/login">Login</CTAButton>
+                  <CTAButton href="/login">{t("loginButton")}</CTAButton>
                 </div>
               ) : wishBlocked ? (
                 <div className="rounded-2xl border-2 border-blue-200 bg-blue-50 p-6 text-center dark:border-blue-800 dark:bg-blue-950/30">
@@ -644,7 +644,7 @@ export default function ObjectsPage() {
               {!user ? (
                 <div className="rounded-2xl border-2 border-dashed border-emerald-200 bg-emerald-50/50 p-8 text-center dark:border-emerald-800 dark:bg-emerald-950/20">
                   <p className="text-sm text-zinc-500">{t("loginToList")}</p>
-                  <CTAButton href="/login">Login</CTAButton>
+                  <CTAButton href="/login">{t("loginButton")}</CTAButton>
                 </div>
               ) : offerBlocked ? (
                 <div className="rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-6 text-center dark:border-emerald-800 dark:bg-emerald-950/30">
