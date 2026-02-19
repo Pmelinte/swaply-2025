@@ -277,16 +277,24 @@ export default function ObjectsPage() {
     [items, user],
   );
 
-  // Swipe candidates
+  // Swipe candidates (filtered by listing type)
   const wishCandidates = useMemo(() => {
     const slottedIds = new Set(wishSlots.filter(Boolean).map((i) => i!.id));
-    return otherItems.filter((i) => !wishDismissed.has(i.id) && !slottedIds.has(i.id));
-  }, [otherItems, wishDismissed, wishSlots]);
+    return otherItems.filter((i) => {
+      if (wishDismissed.has(i.id) || slottedIds.has(i.id)) return false;
+      if (listingTypeFilter !== "all" && (i.listingType ?? "object") !== listingTypeFilter) return false;
+      return true;
+    });
+  }, [otherItems, wishDismissed, wishSlots, listingTypeFilter]);
 
   const offerCandidates = useMemo(() => {
     const slottedIds = new Set(offerSlots.filter(Boolean).map((i) => i!.id));
-    return myItems.filter((i) => !offerDismissed.has(i.id) && !slottedIds.has(i.id));
-  }, [myItems, offerDismissed, offerSlots]);
+    return myItems.filter((i) => {
+      if (offerDismissed.has(i.id) || slottedIds.has(i.id)) return false;
+      if (listingTypeFilter !== "all" && (i.listingType ?? "object") !== listingTypeFilter) return false;
+      return true;
+    });
+  }, [myItems, offerDismissed, offerSlots, listingTypeFilter]);
 
   const currentWishItem = wishCandidates[wishSwipeIndex] ?? null;
   const currentOfferItem = offerCandidates[offerSwipeIndex] ?? null;
