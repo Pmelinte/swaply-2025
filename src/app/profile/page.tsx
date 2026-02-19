@@ -14,7 +14,7 @@ import { useAppState } from "@/lib/state";
 import { LoggedOutGate, MissingDataCallout } from "@/components/gated";
 import { Badge, NextStepRecommendation, Pill, SectionCard, StateShowcase } from "@/components/ui";
 import type { UserProfile, LanguageCode, HouseProfile, ServiceProfile, HouseAmenity, HouseRule, PropertyType, HouseSwapMode, ServiceCategory, SkillLevel, ServiceDelivery } from "@/lib/types";
-import { languageNames, localeFlag, type Locale, locales } from "@/i18n/config";
+import { languageNames, localeFlagUrl, type Locale, locales } from "@/i18n/config";
 import LocationPicker from "@/components/LocationPicker";
 
 export default function ProfilePage() {
@@ -189,7 +189,7 @@ export default function ProfilePage() {
               return (
                 <span key={lang} className="inline-flex items-center gap-1.5 rounded-full bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900/40 dark:text-blue-200">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  {info && <span className="text-sm leading-none">{localeFlag(lang as Locale)}</span>}
+                  {info && <img src={localeFlagUrl(lang as Locale)} alt="" width={16} height={12} className="rounded-sm" />}
                   {info ? info.nativeName : lang.toUpperCase()}
                   <button
                     type="button"
@@ -219,7 +219,7 @@ export default function ProfilePage() {
                     const info = languageNames[loc];
                     return (
                       <option key={loc} value={loc}>
-                        {localeFlag(loc)} {info.nativeName} ({info.name})
+                        {info.nativeName} ({info.name})
                       </option>
                     );
                   })}

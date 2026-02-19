@@ -56,14 +56,12 @@ export const languageNames: Record<Locale, { name: string; nativeName: string; c
   uk:  { name: "Ukrainian",   nativeName: "Українська",       countryCode: "ua" },
 };
 
-/** Convert ISO 3166-1 alpha-2 country code to emoji flag (no external CDN needed) */
-export function countryFlag(countryCode: string): string {
-  return String.fromCodePoint(
-    ...countryCode.toUpperCase().split("").map((c) => 0x1f1e6 + c.charCodeAt(0) - 65),
-  );
+/** Local flag SVG path (served from /public/flags/) */
+export function flagUrl(countryCode: string): string {
+  return `/flags/${countryCode}.svg`;
 }
 
-/** Get emoji flag for a locale */
-export function localeFlag(locale: Locale): string {
-  return countryFlag(languageNames[locale].countryCode);
+/** Get flag SVG URL for a locale */
+export function localeFlagUrl(locale: Locale): string {
+  return flagUrl(languageNames[locale].countryCode);
 }
