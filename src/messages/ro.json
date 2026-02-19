@@ -914,7 +914,11 @@
     "crossServicesDesc": "Aptitudini sau timp contribuit la schimb",
     "crossSwapNote": "Acord de valoare echitabilă",
     "crossSwapNoteDesc": "Ambele părți trebuie să agreeze valoarea combinată înainte de a continua. Sistemul AI de potrivire ia în considerare toate componentele la evaluarea compatibilității.",
-    "crossSwapExample": "Exemplu: Ședere la cabana mea la munte 2 săptămâni + te învăț fotografie → Trotineta ta electrică + 10h dezvoltare web"
+    "crossSwapExample": "Exemplu: Ședere la cabana mea la munte 2 săptămâni + te învăț fotografie → Trotineta ta electrică + 10h dezvoltare web",
+    "profileCompleteness": "Completare profil",
+    "completeProfileHint": "Completează-ți profilul pentru a îmbunătăți calitatea potrivirilor",
+    "loginHistory": "Istoric autentificări",
+    "loginHistoryDesc": "Sesiuni recente pe contul tău"
   },
 
   "feedback": {
