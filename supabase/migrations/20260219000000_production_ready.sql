@@ -149,7 +149,22 @@ CREATE POLICY "typing_update_own" ON public.typing_indicators
 GRANT SELECT, INSERT, UPDATE ON public.typing_indicators TO authenticated;
 
 -- ============================================================
--- 8) Additional performance indexes
+-- 8) Rate limit entries for persistent rate limiting
+-- ============================================================
+CREATE TABLE IF NOT EXISTS public.rate_limit_entries (
+  key TEXT PRIMARY KEY,
+  count INTEGER NOT NULL DEFAULT 0,
+  window_start TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- No RLS needed — only accessed server-side via service role
+ALTER TABLE public.rate_limit_entries ENABLE ROW LEVEL SECURITY;
+
+-- Auto-cleanup index for stale entries
+CREATE INDEX IF NOT EXISTS idx_rate_limit_window ON public.rate_limit_entries(window_start);
+
+-- ============================================================
+-- 9) Additional performance indexes
 -- ============================================================
 CREATE INDEX IF NOT EXISTS idx_items_deleted_at ON public.items(deleted_at) WHERE deleted_at IS NULL;
 CREATE INDEX IF NOT EXISTS idx_items_created_at ON public.items(created_at DESC);
@@ -163,7 +178,7 @@ CREATE INDEX IF NOT EXISTS idx_conversations_last_message ON public.conversation
 CREATE INDEX IF NOT EXISTS idx_profiles_account_status ON public.profiles(account_status) WHERE account_status = 'active';
 
 -- ============================================================
--- 9) Enable Realtime on key tables for live features
+-- 10) Enable Realtime on key tables for live features
 -- ============================================================
 DO $$
 BEGIN
@@ -191,3 +206,16 @@ BEGIN
     ALTER PUBLICATION supabase_realtime ADD TABLE public.notifications;
   END IF;
 END $$;
+
+-- ============================================================
+-- 11) RPC: append_read_by — atomically add a reader to a message
+-- ============================================================
+CREATE OR REPLACE FUNCTION public.append_read_by(msg_id TEXT, reader_id TEXT)
+RETURNS VOID AS $$
+BEGIN
+  UPDATE public.messages
+  SET read_by = array_append(read_by, reader_id)
+  WHERE id = msg_id
+    AND NOT (read_by @> ARRAY[reader_id]);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;

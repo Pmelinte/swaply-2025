@@ -215,7 +215,7 @@ export function ChatPanel({
 }) {
   const t = useTranslations("chatPanel");
   const tc = useTranslations("chat");
-  const { addMessage, toggleConversationTranslation, language, items, swaps, user } = useAppState();
+  const { addMessage, toggleConversationTranslation, language, items, swaps, user, setTyping, markMessagesRead } = useAppState();
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
   const [draft, setDraft] = useState("");
   const [moderationError, setModerationError] = useState<string | null>(null);
@@ -226,9 +226,7 @@ export function ChatPanel({
   const [safetyWarning, setSafetyWarning] = useState<string | null>(null);
   const [showOriginalMap, setShowOriginalMap] = useState<Record<string, boolean>>({});
   const [summaryExpanded, setSummaryExpanded] = useState(false);
-  const [typingTimeout, setTypingTimeout] = useState<ReturnType<typeof setTimeout> | null>(null);
-  const [isTyping, setIsTyping] = useState(false);
-  const [partnerTyping, setPartnerTyping] = useState(false);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [locationSharing, setLocationSharing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -241,10 +239,11 @@ export function ChatPanel({
     safetyTimerRef.current = setTimeout(() => setSafetyWarning(null), 3000);
   }, []);
 
-  // Clean up timer on unmount
+  // Clean up timers on unmount
   useEffect(() => {
     return () => {
       if (safetyTimerRef.current) clearTimeout(safetyTimerRef.current);
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     };
   }, []);
 
@@ -300,23 +299,22 @@ export function ChatPanel({
     return { swap: latestSwap, reqItem, resItem };
   })() : null;
 
-  // Simulate partner typing indicator (mock — in prod this would be via WebSocket)
+  // Mark messages as read when conversation is opened
   useEffect(() => {
-    if (!active) return;
-    const interval = setInterval(() => {
-      setPartnerTyping(true);
-      setTimeout(() => setPartnerTyping(false), 2000);
-    }, 15000 + Math.random() * 20000);
-    return () => clearInterval(interval);
-  }, [active?.id]);
+    if (active?.id) {
+      void markMessagesRead(active.id);
+    }
+  }, [active?.id, active?.messages.length, markMessagesRead]);
 
-  // Handle typing indicator
+  // Handle typing indicator — sends to Supabase Realtime
   const handleTyping = useCallback(() => {
-    setIsTyping(true);
-    if (typingTimeout) clearTimeout(typingTimeout);
-    const timeout = setTimeout(() => setIsTyping(false), 2000);
-    setTypingTimeout(timeout);
-  }, [typingTimeout]);
+    if (!active) return;
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    void setTyping(active.id, true);
+    typingTimeoutRef.current = setTimeout(() => {
+      void setTyping(active.id, false);
+    }, 2000);
+  }, [active, setTyping]);
 
   // Handle reaction on a message
   const handleReaction = useCallback((messageId: string, emoji: string) => {
@@ -634,7 +632,7 @@ export function ChatPanel({
                 );
               })}
               {/* Typing indicator */}
-              {partnerTyping && (
+              {active.participantTyping && (
                 <div className="mr-auto flex items-center gap-1.5 rounded-2xl bg-white px-3 py-2 shadow-sm dark:bg-zinc-900">
                   <span className="text-xs text-zinc-500 dark:text-zinc-400">{t("partner")}</span>
                   <span className="flex gap-0.5">

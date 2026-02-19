@@ -143,6 +143,7 @@ export interface Conversation {
   updatedAt: string;
   messages: ChatMessage[];
   translationEnabled: boolean;
+  participantTyping?: boolean;
 }
 
 export type SwapType = "object" | "house" | "service" | "cross";
