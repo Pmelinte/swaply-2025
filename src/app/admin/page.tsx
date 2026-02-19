@@ -1,7 +1,7 @@
 "use client";
 
 import { useAppState } from "@/lib/state";
-import { LoggedOutGate } from "@/components/gated";
+import { LoggedOutGate, AdminGate } from "@/components/gated";
 import { ProductControl } from "@/features/admin/ProductControl";
 
 export default function AdminPage() {
@@ -9,6 +9,11 @@ export default function AdminPage() {
 
   if (!user) {
     return <LoggedOutGate returnTo="/admin" />;
+  }
+
+  // RBAC: only admin or moderator can access
+  if (user.role !== "admin" && user.role !== "moderator") {
+    return <AdminGate><></></AdminGate>;
   }
 
   return <ProductControl />;

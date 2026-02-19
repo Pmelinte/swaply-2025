@@ -22,6 +22,7 @@ export function SwapTimeline({
     in_progress: t("inProgress"),
     completed: t("completed"),
     cancelled: t("cancelled"),
+    disputed: t("disputed"),
   };
 
   const steps: Array<{ title: string; description: string; done: boolean }> = [

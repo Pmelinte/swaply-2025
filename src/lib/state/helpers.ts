@@ -43,7 +43,8 @@ export const safeSwapStatus = (
   value === "scheduled" ||
   value === "in_progress" ||
   value === "completed" ||
-  value === "cancelled"
+  value === "cancelled" ||
+  value === "disputed"
     ? value
     : fallback;
 

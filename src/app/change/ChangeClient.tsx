@@ -18,9 +18,10 @@ import {
 const VALID_TRANSITIONS: Record<SwapIntent["status"], SwapIntent["status"][]> = {
   proposed: ["scheduled", "cancelled"],
   scheduled: ["in_progress", "cancelled"],
-  in_progress: ["completed", "cancelled"],
+  in_progress: ["completed", "cancelled", "disputed"],
   completed: [],
   cancelled: [],
+  disputed: ["cancelled"],
 };
 
 function StarRating({ value, onChange }: { value: number; onChange: (v: number) => void }) {
@@ -95,6 +96,7 @@ const STATUS_LABELS: Record<SwapIntent["status"], string> = {
   in_progress: "inProgress",
   completed: "completed",
   cancelled: "cancelled",
+  disputed: "disputed",
 };
 
 const LOCATION_TYPES: SwapIntent["logistics"]["locationType"][] = ["public_spot", "courier", "pickup"];
@@ -138,7 +140,7 @@ const CHECKLIST_KEYS = [
 ] as const;
 
 export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null }) {
-  const { user, swaps, updateSwapStatus, addSwapFeedback, updateSwapLogistics, items, trackEvent } = useAppState();
+  const { user, swaps, updateSwapStatus, addSwapFeedback, updateSwapLogistics, items, trackEvent, confirmDelivery, fileDispute } = useAppState();
   const t = useTranslations("change");
   const [feedback, setFeedback] = useState({ rating: 5, comment: "" });
   const [statusError, setStatusError] = useState<string | null>(null);
@@ -194,6 +196,12 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
   const [cancelReason, setCancelReason] = useState<CancelReason>("changed_mind");
   const [cancelNote, setCancelNote] = useState("");
   const [showCancelDialog, setShowCancelDialog] = useState(false);
+
+  // Dispute state
+  const [showDisputeForm, setShowDisputeForm] = useState(false);
+  const [disputeReason, setDisputeReason] = useState<NonNullable<SwapIntent["dispute"]>["reason"]>("item_not_received");
+  const [disputeDescription, setDisputeDescription] = useState("");
+  const [disputeSubmitting, setDisputeSubmitting] = useState(false);
 
   // Logistics local state
   const [logisticsType, setLogisticsType] = useState<SwapIntent["logistics"]["locationType"]>("public_spot");
@@ -1166,6 +1174,178 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
             </SectionCard>
           )}
 
+          {/* Delivery Confirmation + Dispute */}
+          {(swap.status === "in_progress" || swap.status === "disputed") && (
+            <SectionCard title="Confirmare predare / primire" description="Ambele părți trebuie să confirme că schimbul a avut loc.">
+              {/* Confirmation status indicators */}
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className={`rounded-xl border p-3 ${swap.requesterConfirmed ? "border-emerald-300 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/30" : "border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-800/50"}`}>
+                  <div className="flex items-center gap-2">
+                    {swap.requesterConfirmed ? (
+                      <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                    ) : (
+                      <Clock className="h-5 w-5 text-zinc-400" />
+                    )}
+                    <div>
+                      <p className="text-xs font-semibold uppercase text-zinc-500">Solicitant</p>
+                      <p className={`text-sm font-bold ${swap.requesterConfirmed ? "text-emerald-700 dark:text-emerald-300" : "text-zinc-600 dark:text-zinc-300"}`}>
+                        {swap.requesterConfirmed ? "Confirmat ✓" : "Așteaptă confirmare"}
+                      </p>
+                    </div>
+                  </div>
+                  {isRequester && !swap.requesterConfirmed && swap.status === "in_progress" && (
+                    <button
+                      type="button"
+                      onClick={() => void confirmDelivery(swap.id, "requester")}
+                      className="mt-2 w-full rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+                    >
+                      Am predat obiectul
+                    </button>
+                  )}
+                </div>
+
+                <div className={`rounded-xl border p-3 ${swap.responderConfirmed ? "border-emerald-300 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/30" : "border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-800/50"}`}>
+                  <div className="flex items-center gap-2">
+                    {swap.responderConfirmed ? (
+                      <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                    ) : (
+                      <Clock className="h-5 w-5 text-zinc-400" />
+                    )}
+                    <div>
+                      <p className="text-xs font-semibold uppercase text-zinc-500">Partener</p>
+                      <p className={`text-sm font-bold ${swap.responderConfirmed ? "text-emerald-700 dark:text-emerald-300" : "text-zinc-600 dark:text-zinc-300"}`}>
+                        {swap.responderConfirmed ? "Confirmat ✓" : "Așteaptă confirmare"}
+                      </p>
+                    </div>
+                  </div>
+                  {!isRequester && !swap.responderConfirmed && swap.status === "in_progress" && (
+                    <button
+                      type="button"
+                      onClick={() => void confirmDelivery(swap.id, "responder")}
+                      className="mt-2 w-full rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+                    >
+                      Am primit obiectul
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {swap.requesterConfirmed && swap.responderConfirmed && (
+                <div className="mt-3 rounded-lg bg-emerald-50 p-3 text-center text-sm font-semibold text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300">
+                  Ambele părți au confirmat! Schimbul este finalizat.
+                </div>
+              )}
+
+              {/* Active dispute display */}
+              {swap.dispute && (
+                <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950/30">
+                  <div className="mb-2 flex items-center gap-2">
+                    <AlertTriangle className="h-5 w-5 text-red-600" />
+                    <h4 className="text-sm font-bold text-red-800 dark:text-red-200">Dispută activă</h4>
+                    <span className="ml-auto rounded-full bg-red-200 px-2 py-0.5 text-[10px] font-semibold uppercase text-red-800 dark:bg-red-800 dark:text-red-200">
+                      {swap.dispute.status}
+                    </span>
+                  </div>
+                  <p className="text-xs text-red-700 dark:text-red-300">
+                    <span className="font-semibold">Motiv:</span> {swap.dispute.reason.replace(/_/g, " ")}
+                  </p>
+                  <p className="mt-1 text-xs text-red-600 dark:text-red-400">{swap.dispute.description}</p>
+                  {swap.dispute.evidencePhotos && swap.dispute.evidencePhotos.length > 0 && (
+                    <p className="mt-1 text-[10px] text-red-500">{swap.dispute.evidencePhotos.length} dovezi atașate</p>
+                  )}
+                  <p className="mt-2 text-[10px] text-red-500 dark:text-red-400">
+                    Deschisă pe {new Date(swap.dispute.filedAt).toLocaleDateString("ro-RO")}
+                  </p>
+                </div>
+              )}
+
+              {/* File dispute button/form */}
+              {swap.status === "in_progress" && !swap.dispute && (
+                <div className="mt-4">
+                  {!showDisputeForm ? (
+                    <button
+                      type="button"
+                      onClick={() => setShowDisputeForm(true)}
+                      className="flex items-center gap-2 text-xs font-medium text-red-600 hover:text-red-700 dark:text-red-400"
+                    >
+                      <AlertTriangle className="h-3.5 w-3.5" />
+                      Am o problemă cu acest schimb
+                    </button>
+                  ) : (
+                    <div className="rounded-xl border border-red-200 bg-red-50/50 p-4 dark:border-red-800 dark:bg-red-950/20">
+                      <h4 className="mb-3 flex items-center gap-2 text-sm font-bold text-red-800 dark:text-red-200">
+                        <AlertTriangle className="h-4 w-4" />
+                        Raportează o problemă
+                      </h4>
+                      <div className="space-y-3">
+                        <div>
+                          <p className="mb-1.5 text-xs font-semibold text-red-700 dark:text-red-300">Motiv</p>
+                          <div className="grid gap-1.5 sm:grid-cols-2">
+                            {(["item_not_received", "wrong_item", "damaged", "condition_mismatch", "no_show", "other"] as const).map((reason) => {
+                              const labels: Record<string, string> = {
+                                item_not_received: "Nu am primit obiectul",
+                                wrong_item: "Obiect diferit de cel convenit",
+                                damaged: "Obiect deteriorat",
+                                condition_mismatch: "Stare diferită de descriere",
+                                no_show: "Partenerul nu s-a prezentat",
+                                other: "Alt motiv",
+                              };
+                              return (
+                                <label key={reason} className={`flex items-center gap-2 rounded-lg border p-2 text-xs cursor-pointer transition ${
+                                  disputeReason === reason
+                                    ? "border-red-300 bg-red-100 dark:border-red-700 dark:bg-red-900/40"
+                                    : "border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-800"
+                                }`}>
+                                  <input type="radio" name="dispute_reason" checked={disputeReason === reason}
+                                    onChange={() => setDisputeReason(reason)}
+                                    className="h-3 w-3 text-red-600" />
+                                  <span className="text-zinc-700 dark:text-zinc-200">{labels[reason]}</span>
+                                </label>
+                              );
+                            })}
+                          </div>
+                        </div>
+                        <label className="block text-xs font-semibold text-red-700 dark:text-red-300">
+                          Descriere detaliată
+                          <textarea
+                            value={disputeDescription}
+                            onChange={(e) => setDisputeDescription(e.target.value)}
+                            placeholder="Descrie problema întâmpinată..."
+                            rows={3}
+                            className="mt-1 w-full rounded-lg border border-red-200 bg-white px-3 py-2 text-sm dark:border-red-800 dark:bg-zinc-800 dark:text-zinc-100"
+                          />
+                        </label>
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => { setShowDisputeForm(false); setDisputeDescription(""); }}
+                            className="rounded-full bg-zinc-100 px-4 py-2 text-xs font-semibold text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-200"
+                          >
+                            Renunță
+                          </button>
+                          <button
+                            type="button"
+                            disabled={!disputeDescription.trim() || disputeSubmitting}
+                            onClick={async () => {
+                              setDisputeSubmitting(true);
+                              await fileDispute(swap.id, disputeReason, disputeDescription.trim());
+                              setShowDisputeForm(false);
+                              setDisputeDescription("");
+                              setDisputeSubmitting(false);
+                            }}
+                            className="rounded-full bg-red-600 px-4 py-2 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-40"
+                          >
+                            {disputeSubmitting ? "Se trimite..." : "Trimite disputa"}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </SectionCard>
+          )}
+
           {/* Calendar / Availability */}
           {swap.status !== "completed" && swap.status !== "cancelled" && (
             <SectionCard title={t("availability")} description={t("availabilityDesc")}>
@@ -1229,6 +1409,15 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
                   onClick={() => handleStatusChange("completed", t("confirmCompletion"), "bg-emerald-600 hover:bg-emerald-700")}
                 >
                   {t("confirmCompletion")}
+                </button>
+              ) : null}
+              {VALID_TRANSITIONS[swap.status].includes("disputed") ? (
+                <button
+                  type="button"
+                  className="rounded-full bg-amber-600 px-4 py-2 text-white hover:bg-amber-700"
+                  onClick={() => setShowDisputeForm(true)}
+                >
+                  Raportează problemă
                 </button>
               ) : null}
               {VALID_TRANSITIONS[swap.status].includes("cancelled") ? (

@@ -239,6 +239,9 @@ interface AppStateContextProps {
   activeTheme: string | null;
   isVerified: boolean;
   isBusiness: boolean;
+  // ── Dispute / Confirmation ──
+  confirmDelivery: (swapId: string, side: "requester" | "responder") => Promise<void>;
+  fileDispute: (swapId: string, reason: SwapIntent["dispute"] extends undefined ? never : NonNullable<SwapIntent["dispute"]>["reason"], description: string, photos?: string[]) => Promise<void>;
   // ── Trust & Safety ──
   trustScore: TrustScore;
   frictionLimits: FrictionLimits;
@@ -1027,6 +1030,97 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     [dataSource, mapSwapIntent, supabase, swaps],
   );
 
+  // ── Analytics (moved before confirmDelivery so trackEvent is available) ──
+  const analyticsBuffer = useRef<AnalyticsEvent[]>([]);
+  const trackEvent = useCallback((event: string, properties?: Record<string, string | number | boolean>) => {
+    analyticsBuffer.current.push({ event, properties, timestamp: new Date().toISOString() });
+    if (process.env.NODE_ENV === "development") console.debug("[analytics]", event, properties ?? "");
+  }, []);
+
+  // ── Confirm Delivery / File Dispute ──
+  const confirmDelivery = useCallback(async (swapId: string, side: "requester" | "responder") => {
+    if (!user?.id) return;
+    const swap = swaps.find((s) => s.id === swapId);
+    if (!swap) return;
+
+    const field = side === "requester" ? "requesterConfirmed" : "responderConfirmed";
+    const otherConfirmed = side === "requester" ? swap.responderConfirmed : swap.requesterConfirmed;
+
+    const updated = { ...swap, [field]: true };
+    // If both confirmed → auto-complete
+    if (otherConfirmed) {
+      updated.status = "completed";
+      updated.notifications = [...updated.notifications, "Ambele părți au confirmat. Schimb finalizat!"];
+    } else {
+      updated.notifications = [...updated.notifications, `${side === "requester" ? "Solicitantul" : "Partenerul"} a confirmat predarea.`];
+    }
+
+    setSwaps((prev) => prev.map((s) => s.id === swapId ? updated : s));
+
+    if (dataSource === "supabase" && supabase) {
+      const payload: Record<string, unknown> = {
+        [side === "requester" ? "requester_confirmed" : "responder_confirmed"]: true,
+        notifications: updated.notifications,
+        updated_at: new Date().toISOString(),
+      };
+      if (otherConfirmed) payload.status = "completed";
+      await supabase.from("swap_intents").update(payload).eq("id", swapId);
+    }
+
+    trackEvent("swap_delivery_confirmed", { swapId, side });
+    if (otherConfirmed) trackEvent("swap_auto_completed", { swapId });
+  }, [user?.id, swaps, dataSource, supabase, trackEvent]);
+
+  const fileDispute = useCallback(async (
+    swapId: string,
+    reason: "item_not_received" | "wrong_item" | "damaged" | "condition_mismatch" | "no_show" | "other",
+    description: string,
+    photos?: string[],
+  ) => {
+    if (!user?.id) return;
+    const swap = swaps.find((s) => s.id === swapId);
+    if (!swap) return;
+
+    const dispute: NonNullable<SwapIntent["dispute"]> = {
+      filedBy: user.id,
+      reason,
+      description,
+      evidencePhotos: photos ?? [],
+      status: "open",
+      filedAt: new Date().toISOString(),
+    };
+
+    const updated = {
+      ...swap,
+      status: "disputed" as const,
+      dispute,
+      notifications: [...swap.notifications, `Dispută deschisă: ${reason}`],
+    };
+
+    setSwaps((prev) => prev.map((s) => s.id === swapId ? updated : s));
+
+    if (dataSource === "supabase" && supabase) {
+      await supabase.from("swap_intents").update({
+        status: "disputed",
+        dispute,
+        notifications: updated.notifications,
+        updated_at: new Date().toISOString(),
+      }).eq("id", swapId);
+    }
+
+    setNotifications((prev) => [{
+      id: `dispute-${swapId}-${Date.now()}`,
+      userId: user.id,
+      type: "dispute_filed",
+      message: `Dispută deschisă pentru schimbul ${swap.requesterItemId.slice(0, 8)}`,
+      read: false,
+      priority: "warning",
+      createdAt: new Date().toISOString(),
+    }, ...prev]);
+
+    trackEvent("dispute_filed", { swapId, reason });
+  }, [user?.id, swaps, dataSource, supabase, trackEvent]);
+
   // ── Safety ──
   const reportUser = useCallback(
     async (params: { reportedUserId: string; reportedItemId?: string; reason: string; description?: string }) => {
@@ -1092,13 +1186,6 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   });
 
   const tierBenefits = useMemo(() => computeTierBenefits(user?.badge ?? "free"), [user?.badge]);
-
-  // ── Analytics ──
-  const analyticsBuffer = useRef<AnalyticsEvent[]>([]);
-  const trackEvent = useCallback((event: string, properties?: Record<string, string | number | boolean>) => {
-    analyticsBuffer.current.push({ event, properties, timestamp: new Date().toISOString() });
-    if (process.env.NODE_ENV === "development") console.debug("[analytics]", event, properties ?? "");
-  }, []);
 
   // Token grants on swap completion
   useEffect(() => {
@@ -1538,6 +1625,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     updateHouseProfile, addServiceProfile, removeServiceProfile,
     demoMode, demoItemCount, activateDemoMode, deactivateDemoMode,
     setTyping, markMessagesRead,
+    // Dispute / Confirmation
+    confirmDelivery, fileDispute,
     // Monetization (20 capabilities)
     loginStreak, claimDailyReward, referralCode, referrals, sendReferralInvite,
     giftTokens, purchaseFeaturedSlot, purchaseInsurance, purchaseVerifiedBadge,
@@ -1565,7 +1654,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     exportUserData, accountStatus, pauseAccount, resumeAccount, itemLimitReached,
     updateHouseProfile, addServiceProfile, removeServiceProfile,
     demoMode, demoItemCount, activateDemoMode, deactivateDemoMode,
-    setTyping, markMessagesRead,
+    setTyping, markMessagesRead, confirmDelivery, fileDispute,
     loginStreak, claimDailyReward, referralCode, referrals, sendReferralInvite,
     giftTokens, purchaseFeaturedSlot, purchaseInsurance, purchaseVerifiedBadge,
     purchaseTheme, activateTheme, purchaseBusinessUpgrade,

@@ -244,7 +244,7 @@ export default function ObjectsPage() {
   // --- Browse mode (secondary) ---
   const [browseMode, setBrowseMode] = useState<BrowseMode | null>(initialListingType !== "all" ? "grid" : null);
   const [search, setSearch] = useState("");
-  const [sortMode, setSortMode] = useState<"newest" | "category" | "condition">("newest");
+  const [sortMode, setSortMode] = useState<"newest" | "category" | "condition" | "popular" | "trusted">("newest");
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [conditionFilter, setConditionFilter] = useState<string | null>(null);
   const [locationFilter, setLocationFilter] = useState("");
@@ -438,6 +438,23 @@ export default function ObjectsPage() {
       case "condition":
         result = [...result].sort((a, b) => a.condition.localeCompare(b.condition));
         break;
+      case "popular":
+        // Sort by photo count (proxy for completeness/effort) then by tags count
+        result = [...result].sort((a, b) => {
+          const aScore = (a.photos?.length ?? 0) * 2 + (a.userFinalTags?.length ?? 0) + (a.aiSuggestedTags?.length ?? 0);
+          const bScore = (b.photos?.length ?? 0) * 2 + (b.userFinalTags?.length ?? 0) + (b.aiSuggestedTags?.length ?? 0);
+          return bScore - aScore;
+        });
+        break;
+      case "trusted":
+        // Sort by owner's completedSwaps (proxy for trust) — items from experienced swappers first
+        result = [...result].sort((a, b) => {
+          // Prefer non-demo items from real users
+          const aDemoScore = a.isDemo ? -10 : 0;
+          const bDemoScore = b.isDemo ? -10 : 0;
+          return bDemoScore - aDemoScore || (b.createdAt || "").localeCompare(a.createdAt || "");
+        });
+        break;
     }
     return result;
   }, [allObjects, search, categoryFilter, conditionFilter, locationFilter, sortMode, listingTypeFilter]);
@@ -567,6 +584,8 @@ export default function ObjectsPage() {
               <option value="newest">{t("sortNewest")}</option>
               <option value="category">{t("sortCategory")}</option>
               <option value="condition">{t("sortCondition")}</option>
+              <option value="popular">Popular</option>
+              <option value="trusted">Trust ridicat</option>
             </select>
           </>
         )}

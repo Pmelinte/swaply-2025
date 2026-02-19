@@ -45,6 +45,7 @@ export function createMapProfile(userRef: MutableRef<UserProfile | null>) {
         currentUser?.languages ?? ["ro"],
       ),
       badge: safeBadgeTier(data.badge, currentUser?.badge ?? "free"),
+      role: (data.role === "admin" || data.role === "moderator") ? data.role as "admin" | "moderator" : "user",
       location:
         (safeObject(
           data.location,
@@ -207,6 +208,9 @@ export function createMapSwapIntent() {
       },
       notifications: safeArray<string>(row.notifications, []),
       feedback,
+      requesterConfirmed: safeBoolean(row.requester_confirmed, safeBoolean(row.requesterConfirmed, false)),
+      responderConfirmed: safeBoolean(row.responder_confirmed, safeBoolean(row.responderConfirmed, false)),
+      dispute: row.dispute && typeof row.dispute === "object" ? row.dispute as SwapIntent["dispute"] : undefined,
       createdAt: safeString(row.created_at, safeString(row.createdAt)),
       updatedAt: safeString(row.updated_at, safeString(row.updatedAt)),
     };

@@ -16,6 +16,7 @@ export interface UserProfile {
   bio?: string;
   languages: LanguageCode[];
   badge: BadgeTier;
+  role?: "user" | "admin" | "moderator";
   location?: {
     country?: string;
     region?: string;
@@ -162,7 +163,7 @@ export interface SwapIntent {
   requesterBundleIds?: string[];
   /** Cross-swap: additional item IDs from responder side */
   responderBundleIds?: string[];
-  status: "proposed" | "scheduled" | "in_progress" | "completed" | "cancelled";
+  status: "proposed" | "scheduled" | "in_progress" | "completed" | "cancelled" | "disputed";
   logistics: {
     locationType: "public_spot" | "courier" | "pickup";
     meetupPoint?: string;
@@ -172,6 +173,20 @@ export interface SwapIntent {
   feedback?: {
     rating: number;
     comment: string;
+  };
+  /** Confirmation flow: each party confirms delivery/receipt */
+  requesterConfirmed?: boolean;
+  responderConfirmed?: boolean;
+  /** Dispute tracking */
+  dispute?: {
+    filedBy: string;
+    reason: "item_not_received" | "wrong_item" | "damaged" | "condition_mismatch" | "no_show" | "other";
+    description: string;
+    evidencePhotos?: string[];
+    status: "open" | "under_review" | "resolved_requester" | "resolved_responder" | "resolved_both";
+    resolution?: string;
+    filedAt: string;
+    resolvedAt?: string;
   };
   cancelReason?: CancelReason;
   cancelNote?: string;

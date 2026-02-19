@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { SafeImage } from "@/components/SafeImage";
@@ -71,6 +71,35 @@ export default function ObjectDetailsPage() {
   const [offerItemId, setOfferItemId] = useState<string>("");
 
   const item = items.find((i) => i.id === params.id);
+  const [shareToast, setShareToast] = useState(false);
+
+  // Dynamic OG meta tags for share cards
+  useEffect(() => {
+    if (!item) return;
+    const ogTitle = `${item.title} — Swaply`;
+    const ogDesc = item.description?.slice(0, 160) || `${item.category} · ${item.condition} · ${item.location}`;
+    const ogImage = item.photos?.[0] || "";
+
+    document.title = ogTitle;
+
+    const setMeta = (property: string, content: string) => {
+      let el = document.querySelector(`meta[property="${property}"]`);
+      if (!el) {
+        el = document.createElement("meta");
+        el.setAttribute("property", property);
+        document.head.appendChild(el);
+      }
+      el.setAttribute("content", content);
+    };
+
+    setMeta("og:title", ogTitle);
+    setMeta("og:description", ogDesc);
+    setMeta("og:type", "product");
+    if (ogImage) setMeta("og:image", ogImage);
+    if (typeof window !== "undefined") setMeta("og:url", window.location.href);
+
+    return () => { document.title = "Swaply"; };
+  }, [item]);
 
   const myActiveItems = useMemo(
     () =>
@@ -212,9 +241,11 @@ export default function ObjectDetailsPage() {
                 onClick={() => {
                   const url = `${window.location.origin}/objects/${item.id}`;
                   if (navigator.share) {
-                    void navigator.share({ title: item.title, text: item.description || item.title, url });
+                    void navigator.share({ title: `${item.title} — Swaply`, text: `${item.description?.slice(0, 100) || item.title}\n${item.category} · ${item.location}`, url });
                   } else {
                     void navigator.clipboard.writeText(url);
+                    setShareToast(true);
+                    setTimeout(() => setShareToast(false), 2000);
                   }
                 }}
                 className="shrink-0 rounded-full bg-zinc-100 p-2 text-zinc-500 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700"
@@ -222,6 +253,11 @@ export default function ObjectDetailsPage() {
               >
                 <Share2 className="h-4 w-4" />
               </button>
+              {shareToast && (
+                <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
+                  Link copiat!
+                </span>
+              )}
             </div>
             <div className="mt-2 flex flex-wrap gap-2">
               <Pill color="blue">{item.category}</Pill>
