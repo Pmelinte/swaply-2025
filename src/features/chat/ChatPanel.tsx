@@ -9,17 +9,47 @@ import { formatDate } from "@/lib/utils";
 import { Badge, Pill } from "@/components/ui";
 import {
   AlertTriangle,
+  Check,
+  CheckCheck,
   ChevronDown,
   ChevronUp,
   ExternalLink,
+  MapPin,
   Paperclip,
   Search,
   Shield,
+  Smile,
   X,
 } from "lucide-react";
 
 const BLOCKED_EXTENSIONS = [".exe", ".bat", ".sh", ".cmd", ".zip", ".rar", ".7z", ".tar"];
 const URL_REGEX = /https?:\/\/[^\s]+/i;
+
+const QUICK_REACTIONS = ["👍", "❤️", "😂", "😮", "👏"];
+
+/** Round coordinates to ~100m for privacy */
+function roundCoord(val: number): number {
+  return Math.round(val * 1000) / 1000;
+}
+
+function LocationBubble({ lat, lng, label }: { lat: number; lng: number; label?: string }) {
+  const tc = useTranslations("chat");
+  return (
+    <div className="mt-1 rounded-xl border border-blue-200 bg-blue-50/80 p-2 dark:border-blue-800 dark:bg-blue-950/30">
+      <div className="flex items-center gap-1.5 text-xs font-semibold text-blue-700 dark:text-blue-300">
+        <MapPin className="h-3.5 w-3.5" />
+        {label || tc("sharedLocation")}
+      </div>
+      <div className="mt-1.5 flex h-28 items-center justify-center overflow-hidden rounded-lg bg-blue-100 text-xs text-blue-600 dark:bg-blue-900/40 dark:text-blue-400">
+        <div className="text-center">
+          <MapPin className="mx-auto h-6 w-6 text-red-500" />
+          <p className="mt-1 text-[10px]">{lat.toFixed(3)}, {lng.toFixed(3)}</p>
+          <p className="text-[9px] text-blue-500/70">{tc("approxLocation")}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function MessageBubble({
   msg,
@@ -27,17 +57,20 @@ function MessageBubble({
   targetLang,
   showOriginal,
   onToggleOriginal,
+  onReact,
 }: {
   msg: ChatMessage;
   isMe: boolean;
   targetLang: string;
   showOriginal: boolean;
   onToggleOriginal: () => void;
+  onReact: (emoji: string) => void;
 }) {
   const t = useTranslations("chatPanel");
   const tc = useTranslations("chat");
   const [translatedText, setTranslatedText] = useState<string | null>(null);
   const [translating, setTranslating] = useState(false);
+  const [showReactions, setShowReactions] = useState(false);
 
   const handleTranslate = async () => {
     setTranslating(true);
@@ -65,9 +98,13 @@ function MessageBubble({
     }
   };
 
+  const isLocation = msg.messageType === "location" && msg.locationData;
+  const reactions = msg.reactions ?? {};
+  const reactionEntries = Object.entries(reactions).filter(([, users]) => users.length > 0);
+
   return (
     <div
-      className={`max-w-[80%] rounded-2xl p-3 shadow-sm ${
+      className={`group relative max-w-[80%] rounded-2xl p-3 shadow-sm ${
         isMe
           ? "ml-auto bg-blue-50 dark:bg-blue-950/40"
           : "mr-auto bg-white dark:bg-zinc-900"
@@ -75,15 +112,67 @@ function MessageBubble({
     >
       <div className="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400">
         <span>{isMe ? t("you") : t("partner")}</span>
-        <span>{formatDate(msg.createdAt)}</span>
+        <div className="flex items-center gap-1.5">
+          <span>{formatDate(msg.createdAt)}</span>
+          {/* Read receipts */}
+          {isMe && (
+            <span className="ml-0.5">
+              {msg.readBy && msg.readBy.length > 0 ? (
+                <CheckCheck className="h-3 w-3 text-blue-500" />
+              ) : (
+                <Check className="h-3 w-3 text-zinc-400" />
+              )}
+            </span>
+          )}
+        </div>
       </div>
-      {/* Show original or translated content based on toggle */}
-      {translatedText && !showOriginal ? (
+      {/* Location message */}
+      {isLocation ? (
+        <LocationBubble lat={msg.locationData!.lat} lng={msg.locationData!.lng} label={msg.locationData!.label} />
+      ) : translatedText && !showOriginal ? (
         <p className="mt-1 rounded-lg bg-purple-50 p-2 text-sm text-purple-800 dark:bg-purple-950/30 dark:text-purple-200">
           {translatedText}
         </p>
       ) : (
         <p className="mt-1 text-sm text-zinc-800 dark:text-zinc-100">{msg.content}</p>
+      )}
+      {/* Reactions display */}
+      {reactionEntries.length > 0 && (
+        <div className="mt-1 flex flex-wrap gap-1">
+          {reactionEntries.map(([emoji, users]) => (
+            <button
+              key={emoji}
+              type="button"
+              onClick={() => onReact(emoji)}
+              className="inline-flex items-center gap-0.5 rounded-full border border-zinc-200 bg-white px-1.5 py-0.5 text-xs hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700"
+            >
+              <span>{emoji}</span>
+              <span className="text-[10px] font-medium text-zinc-500">{users.length}</span>
+            </button>
+          ))}
+        </div>
+      )}
+      {/* Reaction picker (hover) */}
+      <button
+        type="button"
+        onClick={() => setShowReactions(!showReactions)}
+        className="absolute -top-2 right-2 hidden rounded-full bg-white p-1 shadow-sm group-hover:flex dark:bg-zinc-800"
+      >
+        <Smile className="h-3.5 w-3.5 text-zinc-400" />
+      </button>
+      {showReactions && (
+        <div className="absolute -top-8 right-0 flex gap-0.5 rounded-full border border-zinc-200 bg-white px-1.5 py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800">
+          {QUICK_REACTIONS.map((emoji) => (
+            <button
+              key={emoji}
+              type="button"
+              onClick={() => { onReact(emoji); setShowReactions(false); }}
+              className="rounded-full p-0.5 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-700"
+            >
+              {emoji}
+            </button>
+          ))}
+        </div>
       )}
       <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px]">
         {msg.translated ? <Pill color="blue">{t("translated")}</Pill> : null}
@@ -93,7 +182,7 @@ function MessageBubble({
             {att.name}
           </Pill>
         ))}
-        {!translatedText ? (
+        {!translatedText && !isLocation ? (
           <button
             type="button"
             onClick={() => void handleTranslate()}
@@ -103,7 +192,6 @@ function MessageBubble({
             {translating ? "..." : t("translate")}
           </button>
         ) : null}
-        {/* Show original / Show translation toggle for translated messages */}
         {translatedText ? (
           <button
             type="button"
@@ -138,6 +226,10 @@ export function ChatPanel({
   const [safetyWarning, setSafetyWarning] = useState<string | null>(null);
   const [showOriginalMap, setShowOriginalMap] = useState<Record<string, boolean>>({});
   const [summaryExpanded, setSummaryExpanded] = useState(false);
+  const [typingTimeout, setTypingTimeout] = useState<ReturnType<typeof setTimeout> | null>(null);
+  const [isTyping, setIsTyping] = useState(false);
+  const [partnerTyping, setPartnerTyping] = useState(false);
+  const [locationSharing, setLocationSharing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const safetyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -207,6 +299,66 @@ export function ChatPanel({
     const resItem = items.find((i) => i.id === latestSwap.responderItemId);
     return { swap: latestSwap, reqItem, resItem };
   })() : null;
+
+  // Simulate partner typing indicator (mock — in prod this would be via WebSocket)
+  useEffect(() => {
+    if (!active) return;
+    const interval = setInterval(() => {
+      setPartnerTyping(true);
+      setTimeout(() => setPartnerTyping(false), 2000);
+    }, 15000 + Math.random() * 20000);
+    return () => clearInterval(interval);
+  }, [active?.id]);
+
+  // Handle typing indicator
+  const handleTyping = useCallback(() => {
+    setIsTyping(true);
+    if (typingTimeout) clearTimeout(typingTimeout);
+    const timeout = setTimeout(() => setIsTyping(false), 2000);
+    setTypingTimeout(timeout);
+  }, [typingTimeout]);
+
+  // Handle reaction on a message
+  const handleReaction = useCallback((messageId: string, emoji: string) => {
+    // In production, this would update via API/WebSocket
+    // For now, update local state via a custom event pattern
+    if (!active) return;
+    const msg = active.messages.find((m) => m.id === messageId);
+    if (!msg) return;
+    const reactions = { ...(msg.reactions ?? {}) };
+    const userId = user?.id ?? "me";
+    if (reactions[emoji]?.includes(userId)) {
+      reactions[emoji] = reactions[emoji].filter((id) => id !== userId);
+    } else {
+      reactions[emoji] = [...(reactions[emoji] ?? []), userId];
+    }
+    msg.reactions = reactions;
+    // Force re-render
+    setReadCounts((prev) => ({ ...prev }));
+  }, [active, user?.id]);
+
+  // Handle location sharing
+  const handleShareLocation = useCallback(async () => {
+    if (!active || locationSharing) return;
+    setLocationSharing(true);
+    try {
+      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: false,
+          timeout: 10000,
+          maximumAge: 60000,
+        });
+      });
+      const lat = roundCoord(position.coords.latitude);
+      const lng = roundCoord(position.coords.longitude);
+      // Send as a special location message
+      await addMessage(active.id, `📍 ${lat},${lng}`);
+    } catch {
+      showSafetyWarning(tc("locationError"));
+    } finally {
+      setLocationSharing(false);
+    }
+  }, [active, locationSharing, addMessage, showSafetyWarning, tc]);
 
   const handleSend = async () => {
     if (!draft.trim() || !active) return;
@@ -461,16 +613,37 @@ export function ChatPanel({
               <p className="text-center text-[10px] text-amber-600/70 dark:text-amber-400/60">
                 {tc("safetyWarning")}
               </p>
-              {active.messages.map((msg) => (
-                <MessageBubble
-                  key={msg.id}
-                  msg={msg}
-                  isMe={msg.senderId !== active.participantId}
-                  targetLang={language}
-                  showOriginal={showOriginalMap[msg.id] ?? true}
-                  onToggleOriginal={() => toggleShowOriginal(msg.id)}
-                />
-              ))}
+              {active.messages.map((msg) => {
+                // Detect location messages from content pattern
+                const locMatch = msg.content.match(/^📍\s*(-?\d+\.?\d*),\s*(-?\d+\.?\d*)$/);
+                const enrichedMsg = locMatch ? {
+                  ...msg,
+                  messageType: "location" as const,
+                  locationData: { lat: parseFloat(locMatch[1]), lng: parseFloat(locMatch[2]) },
+                } : msg;
+                return (
+                  <MessageBubble
+                    key={msg.id}
+                    msg={enrichedMsg}
+                    isMe={msg.senderId !== active.participantId}
+                    targetLang={language}
+                    showOriginal={showOriginalMap[msg.id] ?? true}
+                    onToggleOriginal={() => toggleShowOriginal(msg.id)}
+                    onReact={(emoji) => handleReaction(msg.id, emoji)}
+                  />
+                );
+              })}
+              {/* Typing indicator */}
+              {partnerTyping && (
+                <div className="mr-auto flex items-center gap-1.5 rounded-2xl bg-white px-3 py-2 shadow-sm dark:bg-zinc-900">
+                  <span className="text-xs text-zinc-500 dark:text-zinc-400">{t("partner")}</span>
+                  <span className="flex gap-0.5">
+                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-zinc-400 [animation-delay:0ms]" />
+                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-zinc-400 [animation-delay:150ms]" />
+                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-zinc-400 [animation-delay:300ms]" />
+                  </span>
+                </div>
+              )}
               <div ref={messagesEndRef} />
             </div>
 
@@ -526,11 +699,26 @@ export function ChatPanel({
               >
                 <Paperclip className="h-4 w-4" />
               </button>
+              {/* Location share button */}
+              <button
+                type="button"
+                onClick={() => void handleShareLocation()}
+                disabled={locationSharing}
+                title={tc("shareLocation")}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-zinc-200 text-zinc-500 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
+              >
+                {locationSharing ? (
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-zinc-300 border-t-blue-500" />
+                ) : (
+                  <MapPin className="h-4 w-4" />
+                )}
+              </button>
               <input
                 value={draft}
                 onChange={(e) => {
                   setDraft(e.target.value);
                   setModerationError(null);
+                  handleTyping();
                 }}
                 placeholder={t("writeMessage")}
                 disabled={sending}

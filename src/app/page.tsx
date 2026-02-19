@@ -455,6 +455,120 @@ export default function HomePage() {
           <ChevronRight className="h-5 w-5 text-zinc-400" />
         </Link>
       )}
+
+      {/* ── Notifications Preview ── */}
+      {user && notifications.length > 0 && (
+        <section className="rounded-2xl border border-zinc-200 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/80">
+          <div className="mb-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Bell className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">{t("notificationsPreview")}</h3>
+            </div>
+            <Link href="/profile" className="text-xs font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400">{t("viewAll")}</Link>
+          </div>
+          <div className="space-y-1.5">
+            {notifications.slice(0, 5).map((n) => (
+              <div
+                key={n.id}
+                className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm ${
+                  n.read ? "text-zinc-500 dark:text-zinc-400" : "bg-blue-50/50 font-medium text-zinc-800 dark:bg-blue-900/20 dark:text-zinc-100"
+                }`}
+              >
+                <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${n.read ? "bg-transparent" : "bg-blue-500"}`} />
+                <span className="flex-1 truncate">{n.message}</span>
+                <span className="shrink-0 text-[10px] text-zinc-400">{new Date(n.createdAt).toLocaleDateString()}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ── Trending Items ── */}
+      {(() => {
+        const trending = items
+          .filter((i) => i.isActive && i.status === "active" && (!user || i.ownerId !== user.id))
+          .sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""))
+          .slice(0, 6);
+        if (trending.length === 0) return null;
+        return (
+          <section>
+            <div className="mb-3 flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+              <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">{t("trendingItems")}</h2>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {trending.map((item) => (
+                <Link
+                  key={item.id}
+                  href={`/objects/${item.id}`}
+                  className="group flex items-center gap-3 rounded-xl border border-zinc-200 bg-white/80 p-3 shadow-sm transition hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900/80"
+                >
+                  {item.photos?.[0] ? (
+                    <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800">
+                      <Image src={item.photos[0]} alt={item.title} fill className="object-cover" sizes="56px" unoptimized />
+                    </div>
+                  ) : (
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-zinc-100 text-lg font-bold text-zinc-300 dark:bg-zinc-800">
+                      {item.title.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold text-zinc-900 dark:text-zinc-50">{item.title}</p>
+                    <p className="truncate text-xs text-zinc-500">{item.category}{item.location ? ` · ${item.location}` : ""}</p>
+                    {item.wishlist && <p className="mt-0.5 truncate text-[10px] text-blue-500">{item.wishlist}</p>}
+                  </div>
+                  <ChevronRight className="h-4 w-4 shrink-0 text-zinc-300 group-hover:text-zinc-500 dark:text-zinc-600" />
+                </Link>
+              ))}
+            </div>
+          </section>
+        );
+      })()}
+
+      {/* ── Activity Feed ── */}
+      {user && (() => {
+        const activities = [
+          ...swaps.filter((s) => s.requesterId === user.id || s.responderId === user.id).map((s) => ({
+            id: `swap-${s.id}`,
+            type: "swap" as const,
+            label: `${t("activitySwap")} — ${s.status}`,
+            date: s.createdAt || "",
+            href: "/change",
+          })),
+          ...myItems.filter((i) => i.createdAt).map((i) => ({
+            id: `item-${i.id}`,
+            type: "item" as const,
+            label: `${t("activityListed")} "${i.title}"`,
+            date: i.createdAt || "",
+            href: `/objects/${i.id}`,
+          })),
+        ]
+          .sort((a, b) => b.date.localeCompare(a.date))
+          .slice(0, 8);
+
+        if (activities.length === 0) return null;
+        return (
+          <section className="rounded-2xl border border-zinc-200 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/80">
+            <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+              <Zap className="h-4 w-4 text-amber-500" />
+              {t("activityFeed")}
+            </h3>
+            <div className="space-y-1.5">
+              {activities.map((act) => (
+                <Link
+                  key={act.id}
+                  href={act.href}
+                  className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-zinc-700 transition hover:bg-zinc-50 dark:text-zinc-300 dark:hover:bg-zinc-800/50"
+                >
+                  <span className={`h-2 w-2 shrink-0 rounded-full ${act.type === "swap" ? "bg-amber-400" : "bg-emerald-400"}`} />
+                  <span className="flex-1 truncate">{act.label}</span>
+                  <span className="shrink-0 text-[10px] text-zinc-400">{act.date ? new Date(act.date).toLocaleDateString() : ""}</span>
+                </Link>
+              ))}
+            </div>
+          </section>
+        );
+      })()}
     </div>
   );
 }

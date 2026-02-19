@@ -24,6 +24,8 @@ import {
   Tag,
   Home,
   Wrench,
+  Heart,
+  Undo2,
 } from "lucide-react";
 
 const MAX_RIGHT_SWIPES = 3;
@@ -249,17 +251,42 @@ export default function ObjectsPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [listingTypeFilter, setListingTypeFilter] = useState<ListingType | "all">(initialListingType);
 
+  // --- Favorites ---
+  const [favorites, setFavorites] = useState<Set<string>>(() => {
+    if (typeof window === "undefined") return new Set<string>();
+    try {
+      const saved = localStorage.getItem("swaply_favorites");
+      return saved ? new Set(JSON.parse(saved) as string[]) : new Set<string>();
+    } catch { return new Set<string>(); }
+  });
+  const toggleFavorite = useCallback((id: string) => {
+    setFavorites((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      localStorage.setItem("swaply_favorites", JSON.stringify([...next]));
+      return next;
+    });
+  }, []);
+
+  // --- Infinite scroll for browse ---
+  const [visibleCount, setVisibleCount] = useState(20);
+  const loadMore = useCallback(() => {
+    setVisibleCount((c) => c + 20);
+  }, []);
+
   // --- SWIPE: WISHES (dorinte) state ---
   const [wishSwipeIndex, setWishSwipeIndex] = useState(0);
   const [wishRightCount, setWishRightCount] = useState(0);
   const [wishSlots, setWishSlots] = useState<(Item | null)[]>([null, null, null]);
   const [wishDismissed, setWishDismissed] = useState<Set<string>>(new Set());
+  const [wishHistory, setWishHistory] = useState<Array<{ item: Item; action: "left" | "right" }>>([]);
 
   // --- SWIPE: OFFERS (oferte) state ---
   const [offerSwipeIndex, setOfferSwipeIndex] = useState(0);
   const [offerRightCount, setOfferRightCount] = useState(0);
   const [offerSlots, setOfferSlots] = useState<(Item | null)[]>([null, null, null]);
   const [offerDismissed, setOfferDismissed] = useState<Set<string>>(new Set());
+  const [offerHistory, setOfferHistory] = useState<Array<{ item: Item; action: "left" | "right" }>>([]);
 
   // ── Data ──
   const allObjects = useMemo(
@@ -304,6 +331,7 @@ export default function ObjectsPage() {
   // ── Swipe handlers ──
   const handleWishRight = useCallback(() => {
     if (!currentWishItem || wishBlocked) return;
+    setWishHistory((h) => [...h, { item: currentWishItem, action: "right" }]);
     setWishSlots((prev) => {
       const next = [...prev];
       const emptyIdx = next.findIndex((s) => s === null);
@@ -316,12 +344,32 @@ export default function ObjectsPage() {
 
   const handleWishLeft = useCallback(() => {
     if (!currentWishItem) return;
+    setWishHistory((h) => [...h, { item: currentWishItem, action: "left" }]);
     setWishDismissed((prev) => new Set(prev).add(currentWishItem.id));
     setWishSwipeIndex((idx) => Math.min(idx + 1, wishCandidates.length));
   }, [currentWishItem, wishCandidates.length]);
 
+  const undoWishSwipe = useCallback(() => {
+    if (wishHistory.length === 0) return;
+    const last = wishHistory[wishHistory.length - 1];
+    setWishHistory((h) => h.slice(0, -1));
+    if (last.action === "left") {
+      setWishDismissed((prev) => { const n = new Set(prev); n.delete(last.item.id); return n; });
+    } else {
+      setWishSlots((prev) => {
+        const next = [...prev];
+        const idx = next.findIndex((s) => s?.id === last.item.id);
+        if (idx !== -1) next[idx] = null;
+        return next;
+      });
+      setWishRightCount((c) => Math.max(0, c - 1));
+    }
+    setWishSwipeIndex((idx) => Math.max(0, idx - 1));
+  }, [wishHistory]);
+
   const handleOfferRight = useCallback(() => {
     if (!currentOfferItem || offerBlocked) return;
+    setOfferHistory((h) => [...h, { item: currentOfferItem, action: "right" }]);
     setOfferSlots((prev) => {
       const next = [...prev];
       const emptyIdx = next.findIndex((s) => s === null);
@@ -334,9 +382,28 @@ export default function ObjectsPage() {
 
   const handleOfferLeft = useCallback(() => {
     if (!currentOfferItem) return;
+    setOfferHistory((h) => [...h, { item: currentOfferItem, action: "left" }]);
     setOfferDismissed((prev) => new Set(prev).add(currentOfferItem.id));
     setOfferSwipeIndex((idx) => Math.min(idx + 1, offerCandidates.length));
   }, [currentOfferItem, offerCandidates.length]);
+
+  const undoOfferSwipe = useCallback(() => {
+    if (offerHistory.length === 0) return;
+    const last = offerHistory[offerHistory.length - 1];
+    setOfferHistory((h) => h.slice(0, -1));
+    if (last.action === "left") {
+      setOfferDismissed((prev) => { const n = new Set(prev); n.delete(last.item.id); return n; });
+    } else {
+      setOfferSlots((prev) => {
+        const next = [...prev];
+        const idx = next.findIndex((s) => s?.id === last.item.id);
+        if (idx !== -1) next[idx] = null;
+        return next;
+      });
+      setOfferRightCount((c) => Math.max(0, c - 1));
+    }
+    setOfferSwipeIndex((idx) => Math.max(0, idx - 1));
+  }, [offerHistory]);
 
   // ── Browse filter logic ──
   const filtered = useMemo(() => {
@@ -598,6 +665,16 @@ export default function ObjectsPage() {
               <Pill color="blue">{t("chosenDesired", { count: wishRightCount })}</Pill>
             </div>
 
+            {/* Undo button for wishes */}
+            {wishHistory.length > 0 && (
+              <div className="mb-2 flex justify-center">
+                <button type="button" onClick={undoWishSwipe} className="inline-flex items-center gap-1 rounded-full border border-blue-200 px-3 py-1 text-xs font-medium text-blue-600 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-400 dark:hover:bg-blue-900/30">
+                  <Undo2 className="h-3 w-3" />
+                  {t("undoSwipe")}
+                </button>
+              </div>
+            )}
+
             {/* Swipe zone */}
             <div className="mx-auto max-w-sm">
               {!user ? (
@@ -714,6 +791,16 @@ export default function ObjectsPage() {
                 ))}
               </div>
             </div>
+
+            {/* Undo button for offers */}
+            {offerHistory.length > 0 && (
+              <div className="mb-2 flex justify-center">
+                <button type="button" onClick={undoOfferSwipe} className="inline-flex items-center gap-1 rounded-full border border-emerald-200 px-3 py-1 text-xs font-medium text-emerald-600 hover:bg-emerald-50 dark:border-emerald-700 dark:text-emerald-400 dark:hover:bg-emerald-900/30">
+                  <Undo2 className="h-3 w-3" />
+                  {t("undoSwipe")}
+                </button>
+              </div>
+            )}
 
             {/* Swipe zone */}
             <div className="mx-auto max-w-sm">
@@ -859,19 +946,59 @@ export default function ObjectsPage() {
           )}
 
           {filtered.length > 0 && browseMode === "grid" && (
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-              {filtered.map((item) => (
-                <ObjectCard key={item.id} item={item} mode="grid" />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                {filtered.slice(0, visibleCount).map((item) => (
+                  <div key={item.id} className="relative">
+                    <ObjectCard item={item} mode="grid" />
+                    {user && (
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); toggleFavorite(item.id); }}
+                        className="absolute right-3 top-3 z-10 rounded-full bg-white/90 p-1.5 shadow-sm backdrop-blur hover:bg-white dark:bg-zinc-900/80 dark:hover:bg-zinc-800"
+                      >
+                        <Heart className={`h-3.5 w-3.5 ${favorites.has(item.id) ? "fill-red-500 text-red-500" : "text-zinc-400"}`} />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+              {visibleCount < filtered.length && (
+                <div className="mt-4 flex justify-center">
+                  <button type="button" onClick={loadMore} className="rounded-full bg-blue-600 px-6 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+                    {t("loadMoreItems")} ({filtered.length - visibleCount} {t("remainingItems")})
+                  </button>
+                </div>
+              )}
+            </>
           )}
 
           {filtered.length > 0 && browseMode === "list" && (
-            <div className="space-y-2">
-              {filtered.map((item) => (
-                <ObjectCard key={item.id} item={item} mode="list" />
-              ))}
-            </div>
+            <>
+              <div className="space-y-2">
+                {filtered.slice(0, visibleCount).map((item) => (
+                  <div key={item.id} className="relative">
+                    <ObjectCard item={item} mode="list" />
+                    {user && (
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); toggleFavorite(item.id); }}
+                        className="absolute right-3 top-3 z-10 rounded-full bg-white/90 p-1.5 shadow-sm backdrop-blur hover:bg-white dark:bg-zinc-900/80 dark:hover:bg-zinc-800"
+                      >
+                        <Heart className={`h-3.5 w-3.5 ${favorites.has(item.id) ? "fill-red-500 text-red-500" : "text-zinc-400"}`} />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+              {visibleCount < filtered.length && (
+                <div className="mt-4 flex justify-center">
+                  <button type="button" onClick={loadMore} className="rounded-full bg-blue-600 px-6 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+                    {t("loadMoreItems")} ({filtered.length - visibleCount} {t("remainingItems")})
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </>
       )}

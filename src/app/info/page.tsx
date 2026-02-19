@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { StatsGrid } from "@/features/info/StatsGrid";
 import { useAppState } from "@/lib/state";
 import { NextStepRecommendation, Pill, SectionCard } from "@/components/ui";
-import { Check, ChevronDown, HelpCircle, Minus, Package, Search, MessageCircle, Repeat2, Leaf, Trophy, Flame, Crown } from "lucide-react";
+import { Check, ChevronDown, HelpCircle, Minus, Package, Search, MessageCircle, Repeat2, Leaf, Trophy, Flame, Crown, Quote, Users, Calculator } from "lucide-react";
 
 function FaqItem({ question, answer }: { question: string; answer: string }) {
   const [open, setOpen] = useState(false);
@@ -265,6 +265,71 @@ export default function InfoPage() {
           </ul>
         </SectionCard>
       </div>
+
+      {/* ── Success Stories ── */}
+      <SectionCard title={t("successStories")} description={t("successStoriesDesc")}>
+        <div className="space-y-3">
+          {[
+            { name: "Maria & Andrei", city: "Cluj-Napoca", story: t("story1"), emoji: "📱↔️🎸" },
+            { name: "Elena & Mihai", city: "București", story: t("story2"), emoji: "🏠↔️🏠" },
+            { name: "Dan & Alexandra", city: "Timișoara", story: t("story3"), emoji: "💻↔️📷" },
+          ].map((s) => (
+            <div key={s.name} className="flex gap-3 rounded-xl border border-zinc-200 bg-white/70 p-4 dark:border-zinc-800 dark:bg-zinc-900/70">
+              <Quote className="mt-0.5 h-5 w-5 shrink-0 text-blue-400" />
+              <div>
+                <p className="text-sm italic text-zinc-700 dark:text-zinc-300">&ldquo;{s.story}&rdquo;</p>
+                <div className="mt-2 flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
+                  <span className="font-semibold text-zinc-800 dark:text-zinc-100">{s.name}</span>
+                  <span>·</span>
+                  <span>{s.city}</span>
+                  <span>·</span>
+                  <span>{s.emoji}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </SectionCard>
+
+      {/* ── Cost Calculator ── */}
+      <SectionCard title={t("costCalculator")} description={t("costCalculatorDesc")}>
+        <div className="grid gap-3 sm:grid-cols-3">
+          <div className="rounded-xl border border-green-200 bg-green-50/50 p-4 text-center dark:border-green-800 dark:bg-green-950/30">
+            <Calculator className="mx-auto mb-2 h-6 w-6 text-green-600 dark:text-green-400" />
+            <p className="text-lg font-bold text-green-700 dark:text-green-300">0 RON</p>
+            <p className="text-xs text-green-600 dark:text-green-400">{t("costSwapping")}</p>
+          </div>
+          <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-4 text-center dark:border-blue-800 dark:bg-blue-950/30">
+            <Calculator className="mx-auto mb-2 h-6 w-6 text-blue-600 dark:text-blue-400" />
+            <p className="text-lg font-bold text-blue-700 dark:text-blue-300">~500 RON</p>
+            <p className="text-xs text-blue-600 dark:text-blue-400">{t("costSaved")}</p>
+          </div>
+          <div className="rounded-xl border border-purple-200 bg-purple-50/50 p-4 text-center dark:border-purple-800 dark:bg-purple-950/30">
+            <Calculator className="mx-auto mb-2 h-6 w-6 text-purple-600 dark:text-purple-400" />
+            <p className="text-lg font-bold text-purple-700 dark:text-purple-300">100%</p>
+            <p className="text-xs text-purple-600 dark:text-purple-400">{t("costNoFees")}</p>
+          </div>
+        </div>
+      </SectionCard>
+
+      {/* ── Team ── */}
+      <SectionCard title={t("teamTitle")} description={t("teamDesc")}>
+        <div className="grid gap-3 sm:grid-cols-3">
+          {[
+            { name: "Swaply Team", role: t("teamDev"), emoji: "👨‍💻" },
+            { name: "AI Engine", role: t("teamAI"), emoji: "🤖" },
+            { name: "Community", role: t("teamCommunity"), emoji: "🌍" },
+          ].map((m) => (
+            <div key={m.name} className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white/70 p-3 dark:border-zinc-800 dark:bg-zinc-900/70">
+              <span className="text-2xl">{m.emoji}</span>
+              <div>
+                <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">{m.name}</p>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">{m.role}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </SectionCard>
 
       <NextStepRecommendation
         steps={[

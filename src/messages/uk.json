@@ -98,6 +98,13 @@
     "accountCreated": "Акаунт створено успішно! Перевірте електронну пошту для підтвердження акаунту, потім поверніться для входу.",
     "resetSent": "Інструкції зі скидання надіслано на вашу електронну пошту.",
     "unexpectedError": "Неочікувана помилка: {error}",
+    "strengthNone": "",
+    "strengthWeak": "Weak password",
+    "strengthFair": "Fair password",
+    "strengthGood": "Good password",
+    "strengthStrong": "Strong password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
     "twoFactorInfo": "2FA опціонально: TOTP, SMS OTP, Passkey/WebAuthn. Активується після входу на сторінці профілю.",
     "alternativeMethods": "Альтернативні методи: Google SSO, Телефон OTP (бета). Email OTP лише як запасний варіант.",
     "legalInfo": "Юридичне: постійне посилання на Умови та Політику конфіденційності GDPR.",
@@ -299,7 +306,11 @@
     "crossSwapProperties": "Houses or rooms for stays",
     "services": "Services",
     "crossSwapServices": "Skills and time exchange",
-    "crossSwapExample": "Example: Stay at my mountain cabin for 2 weeks + I teach you photography → Your electric scooter + 10h of web development"
+    "crossSwapExample": "Example: Stay at my mountain cabin for 2 weeks + I teach you photography → Your electric scooter + 10h of web development",
+    "profileCompleteness": "Profile completeness",
+    "completeProfileHint": "Complete your profile to improve match quality and build trust",
+    "loginHistory": "Login history",
+    "loginHistoryDesc": "Recent sessions on your account"
   },
   "home": {
     "welcome": "З поверненням",
@@ -359,7 +370,13 @@
     "actionServices": "Services",
     "actionServicesDesc": "Skills exchange — 1h = 1h",
     "actionFeedback": "Feedback",
-    "actionFeedbackDesc": "Report a bug or suggest a feature"
+    "actionFeedbackDesc": "Report a bug or suggest a feature",
+    "notificationsPreview": "Recent notifications",
+    "viewAll": "View all",
+    "trendingItems": "Trending items",
+    "activityFeed": "Your activity",
+    "activitySwap": "Swap",
+    "activityListed": "Listed"
   },
   "objects": {
     "createAccount": "Створити акаунт",
@@ -431,7 +448,10 @@
     "allTypes": "All",
     "objectsType": "Objects",
     "propertiesType": "Properties",
-    "servicesType": "Services"
+    "servicesType": "Services",
+    "undoSwipe": "Undo last swipe",
+    "loadMoreItems": "Load more",
+    "remainingItems": "remaining"
   },
   "objectDetail": {
     "loading": "Завантаження об'єкта",
@@ -631,7 +651,15 @@
     "fileBlocked": "This file type is not allowed (.exe, .bat, .sh, .zip, .rar)",
     "showOriginal": "Show original",
     "showTranslation": "Show translation",
-    "safetyWarning": "Keep conversations respectful. Violations affect reputation."
+    "safetyWarning": "Keep conversations respectful. Violations affect reputation.",
+    "shareLocation": "Share location",
+    "sharedLocation": "Shared location",
+    "approxLocation": "Approximate location (~100m)",
+    "locationError": "Could not get your location. Check browser permissions.",
+    "typingIndicator": "typing…",
+    "readReceipt": "Read",
+    "delivered": "Delivered",
+    "reactions": "Reactions"
   },
   "change": {
     "title": "Потік обміну (Swaply)",
@@ -912,6 +940,21 @@
     "discoverMatchesDescription": "Дозвольте AI знайти збіги",
     "authentication": "Автентифікація",
     "authenticationDescription": "Створіть акаунт або увійдіть",
+    "successStories": "Success stories",
+    "successStoriesDesc": "Real exchanges that happened on Swaply",
+    "story1": "I swapped my old iPhone for a guitar I always wanted. Found the match in 2 days!",
+    "story2": "We exchanged apartments for summer vacation. Saved thousands on hotel costs.",
+    "story3": "Traded my web development skills for professional photography lessons. Win-win!",
+    "costCalculator": "Cost calculator",
+    "costCalculatorDesc": "See how much you save by swapping instead of buying",
+    "costSwapping": "Cost of swapping",
+    "costSaved": "Average saved per swap",
+    "costNoFees": "No platform fees",
+    "teamTitle": "About us",
+    "teamDesc": "The people and technology behind Swaply",
+    "teamDev": "Full-stack development",
+    "teamAI": "Matching & moderation",
+    "teamCommunity": "Users & feedback",
     "tierComparison": "Feature Comparison",
     "featureSwaps": "Unlimited swaps",
     "featureMatches": "AI match suggestions",
@@ -1268,7 +1311,16 @@
     "analyticsTotal": "Total objects",
     "analyticsActive": "Active",
     "analyticsSwapped": "Swapped",
-    "analyticsScore": "Active rate"
+    "analyticsScore": "Active rate",
+    "searchPlaceholder": "Search your items...",
+    "sortNewest": "Newest first",
+    "sortTitle": "By title",
+    "sortStatus": "By status",
+    "selectAll": "Select all",
+    "bulkSelected": "{count} selected",
+    "bulkPause": "Pause all",
+    "bulkArchive": "Archive all",
+    "exportCsv": "Export CSV"
   },
   "safety": {
     "report": "Report",
@@ -1288,6 +1340,8 @@
     "cancelReport": "Cancel"
   },
   "legal": {
+    "tableOfContents": "Table of contents",
+    "lastUpdated": "Last updated",
     "termsTitle": "Terms & Conditions",
     "termsLastUpdated": "Last updated: February 2026",
     "termsAcceptance": "1. Acceptance of Terms",
@@ -1371,6 +1425,15 @@
     "submit": "Send feedback",
     "thankYou": "Thank you!",
     "thankYouDesc": "Your feedback has been received. We review every submission and use it to improve Swaply.",
-    "sendAnother": "Send another"
+    "sendAnother": "Send another",
+    "screenshotTitle": "Screenshot",
+    "screenshotDesc": "Attach a screenshot to help us understand the issue (max 5MB)",
+    "uploadScreenshot": "Upload screenshot",
+    "featureVoting": "Feature requests",
+    "featureVotingDesc": "Vote for features you want to see implemented",
+    "statusPending": "Pending",
+    "statusReviewing": "Reviewing",
+    "statusPlanned": "Planned",
+    "statusDone": "Done"
   }
 }

@@ -3,36 +3,52 @@
 import { useTranslations } from "next-intl";
 import { SectionCard } from "@/components/ui";
 
+const SECTIONS = [
+  { id: "data-collected", titleKey: "privacyDataCollected", textKey: "privacyDataCollectedText" },
+  { id: "purpose", titleKey: "privacyPurpose", textKey: "privacyPurposeText" },
+  { id: "legal-basis", titleKey: "privacyLegalBasis", textKey: "privacyLegalBasisText" },
+  { id: "sharing", titleKey: "privacySharing", textKey: "privacySharingText" },
+  { id: "cookies", titleKey: "privacyCookies", textKey: "privacyCookiesText" },
+  { id: "rights", titleKey: "privacyRights", textKey: "privacyRightsText" },
+  { id: "retention", titleKey: "privacyRetention", textKey: "privacyRetentionText" },
+  { id: "contact", titleKey: "privacyContact", textKey: "privacyContactText" },
+] as const;
+
 export default function PrivacyPage() {
   const t = useTranslations("legal");
 
   return (
     <div className="space-y-4">
       <SectionCard title={t("privacyTitle")} description={t("privacyLastUpdated")}>
+        {/* Last updated badge */}
+        <div className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+          {t("lastUpdated")}: 2026-02-15
+        </div>
+
+        {/* Table of Contents */}
+        <nav className="mb-6 rounded-xl border border-zinc-200 bg-zinc-50/50 p-4 dark:border-zinc-700 dark:bg-zinc-800/50">
+          <p className="mb-2 text-xs font-semibold uppercase text-zinc-500 dark:text-zinc-400">{t("tableOfContents")}</p>
+          <ol className="list-decimal space-y-1 pl-5 text-sm">
+            {SECTIONS.map((s) => (
+              <li key={s.id}>
+                <a
+                  href={`#${s.id}`}
+                  className="text-blue-600 hover:text-blue-800 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
+                >
+                  {t(s.titleKey)}
+                </a>
+              </li>
+            ))}
+          </ol>
+        </nav>
+
         <div className="prose prose-sm dark:prose-invert max-w-none text-zinc-700 dark:text-zinc-300">
-          <h3>{t("privacyDataCollected")}</h3>
-          <p>{t("privacyDataCollectedText")}</p>
-
-          <h3>{t("privacyPurpose")}</h3>
-          <p>{t("privacyPurposeText")}</p>
-
-          <h3>{t("privacyLegalBasis")}</h3>
-          <p>{t("privacyLegalBasisText")}</p>
-
-          <h3>{t("privacySharing")}</h3>
-          <p>{t("privacySharingText")}</p>
-
-          <h3>{t("privacyCookies")}</h3>
-          <p>{t("privacyCookiesText")}</p>
-
-          <h3>{t("privacyRights")}</h3>
-          <p>{t("privacyRightsText")}</p>
-
-          <h3>{t("privacyRetention")}</h3>
-          <p>{t("privacyRetentionText")}</p>
-
-          <h3>{t("privacyContact")}</h3>
-          <p>{t("privacyContactText")}</p>
+          {SECTIONS.map((s) => (
+            <div key={s.id} id={s.id} className="scroll-mt-20">
+              <h3>{t(s.titleKey)}</h3>
+              <p>{t(s.textKey)}</p>
+            </div>
+          ))}
         </div>
       </SectionCard>
     </div>

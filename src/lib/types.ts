@@ -117,6 +117,8 @@ export interface MatchCandidate {
   aiProvider?: string;
 }
 
+export type ChatMessageType = "text" | "location" | "image";
+
 export interface ChatMessage {
   id: string;
   conversationId: string;
@@ -126,6 +128,10 @@ export interface ChatMessage {
   translated?: boolean;
   attachments?: Array<{ id: string; name: string; safe: boolean }>;
   moderated?: boolean;
+  messageType?: ChatMessageType;
+  locationData?: { lat: number; lng: number; label?: string };
+  reactions?: Record<string, string[]>; // emoji → userIds
+  readBy?: string[];
 }
 
 export interface Conversation {

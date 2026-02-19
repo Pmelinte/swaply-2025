@@ -105,8 +105,45 @@ export default function ProfilePage() {
 
   const locationIncomplete = !draft.location?.city || !draft.location?.country;
 
+  // Profile completeness calculation
+  const completenessChecks = [
+    !!draft.displayName,
+    !!draft.avatarUrl,
+    !!draft.bio && draft.bio.length >= 10,
+    !!draft.location?.city,
+    !!draft.location?.country,
+    !!draft.email,
+    (draft.languages?.length ?? 0) > 0,
+    draft.stats.completedSwaps > 0,
+  ];
+  const completenessPercent = Math.round((completenessChecks.filter(Boolean).length / completenessChecks.length) * 100);
+
+  // Mock login history
+  const loginHistory = [
+    { date: new Date().toISOString(), device: "Chrome / macOS", ip: "86.120.***.**" },
+    { date: new Date(Date.now() - 86400000).toISOString(), device: "Safari / iOS", ip: "86.120.***.**" },
+    { date: new Date(Date.now() - 172800000).toISOString(), device: "Chrome / Windows", ip: "79.115.***.**" },
+  ];
+
   return (
     <div className="space-y-4">
+      {/* Profile completeness */}
+      <div className="rounded-xl border border-zinc-200 bg-white/80 p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/80">
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">{t("profileCompleteness")}</span>
+          <span className={`text-sm font-bold ${completenessPercent >= 75 ? "text-green-600" : completenessPercent >= 50 ? "text-amber-600" : "text-red-600"}`}>{completenessPercent}%</span>
+        </div>
+        <div className="mt-2 h-2 overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
+          <div
+            className={`h-full rounded-full transition-all ${completenessPercent >= 75 ? "bg-green-500" : completenessPercent >= 50 ? "bg-amber-500" : "bg-red-500"}`}
+            style={{ width: `${completenessPercent}%` }}
+          />
+        </div>
+        {completenessPercent < 100 && (
+          <p className="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400">{t("completeProfileHint")}</p>
+        )}
+      </div>
+
       <div className="flex flex-wrap gap-2">
         {profileTabs.map((tab) => (
           <button
@@ -911,6 +948,23 @@ export default function ProfilePage() {
             </div>
           </div>
         )}
+      </SectionCard>
+
+      {/* Login history */}
+      <SectionCard title={t("loginHistory")} description={t("loginHistoryDesc")}>
+        <div className="space-y-2">
+          {loginHistory.map((entry, i) => (
+            <div key={i} className="flex items-center justify-between rounded-lg bg-zinc-50 px-3 py-2.5 text-sm dark:bg-zinc-800/50">
+              <div>
+                <p className="font-medium text-zinc-800 dark:text-zinc-100">{entry.device}</p>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">IP: {entry.ip}</p>
+              </div>
+              <span className="text-xs text-zinc-400">
+                {new Date(entry.date).toLocaleDateString()} {new Date(entry.date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+              </span>
+            </div>
+          ))}
+        </div>
       </SectionCard>
 
         </>

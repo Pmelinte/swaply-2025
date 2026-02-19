@@ -1,10 +1,25 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { NextStepRecommendation, SectionCard, StateShowcase } from "@/components/ui";
+import { Eye, EyeOff } from "lucide-react";
+
+/** Compute password strength 0–4 */
+function getPasswordStrength(pw: string): number {
+  if (!pw) return 0;
+  let score = 0;
+  if (pw.length >= 6) score++;
+  if (pw.length >= 10) score++;
+  if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
+  if (/\d/.test(pw)) score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
+  return Math.min(4, score);
+}
+
+const strengthColors = ["bg-red-500", "bg-orange-500", "bg-amber-500", "bg-blue-500", "bg-green-500"];
 
 function LoginContent() {
   const params = useSearchParams();
@@ -14,6 +29,7 @@ function LoginContent() {
   const [activeTab, setActiveTab] = useState<string>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [accept, setAccept] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "error" | "success">("idle");
@@ -24,6 +40,15 @@ function LoginContent() {
     { key: "login", label: t("authentication") },
     { key: "register", label: t("registration") },
     { key: "reset", label: t("resetPassword") },
+  ];
+
+  const passwordStrength = useMemo(() => getPasswordStrength(password), [password]);
+  const strengthLabels = [
+    t("strengthNone"),
+    t("strengthWeak"),
+    t("strengthFair"),
+    t("strengthGood"),
+    t("strengthStrong"),
   ];
 
   useEffect(() => {
@@ -131,13 +156,45 @@ function LoginContent() {
           {activeTab !== "reset" ? (
             <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-200">
               {t("password")}
-              <input
-                value={password}
-                type="password"
-                required
-                onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
-              />
+              <div className="relative mt-1">
+                <input
+                  value={password}
+                  type={showPassword ? "text" : "password"}
+                  required
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 pr-10 text-sm dark:border-zinc-700 dark:bg-zinc-800"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+              {/* Password strength indicator — show for register tab */}
+              {activeTab === "register" && password.length > 0 && (
+                <div className="mt-2">
+                  <div className="flex gap-1">
+                    {[0, 1, 2, 3].map((i) => (
+                      <div
+                        key={i}
+                        className={`h-1.5 flex-1 rounded-full transition-colors ${
+                          i < passwordStrength ? strengthColors[passwordStrength] : "bg-zinc-200 dark:bg-zinc-700"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <p className={`mt-1 text-xs ${
+                    passwordStrength <= 1 ? "text-red-600 dark:text-red-400" :
+                    passwordStrength === 2 ? "text-amber-600 dark:text-amber-400" :
+                    "text-green-600 dark:text-green-400"
+                  }`}>
+                    {strengthLabels[passwordStrength]}
+                  </p>
+                </div>
+              )}
             </label>
           ) : null}
 

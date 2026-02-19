@@ -102,6 +102,13 @@
     "accountCreated": "Cont creat cu succes! Verifică-ți email-ul pentru confirmarea contului, apoi revino să te autentifici.",
     "resetSent": "Instrucțiuni de reset trimise pe email.",
     "unexpectedError": "Eroare neașteptată: {error}",
+    "strengthNone": "",
+    "strengthWeak": "Parolă slabă",
+    "strengthFair": "Parolă acceptabilă",
+    "strengthGood": "Parolă bună",
+    "strengthStrong": "Parolă puternică",
+    "showPassword": "Arată parola",
+    "hidePassword": "Ascunde parola",
     "twoFactorInfo": "2FA opțional: TOTP, SMS OTP, Passkey/WebAuthn. Activare după login pe pagina de profil.",
     "alternativeMethods": "Metode alternative: Google SSO, Telefon OTP (beta). Email OTP doar ca fallback.",
     "legalInfo": "Legal: link permanent către Termeni & Politica GDPR.",
@@ -304,7 +311,11 @@
     "crossSwapProperties": "Case sau camere pentru șederi",
     "services": "Servicii",
     "crossSwapServices": "Aptitudini și schimb de timp",
-    "crossSwapExample": "Exemplu: Ședere la cabana mea la munte 2 săptămâni + te învăț fotografie → Trotineta ta electrică + 10h dezvoltare web"
+    "crossSwapExample": "Exemplu: Ședere la cabana mea la munte 2 săptămâni + te învăț fotografie → Trotineta ta electrică + 10h dezvoltare web",
+    "profileCompleteness": "Completare profil",
+    "completeProfileHint": "Completează-ți profilul pentru a îmbunătăți calitatea potrivirilor",
+    "loginHistory": "Istoric autentificări",
+    "loginHistoryDesc": "Sesiuni recente pe contul tău"
   },
 
   "home": {
@@ -365,7 +376,13 @@
     "actionServices": "Servicii",
     "actionServicesDesc": "Schimb de aptitudini — 1h = 1h",
     "actionFeedback": "Feedback",
-    "actionFeedbackDesc": "Raportează un bug sau sugerează o funcție"
+    "actionFeedbackDesc": "Raportează un bug sau sugerează o funcție",
+    "notificationsPreview": "Notificări recente",
+    "viewAll": "Vezi toate",
+    "trendingItems": "Obiecte populare",
+    "activityFeed": "Activitatea ta",
+    "activitySwap": "Schimb",
+    "activityListed": "Listat"
   },
 
   "objects": {
@@ -439,7 +456,10 @@
     "allTypes": "Toate",
     "objectsType": "Obiecte",
     "propertiesType": "Proprietăți",
-    "servicesType": "Servicii"
+    "servicesType": "Servicii",
+    "undoSwipe": "Anulează ultima glisare",
+    "loadMoreItems": "Încarcă mai multe",
+    "remainingItems": "rămase"
   },
 
   "objectDetail": {
@@ -644,7 +664,15 @@
     "fileBlocked": "Acest tip de fișier nu este permis (.exe, .bat, .sh, .zip, .rar)",
     "showOriginal": "Arată originalul",
     "showTranslation": "Arată traducerea",
-    "safetyWarning": "Păstrează conversațiile respectuoase. Încălcările afectează reputația."
+    "safetyWarning": "Păstrează conversațiile respectuoase. Încălcările afectează reputația.",
+    "shareLocation": "Trimite locația",
+    "sharedLocation": "Locație partajată",
+    "approxLocation": "Locație aproximativă (~100m)",
+    "locationError": "Nu s-a putut obține locația. Verifică permisiunile browserului.",
+    "typingIndicator": "scrie…",
+    "readReceipt": "Citit",
+    "delivered": "Livrat",
+    "reactions": "Reacții"
   },
 
   "change": {
@@ -916,7 +944,16 @@
     "submit": "Trimite feedback",
     "thankYou": "Mulțumim!",
     "thankYouDesc": "Feedback-ul tău a fost primit. Revizuim fiecare mesaj și îl folosim pentru a îmbunătăți Swaply.",
-    "sendAnother": "Trimite altul"
+    "sendAnother": "Trimite altul",
+    "screenshotTitle": "Captură de ecran",
+    "screenshotDesc": "Atașează o captură pentru a ne ajuta să înțelegem problema (max 5MB)",
+    "uploadScreenshot": "Încarcă captură",
+    "featureVoting": "Cereri de funcționalități",
+    "featureVotingDesc": "Votează funcționalitățile pe care vrei să le vezi implementate",
+    "statusPending": "În așteptare",
+    "statusReviewing": "În analiză",
+    "statusPlanned": "Planificat",
+    "statusDone": "Finalizat"
   },
 
   "info": {
@@ -978,6 +1015,21 @@
     "discoverMatchesDescription": "Lasă AI-ul să găsească potriviri",
     "authentication": "Autentificare",
     "authenticationDescription": "Creează cont sau conectează-te",
+    "successStories": "Povești de succes",
+    "successStoriesDesc": "Schimburi reale realizate pe Swaply",
+    "story1": "Am schimbat un iPhone vechi pe o chitară pe care mi-o doream mereu. Am găsit potrivirea în 2 zile!",
+    "story2": "Am schimbat apartamentele pentru vacanța de vară. Am economisit mii de lei pe hotel.",
+    "story3": "Am schimbat abilitățile de web development pe lecții de fotografie profesională. Câștig-câștig!",
+    "costCalculator": "Calculator de costuri",
+    "costCalculatorDesc": "Vezi cât economisești prin schimb în loc de cumpărare",
+    "costSwapping": "Costul schimbului",
+    "costSaved": "Economie medie per schimb",
+    "costNoFees": "Fără comisioane",
+    "teamTitle": "Despre noi",
+    "teamDesc": "Oamenii și tehnologia din spatele Swaply",
+    "teamDev": "Dezvoltare full-stack",
+    "teamAI": "Potrivire și moderare",
+    "teamCommunity": "Utilizatori și feedback",
     "faq": "Întrebări frecvente",
     "faqDescription": "Întrebări comune despre Swaply",
     "faqQ1": "Cum funcționează schimbul?",
@@ -1322,7 +1374,16 @@
     "analyticsTotal": "Total obiecte",
     "analyticsActive": "Active",
     "analyticsSwapped": "Schimbate",
-    "analyticsScore": "Rată activă"
+    "analyticsScore": "Rată activă",
+    "searchPlaceholder": "Caută în obiectele tale...",
+    "sortNewest": "Cele mai noi",
+    "sortTitle": "După titlu",
+    "sortStatus": "După status",
+    "selectAll": "Selectează tot",
+    "bulkSelected": "{count} selectate",
+    "bulkPause": "Pauză toate",
+    "bulkArchive": "Arhivează toate",
+    "exportCsv": "Export CSV"
   },
 
   "safety": {
@@ -1344,6 +1405,8 @@
   },
 
   "legal": {
+    "tableOfContents": "Cuprins",
+    "lastUpdated": "Ultima actualizare",
     "termsTitle": "Termeni și Condiții",
     "termsLastUpdated": "Ultima actualizare: Februarie 2026",
     "termsAcceptance": "1. Acceptarea Termenilor",
