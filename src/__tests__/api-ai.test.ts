@@ -24,7 +24,7 @@ describe("POST /api/ai", () => {
     const res = await POST(makeRequest({}));
     const data = await res.json();
     expect(data.status).toBe("error");
-    expect(data.message).toContain("Titlu sau descriere lipsa");
+    expect(data.message).toContain("Titlu, descriere sau prompt necesar");
   });
 
   it("returns fallback category/tags when HF disabled", async () => {

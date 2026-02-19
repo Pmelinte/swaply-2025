@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { rateLimit } from "@/lib/rate-limit";
+import { aiMatchSchema, validateBody } from "@/lib/validation";
+import { requestLogger, captureError } from "@/lib/logger";
 
 /**
  * AI Match Analysis — Semantic compatibility evaluation using LLM.
@@ -140,13 +142,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
   }
 
+  const log = requestLogger(request);
   try {
-    const body = (await request.json()) as MatchRequest;
-    if (!body.offeredItem?.title || !body.requestedItem?.title) {
-      return NextResponse.json({ error: "Missing items" }, { status: 400 });
+    const body = await request.json();
+    const { data: validated, error: validationError } = validateBody(body, aiMatchSchema);
+    if (validationError) {
+      log.warn("Validation failed", { error: validationError });
+      return NextResponse.json({ error: validationError }, { status: 400 });
     }
 
-    const prompt = buildUserPrompt(body);
+    const prompt = buildUserPrompt(validated!);
 
     // Try Groq first (fast), then Gemini
     let raw = await callGroq(prompt, SYSTEM_PROMPT);
@@ -167,7 +172,8 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ ...parsed, provider });
-  } catch {
+  } catch (err) {
+    captureError(err, { route: "/api/ai/match" });
     return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
 }

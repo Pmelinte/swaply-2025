@@ -23,7 +23,7 @@ describe("POST /api/translate", () => {
     const res = await POST(makeRequest({}));
     expect(res.status).toBe(400);
     const data = await res.json();
-    expect(data.error).toContain("Parametri lipsa");
+    expect(data.error).toContain("Required");
   });
 
   it("returns 400 for missing text", async () => {

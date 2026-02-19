@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { rateLimit } from "@/lib/rate-limit";
+import { moderateSchema, validateBody } from "@/lib/validation";
+import { requestLogger } from "@/lib/logger";
 
 /** Words/patterns that indicate content needing moderation */
 const BLOCKED_PATTERNS = [
@@ -36,8 +38,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ safe: true, flags: [], message: "Rate limited" }, { status: 429 });
   }
 
+  const log = requestLogger(request);
   const body = await request.json().catch(() => ({}));
-  const { text } = body as { text?: string };
+  const { data: validated, error: validationError } = validateBody(body, moderateSchema);
+  if (validationError) {
+    log.warn("Validation failed", { error: validationError });
+    return NextResponse.json({ safe: false, flags: ["invalid_input"], message: validationError }, { status: 400 });
+  }
+  const { text } = validated!;
 
   if (!text) {
     return NextResponse.json({ safe: true, flags: [] });

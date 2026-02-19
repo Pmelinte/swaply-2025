@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { rateLimit } from "@/lib/rate-limit";
+import { translateSchema, validateBody } from "@/lib/validation";
+import { requestLogger } from "@/lib/logger";
 
 const LANG_PAIRS: Record<string, string> = {
   "ro-en": "Helsinki-NLP/opus-mt-ro-en",
@@ -17,12 +19,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ translated: "", status: "error", message: "Rate limited" }, { status: 429 });
   }
 
+  const log = requestLogger(request);
   const body = await request.json().catch(() => ({}));
-  const { text, from, to } = body as { text?: string; from?: string; to?: string };
-
-  if (!text || !from || !to) {
-    return NextResponse.json({ error: "Parametri lipsa: text, from, to" }, { status: 400 });
+  const { data: validated, error: validationError } = validateBody(body, translateSchema);
+  if (validationError) {
+    log.warn("Validation failed", { error: validationError });
+    return NextResponse.json({ error: validationError }, { status: 400 });
   }
+  const { text, from, to } = validated!;
 
   if (from === to) {
     return NextResponse.json({ translated: text, status: "same_language" });

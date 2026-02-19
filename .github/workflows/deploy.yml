@@ -1,0 +1,99 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-and-push:
+    name: Build & Push Docker Image
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,prefix=
+            type=ref,event=branch
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            NEXT_PUBLIC_SUPABASE_URL=${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+            NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+            NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=${{ vars.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME }}
+            NEXT_PUBLIC_HF_ENABLED=${{ vars.NEXT_PUBLIC_HF_ENABLED }}
+            NEXT_PUBLIC_MAPS_TOKEN=${{ vars.NEXT_PUBLIC_MAPS_TOKEN }}
+
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    environment: staging
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Deploy to staging
+        run: |
+          echo "Deploying image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+          echo "Target environment: staging"
+          # Add your staging deployment commands here, e.g.:
+          # - SSH into staging server and docker pull + restart
+          # - Trigger a webhook to your hosting platform
+          # - Update a Kubernetes deployment
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: deploy-staging
+    environment: production
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Deploy to production
+        run: |
+          echo "Deploying image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
+          echo "Target environment: production"
+          # Add your production deployment commands here, e.g.:
+          # - SSH into production server and docker pull + restart
+          # - Trigger a webhook to your hosting platform
+          # - Update a Kubernetes deployment

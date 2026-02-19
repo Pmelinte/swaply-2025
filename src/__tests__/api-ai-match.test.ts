@@ -43,7 +43,7 @@ describe("POST /api/ai/match", () => {
     const res = await POST(makeRequest({}));
     expect(res.status).toBe(400);
     const data = await res.json();
-    expect(data.error).toContain("Missing items");
+    expect(data.error).toContain("Required");
   });
 
   it("returns 400 for missing offered item title", async () => {

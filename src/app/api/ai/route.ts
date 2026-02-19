@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { CATEGORIES_TAXONOMY, CATEGORY_NAMES } from "@/lib/categories";
 import { rateLimit } from "@/lib/rate-limit";
+import { aiClassifySchema, validateBody } from "@/lib/validation";
+import { requestLogger } from "@/lib/logger";
 
 const CATEGORIES = CATEGORY_NAMES;
 
@@ -21,15 +23,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ status: "error", message: "Prea multe cereri." }, { status: 429 });
   }
 
+  const log = requestLogger(request);
   const body = await request.json().catch(() => ({}));
-  const { title, description, action, prompt, category, condition } = body as {
-    title?: string;
-    description?: string;
-    action?: "classify" | "tags" | "both";
-    prompt?: string;
-    category?: string;
-    condition?: string;
-  };
+  const { data: validated, error: validationError } = validateBody(body, aiClassifySchema);
+  if (validationError) {
+    log.warn("Validation failed", { error: validationError });
+    return NextResponse.json({ status: "error", message: validationError }, { status: 400 });
+  }
+  const { title, description, action, prompt, category, condition } = validated!;
 
   // AI Description Generator
   if (prompt === "generate_description" && title) {
