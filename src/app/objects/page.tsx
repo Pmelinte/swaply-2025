@@ -692,6 +692,29 @@ export default function ObjectsPage() {
               <Pill color="green">{t("chosenOffered", { count: offerRightCount })}</Pill>
             </div>
 
+            {/* Listing type filter */}
+            <div className="mb-3 flex justify-center">
+              <div className="inline-flex rounded-lg border border-emerald-200 dark:border-emerald-700">
+                {([
+                  { key: "all" as const, icon: <Layers className="h-3.5 w-3.5" />, label: t("allTypes") },
+                  { key: "object" as const, icon: <Package className="h-3.5 w-3.5" />, label: t("objectsType") },
+                  { key: "property" as const, icon: <Home className="h-3.5 w-3.5" />, label: t("propertiesType") },
+                  { key: "service" as const, icon: <Wrench className="h-3.5 w-3.5" />, label: t("servicesType") },
+                ]).map((lt, i) => (
+                  <button
+                    key={lt.key}
+                    onClick={() => setListingTypeFilter(lt.key)}
+                    className={`inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium ${
+                      i === 0 ? "rounded-l-lg" : i === 3 ? "rounded-r-lg" : ""
+                    } ${listingTypeFilter === lt.key ? "bg-emerald-600 text-white" : "text-emerald-700 hover:bg-emerald-100 dark:text-emerald-300 dark:hover:bg-emerald-800"}`}
+                  >
+                    {lt.icon}
+                    <span className="hidden sm:inline">{lt.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* Swipe zone */}
             <div className="mx-auto max-w-sm">
               {!user ? (
