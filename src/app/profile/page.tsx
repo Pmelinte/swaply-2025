@@ -14,6 +14,7 @@ import { useAppState } from "@/lib/state";
 import { LoggedOutGate, MissingDataCallout } from "@/components/gated";
 import { Badge, NextStepRecommendation, Pill, SectionCard, StateShowcase } from "@/components/ui";
 import type { UserProfile, LanguageCode, HouseProfile, ServiceProfile, HouseAmenity, HouseRule, PropertyType, HouseSwapMode, ServiceCategory, SkillLevel, ServiceDelivery } from "@/lib/types";
+import { languageNames, localeFlagUrl, type Locale, locales } from "@/i18n/config";
 import LocationPicker from "@/components/LocationPicker";
 
 export default function ProfilePage() {
@@ -183,44 +184,47 @@ export default function ProfilePage() {
         <div>
           <p className="mb-1.5 text-sm font-semibold text-zinc-700 dark:text-zinc-200">{t("spokenLanguages")}</p>
           <div className="flex flex-wrap gap-2">
-            {draft.languages.map((lang) => (
-              <span key={lang} className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900/40 dark:text-blue-200">
-                {lang.toUpperCase()}
-                <button
-                  type="button"
-                  onClick={() => update({ languages: draft.languages.filter((l) => l !== lang) })}
-                  className="text-blue-600 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-100"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </span>
-            ))}
-            <form
-              className="inline-flex"
-              onSubmit={(e) => {
-                e.preventDefault();
-                const input = e.currentTarget.querySelector("input") as HTMLInputElement;
-                const val = input.value.trim().toLowerCase();
-                if (val && !draft.languages.includes(val as LanguageCode)) {
-                  update({ languages: [...draft.languages, val as LanguageCode] });
-                  input.value = "";
-                }
-              }}
-            >
-              <div className="flex items-center gap-1">
-                <input
-                  type="text"
-                  placeholder={t("languagePlaceholder")}
-                  className="w-28 rounded-lg border border-zinc-200 bg-white px-2 py-1 text-xs dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
-                />
-                <button
-                  type="submit"
-                  className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-white hover:bg-blue-700"
-                >
-                  <Plus className="h-3 w-3" />
-                </button>
-              </div>
-            </form>
+            {draft.languages.map((lang) => {
+              const info = languageNames[lang as Locale];
+              return (
+                <span key={lang} className="inline-flex items-center gap-1.5 rounded-full bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900/40 dark:text-blue-200">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  {info && <img src={localeFlagUrl(lang as Locale, 16)} alt="" width={16} height={12} className="rounded-sm" />}
+                  {info ? info.nativeName : lang.toUpperCase()}
+                  <button
+                    type="button"
+                    onClick={() => update({ languages: draft.languages.filter((l) => l !== lang) })}
+                    className="text-blue-600 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-100"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              );
+            })}
+            <div className="inline-flex items-center gap-1">
+              <select
+                value=""
+                onChange={(e) => {
+                  const val = e.target.value as LanguageCode;
+                  if (val && !draft.languages.includes(val)) {
+                    update({ languages: [...draft.languages, val] });
+                  }
+                }}
+                className="w-40 rounded-lg border border-zinc-200 bg-white px-2 py-1 text-xs dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+              >
+                <option value="">{t("addLanguage")}</option>
+                {locales
+                  .filter((loc) => !draft.languages.includes(loc as LanguageCode))
+                  .map((loc) => {
+                    const info = languageNames[loc];
+                    return (
+                      <option key={loc} value={loc}>
+                        {info.nativeName} ({info.name})
+                      </option>
+                    );
+                  })}
+              </select>
+            </div>
           </div>
         </div>
       </SectionCard>
