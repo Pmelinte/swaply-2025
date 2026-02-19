@@ -9,7 +9,7 @@ import { useAppState } from "@/lib/state";
 import { NO_IMAGE_URL } from "@/lib/storage";
 import { CTAButton, Pill } from "@/components/ui";
 import { SwipeCard } from "@/features/items/SwipeCard";
-import type { Item } from "@/lib/types";
+import type { Item, ListingType } from "@/lib/types";
 import {
   Search,
   LayoutGrid,
@@ -22,6 +22,8 @@ import {
   Briefcase,
   Layers,
   Tag,
+  Home,
+  Wrench,
 } from "lucide-react";
 
 const MAX_RIGHT_SWIPES = 3;
@@ -189,6 +191,16 @@ function ObjectCard({ item, mode }: { item: Item; mode: BrowseMode }) {
         <span className="absolute left-2 top-2 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-zinc-700 backdrop-blur dark:bg-zinc-900/80 dark:text-zinc-200">
           {item.condition}
         </span>
+        {item.listingType === "property" && (
+          <span className="absolute right-2 top-2 rounded-full bg-purple-600/90 px-2 py-0.5 text-[10px] font-semibold text-white backdrop-blur">
+            <Home className="inline h-2.5 w-2.5 mr-0.5" />Property
+          </span>
+        )}
+        {item.listingType === "service" && (
+          <span className="absolute right-2 top-2 rounded-full bg-green-600/90 px-2 py-0.5 text-[10px] font-semibold text-white backdrop-blur">
+            <Wrench className="inline h-2.5 w-2.5 mr-0.5" />Service
+          </span>
+        )}
       </div>
       <div className="flex flex-1 flex-col p-3">
         <h3 className="truncate text-sm font-semibold text-zinc-900 dark:text-zinc-50">{item.title}</h3>
@@ -228,6 +240,7 @@ export default function ObjectsPage() {
   const [conditionFilter, setConditionFilter] = useState<string | null>(null);
   const [locationFilter, setLocationFilter] = useState("");
   const [showFilters, setShowFilters] = useState(false);
+  const [listingTypeFilter, setListingTypeFilter] = useState<ListingType | "all">("all");
 
   // --- SWIPE: WISHES (dorinte) state ---
   const [wishSwipeIndex, setWishSwipeIndex] = useState(0);
@@ -313,6 +326,9 @@ export default function ObjectsPage() {
   // ── Browse filter logic ──
   const filtered = useMemo(() => {
     let result = allObjects;
+    if (listingTypeFilter !== "all") {
+      result = result.filter((i) => (i.listingType ?? "object") === listingTypeFilter);
+    }
     if (search.trim()) {
       const q = search.toLowerCase();
       result = result.filter(
@@ -342,14 +358,15 @@ export default function ObjectsPage() {
         break;
     }
     return result;
-  }, [allObjects, search, categoryFilter, conditionFilter, locationFilter, sortMode]);
+  }, [allObjects, search, categoryFilter, conditionFilter, locationFilter, sortMode, listingTypeFilter]);
 
-  const hasFilters = !!search || !!categoryFilter || !!conditionFilter || !!locationFilter;
+  const hasFilters = !!search || !!categoryFilter || !!conditionFilter || !!locationFilter || listingTypeFilter !== "all";
   const clearAllFilters = () => {
     setSearch("");
     setCategoryFilter(null);
     setConditionFilter(null);
     setLocationFilter("");
+    setListingTypeFilter("all");
   };
   const availableCategories = useMemo(() => {
     const cats = new Set(allObjects.map((i) => i.category));
@@ -408,6 +425,27 @@ export default function ObjectsPage() {
           >
             <List className="h-3.5 w-3.5" />
           </button>
+        </div>
+
+        {/* Listing type filter */}
+        <div className="flex rounded-lg border border-zinc-200 dark:border-zinc-700">
+          {([
+            { key: "all" as const, icon: <Layers className="h-3.5 w-3.5" />, label: t("allTypes") },
+            { key: "object" as const, icon: <Package className="h-3.5 w-3.5" />, label: t("objectsType") },
+            { key: "property" as const, icon: <Home className="h-3.5 w-3.5" />, label: t("propertiesType") },
+            { key: "service" as const, icon: <Wrench className="h-3.5 w-3.5" />, label: t("servicesType") },
+          ]).map((lt, i) => (
+            <button
+              key={lt.key}
+              onClick={() => setListingTypeFilter(lt.key)}
+              className={`inline-flex items-center gap-1 px-2.5 py-2 text-xs font-medium ${
+                i === 0 ? "rounded-l-lg" : i === 3 ? "rounded-r-lg" : ""
+              } ${listingTypeFilter === lt.key ? "bg-purple-600 text-white" : "text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"}`}
+            >
+              {lt.icon}
+              <span className="hidden sm:inline">{lt.label}</span>
+            </button>
+          ))}
         </div>
 
         {/* Show search/filter/sort only in browse modes */}

@@ -52,6 +52,8 @@ export interface UserProfile {
     completedSwaps: number;
     activeListings: number;
   };
+  houseProfile?: HouseProfile;
+  serviceProfiles?: ServiceProfile[];
 }
 
 /** Semantic attributes — all optional, enriching match quality */
@@ -61,6 +63,8 @@ export type ItemPerceivedValue = "small" | "medium" | "large" | "sentimental";
 export type ItemConditionImpact = "affects_value" | "affects_usage" | "affects_durability" | "affects_appearance";
 export type ItemClarity = "exploring" | "have_idea" | "know_exactly";
 export type ItemContext = "permanent" | "vacation" | "temporary" | "urgent";
+
+export type ListingType = "object" | "property" | "service";
 
 export interface Item {
   id: string;
@@ -78,6 +82,9 @@ export interface Item {
   aiSuggestedTags?: string[];
   userFinalTags?: string[];
   photos: string[];
+  listingType?: ListingType;
+  houseProfile?: HouseProfile;
+  serviceProfile?: ServiceProfile;
   /* --- Semantic contract fields (all optional) --- */
   intent?: ItemIntent;
   flexibility?: ItemFlexibility;
@@ -126,12 +133,19 @@ export interface Conversation {
   translationEnabled: boolean;
 }
 
+export type SwapType = "object" | "house" | "service" | "cross";
+
 export interface SwapIntent {
   id: string;
   requesterId: string;
   responderId: string;
   requesterItemId: string;
   responderItemId: string;
+  swapType?: SwapType;
+  /** Cross-swap: additional item IDs from requester side */
+  requesterBundleIds?: string[];
+  /** Cross-swap: additional item IDs from responder side */
+  responderBundleIds?: string[];
   status: "proposed" | "scheduled" | "in_progress" | "completed" | "cancelled";
   logistics: {
     locationType: "public_spot" | "courier" | "pickup";
@@ -143,6 +157,8 @@ export interface SwapIntent {
     rating: number;
     comment: string;
   };
+  cancelReason?: CancelReason;
+  cancelNote?: string;
   createdAt?: string;
   updatedAt?: string;
 }

@@ -117,15 +117,16 @@ const METHOD_DESC_KEYS: Record<SwapIntent["logistics"]["locationType"], string> 
   pickup: "methodPickupDesc",
 };
 
-type SwapType = "local" | "courier_national" | "courier_international" | "vacation" | "house_swap" | "service_swap";
+type ExchangeType = "local" | "courier_national" | "courier_international" | "vacation" | "house_swap" | "service_swap" | "cross";
 
-const SWAP_TYPES: { key: SwapType; icon: typeof MapPin; titleKey: string; descKey: string }[] = [
+const SWAP_TYPES: { key: ExchangeType; icon: typeof MapPin; titleKey: string; descKey: string }[] = [
   { key: "local", icon: MapPin, titleKey: "typeLocal", descKey: "typeLocalDesc" },
   { key: "courier_national", icon: Truck, titleKey: "typeCourierNational", descKey: "typeCourierNationalDesc" },
   { key: "courier_international", icon: Globe, titleKey: "typeCourierInternational", descKey: "typeCourierInternationalDesc" },
   { key: "vacation", icon: Plane, titleKey: "typeVacation", descKey: "typeVacationDesc" },
   { key: "house_swap", icon: Home, titleKey: "typeHouseSwap", descKey: "typeHouseSwapDesc" },
   { key: "service_swap", icon: Wrench, titleKey: "typeServiceSwap", descKey: "typeServiceSwapDesc" },
+  { key: "cross", icon: ArrowRightLeft, titleKey: "typeCross", descKey: "typeCrossDesc" },
 ];
 
 const CHECKLIST_KEYS = [
@@ -149,7 +150,7 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
   } | null>(null);
 
   // Swap type state
-  const [swapType, setSwapType] = useState<SwapType>("local");
+  const [swapType, setSwapType] = useState<ExchangeType>("local");
   const [checklistState, setChecklistState] = useState([false, false, false, false, false]);
 
   // Swap-type-specific field states
@@ -192,6 +193,7 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
   // Cancel reason
   const [cancelReason, setCancelReason] = useState<CancelReason>("changed_mind");
   const [cancelNote, setCancelNote] = useState("");
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
 
   // Logistics local state
   const [logisticsType, setLogisticsType] = useState<SwapIntent["logistics"]["locationType"]>("public_spot");
@@ -217,8 +219,6 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
   if (!user) {
     return <LoggedOutGate returnTo="/change" />;
   }
-
-  const [showCancelDialog, setShowCancelDialog] = useState(false);
 
   const handleStatusChange = (status: SwapIntent["status"], label: string, color: string) => {
     if (status === "cancelled") {
@@ -908,6 +908,44 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
                         <span className="flex items-center gap-1"><Users className="h-3 w-3 text-green-400" /> {t("svcRateCommunication")}</span>
                       </div>
                     </div>
+                  </div>
+                )}
+
+                {/* ── Cross-swap (mixed exchange) ── */}
+                {swapType === "cross" && (
+                  <div className="space-y-4">
+                    <div className="rounded-xl border border-purple-200 bg-purple-50/50 p-4 dark:border-purple-800 dark:bg-purple-950/20">
+                      <div className="flex items-center gap-2 mb-2">
+                        <ArrowRightLeft className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                        <p className="text-sm font-bold text-purple-800 dark:text-purple-200">{t("typeCross")}</p>
+                      </div>
+                      <p className="text-xs text-purple-600 dark:text-purple-400">{t("crossSwapExplanation")}</p>
+                    </div>
+                    <div className="grid gap-3 sm:grid-cols-3">
+                      <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-3 dark:border-blue-800 dark:bg-blue-950/20">
+                        <Package className="h-5 w-5 text-blue-600 dark:text-blue-400 mb-1" />
+                        <p className="text-xs font-semibold text-blue-800 dark:text-blue-200">{t("crossObjects")}</p>
+                        <p className="text-[10px] text-blue-600 dark:text-blue-400">{t("crossObjectsDesc")}</p>
+                      </div>
+                      <div className="rounded-xl border border-purple-200 bg-purple-50/50 p-3 dark:border-purple-800 dark:bg-purple-950/20">
+                        <Home className="h-5 w-5 text-purple-600 dark:text-purple-400 mb-1" />
+                        <p className="text-xs font-semibold text-purple-800 dark:text-purple-200">{t("crossProperties")}</p>
+                        <p className="text-[10px] text-purple-600 dark:text-purple-400">{t("crossPropertiesDesc")}</p>
+                      </div>
+                      <div className="rounded-xl border border-green-200 bg-green-50/50 p-3 dark:border-green-800 dark:bg-green-950/20">
+                        <Wrench className="h-5 w-5 text-green-600 dark:text-green-400 mb-1" />
+                        <p className="text-xs font-semibold text-green-800 dark:text-green-200">{t("crossServices")}</p>
+                        <p className="text-[10px] text-green-600 dark:text-green-400">{t("crossServicesDesc")}</p>
+                      </div>
+                    </div>
+                    <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-3 dark:border-amber-800 dark:bg-amber-950/20">
+                      <p className="flex items-center gap-1.5 text-xs font-semibold text-amber-800 dark:text-amber-200">
+                        <AlertTriangle className="h-3.5 w-3.5" />
+                        {t("crossSwapNote")}
+                      </p>
+                      <p className="mt-1 text-[10px] text-amber-600 dark:text-amber-400">{t("crossSwapNoteDesc")}</p>
+                    </div>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">{t("crossSwapExample")}</p>
                   </div>
                 )}
               </div>

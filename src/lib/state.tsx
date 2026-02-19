@@ -21,12 +21,15 @@ import {
   ChatMessage,
   Conversation,
   FeatureToggle,
+  HouseProfile,
   LanguageCode,
   Item,
   MatchCandidate,
   Notification,
+  ServiceProfile,
   ShopItem,
   SwapIntent,
+  SwapType,
   TierBenefits,
   TokenLedgerEntry,
   TokenShopItem,
@@ -407,6 +410,9 @@ interface AppStateContextProps {
     requesterItemId: string;
     responderItemId: string;
     responderId: string;
+    swapType?: SwapType;
+    requesterBundleIds?: string[];
+    responderBundleIds?: string[];
   }) => Promise<SwapIntent | null>;
   updateSwapStatus: (swapId: string, status: SwapIntent["status"]) => Promise<void>;
   addSwapFeedback: (swapId: string, rating: number, comment: string) => Promise<void>;
@@ -434,6 +440,9 @@ interface AppStateContextProps {
   pauseAccount: () => Promise<void>;
   resumeAccount: () => Promise<void>;
   itemLimitReached: boolean;
+  updateHouseProfile: (profile: HouseProfile) => Promise<void>;
+  addServiceProfile: (profile: ServiceProfile) => Promise<void>;
+  removeServiceProfile: (skillName: string) => Promise<void>;
 }
 
 const AppStateContext = createContext<AppStateContextProps | undefined>(
@@ -1547,10 +1556,16 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       requesterItemId,
       responderItemId,
       responderId,
+      swapType,
+      requesterBundleIds,
+      responderBundleIds,
     }: {
       requesterItemId: string;
       responderItemId: string;
       responderId: string;
+      swapType?: SwapType;
+      requesterBundleIds?: string[];
+      responderBundleIds?: string[];
     }) => {
       if (!user?.id) return null;
       if (!requesterItemId || !responderItemId || !responderId) return null;
@@ -1597,6 +1612,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         responderId,
         requesterItemId,
         responderItemId,
+        swapType: swapType ?? "object",
+        requesterBundleIds,
+        responderBundleIds,
         status: "proposed",
         logistics,
         notifications,
@@ -2010,6 +2028,39 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     trackEvent("account_resumed");
   }, [trackEvent]);
 
+  // ── House Profile Management ──
+  const updateHouseProfile = useCallback(async (profile: HouseProfile) => {
+    if (!user) return;
+    setUser((prev) => prev ? { ...prev, houseProfile: profile } : prev);
+    trackEvent("house_profile_updated", { propertyType: profile.propertyType, swapMode: profile.swapMode });
+  }, [user, trackEvent]);
+
+  // ── Service Profiles Management ──
+  const addServiceProfile = useCallback(async (profile: ServiceProfile) => {
+    if (!user) return;
+    setUser((prev) => {
+      if (!prev) return prev;
+      const existing = prev.serviceProfiles ?? [];
+      const idx = existing.findIndex((s) => s.skillName === profile.skillName);
+      if (idx >= 0) {
+        const updated = [...existing];
+        updated[idx] = profile;
+        return { ...prev, serviceProfiles: updated };
+      }
+      return { ...prev, serviceProfiles: [...existing, profile] };
+    });
+    trackEvent("service_profile_added", { category: profile.category, skill: profile.skillName });
+  }, [user, trackEvent]);
+
+  const removeServiceProfile = useCallback(async (skillName: string) => {
+    if (!user) return;
+    setUser((prev) => {
+      if (!prev) return prev;
+      return { ...prev, serviceProfiles: (prev.serviceProfiles ?? []).filter((s) => s.skillName !== skillName) };
+    });
+    trackEvent("service_profile_removed", { skill: skillName });
+  }, [user, trackEvent]);
+
   // ── Item Limit per Tier ──
   const itemLimitReached = useMemo(() => {
     if (!user) return false;
@@ -2071,6 +2122,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       pauseAccount,
       resumeAccount,
       itemLimitReached,
+      updateHouseProfile,
+      addServiceProfile,
+      removeServiceProfile,
     }),
     [
       dataSource,
@@ -2123,6 +2177,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       pauseAccount,
       resumeAccount,
       itemLimitReached,
+      updateHouseProfile,
+      addServiceProfile,
+      removeServiceProfile,
     ],
   );
 
