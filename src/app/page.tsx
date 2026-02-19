@@ -16,6 +16,9 @@ import {
   MapPin,
   ChevronRight,
   Bell,
+  Home,
+  Wrench,
+  MessageSquare,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
@@ -168,6 +171,33 @@ export default function HomePage() {
             description={t("actionSwapsDesc")}
             badge={pendingSwaps > 0 ? String(pendingSwaps) : undefined}
             gradient="from-amber-500 to-orange-600"
+          />
+        </div>
+      )}
+
+      {/* ── House / Service / Feedback quick links ── */}
+      {user && (
+        <div className="grid gap-3 sm:grid-cols-3">
+          <ActionCard
+            href="/objects?type=property"
+            icon={<Home className="h-5 w-5" />}
+            title={t("actionProperties")}
+            description={t("actionPropertiesDesc")}
+            gradient="from-purple-500 to-fuchsia-600"
+          />
+          <ActionCard
+            href="/objects?type=service"
+            icon={<Wrench className="h-5 w-5" />}
+            title={t("actionServices")}
+            description={t("actionServicesDesc")}
+            gradient="from-teal-500 to-green-600"
+          />
+          <ActionCard
+            href="/feedback"
+            icon={<MessageSquare className="h-5 w-5" />}
+            title={t("actionFeedback")}
+            description={t("actionFeedbackDesc")}
+            gradient="from-rose-500 to-pink-600"
           />
         </div>
       )}

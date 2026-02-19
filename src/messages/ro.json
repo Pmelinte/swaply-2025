@@ -78,7 +78,8 @@
     "inProgress": "{count} în desfășurare",
     "reputation": "Reputație",
     "tokens": "Tokeni",
-    "viewInfo": "Info & Statistici"
+    "viewInfo": "Info & Statistici",
+    "feedback": "Feedback"
   },
 
   "login": {
@@ -358,7 +359,13 @@
     "howStep3Desc": "Negociază în conversații moderate și securizate",
     "howStep4Title": "Schimbă în siguranță",
     "howStep4Desc": "Întâlnire locală, curier sau ridicare cu urmărire completă",
-    "recommendedForYou": "Recomandate pentru tine"
+    "recommendedForYou": "Recomandate pentru tine",
+    "actionProperties": "Proprietăți",
+    "actionPropertiesDesc": "Schimb de case — munte, mare, oraș",
+    "actionServices": "Servicii",
+    "actionServicesDesc": "Schimb de aptitudini — 1h = 1h",
+    "actionFeedback": "Feedback",
+    "actionFeedbackDesc": "Raportează un bug sau sugerează o funcție"
   },
 
   "objects": {
@@ -880,6 +887,36 @@
     "crossSwapNote": "Acord de valoare echitabilă",
     "crossSwapNoteDesc": "Ambele părți trebuie să agreeze valoarea combinată înainte de a continua. Sistemul AI de potrivire ia în considerare toate componentele la evaluarea compatibilității.",
     "crossSwapExample": "Exemplu: Ședere la cabana mea la munte 2 săptămâni + te învăț fotografie → Trotineta ta electrică + 10h dezvoltare web"
+  },
+
+  "feedback": {
+    "title": "Feedback",
+    "subtitle": "Ajută-ne să facem Swaply mai bun — raportează probleme, sugerează funcții sau împărtășește experiența ta.",
+    "feedbackType": "Tip feedback",
+    "feedbackTypeDesc": "Ce fel de feedback ai?",
+    "typeBug": "Raport de bug",
+    "typeBugDesc": "Ceva nu funcționează sau nu funcționează cum ar trebui",
+    "typeSuggestion": "Sugestie funcție",
+    "typeSuggestionDesc": "O idee pentru îmbunătățirea platformei",
+    "typeGeneral": "Feedback general",
+    "typeGeneralDesc": "Comentarii, întrebări sau alte gânduri",
+    "typeRating": "Evaluează Swaply",
+    "typeRatingDesc": "Împărtășește experiența ta generală",
+    "overallRating": "Evaluarea ta",
+    "overallRatingDesc": "Cum ai evalua experiența ta cu Swaply?",
+    "yourMessage": "Mesajul tău",
+    "yourMessageDesc": "Oferă detalii — cu cât ești mai specific, cu atât mai bine putem acționa.",
+    "placeholderBug": "Descrie problema: ce s-a întâmplat, ce ai așteptat și pașii pentru reproducere…",
+    "placeholderSuggestion": "Descrie ideea ta: ce problemă rezolvă și cum ar trebui să funcționeze?",
+    "placeholderGeneral": "Împărtășește gândurile tale…",
+    "placeholderRating": "Ce îți place la Swaply? Ce ar putea fi mai bun?",
+    "contactEmail": "Email de contact (opțional)",
+    "contactEmailDesc": "Dacă vrei să revenim cu un răspuns, oferă emailul tău.",
+    "emailPlaceholder": "emailul-tau@exemplu.com",
+    "submit": "Trimite feedback",
+    "thankYou": "Mulțumim!",
+    "thankYouDesc": "Feedback-ul tău a fost primit. Revizuim fiecare mesaj și îl folosim pentru a îmbunătăți Swaply.",
+    "sendAnother": "Trimite altul"
   },
 
   "info": {

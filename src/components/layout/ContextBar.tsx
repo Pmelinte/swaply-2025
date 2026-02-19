@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
-import { Plus, Filter, MessageCircle, ArrowRight } from "lucide-react";
+import { Plus, Filter, MessageCircle, ArrowRight, MessageSquare } from "lucide-react";
 
 export function ContextBar() {
   const pathname = usePathname();
@@ -35,6 +35,14 @@ export function ContextBar() {
             </span>
           </>
         )}
+        <span className="text-zinc-300 dark:text-zinc-600">|</span>
+        <Link
+          href="/feedback"
+          className="inline-flex items-center gap-1 font-semibold text-rose-600 hover:text-rose-800 dark:text-rose-400"
+        >
+          <MessageSquare className="h-3 w-3" />
+          {t("feedback")}
+        </Link>
       </div>
     );
   } else if (pathname === "/objects" || pathname.startsWith("/objects/")) {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
@@ -228,19 +228,26 @@ function ObjectCard({ item, mode }: { item: Item; mode: BrowseMode }) {
    ═══════════════════════════════════════════════════════════════ */
 export default function ObjectsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, items } = useAppState();
   const t = useTranslations("objects");
   const tc = useTranslations("common");
 
+  const initialTypeFromUrl = searchParams.get("type");
+  const initialListingType: ListingType | "all" =
+    initialTypeFromUrl === "property" || initialTypeFromUrl === "service" || initialTypeFromUrl === "object"
+      ? initialTypeFromUrl
+      : "all";
+
   // --- Browse mode (secondary) ---
-  const [browseMode, setBrowseMode] = useState<BrowseMode | null>(null);
+  const [browseMode, setBrowseMode] = useState<BrowseMode | null>(initialListingType !== "all" ? "grid" : null);
   const [search, setSearch] = useState("");
   const [sortMode, setSortMode] = useState<"newest" | "category" | "condition">("newest");
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [conditionFilter, setConditionFilter] = useState<string | null>(null);
   const [locationFilter, setLocationFilter] = useState("");
   const [showFilters, setShowFilters] = useState(false);
-  const [listingTypeFilter, setListingTypeFilter] = useState<ListingType | "all">("all");
+  const [listingTypeFilter, setListingTypeFilter] = useState<ListingType | "all">(initialListingType);
 
   // --- SWIPE: WISHES (dorinte) state ---
   const [wishSwipeIndex, setWishSwipeIndex] = useState(0);

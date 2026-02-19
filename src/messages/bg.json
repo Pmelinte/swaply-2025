@@ -75,7 +75,8 @@
     "inProgress": "{count} в ход",
     "reputation": "Репутация",
     "tokens": "Токени",
-    "viewInfo": "Информация и статистики"
+    "viewInfo": "Информация и статистики",
+    "feedback": "Feedback"
   },
   "login": {
     "authentication": "Удостоверяване",
@@ -352,7 +353,13 @@
     "howStep3Desc": "Negotiate in moderated, secure conversations",
     "howStep4Title": "Swap safely",
     "howStep4Desc": "Meet locally, ship by courier, or pick up with full tracking",
-    "recommendedForYou": "Recommended for you"
+    "recommendedForYou": "Recommended for you",
+    "actionProperties": "Properties",
+    "actionPropertiesDesc": "House swap — mountain, seaside, city",
+    "actionServices": "Services",
+    "actionServicesDesc": "Skills exchange — 1h = 1h",
+    "actionFeedback": "Feedback",
+    "actionFeedbackDesc": "Report a bug or suggest a feature"
   },
   "objects": {
     "createAccount": "Създай акаунт",
@@ -1332,5 +1339,34 @@
     "back": "Back",
     "next": "Next",
     "start": "Start swapping!"
+  },
+  "feedback": {
+    "title": "Feedback",
+    "subtitle": "Help us make Swaply better — report bugs, suggest features, or share your experience.",
+    "feedbackType": "Feedback type",
+    "feedbackTypeDesc": "What kind of feedback do you have?",
+    "typeBug": "Bug report",
+    "typeBugDesc": "Something is broken or not working as expected",
+    "typeSuggestion": "Feature suggestion",
+    "typeSuggestionDesc": "An idea to improve the platform",
+    "typeGeneral": "General feedback",
+    "typeGeneralDesc": "Comments, questions, or other thoughts",
+    "typeRating": "Rate Swaply",
+    "typeRatingDesc": "Share your overall experience",
+    "overallRating": "Your rating",
+    "overallRatingDesc": "How would you rate your Swaply experience?",
+    "yourMessage": "Your message",
+    "yourMessageDesc": "Share the details — the more specific, the better we can act on it.",
+    "placeholderBug": "Describe the bug: what happened, what you expected, and steps to reproduce…",
+    "placeholderSuggestion": "Describe your idea: what problem does it solve, and how should it work?",
+    "placeholderGeneral": "Share your thoughts…",
+    "placeholderRating": "What do you love about Swaply? What could be better?",
+    "contactEmail": "Contact email (optional)",
+    "contactEmailDesc": "If you'd like us to follow up, provide your email.",
+    "emailPlaceholder": "your-email@example.com",
+    "submit": "Send feedback",
+    "thankYou": "Thank you!",
+    "thankYouDesc": "Your feedback has been received. We review every submission and use it to improve Swaply.",
+    "sendAnother": "Send another"
   }
 }
