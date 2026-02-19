@@ -1136,7 +1136,11 @@
     "fairnessGood": "Fair deal",
     "fairnessOk": "Moderate",
     "fairnessLow": "Uneven",
-    "compare": "Compare"
+    "compare": "Compare",
+    "aiAnalyze": "AI-analyse",
+    "aiPoweredBy": "Drevet af",
+    "loadMore": "Indlæs flere",
+    "remaining": "resterende"
   },
   "swapTimeline": {
     "proposed": "Foreslået",

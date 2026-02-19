@@ -109,6 +109,12 @@ export interface MatchCandidate {
   reason: string;
   aiTrace?: string;
   manualFallbackReason?: string;
+  /** AI-enhanced fields (populated on demand) */
+  aiAnalyzed?: boolean;
+  aiScoreBoost?: number;
+  aiSummary?: string;
+  aiConfidence?: "high" | "medium" | "low";
+  aiProvider?: string;
 }
 
 export interface ChatMessage {

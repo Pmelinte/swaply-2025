@@ -1188,7 +1188,11 @@
     "fairnessGood": "Schimb echitabil",
     "fairnessOk": "Moderat",
     "fairnessLow": "Dezechilibrat",
-    "compare": "Compară"
+    "compare": "Compară",
+    "aiAnalyze": "Analiză AI",
+    "aiPoweredBy": "Alimentat de",
+    "loadMore": "Încarcă mai multe",
+    "remaining": "rămase"
   },
 
   "swapTimeline": {

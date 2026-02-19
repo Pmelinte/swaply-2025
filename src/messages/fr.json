@@ -1141,7 +1141,11 @@
     "fairnessGood": "Fair deal",
     "fairnessOk": "Moderate",
     "fairnessLow": "Uneven",
-    "compare": "Compare"
+    "compare": "Compare",
+    "aiAnalyze": "Analyse IA",
+    "aiPoweredBy": "Propulsé par",
+    "loadMore": "Charger plus",
+    "remaining": "restants"
   },
   "swapTimeline": {
     "proposed": "Proposé",

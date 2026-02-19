@@ -1136,7 +1136,11 @@
     "fairnessGood": "Fair deal",
     "fairnessOk": "Moderate",
     "fairnessLow": "Uneven",
-    "compare": "Compare"
+    "compare": "Compare",
+    "aiAnalyze": "Phân tích AI",
+    "aiPoweredBy": "Được cung cấp bởi",
+    "loadMore": "Tải thêm",
+    "remaining": "còn lại"
   },
   "swapTimeline": {
     "proposed": "Đã đề xuất",

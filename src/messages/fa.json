@@ -1136,7 +1136,11 @@
     "fairnessGood": "Fair deal",
     "fairnessOk": "Moderate",
     "fairnessLow": "Uneven",
-    "compare": "Compare"
+    "compare": "Compare",
+    "aiAnalyze": "تحلیل AI",
+    "aiPoweredBy": "ارائه‌شده توسط",
+    "loadMore": "بارگذاری بیشتر",
+    "remaining": "باقی‌مانده"
   },
   "swapTimeline": {
     "proposed": "پیشنهاد شده",

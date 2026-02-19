@@ -1136,7 +1136,11 @@
     "fairnessGood": "Fair deal",
     "fairnessOk": "Moderate",
     "fairnessLow": "Uneven",
-    "compare": "Compare"
+    "compare": "Compare",
+    "aiAnalyze": "AI шинжилгээ",
+    "aiPoweredBy": "Хангагч",
+    "loadMore": "Илүү ачаалах",
+    "remaining": "үлдсэн"
   },
   "swapTimeline": {
     "proposed": "Санал болгосон",

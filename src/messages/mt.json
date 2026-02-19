@@ -1136,7 +1136,11 @@
     "fairnessGood": "Fair deal",
     "fairnessOk": "Moderate",
     "fairnessLow": "Uneven",
-    "compare": "Compare"
+    "compare": "Compare",
+    "aiAnalyze": "Analiżi AI",
+    "aiPoweredBy": "Mħaddem minn",
+    "loadMore": "Ippowerjat aktar",
+    "remaining": "fadal"
   },
   "swapTimeline": {
     "proposed": "Propost",

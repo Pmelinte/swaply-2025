@@ -1136,7 +1136,11 @@
     "fairnessGood": "Fair deal",
     "fairnessOk": "Moderate",
     "fairnessLow": "Uneven",
-    "compare": "Compare"
+    "compare": "Compare",
+    "aiAnalyze": "AI analīze",
+    "aiPoweredBy": "Nodrošina",
+    "loadMore": "Ielādēt vairāk",
+    "remaining": "atlikuši"
   },
   "swapTimeline": {
     "proposed": "Piedāvāts",

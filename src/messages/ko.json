@@ -1136,7 +1136,11 @@
     "fairnessGood": "Fair deal",
     "fairnessOk": "Moderate",
     "fairnessLow": "Uneven",
-    "compare": "Compare"
+    "compare": "Compare",
+    "aiAnalyze": "AI 분석",
+    "aiPoweredBy": "제공",
+    "loadMore": "더 불러오기",
+    "remaining": "남은"
   },
   "swapTimeline": {
     "proposed": "제안됨",

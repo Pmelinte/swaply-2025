@@ -1136,7 +1136,11 @@
     "fairnessGood": "Fair deal",
     "fairnessOk": "Moderate",
     "fairnessLow": "Uneven",
-    "compare": "Compare"
+    "compare": "Compare",
+    "aiAnalyze": "AI analüüs",
+    "aiPoweredBy": "Toidab",
+    "loadMore": "Laadi rohkem",
+    "remaining": "järelejäänud"
   },
   "swapTimeline": {
     "proposed": "Pakutud",

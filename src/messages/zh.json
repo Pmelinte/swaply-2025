@@ -1136,7 +1136,11 @@
     "fairnessGood": "Fair deal",
     "fairnessOk": "Moderate",
     "fairnessLow": "Uneven",
-    "compare": "Compare"
+    "compare": "Compare",
+    "aiAnalyze": "AI 分析",
+    "aiPoweredBy": "由...提供",
+    "loadMore": "加载更多",
+    "remaining": "剩余"
   },
   "swapTimeline": {
     "proposed": "已提议",

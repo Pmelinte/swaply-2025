@@ -46,6 +46,7 @@ import {
   mockUser,
 } from "./mock-data";
 import { getAllKeywords, areSiblingCategories } from "./categories";
+import { generateDemoData } from "./demo-generator";
 
 const safeString = (value: unknown, fallback = "") =>
   typeof value === "string" ? value : fallback;
@@ -443,6 +444,10 @@ interface AppStateContextProps {
   updateHouseProfile: (profile: HouseProfile) => Promise<void>;
   addServiceProfile: (profile: ServiceProfile) => Promise<void>;
   removeServiceProfile: (skillName: string) => Promise<void>;
+  demoMode: boolean;
+  demoItemCount: number;
+  activateDemoMode: (count: number) => void;
+  deactivateDemoMode: () => void;
 }
 
 const AppStateContext = createContext<AppStateContextProps | undefined>(
@@ -523,6 +528,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [swaps, setSwaps] = useState<SwapIntent[]>([]);
   const [blockedUsers, setBlockedUsers] = useState<string[]>([]);
   const [featureToggles] = useState<FeatureToggle>(computeFeatureToggles());
+  const [demoMode, setDemoMode] = useState(false);
+  const [demoItemCount, setDemoItemCount] = useState(0);
   const [language, setLanguage] = useState<LanguageCode>(() => {
     if (typeof window === "undefined") return "en";
     const saved = window.localStorage.getItem("swaply_language");
@@ -2069,6 +2076,34 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     return ownItems.length >= limit;
   }, [user, items]);
 
+  // ── Demo Mode: generate large-scale data for pitching ──
+  const activateDemoMode = useCallback((count: number) => {
+    const clamped = Math.max(100, Math.min(50_000, count));
+    const demo = generateDemoData(clamped);
+    setItems((prev) => [...prev, ...demo.items]);
+    setMatches(demo.matches);
+    setDemoMode(true);
+    setDemoItemCount(clamped);
+  }, []);
+
+  const deactivateDemoMode = useCallback(() => {
+    setItems((prev) => prev.filter((i) => !i.isDemo));
+    setMatches([]);
+    setDemoMode(false);
+    setDemoItemCount(0);
+  }, []);
+
+  // Auto-detect ?demo=N in URL
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const demoParam = params.get("demo");
+    if (demoParam) {
+      const count = parseInt(demoParam, 10);
+      if (!isNaN(count) && count > 0) activateDemoMode(count);
+    }
+  }, [activateDemoMode]);
+
   const value = useMemo(
     () => ({
       user,
@@ -2125,6 +2160,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       updateHouseProfile,
       addServiceProfile,
       removeServiceProfile,
+      demoMode,
+      demoItemCount,
+      activateDemoMode,
+      deactivateDemoMode,
     }),
     [
       dataSource,
@@ -2180,6 +2219,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       updateHouseProfile,
       addServiceProfile,
       removeServiceProfile,
+      demoMode,
+      demoItemCount,
+      activateDemoMode,
+      deactivateDemoMode,
     ],
   );
 

@@ -1136,7 +1136,11 @@
     "fairnessGood": "Fair deal",
     "fairnessOk": "Moderate",
     "fairnessLow": "Uneven",
-    "compare": "Compare"
+    "compare": "Compare",
+    "aiAnalyze": "AI Analiz",
+    "aiPoweredBy": "Sağlayan",
+    "loadMore": "Daha fazla yükle",
+    "remaining": "kalan"
   },
   "swapTimeline": {
     "proposed": "Önerildi",

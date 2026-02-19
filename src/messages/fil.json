@@ -1136,7 +1136,11 @@
     "fairnessGood": "Fair deal",
     "fairnessOk": "Moderate",
     "fairnessLow": "Uneven",
-    "compare": "Compare"
+    "compare": "Compare",
+    "aiAnalyze": "AI Analysis",
+    "aiPoweredBy": "Pinapagana ng",
+    "loadMore": "Mag-load pa",
+    "remaining": "natitirang"
   },
   "swapTimeline": {
     "proposed": "Iminungkahi",

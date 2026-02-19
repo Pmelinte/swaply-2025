@@ -1136,7 +1136,11 @@
     "fairnessGood": "Fair deal",
     "fairnessOk": "Moderate",
     "fairnessLow": "Uneven",
-    "compare": "Compare"
+    "compare": "Compare",
+    "aiAnalyze": "AI analýza",
+    "aiPoweredBy": "Poháňané",
+    "loadMore": "Načítať viac",
+    "remaining": "zostávajúcich"
   },
   "swapTimeline": {
     "proposed": "Navrhnuté",

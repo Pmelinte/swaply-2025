@@ -1136,7 +1136,11 @@
     "fairnessGood": "Fair deal",
     "fairnessOk": "Moderate",
     "fairnessLow": "Uneven",
-    "compare": "Compare"
+    "compare": "Compare",
+    "aiAnalyze": "AI বিশ্লেষণ",
+    "aiPoweredBy": "দ্বারা চালিত",
+    "loadMore": "আরও লোড করুন",
+    "remaining": "অবশিষ্ট"
   },
   "swapTimeline": {
     "proposed": "প্রস্তাবিত",

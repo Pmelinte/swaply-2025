@@ -1136,7 +1136,11 @@
     "fairnessGood": "Fair deal",
     "fairnessOk": "Moderate",
     "fairnessLow": "Uneven",
-    "compare": "Compare"
+    "compare": "Compare",
+    "aiAnalyze": "Analisis AI",
+    "aiPoweredBy": "Dikuasakan oleh",
+    "loadMore": "Muat lebih banyak",
+    "remaining": "baki"
   },
   "swapTimeline": {
     "proposed": "Dicadangkan",

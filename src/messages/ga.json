@@ -1136,7 +1136,11 @@
     "fairnessGood": "Fair deal",
     "fairnessOk": "Moderate",
     "fairnessLow": "Uneven",
-    "compare": "Compare"
+    "compare": "Compare",
+    "aiAnalyze": "Anailís AI",
+    "aiPoweredBy": "Cumhachtaithe ag",
+    "loadMore": "Lódáil níos mó",
+    "remaining": "fágtha"
   },
   "swapTimeline": {
     "proposed": "Molta",

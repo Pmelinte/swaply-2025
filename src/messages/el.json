@@ -1136,7 +1136,11 @@
     "fairnessGood": "Fair deal",
     "fairnessOk": "Moderate",
     "fairnessLow": "Uneven",
-    "compare": "Compare"
+    "compare": "Compare",
+    "aiAnalyze": "Ανάλυση AI",
+    "aiPoweredBy": "Τροφοδοτείται από",
+    "loadMore": "Φόρτωση περισσότερων",
+    "remaining": "υπόλοιπα"
   },
   "swapTimeline": {
     "proposed": "Προτεινόμενη",

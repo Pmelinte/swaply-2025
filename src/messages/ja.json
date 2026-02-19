@@ -1136,7 +1136,11 @@
     "fairnessGood": "Fair deal",
     "fairnessOk": "Moderate",
     "fairnessLow": "Uneven",
-    "compare": "Compare"
+    "compare": "Compare",
+    "aiAnalyze": "AI分析",
+    "aiPoweredBy": "提供元",
+    "loadMore": "もっと読み込む",
+    "remaining": "件残り"
   },
   "swapTimeline": {
     "proposed": "提案済み",

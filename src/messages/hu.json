@@ -1136,7 +1136,11 @@
     "fairnessGood": "Fair deal",
     "fairnessOk": "Moderate",
     "fairnessLow": "Uneven",
-    "compare": "Compare"
+    "compare": "Compare",
+    "aiAnalyze": "AI elemzés",
+    "aiPoweredBy": "Szolgáltató:",
+    "loadMore": "Több betöltése",
+    "remaining": "maradt"
   },
   "swapTimeline": {
     "proposed": "Javasolt",

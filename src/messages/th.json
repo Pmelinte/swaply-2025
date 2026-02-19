@@ -1136,7 +1136,11 @@
     "fairnessGood": "Fair deal",
     "fairnessOk": "Moderate",
     "fairnessLow": "Uneven",
-    "compare": "Compare"
+    "compare": "Compare",
+    "aiAnalyze": "วิเคราะห์ AI",
+    "aiPoweredBy": "ขับเคลื่อนโดย",
+    "loadMore": "โหลดเพิ่ม",
+    "remaining": "ที่เหลือ"
   },
   "swapTimeline": {
     "proposed": "เสนอแล้ว",

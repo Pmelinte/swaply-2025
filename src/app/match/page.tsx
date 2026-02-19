@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
@@ -21,7 +21,9 @@ const CATEGORIES = [
 
 export default function MatchPage() {
   const router = useRouter();
-  const { user, matches, featureToggles, proposeSwap, trackEvent } = useAppState();
+  const { user, matches: rawMatches, featureToggles, proposeSwap, trackEvent } = useAppState();
+  const [localMatches, setLocalMatches] = useState<MatchCandidate[]>([]);
+  const [matchesInitialized, setMatchesInitialized] = useState(false);
   const [manualMode, setManualMode] = useState(false);
   const [tierFilter, setTierFilter] = useState<MatchTier | "all">("all");
   const [sortBy, setSortBy] = useState<SortOption>("score");
@@ -34,6 +36,69 @@ export default function MatchPage() {
   const [maxDistanceKm, setMaxDistanceKm] = useState(0);
   const [swapTypeFilter, setSwapTypeFilter] = useState<"all" | "local" | "courier" | "vacation" | "service">("all");
   const t = useTranslations("match");
+
+  // Keep localMatches in sync with rawMatches (preserving AI enrichments)
+  const matches = useMemo(() => {
+    if (!matchesInitialized && rawMatches.length > 0) {
+      setMatchesInitialized(true);
+      setLocalMatches(rawMatches);
+      return rawMatches;
+    }
+    // Merge: new raw matches get added, existing ones keep AI data
+    const aiMap = new Map(localMatches.filter((m) => m.aiAnalyzed).map((m) => [m.id, m]));
+    return rawMatches.map((rm) => aiMap.get(rm.id) ?? rm);
+  }, [rawMatches, localMatches, matchesInitialized]);
+
+  const handleAiAnalyze = useCallback(async (matchId: string) => {
+    const match = matches.find((m) => m.id === matchId);
+    if (!match) return;
+    trackEvent("ai_match_analyze", { matchId, baseScore: match.compatibilityScore });
+    try {
+      const res = await fetch("/api/ai/match", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          offeredItem: {
+            title: match.itemOffered.title,
+            category: match.itemOffered.category,
+            condition: match.itemOffered.condition,
+            description: match.itemOffered.description,
+            wishlist: match.itemOffered.wishlist,
+            tags: match.itemOffered.userFinalTags ?? match.itemOffered.aiSuggestedTags,
+            location: match.itemOffered.location,
+            perceivedValue: match.itemOffered.perceivedValue,
+          },
+          requestedItem: {
+            title: match.itemRequested.title,
+            category: match.itemRequested.category,
+            condition: match.itemRequested.condition,
+            description: match.itemRequested.description,
+            wishlist: match.itemRequested.wishlist,
+            tags: match.itemRequested.userFinalTags ?? match.itemRequested.aiSuggestedTags,
+            location: match.itemRequested.location,
+            perceivedValue: match.itemRequested.perceivedValue,
+          },
+          baseScore: match.compatibilityScore,
+          reasons: match.reasons,
+        }),
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      setLocalMatches((prev) => {
+        const idx = prev.findIndex((m) => m.id === matchId);
+        if (idx === -1) {
+          // Not yet in local — add the enriched version
+          return [...prev, { ...match, aiAnalyzed: true, aiScoreBoost: data.aiScoreBoost, aiSummary: data.aiSummary, aiConfidence: data.aiConfidence, aiProvider: data.provider }];
+        }
+        const updated = [...prev];
+        updated[idx] = { ...updated[idx], aiAnalyzed: true, aiScoreBoost: data.aiScoreBoost, aiSummary: data.aiSummary, aiConfidence: data.aiConfidence, aiProvider: data.provider };
+        return updated;
+      });
+      trackEvent("ai_match_result", { matchId, boost: data.aiScoreBoost, confidence: data.aiConfidence, provider: data.provider });
+    } catch {
+      // Silently fail — user sees no AI badge
+    }
+  }, [matches, trackEvent]);
 
   if (!user) {
     return <LoggedOutGate returnTo="/match" />;
@@ -147,6 +212,7 @@ export default function MatchPage() {
             onAccept={(match) => void handleProposeSwap(match.id)}
             onNegotiate={(match) => handleNegotiate(match.id)}
             onReject={(match, reason) => handleReject(match, reason)}
+            onAiAnalyze={handleAiAnalyze}
           />
         ) : (
           <div className="rounded-xl bg-zinc-50 p-4 text-center text-sm text-zinc-500 dark:bg-zinc-800/50">
@@ -443,6 +509,7 @@ export default function MatchPage() {
           onAccept={(match) => void handleProposeSwap(match.id)}
           onNegotiate={(match) => handleNegotiate(match.id)}
           onReject={() => {}}
+          onAiAnalyze={handleAiAnalyze}
         />
       </SectionCard>
 
