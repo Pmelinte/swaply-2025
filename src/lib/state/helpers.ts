@@ -91,11 +91,29 @@ export function computeFeatureToggles(): FeatureToggle {
 export function computeTierBenefits(badge: UserProfile["badge"]): TierBenefits {
   switch (badge) {
     case "platinum":
-      return { mapPinVisible: true, priorityMatching: true, aiSuggestions: true, swapAnalytics: true, profileBadge: true, prioritySupport: true, monthlyTokens: 999, boostSlots: 5 };
+      return {
+        mapPinVisible: true, priorityMatching: true, aiSuggestions: true,
+        swapAnalytics: true, profileBadge: true, prioritySupport: true,
+        monthlyTokens: 999, boostSlots: 5, adFree: true,
+        extendedFilters: true, exportReports: true, auctionMode: true,
+        itemLimit: 999, featuredSlots: 3,
+      };
     case "premium":
-      return { mapPinVisible: true, priorityMatching: false, aiSuggestions: true, swapAnalytics: false, profileBadge: false, prioritySupport: false, monthlyTokens: 50, boostSlots: 2 };
+      return {
+        mapPinVisible: true, priorityMatching: true, aiSuggestions: true,
+        swapAnalytics: true, profileBadge: false, prioritySupport: false,
+        monthlyTokens: 50, boostSlots: 2, adFree: true,
+        extendedFilters: true, exportReports: false, auctionMode: false,
+        itemLimit: 50, featuredSlots: 1,
+      };
     default:
-      return { mapPinVisible: false, priorityMatching: false, aiSuggestions: false, swapAnalytics: false, profileBadge: false, prioritySupport: false, monthlyTokens: 10, boostSlots: 0 };
+      return {
+        mapPinVisible: false, priorityMatching: false, aiSuggestions: false,
+        swapAnalytics: false, profileBadge: false, prioritySupport: false,
+        monthlyTokens: 10, boostSlots: 0, adFree: false,
+        extendedFilters: false, exportReports: false, auctionMode: false,
+        itemLimit: 10, featuredSlots: 0,
+      };
   }
 }
 

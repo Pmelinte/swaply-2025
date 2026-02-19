@@ -50,6 +50,49 @@ import {
   mockUser,
 } from "../mock-data";
 import { generateDemoData } from "../demo-generator";
+import {
+  ALL_SHOP_ITEMS,
+  applyPromoDiscount,
+  computeBalance,
+  computeStreak,
+  generateReferralCode,
+  getActivePromotions,
+  getStreakReward,
+  getSwapMilestones,
+  getTokenMultiplier,
+  getUnclaimedMilestoneBonus,
+  getLoyaltyMilestones,
+  computeDaysActive,
+  GIFT_MIN,
+  GIFT_MAX,
+  INSURANCE_COST,
+  FEATURED_COST,
+  FEATURED_DURATION_HOURS,
+  REFERRAL_REWARD_REFERRED,
+  REFERRAL_REWARD_REFERRER,
+  VERIFIED_BADGE_COST,
+  BUSINESS_UPGRADE_COST,
+  validateGiftAmount,
+  hasFeatureAccess,
+  TOKEN_PACKAGES,
+  SUBSCRIPTION_PLANS,
+  PROFILE_THEMES,
+  LOYALTY_MILESTONES,
+  SWAP_MILESTONES,
+  DEFAULT_PROMOTIONS,
+} from "../monetization";
+import type {
+  FeaturedListing,
+  LoginStreak,
+  LoyaltyMilestone,
+  Referral,
+  SeasonalPromotion,
+  SwapInsurance,
+  SwapMilestone,
+  TokenGift,
+  UserSubscription,
+} from "../types";
+import type { PremiumFeature } from "../monetization";
 
 // ── Extracted modules ──
 import {
@@ -144,6 +187,29 @@ interface AppStateContextProps {
   // Real-time additions
   setTyping: (conversationId: string, isTyping: boolean) => Promise<void>;
   markMessagesRead: (conversationId: string) => Promise<void>;
+  // ── Monetization (20 capabilities) ──
+  loginStreak: LoginStreak;
+  claimDailyReward: () => Promise<{ tokens: number } | { error: string }>;
+  referralCode: string;
+  referrals: Referral[];
+  sendReferralInvite: (email: string) => Promise<{ error?: string }>;
+  giftTokens: (recipientId: string, amount: number, message: string) => Promise<{ error?: string }>;
+  purchaseFeaturedSlot: (itemId: string) => Promise<{ error?: string }>;
+  purchaseInsurance: (swapId: string) => Promise<{ error?: string }>;
+  purchaseVerifiedBadge: () => Promise<{ error?: string }>;
+  purchaseTheme: (themeId: string) => Promise<{ error?: string }>;
+  activateTheme: (themeId: string) => void;
+  purchaseBusinessUpgrade: (companyName: string) => Promise<{ error?: string }>;
+  subscription: UserSubscription;
+  activePromotions: SeasonalPromotion[];
+  featuredListings: FeaturedListing[];
+  swapMilestones: SwapMilestone[];
+  loyaltyMilestones: LoyaltyMilestone[];
+  tokenBalance: number;
+  hasFeature: (feature: PremiumFeature) => boolean;
+  activeTheme: string | null;
+  isVerified: boolean;
+  isBusiness: boolean;
 }
 
 const AppStateContext = createContext<AppStateContextProps | undefined>(undefined);
@@ -1030,14 +1096,14 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     }));
   }, [user, items]);
 
-  // ── Shop ──
-  const shopItems = useMemo<ShopItem[]>(() => [
-    { id: "boost_listing", title: "Boost Listing", description: "Pin your item to top for 24h", cost: 10, icon: "🚀" },
-    { id: "premium_badge_7d", title: "Premium Trial", description: "7-day premium experience", cost: 50, icon: "💎" },
-    { id: "extra_listings_5", title: "+5 Listings", description: "Expand your inventory limit", cost: 15, icon: "📦" },
-    { id: "priority_matching_24h", title: "Priority Match", description: "24h priority in matching queue", cost: 20, icon: "⚡" },
-    { id: "highlight_profile_7d", title: "Profile Highlight", description: "Highlighted profile for 7 days", cost: 25, icon: "✨" },
-  ], []);
+  // ── Shop (expanded — 16 items across 5 categories) ──
+  const shopItems = useMemo<ShopItem[]>(() => {
+    const promos = getActivePromotions();
+    return ALL_SHOP_ITEMS.map((item) => ({
+      ...item,
+      cost: applyPromoDiscount(item.cost, promos),
+    }));
+  }, []);
 
   const purchaseShopItem = useCallback(async (itemId: TokenShopItem): Promise<{ error?: string }> => {
     if (!user) return { error: "Not logged in" };
@@ -1053,6 +1119,213 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     trackEvent("shop_purchase", { itemId, cost: item.cost });
     return {};
   }, [user, shopItems, tokenLedger, trackEvent]);
+
+  // ── 4. Daily Login Streak ──
+  const [loginStreak, setLoginStreak] = useState<LoginStreak>({
+    currentStreak: 1, longestStreak: 1, lastLoginDate: new Date().toISOString(),
+    todayClaimed: false, nextReward: 2,
+  });
+
+  const claimDailyReward = useCallback(async () => {
+    if (!user) return { error: "Not logged in" };
+    if (loginStreak.todayClaimed) return { error: "Deja revendicat azi" };
+    const reward = getStreakReward(loginStreak.currentStreak);
+    const promos = getActivePromotions();
+    const multiplier = getTokenMultiplier(promos);
+    const finalReward = reward * multiplier;
+    setTokenLedger((prev) => [...prev, {
+      id: nanoid(), userId: user.id, amount: finalReward,
+      reason: "daily_streak" as const,
+      description: `Streak zi ${loginStreak.currentStreak}${multiplier > 1 ? ` (×${multiplier} promo)` : ""}`,
+      createdAt: new Date().toISOString(),
+    }]);
+    setLoginStreak((prev) => ({ ...prev, todayClaimed: true, nextReward: getStreakReward(prev.currentStreak + 1) }));
+    trackEvent("daily_streak_claimed", { day: loginStreak.currentStreak, tokens: finalReward });
+    return { tokens: finalReward };
+  }, [user, loginStreak, trackEvent]);
+
+  // Update streak on each session
+  useEffect(() => {
+    if (user) {
+      setLoginStreak((prev) => computeStreak(prev.lastLoginDate, prev.currentStreak));
+    }
+  }, [user?.id]);
+
+  // ── 3. Referral Program ──
+  const referralCode = useMemo(() => user ? generateReferralCode(user.id) : "", [user?.id]);
+  const [referrals, setReferrals] = useState<Referral[]>([]);
+
+  const sendReferralInvite = useCallback(async (email: string): Promise<{ error?: string }> => {
+    if (!user) return { error: "Not logged in" };
+    if (!email.includes("@")) return { error: "Email invalid" };
+    setReferrals((prev) => [...prev, {
+      id: nanoid(), referrerId: user.id, referredId: "", referredEmail: email,
+      referralCode, status: "pending" as const, tokensEarned: 0,
+      createdAt: new Date().toISOString(),
+    }]);
+    trackEvent("referral_sent", { email });
+    return {};
+  }, [user, referralCode, trackEvent]);
+
+  // ── 7. Gift Tokens ──
+  const giftTokens = useCallback(async (recipientId: string, amount: number, message: string): Promise<{ error?: string }> => {
+    if (!user) return { error: "Not logged in" };
+    const balance = computeBalance(tokenLedger);
+    const err = validateGiftAmount(amount, balance);
+    if (err) return { error: err };
+    setTokenLedger((prev) => [
+      ...prev,
+      { id: nanoid(), userId: user.id, amount: -amount, reason: "gift_sent" as const, description: `Gift → ${recipientId}: ${message}`, createdAt: new Date().toISOString() },
+      { id: nanoid(), userId: recipientId, amount, reason: "gift_received" as const, description: `Gift de la ${user.displayName}: ${message}`, createdAt: new Date().toISOString() },
+    ]);
+    trackEvent("tokens_gifted", { recipientId, amount });
+    return {};
+  }, [user, tokenLedger, trackEvent]);
+
+  // ── 5. Featured Listing Slots ──
+  const [featuredListings, setFeaturedListings] = useState<FeaturedListing[]>([]);
+
+  const purchaseFeaturedSlot = useCallback(async (itemId: string): Promise<{ error?: string }> => {
+    if (!user) return { error: "Not logged in" };
+    const balance = computeBalance(tokenLedger);
+    if (balance < FEATURED_COST) return { error: "Fonduri insuficiente" };
+    setTokenLedger((prev) => [...prev, {
+      id: nanoid(), userId: user.id, amount: -FEATURED_COST,
+      reason: "featured_spent" as const, description: `Featured: ${itemId}`,
+      createdAt: new Date().toISOString(),
+    }]);
+    const expiresAt = new Date(Date.now() + FEATURED_DURATION_HOURS * 60 * 60 * 1000).toISOString();
+    setFeaturedListings((prev) => [...prev, {
+      id: nanoid(), itemId, userId: user.id, position: prev.length,
+      expiresAt, createdAt: new Date().toISOString(),
+    }]);
+    trackEvent("featured_purchased", { itemId, cost: FEATURED_COST });
+    return {};
+  }, [user, tokenLedger, trackEvent]);
+
+  // ── 6. Swap Insurance ──
+  const purchaseInsurance = useCallback(async (swapId: string): Promise<{ error?: string }> => {
+    if (!user) return { error: "Not logged in" };
+    const balance = computeBalance(tokenLedger);
+    if (balance < INSURANCE_COST) return { error: "Fonduri insuficiente" };
+    setTokenLedger((prev) => [...prev, {
+      id: nanoid(), userId: user.id, amount: -INSURANCE_COST,
+      reason: "insurance_spent" as const, description: `Insurance: ${swapId}`,
+      createdAt: new Date().toISOString(),
+    }]);
+    trackEvent("insurance_purchased", { swapId, cost: INSURANCE_COST });
+    return {};
+  }, [user, tokenLedger, trackEvent]);
+
+  // ── 9. Verified Badge ──
+  const [isVerified, setIsVerified] = useState(false);
+
+  const purchaseVerifiedBadge = useCallback(async (): Promise<{ error?: string }> => {
+    if (!user) return { error: "Not logged in" };
+    if (isVerified) return { error: "Deja verificat" };
+    const balance = computeBalance(tokenLedger);
+    if (balance < VERIFIED_BADGE_COST) return { error: "Fonduri insuficiente" };
+    setTokenLedger((prev) => [...prev, {
+      id: nanoid(), userId: user.id, amount: -VERIFIED_BADGE_COST,
+      reason: "verified_spent" as const, description: "Verified badge",
+      createdAt: new Date().toISOString(),
+    }]);
+    setIsVerified(true);
+    trackEvent("verified_badge_purchased", { cost: VERIFIED_BADGE_COST });
+    return {};
+  }, [user, isVerified, tokenLedger, trackEvent]);
+
+  // ── 10. Profile Themes ──
+  const [purchasedThemes, setPurchasedThemes] = useState<string[]>([]);
+  const [activeTheme, setActiveTheme] = useState<string | null>(null);
+
+  const purchaseTheme = useCallback(async (themeId: string): Promise<{ error?: string }> => {
+    if (!user) return { error: "Not logged in" };
+    if (purchasedThemes.includes(themeId)) return { error: "Deja cumpărat" };
+    const theme = PROFILE_THEMES.find((t) => t.id === themeId);
+    if (!theme) return { error: "Tema inexistentă" };
+    const balance = computeBalance(tokenLedger);
+    if (balance < theme.cost) return { error: "Fonduri insuficiente" };
+    setTokenLedger((prev) => [...prev, {
+      id: nanoid(), userId: user.id, amount: -theme.cost,
+      reason: "theme_spent" as const, description: `Theme: ${theme.name}`,
+      createdAt: new Date().toISOString(),
+    }]);
+    setPurchasedThemes((prev) => [...prev, themeId]);
+    setActiveTheme(themeId);
+    trackEvent("theme_purchased", { themeId, cost: theme.cost });
+    return {};
+  }, [user, purchasedThemes, tokenLedger, trackEvent]);
+
+  const activateTheme = useCallback((themeId: string) => {
+    if (purchasedThemes.includes(themeId) || !themeId) setActiveTheme(themeId || null);
+  }, [purchasedThemes]);
+
+  // ── 17. Business Account ──
+  const [isBusiness, setIsBusiness] = useState(false);
+
+  const purchaseBusinessUpgrade = useCallback(async (companyName: string): Promise<{ error?: string }> => {
+    if (!user) return { error: "Not logged in" };
+    if (isBusiness) return { error: "Deja business" };
+    const balance = computeBalance(tokenLedger);
+    if (balance < BUSINESS_UPGRADE_COST) return { error: "Fonduri insuficiente" };
+    setTokenLedger((prev) => [...prev, {
+      id: nanoid(), userId: user.id, amount: -BUSINESS_UPGRADE_COST,
+      reason: "business_upgrade" as const, description: `Business: ${companyName}`,
+      createdAt: new Date().toISOString(),
+    }]);
+    setIsBusiness(true);
+    trackEvent("business_upgrade", { companyName, cost: BUSINESS_UPGRADE_COST });
+    return {};
+  }, [user, isBusiness, tokenLedger, trackEvent]);
+
+  // ── 2. Subscription ──
+  const [subscription] = useState<UserSubscription>({
+    planId: (user?.badge ?? "free") as "free" | "premium" | "platinum",
+    status: "active", currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+    cancelAtPeriodEnd: false,
+  });
+
+  // ── 18. Active Promotions ──
+  const activePromotions = useMemo(() => getActivePromotions(), []);
+
+  // ── 19. Swap Milestones ──
+  const swapMilestones = useMemo(() =>
+    getSwapMilestones(user?.stats.completedSwaps ?? 0),
+    [user?.stats.completedSwaps],
+  );
+
+  // Auto-grant milestone bonuses
+  useEffect(() => {
+    if (!user) return;
+    const milestone = getUnclaimedMilestoneBonus(user.stats.completedSwaps, []);
+    if (milestone) {
+      const promos = getActivePromotions();
+      const multiplier = getTokenMultiplier(promos);
+      setTokenLedger((prev) => [...prev, {
+        id: nanoid(), userId: user.id, amount: milestone.bonusTokens * multiplier,
+        reason: "milestone_bonus" as const,
+        description: `Milestone: ${milestone.label}`,
+        createdAt: new Date().toISOString(),
+      }]);
+      trackEvent("milestone_bonus", { swapCount: milestone.swapCount, tokens: milestone.bonusTokens * multiplier });
+    }
+  }, [user?.stats.completedSwaps]);
+
+  // ── 20. Loyalty Milestones ──
+  const loyaltyMilestones = useMemo(() => {
+    if (!user) return LOYALTY_MILESTONES;
+    const days = computeDaysActive(user.stats.completedSwaps > 0 ? user.stats.completedSwaps.toString() : new Date().toISOString());
+    return getLoyaltyMilestones(days);
+  }, [user]);
+
+  // ── 11-16. Feature gating ──
+  const hasFeature = useCallback((feature: PremiumFeature) => {
+    return hasFeatureAccess(user?.badge ?? "free", feature);
+  }, [user?.badge]);
+
+  // ── Token balance (computed) ──
+  const tokenBalance = useMemo(() => computeBalance(tokenLedger), [tokenLedger]);
 
   // ── GDPR ──
   const exportUserData = useCallback(async (): Promise<string> => {
@@ -1112,7 +1385,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const itemLimitReached = useMemo(() => {
     if (!user) return false;
     const ownItems = items.filter((i) => i.ownerId === user.id && i.status !== "archived");
-    const limit = user.badge === "free" ? 10 : user.badge === "premium" ? 50 : 999;
+    const limit = isBusiness ? 200 : tierBenefits.itemLimit;
     return ownItems.length >= limit;
   }, [user, items]);
 
@@ -1159,6 +1432,13 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     updateHouseProfile, addServiceProfile, removeServiceProfile,
     demoMode, demoItemCount, activateDemoMode, deactivateDemoMode,
     setTyping, markMessagesRead,
+    // Monetization (20 capabilities)
+    loginStreak, claimDailyReward, referralCode, referrals, sendReferralInvite,
+    giftTokens, purchaseFeaturedSlot, purchaseInsurance, purchaseVerifiedBadge,
+    purchaseTheme, activateTheme, purchaseBusinessUpgrade,
+    subscription, activePromotions, featuredListings,
+    swapMilestones, loyaltyMilestones, tokenBalance, hasFeature,
+    activeTheme, isVerified, isBusiness,
   }), [
     dataSource, loading, lastError, announcements, notifications, conversations,
     featureToggles, items, login, resetPassword, deleteAccount, changeEmail,
@@ -1173,6 +1453,12 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     updateHouseProfile, addServiceProfile, removeServiceProfile,
     demoMode, demoItemCount, activateDemoMode, deactivateDemoMode,
     setTyping, markMessagesRead,
+    loginStreak, claimDailyReward, referralCode, referrals, sendReferralInvite,
+    giftTokens, purchaseFeaturedSlot, purchaseInsurance, purchaseVerifiedBadge,
+    purchaseTheme, activateTheme, purchaseBusinessUpgrade,
+    subscription, activePromotions, featuredListings,
+    swapMilestones, loyaltyMilestones, tokenBalance, hasFeature,
+    activeTheme, isVerified, isBusiness,
   ]);
 
   return <AppStateContext.Provider value={value}>{children}</AppStateContext.Provider>;

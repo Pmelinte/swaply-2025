@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
-import { Plus, Filter, MessageCircle, ArrowRight, MessageSquare } from "lucide-react";
+import { Plus, Filter, MessageCircle, ArrowRight, MessageSquare, Coins } from "lucide-react";
 
 export function ContextBar() {
   const pathname = usePathname();
@@ -127,12 +127,36 @@ export function ContextBar() {
         )}
       </div>
     );
+  } else if (pathname === "/monetization" || pathname.startsWith("/monetization")) {
+    content = (
+      <div className="flex items-center gap-3">
+        <span className="inline-flex items-center gap-1">
+          <Coins className="h-3 w-3" />
+          {t("tokens")}: {user.stats.tokens}
+        </span>
+        <span className="text-zinc-300 dark:text-zinc-600">|</span>
+        <Link
+          href="/profile"
+          className="font-semibold text-blue-600 hover:text-blue-800 dark:text-blue-400"
+        >
+          {t("reputation")}
+        </Link>
+      </div>
+    );
   } else if (pathname === "/profile" || pathname.startsWith("/profile")) {
     content = (
       <div className="flex items-center gap-3">
         <span>{t("reputation")}: {user.stats.reputation}</span>
         <span className="text-zinc-300 dark:text-zinc-600">|</span>
         <span>{t("tokens")}: {user.stats.tokens}</span>
+        <span className="text-zinc-300 dark:text-zinc-600">|</span>
+        <Link
+          href="/monetization"
+          className="inline-flex items-center gap-1 font-semibold text-amber-600 hover:text-amber-800 dark:text-amber-400"
+        >
+          <Coins className="h-3 w-3" />
+          Monetizare
+        </Link>
         <span className="text-zinc-300 dark:text-zinc-600">|</span>
         <Link
           href="/info"

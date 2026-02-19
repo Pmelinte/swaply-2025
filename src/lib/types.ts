@@ -216,6 +216,12 @@ export interface TierBenefits {
   prioritySupport: boolean;
   monthlyTokens: number;
   boostSlots: number;
+  adFree: boolean;
+  extendedFilters: boolean;
+  exportReports: boolean;
+  auctionMode: boolean;
+  itemLimit: number;
+  featuredSlots: number;
 }
 
 /** Token ledger entry */
@@ -223,7 +229,12 @@ export interface TokenLedgerEntry {
   id: string;
   userId: string;
   amount: number;
-  reason: "swap_completed" | "monthly_grant" | "boost_spent" | "referral" | "signup_bonus";
+  reason:
+    | "swap_completed" | "monthly_grant" | "boost_spent" | "referral"
+    | "signup_bonus" | "purchase" | "admin_grant" | "daily_streak"
+    | "gift_sent" | "gift_received" | "insurance_spent" | "featured_spent"
+    | "verified_spent" | "theme_spent" | "bundle_discount" | "business_upgrade"
+    | "milestone_bonus" | "loyalty_reward" | "seasonal_bonus" | "auction_fee";
   description: string;
   createdAt: string;
 }
@@ -233,6 +244,174 @@ export interface AnalyticsEvent {
   event: string;
   properties?: Record<string, string | number | boolean>;
   timestamp: string;
+}
+
+/* ─── Monetization Types ─── */
+
+/** Token purchase packages (real money → tokens) */
+export interface TokenPackage {
+  id: string;
+  tokens: number;
+  priceUsd: number;
+  label: string;
+  popular?: boolean;
+}
+
+/** Subscription plan definition */
+export interface SubscriptionPlan {
+  id: "free" | "premium" | "platinum";
+  name: string;
+  priceMonthly: number;
+  priceYearly: number;
+  features: string[];
+  recommended?: boolean;
+}
+
+/** User subscription status */
+export interface UserSubscription {
+  planId: "free" | "premium" | "platinum";
+  status: "active" | "canceled" | "past_due" | "trialing";
+  currentPeriodEnd: string;
+  cancelAtPeriodEnd: boolean;
+  stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
+}
+
+/** Referral tracking */
+export interface Referral {
+  id: string;
+  referrerId: string;
+  referredId: string;
+  referredEmail: string;
+  status: "pending" | "signed_up" | "first_swap";
+  tokensEarned: number;
+  createdAt: string;
+}
+
+/** Daily login streak */
+export interface LoginStreak {
+  currentStreak: number;
+  longestStreak: number;
+  lastLoginDate: string;
+  todayClaimed: boolean;
+  nextReward: number;
+}
+
+/** Featured listing */
+export interface FeaturedListing {
+  id: string;
+  itemId: string;
+  userId: string;
+  position: number;
+  expiresAt: string;
+  createdAt: string;
+}
+
+/** Swap insurance policy */
+export interface SwapInsurance {
+  id: string;
+  swapId: string;
+  buyerId: string;
+  cost: number;
+  coverageAmount: string;
+  status: "active" | "claimed" | "expired";
+  expiresAt: string;
+  createdAt: string;
+}
+
+/** Gift token transfer */
+export interface TokenGift {
+  id: string;
+  senderId: string;
+  recipientId: string;
+  amount: number;
+  message: string;
+  createdAt: string;
+}
+
+/** Profile theme */
+export interface ProfileTheme {
+  id: string;
+  name: string;
+  colors: { primary: string; secondary: string; accent: string; bg: string };
+  cost: number;
+  icon: string;
+}
+
+/** Seasonal promotion */
+export interface SeasonalPromotion {
+  id: string;
+  name: string;
+  description: string;
+  type: "token_multiplier" | "shop_discount" | "bonus_tokens" | "free_boost";
+  multiplier?: number;
+  discountPercent?: number;
+  bonusTokens?: number;
+  startsAt: string;
+  endsAt: string;
+  active: boolean;
+}
+
+/** Swap completion milestone */
+export interface SwapMilestone {
+  swapCount: number;
+  bonusTokens: number;
+  label: string;
+  achieved: boolean;
+}
+
+/** Loyalty milestone */
+export interface LoyaltyMilestone {
+  daysActive: number;
+  reward: string;
+  rewardType: "premium_trial" | "permanent_badge" | "token_grant" | "free_month";
+  tokenAmount?: number;
+  trialDays?: number;
+  achieved: boolean;
+}
+
+/** Business account features */
+export interface BusinessAccount {
+  enabled: boolean;
+  companyName: string;
+  bulkUploadLimit: number;
+  brandingEnabled: boolean;
+  analyticsEnabled: boolean;
+  verifiedAt?: string;
+}
+
+/** Auction/bidding on an item */
+export interface ItemAuction {
+  id: string;
+  itemId: string;
+  ownerId: string;
+  bids: AuctionBid[];
+  endsAt: string;
+  minBidTokens: number;
+  status: "active" | "ended" | "canceled";
+  createdAt: string;
+}
+
+export interface AuctionBid {
+  id: string;
+  bidderId: string;
+  bidderName: string;
+  offeredItemId: string;
+  offeredItemTitle: string;
+  tokenBid: number;
+  message: string;
+  createdAt: string;
+}
+
+/** Item analytics (premium feature) */
+export interface ItemAnalytics {
+  itemId: string;
+  views: number;
+  matches: number;
+  inquiries: number;
+  saves: number;
+  avgResponseTime: string;
+  viewsByDay: { date: string; count: number }[];
 }
 
 /* ─── House Swap Types ─── */
@@ -364,7 +543,10 @@ export type CancelReason =
 
 export type TokenShopItem =
   | "boost_listing" | "premium_badge_7d" | "extra_listings_5"
-  | "priority_matching_24h" | "highlight_profile_7d";
+  | "priority_matching_24h" | "highlight_profile_7d"
+  | "featured_48h" | "swap_insurance" | "verified_badge"
+  | "theme_ocean" | "theme_sunset" | "theme_forest" | "theme_midnight" | "theme_rose"
+  | "bundle_boost_3" | "business_upgrade" | "auction_slot";
 
 export interface ShopItem {
   id: TokenShopItem;
@@ -372,6 +554,7 @@ export interface ShopItem {
   description: string;
   cost: number;
   icon: string;
+  category: "boost" | "badge" | "theme" | "premium" | "business";
 }
 
 /* ─── Account Status ─── */

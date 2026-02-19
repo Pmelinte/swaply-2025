@@ -180,6 +180,12 @@ describe("Type system validation", () => {
       prioritySupport: true,
       monthlyTokens: 100,
       boostSlots: 5,
+      adFree: true,
+      extendedFilters: true,
+      exportReports: true,
+      auctionMode: true,
+      itemLimit: 999,
+      featuredSlots: 3,
     };
     expect(benefits.monthlyTokens).toBe(100);
   });
