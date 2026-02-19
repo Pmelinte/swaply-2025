@@ -3,10 +3,10 @@
 import { useCallback, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { NO_IMAGE_URL } from "@/lib/storage";
+import { SafeImage } from "@/components/SafeImage";
 import { CTAButton, Pill } from "@/components/ui";
 import { SwipeCard } from "@/features/items/SwipeCard";
 import type { Item, ListingType } from "@/lib/types";
@@ -72,7 +72,7 @@ function SlotCard({
   return (
     <div className={`relative overflow-hidden rounded-xl border ${borderColor} ${bgColor} p-2`}>
       <div className="relative mx-auto h-20 w-full overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800">
-        <Image
+        <SafeImage
           src={item.photos?.[0] || NO_IMAGE_URL}
           alt={item.title}
           fill
@@ -143,7 +143,7 @@ function ObjectCard({ item, mode }: { item: Item; mode: BrowseMode }) {
         className="flex w-full items-center gap-4 rounded-xl border border-zinc-200 bg-white p-3 text-left shadow-sm transition hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800"
       >
         <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-700">
-          <Image
+          <SafeImage
             src={item.photos?.[0] || NO_IMAGE_URL}
             alt={item.title}
             fill
@@ -180,7 +180,7 @@ function ObjectCard({ item, mode }: { item: Item; mode: BrowseMode }) {
       className="group flex w-full flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm transition hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800"
     >
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-zinc-100 dark:bg-zinc-700">
-        <Image
+        <SafeImage
           src={item.photos?.[0] || NO_IMAGE_URL}
           alt={item.title}
           fill

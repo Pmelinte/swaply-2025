@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
+import { SafeImage } from "@/components/SafeImage";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import type { Item } from "@/lib/types";
@@ -315,7 +315,7 @@ export default function MyObjectsPage() {
                 {/* Thumbnail */}
                 <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-700">
                   {item.photos?.[0] ? (
-                    <Image
+                    <SafeImage
                       src={item.photos[0]}
                       alt={item.title}
                       fill

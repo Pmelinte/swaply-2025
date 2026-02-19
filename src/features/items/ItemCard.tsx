@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { SafeImage } from "@/components/SafeImage";
 import { useTranslations } from "next-intl";
 import { Item } from "@/lib/types";
 import { Pill } from "@/components/ui";
@@ -31,7 +31,7 @@ export function ItemCard({
   return (
     <div className="flex gap-3 rounded-2xl border border-zinc-200 bg-white/80 p-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/80">
       <div className="relative h-24 w-24 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
-        <Image
+        <SafeImage
           src={item.photos?.[0] || NO_IMAGE_URL}
           alt={item.title}
           fill

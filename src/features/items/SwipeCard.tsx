@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import Image from "next/image";
+import { SafeImage } from "@/components/SafeImage";
 import { useTranslations } from "next-intl";
 import { Item } from "@/lib/types";
 import { NO_IMAGE_URL } from "@/lib/storage";
@@ -97,7 +97,7 @@ export function SwipeCard({
         ) : null}
 
         <div className="relative mx-auto h-40 w-full overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
-          <Image
+          <SafeImage
             src={item.photos?.[0] || NO_IMAGE_URL}
             alt={item.title}
             fill

@@ -7,7 +7,7 @@ import { useState, useRef, useEffect } from "react";
 import { Bell, ChevronDown, LogOut } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
-import { locales, languageNames, localeFlagUrl, type Locale } from "@/i18n/config";
+import { locales, languageNames, localeFlag, type Locale } from "@/i18n/config";
 import type { LanguageCode } from "@/lib/types";
 
 export function TopBar() {
@@ -84,8 +84,7 @@ export function TopBar() {
               className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs text-zinc-500 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
               onClick={() => setLangOpen((prev) => !prev)}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={localeFlagUrl(language as Locale, 20)} alt="" width={20} height={15} className="rounded-sm" />
+              <span className="text-base leading-none">{localeFlag(language as Locale)}</span>
               <span className="font-semibold uppercase">{language}</span>
               <ChevronDown className="h-2.5 w-2.5" />
             </button>
@@ -116,8 +115,7 @@ export function TopBar() {
                             : "text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-700"
                         }`}
                       >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={localeFlagUrl(loc, 20)} alt="" width={20} height={15} className="shrink-0 rounded-sm" />
+                        <span className="shrink-0 text-lg leading-none">{localeFlag(loc)}</span>
                         <span className="flex-1">{info.nativeName}</span>
                         <span className="text-xs text-zinc-400">{info.name}</span>
                       </button>

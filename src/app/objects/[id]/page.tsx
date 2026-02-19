@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
+import { SafeImage } from "@/components/SafeImage";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
@@ -143,7 +144,7 @@ export default function ObjectDetailsPage() {
           {/* Photo gallery */}
           <div className="relative overflow-hidden rounded-2xl bg-zinc-100 dark:bg-zinc-800">
             <div className="relative aspect-[4/3]">
-              <Image
+              <SafeImage
                 src={photos[activePhoto] || NO_IMAGE_URL}
                 alt={`${item.title} — photo ${activePhoto + 1}`}
                 fill
@@ -470,7 +471,7 @@ export default function ObjectDetailsPage() {
                     className="flex items-center gap-3 rounded-lg p-1.5 transition hover:bg-zinc-50 dark:hover:bg-zinc-700/50"
                   >
                     <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-700">
-                      <Image
+                      <SafeImage
                         src={si.photos?.[0] || NO_IMAGE_URL}
                         alt={si.title}
                         fill
