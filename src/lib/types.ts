@@ -115,6 +115,9 @@ export interface MatchCandidate {
   aiSummary?: string;
   aiConfidence?: "high" | "medium" | "low";
   aiProvider?: string;
+  /** v2: Distance & explanation fields */
+  distanceKm?: number;
+  explanations?: Array<{ icon: string; label: string; detail: string }>;
 }
 
 export type ChatMessageType = "text" | "location" | "image";
@@ -555,6 +558,18 @@ export interface ShopItem {
   cost: number;
   icon: string;
   category: "boost" | "badge" | "theme" | "premium" | "business";
+}
+
+/* ─── Trust & Safety ─── */
+
+export type TrustLevelType = "new" | "basic" | "trusted" | "verified" | "ambassador";
+
+export interface UserTrustInfo {
+  score: number;
+  level: TrustLevelType;
+  reportsAgainst: number;
+  autoHold: boolean;
+  holdReason?: string;
 }
 
 /* ─── Account Status ─── */

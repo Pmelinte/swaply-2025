@@ -93,6 +93,35 @@ import type {
   UserSubscription,
 } from "../types";
 import type { PremiumFeature } from "../monetization";
+import type {
+  TrustScore,
+  FrictionLimits,
+  ScamCheckResult,
+  TrustSignals,
+} from "../trust";
+import {
+  buildTrustSignals,
+  checkMessageForScam,
+  computeFriction,
+  computeTrustScore,
+  SAFE_MEETING_CHECKLIST,
+  TRUST_LEVEL_CONFIG,
+} from "../trust";
+import type { SafeMeetingChecklist } from "../trust";
+import type {
+  FeatureFlag,
+  CronJob,
+  MetricsFunnel,
+} from "../feature-flags";
+import {
+  DEFAULT_FLAGS,
+  DEFAULT_CRON_JOBS,
+  isFlagEnabled,
+  computeFunnelRates,
+  computeMetricsFromState,
+} from "../feature-flags";
+import { buildUserContext } from "./matching";
+import type { MatchingUserContext, OwnerCoordinatesMap } from "./matching";
 
 // ── Extracted modules ──
 import {
@@ -210,6 +239,19 @@ interface AppStateContextProps {
   activeTheme: string | null;
   isVerified: boolean;
   isBusiness: boolean;
+  // ── Trust & Safety ──
+  trustScore: TrustScore;
+  frictionLimits: FrictionLimits;
+  checkScam: (text: string) => ScamCheckResult;
+  safeMeetingChecklist: SafeMeetingChecklist[];
+  trustLevelConfig: typeof TRUST_LEVEL_CONFIG;
+  // ── Product Control ──
+  featureFlags: FeatureFlag[];
+  setFeatureFlag: (flagId: string, enabled: boolean) => void;
+  isFeatureEnabled: (flagId: string) => boolean;
+  cronJobs: CronJob[];
+  metricsFunnel: MetricsFunnel;
+  funnelRates: ReturnType<typeof computeFunnelRates>;
 }
 
 const AppStateContext = createContext<AppStateContextProps | undefined>(undefined);
@@ -277,7 +319,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const mapSwapIntent = useCallback(createMapSwapIntent(), []);
   const mapNotification = useCallback(createMapNotification(), []);
 
-  // ── Matching ──
+  // ── Matching (with user context for distance/blocked) ──
+  const matchingContext = useMemo<MatchingUserContext | undefined>(
+    () => user ? buildUserContext(user, blockedUsers) : undefined,
+    [user, blockedUsers],
+  );
   const prevMatchCountRef = useRef(0);
 
   useEffect(() => {
@@ -286,7 +332,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       prevMatchCountRef.current = 0;
       return;
     }
-    const newMatches = computeMatchesForUser(user.id, items);
+    const newMatches = computeMatchesForUser(user.id, items, matchingContext);
     const prevCount = prevMatchCountRef.current;
     setMatches(newMatches);
 
@@ -306,7 +352,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       }
     }
     prevMatchCountRef.current = newMatches.length;
-  }, [items, user?.id]);
+  }, [items, user?.id, matchingContext]);
 
   // ── Session restore ──
   useEffect(() => {
@@ -1416,6 +1462,66 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     }
   }, [activateDemoMode]);
 
+  // ── Trust & Safety ──
+  const trustScore = useMemo<TrustScore>(() => {
+    if (!user) {
+      return computeTrustScore({
+        accountAgeDays: 0, emailVerified: false, phoneVerified: false,
+        completedSwaps: 0, averageRating: 0, totalRatingsReceived: 0,
+        reportsAgainst: 0, reportsDismissed: 0, isBlocked: false,
+        profileCompleteness: 0, hasAvatar: false, hasLocation: false,
+        consecutiveLoginDays: 0,
+      });
+    }
+    const signals = buildTrustSignals(user, {
+      accountAgeDays: 30, // TODO: compute from createdAt
+      emailVerified: true,
+      reportsAgainst: 0,
+      averageRating: 4.0,
+      totalRatingsReceived: user.stats.completedSwaps,
+      consecutiveLoginDays: loginStreak.currentStreak,
+    });
+    return computeTrustScore(signals);
+  }, [user, loginStreak.currentStreak]);
+
+  const frictionLimits = useMemo<FrictionLimits>(() => {
+    return computeFriction(trustScore.score, 0);
+  }, [trustScore.score]);
+
+  const checkScam = useCallback((text: string) => checkMessageForScam(text), []);
+  const safeMeetingChecklistVal = useMemo(() => SAFE_MEETING_CHECKLIST, []);
+  const trustLevelConfigVal = useMemo(() => TRUST_LEVEL_CONFIG, []);
+
+  // ── Feature Flags (Product Control) ──
+  const [featureFlags, setFeatureFlags] = useState<FeatureFlag[]>(DEFAULT_FLAGS);
+  const cronJobs = useMemo(() => DEFAULT_CRON_JOBS, []);
+
+  const setFeatureFlag = useCallback((flagId: string, enabled: boolean) => {
+    setFeatureFlags((prev) => prev.map((f) => f.id === flagId ? { ...f, enabled } : f));
+    trackEvent("feature_flag_toggled", { flagId, enabled });
+  }, [trackEvent]);
+
+  const isFeatureEnabled = useCallback((flagId: string) => {
+    return isFlagEnabled(featureFlags, flagId, user?.id);
+  }, [featureFlags, user?.id]);
+
+  // ── Metrics Funnel ──
+  const metricsFunnel = useMemo<MetricsFunnel>(() => {
+    const usersWithItems = items.filter((i) => i.ownerId === user?.id).length > 0 ? 1 : 0;
+    const usersWithChats = conversations.length > 0 ? 1 : 0;
+    const usersWithSwaps = swaps.filter((s) => s.status === "proposed" || s.status === "scheduled" || s.status === "in_progress").length > 0 ? 1 : 0;
+    const completedSwaps = swaps.filter((s) => s.status === "completed").length;
+    return computeMetricsFromState({
+      totalUsers: user ? 1 : 0,
+      usersWithItems,
+      usersWithChats,
+      usersWithSwaps,
+      completedSwaps,
+    });
+  }, [user, items, conversations, swaps]);
+
+  const funnelRates = useMemo(() => computeFunnelRates(metricsFunnel), [metricsFunnel]);
+
   // ── Context value ──
   const value = useMemo(() => ({
     user, dataSource, loading, lastError, announcements, notifications, items, matches,
@@ -1439,6 +1545,13 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     subscription, activePromotions, featuredListings,
     swapMilestones, loyaltyMilestones, tokenBalance, hasFeature,
     activeTheme, isVerified, isBusiness,
+    // Trust & Safety
+    trustScore, frictionLimits, checkScam,
+    safeMeetingChecklist: safeMeetingChecklistVal,
+    trustLevelConfig: trustLevelConfigVal,
+    // Product Control
+    featureFlags, setFeatureFlag, isFeatureEnabled,
+    cronJobs, metricsFunnel, funnelRates,
   }), [
     dataSource, loading, lastError, announcements, notifications, conversations,
     featureToggles, items, login, resetPassword, deleteAccount, changeEmail,
@@ -1459,6 +1572,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     subscription, activePromotions, featuredListings,
     swapMilestones, loyaltyMilestones, tokenBalance, hasFeature,
     activeTheme, isVerified, isBusiness,
+    trustScore, frictionLimits, checkScam, safeMeetingChecklistVal, trustLevelConfigVal,
+    featureFlags, setFeatureFlag, isFeatureEnabled, cronJobs, metricsFunnel, funnelRates,
   ]);
 
   return <AppStateContext.Provider value={value}>{children}</AppStateContext.Provider>;

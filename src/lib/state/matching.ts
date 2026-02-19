@@ -1,8 +1,11 @@
 /**
  * Matching algorithm — computes compatibility scores between items.
  * Pure functions extracted from state.tsx for testability and modularity.
+ *
+ * v2: Enhanced with distance calculation, logistics matching, deal-breakers,
+ *     and structured match explanations ("De ce ți-l arăt?").
  */
-import type { Item, MatchCandidate, MatchTier } from "../types";
+import type { Item, MatchCandidate, MatchTier, UserProfile } from "../types";
 import { getAllKeywords, areSiblingCategories } from "../categories";
 
 // ── Category keyword map for wishlist matching ──
@@ -79,14 +82,74 @@ export function scoreTier(score: number): MatchTier {
   return "weak";
 }
 
-// ── Main matching function ──
+// ── Haversine distance (km) ──
 
-export function computeMatchesForUser(userId: string, items: Item[]): MatchCandidate[] {
+export function haversineDistance(
+  lat1: number, lng1: number,
+  lat2: number, lng2: number,
+): number {
+  const R = 6371; // Earth radius in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+// ── User profile lookup for matching context ──
+
+export interface MatchingUserContext {
+  coordinates?: { lat: number; lng: number };
+  travelRadiusKm: number;
+  logistics: "in_person" | "courier" | "flexible";
+  blockedUsers: string[];
+}
+
+export function buildUserContext(
+  profile: UserProfile | null,
+  blockedUsers: string[] = [],
+): MatchingUserContext {
+  return {
+    coordinates: profile?.location?.coordinates,
+    travelRadiusKm: profile?.location?.travelRadiusKm ?? 50,
+    logistics: profile?.swapPreferences?.logistics ?? "flexible",
+    blockedUsers,
+  };
+}
+
+// ── Item owner coordinates map (populated externally) ──
+
+export type OwnerCoordinatesMap = Map<string, { lat: number; lng: number }>;
+
+// ── Match explanation ──
+
+export interface MatchReason {
+  icon: string;
+  label: string;
+  detail: string;
+}
+
+// ── Main matching function (enhanced) ──
+
+export function computeMatchesForUser(
+  userId: string,
+  items: Item[],
+  userContext?: MatchingUserContext,
+  ownerCoords?: OwnerCoordinatesMap,
+): MatchCandidate[] {
   const myItems = items.filter(
     (item) => item.ownerId === userId && item.isActive && item.status === "active",
   );
+  const blocked = new Set(userContext?.blockedUsers ?? []);
   const otherItems = items.filter(
-    (item) => item.ownerId !== userId && item.isActive && item.status === "active",
+    (item) =>
+      item.ownerId !== userId &&
+      item.isActive &&
+      item.status === "active" &&
+      !blocked.has(item.ownerId),
   );
 
   const candidates: MatchCandidate[] = [];
@@ -103,17 +166,33 @@ export function computeMatchesForUser(userId: string, items: Item[]): MatchCandi
       // Soft signals (cumulative scoring)
       let score = 0;
       const reasons: string[] = [];
+      const explanations: MatchReason[] = [];
 
       // 1. Category / wishlist match (max 30)
       if (wantRequested && theyWantOffered) {
         score += 30;
         reasons.push("Categorii reciproc compatibile");
+        explanations.push({
+          icon: "🎯",
+          label: "Match reciproc",
+          detail: `Ambii căutați ce oferă celălalt (${offered.category} ↔ ${requested.category})`,
+        });
       } else if (wantRequested) {
         score += 20;
         reasons.push(`Wishlist-ul tau indica „${requested.category}"`);
+        explanations.push({
+          icon: "🔍",
+          label: "Cauți asta",
+          detail: `Wishlist-ul tău include „${requested.category}"`,
+        });
       } else if (theyWantOffered) {
         score += 20;
         reasons.push(`Partenerul cauta „${offered.category}"`);
+        explanations.push({
+          icon: "🤝",
+          label: "Te caută",
+          detail: `Partenerul caută „${offered.category}" pe care o ai`,
+        });
       } else if (eitherFlexBroad) {
         score += 8;
         reasons.push("Flexibilitate larga permite explorare");
@@ -149,16 +228,69 @@ export function computeMatchesForUser(userId: string, items: Item[]): MatchCandi
       score += valBonus;
       if (valDiff === 0) {
         reasons.push("Valoare perceputa apropiata");
+        explanations.push({
+          icon: "⚖️",
+          label: "Valoare similară",
+          detail: "Obiectele au valoare percepută apropiată",
+        });
       } else if (valDiff >= 2) {
         reasons.push("Diferenta mare de valoare perceputa");
       }
 
-      // 5. Location match (max 10)
+      // 5. Location / Distance (max 15 — upgraded from 10)
+      let distanceKm: number | undefined;
       const locA = normalizeMatchText(offered.location);
       const locB = normalizeMatchText(requested.location);
-      if (locA && locA === locB) {
-        score += 10;
+
+      // Try GPS distance first
+      const myCoords = userContext?.coordinates;
+      const theirCoords = ownerCoords?.get(requested.ownerId);
+
+      if (myCoords && theirCoords) {
+        distanceKm = Math.round(haversineDistance(
+          myCoords.lat, myCoords.lng,
+          theirCoords.lat, theirCoords.lng,
+        ));
+        const maxRadius = userContext?.travelRadiusKm ?? 50;
+
+        if (distanceKm <= 5) {
+          score += 15;
+          reasons.push(`La ${distanceKm} km — foarte aproape`);
+          explanations.push({
+            icon: "📍",
+            label: `${distanceKm} km distanță`,
+            detail: "Foarte aproape — întâlnire ușoară",
+          });
+        } else if (distanceKm <= 15) {
+          score += 12;
+          reasons.push(`La ${distanceKm} km — aproape`);
+          explanations.push({
+            icon: "📍",
+            label: `${distanceKm} km distanță`,
+            detail: "Suficient de aproape pentru întâlnire personală",
+          });
+        } else if (distanceKm <= maxRadius) {
+          score += 8;
+          reasons.push(`La ${distanceKm} km — în raza ta de ${maxRadius} km`);
+          explanations.push({
+            icon: "📍",
+            label: `${distanceKm} km distanță`,
+            detail: `În raza ta de ${maxRadius} km`,
+          });
+        } else if (distanceKm <= maxRadius * 2) {
+          score += 3;
+          reasons.push(`La ${distanceKm} km — depășește raza cu puțin`);
+        }
+        // Beyond 2x radius: no distance bonus
+      } else if (locA && locA === locB) {
+        // Fallback: exact city name match
+        score += 12;
         reasons.push("Aceeasi locatie — logistica simpla");
+        explanations.push({
+          icon: "📍",
+          label: "Același oraș",
+          detail: "Logistica simplificată — același oraș",
+        });
       }
 
       // 6. Bundle compatibility (max 5)
@@ -205,6 +337,9 @@ export function computeMatchesForUser(userId: string, items: Item[]): MatchCandi
         reasons,
         reason: reasons.slice(0, 3).join(". ") + ".",
         manualFallbackReason: "Analiza calculata local (scor cumulativ).",
+        // Enhanced fields
+        distanceKm,
+        explanations: explanations.length > 0 ? explanations : undefined,
       });
     }
   }
