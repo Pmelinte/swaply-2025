@@ -8,6 +8,7 @@ import { useAppState } from "@/lib/state";
 import { NO_IMAGE_URL } from "@/lib/storage";
 import { SafeImage } from "@/components/SafeImage";
 import { CTAButton, Pill } from "@/components/ui";
+import { AdBanner } from "@/components/AdBanner";
 import { SwipeCard } from "@/features/items/SwipeCard";
 import type { Item, ListingType } from "@/lib/types";
 import {
@@ -963,6 +964,9 @@ export default function ObjectsPage() {
               )}
             </div>
           )}
+
+          {/* Ad banner for free tier users */}
+          <AdBanner placement="inline_feed" className="mb-4" />
 
           {filtered.length > 0 && browseMode === "grid" && (
             <>

@@ -5,7 +5,7 @@
  * Sections: Pricing, Token Shop, Streaks, Referrals, Milestones, Themes.
  */
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useAppState } from "@/lib/state";
 import {
   TOKEN_PACKAGES,
@@ -66,6 +66,31 @@ export function MonetizationHub() {
     shopFilter === "all" ? shopItems : shopItems.filter((i) => i.category === shopFilter),
     [shopItems, shopFilter],
   );
+
+  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
+
+  // Real Stripe checkout
+  const startStripeCheckout = useCallback(async (type: string, extra: Record<string, string> = {}) => {
+    if (!user) return;
+    setCheckoutLoading(type);
+    try {
+      const res = await fetch("/api/payments/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type, userId: user.id, userEmail: user.email, ...extra }),
+      });
+      const data = await res.json() as { url?: string; clientSecret?: string; error?: string };
+      if (data.url) {
+        window.location.href = data.url;
+      } else if (data.error) {
+        showFeedback(`Eroare: ${data.error}`);
+      }
+    } catch {
+      showFeedback("Eroare de rețea la procesarea plății");
+    } finally {
+      setCheckoutLoading(null);
+    }
+  }, [user]);
 
   const showFeedback = (msg: string) => {
     setFeedbackMsg(msg);
@@ -202,10 +227,24 @@ export function MonetizationHub() {
                         ? "bg-zinc-200 text-zinc-500 dark:bg-zinc-700 dark:text-zinc-400"
                         : "bg-blue-600 text-white hover:bg-blue-700"
                     }`}
-                    disabled={isActive}
+                    disabled={isActive || checkoutLoading === plan.id}
+                    onClick={() => {
+                      if (plan.id !== "free") {
+                        void startStripeCheckout("subscription", {
+                          planId: plan.id,
+                          interval: billingCycle,
+                        });
+                      }
+                    }}
                   >
-                    {isActive ? "Plan curent" : price === 0 ? "Plan gratuit" : "Upgrade"}
+                    {checkoutLoading === plan.id ? "Se procesează..." : isActive ? "Plan curent" : price === 0 ? "Plan gratuit" : "Upgrade"}
                   </button>
+                  {!isActive && plan.id !== "free" && (
+                    <p className="mt-1.5 flex items-center justify-center gap-1 text-[10px] text-zinc-400">
+                      <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/></svg>
+                      Visa / Mastercard / Apple Pay / Google Pay
+                    </p>
+                  )}
                 </div>
               );
             })}
@@ -232,9 +271,35 @@ export function MonetizationHub() {
                 <p className="text-xs text-zinc-500">tokens</p>
                 <p className="mt-2 text-lg font-semibold text-emerald-600">${pkg.priceUsd}</p>
                 <p className="text-[10px] text-zinc-400">${pricePerToken(pkg).toFixed(4)}/token</p>
-                <button className="mt-3 w-full rounded-lg bg-emerald-600 py-1.5 text-sm font-semibold text-white hover:bg-emerald-700">
-                  Cumpără
+                <button
+                  className="mt-3 w-full rounded-lg bg-emerald-600 py-1.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+                  disabled={checkoutLoading === pkg.id}
+                  onClick={() => void startStripeCheckout("token_purchase", { packageId: pkg.id })}
+                >
+                  {checkoutLoading === pkg.id ? "..." : "Cumpără"}
                 </button>
+                <div className="mt-1 flex items-center justify-center gap-2">
+                  <button
+                    className="text-[9px] font-medium text-blue-600 underline hover:text-blue-700 dark:text-blue-400"
+                    onClick={async () => {
+                      if (!user) return;
+                      setCheckoutLoading(`pp_${pkg.id}`);
+                      try {
+                        const res = await fetch("/api/payments/paypal/create", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ packageId: pkg.id, userId: user.id }),
+                        });
+                        const data = await res.json() as { orderId?: string; error?: string };
+                        if (data.error) showFeedback(`PayPal: ${data.error}`);
+                        else showFeedback("Redirecționare spre PayPal...");
+                      } catch { showFeedback("Eroare PayPal"); }
+                      finally { setCheckoutLoading(null); }
+                    }}
+                  >
+                    sau PayPal
+                  </button>
+                </div>
               </div>
             ))}
           </div>

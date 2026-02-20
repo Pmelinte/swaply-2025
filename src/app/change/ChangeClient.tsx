@@ -1048,6 +1048,39 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
                 </div>
               )}
 
+              {/* Transport affiliate links */}
+              {(logisticsType === "public_spot" || logisticsType === "pickup") && meetupPoint && (
+                <div className="mt-3 rounded-xl border border-blue-200 bg-blue-50/50 p-3 dark:border-blue-900 dark:bg-blue-950/20">
+                  <p className="mb-2 text-xs font-semibold text-blue-700 dark:text-blue-300">Transport la punctul de întâlnire</p>
+                  <div className="flex flex-wrap gap-2">
+                    <a
+                      href={`https://m.bolt.eu/action/requestRide?destination_name=${encodeURIComponent(meetupPoint)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 rounded-full border border-green-300 bg-green-50 px-3 py-1.5 text-xs font-medium text-green-700 hover:bg-green-100 dark:border-green-700 dark:bg-green-950/30 dark:text-green-300"
+                    >
+                      <span>🚗</span> Bolt
+                    </a>
+                    <a
+                      href={`https://m.uber.com/ul/?action=setPickup&dropoff[nickname]=${encodeURIComponent(meetupPoint)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 rounded-full border border-zinc-300 bg-zinc-50 px-3 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300"
+                    >
+                      <span>🚕</span> Uber
+                    </a>
+                    <a
+                      href={`https://waze.com/ul?q=${encodeURIComponent(meetupPoint)}&navigate=yes`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 rounded-full border border-blue-300 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700 hover:bg-blue-100 dark:border-blue-700 dark:bg-blue-950/30 dark:text-blue-300"
+                    >
+                      <span>🗺️</span> Waze
+                    </a>
+                  </div>
+                </div>
+              )}
+
               {/* Courier tracking input */}
               {logisticsType === "courier" && (
                 <div className="mt-3">

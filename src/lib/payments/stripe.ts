@@ -1,0 +1,225 @@
+/**
+ * Stripe integration for Swaply.
+ * Handles: Token purchases (Checkout), Subscriptions (Billing),
+ * Boosts/Featured (Payment Intents), Insurance (Payment Intents).
+ *
+ * Accepts: Visa, Mastercard, Apple Pay, Google Pay via Stripe.
+ *
+ * Env vars required:
+ *   STRIPE_SECRET_KEY
+ *   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+ *   STRIPE_WEBHOOK_SECRET
+ *   STRIPE_PRICE_PREMIUM_MONTHLY
+ *   STRIPE_PRICE_PREMIUM_YEARLY
+ *   STRIPE_PRICE_PLATINUM_MONTHLY
+ *   STRIPE_PRICE_PLATINUM_YEARLY
+ */
+
+import Stripe from "stripe";
+import { TOKEN_PACKAGES, SUBSCRIPTION_PLANS, FEATURED_COST, INSURANCE_COST } from "../monetization";
+
+// ── Stripe Client ──
+
+let _stripe: Stripe | null = null;
+
+export function getStripe(): Stripe | null {
+  if (!process.env.STRIPE_SECRET_KEY) return null;
+  if (!_stripe) {
+    _stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: "2024-12-18.acacia" as Stripe.LatestApiVersion,
+      typescript: true,
+    });
+  }
+  return _stripe;
+}
+
+export function isStripeConfigured(): boolean {
+  return !!process.env.STRIPE_SECRET_KEY;
+}
+
+// ── Checkout Session: Token Purchase ──
+
+export interface TokenCheckoutParams {
+  packageId: string;
+  userId: string;
+  userEmail: string;
+  successUrl: string;
+  cancelUrl: string;
+}
+
+export async function createTokenCheckout(params: TokenCheckoutParams): Promise<{ url: string | null; error?: string }> {
+  const stripe = getStripe();
+  if (!stripe) return { url: null, error: "Stripe nu este configurat" };
+
+  const pkg = TOKEN_PACKAGES.find((p) => p.id === params.packageId);
+  if (!pkg) return { url: null, error: `Pachet invalid: ${params.packageId}` };
+
+  const session = await stripe.checkout.sessions.create({
+    mode: "payment",
+    payment_method_types: ["card"],
+    customer_email: params.userEmail,
+    metadata: {
+      type: "token_purchase",
+      packageId: pkg.id,
+      tokens: String(pkg.tokens),
+      userId: params.userId,
+    },
+    line_items: [
+      {
+        price_data: {
+          currency: "usd",
+          unit_amount: Math.round(pkg.priceUsd * 100), // cents
+          product_data: {
+            name: `Swaply Tokens — ${pkg.label}`,
+            description: `${pkg.tokens} tokens pentru contul tău Swaply`,
+          },
+        },
+        quantity: 1,
+      },
+    ],
+    success_url: params.successUrl,
+    cancel_url: params.cancelUrl,
+  });
+
+  return { url: session.url };
+}
+
+// ── Checkout Session: Subscription ──
+
+export interface SubscriptionCheckoutParams {
+  planId: "premium" | "platinum";
+  interval: "monthly" | "yearly";
+  userId: string;
+  userEmail: string;
+  successUrl: string;
+  cancelUrl: string;
+}
+
+/** Maps plan + interval to Stripe Price IDs (from env vars). */
+function getStripePriceId(planId: string, interval: string): string | null {
+  const key = `STRIPE_PRICE_${planId.toUpperCase()}_${interval.toUpperCase()}`;
+  return process.env[key] ?? null;
+}
+
+export async function createSubscriptionCheckout(params: SubscriptionCheckoutParams): Promise<{ url: string | null; error?: string }> {
+  const stripe = getStripe();
+  if (!stripe) return { url: null, error: "Stripe nu este configurat" };
+
+  const plan = SUBSCRIPTION_PLANS.find((p) => p.id === params.planId);
+  if (!plan) return { url: null, error: `Plan invalid: ${params.planId}` };
+
+  const priceId = getStripePriceId(params.planId, params.interval);
+
+  // If no pre-created price, create an ad-hoc price
+  const lineItem: Stripe.Checkout.SessionCreateParams.LineItem = priceId
+    ? { price: priceId, quantity: 1 }
+    : {
+        price_data: {
+          currency: "usd",
+          unit_amount: Math.round(
+            (params.interval === "yearly" ? plan.priceYearly : plan.priceMonthly) * 100,
+          ),
+          recurring: {
+            interval: params.interval === "yearly" ? "year" : "month",
+          },
+          product_data: {
+            name: `Swaply ${plan.name}`,
+            description: plan.features.join(", "),
+          },
+        },
+        quantity: 1,
+      };
+
+  const session = await stripe.checkout.sessions.create({
+    mode: "subscription",
+    payment_method_types: ["card"],
+    customer_email: params.userEmail,
+    metadata: {
+      type: "subscription",
+      planId: params.planId,
+      interval: params.interval,
+      userId: params.userId,
+    },
+    line_items: [lineItem],
+    success_url: params.successUrl,
+    cancel_url: params.cancelUrl,
+  });
+
+  return { url: session.url };
+}
+
+// ── Payment Intent: Boost / Featured / Insurance ──
+
+export type OneTimePaymentType = "boost_24h" | "featured_48h" | "super_boost_7d" | "swap_insurance";
+
+const ONE_TIME_PRODUCTS: Record<OneTimePaymentType, { name: string; amount: number; description: string }> = {
+  boost_24h: { name: "Boost 24h", amount: 99, description: "Articol promovat 24 de ore" },       // €0.99
+  featured_48h: { name: "Featured 48h", amount: 199, description: "Articol pe homepage 48h" },   // €1.99
+  super_boost_7d: { name: "Super Boost 7 zile", amount: 499, description: "Top rezultate + notificări 7 zile" }, // €4.99
+  swap_insurance: { name: "Asigurare Swap", amount: 299, description: "Protecție completă pentru schimbul tău" }, // €2.99
+};
+
+export interface OneTimePaymentParams {
+  type: OneTimePaymentType;
+  userId: string;
+  userEmail: string;
+  itemId?: string;  // for boost/featured
+  swapId?: string;  // for insurance
+}
+
+export async function createOneTimePayment(params: OneTimePaymentParams): Promise<{ clientSecret: string | null; error?: string }> {
+  const stripe = getStripe();
+  if (!stripe) return { clientSecret: null, error: "Stripe nu este configurat" };
+
+  const product = ONE_TIME_PRODUCTS[params.type];
+  if (!product) return { clientSecret: null, error: `Produs invalid: ${params.type}` };
+
+  const intent = await stripe.paymentIntents.create({
+    amount: product.amount,
+    currency: "eur",
+    payment_method_types: ["card"],
+    metadata: {
+      type: params.type,
+      userId: params.userId,
+      itemId: params.itemId ?? "",
+      swapId: params.swapId ?? "",
+    },
+    receipt_email: params.userEmail,
+    description: product.description,
+  });
+
+  return { clientSecret: intent.client_secret };
+}
+
+// ── Webhook Verification ──
+
+export function constructWebhookEvent(body: string, signature: string): Stripe.Event | null {
+  const stripe = getStripe();
+  const secret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (!stripe || !secret) return null;
+
+  try {
+    return stripe.webhooks.constructEvent(body, signature, secret);
+  } catch {
+    return null;
+  }
+}
+
+// ── Customer Portal (manage subscription) ──
+
+export async function createPortalSession(customerId: string, returnUrl: string): Promise<{ url: string | null }> {
+  const stripe = getStripe();
+  if (!stripe) return { url: null };
+
+  const session = await stripe.billingPortal.sessions.create({
+    customer: customerId,
+    return_url: returnUrl,
+  });
+
+  return { url: session.url };
+}
+
+// ── Exports for product info ──
+
+export { ONE_TIME_PRODUCTS };
+export type { Stripe };
