@@ -29,13 +29,13 @@ export function createMapProfile(userRef: MutableRef<UserProfile | null>) {
     const currentUser = userRef.current;
     return {
       id: safeString(
-        data.user_id,
-        safeString(data.id, safeString(data.uid, nanoid())),
+        data.id,
+        safeString(data.user_id, safeString(data.uid, nanoid())),
       ),
       email: safeString(data.email, currentUser?.email ?? ""),
       displayName: safeString(
         data.display_name,
-        safeString(data.username, safeString(data.displayName, "Utilizator Swaply")),
+        safeString(data.displayName, "Utilizator Swaply"),
       ),
       firstName: safeString(data.first_name, safeString(data.full_name, safeString(data.firstName))),
       avatarUrl: safeString(data.avatar_url, safeString(data.avatarUrl)),
