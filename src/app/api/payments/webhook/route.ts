@@ -3,11 +3,14 @@
  * Stripe webhook handler — processes payment events.
  *
  * Events handled:
- *   checkout.session.completed     → credit tokens or activate subscription
- *   payment_intent.succeeded       → activate boost/featured/insurance
- *   customer.subscription.deleted  → downgrade to free
- *   invoice.paid                   → renew subscription + monthly tokens
- *   invoice.payment_failed         → notify user
+ *   checkout.session.completed              → credit tokens or activate subscription
+ *   checkout.session.async_payment_succeeded → fulfil after delayed payment (bank transfer, etc.)
+ *   checkout.session.async_payment_failed    → mark transaction failed for delayed payment
+ *   checkout.session.expired                 → clean up abandoned checkout sessions
+ *   payment_intent.succeeded                → activate boost/featured/insurance
+ *   customer.subscription.deleted           → downgrade to free
+ *   invoice.paid                            → renew subscription + monthly tokens
+ *   invoice.payment_failed                  → notify user
  */
 import { NextRequest, NextResponse } from "next/server";
 import { constructWebhookEvent } from "@/lib/payments/stripe";
@@ -66,6 +69,50 @@ export async function POST(request: NextRequest) {
           //   current_period_end: new Date(Date.now() + 30 * 86400000).toISOString(),
           // });
         }
+        break;
+      }
+
+      case "checkout.session.async_payment_succeeded": {
+        const session = event.data.object as {
+          metadata?: Record<string, string>;
+          customer?: string;
+          subscription?: string;
+        };
+        const meta = session.metadata ?? {};
+
+        if (meta.type === "token_purchase") {
+          const userId = meta.userId;
+          const tokens = parseInt(meta.tokens ?? "0", 10);
+          console.log(`[webhook] Async payment succeeded (tokens): ${tokens} → user ${userId}`);
+          // In production: INSERT into token_ledger via Supabase
+        }
+
+        if (meta.type === "subscription") {
+          const userId = meta.userId;
+          const planId = meta.planId;
+          console.log(`[webhook] Async payment succeeded (subscription): ${planId} → user ${userId}`);
+          // In production: UPSERT into subscriptions via Supabase
+        }
+        break;
+      }
+
+      case "checkout.session.async_payment_failed": {
+        const session = event.data.object as {
+          metadata?: Record<string, string>;
+        };
+        const meta = session.metadata ?? {};
+        console.log(`[webhook] Async payment failed: type=${meta.type}, user ${meta.userId}`);
+        // In production: UPDATE payment_transactions SET status = 'failed', notify user
+        break;
+      }
+
+      case "checkout.session.expired": {
+        const session = event.data.object as {
+          metadata?: Record<string, string>;
+        };
+        const meta = session.metadata ?? {};
+        console.log(`[webhook] Checkout session expired: type=${meta.type}, user ${meta.userId}`);
+        // In production: UPDATE payment_transactions SET status = 'expired', clean up pending records
         break;
       }
 
