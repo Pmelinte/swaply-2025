@@ -209,7 +209,7 @@ export function MonetizationHub() {
                   <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">{plan.name}</h3>
                   <div className="mt-2">
                     <span className="text-3xl font-bold text-zinc-900 dark:text-zinc-50">
-                      {price === 0 ? "Gratuit" : `$${price.toFixed(2)}`}
+                      {price === 0 ? "Gratuit" : `€${price.toFixed(2)}`}
                     </span>
                     {price > 0 && <span className="text-sm text-zinc-500">/lună</span>}
                   </div>
@@ -269,8 +269,8 @@ export function MonetizationHub() {
                 )}
                 <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{pkg.tokens}</p>
                 <p className="text-xs text-zinc-500">tokens</p>
-                <p className="mt-2 text-lg font-semibold text-emerald-600">${pkg.priceUsd}</p>
-                <p className="text-[10px] text-zinc-400">${pricePerToken(pkg).toFixed(4)}/token</p>
+                <p className="mt-2 text-lg font-semibold text-emerald-600">€{pkg.priceEur}</p>
+                <p className="text-[10px] text-zinc-400">€{pricePerToken(pkg).toFixed(4)}/token</p>
                 <button
                   className="mt-3 w-full rounded-lg bg-emerald-600 py-1.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
                   disabled={checkoutLoading === pkg.id}

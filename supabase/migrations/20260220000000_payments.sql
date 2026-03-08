@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS payment_transactions (
     'super_boost_7d', 'swap_insurance', 'business_upgrade', 'api_subscription'
   )),
   amount_cents INTEGER NOT NULL DEFAULT 0,
-  currency TEXT NOT NULL DEFAULT 'usd',
+  currency TEXT NOT NULL DEFAULT 'eur',
   status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'completed', 'failed', 'refunded')),
   metadata JSONB DEFAULT '{}',
   created_at TIMESTAMPTZ DEFAULT now(),

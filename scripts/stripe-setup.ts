@@ -30,21 +30,21 @@ async function main() {
 
   const premiumMonthly = await stripe.prices.create({
     product: premium.id,
-    unit_amount: 499, // $4.99
-    currency: "usd",
+    unit_amount: 499, // €4.99
+    currency: "eur",
     recurring: { interval: "month" },
     metadata: { swaply_plan: "premium", interval: "monthly" },
   });
-  console.log(`   💰 Preț lunar: $4.99/lună (${premiumMonthly.id})`);
+  console.log(`   💰 Preț lunar: €4.99/lună (${premiumMonthly.id})`);
 
   const premiumYearly = await stripe.prices.create({
     product: premium.id,
-    unit_amount: 4788, // $47.88
-    currency: "usd",
+    unit_amount: 4788, // €47.88
+    currency: "eur",
     recurring: { interval: "year" },
     metadata: { swaply_plan: "premium", interval: "yearly" },
   });
-  console.log(`   💰 Preț anual: $47.88/an (${premiumYearly.id})`);
+  console.log(`   💰 Preț anual: €47.88/an (${premiumYearly.id})`);
 
   // ── 2. Swaply Platinum (subscription) ──
   const platinum = await stripe.products.create({
@@ -56,28 +56,28 @@ async function main() {
 
   const platinumMonthly = await stripe.prices.create({
     product: platinum.id,
-    unit_amount: 999, // $9.99
-    currency: "usd",
+    unit_amount: 999, // €9.99
+    currency: "eur",
     recurring: { interval: "month" },
     metadata: { swaply_plan: "platinum", interval: "monthly" },
   });
-  console.log(`   💰 Preț lunar: $9.99/lună (${platinumMonthly.id})`);
+  console.log(`   💰 Preț lunar: €9.99/lună (${platinumMonthly.id})`);
 
   const platinumYearly = await stripe.prices.create({
     product: platinum.id,
-    unit_amount: 9588, // $95.88
-    currency: "usd",
+    unit_amount: 9588, // €95.88
+    currency: "eur",
     recurring: { interval: "year" },
     metadata: { swaply_plan: "platinum", interval: "yearly" },
   });
-  console.log(`   💰 Preț anual: $95.88/an (${platinumYearly.id})`);
+  console.log(`   💰 Preț anual: €95.88/an (${platinumYearly.id})`);
 
   // ── 3-6. Token Packages (one-time) ──
   const tokenPackages = [
-    { name: "Swaply Tokens — Starter", tokens: 100, priceUsd: 299, label: "100 tokens" },
-    { name: "Swaply Tokens — Popular", tokens: 500, priceUsd: 999, label: "500 tokens" },
-    { name: "Swaply Tokens — Pro", tokens: 1000, priceUsd: 1499, label: "1000 tokens" },
-    { name: "Swaply Tokens — Mega", tokens: 5000, priceUsd: 4999, label: "5000 tokens" },
+    { name: "Swaply Tokens — Starter", tokens: 100, priceEur: 299, label: "100 tokens" },
+    { name: "Swaply Tokens — Popular", tokens: 500, priceEur: 999, label: "500 tokens" },
+    { name: "Swaply Tokens — Pro", tokens: 1000, priceEur: 1499, label: "1000 tokens" },
+    { name: "Swaply Tokens — Mega", tokens: 5000, priceEur: 4999, label: "5000 tokens" },
   ];
 
   console.log("");
@@ -90,12 +90,12 @@ async function main() {
 
     const price = await stripe.prices.create({
       product: product.id,
-      unit_amount: pkg.priceUsd,
-      currency: "usd",
+      unit_amount: pkg.priceEur,
+      currency: "eur",
       metadata: { swaply_type: "token_package", tokens: String(pkg.tokens) },
     });
 
-    console.log(`✅ ${pkg.name}: $${(pkg.priceUsd / 100).toFixed(2)} (${price.id})`);
+    console.log(`✅ ${pkg.name}: €${(pkg.priceEur / 100).toFixed(2)} (${price.id})`);
   }
 
   // ── 7-9. Boost / Featured / Insurance (one-time, EUR) ──

@@ -270,7 +270,7 @@ export interface AnalyticsEvent {
 export interface TokenPackage {
   id: string;
   tokens: number;
-  priceUsd: number;
+  priceEur: number;
   label: string;
   popular?: boolean;
 }

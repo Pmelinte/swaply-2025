@@ -67,8 +67,8 @@ export async function createTokenCheckout(params: TokenCheckoutParams): Promise<
     line_items: [
       {
         price_data: {
-          currency: "usd",
-          unit_amount: Math.round(pkg.priceUsd * 100), // cents
+          currency: "eur",
+          unit_amount: Math.round(pkg.priceEur * 100), // cents
           product_data: {
             name: `Swaply Tokens — ${pkg.label}`,
             description: `${pkg.tokens} tokens pentru contul tău Swaply`,
@@ -115,7 +115,7 @@ export async function createSubscriptionCheckout(params: SubscriptionCheckoutPar
     ? { price: priceId, quantity: 1 }
     : {
         price_data: {
-          currency: "usd",
+          currency: "eur",
           unit_amount: Math.round(
             (params.interval === "yearly" ? plan.priceYearly : plan.priceMonthly) * 100,
           ),

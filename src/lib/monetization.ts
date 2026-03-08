@@ -41,10 +41,10 @@ import type {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 export const TOKEN_PACKAGES: TokenPackage[] = [
-  { id: "starter_100", tokens: 100, priceUsd: 2.99, label: "Starter" },
-  { id: "popular_500", tokens: 500, priceUsd: 9.99, label: "Popular", popular: true },
-  { id: "pro_1000", tokens: 1000, priceUsd: 14.99, label: "Pro" },
-  { id: "mega_5000", tokens: 5000, priceUsd: 49.99, label: "Mega" },
+  { id: "starter_100", tokens: 100, priceEur: 2.99, label: "Starter" },
+  { id: "popular_500", tokens: 500, priceEur: 9.99, label: "Popular", popular: true },
+  { id: "pro_1000", tokens: 1000, priceEur: 14.99, label: "Pro" },
+  { id: "mega_5000", tokens: 5000, priceEur: 49.99, label: "Mega" },
 ];
 
 export function getTokenPackage(id: string): TokenPackage | undefined {
@@ -53,7 +53,7 @@ export function getTokenPackage(id: string): TokenPackage | undefined {
 
 /** Price per token for a given package */
 export function pricePerToken(pkg: TokenPackage): number {
-  return Math.round((pkg.priceUsd / pkg.tokens) * 10000) / 10000;
+  return Math.round((pkg.priceEur / pkg.tokens) * 10000) / 10000;
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

@@ -75,8 +75,8 @@ export async function createTokenOrder(params: PayPalOrderParams): Promise<{ ord
           description: `Swaply Tokens — ${pkg.label} (${pkg.tokens} tokens)`,
           custom_id: JSON.stringify({ type: "token_purchase", packageId: pkg.id, tokens: pkg.tokens, userId: params.userId }),
           amount: {
-            currency_code: "USD",
-            value: pkg.priceUsd.toFixed(2),
+            currency_code: "EUR",
+            value: pkg.priceEur.toFixed(2),
           },
         },
       ],
@@ -194,7 +194,7 @@ export async function createSubscription(params: PayPalSubscriptionParams): Prom
           pricing_scheme: {
             fixed_price: {
               value: price.toFixed(2),
-              currency_code: "USD",
+              currency_code: "EUR",
             },
           },
         },
