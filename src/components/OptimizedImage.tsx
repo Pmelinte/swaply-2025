@@ -71,7 +71,6 @@ export default function OptimizedImage({
   const isCloudinary = src.includes("cloudinary.com");
 
   const imageProps = {
-    alt,
     className: `${className} ${isLoading ? "animate-pulse bg-gray-200" : ""} transition-opacity duration-300`,
     priority,
     sizes,
