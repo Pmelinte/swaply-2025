@@ -49,7 +49,19 @@ export type PaymentMethod =
   | "twint"        // Switzerland
   | "satispay"     // Italy
   | "cashapp"      // USA
-  | "venmo";       // USA
+  | "venmo"        // USA
+  | "mada"         // Saudi Arabia
+  | "promptpay"    // Thailand
+  | "grabpay"      // Southeast Asia
+  | "gcash"        // Philippines
+  | "dana"         // Indonesia
+  | "upi"          // India
+  | "wechat_pay"   // China
+  | "alipay"       // China
+  | "konbini"      // Japan
+  | "kakaopay"     // South Korea
+  | "toss"         // South Korea
+  | "mir";         // Russia
 
 export type GroundTransportProvider =
   | "flixbus"
@@ -68,7 +80,23 @@ export type GroundTransportProvider =
   | "cd"           // Czech Republic
   | "mav"          // Hungary
   | "amtrak"       // USA
-  | "viarail";     // Canada
+  | "viarail"      // Canada
+  | "trainose"     // Greece
+  | "zssk"         // Slovakia
+  | "hzpp"         // Croatia
+  | "sz"           // Slovenia
+  | "srbija_voz"   // Serbia
+  | "vr"           // Finland
+  | "vy"           // Norway
+  | "ltg"          // Lithuania
+  | "pv"           // Latvia
+  | "elron"        // Estonia
+  | "ukrzaliznytsia" // Ukraine
+  | "rzd"          // Russia
+  | "tcdd"         // Turkey
+  | "jr"           // Japan
+  | "korail"       // South Korea
+  | "srt";         // Thailand
 
 export interface CountryServiceConfig {
   /** ISO 3166-1 alpha-2 */
@@ -463,6 +491,570 @@ const COUNTRY_REGISTRY: CountryServiceConfig[] = [
     region: "north_america",
     isEU: false,
     addressFormat: "us",
+  },
+
+  // ══════════════════════════════════════════════════════════════════
+  // EU Member States (remaining)
+  // ══════════════════════════════════════════════════════════════════
+
+  // ── Greece ──
+  {
+    code: "GR",
+    name: "Greece",
+    currency: "EUR",
+    currencySymbol: "\u20AC",
+    vatRate: 24,
+    couriers: [
+      { id: "elta", name: "ELTA (Hellenic Post)", envPrefix: "ELTA" },
+      { id: "acs_gr", name: "ACS Courier", envPrefix: "ACS_GR" },
+      { id: "speedex", name: "Speedex", envPrefix: "SPEEDEX" },
+    ],
+    paymentMethods: ["stripe", "paypal", "revolut"],
+    groundTransport: ["trainose", "flixbus", "omio"],
+    dhlAvailable: true,
+    region: "eu",
+    isEU: true,
+    addressFormat: "eu_standard",
+  },
+
+  // ── Slovakia ──
+  {
+    code: "SK",
+    name: "Slovakia",
+    currency: "EUR",
+    currencySymbol: "\u20AC",
+    vatRate: 20,
+    couriers: [
+      { id: "slovenska_posta", name: "Slovensk\u00E1 po\u0161ta", envPrefix: "SLOVENSKA_POSTA" },
+      { id: "gls_sk", name: "GLS Slovakia", envPrefix: "GLS_SK" },
+    ],
+    paymentMethods: ["stripe", "paypal", "revolut"],
+    groundTransport: ["zssk", "flixbus", "blablacar", "omio"],
+    dhlAvailable: true,
+    region: "eu",
+    isEU: true,
+    addressFormat: "eu_standard",
+  },
+
+  // ── Croatia ──
+  {
+    code: "HR",
+    name: "Croatia",
+    currency: "EUR",
+    currencySymbol: "\u20AC",
+    vatRate: 25,
+    couriers: [
+      { id: "hrvatska_posta", name: "Hrvatska po\u0161ta", envPrefix: "HRVATSKA_POSTA" },
+      { id: "dpd_hr", name: "DPD Croatia", envPrefix: "DPD_HR" },
+    ],
+    paymentMethods: ["stripe", "paypal", "revolut"],
+    groundTransport: ["hzpp", "flixbus", "blablacar", "omio"],
+    dhlAvailable: true,
+    region: "eu",
+    isEU: true,
+    addressFormat: "eu_standard",
+  },
+
+  // ── Slovenia ──
+  {
+    code: "SI",
+    name: "Slovenia",
+    currency: "EUR",
+    currencySymbol: "\u20AC",
+    vatRate: 22,
+    couriers: [
+      { id: "posta_slovenije", name: "Po\u0161ta Slovenije", envPrefix: "POSTA_SI" },
+      { id: "gls_si", name: "GLS Slovenia", envPrefix: "GLS_SI" },
+    ],
+    paymentMethods: ["stripe", "paypal", "revolut"],
+    groundTransport: ["sz", "flixbus", "omio"],
+    dhlAvailable: true,
+    region: "eu",
+    isEU: true,
+    addressFormat: "eu_standard",
+  },
+
+  // ── Finland ──
+  {
+    code: "FI",
+    name: "Finland",
+    currency: "EUR",
+    currencySymbol: "\u20AC",
+    vatRate: 25.5,
+    couriers: [
+      { id: "posti", name: "Posti", envPrefix: "POSTI" },
+      { id: "matkahuolto", name: "Matkahuolto", envPrefix: "MATKAHUOLTO" },
+    ],
+    paymentMethods: ["stripe", "paypal", "klarna", "revolut"],
+    groundTransport: ["vr", "omio"],
+    dhlAvailable: true,
+    region: "eu",
+    isEU: true,
+    addressFormat: "eu_standard",
+  },
+
+  // ── Lithuania ──
+  {
+    code: "LT",
+    name: "Lithuania",
+    currency: "EUR",
+    currencySymbol: "\u20AC",
+    vatRate: 21,
+    couriers: [
+      { id: "lietuvos_pastas", name: "Lietuvos pa\u0161tas", envPrefix: "LIETUVOS_PASTAS" },
+      { id: "omniva_lt", name: "Omniva", envPrefix: "OMNIVA_LT" },
+    ],
+    paymentMethods: ["stripe", "paypal", "revolut"],
+    groundTransport: ["ltg", "flixbus", "omio"],
+    dhlAvailable: true,
+    region: "eu",
+    isEU: true,
+    addressFormat: "eu_standard",
+  },
+
+  // ── Latvia ──
+  {
+    code: "LV",
+    name: "Latvia",
+    currency: "EUR",
+    currencySymbol: "\u20AC",
+    vatRate: 21,
+    couriers: [
+      { id: "latvijas_pasts", name: "Latvijas Pasts", envPrefix: "LATVIJAS_PASTS" },
+      { id: "omniva_lv", name: "Omniva", envPrefix: "OMNIVA_LV" },
+    ],
+    paymentMethods: ["stripe", "paypal", "revolut"],
+    groundTransport: ["pv", "flixbus", "omio"],
+    dhlAvailable: true,
+    region: "eu",
+    isEU: true,
+    addressFormat: "eu_standard",
+  },
+
+  // ── Estonia ──
+  {
+    code: "EE",
+    name: "Estonia",
+    currency: "EUR",
+    currencySymbol: "\u20AC",
+    vatRate: 22,
+    couriers: [
+      { id: "omniva_ee", name: "Omniva", envPrefix: "OMNIVA_EE" },
+      { id: "smartpost_ee", name: "Smartpost", envPrefix: "SMARTPOST_EE" },
+    ],
+    paymentMethods: ["stripe", "paypal", "revolut"],
+    groundTransport: ["elron", "omio"],
+    dhlAvailable: true,
+    region: "eu",
+    isEU: true,
+    addressFormat: "eu_standard",
+  },
+
+  // ── Ireland ──
+  {
+    code: "IE",
+    name: "Ireland",
+    currency: "EUR",
+    currencySymbol: "\u20AC",
+    vatRate: 23,
+    couriers: [
+      { id: "an_post", name: "An Post", envPrefix: "AN_POST" },
+      { id: "dpd_ie", name: "DPD Ireland", envPrefix: "DPD_IE" },
+    ],
+    paymentMethods: ["stripe", "paypal", "klarna", "revolut"],
+    groundTransport: ["flixbus", "omio"],
+    dhlAvailable: true,
+    region: "eu",
+    isEU: true,
+    addressFormat: "uk",
+  },
+
+  // ── Malta ──
+  {
+    code: "MT",
+    name: "Malta",
+    currency: "EUR",
+    currencySymbol: "\u20AC",
+    vatRate: 18,
+    couriers: [
+      { id: "maltapost", name: "MaltaPost", envPrefix: "MALTAPOST" },
+    ],
+    paymentMethods: ["stripe", "paypal", "revolut"],
+    groundTransport: ["omio"],
+    dhlAvailable: true,
+    region: "eu",
+    isEU: true,
+    addressFormat: "eu_standard",
+  },
+
+  // ══════════════════════════════════════════════════════════════════
+  // Europe (non-EU)
+  // ══════════════════════════════════════════════════════════════════
+
+  // ── Norway ──
+  {
+    code: "NO",
+    name: "Norway",
+    currency: "NOK",
+    currencySymbol: "kr",
+    vatRate: 25,
+    couriers: [
+      { id: "posten_no", name: "Posten Norge", envPrefix: "POSTEN_NO" },
+      { id: "postnord_no", name: "PostNord", envPrefix: "POSTNORD_NO" },
+    ],
+    paymentMethods: ["stripe", "paypal", "vipps", "klarna", "revolut"],
+    groundTransport: ["vy", "flixbus", "omio"],
+    dhlAvailable: true,
+    region: "europe_non_eu",
+    isEU: false,
+    addressFormat: "eu_standard",
+  },
+
+  // ── Serbia ──
+  {
+    code: "RS",
+    name: "Serbia",
+    currency: "RSD",
+    currencySymbol: "din",
+    vatRate: 20,
+    couriers: [
+      { id: "posta_srbije", name: "Po\u0161ta Srbije", envPrefix: "POSTA_RS" },
+      { id: "dexpress", name: "D Express", envPrefix: "DEXPRESS" },
+    ],
+    paymentMethods: ["stripe", "paypal", "revolut"],
+    groundTransport: ["srbija_voz", "flixbus", "blablacar", "omio"],
+    dhlAvailable: true,
+    region: "europe_non_eu",
+    isEU: false,
+    addressFormat: "eu_standard",
+  },
+
+  // ── Ukraine ──
+  {
+    code: "UA",
+    name: "Ukraine",
+    currency: "UAH",
+    currencySymbol: "\u20B4",
+    vatRate: 20,
+    couriers: [
+      { id: "nova_poshta", name: "Nova Poshta", envPrefix: "NOVA_POSHTA" },
+      { id: "ukrposhta", name: "Ukrposhta", envPrefix: "UKRPOSHTA" },
+      { id: "meest", name: "Meest", envPrefix: "MEEST" },
+    ],
+    paymentMethods: ["stripe", "paypal", "revolut"],
+    groundTransport: ["ukrzaliznytsia", "flixbus", "blablacar", "omio"],
+    dhlAvailable: true,
+    region: "europe_non_eu",
+    isEU: false,
+    addressFormat: "eu_standard",
+  },
+
+  // ── Russia ──
+  {
+    code: "RU",
+    name: "Russia",
+    currency: "RUB",
+    currencySymbol: "\u20BD",
+    vatRate: 20,
+    couriers: [
+      { id: "pochta_rossii", name: "\u041F\u043E\u0447\u0442\u0430 \u0420\u043E\u0441\u0441\u0438\u0438", envPrefix: "POCHTA_RU" },
+      { id: "cdek", name: "CDEK", envPrefix: "CDEK" },
+      { id: "dpd_ru", name: "DPD Russia", envPrefix: "DPD_RU" },
+    ],
+    paymentMethods: ["stripe", "paypal", "mir"],
+    groundTransport: ["rzd", "blablacar"],
+    dhlAvailable: true,
+    region: "europe_non_eu",
+    isEU: false,
+    addressFormat: "eu_standard",
+  },
+
+  // ── Turkey ──
+  {
+    code: "TR",
+    name: "Turkey",
+    currency: "TRY",
+    currencySymbol: "\u20BA",
+    vatRate: 20,
+    couriers: [
+      { id: "ptt", name: "PTT", envPrefix: "PTT_TR" },
+      { id: "yurtici", name: "Yurtici Kargo", envPrefix: "YURTICI" },
+      { id: "aras", name: "Aras Kargo", envPrefix: "ARAS" },
+    ],
+    paymentMethods: ["stripe", "paypal"],
+    groundTransport: ["tcdd", "flixbus", "omio"],
+    dhlAvailable: true,
+    region: "europe_non_eu",
+    isEU: false,
+    addressFormat: "eu_standard",
+  },
+
+  // ══════════════════════════════════════════════════════════════════
+  // Middle East
+  // ══════════════════════════════════════════════════════════════════
+
+  // ── Saudi Arabia ──
+  {
+    code: "SA",
+    name: "Saudi Arabia",
+    currency: "SAR",
+    currencySymbol: "\uFDFC",
+    vatRate: 15,
+    couriers: [
+      { id: "saudi_post", name: "Saudi Post (SPL)", envPrefix: "SAUDI_POST" },
+      { id: "aramex", name: "Aramex", envPrefix: "ARAMEX" },
+      { id: "smsa", name: "SMSA Express", envPrefix: "SMSA" },
+    ],
+    paymentMethods: ["stripe", "paypal", "mada"],
+    groundTransport: [],
+    dhlAvailable: true,
+    region: "middle_east",
+    isEU: false,
+    addressFormat: "asian",
+  },
+
+  // ── Iran ──
+  {
+    code: "IR",
+    name: "Iran",
+    currency: "IRR",
+    currencySymbol: "\uFDFC",
+    vatRate: 9,
+    couriers: [
+      { id: "post_ir", name: "Iran Post", envPrefix: "POST_IR" },
+      { id: "tipax", name: "Tipax", envPrefix: "TIPAX" },
+    ],
+    paymentMethods: ["paypal"],
+    groundTransport: [],
+    dhlAvailable: true,
+    region: "middle_east",
+    isEU: false,
+    addressFormat: "asian",
+  },
+
+  // ══════════════════════════════════════════════════════════════════
+  // Asia
+  // ══════════════════════════════════════════════════════════════════
+
+  // ── China ──
+  {
+    code: "CN",
+    name: "China",
+    currency: "CNY",
+    currencySymbol: "\u00A5",
+    vatRate: 13,
+    couriers: [
+      { id: "china_post", name: "China Post", envPrefix: "CHINA_POST" },
+      { id: "sf_express", name: "SF Express", envPrefix: "SF_EXPRESS" },
+      { id: "sto", name: "STO Express", envPrefix: "STO" },
+      { id: "yto", name: "YTO Express", envPrefix: "YTO" },
+    ],
+    paymentMethods: ["stripe", "alipay", "wechat_pay"],
+    groundTransport: [],
+    dhlAvailable: true,
+    region: "asia",
+    isEU: false,
+    addressFormat: "asian",
+  },
+
+  // ── India ──
+  {
+    code: "IN",
+    name: "India",
+    currency: "INR",
+    currencySymbol: "\u20B9",
+    vatRate: 18, // GST
+    couriers: [
+      { id: "india_post", name: "India Post", envPrefix: "INDIA_POST" },
+      { id: "bluedart", name: "Blue Dart", envPrefix: "BLUEDART" },
+      { id: "delhivery", name: "Delhivery", envPrefix: "DELHIVERY" },
+      { id: "dtdc", name: "DTDC", envPrefix: "DTDC" },
+    ],
+    paymentMethods: ["stripe", "paypal", "upi"],
+    groundTransport: [],
+    dhlAvailable: true,
+    region: "asia",
+    isEU: false,
+    addressFormat: "asian",
+  },
+
+  // ── Bangladesh ──
+  {
+    code: "BD",
+    name: "Bangladesh",
+    currency: "BDT",
+    currencySymbol: "\u09F3",
+    vatRate: 15,
+    couriers: [
+      { id: "bangladesh_post", name: "Bangladesh Post", envPrefix: "BD_POST" },
+      { id: "pathao", name: "Pathao", envPrefix: "PATHAO" },
+      { id: "redx", name: "RedX", envPrefix: "REDX" },
+    ],
+    paymentMethods: ["stripe", "paypal"],
+    groundTransport: [],
+    dhlAvailable: true,
+    region: "asia",
+    isEU: false,
+    addressFormat: "asian",
+  },
+
+  // ── Japan ──
+  {
+    code: "JP",
+    name: "Japan",
+    currency: "JPY",
+    currencySymbol: "\u00A5",
+    vatRate: 10,
+    couriers: [
+      { id: "japan_post", name: "Japan Post", envPrefix: "JAPAN_POST" },
+      { id: "yamato", name: "Yamato Transport", envPrefix: "YAMATO" },
+      { id: "sagawa", name: "Sagawa Express", envPrefix: "SAGAWA" },
+    ],
+    paymentMethods: ["stripe", "paypal", "konbini"],
+    groundTransport: ["jr"],
+    dhlAvailable: true,
+    region: "asia",
+    isEU: false,
+    addressFormat: "asian",
+  },
+
+  // ── South Korea ──
+  {
+    code: "KR",
+    name: "South Korea",
+    currency: "KRW",
+    currencySymbol: "\u20A9",
+    vatRate: 10,
+    couriers: [
+      { id: "korea_post", name: "Korea Post", envPrefix: "KOREA_POST" },
+      { id: "cj_logistics", name: "CJ Logistics", envPrefix: "CJ_LOGISTICS" },
+      { id: "logen", name: "Logen", envPrefix: "LOGEN" },
+    ],
+    paymentMethods: ["stripe", "paypal", "kakaopay", "toss"],
+    groundTransport: ["korail"],
+    dhlAvailable: true,
+    region: "asia",
+    isEU: false,
+    addressFormat: "asian",
+  },
+
+  // ── Vietnam ──
+  {
+    code: "VN",
+    name: "Vietnam",
+    currency: "VND",
+    currencySymbol: "\u20AB",
+    vatRate: 10,
+    couriers: [
+      { id: "vietnam_post", name: "Vietnam Post", envPrefix: "VIETNAM_POST" },
+      { id: "ghn", name: "Giao Hang Nhanh", envPrefix: "GHN" },
+      { id: "ghtk", name: "Giao Hang Tiet Kiem", envPrefix: "GHTK" },
+    ],
+    paymentMethods: ["stripe", "paypal"],
+    groundTransport: [],
+    dhlAvailable: true,
+    region: "asia",
+    isEU: false,
+    addressFormat: "asian",
+  },
+
+  // ── Thailand ──
+  {
+    code: "TH",
+    name: "Thailand",
+    currency: "THB",
+    currencySymbol: "\u0E3F",
+    vatRate: 7,
+    couriers: [
+      { id: "thailand_post", name: "Thailand Post", envPrefix: "THAILAND_POST" },
+      { id: "kerry_th", name: "Kerry Express", envPrefix: "KERRY_TH" },
+      { id: "flash_express", name: "Flash Express", envPrefix: "FLASH_EXPRESS" },
+    ],
+    paymentMethods: ["stripe", "paypal", "promptpay"],
+    groundTransport: ["srt"],
+    dhlAvailable: true,
+    region: "asia",
+    isEU: false,
+    addressFormat: "asian",
+  },
+
+  // ── Indonesia ──
+  {
+    code: "ID",
+    name: "Indonesia",
+    currency: "IDR",
+    currencySymbol: "Rp",
+    vatRate: 11,
+    couriers: [
+      { id: "pos_indonesia", name: "Pos Indonesia", envPrefix: "POS_ID" },
+      { id: "jne", name: "JNE", envPrefix: "JNE" },
+      { id: "jnt_id", name: "J&T Express", envPrefix: "JNT_ID" },
+      { id: "sicepat", name: "SiCepat", envPrefix: "SICEPAT" },
+    ],
+    paymentMethods: ["stripe", "paypal", "dana", "grabpay"],
+    groundTransport: [],
+    dhlAvailable: true,
+    region: "asia",
+    isEU: false,
+    addressFormat: "asian",
+  },
+
+  // ── Malaysia ──
+  {
+    code: "MY",
+    name: "Malaysia",
+    currency: "MYR",
+    currencySymbol: "RM",
+    vatRate: 8, // SST
+    couriers: [
+      { id: "pos_malaysia", name: "Pos Malaysia", envPrefix: "POS_MY" },
+      { id: "jnt_my", name: "J&T Express", envPrefix: "JNT_MY" },
+      { id: "gdex", name: "GDEX", envPrefix: "GDEX" },
+    ],
+    paymentMethods: ["stripe", "paypal", "grabpay"],
+    groundTransport: [],
+    dhlAvailable: true,
+    region: "asia",
+    isEU: false,
+    addressFormat: "asian",
+  },
+
+  // ── Philippines ──
+  {
+    code: "PH",
+    name: "Philippines",
+    currency: "PHP",
+    currencySymbol: "\u20B1",
+    vatRate: 12,
+    couriers: [
+      { id: "phlpost", name: "PHLPost", envPrefix: "PHLPOST" },
+      { id: "jnt_ph", name: "J&T Express", envPrefix: "JNT_PH" },
+      { id: "lbc", name: "LBC Express", envPrefix: "LBC" },
+    ],
+    paymentMethods: ["stripe", "paypal", "gcash", "grabpay"],
+    groundTransport: [],
+    dhlAvailable: true,
+    region: "asia",
+    isEU: false,
+    addressFormat: "asian",
+  },
+
+  // ── Mongolia ──
+  {
+    code: "MN",
+    name: "Mongolia",
+    currency: "MNT",
+    currencySymbol: "\u20AE",
+    vatRate: 10,
+    couriers: [
+      { id: "mongol_post", name: "Mongol Post", envPrefix: "MONGOL_POST" },
+    ],
+    paymentMethods: ["stripe", "paypal"],
+    groundTransport: [],
+    dhlAvailable: true,
+    region: "asia",
+    isEU: false,
+    addressFormat: "asian",
   },
 ];
 
