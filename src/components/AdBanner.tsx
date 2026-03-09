@@ -7,6 +7,7 @@
  */
 
 import { useAppState } from "@/lib/state";
+import { useTranslations } from "next-intl";
 
 interface AdBannerProps {
   placement: "banner_top" | "sidebar" | "inline_feed" | "footer";
@@ -15,6 +16,7 @@ interface AdBannerProps {
 
 export function AdBanner({ placement, className = "" }: AdBannerProps) {
   const { user } = useAppState();
+  const t = useTranslations("adBanner");
 
   // Premium/Platinum users = ad-free
   if (user?.badge === "premium" || user?.badge === "platinum") return null;
@@ -57,13 +59,13 @@ export function AdBanner({ placement, className = "" }: AdBannerProps) {
   return (
     <div className={`rounded-xl border border-blue-200 bg-gradient-to-r from-blue-50 to-purple-50 p-3 text-center dark:border-blue-900 dark:from-blue-950/20 dark:to-purple-950/20 ${className}`}>
       <p className="text-xs font-medium text-blue-700 dark:text-blue-300">
-        Treci la Premium pentru experiență fără reclame, matching prioritar și 50 tokens/lună
+        {t("premiumCta")}
       </p>
       <a
         href="/monetization"
         className="mt-1 inline-block rounded-full bg-blue-600 px-3 py-1 text-[10px] font-semibold text-white hover:bg-blue-700"
       >
-        Upgrade acum
+        {t("upgradeNow")}
       </a>
     </div>
   );

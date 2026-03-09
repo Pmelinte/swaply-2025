@@ -29,7 +29,6 @@
     "tryAgain": "Try again",
     "nextStep": "Recommended next step"
   },
-
   "nav": {
     "home": "Home",
     "objects": "Objects",
@@ -57,13 +56,11 @@
     "badgeBenefits": "Badge benefits",
     "completeProfile": "Complete your profile"
   },
-
   "notifications": {
     "title": "Notifications",
     "empty": "No notifications right now.",
     "clearAll": "Clear all"
   },
-
   "contextBar": {
     "itemsActive": "{count} active items",
     "swapsInProgress": "{count} active swaps",
@@ -79,9 +76,11 @@
     "reputation": "Reputation",
     "tokens": "Tokens",
     "viewInfo": "Info & Statistics",
-    "feedback": "Feedback"
+    "feedback": "Feedback",
+    "integrationsApis": "Integrations & APIs",
+    "monetization": "Monetization",
+    "integrations": "Integrations"
   },
-
   "login": {
     "authentication": "Authentication",
     "registration": "Registration",
@@ -125,7 +124,6 @@
     "invalidCredentials": "Invalid credentials",
     "invalidCredentialsDescription": "Red message + demo password mention. No mock success; stay on page with CTA to reset password."
   },
-
   "profile": {
     "loading": "Loading profile…",
     "loadingDescription": "Checking your session.",
@@ -311,9 +309,12 @@
     "crossSwapProperties": "Houses or rooms for stays",
     "services": "Services",
     "crossSwapServices": "Skills and time exchange",
-    "crossSwapExample": "Example: Stay at my mountain cabin for 2 weeks + I teach you photography → Your electric scooter + 10h of web development"
+    "crossSwapExample": "Example: Stay at my mountain cabin for 2 weeks + I teach you photography → Your electric scooter + 10h of web development",
+    "completeProfileHint": "Complete your profile to improve match quality",
+    "loginHistory": "Login history",
+    "loginHistoryDesc": "Recent sessions on your account",
+    "profileCompleteness": "Profile completeness"
   },
-
   "home": {
     "welcome": "Welcome back",
     "greeting": "Hey, {name}!",
@@ -380,7 +381,6 @@
     "activitySwap": "Swap",
     "activityListed": "Listed"
   },
-
   "objects": {
     "title": "Browse Objects",
     "subtitle": "Discover what's available for exchange",
@@ -456,7 +456,6 @@
     "loadMoreItems": "Load more",
     "remainingItems": "remaining"
   },
-
   "objectDetail": {
     "loading": "Loading object",
     "loadingDescription": "Loading state per contract (not 404).",
@@ -511,7 +510,6 @@
     "photoCount": "{current} / {total}",
     "share": "Share"
   },
-
   "objectEdit": {
     "loading": "Loading editor",
     "notFound": "Object not found",
@@ -519,12 +517,10 @@
     "title": "Edit object",
     "editDescription": "Form with prefilled values + clear statuses."
   },
-
   "objectNew": {
     "title": "Add object",
     "description": "Complete form, without breaking the build."
   },
-
   "match": {
     "title": "Match analysis",
     "description": "Proposals based on cumulative compatibility. AI analyzes, you decide.",
@@ -610,7 +606,6 @@
     "swapVacation": "Vacation",
     "swapService": "Service"
   },
-
   "chat": {
     "title": "Secure chat",
     "description": "Translation (if on) + moderation + scanned attachments + CTA to Swaply",
@@ -669,7 +664,6 @@
     "delivered": "Delivered",
     "reactions": "Reactions"
   },
-
   "change": {
     "title": "Exchange flow (Swaply)",
     "description": "Confirmation + logistics + map (levels) + notifications + feedback",
@@ -796,7 +790,6 @@
     "availMorning": "Morning",
     "availAfternoon": "Afternoon",
     "availEvening": "Evening",
-
     "houseSwapMode": "Exchange type",
     "houseMode_simultaneous": "Simultaneous",
     "houseModeDesc_simultaneous": "Both parties travel at the same time (e.g. mountain ↔ seaside)",
@@ -848,7 +841,6 @@
     "houseEmergencyPlaceholder": "Neighbor phone, local emergency numbers...",
     "houseInsurance": "Insurance acknowledgment",
     "houseInsuranceDesc": "I confirm I have verified my travel/home insurance covers this exchange. Swaply recommends all parties have appropriate insurance.",
-
     "serviceCategory": "Service category",
     "svcCat_creative": "Creative",
     "svcCat_technical": "Technical",
@@ -886,7 +878,6 @@
     "svcRateQuality": "Quality",
     "svcRatePunctuality": "Punctuality",
     "svcRateCommunication": "Communication",
-
     "cancelReasonTitle": "Why are you cancelling?",
     "cancelReasonDesc": "Help us understand — your feedback improves the platform.",
     "cancelReason_changed_mind": "Changed my mind",
@@ -916,7 +907,6 @@
     "loginHistory": "Login history",
     "loginHistoryDesc": "Recent sessions on your account"
   },
-
   "feedback": {
     "title": "Feedback",
     "subtitle": "Help us make Swaply better — report bugs, suggest features, or share your experience.",
@@ -955,7 +945,6 @@
     "statusPlanned": "Planned",
     "statusDone": "Done"
   },
-
   "info": {
     "title": "Swaply Statistics",
     "description": "Global stats + user stats + rank + tokens + exchange rate + help/legal",
@@ -1067,7 +1056,6 @@
     "streak": "day streak",
     "leaderboardNote": "Leaderboard resets monthly. Activity includes completed swaps, positive ratings, and consistent engagement."
   },
-
   "itemForm": {
     "conditionNew": "New",
     "conditionGood": "Slightly used",
@@ -1167,7 +1155,6 @@
     "aiConfidenceLow": "Low confidence — please verify manually",
     "aiWriteDescription": "Write description for me"
   },
-
   "itemCard": {
     "location": "Location:",
     "ai": "AI:",
@@ -1175,7 +1162,6 @@
     "edit": "Edit",
     "delete": "Delete"
   },
-
   "swipeCard": {
     "yes": "YES",
     "no": "NO",
@@ -1183,7 +1169,6 @@
     "notInterested": "Not interested",
     "interested": "Interested"
   },
-
   "matchList": {
     "weak": "Weak",
     "possible": "Possible",
@@ -1246,7 +1231,6 @@
     "loadMore": "Load more",
     "remaining": "remaining"
   },
-
   "swapTimeline": {
     "proposed": "Proposed",
     "scheduled": "Scheduled",
@@ -1268,7 +1252,6 @@
     "autoNotifications": "Auto notifications:",
     "lastUpdate": "Last update:"
   },
-
   "chatPanel": {
     "you": "You",
     "partner": "Partner",
@@ -1294,7 +1277,6 @@
     "status_completed": "Completed",
     "status_cancelled": "Cancelled"
   },
-
   "statsGrid": {
     "globalExchanges": "Global exchanges",
     "globalDescription": "Swaply is active in multiple regions",
@@ -1305,7 +1287,6 @@
     "tokensIssued": "Tokens issued",
     "tokensDescription": "Secure ledger, visible in profile"
   },
-
   "map": {
     "unavailable": "Map unavailable",
     "providerDisabled": "Map provider disabled. The rest of the page remains usable.",
@@ -1317,7 +1298,6 @@
     "mapTitle": "Location map",
     "noPins": "No pins to display"
   },
-
   "location": {
     "country": "Country",
     "selectCountry": "— Select country —",
@@ -1328,19 +1308,19 @@
     "selectCity": "— Select city —",
     "chooseRegionFirst": "— Choose region first —"
   },
-
   "gated": {
     "notLoggedIn": "You are not logged in",
     "loginToView": "Login to view this content. Return-to is saved so you can continue the flow without interruptions.",
-    "login": "Login"
+    "login": "Login",
+    "accessDenied": "Access denied",
+    "adminOnly": "This page is only accessible to administrators.",
+    "backHome": "Back home"
   },
-
   "demoBanner": {
     "demoMode": "Demo mode active",
     "dataNotReal": "— data is not real and is not saved.",
     "exitDemo": "Exit demo"
   },
-
   "myObjects": {
     "title": "My Objects",
     "subtitle": "Manage your inventory",
@@ -1386,7 +1366,6 @@
     "bulkArchive": "Archive all",
     "exportCsv": "Export CSV"
   },
-
   "safety": {
     "report": "Report",
     "block": "Block",
@@ -1404,7 +1383,6 @@
     "submitReport": "Submit report",
     "cancelReport": "Cancel"
   },
-
   "legal": {
     "tableOfContents": "Table of contents",
     "lastUpdated": "Last updated",
@@ -1451,7 +1429,6 @@
     "cookieReject": "Essential only",
     "cookieLearnMore": "Learn more"
   },
-
   "onboarding": {
     "step1Title": "List your items",
     "step1Desc": "Take a photo or add a link. AI will auto-fill the category, tags, and suggest a description for you.",
@@ -1465,11 +1442,158 @@
     "next": "Next",
     "start": "Start swapping!"
   },
-
   "pwa": {
     "installSwaply": "Install Swaply",
     "installDescription": "Add to home screen for quick access, without browser.",
     "install": "Install",
     "notNow": "Not now"
+  },
+  "integrations": {
+    "title": "Integrations & APIs",
+    "subtitle": "All external services connected to Swaply",
+    "totalIntegrations": "Total integrations",
+    "activeMockReady": "Active (mock-ready)",
+    "needsApiKey": "Needs API key",
+    "statusActive": "Active",
+    "statusNeedsKey": "Needs API Key",
+    "statusComingSoon": "Coming soon",
+    "categoryAll": "All",
+    "categoryShipping": "Shipping",
+    "categoryTravel": "Travel",
+    "categoryFinance": "Payments",
+    "categoryServices": "Services",
+    "features": "Features",
+    "revenueModel": "Revenue model",
+    "apiEndpoint": "API Endpoint",
+    "envVars": "Environment variables",
+    "apiDocs": "API Documentation",
+    "howItWorks": "How it works",
+    "howItWorksDesc": "All integrations have mock fallbacks for development",
+    "activeMockDesc": "works without an API key, with simulated data. Add the key in .env.local for real data.",
+    "needsKeyDesc": "requires registration with the provider. Works with mock data in development.",
+    "affiliateDesc": "works instantly, without an API key. The affiliate ID is optional (for commission only).",
+    "affiliateLinks": "Affiliate links"
+  },
+  "monetization": {
+    "title": "Monetization",
+    "subtitle": "Manage your subscription, tokens and rewards",
+    "balance": "Balance",
+    "verified": "Verified",
+    "business": "Business",
+    "tabSubscriptions": "Subscriptions",
+    "tabTokenShop": "Token Shop",
+    "tabStreak": "Streak",
+    "tabReferrals": "Referrals",
+    "tabMilestones": "Milestone",
+    "tabThemes": "Themes",
+    "monthly": "Monthly",
+    "yearly": "Yearly (-20%)",
+    "recommended": "Recommended",
+    "free": "Free",
+    "perMonth": "/month",
+    "processing": "Processing...",
+    "currentPlan": "Current plan",
+    "freePlan": "Free plan",
+    "upgrade": "Upgrade",
+    "buyTokens": "Buy Tokens",
+    "popular": "Popular",
+    "tokens": "tokens",
+    "buy": "Buy",
+    "orPaypal": "or PayPal",
+    "paypalRedirect": "Redirecting to PayPal...",
+    "paypalError": "PayPal error",
+    "networkError": "Network error processing payment",
+    "shopAll": "All",
+    "insufficient": "Insufficient",
+    "purchased": "purchased!",
+    "giftTokens": "Send Gift Tokens",
+    "userId": "User ID",
+    "messageOptional": "Message (optional)",
+    "send": "Send",
+    "tokensSent": "tokens sent!",
+    "streakDays": "{count} days",
+    "currentStreak": "Current streak — Record: {record} days",
+    "tomorrowReward": "Tomorrow's reward:",
+    "claim": "Claim",
+    "claimedToday": "Claimed today",
+    "tokensClaimed": "+{count} tokens claimed!",
+    "inviteFriends": "Invite friends, earn tokens!",
+    "youGet": "You get {count} tokens per referral.",
+    "friendGets": "Your friend gets {count} bonus tokens.",
+    "copyLink": "Copy link",
+    "copied": "Copied!",
+    "share": "Share",
+    "friendEmail": "Friend's email",
+    "invite": "Invite",
+    "inviteSent": "Invitation sent to {email}!",
+    "invitesSent": "Invitations sent",
+    "registered": "Registered",
+    "tokensEarned": "Tokens earned",
+    "swapMilestones": "Swap Milestones",
+    "loyaltyMilestones": "Loyalty Milestones",
+    "swapsCompleted": "{count} swaps completed",
+    "daysActive": "{count} days active",
+    "unlocked": "Unlocked",
+    "locked": "Locked",
+    "verifiedBadge": "Verified Badge",
+    "verifiedBadgeDesc": "{cost} tokens — permanently verified identity",
+    "verifiedActivated": "Verified badge activated!",
+    "businessAccount": "Business Account",
+    "businessAccountDesc": "{cost} tokens — 200 listings, bulk upload, branding",
+    "businessActivated": "Business account activated!",
+    "themesDescription": "Customize your profile with a unique theme. Each theme changes your profile colors.",
+    "active": "Active",
+    "deactivate": "Deactivate",
+    "themeActivated": "Theme {name} activated!",
+    "tokenHistory": "Token History",
+    "whatsappInvite": "Hey! Join Swaply and swap items! Use my code: {code}",
+    "shareTitle": "Swaply — Item Exchange",
+    "shareText": "Join Swaply! Referral code: {code}"
+  },
+  "adBanner": {
+    "premiumCta": "Switch to Premium for ad-free experience, priority matching and 50 tokens/month",
+    "upgradeNow": "Upgrade now"
+  },
+  "safeMeeting": {
+    "title": "Safe Meeting Checklist",
+    "completeRequired": "Complete all mandatory items before the meeting.",
+    "checks": "{done}/{total} checks",
+    "required": "Required",
+    "recommended": "Recommended",
+    "allComplete": "All mandatory checks are complete. Safe meeting!"
+  },
+  "productControl": {
+    "title": "Product Control",
+    "subtitle": "Manage features, monitor metrics, configure cron jobs.",
+    "featureFlags": "Feature Flags",
+    "cronJobs": "Cron Jobs",
+    "metrics": "Metrics",
+    "trustSafety": "Trust & Safety",
+    "active": "active",
+    "all": "All",
+    "cronDescription": "Automated tasks executed at regular intervals. In production, they run via Vercel Cron / Supabase Edge Functions.",
+    "conversionFunnel": "Conversion Funnel",
+    "visitors": "Visitors",
+    "signups": "Sign-ups",
+    "listedItems": "Listed ≥1 item",
+    "chatStarted": "Started a chat",
+    "swapProposed": "Proposed a swap",
+    "swapCompleted": "Completed a swap",
+    "activeItems": "Active items",
+    "conversations": "Conversations",
+    "totalSwaps": "Total swaps",
+    "totalConversion": "Total conversion",
+    "trustScore": "Trust Score (Current Account)",
+    "trustScoreLabel": "Trust Score: {score}/100",
+    "frictionLimits": "Adaptive Friction Limits",
+    "accountSuspended": "Account suspended: {reason}",
+    "messagesPerDay": "Messages/day",
+    "chatsPerDay": "Chats/day",
+    "proposalsPerDay": "Proposals/day",
+    "links": "Links",
+    "locationSharing": "Location",
+    "autoModeration": "Auto moderation",
+    "yes": "Yes",
+    "no": "No"
   }
 }

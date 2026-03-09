@@ -6,6 +6,7 @@
  */
 
 import { useState, useMemo, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import {
   TOKEN_PACKAGES,
@@ -42,6 +43,7 @@ import {
 type Tab = "pricing" | "shop" | "streak" | "referrals" | "milestones" | "themes";
 
 export function MonetizationHub() {
+  const t = useTranslations("monetization");
   const {
     user, tokenBalance, tokenLedger, shopItems, purchaseShopItem,
     loginStreak, claimDailyReward, referralCode, referrals, sendReferralInvite,
@@ -86,11 +88,11 @@ export function MonetizationHub() {
         showFeedback(`Eroare: ${data.error}`);
       }
     } catch {
-      showFeedback("Eroare de rețea la procesarea plății");
+      showFeedback(t("networkError"));
     } finally {
       setCheckoutLoading(null);
     }
-  }, [user]);
+  }, [user, t]);
 
   const showFeedback = (msg: string) => {
     setFeedbackMsg(msg);
@@ -98,12 +100,12 @@ export function MonetizationHub() {
   };
 
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
-    { id: "pricing", label: "Abonamente", icon: <Crown className="h-4 w-4" /> },
-    { id: "shop", label: "Token Shop", icon: <ShoppingBag className="h-4 w-4" /> },
-    { id: "streak", label: "Streak", icon: <Flame className="h-4 w-4" /> },
-    { id: "referrals", label: "Referrals", icon: <Gift className="h-4 w-4" /> },
-    { id: "milestones", label: "Milestone", icon: <Trophy className="h-4 w-4" /> },
-    { id: "themes", label: "Teme", icon: <Palette className="h-4 w-4" /> },
+    { id: "pricing", label: t("tabSubscriptions"), icon: <Crown className="h-4 w-4" /> },
+    { id: "shop", label: t("tabTokenShop"), icon: <ShoppingBag className="h-4 w-4" /> },
+    { id: "streak", label: t("tabStreak"), icon: <Flame className="h-4 w-4" /> },
+    { id: "referrals", label: t("tabReferrals"), icon: <Gift className="h-4 w-4" /> },
+    { id: "milestones", label: t("tabMilestones"), icon: <Trophy className="h-4 w-4" /> },
+    { id: "themes", label: t("tabThemes"), icon: <Palette className="h-4 w-4" /> },
   ];
 
   return (
@@ -118,24 +120,24 @@ export function MonetizationHub() {
       {/* Header with balance */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">Monetizare</h2>
+          <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{t("title")}</h2>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            Gestionează abonamentul, tokens și recompensele tale
+            {t("subtitle")}
           </p>
         </div>
         <div className="flex items-center gap-3">
           <div className="rounded-xl bg-amber-50 px-4 py-2 dark:bg-amber-950/30">
-            <p className="text-xs text-amber-600 dark:text-amber-400">Balanță</p>
-            <p className="text-lg font-bold text-amber-700 dark:text-amber-300">{tokenBalance} tokens</p>
+            <p className="text-xs text-amber-600 dark:text-amber-400">{t("balance")}</p>
+            <p className="text-lg font-bold text-amber-700 dark:text-amber-300">{tokenBalance} {t("tokens")}</p>
           </div>
           {isVerified && (
             <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
-              Verificat
+              {t("verified")}
             </span>
           )}
           {isBusiness && (
             <span className="rounded-full bg-purple-100 px-2 py-1 text-xs font-semibold text-purple-700 dark:bg-purple-900/40 dark:text-purple-300">
-              Business
+              {t("business")}
             </span>
           )}
         </div>
@@ -178,13 +180,13 @@ export function MonetizationHub() {
               onClick={() => setBillingCycle("monthly")}
               className={`rounded-full px-4 py-1.5 text-sm font-medium ${billingCycle === "monthly" ? "bg-blue-600 text-white" : "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"}`}
             >
-              Lunar
+              {t("monthly")}
             </button>
             <button
               onClick={() => setBillingCycle("yearly")}
               className={`rounded-full px-4 py-1.5 text-sm font-medium ${billingCycle === "yearly" ? "bg-blue-600 text-white" : "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"}`}
             >
-              Anual (-20%)
+              {t("yearly")}
             </button>
           </div>
 
@@ -203,15 +205,15 @@ export function MonetizationHub() {
                 >
                   {plan.recommended && (
                     <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-blue-600 px-3 py-0.5 text-xs font-bold text-white">
-                      Recomandat
+                      {t("recommended")}
                     </span>
                   )}
                   <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">{plan.name}</h3>
                   <div className="mt-2">
                     <span className="text-3xl font-bold text-zinc-900 dark:text-zinc-50">
-                      {price === 0 ? "Gratuit" : `€${price.toFixed(2)}`}
+                      {price === 0 ? t("free") : `€${price.toFixed(2)}`}
                     </span>
-                    {price > 0 && <span className="text-sm text-zinc-500">/lună</span>}
+                    {price > 0 && <span className="text-sm text-zinc-500">{t("perMonth")}</span>}
                   </div>
                   <ul className="mt-4 space-y-2">
                     {plan.features.map((f) => (
@@ -237,7 +239,7 @@ export function MonetizationHub() {
                       }
                     }}
                   >
-                    {checkoutLoading === plan.id ? "Se procesează..." : isActive ? "Plan curent" : price === 0 ? "Plan gratuit" : "Upgrade"}
+                    {checkoutLoading === plan.id ? t("processing") : isActive ? t("currentPlan") : price === 0 ? t("freePlan") : t("upgrade")}
                   </button>
                   {!isActive && plan.id !== "free" && (
                     <p className="mt-1.5 flex items-center justify-center gap-1 text-[10px] text-zinc-400">
@@ -251,7 +253,7 @@ export function MonetizationHub() {
           </div>
 
           {/* Token packages */}
-          <h3 className="mt-6 text-lg font-semibold text-zinc-900 dark:text-zinc-50">Cumpără Tokens</h3>
+          <h3 className="mt-6 text-lg font-semibold text-zinc-900 dark:text-zinc-50">{t("buyTokens")}</h3>
           <div className="grid gap-3 sm:grid-cols-4">
             {TOKEN_PACKAGES.map((pkg) => (
               <div
@@ -264,11 +266,11 @@ export function MonetizationHub() {
               >
                 {pkg.popular && (
                   <span className="absolute -top-2 right-2 rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-white">
-                    Popular
+                    {t("popular")}
                   </span>
                 )}
                 <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{pkg.tokens}</p>
-                <p className="text-xs text-zinc-500">tokens</p>
+                <p className="text-xs text-zinc-500">{t("tokens")}</p>
                 <p className="mt-2 text-lg font-semibold text-emerald-600">€{pkg.priceEur}</p>
                 <p className="text-[10px] text-zinc-400">€{pricePerToken(pkg).toFixed(4)}/token</p>
                 <button
@@ -276,7 +278,7 @@ export function MonetizationHub() {
                   disabled={checkoutLoading === pkg.id}
                   onClick={() => void startStripeCheckout("token_purchase", { packageId: pkg.id })}
                 >
-                  {checkoutLoading === pkg.id ? "..." : "Cumpără"}
+                  {checkoutLoading === pkg.id ? "..." : t("buy")}
                 </button>
                 <div className="mt-1 flex items-center justify-center gap-2">
                   <button
@@ -292,12 +294,12 @@ export function MonetizationHub() {
                         });
                         const data = await res.json() as { orderId?: string; error?: string };
                         if (data.error) showFeedback(`PayPal: ${data.error}`);
-                        else showFeedback("Redirecționare spre PayPal...");
-                      } catch { showFeedback("Eroare PayPal"); }
+                        else showFeedback(t("paypalRedirect"));
+                      } catch { showFeedback(t("paypalError")); }
                       finally { setCheckoutLoading(null); }
                     }}
                   >
-                    sau PayPal
+                    {t("orPaypal")}
                   </button>
                 </div>
               </div>
@@ -320,7 +322,7 @@ export function MonetizationHub() {
                     : "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
                 }`}
               >
-                {cat === "all" ? "Toate" : cat.charAt(0).toUpperCase() + cat.slice(1)}
+                {cat === "all" ? t("shopAll") : cat.charAt(0).toUpperCase() + cat.slice(1)}
               </button>
             ))}
           </div>
@@ -340,12 +342,12 @@ export function MonetizationHub() {
                     <button
                       onClick={async () => {
                         const res = await purchaseShopItem(item.id);
-                        showFeedback(res.error || `${item.title} achiziționat!`);
+                        showFeedback(res.error || `${item.title} ${t("purchased")}`);
                       }}
                       disabled={!canBuy}
                       className="mt-1 rounded-lg bg-blue-600 px-3 py-1 text-xs font-semibold text-white hover:bg-blue-700 disabled:opacity-40"
                     >
-                      {canBuy ? "Cumpără" : "Insuficient"}
+                      {canBuy ? t("buy") : t("insufficient")}
                     </button>
                   </div>
                 </div>
@@ -357,13 +359,13 @@ export function MonetizationHub() {
           <div className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-900">
             <h4 className="flex items-center gap-2 font-semibold text-zinc-900 dark:text-zinc-50">
               <Gift className="h-4 w-4 text-pink-500" />
-              Trimite Tokens Cadou
+              {t("giftTokens")}
             </h4>
             <div className="mt-3 flex flex-wrap gap-2">
               <input
                 value={giftRecipient}
                 onChange={(e) => setGiftRecipient(e.target.value)}
-                placeholder="ID utilizator"
+                placeholder={t("userId")}
                 className="rounded-lg border border-zinc-200 px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800"
               />
               <input
@@ -377,18 +379,18 @@ export function MonetizationHub() {
               <input
                 value={giftMessage}
                 onChange={(e) => setGiftMessage(e.target.value)}
-                placeholder="Mesaj (opțional)"
+                placeholder={t("messageOptional")}
                 className="flex-1 rounded-lg border border-zinc-200 px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800"
               />
               <button
                 onClick={async () => {
                   const res = await giftTokens(giftRecipient, giftAmount, giftMessage);
-                  showFeedback(res.error || `${giftAmount} tokens trimiși!`);
+                  showFeedback(res.error || `${giftAmount} ${t("tokensSent")}`);
                   if (!res.error) { setGiftRecipient(""); setGiftAmount(10); setGiftMessage(""); }
                 }}
                 className="rounded-lg bg-pink-600 px-4 py-1.5 text-sm font-semibold text-white hover:bg-pink-700"
               >
-                Trimite
+                {t("send")}
               </button>
             </div>
           </div>
@@ -405,23 +407,23 @@ export function MonetizationHub() {
               </div>
               <div>
                 <p className="text-3xl font-bold text-orange-700 dark:text-orange-300">
-                  {loginStreak.currentStreak} zile
+                  {t("streakDays", { count: loginStreak.currentStreak })}
                 </p>
                 <p className="text-sm text-orange-600/70 dark:text-orange-400/70">
-                  Streak curent — Record: {loginStreak.longestStreak} zile
+                  {t("currentStreak", { record: loginStreak.longestStreak })}
                 </p>
               </div>
             </div>
             <div className="mt-4 flex items-center justify-between">
               <div>
                 <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                  Recompensa de mâine: <span className="font-bold text-amber-600">{loginStreak.nextReward} tokens</span>
+                  {t("tomorrowReward")} <span className="font-bold text-amber-600">{loginStreak.nextReward} {t("tokens")}</span>
                 </p>
               </div>
               <button
                 onClick={async () => {
                   const res = await claimDailyReward();
-                  if ("tokens" in res) showFeedback(`+${res.tokens} tokens revendicat!`);
+                  if ("tokens" in res) showFeedback(t("tokensClaimed", { count: res.tokens }));
                   else showFeedback(res.error);
                 }}
                 disabled={loginStreak.todayClaimed}
@@ -431,7 +433,7 @@ export function MonetizationHub() {
                     : "bg-orange-600 text-white hover:bg-orange-700 shadow-sm"
                 }`}
               >
-                {loginStreak.todayClaimed ? "Revendicat azi" : "Revendică"}
+                {loginStreak.todayClaimed ? t("claimedToday") : t("claim")}
               </button>
             </div>
           </div>
@@ -466,11 +468,11 @@ export function MonetizationHub() {
         <div className="space-y-4">
           <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-5 dark:border-emerald-900 dark:bg-emerald-950/20">
             <h4 className="font-semibold text-emerald-800 dark:text-emerald-200">
-              Invită prieteni, câștigă tokens!
+              {t("inviteFriends")}
             </h4>
             <p className="mt-1 text-sm text-emerald-700/80 dark:text-emerald-300/80">
-              Tu primești <strong>{REFERRAL_REWARD_REFERRER} tokens</strong> per invitat.
-              Prietenul tău primește <strong>{REFERRAL_REWARD_REFERRED} tokens bonus</strong>.
+              {t("youGet", { count: REFERRAL_REWARD_REFERRER })}{" "}
+              {t("friendGets", { count: REFERRAL_REWARD_REFERRED })}
             </p>
             <div className="mt-3 flex items-center gap-2">
               <div className="flex-1 rounded-lg border border-emerald-300 bg-white px-4 py-2 font-mono text-sm text-emerald-800 dark:border-emerald-700 dark:bg-zinc-900 dark:text-emerald-200">
@@ -485,14 +487,14 @@ export function MonetizationHub() {
                 className="flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
               >
                 {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                {copied ? "Copiat!" : "Copiază link"}
+                {copied ? t("copied") : t("copyLink")}
               </button>
             </div>
 
             {/* Share buttons: WhatsApp, native share, copy */}
             <div className="mt-3 flex flex-wrap gap-2">
               <a
-                href={`https://wa.me/?text=${encodeURIComponent(`Hei! Alătură-te Swaply și fă schimb de obiecte! Folosește codul meu: ${referralCode}\n${referralLink(referralCode)}`)}`}
+                href={`https://wa.me/?text=${encodeURIComponent(t("whatsappInvite", { code: referralCode }) + "\n" + referralLink(referralCode))}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white hover:bg-green-700"
@@ -504,15 +506,15 @@ export function MonetizationHub() {
                 <button
                   onClick={() => {
                     void navigator.share({
-                      title: "Swaply — Schimb de obiecte",
-                      text: `Alătură-te Swaply! Cod referral: ${referralCode}`,
+                      title: t("shareTitle"),
+                      text: t("shareText", { code: referralCode }),
                       url: referralLink(referralCode),
                     });
                   }}
                   className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
                 >
                   <Share2 className="h-4 w-4" />
-                  Distribuie
+                  {t("share")}
                 </button>
               )}
             </div>
@@ -521,19 +523,19 @@ export function MonetizationHub() {
               <input
                 value={referralEmail}
                 onChange={(e) => setReferralEmail(e.target.value)}
-                placeholder="Email prieten"
+                placeholder={t("friendEmail")}
                 type="email"
                 className="flex-1 rounded-lg border border-zinc-200 px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800"
               />
               <button
                 onClick={async () => {
                   const res = await sendReferralInvite(referralEmail);
-                  showFeedback(res.error || `Invitație trimisă la ${referralEmail}!`);
+                  showFeedback(res.error || t("inviteSent", { email: referralEmail }));
                   if (!res.error) setReferralEmail("");
                 }}
                 className="rounded-lg bg-emerald-600 px-4 py-1.5 text-sm font-semibold text-white hover:bg-emerald-700"
               >
-                Invită
+                {t("invite")}
               </button>
             </div>
           </div>
@@ -542,19 +544,19 @@ export function MonetizationHub() {
           <div className="grid grid-cols-3 gap-3">
             <div className="rounded-xl bg-white p-4 text-center shadow-sm dark:bg-zinc-900">
               <p className="text-2xl font-bold text-emerald-600">{referrals.length}</p>
-              <p className="text-xs text-zinc-500">Invitații trimise</p>
+              <p className="text-xs text-zinc-500">{t("invitesSent")}</p>
             </div>
             <div className="rounded-xl bg-white p-4 text-center shadow-sm dark:bg-zinc-900">
               <p className="text-2xl font-bold text-emerald-600">
                 {referrals.filter((r) => r.status !== "pending").length}
               </p>
-              <p className="text-xs text-zinc-500">Înregistrați</p>
+              <p className="text-xs text-zinc-500">{t("registered")}</p>
             </div>
             <div className="rounded-xl bg-white p-4 text-center shadow-sm dark:bg-zinc-900">
               <p className="text-2xl font-bold text-amber-600">
                 {referrals.reduce((s, r) => s + r.tokensEarned, 0)}
               </p>
-              <p className="text-xs text-zinc-500">Tokens câștigați</p>
+              <p className="text-xs text-zinc-500">{t("tokensEarned")}</p>
             </div>
           </div>
         </div>
@@ -567,7 +569,7 @@ export function MonetizationHub() {
           <div>
             <h3 className="flex items-center gap-2 text-lg font-semibold text-zinc-900 dark:text-zinc-50">
               <Award className="h-5 w-5 text-amber-500" />
-              Milestone-uri Swap
+              {t("swapMilestones")}
             </h3>
             <div className="mt-3 space-y-2">
               {swapMilestones.map((m) => (
@@ -587,11 +589,11 @@ export function MonetizationHub() {
                     )}
                     <div>
                       <p className="font-semibold text-zinc-900 dark:text-zinc-50">{m.label}</p>
-                      <p className="text-xs text-zinc-500">{m.swapCount} swapuri completate</p>
+                      <p className="text-xs text-zinc-500">{t("swapsCompleted", { count: m.swapCount })}</p>
                     </div>
                   </div>
                   <span className={`font-bold ${m.achieved ? "text-emerald-600" : "text-zinc-400"}`}>
-                    +{m.bonusTokens} tokens
+                    +{m.bonusTokens} {t("tokens")}
                   </span>
                 </div>
               ))}
@@ -602,7 +604,7 @@ export function MonetizationHub() {
           <div>
             <h3 className="flex items-center gap-2 text-lg font-semibold text-zinc-900 dark:text-zinc-50">
               <Star className="h-5 w-5 text-blue-500" />
-              Milestone-uri Loialitate
+              {t("loyaltyMilestones")}
             </h3>
             <div className="mt-3 space-y-2">
               {loyaltyMilestones.map((m) => (
@@ -621,12 +623,12 @@ export function MonetizationHub() {
                       <Lock className="h-5 w-5 text-zinc-400" />
                     )}
                     <div>
-                      <p className="font-semibold text-zinc-900 dark:text-zinc-50">{m.daysActive} zile active</p>
+                      <p className="font-semibold text-zinc-900 dark:text-zinc-50">{t("daysActive", { count: m.daysActive })}</p>
                       <p className="text-xs text-zinc-500">{m.reward}</p>
                     </div>
                   </div>
                   <span className={m.achieved ? "text-blue-600 font-bold" : "text-zinc-400"}>
-                    {m.achieved ? "Deblocat" : "Blocat"}
+                    {m.achieved ? t("unlocked") : t("locked")}
                   </span>
                 </div>
               ))}
@@ -639,14 +641,14 @@ export function MonetizationHub() {
               <button
                 onClick={async () => {
                   const res = await purchaseVerifiedBadge();
-                  showFeedback(res.error || "Badge verificat activat!");
+                  showFeedback(res.error || t("verifiedActivated"));
                 }}
                 className="flex items-center gap-3 rounded-xl border border-blue-200 bg-white p-4 text-left hover:bg-blue-50 dark:border-blue-800 dark:bg-zinc-900 dark:hover:bg-blue-950/20"
               >
                 <Shield className="h-6 w-6 text-blue-500" />
                 <div>
-                  <p className="font-semibold text-zinc-900 dark:text-zinc-50">Badge Verificat</p>
-                  <p className="text-xs text-zinc-500">{VERIFIED_BADGE_COST} tokens — identitate verificată permanent</p>
+                  <p className="font-semibold text-zinc-900 dark:text-zinc-50">{t("verifiedBadge")}</p>
+                  <p className="text-xs text-zinc-500">{t("verifiedBadgeDesc", { cost: VERIFIED_BADGE_COST })}</p>
                 </div>
               </button>
             )}
@@ -654,14 +656,14 @@ export function MonetizationHub() {
               <button
                 onClick={async () => {
                   const res = await purchaseBusinessUpgrade("My Business");
-                  showFeedback(res.error || "Business account activat!");
+                  showFeedback(res.error || t("businessActivated"));
                 }}
                 className="flex items-center gap-3 rounded-xl border border-purple-200 bg-white p-4 text-left hover:bg-purple-50 dark:border-purple-800 dark:bg-zinc-900 dark:hover:bg-purple-950/20"
               >
                 <Crown className="h-6 w-6 text-purple-500" />
                 <div>
-                  <p className="font-semibold text-zinc-900 dark:text-zinc-50">Business Account</p>
-                  <p className="text-xs text-zinc-500">{BUSINESS_UPGRADE_COST} tokens — 200 listări, bulk upload, branding</p>
+                  <p className="font-semibold text-zinc-900 dark:text-zinc-50">{t("businessAccount")}</p>
+                  <p className="text-xs text-zinc-500">{t("businessAccountDesc", { cost: BUSINESS_UPGRADE_COST })}</p>
                 </div>
               </button>
             )}
@@ -673,7 +675,7 @@ export function MonetizationHub() {
       {tab === "themes" && (
         <div className="space-y-4">
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            Personalizează-ți profilul cu o temă unică. Fiecare temă schimbă culorile profilului tău.
+            {t("themesDescription")}
           </p>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {PROFILE_THEMES.map((theme) => {
@@ -691,7 +693,7 @@ export function MonetizationHub() {
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-2xl">{theme.icon}</span>
-                    {isActive && <span className="rounded-full bg-blue-600 px-2 py-0.5 text-[10px] font-bold text-white">Activ</span>}
+                    {isActive && <span className="rounded-full bg-blue-600 px-2 py-0.5 text-[10px] font-bold text-white">{t("active")}</span>}
                   </div>
                   <p className="mt-2 font-semibold" style={{ color: theme.colors.primary }}>{theme.name}</p>
                   <div className="mt-2 flex gap-1">
@@ -710,7 +712,7 @@ export function MonetizationHub() {
                         showFeedback(res.error);
                       } else {
                         activateTheme(theme.id);
-                        showFeedback(`Tema ${theme.name} activată!`);
+                        showFeedback(t("themeActivated", { name: theme.name }));
                       }
                     }}
                     className="mt-3 w-full rounded-lg py-1.5 text-sm font-semibold transition"
@@ -719,7 +721,7 @@ export function MonetizationHub() {
                       color: isActive ? "#6b7280" : "white",
                     }}
                   >
-                    {isActive ? "Dezactivează" : `${theme.cost} tokens`}
+                    {isActive ? t("deactivate") : `${theme.cost} ${t("tokens")}`}
                   </button>
                 </div>
               );
@@ -730,7 +732,7 @@ export function MonetizationHub() {
 
       {/* Token ledger history */}
       <div className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-900">
-        <h4 className="mb-3 font-semibold text-zinc-900 dark:text-zinc-50">Istoric Tokens</h4>
+        <h4 className="mb-3 font-semibold text-zinc-900 dark:text-zinc-50">{t("tokenHistory")}</h4>
         <div className="max-h-48 space-y-1 overflow-y-auto">
           {tokenLedger.slice().reverse().slice(0, 20).map((entry) => (
             <div key={entry.id} className="flex items-center justify-between border-b border-zinc-100 py-1.5 last:border-0 dark:border-zinc-800">

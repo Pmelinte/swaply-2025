@@ -29,7 +29,6 @@
     "tryAgain": "Încearcă din nou",
     "nextStep": "Pasul următor recomandat"
   },
-
   "nav": {
     "home": "Acasă",
     "objects": "Obiecte",
@@ -57,13 +56,11 @@
     "badgeBenefits": "Beneficii badge",
     "completeProfile": "Completează profilul"
   },
-
   "notifications": {
     "title": "Notificări",
     "empty": "Nicio notificare momentan.",
     "clearAll": "Șterge toate"
   },
-
   "contextBar": {
     "itemsActive": "{count} obiecte active",
     "swapsInProgress": "{count} schimburi active",
@@ -79,9 +76,11 @@
     "reputation": "Reputație",
     "tokens": "Tokeni",
     "viewInfo": "Info & Statistici",
-    "feedback": "Feedback"
+    "feedback": "Feedback",
+    "integrationsApis": "Integrații & API-uri",
+    "monetization": "Monetizare",
+    "integrations": "Integrații"
   },
-
   "login": {
     "authentication": "Autentificare",
     "registration": "Înregistrare",
@@ -125,7 +124,6 @@
     "invalidCredentials": "Credențiale invalide",
     "invalidCredentialsDescription": "Mesaj roșu + mențiune parolă demo. Nu facem mock success; rămânem pe pagină cu CTA spre reset parolă."
   },
-
   "profile": {
     "loading": "Se încarcă profilul…",
     "loadingDescription": "Verificăm sesiunea ta.",
@@ -317,7 +315,6 @@
     "loginHistory": "Istoric autentificări",
     "loginHistoryDesc": "Sesiuni recente pe contul tău"
   },
-
   "home": {
     "welcome": "Bine ai revenit",
     "greeting": "Salut, {name}!",
@@ -384,7 +381,6 @@
     "activitySwap": "Schimb",
     "activityListed": "Listat"
   },
-
   "objects": {
     "createAccount": "Creează cont",
     "loginToList": "Autentifică-te pentru a lista obiecte",
@@ -439,7 +435,6 @@
     "noResults": "Niciun obiect nu se potrivește filtrelor tale",
     "clearFilters": "Șterge filtrele",
     "lookingFor": "Caută:",
-    "noObjects": "Niciun obiect",
     "gridView": "Grilă",
     "listView": "Listă",
     "swipeView": "Swipe",
@@ -461,7 +456,6 @@
     "loadMoreItems": "Încarcă mai multe",
     "remainingItems": "rămase"
   },
-
   "objectDetail": {
     "loading": "Se încarcă obiectul",
     "loadingDescription": "Loading state conform contractului (nu 404).",
@@ -516,7 +510,6 @@
     "photoCount": "{current} / {total}",
     "share": "Distribuie"
   },
-
   "objectEdit": {
     "loading": "Se încarcă editorul",
     "notFound": "Obiect negăsit",
@@ -524,12 +517,10 @@
     "title": "Editează obiect",
     "editDescription": "Formular cu valori preumplute + statusuri clare."
   },
-
   "objectNew": {
     "title": "Adaugă obiect",
     "description": "Formular complet, fără a rupe build-ul."
   },
-
   "match": {
     "title": "Analiza potrivirilor",
     "description": "Propuneri bazate pe compatibilitate cumulativă. AI analizează, tu decizi.",
@@ -615,7 +606,6 @@
     "swapVacation": "Vacanță",
     "swapService": "Servicii"
   },
-
   "chat": {
     "title": "Chat securizat",
     "description": "Traducere (dacă e on) + moderare + atașamente scanate + CTA spre Swaply",
@@ -674,7 +664,6 @@
     "delivered": "Livrat",
     "reactions": "Reacții"
   },
-
   "change": {
     "title": "Flux schimb (Swaply)",
     "description": "Confirmare + logistică + hartă (niveluri) + notificări + feedback",
@@ -801,7 +790,6 @@
     "availMorning": "Dimineața",
     "availAfternoon": "După-amiaza",
     "availEvening": "Seara",
-
     "houseSwapMode": "Tip de schimb",
     "houseMode_simultaneous": "Simultan",
     "houseModeDesc_simultaneous": "Ambele părți călătoresc în același timp (ex: munte ↔ mare)",
@@ -853,7 +841,6 @@
     "houseEmergencyPlaceholder": "Telefon vecin, numere urgență locale...",
     "houseInsurance": "Confirmare asigurare",
     "houseInsuranceDesc": "Confirm că am verificat asigurarea de călătorie/locuință acoperă acest schimb. Swaply recomandă tuturor părților să aibă asigurare adecvată.",
-
     "serviceCategory": "Categorie serviciu",
     "svcCat_creative": "Creativ",
     "svcCat_technical": "Tehnic",
@@ -891,7 +878,6 @@
     "svcRateQuality": "Calitate",
     "svcRatePunctuality": "Punctualitate",
     "svcRateCommunication": "Comunicare",
-
     "cancelReasonTitle": "De ce anulezi?",
     "cancelReasonDesc": "Ajută-ne să înțelegem — feedback-ul tău îmbunătățește platforma.",
     "cancelReason_changed_mind": "M-am răzgândit",
@@ -921,7 +907,6 @@
     "loginHistory": "Istoric autentificări",
     "loginHistoryDesc": "Sesiuni recente pe contul tău"
   },
-
   "feedback": {
     "title": "Feedback",
     "subtitle": "Ajută-ne să facem Swaply mai bun — raportează probleme, sugerează funcții sau împărtășește experiența ta.",
@@ -960,7 +945,6 @@
     "statusPlanned": "Planificat",
     "statusDone": "Finalizat"
   },
-
   "info": {
     "title": "Statistici Swaply",
     "description": "Stats globale + stats user + rang + tokeni + curs + help/legal",
@@ -968,7 +952,7 @@
     "mapProviderNote": "Provider hărți activ doar dacă există cheie; altfel placeholder conform schemă.",
     "premiumPinsOnly": "Pini publici doar pentru badge Premium/Platinum.",
     "approximateLocation": "Locația este aproximativă (oraș / rază), fără geocodare inversă.",
-    "mapFallback": "Fallback: afișăm mesaj \u201eHartă indisponibilă\u201d fără a bloca restul paginii.",
+    "mapFallback": "Fallback: afișăm mesaj „Hartă indisponibilă” fără a bloca restul paginii.",
     "mapRulesNote": "Reguli aliniate cu Excalidraw: vizibilitate controlată de setările de profil și cost-control pentru provider.",
     "helpAndLegal": "Help & legal",
     "helpDescription": "Termeni, GDPR, cookies, suport",
@@ -1072,7 +1056,6 @@
     "streak": "zile consecutive",
     "leaderboardNote": "Clasamentul se resetează lunar. Activitatea include schimburi completate, evaluări pozitive și engagement constant."
   },
-
   "itemForm": {
     "conditionNew": "Nou",
     "conditionGood": "Puțin utilizat",
@@ -1172,7 +1155,6 @@
     "aiConfidenceLow": "Încredere scăzută — verifică manual",
     "aiWriteDescription": "Scrie descrierea pentru mine"
   },
-
   "itemCard": {
     "location": "Locație:",
     "ai": "AI:",
@@ -1180,7 +1162,6 @@
     "edit": "Editează",
     "delete": "Șterge"
   },
-
   "swipeCard": {
     "yes": "DA",
     "no": "NU",
@@ -1188,7 +1169,6 @@
     "notInterested": "Nu mă interesează",
     "interested": "Mă interesează"
   },
-
   "matchList": {
     "weak": "Slab",
     "possible": "Posibil",
@@ -1251,7 +1231,6 @@
     "loadMore": "Încarcă mai multe",
     "remaining": "rămase"
   },
-
   "swapTimeline": {
     "proposed": "Propus",
     "scheduled": "Programat",
@@ -1273,7 +1252,6 @@
     "autoNotifications": "Notificări automate:",
     "lastUpdate": "Ultima actualizare:"
   },
-
   "chatPanel": {
     "you": "Tu",
     "partner": "Partener",
@@ -1299,7 +1277,6 @@
     "status_completed": "Finalizat",
     "status_cancelled": "Anulat"
   },
-
   "statsGrid": {
     "globalExchanges": "Schimburi globale",
     "globalDescription": "Swaply este activ în mai multe regiuni",
@@ -1310,7 +1287,6 @@
     "tokensIssued": "Tokeni emiși",
     "tokensDescription": "Ledger securizat, vizibil în profil"
   },
-
   "map": {
     "unavailable": "Hartă indisponibilă",
     "providerDisabled": "Map provider dezactivat. Restul paginii rămâne utilizabil.",
@@ -1322,7 +1298,6 @@
     "mapTitle": "Hartă locație",
     "noPins": "Niciun pin de afișat"
   },
-
   "location": {
     "country": "Țară",
     "selectCountry": "— Selectează țara —",
@@ -1333,19 +1308,19 @@
     "selectCity": "— Selectează orașul —",
     "chooseRegionFirst": "— Alege mai întâi regiunea —"
   },
-
   "gated": {
     "notLoggedIn": "Ești nelogat",
     "loginToView": "Conectează-te pentru a vedea acest conținut. Salvează return-to pentru a continua fluxul fără întreruperi.",
-    "login": "Autentificare"
+    "login": "Autentificare",
+    "accessDenied": "Acces interzis",
+    "adminOnly": "Această pagină este accesibilă doar administratorilor.",
+    "backHome": "Înapoi acasă"
   },
-
   "demoBanner": {
     "demoMode": "Mod demo activ",
     "dataNotReal": "— datele nu sunt reale și nu se salvează.",
     "exitDemo": "Ieși din demo"
   },
-
   "myObjects": {
     "title": "Obiectele mele",
     "subtitle": "Gestionează inventarul tău",
@@ -1391,7 +1366,6 @@
     "bulkArchive": "Arhivează toate",
     "exportCsv": "Export CSV"
   },
-
   "safety": {
     "report": "Raportează",
     "block": "Blochează",
@@ -1409,7 +1383,6 @@
     "submitReport": "Trimite raportul",
     "cancelReport": "Renunță"
   },
-
   "legal": {
     "tableOfContents": "Cuprins",
     "lastUpdated": "Ultima actualizare",
@@ -1456,7 +1429,6 @@
     "cookieReject": "Doar esențiale",
     "cookieLearnMore": "Află mai multe"
   },
-
   "onboarding": {
     "step1Title": "Listează obiectele",
     "step1Desc": "Fă o poză sau adaugă un link. AI completează automat categoria, tag-urile și sugerează o descriere.",
@@ -1470,11 +1442,158 @@
     "next": "Următorul",
     "start": "Începe să schimbi!"
   },
-
   "pwa": {
     "installSwaply": "Instalează Swaply",
     "installDescription": "Adaugă pe ecranul principal pentru acces rapid, fără browser.",
     "install": "Instalează",
     "notNow": "Nu acum"
+  },
+  "integrations": {
+    "title": "Integrații & API-uri",
+    "subtitle": "Toate serviciile externe conectate la Swaply",
+    "totalIntegrations": "Total integrații",
+    "activeMockReady": "Active (mock-ready)",
+    "needsApiKey": "Necesită API key",
+    "statusActive": "Activ",
+    "statusNeedsKey": "Necesită API Key",
+    "statusComingSoon": "În curând",
+    "categoryAll": "Toate",
+    "categoryShipping": "Livrare",
+    "categoryTravel": "Călătorii",
+    "categoryFinance": "Plăți",
+    "categoryServices": "Servicii",
+    "features": "Funcționalități",
+    "revenueModel": "Model venituri",
+    "apiEndpoint": "API Endpoint",
+    "envVars": "Variabile de mediu",
+    "apiDocs": "Documentație API",
+    "howItWorks": "Cum funcționează",
+    "howItWorksDesc": "Toate integrațiile au mock fallback-uri pentru development",
+    "activeMockDesc": "funcționează și fără API key, cu date simulate. Adaugă key-ul în .env.local pentru date reale.",
+    "needsKeyDesc": "necesită înregistrare la furnizor. Funcționează cu mock data în development.",
+    "affiliateDesc": "funcționează instant, fără API key. ID-ul de affiliate e opțional (doar pentru comision).",
+    "affiliateLinks": "Link-uri affiliate"
+  },
+  "monetization": {
+    "title": "Monetizare",
+    "subtitle": "Gestionează abonamentul, tokens și recompensele tale",
+    "balance": "Balanță",
+    "verified": "Verificat",
+    "business": "Business",
+    "tabSubscriptions": "Abonamente",
+    "tabTokenShop": "Token Shop",
+    "tabStreak": "Streak",
+    "tabReferrals": "Referrals",
+    "tabMilestones": "Milestone",
+    "tabThemes": "Teme",
+    "monthly": "Lunar",
+    "yearly": "Anual (-20%)",
+    "recommended": "Recomandat",
+    "free": "Gratuit",
+    "perMonth": "/lună",
+    "processing": "Se procesează...",
+    "currentPlan": "Plan curent",
+    "freePlan": "Plan gratuit",
+    "upgrade": "Upgrade",
+    "buyTokens": "Cumpără Tokens",
+    "popular": "Popular",
+    "tokens": "tokens",
+    "buy": "Cumpără",
+    "orPaypal": "sau PayPal",
+    "paypalRedirect": "Redirecționare spre PayPal...",
+    "paypalError": "Eroare PayPal",
+    "networkError": "Eroare de rețea la procesarea plății",
+    "shopAll": "Toate",
+    "insufficient": "Insuficient",
+    "purchased": "achiziționat!",
+    "giftTokens": "Trimite Tokens Cadou",
+    "userId": "ID utilizator",
+    "messageOptional": "Mesaj (opțional)",
+    "send": "Trimite",
+    "tokensSent": "tokens trimiși!",
+    "streakDays": "{count} zile",
+    "currentStreak": "Streak curent — Record: {record} zile",
+    "tomorrowReward": "Recompensa de mâine:",
+    "claim": "Revendică",
+    "claimedToday": "Revendicat azi",
+    "tokensClaimed": "+{count} tokens revendicat!",
+    "inviteFriends": "Invită prieteni, câștigă tokens!",
+    "youGet": "Tu primești {count} tokens per invitat.",
+    "friendGets": "Prietenul tău primește {count} tokens bonus.",
+    "copyLink": "Copiază link",
+    "copied": "Copiat!",
+    "share": "Distribuie",
+    "friendEmail": "Email prieten",
+    "invite": "Invită",
+    "inviteSent": "Invitație trimisă la {email}!",
+    "invitesSent": "Invitații trimise",
+    "registered": "Înregistrați",
+    "tokensEarned": "Tokens câștigați",
+    "swapMilestones": "Milestone-uri Swap",
+    "loyaltyMilestones": "Milestone-uri Loialitate",
+    "swapsCompleted": "{count} swapuri completate",
+    "daysActive": "{count} zile active",
+    "unlocked": "Deblocat",
+    "locked": "Blocat",
+    "verifiedBadge": "Badge Verificat",
+    "verifiedBadgeDesc": "{cost} tokens — identitate verificată permanent",
+    "verifiedActivated": "Badge verificat activat!",
+    "businessAccount": "Business Account",
+    "businessAccountDesc": "{cost} tokens — 200 listări, bulk upload, branding",
+    "businessActivated": "Business account activat!",
+    "themesDescription": "Personalizează-ți profilul cu o temă unică. Fiecare temă schimbă culorile profilului tău.",
+    "active": "Activ",
+    "deactivate": "Dezactivează",
+    "themeActivated": "Tema {name} activată!",
+    "tokenHistory": "Istoric Tokens",
+    "whatsappInvite": "Hei! Alătură-te Swaply și fă schimb de obiecte! Folosește codul meu: {code}",
+    "shareTitle": "Swaply — Schimb de obiecte",
+    "shareText": "Alătură-te Swaply! Cod referral: {code}"
+  },
+  "adBanner": {
+    "premiumCta": "Treci la Premium pentru experiență fără reclame, matching prioritar și 50 tokens/lună",
+    "upgradeNow": "Upgrade acum"
+  },
+  "safeMeeting": {
+    "title": "Checklist Întâlnire Sigură",
+    "completeRequired": "Completează toate punctele obligatorii înainte de întâlnire.",
+    "checks": "{done}/{total} verificări",
+    "required": "Obligatoriu",
+    "recommended": "Recomandat",
+    "allComplete": "Toate verificările obligatorii sunt complete. Întâlnire sigură!"
+  },
+  "productControl": {
+    "title": "Control Produs",
+    "subtitle": "Gestionează funcționalități, monitorizează metrici, configurează cron jobs.",
+    "featureFlags": "Feature Flags",
+    "cronJobs": "Cron Jobs",
+    "metrics": "Metrici",
+    "trustSafety": "Trust & Safety",
+    "active": "active",
+    "all": "Toate",
+    "cronDescription": "Taskuri automate executate la intervale regulate. Pe producție, se execută prin Vercel Cron / Supabase Edge Functions.",
+    "conversionFunnel": "Funnel de conversie",
+    "visitors": "Vizitatori",
+    "signups": "Înregistrări",
+    "listedItems": "Au listat ≥1 obiect",
+    "chatStarted": "Au deschis chat",
+    "swapProposed": "Au propus swap",
+    "swapCompleted": "Au finalizat swap",
+    "activeItems": "Obiecte active",
+    "conversations": "Conversații",
+    "totalSwaps": "Swap-uri totale",
+    "totalConversion": "Conversie totală",
+    "trustScore": "Scor de Încredere (Cont Curent)",
+    "trustScoreLabel": "Scor Trust: {score}/100",
+    "frictionLimits": "Limite Fricțiune Adaptivă",
+    "accountSuspended": "Cont suspendat: {reason}",
+    "messagesPerDay": "Mesaje/zi",
+    "chatsPerDay": "Chat-uri/zi",
+    "proposalsPerDay": "Propuneri/zi",
+    "links": "Linkuri",
+    "locationSharing": "Locație",
+    "autoModeration": "Moderare auto",
+    "yes": "Da",
+    "no": "Nu"
   }
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { SectionCard, Pill } from "@/components/ui";
 import {
   Package, Plane, Car, Train, Shield, Box, HandCoins, Hotel,
@@ -210,42 +211,43 @@ const INTEGRATIONS: Integration[] = [
 
 // ── Status helpers ──
 
-function StatusBadge({ status }: { status: IntegrationStatus }) {
+function StatusBadge({ status, t }: { status: IntegrationStatus; t: (key: string) => string }) {
   switch (status) {
     case "active":
       return (
         <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
-          <CheckCircle className="h-3 w-3" /> Activ
+          <CheckCircle className="h-3 w-3" /> {t("statusActive")}
         </span>
       );
     case "needs_key":
       return (
         <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
-          <AlertCircle className="h-3 w-3" /> Necesita API Key
+          <AlertCircle className="h-3 w-3" /> {t("statusNeedsKey")}
         </span>
       );
     case "coming_soon":
       return (
         <span className="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-semibold text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
-          <Clock className="h-3 w-3" /> In curand
+          <Clock className="h-3 w-3" /> {t("statusComingSoon")}
         </span>
       );
   }
 }
 
-const CATEGORY_LABELS: Record<Category, { label: string; icon: React.ReactNode }> = {
-  all: { label: "Toate", icon: <Globe className="h-4 w-4" /> },
-  shipping: { label: "Livrare", icon: <Package className="h-4 w-4" /> },
-  travel: { label: "Calatorii", icon: <Plane className="h-4 w-4" /> },
-  finance: { label: "Plati", icon: <HandCoins className="h-4 w-4" /> },
-  services: { label: "Servicii", icon: <Shield className="h-4 w-4" /> },
-};
-
 // ── Page Component ──
 
 export default function IntegrationsPage() {
+  const t = useTranslations("integrations");
   const [category, setCategory] = useState<Category>("all");
   const [expanded, setExpanded] = useState<string | null>(null);
+
+  const CATEGORY_LABELS: Record<Category, { label: string; icon: React.ReactNode }> = {
+    all: { label: t("categoryAll"), icon: <Globe className="h-4 w-4" /> },
+    shipping: { label: t("categoryShipping"), icon: <Package className="h-4 w-4" /> },
+    travel: { label: t("categoryTravel"), icon: <Plane className="h-4 w-4" /> },
+    finance: { label: t("categoryFinance"), icon: <HandCoins className="h-4 w-4" /> },
+    services: { label: t("categoryServices"), icon: <Shield className="h-4 w-4" /> },
+  };
 
   const filtered = category === "all"
     ? INTEGRATIONS
@@ -262,10 +264,10 @@ export default function IntegrationsPage() {
       {/* Header */}
       <div className="space-y-1">
         <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
-          Integratii & API-uri
+          {t("title")}
         </h1>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
-          Toate serviciile externe conectate la Swaply
+          {t("subtitle")}
         </p>
       </div>
 
@@ -273,15 +275,15 @@ export default function IntegrationsPage() {
       <div className="grid grid-cols-3 gap-3">
         <div className="rounded-xl border border-zinc-200 bg-white/70 p-3 text-center dark:border-zinc-800 dark:bg-zinc-900/70">
           <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{counts.total}</p>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400">Total integratii</p>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">{t("totalIntegrations")}</p>
         </div>
         <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-3 text-center dark:border-emerald-900 dark:bg-emerald-950/30">
           <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">{counts.active}</p>
-          <p className="text-xs text-emerald-600 dark:text-emerald-400">Active (mock-ready)</p>
+          <p className="text-xs text-emerald-600 dark:text-emerald-400">{t("activeMockReady")}</p>
         </div>
         <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-3 text-center dark:border-amber-900 dark:bg-amber-950/30">
           <p className="text-2xl font-bold text-amber-700 dark:text-amber-300">{counts.needsKey}</p>
-          <p className="text-xs text-amber-600 dark:text-amber-400">Necesita API key</p>
+          <p className="text-xs text-amber-600 dark:text-amber-400">{t("needsApiKey")}</p>
         </div>
       </div>
 
@@ -328,7 +330,7 @@ export default function IntegrationsPage() {
                     <h3 className="font-semibold text-zinc-900 dark:text-zinc-50">
                       {integration.name}
                     </h3>
-                    <StatusBadge status={integration.status} />
+                    <StatusBadge status={integration.status} t={t} />
                   </div>
                   <p className="truncate text-xs text-zinc-500 dark:text-zinc-400">
                     {integration.description}
@@ -346,7 +348,7 @@ export default function IntegrationsPage() {
                     {/* Features */}
                     <div>
                       <p className="mb-1.5 text-xs font-semibold uppercase text-zinc-500 dark:text-zinc-400">
-                        Functionalitati
+                        {t("features")}
                       </p>
                       <ul className="space-y-1">
                         {integration.features.map((f) => (
@@ -361,7 +363,7 @@ export default function IntegrationsPage() {
                     {/* Revenue */}
                     <div>
                       <p className="mb-1.5 text-xs font-semibold uppercase text-zinc-500 dark:text-zinc-400">
-                        Model venituri
+                        {t("revenueModel")}
                       </p>
                       <p className="text-sm text-zinc-700 dark:text-zinc-300">
                         {integration.revenueModel}
@@ -372,7 +374,7 @@ export default function IntegrationsPage() {
                     {integration.endpoint && (
                       <div>
                         <p className="mb-1.5 text-xs font-semibold uppercase text-zinc-500 dark:text-zinc-400">
-                          API Endpoint
+                          {t("apiEndpoint")}
                         </p>
                         <code className="text-xs text-blue-600 dark:text-blue-400">
                           {integration.endpoint}
@@ -383,7 +385,7 @@ export default function IntegrationsPage() {
                     {/* Env Vars */}
                     <div>
                       <p className="mb-1.5 text-xs font-semibold uppercase text-zinc-500 dark:text-zinc-400">
-                        Variabile de mediu
+                        {t("envVars")}
                       </p>
                       <div className="flex flex-wrap gap-1">
                         {integration.envVars.map((v) => (
@@ -403,7 +405,7 @@ export default function IntegrationsPage() {
                         className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400"
                       >
                         <ExternalLink className="h-3.5 w-3.5" />
-                        Documentatie API
+                        {t("apiDocs")}
                       </a>
                     </div>
                   )}
@@ -416,21 +418,18 @@ export default function IntegrationsPage() {
 
       {/* Info footer */}
       <SectionCard
-        title="Cum functioneaza"
-        description="Toate integratiile au mock fallback-uri pentru development"
+        title={t("howItWorks")}
+        description={t("howItWorksDesc")}
       >
         <div className="space-y-2 text-sm text-zinc-600 dark:text-zinc-400">
           <p>
-            <strong className="text-zinc-800 dark:text-zinc-200">Active (mock-ready)</strong> — functioneaza
-            si fara API key, cu date simulate. Adauga key-ul in <code className="rounded bg-zinc-100 px-1.5 py-0.5 text-xs dark:bg-zinc-800">.env.local</code> pentru date reale.
+            <strong className="text-zinc-800 dark:text-zinc-200">{t("activeMockReady")}</strong> — {t("activeMockDesc")}
           </p>
           <p>
-            <strong className="text-zinc-800 dark:text-zinc-200">Necesita API key</strong> — necesita
-            inregistrare la furnizor. Functioneaza cu mock data in development.
+            <strong className="text-zinc-800 dark:text-zinc-200">{t("statusNeedsKey")}</strong> — {t("needsKeyDesc")}
           </p>
           <p>
-            <strong className="text-zinc-800 dark:text-zinc-200">Link-uri affiliate</strong> — functioneaza
-            instant, fara API key. ID-ul de affiliate e optional (doar pentru comision).
+            <strong className="text-zinc-800 dark:text-zinc-200">{t("affiliateLinks")}</strong> — {t("affiliateDesc")}
           </p>
         </div>
       </SectionCard>

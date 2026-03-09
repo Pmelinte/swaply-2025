@@ -6,6 +6,7 @@
  */
 
 import { useState, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import {
   ToggleLeft,
@@ -26,6 +27,7 @@ import {
 type AdminTab = "flags" | "cron" | "metrics" | "trust";
 
 export function ProductControl() {
+  const t = useTranslations("productControl");
   const {
     featureFlags, setFeatureFlag, cronJobs, metricsFunnel, funnelRates,
     trustScore, frictionLimits, items, conversations, swaps, user,
@@ -35,10 +37,10 @@ export function ProductControl() {
   const [filter, setFilter] = useState<string>("all");
 
   const tabs = [
-    { id: "flags" as const, label: "Feature Flags", icon: <Settings className="h-4 w-4" /> },
-    { id: "cron" as const, label: "Cron Jobs", icon: <Clock className="h-4 w-4" /> },
-    { id: "metrics" as const, label: "Metrici", icon: <BarChart3 className="h-4 w-4" /> },
-    { id: "trust" as const, label: "Trust & Safety", icon: <Shield className="h-4 w-4" /> },
+    { id: "flags" as const, label: t("featureFlags"), icon: <Settings className="h-4 w-4" /> },
+    { id: "cron" as const, label: t("cronJobs"), icon: <Clock className="h-4 w-4" /> },
+    { id: "metrics" as const, label: t("metrics"), icon: <BarChart3 className="h-4 w-4" /> },
+    { id: "trust" as const, label: t("trustSafety"), icon: <Shield className="h-4 w-4" /> },
   ];
 
   const CATEGORY_ICONS: Record<string, React.ReactNode> = {
@@ -61,26 +63,26 @@ export function ProductControl() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold">Control Produs</h1>
+        <h1 className="text-2xl font-bold">{t("title")}</h1>
         <p className="text-sm text-zinc-500 dark:text-zinc-400">
-          Gestionează funcționalități, monitorizează metrici, configurează cron jobs.
+          {t("subtitle")}
         </p>
       </div>
 
       {/* Tabs */}
       <div className="flex flex-wrap gap-2">
-        {tabs.map((t) => (
+        {tabs.map((tabItem) => (
           <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
+            key={tabItem.id}
+            onClick={() => setTab(tabItem.id)}
             className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition ${
-              tab === t.id
+              tab === tabItem.id
                 ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
                 : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300"
             }`}
           >
-            {t.icon}
-            {t.label}
+            {tabItem.icon}
+            {tabItem.label}
           </button>
         ))}
       </div>
@@ -91,7 +93,7 @@ export function ProductControl() {
           {/* Summary bar */}
           <div className="flex items-center justify-between rounded-lg bg-zinc-50 px-4 py-2 dark:bg-zinc-800">
             <span className="text-sm">
-              <span className="font-bold text-emerald-600">{enabledCount}</span> / {totalFlags} active
+              <span className="font-bold text-emerald-600">{enabledCount}</span> / {totalFlags} {t("active")}
             </span>
             <div className="flex gap-1">
               {["all", "core", "ai", "social", "monetization", "experimental"].map((cat) => (
@@ -104,7 +106,7 @@ export function ProductControl() {
                       : "bg-zinc-200 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300"
                   }`}
                 >
-                  {cat === "all" ? "Toate" : cat}
+                  {cat === "all" ? t("all") : cat}
                 </button>
               ))}
             </div>
@@ -151,7 +153,7 @@ export function ProductControl() {
       {tab === "cron" && (
         <div className="space-y-4">
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            Taskuri automate executate la intervale regulate. Pe producție, se execută prin Vercel Cron / Supabase Edge Functions.
+            {t("cronDescription")}
           </p>
           <div className="space-y-2">
             {cronJobs.map((job) => (
@@ -186,15 +188,15 @@ export function ProductControl() {
         <div className="space-y-4">
           {/* Funnel visualization */}
           <div className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-900">
-            <h3 className="mb-4 text-lg font-bold">Funnel de conversie</h3>
+            <h3 className="mb-4 text-lg font-bold">{t("conversionFunnel")}</h3>
             <div className="space-y-3">
               {[
-                { label: "Vizitatori", value: metricsFunnel.visitors, rate: 100, color: "bg-zinc-400" },
-                { label: "Înregistrări", value: metricsFunnel.signups, rate: funnelRates.visitToSignup, color: "bg-blue-500" },
-                { label: "Au listat ≥1 obiect", value: metricsFunnel.itemsListed, rate: funnelRates.signupToList, color: "bg-purple-500" },
-                { label: "Au deschis chat", value: metricsFunnel.chatStarted, rate: funnelRates.listToChat, color: "bg-emerald-500" },
-                { label: "Au propus swap", value: metricsFunnel.swapProposed, rate: funnelRates.chatToPropose, color: "bg-amber-500" },
-                { label: "Au finalizat swap", value: metricsFunnel.swapCompleted, rate: funnelRates.proposeToComplete, color: "bg-rose-500" },
+                { label: t("visitors"), value: metricsFunnel.visitors, rate: 100, color: "bg-zinc-400" },
+                { label: t("signups"), value: metricsFunnel.signups, rate: funnelRates.visitToSignup, color: "bg-blue-500" },
+                { label: t("listedItems"), value: metricsFunnel.itemsListed, rate: funnelRates.signupToList, color: "bg-purple-500" },
+                { label: t("chatStarted"), value: metricsFunnel.chatStarted, rate: funnelRates.listToChat, color: "bg-emerald-500" },
+                { label: t("swapProposed"), value: metricsFunnel.swapProposed, rate: funnelRates.chatToPropose, color: "bg-amber-500" },
+                { label: t("swapCompleted"), value: metricsFunnel.swapCompleted, rate: funnelRates.proposeToComplete, color: "bg-rose-500" },
               ].map((step, i) => (
                 <div key={step.label}>
                   <div className="mb-1 flex items-center justify-between">
@@ -231,10 +233,10 @@ export function ProductControl() {
           {/* Quick stats */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {[
-              { label: "Obiecte active", value: items.filter((i) => i.isActive).length, icon: <TrendingUp className="h-4 w-4 text-emerald-500" /> },
-              { label: "Conversații", value: conversations.length, icon: <Activity className="h-4 w-4 text-blue-500" /> },
-              { label: "Swap-uri totale", value: swaps.length, icon: <BarChart3 className="h-4 w-4 text-purple-500" /> },
-              { label: "Conversie totală", value: `${funnelRates.overallConversion}%`, icon: funnelRates.overallConversion > 0 ? <TrendingUp className="h-4 w-4 text-emerald-500" /> : <TrendingDown className="h-4 w-4 text-red-500" /> },
+              { label: t("activeItems"), value: items.filter((i) => i.isActive).length, icon: <TrendingUp className="h-4 w-4 text-emerald-500" /> },
+              { label: t("conversations"), value: conversations.length, icon: <Activity className="h-4 w-4 text-blue-500" /> },
+              { label: t("totalSwaps"), value: swaps.length, icon: <BarChart3 className="h-4 w-4 text-purple-500" /> },
+              { label: t("totalConversion"), value: `${funnelRates.overallConversion}%`, icon: funnelRates.overallConversion > 0 ? <TrendingUp className="h-4 w-4 text-emerald-500" /> : <TrendingDown className="h-4 w-4 text-red-500" /> },
             ].map((stat) => (
               <div
                 key={stat.label}
@@ -256,14 +258,14 @@ export function ProductControl() {
         <div className="space-y-4">
           {/* Current user trust */}
           <div className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-900">
-            <h3 className="mb-3 text-lg font-bold">Scor de Încredere (Cont Curent)</h3>
+            <h3 className="mb-3 text-lg font-bold">{t("trustScore")}</h3>
             <div className="mb-3 flex items-center gap-3">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-zinc-100 text-2xl font-bold dark:bg-zinc-800">
                 {trustScore.score}
               </div>
               <div>
                 <div className="text-lg font-bold capitalize">{trustScore.level}</div>
-                <div className="text-sm text-zinc-500">Scor Trust: {trustScore.score}/100</div>
+                <div className="text-sm text-zinc-500">{t("trustScoreLabel", { score: trustScore.score })}</div>
               </div>
             </div>
 
@@ -280,41 +282,41 @@ export function ProductControl() {
 
           {/* Friction limits */}
           <div className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-900">
-            <h3 className="mb-3 text-lg font-bold">Limite Fricțiune Adaptivă</h3>
+            <h3 className="mb-3 text-lg font-bold">{t("frictionLimits")}</h3>
             {frictionLimits.autoHold && (
               <div className="mb-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/30 dark:text-red-300">
-                Cont suspendat: {frictionLimits.holdReason}
+                {t("accountSuspended", { reason: frictionLimits.holdReason ?? "" })}
               </div>
             )}
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
               <div className="rounded-lg bg-zinc-50 px-3 py-2 dark:bg-zinc-800">
-                <div className="text-xs text-zinc-500">Mesaje/zi</div>
+                <div className="text-xs text-zinc-500">{t("messagesPerDay")}</div>
                 <div className="text-lg font-bold">{frictionLimits.maxMessagesPerDay}</div>
               </div>
               <div className="rounded-lg bg-zinc-50 px-3 py-2 dark:bg-zinc-800">
-                <div className="text-xs text-zinc-500">Chat-uri/zi</div>
+                <div className="text-xs text-zinc-500">{t("chatsPerDay")}</div>
                 <div className="text-lg font-bold">{frictionLimits.maxChatsPerDay}</div>
               </div>
               <div className="rounded-lg bg-zinc-50 px-3 py-2 dark:bg-zinc-800">
-                <div className="text-xs text-zinc-500">Propuneri/zi</div>
+                <div className="text-xs text-zinc-500">{t("proposalsPerDay")}</div>
                 <div className="text-lg font-bold">{frictionLimits.maxSwapProposalsPerDay}</div>
               </div>
               <div className="rounded-lg bg-zinc-50 px-3 py-2 dark:bg-zinc-800">
-                <div className="text-xs text-zinc-500">Linkuri</div>
+                <div className="text-xs text-zinc-500">{t("links")}</div>
                 <div className={`text-lg font-bold ${frictionLimits.canSendLinks ? "text-emerald-600" : "text-red-500"}`}>
-                  {frictionLimits.canSendLinks ? "Da" : "Nu"}
+                  {frictionLimits.canSendLinks ? t("yes") : t("no")}
                 </div>
               </div>
               <div className="rounded-lg bg-zinc-50 px-3 py-2 dark:bg-zinc-800">
-                <div className="text-xs text-zinc-500">Locație</div>
+                <div className="text-xs text-zinc-500">{t("locationSharing")}</div>
                 <div className={`text-lg font-bold ${frictionLimits.canShareLocation ? "text-emerald-600" : "text-red-500"}`}>
-                  {frictionLimits.canShareLocation ? "Da" : "Nu"}
+                  {frictionLimits.canShareLocation ? t("yes") : t("no")}
                 </div>
               </div>
               <div className="rounded-lg bg-zinc-50 px-3 py-2 dark:bg-zinc-800">
-                <div className="text-xs text-zinc-500">Moderare auto</div>
+                <div className="text-xs text-zinc-500">{t("autoModeration")}</div>
                 <div className={`text-lg font-bold ${frictionLimits.requiresModeration ? "text-amber-600" : "text-emerald-600"}`}>
-                  {frictionLimits.requiresModeration ? "Da" : "Nu"}
+                  {frictionLimits.requiresModeration ? t("yes") : t("no")}
                 </div>
               </div>
             </div>

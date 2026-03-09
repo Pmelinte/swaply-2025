@@ -148,7 +148,7 @@ export function ContextBar() {
       <div className="flex items-center gap-3">
         <span className="inline-flex items-center gap-1">
           <Plug className="h-3 w-3" />
-          Integratii & API-uri
+          {t("integrationsApis")}
         </span>
         <span className="text-zinc-300 dark:text-zinc-600">|</span>
         <Link
@@ -156,7 +156,7 @@ export function ContextBar() {
           className="inline-flex items-center gap-1 font-semibold text-amber-600 hover:text-amber-800 dark:text-amber-400"
         >
           <Coins className="h-3 w-3" />
-          Monetizare
+          {t("monetization")}
         </Link>
       </div>
     );
@@ -172,7 +172,7 @@ export function ContextBar() {
           className="inline-flex items-center gap-1 font-semibold text-amber-600 hover:text-amber-800 dark:text-amber-400"
         >
           <Coins className="h-3 w-3" />
-          Monetizare
+          {t("monetization")}
         </Link>
         <span className="text-zinc-300 dark:text-zinc-600">|</span>
         <Link
@@ -180,7 +180,7 @@ export function ContextBar() {
           className="inline-flex items-center gap-1 font-semibold text-purple-600 hover:text-purple-800 dark:text-purple-400"
         >
           <Plug className="h-3 w-3" />
-          Integratii
+          {t("integrations")}
         </Link>
         <span className="text-zinc-300 dark:text-zinc-600">|</span>
         <Link
