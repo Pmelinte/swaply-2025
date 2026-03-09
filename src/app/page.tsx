@@ -22,6 +22,7 @@ import {
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { MapPreview } from "@/components/MapPreview";
+import { OnboardingBanner } from "@/components/onboarding/OnboardingBanner";
 
 export default function HomePage() {
   const {
@@ -169,6 +170,9 @@ export default function HomePage() {
           </div>
         </section>
       )}
+
+      {/* ── Onboarding Progress ── */}
+      {user && <OnboardingBanner />}
 
       {/* ── Quick Actions (logged in) ── */}
       {user && (

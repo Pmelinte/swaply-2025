@@ -733,6 +733,13 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         const { error, data } = await supabase.from("profiles").upsert(payload).select().maybeSingle();
         if (error) { setLastError(error.message); throw new Error(error.message); }
         else if (data) setUser(mapProfile(data));
+
+        // Mark onboarding step_profile when avatar + bio + location are all present
+        if (merged.avatarUrl && merged.bio && merged.location?.city) {
+          supabase.rpc("complete_onboarding_step", { p_user_id: currentUser.id, p_step: "profile" }).then(({ error: rpcErr }) => {
+            if (rpcErr) console.error("[onboarding] complete_onboarding_step error:", rpcErr.message);
+          });
+        }
       }
     },
     [supabaseConfigured, mapProfile, supabase],
