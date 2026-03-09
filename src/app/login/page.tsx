@@ -1,32 +1,58 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { NextStepRecommendation, SectionCard, StateShowcase } from "@/components/ui";
+import { Eye, EyeOff } from "lucide-react";
 
-const tabs = [
-  { key: "login", label: "Autentificare" },
-  { key: "register", label: "Înregistrare" },
-  { key: "reset", label: "Reset parolă" },
-];
+/** Compute password strength 0–4 */
+function getPasswordStrength(pw: string): number {
+  if (!pw) return 0;
+  let score = 0;
+  if (pw.length >= 6) score++;
+  if (pw.length >= 10) score++;
+  if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
+  if (/\d/.test(pw)) score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
+  return Math.min(4, score);
+}
+
+const strengthColors = ["bg-red-500", "bg-orange-500", "bg-amber-500", "bg-blue-500", "bg-green-500"];
 
 function LoginContent() {
   const params = useSearchParams();
   const router = useRouter();
+  const t = useTranslations("login");
   const returnTo = params.get("returnTo") || "/profile";
-  const [activeTab, setActiveTab] = useState<string>(tabs[0].key);
+  const [activeTab, setActiveTab] = useState<string>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [accept, setAccept] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "error" | "success">("idle");
   const [processing, setProcessing] = useState(false);
-  const { login, register, user } = useAppState();
+  const { login, register, resetPassword, user } = useAppState();
+
+  const tabs = [
+    { key: "login", label: t("authentication") },
+    { key: "register", label: t("registration") },
+    { key: "reset", label: t("resetPassword") },
+  ];
+
+  const passwordStrength = useMemo(() => getPasswordStrength(password), [password]);
+  const strengthLabels = [
+    t("strengthNone"),
+    t("strengthWeak"),
+    t("strengthFair"),
+    t("strengthGood"),
+    t("strengthStrong"),
+  ];
 
   useEffect(() => {
-    if (user) router.push(returnTo);
+    if (user) router.replace(returnTo);
   }, [user, returnTo, router]);
 
   const handleSubmit = async () => {
@@ -34,17 +60,17 @@ function LoginContent() {
     setStatus("idle");
 
     if (!accept) {
-      setMessage("Trebuie să bifezi acceptarea Termeni & GDPR pentru a continua.");
+      setMessage(t("mustAcceptTerms"));
       setStatus("error");
       return;
     }
     if (!email.trim()) {
-      setMessage("Introdu adresa de email.");
+      setMessage(t("enterEmail"));
       setStatus("error");
       return;
     }
     if (activeTab !== "reset" && password.length < 6) {
-      setMessage("Parola trebuie să aibă cel puțin 6 caractere.");
+      setMessage(t("passwordMinLength"));
       setStatus("error");
       return;
     }
@@ -57,9 +83,9 @@ function LoginContent() {
           setMessage(error);
           setStatus("error");
         } else {
-          setMessage("Autentificat. Redirect către profil...");
+          setMessage(t("authenticated"));
           setStatus("success");
-          router.push(returnTo);
+          router.replace(returnTo);
         }
       } else if (activeTab === "register") {
         const { error } = await register(email, password, accept);
@@ -67,15 +93,21 @@ function LoginContent() {
           setMessage(error);
           setStatus("error");
         } else {
-          setMessage("Cont creat cu succes! Verifică-ți email-ul pentru confirmarea contului, apoi revino să te autentifici.");
+          setMessage(t("accountCreated"));
           setStatus("success");
         }
       } else {
-        setMessage("Instrucțiuni de reset trimise pe email.");
-        setStatus("success");
+        const { error } = await resetPassword(email);
+        if (error) {
+          setMessage(error);
+          setStatus("error");
+        } else {
+          setMessage(t("resetSent"));
+          setStatus("success");
+        }
       }
     } catch (err) {
-      setMessage(`Eroare neașteptată: ${err instanceof Error ? err.message : "încearcă din nou"}`);
+      setMessage(t("unexpectedError", { error: err instanceof Error ? err.message : String(err) }));
       setStatus("error");
     }
     setProcessing(false);
@@ -84,8 +116,8 @@ function LoginContent() {
   return (
     <div className="space-y-5">
       <SectionCard
-        title="Autentificare / Înregistrare"
-        description="Email + parolă, cu opțiuni Google și OTP. Return-to păstrat după login."
+        title={t("authOrRegister")}
+        description={t("authDescription")}
       >
         <div className="flex flex-wrap gap-2">
           {tabs.map((tab) => (
@@ -112,7 +144,7 @@ function LoginContent() {
           noValidate
         >
           <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-            Email
+            {t("email")}
             <input
               value={email}
               type="email"
@@ -123,14 +155,46 @@ function LoginContent() {
           </label>
           {activeTab !== "reset" ? (
             <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-              Parolă
-              <input
-                value={password}
-                type="password"
-                required
-                onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
-              />
+              {t("password")}
+              <div className="relative mt-1">
+                <input
+                  value={password}
+                  type={showPassword ? "text" : "password"}
+                  required
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 pr-10 text-sm dark:border-zinc-700 dark:bg-zinc-800"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+              {/* Password strength indicator — show for register tab */}
+              {activeTab === "register" && password.length > 0 && (
+                <div className="mt-2">
+                  <div className="flex gap-1">
+                    {[0, 1, 2, 3].map((i) => (
+                      <div
+                        key={i}
+                        className={`h-1.5 flex-1 rounded-full transition-colors ${
+                          i < passwordStrength ? strengthColors[passwordStrength] : "bg-zinc-200 dark:bg-zinc-700"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <p className={`mt-1 text-xs ${
+                    passwordStrength <= 1 ? "text-red-600 dark:text-red-400" :
+                    passwordStrength === 2 ? "text-amber-600 dark:text-amber-400" :
+                    "text-green-600 dark:text-green-400"
+                  }`}>
+                    {strengthLabels[passwordStrength]}
+                  </p>
+                </div>
+              )}
             </label>
           ) : null}
 
@@ -140,9 +204,7 @@ function LoginContent() {
               checked={accept}
               onChange={(e) => setAccept(e.target.checked)}
             />
-            <span>
-              Accept <Link className="underline" href="/info#legal">Termeni & Politica GDPR</Link> (nu permitem submit fără consimțământ)
-            </span>
+            <span>{t("acceptTerms")}</span>
           </label>
 
           <button
@@ -151,10 +213,10 @@ function LoginContent() {
             className="w-full rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
           >
             {activeTab === "login"
-              ? "Autentificare"
+              ? t("loginButton")
               : activeTab === "register"
-                ? "Creează cont"
-                : "Trimite reset"
+                ? t("createAccount")
+                : t("sendReset")
             }
           </button>
         </form>
@@ -172,39 +234,39 @@ function LoginContent() {
         ) : null}
         {processing ? (
           <div className="rounded-xl bg-blue-50 p-3 text-sm text-blue-900 dark:bg-blue-900/40 dark:text-blue-100">
-            Se verifică...
+            {t("verifying")}
           </div>
         ) : null}
 
         <div className="space-y-2 text-sm text-zinc-600 dark:text-zinc-300">
-          <p>2FA opțional: TOTP, SMS OTP, Passkey/WebAuthn. Activare după login pe pagina de profil.</p>
-          <p>Metode alternative: Google SSO, Telefon OTP (beta). Email OTP doar ca fallback.</p>
-          <p>Legal: link permanent către <Link className="underline" href="/info">Termeni & Politica GDPR</Link>.</p>
+          <p>{t("twoFactorInfo")}</p>
+          <p>{t("alternativeMethods")}</p>
+          <p>{t("legalInfo")}</p>
         </div>
       </SectionCard>
       <NextStepRecommendation
         steps={[
-          { label: "Explorează obiecte", href: "/objects", description: "Vezi obiectele disponibile chiar și fără cont" },
-          { label: "Informații platformă", href: "/info", description: "Citește regulile și beneficiile badge-urilor" },
+          { label: t("exploreObjects"), href: "/objects", description: t("exploreObjectsDescription") },
+          { label: t("platformInfo"), href: "/info", description: t("platformInfoDescription") },
         ]}
       />
       <StateShowcase
-        title="Stări LOGIN"
+        title={t("statesTitle")}
         states={[
           {
             key: "loading",
-            title: "Se verifică sesiunea",
-            description: "Afișăm indicator de încărcare cât timp validăm tokenul sau redirectăm către returnTo.",
+            title: t("verifyingSession"),
+            description: t("verifyingSessionDescription"),
           },
           {
             key: "empty",
-            title: "Formular gol",
-            description: "Input-urile sunt precompletate, dar acceptarea Termeni & GDPR este obligatorie înainte de orice submit.",
+            title: t("emptyForm"),
+            description: t("emptyFormDescription"),
           },
           {
             key: "error",
-            title: "Credențiale invalide",
-            description: "Mesaj roșu + mențiune parolă demo. Nu facem mock success; rămânem pe pagină cu CTA spre reset parolă.",
+            title: t("invalidCredentials"),
+            description: t("invalidCredentialsDescription"),
           },
         ]}
       />
@@ -213,11 +275,12 @@ function LoginContent() {
 }
 
 export default function LoginPage() {
+  const t = useTranslations("login");
   return (
     <Suspense
       fallback={
         <div className="rounded-2xl border border-zinc-200 bg-white/80 p-4 text-sm text-zinc-600 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/80">
-          Se încarcă formularul de autentificare...
+          {t("loadingForm")}
         </div>
       }
     >

@@ -1,4 +1,7 @@
-import Image from "next/image";
+"use client";
+
+import { SafeImage } from "@/components/SafeImage";
+import { useTranslations } from "next-intl";
 import { Item } from "@/lib/types";
 import { Pill } from "@/components/ui";
 import { NO_IMAGE_URL } from "@/lib/storage";
@@ -14,16 +17,21 @@ export function ItemCard({
   onDelete?: () => void;
   onView?: () => void;
 }) {
-  const statusColor = {
+  const t = useTranslations("itemCard");
+  const tc = useTranslations("common");
+
+  const statusColor: Record<string, "green" | "amber" | "zinc" | "blue" | "red"> = {
     active: "green",
-    reserved: "amber",
+    paused: "amber",
+    reserved: "blue",
     swapped: "zinc",
-  } as const;
+    archived: "zinc",
+  };
 
   return (
     <div className="flex gap-3 rounded-2xl border border-zinc-200 bg-white/80 p-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/80">
       <div className="relative h-24 w-24 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
-        <Image
+        <SafeImage
           src={item.photos?.[0] || NO_IMAGE_URL}
           alt={item.title}
           fill
@@ -46,9 +54,9 @@ export function ItemCard({
           {item.description}
         </p>
         <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
-          <span>Locație: {item.location || "necunoscut"}</span>
+          <span>{t("location")} {item.location || tc("unknown")}</span>
           {item.aiSuggestedTags?.length ? (
-            <Pill color="blue">AI: {item.aiSuggestedTags.join(", ")}</Pill>
+            <Pill color="blue">{t("ai")} {item.aiSuggestedTags.join(", ")}</Pill>
           ) : null}
         </div>
         <div className="flex gap-2 text-xs font-semibold">
@@ -58,7 +66,7 @@ export function ItemCard({
               onClick={onView}
               className="rounded-full bg-blue-600 px-3 py-1 text-white hover:bg-blue-700"
             >
-              Vezi
+              {t("view")}
             </button>
           ) : null}
           {onEdit ? (
@@ -67,7 +75,7 @@ export function ItemCard({
               onClick={onEdit}
               className="rounded-full bg-zinc-900 px-3 py-1 text-white hover:bg-zinc-800"
             >
-              Editează
+              {t("edit")}
             </button>
           ) : null}
           {onDelete ? (
@@ -76,7 +84,7 @@ export function ItemCard({
               onClick={onDelete}
               className="rounded-full bg-red-600 px-3 py-1 text-white hover:bg-red-700"
             >
-              Șterge
+              {t("delete")}
             </button>
           ) : null}
         </div>

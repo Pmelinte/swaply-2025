@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 import { CATEGORIES_TAXONOMY, CATEGORY_NAMES } from "@/lib/categories";
+import { rateLimit } from "@/lib/rate-limit";
+import { aiClassifySchema, validateBody } from "@/lib/validation";
+import { requestLogger } from "@/lib/logger";
 
 const CATEGORIES = CATEGORY_NAMES;
 
@@ -14,12 +17,26 @@ const TAG_CANDIDATES = [
 ];
 
 export async function POST(request: Request) {
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const { allowed } = rateLimit(ip, { limit: 30, windowMs: 60_000 });
+  if (!allowed) {
+    return NextResponse.json({ status: "error", message: "Prea multe cereri." }, { status: 429 });
+  }
+
+  const log = requestLogger(request);
   const body = await request.json().catch(() => ({}));
-  const { title, description, action } = body as {
-    title?: string;
-    description?: string;
-    action?: "classify" | "tags" | "both";
-  };
+  const { data: validated, error: validationError } = validateBody(body, aiClassifySchema);
+  if (validationError) {
+    log.warn("Validation failed", { error: validationError });
+    return NextResponse.json({ status: "error", message: validationError }, { status: 400 });
+  }
+  const { title, description, action, prompt, category, condition } = validated!;
+
+  // AI Description Generator
+  if (prompt === "generate_description" && title) {
+    const desc = generateDescription(title, category, condition);
+    return NextResponse.json({ status: "ok", description: desc });
+  }
 
   const text = [title, description].filter(Boolean).join(". ");
   if (!text) {
@@ -139,4 +156,21 @@ function keywordCategory(text: string): string {
 function keywordTags(text: string): string[] {
   const t = text.toLowerCase();
   return TAG_CANDIDATES.filter((tag) => t.includes(tag)).slice(0, 5);
+}
+
+/** Generate a swap-friendly description from title + metadata */
+function generateDescription(title: string, category?: string, condition?: string): string {
+  const condDesc = condition === "new" ? "nou, nefolosit" :
+    condition === "used" ? "folosit, în stare bună" :
+    condition === "good" ? "stare foarte bună" : "stare bună";
+
+  const lines = [
+    `${title} — ${condDesc}.`,
+    category ? `Categorie: ${category}.` : "",
+    "Disponibil pentru schimb cu obiecte similare sau conform listei de dorințe.",
+    "Fotografiile reflectă starea actuală a obiectului.",
+    "Deschis la propuneri — nu ezita să mă contactezi!",
+  ].filter(Boolean);
+
+  return lines.join(" ");
 }

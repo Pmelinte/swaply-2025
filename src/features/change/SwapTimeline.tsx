@@ -1,14 +1,9 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import { formatDate } from "@/lib/utils";
 import { SwapIntent } from "@/lib/types";
 import { Pill } from "@/components/ui";
-
-const statusLabels: Record<SwapIntent["status"], string> = {
-  proposed: "Propus",
-  scheduled: "Programat",
-  in_progress: "În desfășurare",
-  completed: "Finalizat",
-  cancelled: "Anulat",
-};
 
 export function SwapTimeline({
   swap,
@@ -19,28 +14,39 @@ export function SwapTimeline({
   requesterLabel?: string;
   responderLabel?: string;
 }) {
+  const t = useTranslations("swapTimeline");
+
+  const statusLabels: Record<SwapIntent["status"], string> = {
+    proposed: t("proposed"),
+    scheduled: t("scheduled"),
+    in_progress: t("inProgress"),
+    completed: t("completed"),
+    cancelled: t("cancelled"),
+    disputed: t("disputed"),
+  };
+
   const steps: Array<{ title: string; description: string; done: boolean }> = [
     {
-      title: "Propunere inițială",
-      description: "Swap propus între cele două obiecte selectate.",
+      title: t("initialProposal"),
+      description: t("proposalDescription"),
       done: true,
     },
     {
-      title: "Programare întâlnire / curier",
+      title: t("scheduleMeeting"),
       description:
         swap.logistics.locationType === "courier"
-          ? "Coordonează AWB și tracking pentru trimiterea în siguranță."
-          : "Selectează un punct public și confirmă disponibilitatea.",
+          ? t("courierDescription")
+          : t("meetupDescription"),
       done: ["scheduled", "in_progress", "completed"].includes(swap.status),
     },
     {
-      title: "Schimb în curs",
-      description: "Participanții confirmă livrarea sau întâlnirea.",
+      title: t("exchangeInProgress"),
+      description: t("exchangeDescription"),
       done: ["in_progress", "completed"].includes(swap.status),
     },
     {
-      title: "Feedback & reputație",
-      description: "Oferă rating și comentariu pentru a crește încrederea.",
+      title: t("feedbackAndReputation"),
+      description: t("feedbackDescription"),
       done: swap.status === "completed",
     },
   ];
@@ -49,12 +55,12 @@ export function SwapTimeline({
     <div className="space-y-3 rounded-2xl border border-zinc-200 bg-white/80 p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/80">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs uppercase text-zinc-500">Schimb</p>
+          <p className="text-xs uppercase text-zinc-500">{t("exchange")}</p>
           <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
             {requesterLabel ?? swap.requesterItemId} ↔ {responderLabel ?? swap.responderItemId}
           </h3>
         </div>
-        <Pill color="blue">Status: {statusLabels[swap.status]}</Pill>
+        <Pill color="blue">{t("status")} {statusLabels[swap.status]}</Pill>
       </div>
       <div className="space-y-3">
         {steps.map((step, index) => (
@@ -70,7 +76,7 @@ export function SwapTimeline({
                 <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
                   {index + 1}. {step.title}
                 </h4>
-                {step.done ? <Pill color="green">Finalizat</Pill> : null}
+                {step.done ? <Pill color="green">{t("completed")}</Pill> : null}
               </div>
               <p className="text-sm text-zinc-600 dark:text-zinc-300">{step.description}</p>
             </div>
@@ -78,10 +84,10 @@ export function SwapTimeline({
         ))}
       </div>
       <div className="rounded-xl border border-blue-100 bg-blue-50/80 p-3 text-sm text-blue-900 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-100">
-        Notificări automate: {swap.notifications.join(" · ")}
+        {t("autoNotifications")} {swap.notifications.join(" · ")}
       </div>
       <div className="text-xs text-zinc-500 dark:text-zinc-400">
-        Ultima actualizare: {formatDate(new Date().toISOString())}
+        {t("lastUpdate")} {formatDate(swap.updatedAt || swap.createdAt || new Date().toISOString())}
       </div>
     </div>
   );

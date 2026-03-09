@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { LoggedOutGate } from "@/components/gated";
 import { CTAButton, NextStepRecommendation, SectionCard, StateShowcase } from "@/components/ui";
@@ -14,6 +15,7 @@ export function ChatClient({
   conversationId?: string | null;
 }) {
   const { user, conversations, ensureConversation } = useAppState();
+  const t = useTranslations("chat");
   const dmConversationId =
     to && user?.id ? `dm:${[user.id, to].sort().join(":")}` : undefined;
   const initialConversationId = (conversationId ?? dmConversationId) ?? undefined;
@@ -32,24 +34,24 @@ export function ChatClient({
   return (
     <div className="space-y-4">
       <SectionCard
-        title="Chat securizat"
-        description="Traducere (dacă e on) + moderare + atașamente scanate + CTA spre Swaply"
-        action={<CTAButton href="/change">Confirmă swap</CTAButton>}
+        title={t("title")}
+        description={t("description")}
+        action={<CTAButton href="/change">{t("confirmSwap")}</CTAButton>}
       >
         <ChatPanel conversations={conversations} initialConversationId={initialConversationId} />
       </SectionCard>
-      <SectionCard title="Reguli chat" description="Fără leak de date private, moderare automată">
+      <SectionCard title={t("rules")} description={t("rulesDescription")}>
         <ul className="list-disc space-y-2 pl-5 text-sm text-zinc-700 dark:text-zinc-300">
-          <li>Atașamentele sunt scanate pentru siguranță; statusul safe apare ca badge.</li>
-          <li>Traducerea poate fi activată/ dezactivată per conversație.</li>
-          <li>CTA către Swaply (pagina Change) este prezent pentru confirmare logistică.</li>
+          <li>{t("attachmentsScanned")}</li>
+          <li>{t("translationToggle")}</li>
+          <li>{t("ctaToSwaply")}</li>
         </ul>
       </SectionCard>
 
       <NextStepRecommendation
         steps={[
-          { label: "Confirmă un swap", href: "/change", description: "Treci la confirmarea logisticii" },
-          { label: "Vezi match-uri", href: "/match", description: "Descoperă alte potriviri noi" },
+          { label: t("confirmASwap"), href: "/change", description: t("confirmDescription") },
+          { label: t("viewMatches"), href: "/match", description: t("viewMatchesDescription") },
         ]}
       />
 

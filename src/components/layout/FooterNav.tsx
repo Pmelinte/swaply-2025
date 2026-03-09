@@ -2,29 +2,30 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   Home,
   Box,
   HeartHandshake,
   MessageCircle,
   Shuffle,
-  Info,
 } from "lucide-react";
 
-const links = [
-  { href: "/", label: "Home", icon: Home },
-  { href: "/objects", label: "Obiecte", icon: Box },
-  { href: "/match", label: "Matching", icon: HeartHandshake },
-  { href: "/chat", label: "Mesaje", icon: MessageCircle },
-  { href: "/change", label: "Schimb", icon: Shuffle },
-  { href: "/info", label: "Info", icon: Info },
-];
-
 export function FooterNav() {
+  const t = useTranslations("nav");
   const pathname = usePathname();
+
+  const links = [
+    { href: "/", label: t("home"), icon: Home },
+    { href: "/objects", label: t("objects"), icon: Box },
+    { href: "/match", label: t("matching"), icon: HeartHandshake },
+    { href: "/chat", label: t("messages"), icon: MessageCircle },
+    { href: "/change", label: t("exchange"), icon: Shuffle },
+  ];
+
   return (
     <nav className="sticky bottom-0 z-20 border-t border-zinc-200 bg-white/90 backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/80">
-      <div className="mx-auto grid max-w-6xl grid-cols-6 gap-1 px-2 py-2 text-xs font-semibold text-zinc-600 dark:text-zinc-300">
+      <div className="mx-auto grid max-w-6xl grid-cols-5 gap-1 px-2 py-2 text-xs font-semibold text-zinc-600 dark:text-zinc-300">
         {links.map((link) => {
           const Icon = link.icon;
           const active =
@@ -35,7 +36,7 @@ export function FooterNav() {
               href={link.href}
               className={`flex flex-col items-center gap-1 rounded-xl px-2 py-2 transition hover:bg-zinc-100 dark:hover:bg-zinc-800 ${active ? "bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-100" : ""}`}
             >
-              <Icon className="h-4 w-4" />
+              <Icon className="h-5 w-5" />
               {link.label}
             </Link>
           );

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useCallback, useMemo, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { z } from "zod";
 import type { Item, ItemIntent, ItemFlexibility, ItemPerceivedValue, ItemClarity, ItemContext } from "@/lib/types";
 import { uploadItemPhoto } from "@/lib/storage";
@@ -9,36 +10,7 @@ import { TOP_CATEGORIES, getSubcategories, CATEGORY_NAMES, findCategoryByName } 
 
 export const ITEM_CATEGORIES = CATEGORY_NAMES;
 
-const CONDITIONS = [
-  { value: "new", label: "Nou" },
-  { value: "good", label: "Puțin utilizat" },
-  { value: "used", label: "Utilizat / antichitate" },
-] as const;
-
-const STATUSES = [
-  { value: "active", label: "Activ" },
-  { value: "reserved", label: "Rezervat" },
-  { value: "swapped", label: "Schimbat" },
-] as const;
-
-const itemSchema = z.object({
-  title: z
-    .string()
-    .min(3, "Titlul trebuie să aibă cel puțin 3 caractere.")
-    .max(120, "Titlul nu poate depăși 120 caractere."),
-  category: z.string().min(1, "Alege o categorie valida."),
-  condition: z.enum(["new", "good", "used"]),
-  description: z
-    .string()
-    .max(2000, "Descrierea nu poate depăși 2000 caractere.")
-    .optional()
-    .default(""),
-  wishlist: z.string().max(500, "Dorința nu poate depăși 500 caractere.").optional().default(""),
-  location: z.string().min(2, "Specifică o locație (oraș sau zonă)."),
-  userFinalTags: z.array(z.string()).max(10, "Maximum 10 taguri.").optional().default([]),
-});
-
-type FieldErrors = Partial<Record<keyof z.infer<typeof itemSchema>, string>>;
+type FieldErrors = Partial<Record<string, string>>;
 
 const inputClass =
   "mt-1 w-full rounded-lg border px-3 py-2 text-sm dark:bg-zinc-800";
@@ -57,7 +29,7 @@ function FieldError({ message }: { message?: string }) {
 const MAX_IMAGE_DIMENSION = 1200;
 
 /** Resize image on client to max 1200px, returns a new File */
-function resizeImage(file: File): Promise<File> {
+function resizeImage(file: File, errorMsg: string): Promise<File> {
   return new Promise((resolve, reject) => {
     const img = new window.Image();
     img.onload = () => {
@@ -86,7 +58,7 @@ function resizeImage(file: File): Promise<File> {
         0.85,
       );
     };
-    img.onerror = () => reject(new Error("Nu s-a putut citi imaginea."));
+    img.onerror = () => reject(new Error(errorMsg));
     img.src = URL.createObjectURL(file);
   });
 }
@@ -100,6 +72,38 @@ export function ItemForm({
   onSave: (item: Item) => void;
   onCancel: () => void;
 }) {
+  const t = useTranslations("itemForm");
+  const tc = useTranslations("common");
+
+  const CONDITIONS = useMemo(() => [
+    { value: "new", label: t("conditionNew") },
+    { value: "good", label: t("conditionGood") },
+    { value: "used", label: t("conditionUsed") },
+  ] as const, [t]);
+
+  const STATUSES = useMemo(() => [
+    { value: "active", label: t("statusActive") },
+    { value: "reserved", label: t("statusReserved") },
+    { value: "swapped", label: t("statusSwapped") },
+  ] as const, [t]);
+
+  const itemSchema = useMemo(() => z.object({
+    title: z
+      .string()
+      .min(3, t("titleMinLength"))
+      .max(120, t("titleMaxLength")),
+    category: z.string().min(1, t("invalidCategory")),
+    condition: z.enum(["new", "good", "used"]),
+    description: z
+      .string()
+      .max(2000, t("descriptionMaxLength"))
+      .optional()
+      .default(""),
+    wishlist: z.string().max(500, t("wishlistMaxLength")).optional().default(""),
+    location: z.string().min(2, t("locationRequired")),
+    userFinalTags: z.array(z.string()).max(10, t("maxTags")).optional().default([]),
+  }), [t]);
+
   const [draft, setDraft] = useState<Item>(item);
   const [preview, setPreview] = useState<string | null>(
     item.photos[0] ?? null,
@@ -116,6 +120,7 @@ export function ItemForm({
   const [imageUrlInput, setImageUrlInput] = useState("");
   const [imageUrlError, setImageUrlError] = useState<string | null>(null);
   const [loadingUrl, setLoadingUrl] = useState(false);
+  const [aiConfidence, setAiConfidence] = useState<number | null>(null);
   const aiTriggered = useRef(false);
 
   const triggerAiOnBlur = useCallback(() => {
@@ -156,7 +161,7 @@ export function ItemForm({
     }
     const fieldErrors: FieldErrors = {};
     for (const issue of result.error.issues) {
-      const field = issue.path[0] as keyof FieldErrors;
+      const field = issue.path[0] as string;
       if (!fieldErrors[field]) {
         fieldErrors[field] = issue.message;
       }
@@ -194,7 +199,7 @@ export function ItemForm({
 
   const fetchAiSuggestionsInternal = async () => {
     if (!draft.title && !draft.description) {
-      setAiStatus("Scrie un titlu sau descriere mai întâi.");
+      setAiStatus(t("aiSuggestsFromTitle"));
       return;
     }
     setAiLoading(true);
@@ -218,15 +223,22 @@ export function ItemForm({
         updates.aiSuggestedTags = data.tags;
       }
       setDraft((prev) => ({ ...prev, ...updates }));
+      // Compute confidence: ok=high, fallback=medium, with category & tags presence
+      const hasCategory = !!updates.category;
+      const hasTags = (updates.aiSuggestedTags ?? []).length > 0;
+      const baseScore = data.status === "ok" ? 80 : data.status === "fallback" ? 40 : 10;
+      const bonus = (hasCategory ? 10 : 0) + (hasTags ? 10 : 0);
+      setAiConfidence(Math.min(100, baseScore + bonus));
       setAiStatus(
         data.status === "ok"
-          ? "Categorie și taguri sugerate de AI!"
+          ? t("aiCategoryAndTags")
           : data.status === "fallback"
-            ? "Sugestii locale aplicate (AI indisponibil)."
-            : "Eroare AI, încearcă din nou.",
+            ? t("localSuggestions")
+            : t("aiError"),
       );
     } catch {
-      setAiStatus("Eroare de rețea. Încearcă din nou.");
+      setAiStatus(t("networkError"));
+      setAiConfidence(null);
     } finally {
       setAiLoading(false);
     }
@@ -239,7 +251,7 @@ export function ItemForm({
 
   const analyzeImageWithAi = async (imageUrl: string, file?: File) => {
     setImageAiLoading(true);
-    setImageAiStatus("Se analizează imaginea cu AI...");
+    setImageAiStatus(t("analyzingWithAi"));
     try {
       let body: Record<string, string>;
 
@@ -293,27 +305,36 @@ export function ItemForm({
         }
         setDraft((prev) => ({ ...prev, ...updates }));
 
+        // Compute confidence for image AI
+        const hasTitle = !!updates.title;
+        const hasCategory = !!updates.category;
+        const imgBase = data.status === "ok" ? 75 : 35;
+        const imgBonus = (hasTitle ? 15 : 0) + (hasCategory ? 10 : 0);
+        setAiConfidence(Math.min(100, imgBase + imgBonus));
+
         const debugInfo = data.attempted?.length ? ` [${data.attempted.join(", ")}]` : "";
         setImageAiStatus(
           data.status === "ok"
-            ? `AI: "${data.caption}" → Titlu și categorie completate automat. Poți modifica.`
-            : (data.caption || "AI indisponibil. Completează manual."),
+            ? t("aiImageCaption", { caption: data.caption })
+            : (data.caption || t("aiUnavailable")),
         );
         if (data.status === "fallback" && debugInfo) {
           console.warn("Image AI fallback:", debugInfo);
         }
       } else {
         console.warn("Image AI error:", data.attempted);
+        setAiConfidence(null);
         // Show user-friendly message, not technical details
         const isQuota = data.attempted?.some((a: string) => a.includes("429") || a.includes("quota"));
         setImageAiStatus(
           isQuota
-            ? "AI temporar indisponibil (limita de utilizare atinsă). Încearcă din nou în 1-2 minute."
-            : "AI nu a putut analiza imaginea. Completează manual titlul și categoria.",
+            ? t("aiRateLimit")
+            : t("aiImageError"),
         );
       }
     } catch {
-      setImageAiStatus("Eroare de rețea la analiza imaginii.");
+      setImageAiStatus(t("aiNetworkError"));
+      setAiConfidence(null);
     } finally {
       setImageAiLoading(false);
     }
@@ -332,12 +353,12 @@ export function ItemForm({
       <div className="grid gap-3 lg:grid-cols-[2fr_1fr]">
         <div className="space-y-2">
           <p className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-            Imagine (opțional)
+            {t("imageOptional")}
           </p>
 
           {/* File upload */}
           <label className="text-xs text-zinc-500 dark:text-zinc-400">
-            Încarcă fișier
+            {t("uploadFile")}
             <input
               type="file"
               accept="image/jpeg,image/png,image/webp,image/gif"
@@ -349,7 +370,7 @@ export function ItemForm({
                 setUploadError(null);
                 setImageUrlError(null);
                 try {
-                  const resized = await resizeImage(file);
+                  const resized = await resizeImage(file, t("imageReadError"));
                   const result = await uploadItemPhoto(resized, draft.ownerId);
                   if (result.error) {
                     setUploadError(result.error);
@@ -361,7 +382,7 @@ export function ItemForm({
                     void analyzeImageWithAi(result.url, resized);
                   }
                 } catch {
-                  setUploadError("Eroare la procesarea imaginii.");
+                  setUploadError(t("imageProcessingError"));
                 } finally {
                   setUploading(false);
                 }
@@ -371,7 +392,7 @@ export function ItemForm({
           </label>
           {uploading && (
             <p className="text-xs text-blue-600 dark:text-blue-400">
-              Se încarcă și redimensionează imaginea...
+              {t("uploadingImage")}
             </p>
           )}
           {uploadError && (
@@ -383,19 +404,19 @@ export function ItemForm({
           {/* Separator */}
           <div className="flex items-center gap-2">
             <hr className="flex-1 border-zinc-200 dark:border-zinc-700" />
-            <span className="text-xs text-zinc-400">sau</span>
+            <span className="text-xs text-zinc-400">{tc("or")}</span>
             <hr className="flex-1 border-zinc-200 dark:border-zinc-700" />
           </div>
 
           {/* URL input */}
           <label className="text-xs text-zinc-500 dark:text-zinc-400">
-            Lipește link imagine
+            {t("pasteImageLink")}
             <div className="mt-1 flex gap-2">
               <input
                 type="url"
                 value={imageUrlInput}
                 onChange={(e) => setImageUrlInput(e.target.value)}
-                placeholder="https://..."
+                placeholder={t("urlPlaceholder")}
                 disabled={uploading || loadingUrl}
                 className={`${inputNormal} flex-1`}
               />
@@ -408,7 +429,7 @@ export function ItemForm({
                   try {
                     new URL(url);
                   } catch {
-                    setImageUrlError("URL invalid.");
+                    setImageUrlError(t("invalidUrl"));
                     return;
                   }
                   setLoadingUrl(true);
@@ -423,7 +444,7 @@ export function ItemForm({
                       img.src = url;
                     });
                     if (!ok) {
-                      setImageUrlError("Link-ul nu conține o imagine validă.");
+                      setImageUrlError(t("invalidImageLink"));
                       return;
                     }
                     setPreview(url);
@@ -431,14 +452,14 @@ export function ItemForm({
                     setImageUrlInput("");
                     void analyzeImageWithAi(url);
                   } catch {
-                    setImageUrlError("Nu s-a putut încărca imaginea.");
+                    setImageUrlError(t("couldNotLoadImage"));
                   } finally {
                     setLoadingUrl(false);
                   }
                 }}
                 className="rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
               >
-                {loadingUrl ? "Se verifică..." : "Adaugă"}
+                {loadingUrl ? t("verifyingUrl") : tc("add")}
               </button>
             </div>
           </label>
@@ -449,7 +470,7 @@ export function ItemForm({
           )}
 
           <p className="text-xs text-zinc-400 dark:text-zinc-500">
-            JPG, PNG, WebP sau GIF. Max 5 MB. Imaginile sunt redimensionate automat.
+            {t("imageFormats")}
           </p>
         </div>
 
@@ -457,14 +478,14 @@ export function ItemForm({
         <div className="flex flex-col items-center justify-center overflow-hidden rounded-xl border border-dashed border-zinc-200 bg-zinc-50 p-3 text-sm text-zinc-500 dark:border-zinc-700 dark:bg-zinc-900/60">
           <Image
             src={preview || "/no-image.svg"}
-            alt={preview ? "Previzualizare" : "Fără imagine"}
+            alt={preview ? t("preview") : tc("noImage")}
             width={400}
             height={400}
             className="max-h-48 w-full rounded-lg object-contain"
             unoptimized
           />
           {!preview && (
-            <p className="mt-2 text-xs text-zinc-400">Fără imagine</p>
+            <p className="mt-2 text-xs text-zinc-400">{tc("noImage")}</p>
           )}
           {preview && (
             <button
@@ -476,13 +497,13 @@ export function ItemForm({
               }}
               className="mt-2 text-xs text-red-500 hover:text-red-700"
             >
-              Șterge imaginea
+              {t("deleteImage")}
             </button>
           )}
         </div>
       </div>
 
-      {/* Image AI status */}
+      {/* Image AI status + confidence */}
       {(imageAiLoading || imageAiStatus) && (
         <div
           className={`rounded-xl p-3 text-sm font-medium ${
@@ -493,26 +514,46 @@ export function ItemForm({
                 : "bg-yellow-50 text-yellow-900 dark:bg-yellow-900/30 dark:text-yellow-100"
           }`}
         >
-          {imageAiLoading ? "Se analizează imaginea cu AI..." : imageAiStatus}
+          <div className="flex items-center justify-between gap-2">
+            <span>{imageAiLoading ? t("analyzingWithAi") : imageAiStatus}</span>
+            {aiConfidence !== null && !imageAiLoading && (
+              <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${
+                aiConfidence >= 70
+                  ? "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200"
+                  : aiConfidence >= 40
+                    ? "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200"
+                    : "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200"
+              }`}>
+                {t("aiConfidence", { score: String(aiConfidence) })}
+              </span>
+            )}
+          </div>
+          {aiConfidence !== null && !imageAiLoading && (
+            <p className={`mt-1 text-xs ${
+              aiConfidence >= 70 ? "text-green-600 dark:text-green-400" : aiConfidence >= 40 ? "text-amber-600 dark:text-amber-400" : "text-red-600 dark:text-red-400"
+            }`}>
+              {aiConfidence >= 70 ? t("aiConfidenceHigh") : aiConfidence >= 40 ? t("aiConfidenceMedium") : t("aiConfidenceLow")}
+            </p>
+          )}
         </div>
       )}
 
       {/* Title + Category */}
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-          Titlu *
+          {t("titleLabel")}
           <input
             value={draft.title}
             onChange={(e) => setDraft({ ...draft, title: e.target.value })}
             onBlur={triggerAiOnBlur}
-            placeholder="ex: Monitor 24 inch IPS"
+            placeholder={t("titlePlaceholder")}
             maxLength={120}
             className={errors.title ? inputError : inputNormal}
           />
           <FieldError message={errors.title} />
         </label>
         <div className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-          <p>Categorie *</p>
+          <p>{t("categoryLabel")}</p>
           <select
             value={selectedParent}
             onChange={(e) => {
@@ -523,7 +564,7 @@ export function ItemForm({
             }}
             className={errors.category ? inputError : inputNormal}
           >
-            <option value="">— Alege categoria —</option>
+            <option value="">{t("chooseCategory")}</option>
             {TOP_CATEGORIES.map((cat) => (
               <option key={cat.id} value={cat.id}>
                 {cat.name}
@@ -538,7 +579,7 @@ export function ItemForm({
               className={`${inputNormal} mt-1`}
             >
               <option value={TOP_CATEGORIES.find((c) => c.id === selectedParent)?.name ?? ""}>
-                — Toate din {TOP_CATEGORIES.find((c) => c.id === selectedParent)?.name} —
+                {t("allFromCategory", { category: TOP_CATEGORIES.find((c) => c.id === selectedParent)?.name ?? "" })}
               </option>
               {subcategories.map((sub) => (
                 <option key={sub.id} value={sub.name}>
@@ -552,37 +593,81 @@ export function ItemForm({
       </div>
 
       {/* AI Suggestions */}
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <button
           type="button"
           onClick={fetchAiSuggestions}
           disabled={aiLoading || saving}
           className="rounded-full bg-purple-600 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-700 disabled:opacity-60"
         >
-          {aiLoading ? "Se analizeaza..." : "Sugestii AI"}
+          {aiLoading ? t("analyzing") : t("aiSuggestions")}
         </button>
         {aiStatus ? (
           <span className="text-xs text-zinc-500 dark:text-zinc-400">{aiStatus}</span>
         ) : (
           <span className="text-xs text-zinc-400 dark:text-zinc-500">
-            AI sugereaza categorie + taguri din titlu si descriere
+            {t("aiSuggestsFromTitle")}
+          </span>
+        )}
+        {aiConfidence !== null && !aiLoading && !imageAiLoading && (
+          <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${
+            aiConfidence >= 70
+              ? "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200"
+              : aiConfidence >= 40
+                ? "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200"
+                : "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200"
+          }`}>
+            {t("aiConfidence", { score: String(aiConfidence) })}
           </span>
         )}
       </div>
 
       {/* Description */}
       <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-        Descriere (opțional)
+        {t("descriptionLabel")}
         <textarea
           value={draft.description}
           onChange={(e) => setDraft({ ...draft, description: e.target.value })}
-          placeholder="Descrie obiectul cât mai detaliat: stare, defecte, accesorii incluse..."
+          placeholder={t("descriptionPlaceholder")}
           maxLength={2000}
           className={errors.description ? inputError : inputNormal}
           rows={4}
         />
-        <div className="mt-1 flex justify-between">
-          <FieldError message={errors.description} />
+        <div className="mt-1 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <FieldError message={errors.description} />
+            <button
+              type="button"
+              disabled={!draft.title || aiLoading}
+              onClick={async () => {
+                if (!draft.title) return;
+                setAiLoading(true);
+                try {
+                  const res = await fetch("/api/ai", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      title: draft.title,
+                      category: draft.category,
+                      condition: draft.condition,
+                      prompt: "generate_description",
+                    }),
+                  });
+                  if (res.ok) {
+                    const data = await res.json();
+                    if (data.description) {
+                      setDraft((prev) => ({ ...prev, description: data.description }));
+                    }
+                  }
+                } finally {
+                  setAiLoading(false);
+                }
+              }}
+              className="inline-flex items-center gap-1 rounded-full bg-violet-100 px-2.5 py-1 text-[10px] font-semibold text-violet-700 hover:bg-violet-200 disabled:opacity-40 dark:bg-violet-900/30 dark:text-violet-300 dark:hover:bg-violet-900/50"
+            >
+              {aiLoading ? "..." : "✨"} {t("aiWriteDescription")}
+            </button>
+          </div>
           <span className="text-xs text-zinc-400">
             {draft.description.length}/2000
           </span>
@@ -591,102 +676,102 @@ export function ItemForm({
 
       {/* Wishlist */}
       <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-        Ce îți dorești în schimb
+        {t("wishlistLabel")}
         <input
           value={draft.wishlist}
           onChange={(e) => setDraft({ ...draft, wishlist: e.target.value })}
-          placeholder="ex: Bicicletă, consolă de jocuri, sau orice electronic..."
+          placeholder={t("wishlistPlaceholder")}
           maxLength={500}
           className={errors.wishlist ? inputError : inputNormal}
         />
         <FieldError message={errors.wishlist} />
       </label>
 
-      {/* ── Semantic contract fields (optional) ── */}
+      {/* Semantic contract fields (optional) */}
       <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-3 dark:border-blue-900 dark:bg-blue-950/20">
         <p className="text-sm font-semibold text-blue-800 dark:text-blue-200">
-          Detalii pentru analiza (optional)
+          {t("analysisDetails")}
         </p>
         <p className="mb-3 text-xs text-blue-600 dark:text-blue-400">
-          Cu cat completezi mai multe detalii, cu atat AI-ul identifica potriviri mai bune. Nimic nu e obligatoriu.
+          {t("analysisDetailsDescription")}
         </p>
 
         <div className="grid gap-3 sm:grid-cols-2">
           {/* Intent */}
           <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">
-            Ce asteptare ai de la acest obiect?
+            {t("intentQuestion")}
             <select
               value={draft.intent ?? ""}
               onChange={(e) => setDraft({ ...draft, intent: (e.target.value || undefined) as ItemIntent | undefined })}
               className={inputNormal}
             >
               <option value="">— Nealeas —</option>
-              <option value="explore">Explorez — vreau sa vad ce mi s-ar oferi</option>
-              <option value="open">Deschis — as face un schimb daca apare ceva</option>
-              <option value="committed">Caut schimb clar — am obiectul pentru asta</option>
-              <option value="high_commitment">Angajament mare — schimb serios, fara tatonari</option>
+              <option value="explore">{t("intentExplore")}</option>
+              <option value="open">{t("intentOpen")}</option>
+              <option value="committed">{t("intentCommitted")}</option>
+              <option value="high_commitment">{t("intentHighCommitment")}</option>
             </select>
           </label>
 
           {/* Flexibility */}
           <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">
-            Cat de strict esti?
+            {t("flexibilityQuestion")}
             <select
               value={draft.flexibility ?? ""}
               onChange={(e) => setDraft({ ...draft, flexibility: (e.target.value || undefined) as ItemFlexibility | undefined })}
               className={inputNormal}
             >
               <option value="">— Nealeas —</option>
-              <option value="strict">Strict — vreau ceva foarte apropiat</option>
-              <option value="moderate">Moderat — prefer X, dar accept si alternative</option>
-              <option value="broad">Larg — surprinde-ma</option>
+              <option value="strict">{t("flexibilityStrict")}</option>
+              <option value="moderate">{t("flexibilityModerate")}</option>
+              <option value="broad">{t("flexibilityBroad")}</option>
             </select>
           </label>
 
           {/* Perceived value */}
           <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">
-            Cum percepi valoarea obiectului?
+            {t("perceivedValueQuestion")}
             <select
               value={draft.perceivedValue ?? ""}
               onChange={(e) => setDraft({ ...draft, perceivedValue: (e.target.value || undefined) as ItemPerceivedValue | undefined })}
               className={inputNormal}
             >
               <option value="">— Nealeas —</option>
-              <option value="small">Mica — usor de inlocuit</option>
-              <option value="medium">Medie — valoare normala</option>
-              <option value="large">Mare — important pentru mine</option>
-              <option value="sentimental">Sentimentala — are o valoare aparte</option>
+              <option value="small">{t("valueSmall")}</option>
+              <option value="medium">{t("valueMedium")}</option>
+              <option value="large">{t("valueLarge")}</option>
+              <option value="sentimental">{t("valueSentimental")}</option>
             </select>
           </label>
 
           {/* Clarity */}
           <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">
-            Cat de sigur esti pe ce vrei?
+            {t("clarityQuestion")}
             <select
               value={draft.clarity ?? ""}
               onChange={(e) => setDraft({ ...draft, clarity: (e.target.value || undefined) as ItemClarity | undefined })}
               className={inputNormal}
             >
               <option value="">— Nealeas —</option>
-              <option value="exploring">Nu sunt sigur, explorez</option>
-              <option value="have_idea">Am o idee, dar sunt flexibil</option>
-              <option value="know_exactly">Stiu exact ce vreau</option>
+              <option value="exploring">{t("clarityExploring")}</option>
+              <option value="have_idea">{t("clarityHaveIdea")}</option>
+              <option value="know_exactly">{t("clarityKnowExactly")}</option>
             </select>
           </label>
 
           {/* Context */}
           <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">
-            Contextul schimbului
+            {t("contextQuestion")}
             <select
               value={draft.context ?? ""}
               onChange={(e) => setDraft({ ...draft, context: (e.target.value || undefined) as ItemContext | undefined })}
               className={inputNormal}
             >
               <option value="">— Nealeas —</option>
-              <option value="permanent">Permanent — disponibil oricand</option>
-              <option value="vacation">Vacanta — contextual, temporar</option>
-              <option value="temporary">Temporar — disponibil o perioada limitata</option>
-              <option value="urgent">Urgent — cat mai repede</option>
+              <option value="permanent">{t("contextPermanent")}</option>
+              <option value="vacation">{t("contextVacation")}</option>
+              <option value="temporary">{t("contextTemporary")}</option>
+              <option value="urgent">{t("contextUrgent")}</option>
             </select>
           </label>
         </div>
@@ -700,7 +785,7 @@ export function ItemForm({
               onChange={(e) => setDraft({ ...draft, acceptsBundle: e.target.checked || undefined })}
               className="rounded border-zinc-300"
             />
-            Accept pachet de obiecte
+            {t("acceptsBundle")}
           </label>
           <label className="flex items-center gap-2 text-xs text-zinc-700 dark:text-zinc-200">
             <input
@@ -709,21 +794,21 @@ export function ItemForm({
               onChange={(e) => setDraft({ ...draft, recipientMatters: e.target.checked || undefined })}
               className="rounded border-zinc-300"
             />
-            Conteaza cui ajunge
+            {t("recipientMatters")}
           </label>
         </div>
 
         {/* Condition impact */}
         <div className="mt-3">
           <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">
-            Cum afecteaza starea obiectul? (selecteaza ce se aplica)
+            {t("conditionImpactQuestion")}
           </p>
           <div className="mt-1 flex flex-wrap gap-3">
             {([
-              { value: "affects_value", label: "Afecteaza valoarea" },
-              { value: "affects_usage", label: "Afecteaza utilizarea" },
-              { value: "affects_durability", label: "Afecteaza durabilitatea" },
-              { value: "affects_appearance", label: "Afecteaza doar aspectul" },
+              { value: "affects_value", label: t("affectsValue") },
+              { value: "affects_usage", label: t("affectsUsage") },
+              { value: "affects_durability", label: t("affectsDurability") },
+              { value: "affects_appearance", label: t("affectsAppearance") },
             ] as const).map((opt) => (
               <label key={opt.value} className="flex items-center gap-1 text-xs text-zinc-600 dark:text-zinc-300">
                 <input
@@ -748,22 +833,22 @@ export function ItemForm({
 
         {/* AI Note */}
         <label className="mt-3 block text-xs font-semibold text-zinc-700 dark:text-zinc-200">
-          Mesaj pentru AI (optional)
+          {t("aiMessageLabel")}
           <input
             value={draft.aiNote ?? ""}
             onChange={(e) => setDraft({ ...draft, aiNote: e.target.value || undefined })}
-            placeholder="ex: Nu ma grabesc, Prefer schimb local, Obiectul are o poveste..."
+            placeholder={t("aiMessagePlaceholder")}
             maxLength={300}
             className={inputNormal}
           />
-          <span className="text-[10px] text-zinc-400">AI-ul foloseste aceste informatii doar pentru analiza, nu sunt afisate public.</span>
+          <span className="text-[10px] text-zinc-400">{t("aiMessageNote")}</span>
         </label>
       </div>
 
       {/* Condition + Status + Location */}
       <div className="grid gap-3 sm:grid-cols-3">
         <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-          Stare obiect *
+          {t("conditionLabel")}
           <select
             value={draft.condition}
             onChange={(e) =>
@@ -782,7 +867,7 @@ export function ItemForm({
           </select>
         </label>
         <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-          Status
+          {t("statusLabel")}
           <select
             value={draft.status}
             onChange={(e) =>
@@ -801,11 +886,11 @@ export function ItemForm({
           </select>
         </label>
         <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-          Locație *
+          {t("locationLabel")}
           <input
             value={draft.location}
             onChange={(e) => setDraft({ ...draft, location: e.target.value })}
-            placeholder="ex: Cluj-Napoca"
+            placeholder={t("locationPlaceholder")}
             className={errors.location ? inputError : inputNormal}
           />
           <FieldError message={errors.location} />
@@ -815,7 +900,7 @@ export function ItemForm({
       {/* User tags */}
       <div className="text-sm">
         <p className="font-semibold text-zinc-700 dark:text-zinc-200">
-          Taguri (opțional)
+          {t("tagsLabel")}
         </p>
         <div className="mt-1 flex gap-2">
           <input
@@ -827,7 +912,7 @@ export function ItemForm({
                 addTag();
               }
             }}
-            placeholder="Adaugă tag și apasă Enter"
+            placeholder={t("tagsPlaceholder")}
             maxLength={30}
             className={`${inputNormal} flex-1`}
           />
@@ -864,7 +949,7 @@ export function ItemForm({
       {/* AI tags (read-only) */}
       {(draft.aiSuggestedTags ?? []).length > 0 ? (
         <div className="text-xs text-zinc-500 dark:text-zinc-400">
-          Sugestii AI:{" "}
+          {t("aiTagSuggestions")}{" "}
           {draft.aiSuggestedTags!.map((tag) => (
             <span
               key={tag}
@@ -884,14 +969,14 @@ export function ItemForm({
           disabled={saving}
           className="rounded-full px-4 py-2 text-sm font-semibold text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800"
         >
-          Renunță
+          {tc("cancel")}
         </button>
         <button
           type="submit"
           disabled={saving || uploading}
           className="rounded-full bg-blue-600 px-6 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
         >
-          {saving ? "Se salvează..." : uploading ? "Se încarcă imaginea..." : "Salvează"}
+          {saving ? tc("saving") : uploading ? t("uploadingImageButton") : tc("save")}
         </button>
       </div>
     </form>
