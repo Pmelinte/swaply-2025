@@ -27,6 +27,7 @@ import {
   Package,
   Heart,
   Share2,
+  Lock,
 } from "lucide-react";
 
 const INTENT_LABELS: Record<string, string> = {
@@ -65,7 +66,7 @@ const CONTEXT_LABELS: Record<string, string> = {
 export default function ObjectDetailsPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const { items, user, loading, proposeSwap } = useAppState();
+  const { items, user, loading, proposeSwap, lastError } = useAppState();
   const t = useTranslations("objectDetail");
   const [activePhoto, setActivePhoto] = useState(0);
   const [offerItemId, setOfferItemId] = useState<string>("");
@@ -121,6 +122,7 @@ export default function ObjectDetailsPage() {
   }, [items, item]);
 
   const isOwner = user && item ? item.ownerId === user.id : false;
+  const isReserved = item?.status === "reserved";
 
   // Semantic fields present
   const hasSemanticFields = item && (item.intent || item.flexibility || item.perceivedValue || item.clarity || item.context);
@@ -262,7 +264,14 @@ export default function ObjectDetailsPage() {
             <div className="mt-2 flex flex-wrap gap-2">
               <Pill color="blue">{item.category}</Pill>
               <Pill color="zinc">{item.condition}</Pill>
-              <Pill color="green">{item.status}</Pill>
+              {isReserved ? (
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800 dark:bg-amber-900/50 dark:text-amber-200">
+                  <Lock className="h-3 w-3" />
+                  Rezervat
+                </span>
+              ) : (
+                <Pill color="green">{item.status}</Pill>
+              )}
               {item.location && (
                 <span className="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
                   <MapPin className="h-3 w-3" />
@@ -410,7 +419,22 @@ export default function ObjectDetailsPage() {
           {/* Swap offer + actions */}
           {user ? (
             <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
-              {!isOwner && (
+              {/* Reserved badge — item is locked for another swap */}
+              {isReserved && !isOwner && (
+                <div className="mb-3 flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-900/30">
+                  <Lock className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
+                  <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                    Acest obiect este rezervat și nu poate fi schimbat momentan.
+                  </p>
+                </div>
+              )}
+              {/* Error from proposeSwap (e.g. item lock 409) */}
+              {lastError && (
+                <div className="mb-3 rounded-lg border border-red-200 bg-red-50 p-2.5 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-300">
+                  {lastError}
+                </div>
+              )}
+              {!isOwner && !isReserved && (
                 <label className="mb-3 block text-xs font-semibold text-zinc-600 dark:text-zinc-300">
                   {t("yourOfferedObject")}
                   <select
@@ -429,7 +453,7 @@ export default function ObjectDetailsPage() {
                 </label>
               )}
               <div className="space-y-2">
-                {!isOwner && (
+                {!isOwner && !isReserved && (
                   <button
                     type="button"
                     className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"

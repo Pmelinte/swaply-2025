@@ -915,6 +915,20 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       };
 
       if (dataSource === "supabase" && supabase) {
+        // Check item availability (lock status) before proposing swap
+        const [reqAvail, resAvail] = await Promise.all([
+          supabase.rpc("is_item_available", { item_uuid: requesterItemId }),
+          supabase.rpc("is_item_available", { item_uuid: responderItemId }),
+        ]);
+        if (reqAvail.data === false) {
+          setLastError("Obiectul tău nu mai este disponibil");
+          return null;
+        }
+        if (resAvail.data === false) {
+          setLastError("Obiectul nu mai este disponibil");
+          return null;
+        }
+
         const { data, error } = await supabase.from("swap_intents")
           .insert({ requester_id: user.id, responder_id: responderId,
             requester_item_id: requesterItemId, responder_item_id: responderItemId,
