@@ -3,7 +3,7 @@ export const locales = [
   "hu", "bg", "cs", "sk", "hr", "sl", "sr", "sv", "da", "fi",
   "no", "lt", "lv", "et", "ga", "mt", "ru", "tr", "ar", "zh",
   "hi", "bn", "ja", "ko", "vi", "th", "id", "ms", "fil", "fa",
-  "mn", "uk",
+  "mn", "uk", "yi",
 ] as const;
 
 export type Locale = (typeof locales)[number];
@@ -54,6 +54,7 @@ export const languageNames: Record<Locale, { name: string; nativeName: string; c
   fa:  { name: "Persian",     nativeName: "فارسی",            countryCode: "ir" },
   mn:  { name: "Mongolian",   nativeName: "Монгол",           countryCode: "mn" },
   uk:  { name: "Ukrainian",   nativeName: "Українська",       countryCode: "ua" },
+  yi:  { name: "Yiddish",     nativeName: "ייִדיש",           countryCode: "il" },
 };
 
 /** Local flag SVG path (served from /public/flags/) */

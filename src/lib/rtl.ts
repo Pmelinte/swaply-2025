@@ -3,7 +3,7 @@
  * Provides utilities for detecting RTL languages and applying direction.
  */
 
-const RTL_LOCALES = new Set(["ar", "fa", "he", "ur"]);
+const RTL_LOCALES = new Set(["ar", "fa", "he", "ur", "yi"]);
 
 /**
  * Check if a locale requires RTL text direction.
