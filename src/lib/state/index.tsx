@@ -291,6 +291,18 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [demoMode, setDemoMode] = useState(false);
   const [demoItemCount, setDemoItemCount] = useState(0);
 
+  // Fire-and-forget audit log via /api/audit (server-side uses service role)
+  const sendAuditLog = useCallback((params: {
+    userId: string; action: string; entityType: string;
+    entityId?: string; oldData?: Record<string, unknown>; newData?: Record<string, unknown>;
+  }) => {
+    fetch("/api/audit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(params),
+    }).catch(() => { /* audit is best-effort */ });
+  }, []);
+
   const [language, setLanguage] = useState<LanguageCode>(() => {
     if (typeof window === "undefined") return "en";
     const saved = window.localStorage.getItem("swaply_language");
@@ -975,10 +987,12 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           .eq("id", swapId).select("*").maybeSingle();
         if (error) { setLastError(error.message); return; }
         if (data) { const mapped = mapSwapIntent(data); setSwaps((prev) => prev.map((s) => s.id === swapId ? mapped : s)); }
+        sendAuditLog({ userId: user?.id ?? "", action: "swap.status_changed", entityType: "swap", entityId: swapId, oldData: { status: existing?.status }, newData: { status } });
         return;
       }
 
       setSwaps((prev) => prev.map((s) => s.id === swapId ? { ...s, status, notifications: nextNotifications } : s));
+      sendAuditLog({ userId: user?.id ?? "", action: "swap.status_changed", entityType: "swap", entityId: swapId, oldData: { status: existing?.status }, newData: { status } });
 
       const statusMessages: Record<string, string> = {
         scheduled: "Schimbul a fost programat!",
@@ -998,7 +1012,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         }, ...prev]);
       }
     },
-    [dataSource, items, mapSwapIntent, supabase, swaps, user?.id],
+    [dataSource, items, mapSwapIntent, sendAuditLog, supabase, swaps, user?.id],
   );
 
   const addSwapFeedback = useCallback(
@@ -1145,9 +1159,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         if (params.reportedItemId) payload.reported_item_id = params.reportedItemId;
         const { error } = await supabase.from("abuse_reports").insert(payload);
         if (error) setLastError(error.message);
+        sendAuditLog({ userId: user.id, action: "user.reported", entityType: "user", entityId: params.reportedUserId, newData: { reason: params.reason, reportedItemId: params.reportedItemId } });
       }
     },
-    [dataSource, supabase, user?.id],
+    [dataSource, sendAuditLog, supabase, user?.id],
   );
 
   const blockUser = useCallback(async (targetUserId: string) => {
@@ -1158,7 +1173,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       if (error) setLastError(error.message);
     }
     setBlockedUsers((prev) => [...prev, targetUserId]);
-  }, [dataSource, supabase, user?.id]);
+    sendAuditLog({ userId: user?.id ?? "", action: "user.blocked", entityType: "user", entityId: targetUserId });
+  }, [dataSource, sendAuditLog, supabase, user?.id]);
 
   const unblockUser = useCallback(async (targetUserId: string) => {
     if (!user?.id || !targetUserId) return;

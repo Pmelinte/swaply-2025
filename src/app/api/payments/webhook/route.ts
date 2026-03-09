@@ -15,6 +15,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { constructWebhookEvent } from "@/lib/payments/stripe";
 import { getServiceSupabase } from "@/lib/supabase/service";
+import { logAction } from "@/lib/audit";
 
 // ── Helpers ──
 
@@ -124,6 +125,7 @@ export async function POST(request: NextRequest) {
             "completed",
             meta,
           );
+          await logAction({ userId: meta.userId, action: "payment.token_purchase", entityType: "payment", entityId: session.id, newData: { tokens, packageId: meta.packageId, amountCents: session.amount_total }, request });
           console.log(`[webhook] Token purchase: ${tokens} tokens → user ${meta.userId}`);
         }
 
@@ -144,6 +146,7 @@ export async function POST(request: NextRequest) {
             "completed",
             meta,
           );
+          await logAction({ userId: meta.userId, action: "subscription.activated", entityType: "subscription", entityId: session.subscription as string | undefined, newData: { planId: meta.planId, interval: meta.interval }, request });
           console.log(`[webhook] Subscription activated: ${meta.planId} → user ${meta.userId}`);
         }
         break;
@@ -228,6 +231,7 @@ export async function POST(request: NextRequest) {
             });
           }
           await recordTransaction(meta.userId, intent.id ?? "", type, intent.amount ?? 0, intent.currency ?? "eur", "completed", meta);
+          await logAction({ userId: meta.userId, action: `payment.${type}`, entityType: "item", entityId: meta.itemId, newData: { type, amountCents: intent.amount }, request });
           console.log(`[webhook] Boost activated: ${type} → item ${meta.itemId} → user ${meta.userId}`);
         }
 
@@ -242,6 +246,7 @@ export async function POST(request: NextRequest) {
             });
           }
           await recordTransaction(meta.userId, intent.id ?? "", "swap_insurance", intent.amount ?? 0, intent.currency ?? "eur", "completed", meta);
+          await logAction({ userId: meta.userId, action: "payment.swap_insurance", entityType: "swap", entityId: meta.swapId, newData: { cost: intent.amount }, request });
           console.log(`[webhook] Insurance activated: swap ${meta.swapId} → user ${meta.userId}`);
         }
         break;
@@ -265,6 +270,7 @@ export async function POST(request: NextRequest) {
             })
             .eq("user_id", meta.userId);
         }
+        await logAction({ userId: meta.userId ?? "system", action: "subscription.cancelled", entityType: "subscription", entityId: subscription.id, oldData: { planId: meta.planId }, newData: { planId: "free", status: "canceled" }, request });
         console.log(`[webhook] Subscription cancelled: user ${meta.userId}`);
         break;
       }
@@ -292,6 +298,7 @@ export async function POST(request: NextRequest) {
               })
               .eq("user_id", meta.userId);
           }
+          await logAction({ userId: meta.userId, action: "subscription.renewed", entityType: "subscription", newData: { planId: meta.planId, monthlyTokens }, request });
         }
         console.log(`[webhook] Invoice paid: user ${meta.userId}, plan ${meta.planId}`);
         break;
@@ -315,6 +322,7 @@ export async function POST(request: NextRequest) {
               .eq("user_id", meta.userId);
           }
         }
+        await logAction({ userId: meta.userId ?? "system", action: "subscription.payment_failed", entityType: "subscription", newData: { status: "past_due" }, request });
         console.log(`[webhook] Payment failed: user ${meta.userId}`);
         break;
       }
