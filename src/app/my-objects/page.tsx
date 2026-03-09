@@ -169,19 +169,10 @@ export default function MyObjectsPage() {
   const [sortBy, setSortBy] = useState<"newest" | "title" | "status">("newest");
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
 
-  if (!user) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <Link href="/login" className="rounded-lg bg-blue-600 px-6 py-3 text-white hover:bg-blue-700">
-          Login
-        </Link>
-      </div>
-    );
-  }
-
-  const myItems = items.filter((i) => i.ownerId === user.id);
+  const myItems = useMemo(() => user ? items.filter((i) => i.ownerId === user.id) : [], [user, items]);
 
   // Compute real analytics per item
+  const [now] = useState(() => Date.now());
   const itemAnalytics = useMemo(() => {
     const analytics: Record<string, { views: number; proposals: number; chats: number }> = {};
     for (const item of myItems) {
@@ -192,13 +183,13 @@ export default function MyObjectsPage() {
         (c) => c.messages.some((m) => m.content.includes(item.title)),
       ).length;
       // Simulate views based on item age (real analytics would come from server)
-      const ageMs = Date.now() - new Date(item.createdAt || Date.now()).getTime();
+      const ageMs = now - new Date(item.createdAt || now).getTime();
       const ageDays = Math.max(1, Math.floor(ageMs / 86400000));
       const views = Math.min(ageDays * 3 + proposals * 5, 999);
       analytics[item.id] = { views, proposals, chats };
     }
     return analytics;
-  }, [myItems, swaps, conversations]);
+  }, [myItems, swaps, conversations, now]);
 
   // Search and sort
   const filtered = useMemo(() => {
@@ -225,6 +216,16 @@ export default function MyObjectsPage() {
     }
     return result;
   }, [myItems, statusFilter, searchQuery, sortBy]);
+
+  if (!user) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <Link href="/login" className="rounded-lg bg-blue-600 px-6 py-3 text-white hover:bg-blue-700">
+          Login
+        </Link>
+      </div>
+    );
+  }
 
   const statusCounts: Record<StatusFilter, number> = {
     all: myItems.length,

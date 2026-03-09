@@ -21,6 +21,8 @@ export function OnboardingTutorial() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (!window.localStorage.getItem(ONBOARDING_KEY)) {
+      // Reading from localStorage to initialize UI state is a valid pattern
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setVisible(true);
     }
   }, []);

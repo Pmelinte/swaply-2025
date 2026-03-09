@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { StatsGrid } from "@/features/info/StatsGrid";
 import { useAppState } from "@/lib/state";
 import { NextStepRecommendation, Pill, SectionCard } from "@/components/ui";
-import { Check, ChevronDown, HelpCircle, Minus, Package, Search, MessageCircle, Repeat2, Leaf, Trophy, Flame, Crown, Quote, Users, Calculator } from "lucide-react";
+import { Check, ChevronDown, Minus, Package, Search, MessageCircle, Repeat2, Leaf, Trophy, Flame, Crown, Quote, Calculator } from "lucide-react";
 
 function FaqItem({ question, answer }: { question: string; answer: string }) {
   const [open, setOpen] = useState(false);

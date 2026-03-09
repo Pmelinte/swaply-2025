@@ -11,7 +11,7 @@ const BATCH_SIZE = 20;
 const FLUSH_INTERVAL_MS = 30_000; // 30 seconds
 const MAX_BUFFER_SIZE = 200;
 
-let buffer: AnalyticsEvent[] = [];
+const buffer: AnalyticsEvent[] = [];
 let flushTimer: ReturnType<typeof setInterval> | null = null;
 
 /**

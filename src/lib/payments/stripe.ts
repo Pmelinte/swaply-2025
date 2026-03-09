@@ -16,7 +16,7 @@
  */
 
 import Stripe from "stripe";
-import { TOKEN_PACKAGES, SUBSCRIPTION_PLANS, FEATURED_COST, INSURANCE_COST } from "../monetization";
+import { TOKEN_PACKAGES, SUBSCRIPTION_PLANS } from "../monetization";
 
 // ── Stripe Client ──
 

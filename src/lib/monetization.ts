@@ -33,7 +33,6 @@ import type {
   SwapMilestone,
   TokenLedgerEntry,
   TokenPackage,
-  TokenShopItem,
 } from "./types";
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

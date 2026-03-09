@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
   X, Plus, Download, Pause, Play, ShoppingCart, Trophy, Lock,
-  Home, Wifi, Car, Snowflake, Flame, WashingMachine, CookingPot, Waves,
-  Trees, Dog, Tv, Monitor, Trash2, Package,
+  Home,
+  Trash2, Package,
   Palette, Code, GraduationCap, Hammer, Briefcase,
 } from "lucide-react";
 import { useAppState } from "@/lib/state";
@@ -20,7 +20,7 @@ import LocationPicker from "@/components/LocationPicker";
 export default function ProfilePage() {
   const t = useTranslations("profile");
   const {
-    user, updateProfile, changeEmail, changePassword, deleteAccount, logout, loading, lastError,
+    user, updateProfile, changeEmail, changePassword, deleteAccount, loading, lastError,
     achievements, shopItems, purchaseShopItem, exportUserData, accountStatus, pauseAccount, resumeAccount, tokenLedger,
     updateHouseProfile, addServiceProfile, removeServiceProfile,
   } = useAppState();
@@ -29,7 +29,7 @@ export default function ProfilePage() {
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"profil" | "cont" | "reputatie" | "proprietati">("profil");
   const [newEmail, setNewEmail] = useState("");
-  const [currentPassword, setCurrentPassword] = useState("");
+  const [currentPassword] = useState(""); // eslint-disable-line @typescript-eslint/no-unused-vars
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [emailMessage, setEmailMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
@@ -120,9 +120,9 @@ export default function ProfilePage() {
 
   // Mock login history
   const loginHistory = [
-    { date: new Date().toISOString(), device: "Chrome / macOS", ip: "86.120.***.**" },
-    { date: new Date(Date.now() - 86400000).toISOString(), device: "Safari / iOS", ip: "86.120.***.**" },
-    { date: new Date(Date.now() - 172800000).toISOString(), device: "Chrome / Windows", ip: "79.115.***.**" },
+    { date: "2025-01-15T10:30:00.000Z", device: "Chrome / macOS", ip: "86.120.***.**" },
+    { date: "2025-01-14T10:30:00.000Z", device: "Safari / iOS", ip: "86.120.***.**" },
+    { date: "2025-01-13T10:30:00.000Z", device: "Chrome / Windows", ip: "79.115.***.**" },
   ];
 
   return (

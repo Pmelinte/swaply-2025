@@ -251,7 +251,6 @@ export function generateDemoData(itemCount: number = 10_000, seed: number = 42):
     return shuffled.slice(0, n);
   };
   const randInt = (min: number, max: number) => Math.floor(rand() * (max - min + 1)) + min;
-  const randId = () => `demo-${(rand() * 1e12).toString(36).slice(0, 10)}`;
 
   // Generate users (1 user per ~5 items on average)
   const userCount = Math.max(100, Math.floor(itemCount / 5));
@@ -414,7 +413,6 @@ export function generateDemoData(itemCount: number = 10_000, seed: number = 42):
   // Generate matches (1 match per ~3 items)
   const matchCount = Math.floor(itemCount / 3);
   const matches: MatchCandidate[] = [];
-  const tiers: MatchTier[] = ["weak", "possible", "good", "strong"];
 
   const reasonTemplates = [
     "Categorii reciproc compatibile",

@@ -10,7 +10,7 @@ import { useAppState } from "@/lib/state";
 import { useTranslations } from "next-intl";
 import { CheckCircle2, Circle, Shield, AlertTriangle } from "lucide-react";
 
-export function SafeMeetingChecklist({ swapId }: { swapId?: string }) {
+export function SafeMeetingChecklist({ }: { swapId?: string }) {
   const { safeMeetingChecklist } = useAppState();
   const t = useTranslations("safeMeeting");
   const [checked, setChecked] = useState<Set<string>>(new Set());

@@ -277,6 +277,7 @@ export function ChatPanel({
     if (active) {
       setReadCounts((prev) => ({ ...prev, [active.id]: active.messages.length }));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active?.id, active?.messages.length]);
 
   // Auto-scroll to latest message

@@ -332,7 +332,6 @@ async function main() {
 
   console.log(`Found ${profiles.length} users. Generating items...`);
 
-  const conditions: Array<"new" | "good" | "used"> = ["new", "good", "used"];
   const intents: Array<"explore" | "open" | "committed" | "high_commitment"> = [
     "explore", "open", "committed", "high_commitment",
   ];

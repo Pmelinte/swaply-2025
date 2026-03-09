@@ -12,13 +12,10 @@ import {
   TOKEN_PACKAGES,
   SUBSCRIPTION_PLANS,
   PROFILE_THEMES,
-  yearlyDiscount,
   pricePerToken,
   REFERRAL_REWARD_REFERRER,
   REFERRAL_REWARD_REFERRED,
   referralLink,
-  FEATURED_COST,
-  INSURANCE_COST,
   VERIFIED_BADGE_COST,
   BUSINESS_UPGRADE_COST,
 } from "@/lib/monetization";
@@ -47,11 +44,11 @@ export function MonetizationHub() {
   const {
     user, tokenBalance, tokenLedger, shopItems, purchaseShopItem,
     loginStreak, claimDailyReward, referralCode, referrals, sendReferralInvite,
-    giftTokens, purchaseFeaturedSlot, purchaseInsurance,
+    giftTokens,
     purchaseVerifiedBadge, purchaseTheme, activateTheme,
     purchaseBusinessUpgrade, subscription, activePromotions,
-    swapMilestones, loyaltyMilestones, tierBenefits,
-    activeTheme, isVerified, isBusiness, hasFeature,
+    swapMilestones, loyaltyMilestones,
+    activeTheme, isVerified, isBusiness,
   } = useAppState();
 
   const [tab, setTab] = useState<Tab>("pricing");
@@ -679,7 +676,6 @@ export function MonetizationHub() {
           </p>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {PROFILE_THEMES.map((theme) => {
-              const owned = shopItems.some((s) => s.id === theme.id) || false;
               const isActive = activeTheme === theme.id;
               return (
                 <div

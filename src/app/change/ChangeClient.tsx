@@ -12,7 +12,7 @@ import {
   Wifi, Car, Snowflake, Flame as Heating, WashingMachine, CookingPot, Waves,
   Trees, Dog, Tv, Monitor, Ban, Clock, Users, Camera, Star,
   Palette, Code, GraduationCap, Hammer, Briefcase, Timer, CheckCircle2, XCircle,
-  Wallet, ArrowRightLeft, FileText, AlertTriangle, Award,
+  ArrowRightLeft, AlertTriangle,
 } from "lucide-react";
 
 const VALID_TRANSITIONS: Record<SwapIntent["status"], SwapIntent["status"][]> = {
@@ -190,7 +190,7 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
   const [servicePortfolio, setServicePortfolio] = useState("");
   const [serviceMilestones, setServiceMilestones] = useState<ServiceMilestone[]>([]);
   const [serviceNewMilestone, setServiceNewMilestone] = useState("");
-  const [serviceTimeBank, setServiceTimeBank] = useState({ earned: 0, spent: 0 });
+  const [serviceTimeBank] = useState({ earned: 0, spent: 0 });
 
   // Cancel reason
   const [cancelReason, setCancelReason] = useState<CancelReason>("changed_mind");
@@ -212,6 +212,7 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
   const swap = swaps.find((s) => s.id === activeSwapId) ?? swaps[0];
 
   // Sync local logistics state when swap changes
+   
   useEffect(() => {
     if (swap) {
       setLogisticsType(swap.logistics.locationType);
@@ -219,6 +220,7 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
       setCourierTracking(swap.logistics.courierTracking ?? "");
       setLogisticsSaved(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [swap?.id, swap?.logistics.locationType, swap?.logistics.meetupPoint, swap?.logistics.courierTracking]);
   const requesterItem = swap ? items.find((i) => i.id === swap.requesterItemId) : null;
   const responderItem = swap ? items.find((i) => i.id === swap.responderItemId) : null;

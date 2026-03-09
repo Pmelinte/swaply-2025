@@ -5,7 +5,6 @@ import type {
   ChatMessage,
   MatchCandidate,
   SwapIntent,
-  Notification,
   TierBenefits,
   TokenLedgerEntry,
   AnalyticsEvent,

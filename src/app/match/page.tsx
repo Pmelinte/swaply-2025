@@ -1,13 +1,13 @@
 "use client";
 
-import { useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { MatchList } from "@/features/match/MatchList";
 import type { RejectReason } from "@/features/match/MatchList";
 import { LoggedOutGate } from "@/components/gated";
-import { CTAButton, NextStepRecommendation, Pill, SectionCard, StateShowcase } from "@/components/ui";
+import { CTAButton, NextStepRecommendation, SectionCard, StateShowcase } from "@/components/ui";
 import { MapEmbed } from "@/components/maps/MapEmbed";
 import type { MatchCandidate, MatchTier } from "@/lib/types";
 import { SlidersHorizontal, Sparkles, Hand, X } from "lucide-react";
@@ -31,19 +31,26 @@ export default function MatchPage() {
   const [minCondition, setMinCondition] = useState<"any" | "new" | "good" | "used">("any");
   const [excludedCategories, setExcludedCategories] = useState<Set<string>>(new Set());
   const [minScore, setMinScore] = useState(0);
-  const [rejectionLog, setRejectionLog] = useState<Array<{ matchId: string; reason?: RejectReason; timestamp: number }>>([]);
+  const [, setRejectionLog] = useState<Array<{ matchId: string; reason?: RejectReason; timestamp: number }>>([]);
   const [strictnessThreshold, setStrictnessThreshold] = useState(0);
   const [maxDistanceKm, setMaxDistanceKm] = useState(0);
   const [swapTypeFilter, setSwapTypeFilter] = useState<"all" | "local" | "courier" | "vacation" | "service">("all");
   const t = useTranslations("match");
 
+  // Initialize localMatches from rawMatches on first load
+  useEffect(() => {
+    if (!matchesInitialized && rawMatches.length > 0) {
+      // Syncing external data into local state on mount is a valid pattern
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setMatchesInitialized(true);
+       
+      setLocalMatches(rawMatches);
+    }
+  }, [matchesInitialized, rawMatches]);
+
   // Keep localMatches in sync with rawMatches (preserving AI enrichments)
   const matches = useMemo(() => {
-    if (!matchesInitialized && rawMatches.length > 0) {
-      setMatchesInitialized(true);
-      setLocalMatches(rawMatches);
-      return rawMatches;
-    }
+    if (!matchesInitialized) return rawMatches;
     // Merge: new raw matches get added, existing ones keep AI data
     const aiMap = new Map(localMatches.filter((m) => m.aiAnalyzed).map((m) => [m.id, m]));
     return rawMatches.map((rm) => aiMap.get(rm.id) ?? rm);
@@ -100,6 +107,61 @@ export default function MatchPage() {
     }
   }, [matches, trackEvent]);
 
+  // Apply dealbreakers to matches
+  const dealbrokenMatches = useMemo(() => {
+    const conditionRank = { new: 3, good: 2, used: 1 } as const;
+    return matches.filter((m) => {
+      // Condition filter
+      if (minCondition !== "any") {
+        const itemCond = m.itemRequested.condition;
+        if (conditionRank[itemCond] < conditionRank[minCondition as keyof typeof conditionRank]) return false;
+      }
+      // Category exclusion
+      if (excludedCategories.size > 0 && excludedCategories.has(m.itemRequested.category)) return false;
+      // Min score
+      if (minScore > 0 && m.compatibilityScore < minScore) return false;
+      // Strictness threshold
+      if (strictnessThreshold > 0 && m.compatibilityScore < strictnessThreshold) return false;
+      return true;
+    });
+  }, [matches, minCondition, excludedCategories, minScore, strictnessThreshold]);
+
+  const dealbrokenCount = matches.length - dealbrokenMatches.length;
+
+  // Top 3 AI-recommended matches (best compatibility, after dealbreakers)
+  const topPicks = useMemo(() => dealbrokenMatches.slice(0, 3), [dealbrokenMatches]);
+
+  // Map center: user city, or first match location, or fallback
+  const mapCenter = useMemo(() => {
+    if (user?.location?.city) {
+      return `${user.location.city}${user.location.country ? `, ${user.location.country}` : ""}`;
+    }
+    // Fallback: use the first match's item location
+    for (const m of matches) {
+      if (m.itemRequested.location) return m.itemRequested.location;
+      if (m.itemOffered.location) return m.itemOffered.location;
+    }
+    return null;
+  }, [user, matches]);
+
+  const tierCounts = useMemo(() => {
+    const counts = { all: dealbrokenMatches.length, weak: 0, possible: 0, good: 0, strong: 0 };
+    for (const m of dealbrokenMatches) counts[m.tier] = (counts[m.tier] ?? 0) + 1;
+    return counts;
+  }, [dealbrokenMatches]);
+
+  const filteredAndSorted = useMemo(() => {
+    let result = tierFilter === "all" ? dealbrokenMatches : dealbrokenMatches.filter((m) => m.tier === tierFilter);
+    if (manualMode) result = result.slice(0, 1);
+
+    if (sortBy === "category") {
+      result = [...result].sort((a, b) => a.itemRequested.category.localeCompare(b.itemRequested.category));
+    } else if (sortBy === "location") {
+      result = [...result].sort((a, b) => (a.itemRequested.location ?? "").localeCompare(b.itemRequested.location ?? ""));
+    }
+    return result;
+  }, [dealbrokenMatches, tierFilter, sortBy, manualMode]);
+
   if (!user) {
     return <LoggedOutGate returnTo="/match" />;
   }
@@ -135,61 +197,6 @@ export default function MatchPage() {
     setExcludedCategories(new Set());
     setMinScore(0);
   };
-
-  // Apply dealbreakers to matches
-  const conditionRank = { new: 3, good: 2, used: 1 } as const;
-  const dealbrokenMatches = useMemo(() => {
-    return matches.filter((m) => {
-      // Condition filter
-      if (minCondition !== "any") {
-        const itemCond = m.itemRequested.condition;
-        if (conditionRank[itemCond] < conditionRank[minCondition as keyof typeof conditionRank]) return false;
-      }
-      // Category exclusion
-      if (excludedCategories.size > 0 && excludedCategories.has(m.itemRequested.category)) return false;
-      // Min score
-      if (minScore > 0 && m.compatibilityScore < minScore) return false;
-      // Strictness threshold
-      if (strictnessThreshold > 0 && m.compatibilityScore < strictnessThreshold) return false;
-      return true;
-    });
-  }, [matches, minCondition, excludedCategories, minScore, strictnessThreshold]);
-
-  const dealbrokenCount = matches.length - dealbrokenMatches.length;
-
-  // Top 3 AI-recommended matches (best compatibility, after dealbreakers)
-  const topPicks = useMemo(() => dealbrokenMatches.slice(0, 3), [dealbrokenMatches]);
-
-  // Map center: user city, or first match location, or fallback
-  const mapCenter = useMemo(() => {
-    if (user.location?.city) {
-      return `${user.location.city}${user.location.country ? `, ${user.location.country}` : ""}`;
-    }
-    // Fallback: use the first match's item location
-    for (const m of matches) {
-      if (m.itemRequested.location) return m.itemRequested.location;
-      if (m.itemOffered.location) return m.itemOffered.location;
-    }
-    return null;
-  }, [user, matches]);
-
-  const tierCounts = useMemo(() => {
-    const counts = { all: dealbrokenMatches.length, weak: 0, possible: 0, good: 0, strong: 0 };
-    for (const m of dealbrokenMatches) counts[m.tier] = (counts[m.tier] ?? 0) + 1;
-    return counts;
-  }, [dealbrokenMatches]);
-
-  const filteredAndSorted = useMemo(() => {
-    let result = tierFilter === "all" ? dealbrokenMatches : dealbrokenMatches.filter((m) => m.tier === tierFilter);
-    if (manualMode) result = result.slice(0, 1);
-
-    if (sortBy === "category") {
-      result = [...result].sort((a, b) => a.itemRequested.category.localeCompare(b.itemRequested.category));
-    } else if (sortBy === "location") {
-      result = [...result].sort((a, b) => (a.itemRequested.location ?? "").localeCompare(b.itemRequested.location ?? ""));
-    }
-    return result;
-  }, [dealbrokenMatches, tierFilter, sortBy, manualMode]);
 
   const TIER_BUTTONS: { key: MatchTier | "all"; color: string }[] = [
     { key: "all", color: "bg-zinc-900 text-white" },

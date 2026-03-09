@@ -6,7 +6,7 @@
  *   STRIPE_SECRET_KEY=sk_test_... npx tsx scripts/stripe-setup.ts
  */
 
-const Stripe = require("stripe");
+import Stripe from "stripe";
 
 const key = process.env.STRIPE_SECRET_KEY;
 if (!key) {

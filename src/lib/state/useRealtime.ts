@@ -2,9 +2,9 @@
  * Real-time chat hook using Supabase Realtime.
  * Handles live message delivery, typing indicators, and read receipts.
  */
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { ChatMessage, Conversation, Notification } from "../types";
+import type { Conversation, Notification } from "../types";
 import { createMapMessage } from "./mappers";
 
 interface UseRealtimeParams {
@@ -22,7 +22,7 @@ export function useRealtime({
   setConversations,
   setNotifications,
 }: UseRealtimeParams) {
-  const mapMessage = useRef(createMapMessage()).current;
+  const mapMessage = useMemo(() => createMapMessage(), []);
   const typingTimeouts = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
   // Subscribe to new messages in user's conversations
@@ -172,8 +172,16 @@ export function useRealtime({
 
       // Auto-clear typing after 3 seconds
       if (isTyping) {
-        const timeout = setTimeout(() => {
-          void setTyping(conversationId, false);
+        const timeout = setTimeout(async () => {
+          if (!supabase || !userId) return;
+          await supabase
+            .from("typing_indicators")
+            .upsert({
+              conversation_id: conversationId,
+              user_id: userId,
+              is_typing: false,
+              updated_at: new Date().toISOString(),
+            });
         }, 3000);
         typingTimeouts.current.set(conversationId, timeout);
       }

@@ -152,7 +152,7 @@ export async function createEscrowTransaction(req: EscrowCreateRequest): Promise
   });
 
   if (!res.ok) {
-    const body = await res.text();
+    await res.text();
     return {
       id: "",
       escrowId: "",

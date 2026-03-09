@@ -30,7 +30,7 @@ export function ProductControl() {
   const t = useTranslations("productControl");
   const {
     featureFlags, setFeatureFlag, cronJobs, metricsFunnel, funnelRates,
-    trustScore, frictionLimits, items, conversations, swaps, user,
+    trustScore, frictionLimits, items, conversations, swaps,
   } = useAppState();
 
   const [tab, setTab] = useState<AdminTab>("flags");

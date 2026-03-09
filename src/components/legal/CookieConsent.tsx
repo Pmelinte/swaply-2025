@@ -13,7 +13,11 @@ export function CookieConsent() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     const consent = window.localStorage.getItem(CONSENT_KEY);
-    if (!consent) setVisible(true);
+    if (!consent) {
+      // Reading from localStorage to initialize UI state is a valid pattern
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setVisible(true);
+    }
   }, []);
 
   const accept = () => {
