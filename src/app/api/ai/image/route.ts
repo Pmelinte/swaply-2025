@@ -3,6 +3,7 @@ import { CATEGORIES_TAXONOMY } from "@/lib/categories";
 import { rateLimit } from "@/lib/rate-limit";
 import { aiImageSchema, validateBody } from "@/lib/validation";
 import { requestLogger, captureError } from "@/lib/logger";
+import { getFeatureFlag } from "@/lib/feature-flags";
 
 /** All category names (top-level + subcategories) for AI matching */
 const ALL_CATEGORY_NAMES = CATEGORIES_TAXONOMY.map((c) => c.name);
@@ -121,7 +122,7 @@ export async function POST(request: Request) {
 
     // 3. Fallback to HuggingFace
     const hfKey = (process.env.HUGGINGFACE_API_KEY || process.env.HUGGINGFACE_API_TOKEN || "").trim();
-    const hfEnabled = process.env.NEXT_PUBLIC_HF_ENABLED === "true";
+    const hfEnabled = await getFeatureFlag("ai_matching");
     if (hfKey && hfEnabled) {
       const result = await analyzeWithHuggingFace(dataUri, hfKey);
       if (result.ok) {

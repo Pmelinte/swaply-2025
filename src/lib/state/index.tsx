@@ -114,12 +114,11 @@ import type {
   MetricsFunnel,
 } from "../feature-flags";
 import {
-  DEFAULT_FLAGS,
   DEFAULT_CRON_JOBS,
-  isFlagEnabled,
   computeFunnelRates,
   computeMetricsFromState,
 } from "../feature-flags";
+import { useFeatureFlags } from "../use-feature-flags";
 import { buildUserContext } from "./matching";
 import type { MatchingUserContext, OwnerCoordinatesMap } from "./matching";
 
@@ -1577,18 +1576,22 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const safeMeetingChecklistVal = useMemo(() => SAFE_MEETING_CHECKLIST, []);
   const trustLevelConfigVal = useMemo(() => TRUST_LEVEL_CONFIG, []);
 
-  // ── Feature Flags (Product Control) ──
-  const [featureFlags, setFeatureFlags] = useState<FeatureFlag[]>(DEFAULT_FLAGS);
+  // ── Feature Flags (Product Control) — loaded from Supabase with 5-min cache ──
+  const {
+    flags: featureFlags,
+    isEnabled: isFeatureFlagEnabled,
+    setFlag: setFeatureFlagRaw,
+  } = useFeatureFlags(user?.id);
   const cronJobs = useMemo(() => DEFAULT_CRON_JOBS, []);
 
   const setFeatureFlag = useCallback((flagId: string, enabled: boolean) => {
-    setFeatureFlags((prev) => prev.map((f) => f.id === flagId ? { ...f, enabled } : f));
+    setFeatureFlagRaw(flagId, enabled);
     trackEvent("feature_flag_toggled", { flagId, enabled });
-  }, [trackEvent]);
+  }, [setFeatureFlagRaw, trackEvent]);
 
   const isFeatureEnabled = useCallback((flagId: string) => {
-    return isFlagEnabled(featureFlags, flagId, user?.id);
-  }, [featureFlags, user?.id]);
+    return isFeatureFlagEnabled(flagId);
+  }, [isFeatureFlagEnabled]);
 
   // ── Metrics Funnel ──
   const metricsFunnel = useMemo<MetricsFunnel>(() => {

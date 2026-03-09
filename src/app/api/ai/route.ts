@@ -3,6 +3,7 @@ import { CATEGORIES_TAXONOMY, CATEGORY_NAMES } from "@/lib/categories";
 import { rateLimit } from "@/lib/rate-limit";
 import { aiClassifySchema, validateBody } from "@/lib/validation";
 import { requestLogger } from "@/lib/logger";
+import { getFeatureFlag } from "@/lib/feature-flags";
 
 const CATEGORIES = CATEGORY_NAMES;
 
@@ -44,7 +45,7 @@ export async function POST(request: Request) {
   }
 
   const hfKey = process.env.HUGGINGFACE_API_KEY || process.env.HUGGINGFACE_API_TOKEN;
-  const hfEnabled = process.env.NEXT_PUBLIC_HF_ENABLED === "true";
+  const hfEnabled = await getFeatureFlag("ai_matching");
 
   // Fallback: keyword-based matching when HF is not available
   if (!hfKey || !hfEnabled) {

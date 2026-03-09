@@ -67,6 +67,9 @@ export function setLoggedIn(value: boolean) {
 }
 
 // ── Feature toggles ──
+// Note: aiEnabled now also respects the "ai_matching" feature flag from Supabase.
+// The env var NEXT_PUBLIC_HF_ENABLED is kept as a build-time fallback,
+// but runtime control is via the feature_flags table.
 
 export function computeFeatureToggles(): FeatureToggle {
   const aiEnabled =
