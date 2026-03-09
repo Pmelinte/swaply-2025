@@ -905,7 +905,10 @@
     "profileCompleteness": "Completare profil",
     "completeProfileHint": "Completează-ți profilul pentru a îmbunătăți calitatea potrivirilor",
     "loginHistory": "Istoric autentificări",
-    "loginHistoryDesc": "Sesiuni recente pe contul tău"
+    "loginHistoryDesc": "Sesiuni recente pe contul tău",
+    "courierDescription": "Coordonează AWB și tracking pentru expediere sigură.",
+    "exchangeDescription": "Participanții confirmă livrarea sau întâlnirea.",
+    "meetupDescription": "Selectează un punct public și confirmă disponibilitatea."
   },
   "feedback": {
     "title": "Feedback",
@@ -1054,7 +1057,9 @@
     "leaderboard3": "EcoSwapper",
     "leaderboardSwaps": "{count} schimburi",
     "streak": "zile consecutive",
-    "leaderboardNote": "Clasamentul se resetează lunar. Activitatea include schimburi completate, evaluări pozitive și engagement constant."
+    "leaderboardNote": "Clasamentul se resetează lunar. Activitatea include schimburi completate, evaluări pozitive și engagement constant.",
+    "badgeBenefits": "Beneficii badge",
+    "badgeBenefitsDescription": "Beneficii Premium și Platinum: prioritate în analiză, pin-uri pe hartă, indicator completare și altele."
   },
   "itemForm": {
     "conditionNew": "Nou",
@@ -1275,7 +1280,8 @@
     "status_scheduled": "Programat",
     "status_in_progress": "În desfășurare",
     "status_completed": "Finalizat",
-    "status_cancelled": "Anulat"
+    "status_cancelled": "Anulat",
+    "blockedMessage": "[Mesaj blocat de moderare]"
   },
   "statsGrid": {
     "globalExchanges": "Schimburi globale",

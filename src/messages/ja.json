@@ -905,7 +905,10 @@
     "disputed": "Disputed",
     "loginHistory": "Login history",
     "loginHistoryDesc": "Recent sessions on your account",
-    "profileCompleteness": "Profile completeness"
+    "profileCompleteness": "Profile completeness",
+    "courierDescription": "Coordinate AWB and tracking for secure shipping.",
+    "exchangeDescription": "Participants confirm delivery or meetup.",
+    "meetupDescription": "Select a public point and confirm availability."
   },
   "info": {
     "title": "Swaply統計",
@@ -1016,7 +1019,9 @@
     "leaderboard3": "EcoSwapper",
     "leaderboardSwaps": "{count} swaps",
     "streak": "day streak",
-    "leaderboardNote": "Leaderboard resets monthly. Activity includes completed swaps, positive ratings, and consistent engagement."
+    "leaderboardNote": "Leaderboard resets monthly. Activity includes completed swaps, positive ratings, and consistent engagement.",
+    "badgeBenefits": "Badge benefits",
+    "badgeBenefitsDescription": "Premium and Platinum benefits: priority in analysis, map pins, completeness indicator, and more."
   },
   "itemForm": {
     "conditionNew": "新品",
@@ -1237,7 +1242,8 @@
     "status_scheduled": "予定済み",
     "status_in_progress": "進行中",
     "status_completed": "完了",
-    "status_cancelled": "キャンセル済み"
+    "status_cancelled": "キャンセル済み",
+    "blockedMessage": "[Message blocked by moderation]"
   },
   "statsGrid": {
     "globalExchanges": "グローバル交換",

@@ -905,7 +905,10 @@
     "profileCompleteness": "Profile completeness",
     "completeProfileHint": "Complete your profile to improve match quality and build trust",
     "loginHistory": "Login history",
-    "loginHistoryDesc": "Recent sessions on your account"
+    "loginHistoryDesc": "Recent sessions on your account",
+    "courierDescription": "Coordinate AWB and tracking for secure shipping.",
+    "exchangeDescription": "Participants confirm delivery or meetup.",
+    "meetupDescription": "Select a public point and confirm availability."
   },
   "feedback": {
     "title": "Feedback",
@@ -1054,7 +1057,9 @@
     "leaderboard3": "EcoSwapper",
     "leaderboardSwaps": "{count} swaps",
     "streak": "day streak",
-    "leaderboardNote": "Leaderboard resets monthly. Activity includes completed swaps, positive ratings, and consistent engagement."
+    "leaderboardNote": "Leaderboard resets monthly. Activity includes completed swaps, positive ratings, and consistent engagement.",
+    "badgeBenefits": "Badge benefits",
+    "badgeBenefitsDescription": "Premium and Platinum benefits: priority in analysis, map pins, completeness indicator, and more."
   },
   "itemForm": {
     "conditionNew": "New",
@@ -1275,7 +1280,8 @@
     "status_scheduled": "Scheduled",
     "status_in_progress": "In progress",
     "status_completed": "Completed",
-    "status_cancelled": "Cancelled"
+    "status_cancelled": "Cancelled",
+    "blockedMessage": "[Message blocked by moderation]"
   },
   "statsGrid": {
     "globalExchanges": "Global exchanges",
