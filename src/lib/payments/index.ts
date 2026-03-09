@@ -18,6 +18,7 @@
  * 15. Business Accounts (via Stripe subscriptions)
  * 16. Ads (AdSense/Carbon/Sponsors)
  * 17. API Keys / White-Label
+ * 18. Country Service Registry (per-country courier, payment, currency config)
  */
 
 // Stripe
@@ -153,3 +154,28 @@ export {
   API_TIERS,
 } from "./api-keys";
 export type { ApiKey, ApiTier, ApiUsageEntry } from "./api-keys";
+
+// Country Service Registry
+export {
+  getCountryConfig,
+  getAllCountries,
+  getCountriesByRegion,
+  getEUCountries,
+  getConfiguredCouriers,
+  getAllCouriers,
+  getPaymentMethods,
+  getDefaultCurrency,
+  getVatRate,
+  isInternationalShipment,
+  getGroundTransportProviders,
+  getTrackingUrl,
+  isCountrySupported,
+  getShippingStrategy,
+} from "./country-registry";
+export type {
+  CountryCode,
+  CountryServiceConfig,
+  CourierProviderConfig,
+  PaymentMethod,
+  GroundTransportProvider as CountryGroundTransportProvider,
+} from "./country-registry";
