@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl";
 import {
   X, Plus, Download, Pause, Play, ShoppingCart, Trophy, Lock,
   Home,
-  Trash2, Package,
+  Trash2, Package, Shield, AlertTriangle,
   Palette, Code, GraduationCap, Hammer, Briefcase,
 } from "lucide-react";
 import { useAppState } from "@/lib/state";
@@ -16,6 +16,7 @@ import { Badge, NextStepRecommendation, Pill, SectionCard, StateShowcase } from 
 import type { UserProfile, LanguageCode, HouseProfile, ServiceProfile, HouseAmenity, HouseRule, PropertyType, HouseSwapMode, ServiceCategory, SkillLevel, ServiceDelivery } from "@/lib/types";
 import { languageNames, localeFlagUrl, type Locale, locales } from "@/i18n/config";
 import LocationPicker from "@/components/LocationPicker";
+import { getSupabaseClient } from "@/lib/supabase/client";
 
 export default function ProfilePage() {
   const t = useTranslations("profile");
@@ -36,6 +37,14 @@ export default function ProfilePage() {
   const [passwordMessage, setPasswordMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
+
+  // GDPR request state
+  const [gdprExportPending, setGdprExportPending] = useState<string | null>(null);
+  const [gdprDeletePending, setGdprDeletePending] = useState<string | null>(null);
+  const [gdprMessage, setGdprMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [gdprLoading, setGdprLoading] = useState(false);
+  const [showGdprDeleteConfirm, setShowGdprDeleteConfirm] = useState(false);
+  const [gdprDeleteConfirmText, setGdprDeleteConfirmText] = useState("");
   const profileTabs = [
     { key: "profil" as const, label: t("title") },
     { key: "proprietati" as const, label: t("propertiesAndServices") },
@@ -81,6 +90,24 @@ export default function ProfilePage() {
       return () => clearTimeout(timer);
     }
   }, [loading.profile]);
+
+  // Fetch pending GDPR requests on mount
+  useEffect(() => {
+    if (!user?.id) return;
+    const sb = getSupabaseClient();
+    if (!sb) return;
+    sb.from("gdpr_requests")
+      .select("type, status, requested_at")
+      .eq("user_id", user.id)
+      .eq("status", "pending")
+      .then(({ data }) => {
+        if (!data) return;
+        for (const row of data) {
+          if (row.type === "export") setGdprExportPending(row.requested_at);
+          if (row.type === "delete") setGdprDeletePending(row.requested_at);
+        }
+      });
+  }, [user?.id]);
 
   if (loading.profile && !loadingTimeout) {
     return (
@@ -1107,26 +1134,162 @@ export default function ProfilePage() {
             )}
           </SectionCard>
 
-          {/* GDPR Data Export */}
-          <SectionCard title={t("dataExport")} description={t("dataExportDesc")}>
-            <button
-              type="button"
-              onClick={async () => {
-                const json = await exportUserData();
-                const blob = new Blob([json], { type: "application/json" });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = `swaply-data-${new Date().toISOString().slice(0, 10)}.json`;
-                a.click();
-                URL.revokeObjectURL(url);
-              }}
-              className="inline-flex items-center gap-2 rounded-full bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
-            >
-              <Download className="h-4 w-4" />
-              {t("downloadMyData")}
-            </button>
+          {/* GDPR — Datele tale */}
+          <SectionCard title={t("gdprYourData")} description={t("gdprYourDataDesc")}>
+            <div className="space-y-3">
+              {/* Pending status messages */}
+              {gdprExportPending && (
+                <div className="rounded-lg bg-blue-50 p-3 text-sm text-blue-800 dark:bg-blue-900/30 dark:text-blue-200">
+                  <Shield className="mr-1 inline h-4 w-4" />
+                  {t("gdprExportPending", { date: new Date(gdprExportPending).toLocaleDateString("ro-RO") })}
+                </div>
+              )}
+              {gdprDeletePending && (
+                <div className="rounded-lg bg-red-50 p-3 text-sm text-red-800 dark:bg-red-900/30 dark:text-red-200">
+                  <AlertTriangle className="mr-1 inline h-4 w-4" />
+                  {t("gdprDeletePending", { date: new Date(gdprDeletePending).toLocaleDateString("ro-RO") })}
+                </div>
+              )}
+
+              {/* GDPR message feedback */}
+              {gdprMessage && (
+                <div className={`rounded-lg p-3 text-sm font-medium ${
+                  gdprMessage.type === "error"
+                    ? "bg-red-50 text-red-900 dark:bg-red-900/40 dark:text-red-100"
+                    : "bg-green-50 text-green-900 dark:bg-green-900/40 dark:text-green-100"
+                }`}>
+                  {gdprMessage.text}
+                </div>
+              )}
+
+              <div className="flex flex-wrap gap-2">
+                {/* Quick JSON export (client-side, existing) */}
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const json = await exportUserData();
+                    const blob = new Blob([json], { type: "application/json" });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `swaply-data-${new Date().toISOString().slice(0, 10)}.json`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                  }}
+                  className="inline-flex items-center gap-2 rounded-full bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+                >
+                  <Download className="h-4 w-4" />
+                  {t("downloadMyData")}
+                </button>
+
+                {/* Server-side GDPR export request */}
+                <button
+                  type="button"
+                  disabled={gdprLoading || !!gdprExportPending}
+                  onClick={async () => {
+                    if (!user?.id) return;
+                    setGdprLoading(true);
+                    setGdprMessage(null);
+                    try {
+                      const res = await fetch("/api/gdpr/export", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ userId: user.id }),
+                      });
+                      const data = await res.json();
+                      if (!res.ok) {
+                        setGdprMessage({ type: "error", text: data.error ?? "Eroare" });
+                      } else {
+                        setGdprMessage({ type: "success", text: t("gdprExportSuccess") });
+                        setGdprExportPending(new Date().toISOString());
+                      }
+                    } catch {
+                      setGdprMessage({ type: "error", text: "Eroare de rețea" });
+                    } finally {
+                      setGdprLoading(false);
+                    }
+                  }}
+                  className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-40"
+                >
+                  <Shield className="h-4 w-4" />
+                  {t("gdprRequestExport")}
+                </button>
+
+                {/* GDPR delete request (opens confirmation modal) */}
+                <button
+                  type="button"
+                  disabled={gdprLoading || !!gdprDeletePending}
+                  onClick={() => setShowGdprDeleteConfirm(true)}
+                  className="inline-flex items-center gap-2 rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-40"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  {t("gdprRequestDelete")}
+                </button>
+              </div>
+            </div>
           </SectionCard>
+
+          {/* GDPR Delete Confirmation Modal */}
+          {showGdprDeleteConfirm && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+              <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-zinc-900">
+                <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
+                  {t("gdprDeleteConfirmTitle")}
+                </h3>
+                <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+                  {t("gdprDeleteConfirmMessage")}
+                </p>
+                <input
+                  type="text"
+                  value={gdprDeleteConfirmText}
+                  onChange={(e) => setGdprDeleteConfirmText(e.target.value)}
+                  placeholder="DELETE"
+                  className="mt-3 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-50"
+                />
+                <div className="mt-4 flex gap-2 justify-end">
+                  <button
+                    type="button"
+                    onClick={() => { setShowGdprDeleteConfirm(false); setGdprDeleteConfirmText(""); }}
+                    className="rounded-full bg-zinc-200 px-4 py-2 text-sm font-semibold text-zinc-800 hover:bg-zinc-300 dark:bg-zinc-700 dark:text-zinc-200"
+                  >
+                    {t("gdprDeleteCancel")}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={gdprDeleteConfirmText !== "DELETE" || gdprLoading}
+                    onClick={async () => {
+                      if (!user?.id) return;
+                      setGdprLoading(true);
+                      setGdprMessage(null);
+                      try {
+                        const res = await fetch("/api/gdpr/delete", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ userId: user.id }),
+                        });
+                        const data = await res.json();
+                        if (!res.ok) {
+                          setGdprMessage({ type: "error", text: data.error ?? "Eroare" });
+                        } else {
+                          setGdprMessage({ type: "success", text: t("gdprDeleteSuccess") });
+                          setGdprDeletePending(new Date().toISOString());
+                        }
+                      } catch {
+                        setGdprMessage({ type: "error", text: "Eroare de rețea" });
+                      } finally {
+                        setGdprLoading(false);
+                        setShowGdprDeleteConfirm(false);
+                        setGdprDeleteConfirmText("");
+                      }
+                    }}
+                    className="rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-40"
+                  >
+                    {t("gdprDeleteConfirmButton")}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </>
       )}
 
