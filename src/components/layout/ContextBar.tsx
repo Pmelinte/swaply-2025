@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
-import { Plus, Filter, MessageCircle, ArrowRight, MessageSquare, Coins } from "lucide-react";
+import { Plus, Filter, MessageCircle, ArrowRight, MessageSquare, Coins, Plug } from "lucide-react";
 
 export function ContextBar() {
   const pathname = usePathname();
@@ -143,6 +143,23 @@ export function ContextBar() {
         </Link>
       </div>
     );
+  } else if (pathname === "/integrations" || pathname.startsWith("/integrations")) {
+    content = (
+      <div className="flex items-center gap-3">
+        <span className="inline-flex items-center gap-1">
+          <Plug className="h-3 w-3" />
+          Integratii & API-uri
+        </span>
+        <span className="text-zinc-300 dark:text-zinc-600">|</span>
+        <Link
+          href="/monetization"
+          className="inline-flex items-center gap-1 font-semibold text-amber-600 hover:text-amber-800 dark:text-amber-400"
+        >
+          <Coins className="h-3 w-3" />
+          Monetizare
+        </Link>
+      </div>
+    );
   } else if (pathname === "/profile" || pathname.startsWith("/profile")) {
     content = (
       <div className="flex items-center gap-3">
@@ -156,6 +173,14 @@ export function ContextBar() {
         >
           <Coins className="h-3 w-3" />
           Monetizare
+        </Link>
+        <span className="text-zinc-300 dark:text-zinc-600">|</span>
+        <Link
+          href="/integrations"
+          className="inline-flex items-center gap-1 font-semibold text-purple-600 hover:text-purple-800 dark:text-purple-400"
+        >
+          <Plug className="h-3 w-3" />
+          Integratii
         </Link>
         <span className="text-zinc-300 dark:text-zinc-600">|</span>
         <Link
