@@ -7,6 +7,7 @@ export function LegalFooter() {
   const t = useTranslations("legal");
 
   const links = [
+    { href: "/blog", label: "Blog" },
     { href: "/terms", label: t("termsTitle") },
     { href: "/privacy", label: t("privacyTitle") },
     { href: "/cookies", label: t("cookiesTitle") },
