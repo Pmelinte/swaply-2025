@@ -17,11 +17,12 @@ export function SwapTimeline({
   const t = useTranslations("swapTimeline");
 
   const statusLabels: Record<SwapIntent["status"], string> = {
-    proposed: t("proposed"),
-    scheduled: t("scheduled"),
-    in_progress: t("inProgress"),
+    pending: t("proposed"),
+    accepted: t("scheduled"),
+    rejected: t("cancelled"),
     completed: t("completed"),
     cancelled: t("cancelled"),
+    expired: t("cancelled"),
     disputed: t("disputed"),
   };
 
@@ -37,12 +38,12 @@ export function SwapTimeline({
         swap.logistics.locationType === "courier"
           ? t("courierDescription")
           : t("meetupDescription"),
-      done: ["scheduled", "in_progress", "completed"].includes(swap.status),
+      done: ["accepted", "completed"].includes(swap.status),
     },
     {
       title: t("exchangeInProgress"),
       description: t("exchangeDescription"),
-      done: ["in_progress", "completed"].includes(swap.status),
+      done: ["accepted", "completed"].includes(swap.status),
     },
     {
       title: t("feedbackAndReputation"),

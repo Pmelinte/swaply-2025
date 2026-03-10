@@ -16,11 +16,12 @@ import {
 } from "lucide-react";
 
 const VALID_TRANSITIONS: Record<SwapIntent["status"], SwapIntent["status"][]> = {
-  proposed: ["scheduled", "cancelled"],
-  scheduled: ["in_progress", "cancelled"],
-  in_progress: ["completed", "cancelled", "disputed"],
+  pending: ["accepted", "rejected", "cancelled"],
+  accepted: ["completed", "cancelled", "disputed"],
+  rejected: [],
   completed: [],
   cancelled: [],
+  expired: [],
   disputed: ["cancelled"],
 };
 
@@ -91,11 +92,12 @@ function ConfirmDialog({
 }
 
 const STATUS_LABELS: Record<SwapIntent["status"], string> = {
-  proposed: "proposed",
-  scheduled: "scheduled",
-  in_progress: "inProgress",
+  pending: "proposed",
+  accepted: "accepted",
+  rejected: "cancelled",
   completed: "completed",
   cancelled: "cancelled",
+  expired: "cancelled",
   disputed: "disputed",
 };
 
@@ -1174,7 +1176,7 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
           )}
 
           {/* QR Code Confirmation */}
-          {swap.status === "in_progress" && (
+          {swap.status === "accepted" && (
             <SectionCard title={t("qrConfirmation")} description={t("qrConfirmationDesc")}>
               <div className="flex flex-col items-center gap-4 sm:flex-row">
                 <div className="flex h-40 w-40 items-center justify-center rounded-2xl border-2 border-dashed border-blue-300 bg-blue-50 dark:border-blue-700 dark:bg-blue-950/30">
@@ -1210,7 +1212,7 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
           )}
 
           {/* Delivery Confirmation + Dispute */}
-          {(swap.status === "in_progress" || swap.status === "disputed") && (
+          {(swap.status === "accepted" || swap.status === "disputed") && (
             <SectionCard title="Confirmare predare / primire" description="Ambele părți trebuie să confirme că schimbul a avut loc.">
               {/* Confirmation status indicators */}
               <div className="grid gap-3 sm:grid-cols-2">
@@ -1228,7 +1230,7 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
                       </p>
                     </div>
                   </div>
-                  {isRequester && !swap.requesterConfirmed && swap.status === "in_progress" && (
+                  {isRequester && !swap.requesterConfirmed && swap.status === "accepted" && (
                     <button
                       type="button"
                       onClick={() => void confirmDelivery(swap.id, "requester")}
@@ -1253,7 +1255,7 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
                       </p>
                     </div>
                   </div>
-                  {!isRequester && !swap.responderConfirmed && swap.status === "in_progress" && (
+                  {!isRequester && !swap.responderConfirmed && swap.status === "accepted" && (
                     <button
                       type="button"
                       onClick={() => void confirmDelivery(swap.id, "responder")}
@@ -1295,7 +1297,7 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
               )}
 
               {/* File dispute button/form */}
-              {swap.status === "in_progress" && !swap.dispute && (
+              {swap.status === "accepted" && !swap.dispute && (
                 <div className="mt-4">
                   {!showDisputeForm ? (
                     <button
@@ -1419,20 +1421,20 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
                 : ` — ${t("noMoreTransitions")}`}
             </div>
             <div className="flex flex-wrap gap-2 text-sm font-semibold">
-              {VALID_TRANSITIONS[swap.status].includes("scheduled") ? (
+              {VALID_TRANSITIONS[swap.status].includes("accepted") ? (
                 <button
                   type="button"
                   className="rounded-full bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-                  onClick={() => handleStatusChange("scheduled", t("schedule"), "bg-blue-600 hover:bg-blue-700")}
+                  onClick={() => handleStatusChange("accepted", t("schedule"), "bg-blue-600 hover:bg-blue-700")}
                 >
                   {t("schedule")}
                 </button>
               ) : null}
-              {VALID_TRANSITIONS[swap.status].includes("in_progress") ? (
+              {VALID_TRANSITIONS[swap.status].includes("accepted") ? (
                 <button
                   type="button"
                   className="rounded-full bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-                  onClick={() => handleStatusChange("in_progress", t("markInProgress"), "bg-blue-600 hover:bg-blue-700")}
+                  onClick={() => handleStatusChange("accepted", t("markInProgress"), "bg-blue-600 hover:bg-blue-700")}
                 >
                   {t("markInProgress")}
                 </button>

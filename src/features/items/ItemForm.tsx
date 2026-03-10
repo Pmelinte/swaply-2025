@@ -84,7 +84,7 @@ export function ItemForm({
   const STATUSES = useMemo(() => [
     { value: "active", label: t("statusActive") },
     { value: "reserved", label: t("statusReserved") },
-    { value: "swapped", label: t("statusSwapped") },
+    { value: "traded", label: t("statusSwapped") },
   ] as const, [t]);
 
   const itemSchema = useMemo(() => z.object({

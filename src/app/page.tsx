@@ -40,7 +40,7 @@ export default function HomePage() {
   const activeItems = myItems.filter((i) => i.status === "active");
   const unreadNotifs = notifications.filter((n) => !n.read).length;
   const pendingSwaps = swaps.filter(
-    (s) => s.status === "proposed" || s.status === "scheduled" || s.status === "in_progress",
+    (s) => s.status === "pending" || s.status === "accepted",
   ).length;
 
   return (

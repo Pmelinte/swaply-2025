@@ -74,10 +74,10 @@ export interface Item {
   ownerId: string;
   title: string;
   category: string;
-  condition: "new" | "good" | "used";
+  condition: "new" | "good" | "used" | "used_good";
   description: string;
   wishlist: string;
-  status: "active" | "paused" | "reserved" | "swapped" | "archived";
+  status: "active" | "paused" | "reserved" | "traded" | "archived";
   isDemo?: boolean;
   isActive: boolean;
   createdAt: string;
@@ -129,8 +129,10 @@ export interface ChatMessage {
   id: string;
   conversationId: string;
   senderId: string;
+  recipientId?: string;
   content: string;
   createdAt: string;
+  isRead?: boolean;
   translated?: boolean;
   attachments?: Array<{ id: string; name: string; safe: boolean }>;
   moderated?: boolean;
@@ -165,7 +167,7 @@ export interface SwapIntent {
   requesterBundleIds?: string[];
   /** Cross-swap: additional item IDs from responder side */
   responderBundleIds?: string[];
-  status: "proposed" | "scheduled" | "in_progress" | "completed" | "cancelled" | "disputed";
+  status: "pending" | "accepted" | "rejected" | "cancelled" | "completed" | "expired" | "disputed";
   logistics: {
     locationType: "public_spot" | "courier" | "pickup";
     meetupPoint?: string;
@@ -206,6 +208,7 @@ export interface Notification {
   id: string;
   userId: string;
   type: string;
+  title?: string;
   message: string;
   read: boolean;
   priority: "info" | "warning" | "success";
