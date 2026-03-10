@@ -1602,5 +1602,13 @@
     "recommended": "Recommended",
     "required": "Required",
     "title": "Safe Meeting Checklist"
+  },
+  "guest": {
+    "bannerText": "สมัครฟรีเพื่อเสนอการแลกเปลี่ยนและแชทกับเจ้าของ",
+    "bannerCta": "สมัคร",
+    "modalTitle": "สร้างบัญชีฟรี",
+    "modalDescription": "สร้างบัญชีฟรีเพื่อเสนอการแลกเปลี่ยน ส่งข้อความ และเริ่มแลกเปลี่ยน",
+    "modalCta": "สร้างบัญชีฟรี",
+    "modalDismiss": "ไว้ทีหลัง"
   }
 }

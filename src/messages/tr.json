@@ -1615,5 +1615,13 @@
     "recommended": "Önerilen",
     "required": "Zorunlu",
     "title": "Güvenli Buluşma Kontrol Listesi"
+  },
+  "guest": {
+    "bannerText": "Takas önermek ve sahiplerle sohbet etmek için ücretsiz kaydolun",
+    "bannerCta": "Kaydol",
+    "modalTitle": "Ücretsiz hesap oluştur",
+    "modalDescription": "Takas önermek, mesaj göndermek ve takas yapmaya başlamak için ücretsiz hesap oluşturun.",
+    "modalCta": "Ücretsiz hesap oluştur",
+    "modalDismiss": "Belki daha sonra"
   }
 }

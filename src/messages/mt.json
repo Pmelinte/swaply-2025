@@ -1602,5 +1602,13 @@
     "recommended": "Recommended",
     "required": "Required",
     "title": "Safe Meeting Checklist"
+  },
+  "guest": {
+    "bannerText": "Irreġistra b'xejn biex tipproponi skambji u tiċċettja mas-sidien",
+    "bannerCta": "Irreġistra",
+    "modalTitle": "Oħloq kont b'xejn",
+    "modalDescription": "Oħloq kont b'xejn biex tipproponi skambji, tibgħat messaġġi, u tibda tiskambja.",
+    "modalCta": "Oħloq kont b'xejn",
+    "modalDismiss": "Forsi aktar tard"
   }
 }

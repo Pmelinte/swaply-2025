@@ -1602,5 +1602,13 @@
     "recommended": "Recommended",
     "required": "Required",
     "title": "Safe Meeting Checklist"
+  },
+  "guest": {
+    "bannerText": "免费注册以提议交换并与所有者聊天",
+    "bannerCta": "注册",
+    "modalTitle": "创建免费帐户",
+    "modalDescription": "创建免费帐户以提议交换、发送消息并开始交换。",
+    "modalCta": "创建免费帐户",
+    "modalDismiss": "以后再说"
   }
 }

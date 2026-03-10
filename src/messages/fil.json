@@ -1602,5 +1602,13 @@
     "recommended": "Recommended",
     "required": "Required",
     "title": "Safe Meeting Checklist"
+  },
+  "guest": {
+    "bannerText": "Mag-sign up nang libre para magmungkahi ng mga palitan at makipag-chat sa mga may-ari",
+    "bannerCta": "Mag-sign up",
+    "modalTitle": "Gumawa ng libreng account",
+    "modalDescription": "Gumawa ng libreng account para magmungkahi ng mga palitan, magpadala ng mga mensahe, at magsimulang magpalitan.",
+    "modalCta": "Gumawa ng libreng account",
+    "modalDismiss": "Siguro mamaya"
   }
 }

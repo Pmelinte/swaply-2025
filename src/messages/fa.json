@@ -1602,5 +1602,13 @@
     "recommended": "Recommended",
     "required": "Required",
     "title": "Safe Meeting Checklist"
+  },
+  "guest": {
+    "bannerText": "رایگان ثبت‌نام کنید تا مبادله پیشنهاد دهید و با مالکان چت کنید",
+    "bannerCta": "ثبت‌نام",
+    "modalTitle": "یک حساب رایگان بسازید",
+    "modalDescription": "یک حساب رایگان بسازید تا مبادله پیشنهاد دهید، پیام بفرستید و شروع به مبادله کنید.",
+    "modalCta": "ساخت حساب رایگان",
+    "modalDismiss": "شاید بعداً"
   }
 }

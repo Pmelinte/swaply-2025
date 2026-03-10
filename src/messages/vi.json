@@ -1602,5 +1602,13 @@
     "recommended": "Recommended",
     "required": "Required",
     "title": "Safe Meeting Checklist"
+  },
+  "guest": {
+    "bannerText": "Đăng ký miễn phí để đề xuất trao đổi và trò chuyện với chủ sở hữu",
+    "bannerCta": "Đăng ký",
+    "modalTitle": "Tạo tài khoản miễn phí",
+    "modalDescription": "Tạo tài khoản miễn phí để đề xuất trao đổi, gửi tin nhắn và bắt đầu trao đổi.",
+    "modalCta": "Tạo tài khoản miễn phí",
+    "modalDismiss": "Có lẽ sau"
   }
 }

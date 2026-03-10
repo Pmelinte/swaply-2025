@@ -1602,5 +1602,13 @@
     "recommended": "Recommended",
     "required": "Required",
     "title": "Safe Meeting Checklist"
+  },
+  "guest": {
+    "bannerText": "Reģistrējieties bez maksas, lai piedāvātu apmaiņas un tērzētu ar īpašniekiem",
+    "bannerCta": "Reģistrēties",
+    "modalTitle": "Izveidojiet bezmaksas kontu",
+    "modalDescription": "Izveidojiet bezmaksas kontu, lai piedāvātu apmaiņas, sūtītu ziņojumus un sāktu apmainīties.",
+    "modalCta": "Izveidot bezmaksas kontu",
+    "modalDismiss": "Varbūt vēlāk"
   }
 }

@@ -1602,5 +1602,13 @@
     "recommended": "Recommended",
     "required": "Required",
     "title": "Safe Meeting Checklist"
+  },
+  "guest": {
+    "bannerText": "Registrirajte se brezplačno za predlaganje zamenjav in klepet z lastniki",
+    "bannerCta": "Registracija",
+    "modalTitle": "Ustvarite brezplačen račun",
+    "modalDescription": "Ustvarite brezplačen račun za predlaganje zamenjav, pošiljanje sporočil in začetek menjave.",
+    "modalCta": "Ustvari brezplačen račun",
+    "modalDismiss": "Morda kasneje"
   }
 }

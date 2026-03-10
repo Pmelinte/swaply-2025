@@ -1602,5 +1602,13 @@
     "recommended": "Recommended",
     "required": "Required",
     "title": "Safe Meeting Checklist"
+  },
+  "guest": {
+    "bannerText": "Daftar gratis untuk mengusulkan pertukaran dan mengobrol dengan pemilik",
+    "bannerCta": "Daftar",
+    "modalTitle": "Buat akun gratis",
+    "modalDescription": "Buat akun gratis untuk mengusulkan pertukaran, mengirim pesan, dan mulai bertukar.",
+    "modalCta": "Buat akun gratis",
+    "modalDismiss": "Mungkin nanti"
   }
 }

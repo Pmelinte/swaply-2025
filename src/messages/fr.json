@@ -1602,5 +1602,13 @@
     "recommended": "Recommended",
     "required": "Required",
     "title": "Safe Meeting Checklist"
+  },
+  "guest": {
+    "bannerText": "Inscrivez-vous gratuitement pour proposer des échanges et discuter avec les propriétaires",
+    "bannerCta": "S'inscrire",
+    "modalTitle": "Créez un compte gratuit",
+    "modalDescription": "Créez un compte gratuit pour proposer des échanges, envoyer des messages et commencer à échanger.",
+    "modalCta": "Créer un compte gratuit",
+    "modalDismiss": "Peut-être plus tard"
   }
 }

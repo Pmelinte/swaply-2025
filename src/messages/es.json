@@ -1615,5 +1615,13 @@
     "recommended": "Recomendado",
     "required": "Obligatorio",
     "title": "Lista de verificación de encuentro seguro"
+  },
+  "guest": {
+    "bannerText": "Regístrate gratis para proponer intercambios y chatear con los propietarios",
+    "bannerCta": "Registrarse",
+    "modalTitle": "Crea una cuenta gratuita",
+    "modalDescription": "Crea una cuenta gratuita para proponer intercambios, enviar mensajes y empezar a intercambiar.",
+    "modalCta": "Crear cuenta gratuita",
+    "modalDismiss": "Quizás más tarde"
   }
 }

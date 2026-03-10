@@ -1828,5 +1828,13 @@
     "leaderboardNote": "Topplistan återställs varje månad. Aktivitet inkluderar genomförda byten, positiva betyg och konsekvent engagemang.",
     "badgeBenefits": "Märkesfördelar",
     "badgeBenefitsDescription": "Premium- och Platinum-fördelar: prioritet i analysen, kartnålar, fullständighetsindikator och mer."
+  },
+  "guest": {
+    "bannerText": "Registrera dig gratis för att föreslå byten och chatta med ägare",
+    "bannerCta": "Registrera dig",
+    "modalTitle": "Skapa ett gratis konto",
+    "modalDescription": "Skapa ett gratis konto för att föreslå byten, skicka meddelanden och börja byta.",
+    "modalCta": "Skapa gratis konto",
+    "modalDismiss": "Kanske senare"
   }
 }
