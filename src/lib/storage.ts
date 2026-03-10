@@ -93,10 +93,7 @@ async function uploadToSupabase(
     });
 
   if (uploadError) {
-    if (uploadError.message.includes("not found") || uploadError.message.includes("Bucket")) {
-      console.warn("Supabase Storage bucket not configured, using local fallback:", uploadError.message);
-      return { url: URL.createObjectURL(file), error: null };
-    }
+    console.error("Supabase Storage upload error:", uploadError.message);
     return { url: null, error: uploadError.message };
   }
 
