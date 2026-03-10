@@ -56,7 +56,36 @@ export default function ProfilePage() {
   }
 
   if (!user || !draft) {
-    return <LoggedOutGate returnTo="/profile" />;
+    return (
+      <div className="space-y-6">
+        <SectionCard title="Profilul tău Swaply" description="Construiește-ți reputația și gestionează-ți contul">
+          <div className="space-y-4 text-sm text-zinc-600 dark:text-zinc-300">
+            <p>
+              Profilul tău este cartea ta de vizită în comunitatea Swaply. Cu cât este mai complet, cu atât mai multă încredere inspiră celorlalți utilizatori.
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="rounded-xl bg-zinc-50 p-4 dark:bg-zinc-900">
+                <h4 className="font-semibold text-zinc-900 dark:text-zinc-50">Verificare identitate</h4>
+                <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Verifică-ți email-ul, telefonul și identitatea pentru badge-ul de utilizator verificat.</p>
+              </div>
+              <div className="rounded-xl bg-zinc-50 p-4 dark:bg-zinc-900">
+                <h4 className="font-semibold text-zinc-900 dark:text-zinc-50">Sistem de reputație</h4>
+                <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Primește recenzii după fiecare schimb și urcă în clasamentul comunității.</p>
+              </div>
+              <div className="rounded-xl bg-zinc-50 p-4 dark:bg-zinc-900">
+                <h4 className="font-semibold text-zinc-900 dark:text-zinc-50">Realizări și badge-uri</h4>
+                <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Deblochează realizări pe măsură ce faci schimburi și contribui la comunitate.</p>
+              </div>
+              <div className="rounded-xl bg-zinc-50 p-4 dark:bg-zinc-900">
+                <h4 className="font-semibold text-zinc-900 dark:text-zinc-50">Control GDPR complet</h4>
+                <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Exportă sau șterge datele tale oricând, conform reglementărilor europene.</p>
+              </div>
+            </div>
+          </div>
+        </SectionCard>
+        <LoggedOutGate returnTo="/profile" />
+      </div>
+    );
   }
 
   const update = (partial: Partial<UserProfile>) => {
