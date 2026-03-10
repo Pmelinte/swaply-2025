@@ -559,7 +559,6 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         const { data: publicItems } = await supabase
           .from("items")
           .select("*")
-          .is("deleted_at", null)
           .eq("is_active", true)
           .eq("status", "active")
           .order("created_at", { ascending: false })
@@ -584,7 +583,6 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           const { data: publicItems } = await supabase
             .from("items")
             .select("*")
-            .is("deleted_at", null)
             .eq("is_active", true)
             .eq("status", "active")
             .order("created_at", { ascending: false })
@@ -1043,10 +1041,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       sendAuditLog({ userId: user?.id ?? "", action: "swap.status_changed", entityType: "swap", entityId: swapId, oldData: { status: existing?.status }, newData: { status } });
 
       const statusMessages: Record<string, string> = {
-        scheduled: "Schimbul a fost programat!",
-        in_progress: "Schimbul este în desfășurare.",
+        accepted: "Schimbul a fost acceptat!",
+        rejected: "Schimbul a fost refuzat.",
         completed: "Schimbul a fost finalizat cu succes!",
         cancelled: "Schimbul a fost anulat.",
+        expired: "Schimbul a expirat.",
       };
       if (statusMessages[status]) {
         const reqItem = items.find((i) => i.id === existing?.requesterItemId);
@@ -1200,12 +1199,13 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       if (!user?.id) return;
       setLastError(null);
       if (dataSource === "supabase" && supabase) {
+        const entityType = params.reportedItemId ? "item" : "user";
+        const entityId = params.reportedItemId ?? params.reportedUserId;
         const payload: Record<string, unknown> = {
-          reporter_id: user.id, reported_user_id: params.reportedUserId,
+          reporter_id: user.id, entity_type: entityType, entity_id: entityId,
           reason: params.reason, description: params.description ?? "", status: "pending",
         };
-        if (params.reportedItemId) payload.reported_item_id = params.reportedItemId;
-        const { error } = await supabase.from("abuse_reports").insert(payload);
+        const { error } = await supabase.from("reports").insert(payload);
         if (error) setLastError(error.message);
         sendAuditLog({ userId: user.id, action: "user.reported", entityType: "user", entityId: params.reportedUserId, newData: { reason: params.reason, reportedItemId: params.reportedItemId } });
       }
