@@ -135,6 +135,7 @@
     "avatarUrl": "아바타 (URL)",
     "avatarPlaceholder": "https://example.com/avatar.jpg",
     "avatarUploadNote": "실제 업로드에는 Cloudinary/Supabase Storage 연동이 필요합니다.",
+    "uploadAvatar": "Upload image",
     "displayName": "표시 이름",
     "firstName": "이름 (선택 사항)",
     "bio": "짧은 소개 (자기소개)",

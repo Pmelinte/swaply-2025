@@ -135,6 +135,7 @@
     "avatarUrl": "Avatar (URL)",
     "avatarPlaceholder": "https://example.com/avatar.jpg",
     "avatarUploadNote": "Skutočné nahrávanie vyžaduje integráciu Cloudinary/Supabase Storage.",
+    "uploadAvatar": "Upload image",
     "displayName": "Zobrazované meno",
     "firstName": "Krstné meno (voliteľné)",
     "bio": "Krátky popis (životopis)",

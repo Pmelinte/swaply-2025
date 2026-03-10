@@ -135,6 +135,7 @@
     "avatarUrl": "Awatar (URL)",
     "avatarPlaceholder": "https://example.com/avatar.jpg",
     "avatarUploadNote": "Prawdziwe przesyłanie wymaga integracji z Cloudinary/Supabase Storage.",
+    "uploadAvatar": "Upload image",
     "displayName": "Nazwa wyświetlana",
     "firstName": "Imię (opcjonalnie)",
     "bio": "Krótki opis (bio)",

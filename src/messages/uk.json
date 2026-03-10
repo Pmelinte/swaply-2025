@@ -135,6 +135,7 @@
     "avatarUrl": "Аватар (URL)",
     "avatarPlaceholder": "https://example.com/avatar.jpg",
     "avatarUploadNote": "Реальне завантаження потребує інтеграції Cloudinary/Supabase Storage.",
+    "uploadAvatar": "Upload image",
     "displayName": "Відображуване ім'я",
     "firstName": "Ім'я (необов'язково)",
     "bio": "Короткий опис (біографія)",

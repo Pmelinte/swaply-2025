@@ -135,6 +135,7 @@
     "avatarUrl": "アバター（URL）",
     "avatarPlaceholder": "https://example.com/avatar.jpg",
     "avatarUploadNote": "実際のアップロードにはCloudinary/Supabase Storageの統合が必要です。",
+    "uploadAvatar": "Upload image",
     "displayName": "表示名",
     "firstName": "名前（任意）",
     "bio": "自己紹介（バイオ）",

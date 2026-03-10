@@ -135,6 +135,7 @@
     "avatarUrl": "الصورة الرمزية (URL)",
     "avatarPlaceholder": "https://example.com/avatar.jpg",
     "avatarUploadNote": "الرفع الفعلي يتطلب تكامل Cloudinary/Supabase Storage.",
+    "uploadAvatar": "Upload image",
     "displayName": "الاسم المعروض",
     "firstName": "الاسم الأول (اختياري)",
     "bio": "وصف مختصر (سيرة ذاتية)",

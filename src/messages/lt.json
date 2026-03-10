@@ -135,6 +135,7 @@
     "avatarUrl": "Avataras (URL)",
     "avatarPlaceholder": "https://example.com/avatar.jpg",
     "avatarUploadNote": "Tikram įkėlimui reikia Cloudinary/Supabase Storage integracijos.",
+    "uploadAvatar": "Upload image",
     "displayName": "Rodomas vardas",
     "firstName": "Vardas (neprivaloma)",
     "bio": "Trumpas aprašymas (bio)",

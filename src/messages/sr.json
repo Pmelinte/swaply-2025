@@ -135,6 +135,7 @@
     "avatarUrl": "Avatar (URL)",
     "avatarPlaceholder": "https://example.com/avatar.jpg",
     "avatarUploadNote": "Pravi upload zahteva integraciju Cloudinary/Supabase Storage.",
+    "uploadAvatar": "Upload image",
     "displayName": "Prikazno ime",
     "firstName": "Ime (opciono)",
     "bio": "Kratak opis (bio)",

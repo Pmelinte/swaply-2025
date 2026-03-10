@@ -135,6 +135,7 @@
     "avatarUrl": "Avatar (URL)",
     "avatarPlaceholder": "https://example.com/avatar.jpg",
     "avatarUploadNote": "Η πραγματική μεταφόρτωση απαιτεί ενσωμάτωση Cloudinary/Supabase Storage.",
+    "uploadAvatar": "Upload image",
     "displayName": "Εμφανιζόμενο όνομα",
     "firstName": "Όνομα (προαιρετικό)",
     "bio": "Σύντομη περιγραφή (bio)",

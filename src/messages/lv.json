@@ -135,6 +135,7 @@
     "avatarUrl": "Avatārs (URL)",
     "avatarPlaceholder": "https://example.com/avatar.jpg",
     "avatarUploadNote": "Reālai augšupielādei nepieciešama Cloudinary/Supabase Storage integrācija.",
+    "uploadAvatar": "Upload image",
     "displayName": "Parādāmvārds",
     "firstName": "Vārds (neobligāts)",
     "bio": "Īss apraksts (bio)",

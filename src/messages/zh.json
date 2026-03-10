@@ -135,6 +135,7 @@
     "avatarUrl": "头像（URL）",
     "avatarPlaceholder": "https://example.com/avatar.jpg",
     "avatarUploadNote": "真实上传需要 Cloudinary/Supabase Storage 集成。",
+    "uploadAvatar": "Upload image",
     "displayName": "显示名称",
     "firstName": "名字（可选）",
     "bio": "简短描述（简介）",

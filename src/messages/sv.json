@@ -255,6 +255,7 @@
     "avatarUrl": "Avatar (URL)",
     "avatarPlaceholder": "https://example.com/avatar.jpg",
     "avatarUploadNote": "Integration med Cloudinary/Supabase Storage krävs för riktig uppladdning.",
+    "uploadAvatar": "Upload image",
     "firstName": "Förnamn (valfritt)",
     "spokenLanguages": "Talade språk",
     "addLanguage": "Lägg till språk",

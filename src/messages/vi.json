@@ -135,6 +135,7 @@
     "avatarUrl": "Ảnh đại diện (URL)",
     "avatarPlaceholder": "https://example.com/avatar.jpg",
     "avatarUploadNote": "Tải lên thực tế cần tích hợp Cloudinary/Supabase Storage.",
+    "uploadAvatar": "Upload image",
     "displayName": "Tên hiển thị",
     "firstName": "Tên (tùy chọn)",
     "bio": "Mô tả ngắn (tiểu sử)",

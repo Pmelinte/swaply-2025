@@ -135,6 +135,7 @@
     "avatarUrl": "รูปโปรไฟล์ (URL)",
     "avatarPlaceholder": "https://example.com/avatar.jpg",
     "avatarUploadNote": "การอัปโหลดจริงต้องใช้การเชื่อมต่อ Cloudinary/Supabase Storage",
+    "uploadAvatar": "Upload image",
     "displayName": "ชื่อที่แสดง",
     "firstName": "ชื่อจริง (ไม่บังคับ)",
     "bio": "คำอธิบายสั้น (ประวัติ)",

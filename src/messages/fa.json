@@ -135,6 +135,7 @@
     "avatarUrl": "آواتار (URL)",
     "avatarPlaceholder": "https://example.com/avatar.jpg",
     "avatarUploadNote": "آپلود واقعی نیاز به یکپارچه‌سازی Cloudinary/Supabase Storage دارد.",
+    "uploadAvatar": "Upload image",
     "displayName": "نام نمایشی",
     "firstName": "نام (اختیاری)",
     "bio": "توضیح کوتاه (بیو)",

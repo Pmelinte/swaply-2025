@@ -17,6 +17,7 @@ import type { UserProfile, LanguageCode, HouseProfile, ServiceProfile, HouseAmen
 import { languageNames, localeFlagUrl, type Locale, locales } from "@/i18n/config";
 import LocationPicker from "@/components/LocationPicker";
 import { getSupabaseClient } from "@/lib/supabase/client";
+import { uploadItemPhoto } from "@/lib/storage";
 
 export default function ProfilePage() {
   const t = useTranslations("profile");
@@ -28,6 +29,8 @@ export default function ProfilePage() {
   const router = useRouter();
   const [draft, setDraft] = useState<UserProfile | null>(user);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<"profil" | "cont" | "reputatie" | "proprietati">("profil");
   const [newEmail, setNewEmail] = useState("");
   const [currentPassword] = useState(""); // eslint-disable-line @typescript-eslint/no-unused-vars
@@ -198,14 +201,20 @@ export default function ProfilePage() {
         <div className="flex items-center gap-4">
           <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full border-2 border-zinc-200 bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800">
             {draft.avatarUrl ? (
-              <Image src={draft.avatarUrl} alt="Avatar" width={80} height={80} className="h-full w-full object-cover" unoptimized />
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img src={draft.avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
             ) : (
               <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-zinc-400">
                 {draft.displayName?.charAt(0)?.toUpperCase() ?? "?"}
               </div>
             )}
+            {avatarUploading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              </div>
+            )}
           </div>
-          <div className="space-y-1">
+          <div className="space-y-2">
             <label className="block text-xs font-semibold text-zinc-500 dark:text-zinc-400">
               {t("avatarUrl")}
               <input
@@ -213,6 +222,32 @@ export default function ProfilePage() {
                 onChange={(e) => update({ avatarUrl: e.target.value })}
                 placeholder={t("avatarPlaceholder")}
                 className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
+              />
+            </label>
+            <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50">
+              <Plus className="h-3.5 w-3.5" />
+              {t("uploadAvatar")}
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                className="hidden"
+                disabled={avatarUploading}
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file || !user?.id) return;
+                  setAvatarUploading(true);
+                  try {
+                    const result = await uploadItemPhoto(file, user.id);
+                    if (result.error) {
+                      setSaveMessage(result.error);
+                    } else if (result.url) {
+                      update({ avatarUrl: result.url });
+                    }
+                  } finally {
+                    setAvatarUploading(false);
+                    e.target.value = "";
+                  }
+                }}
               />
             </label>
             <p className="text-xs text-zinc-400">{t("avatarUploadNote")}</p>
@@ -1300,18 +1335,29 @@ export default function ProfilePage() {
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
+            disabled={saving}
             onClick={async () => {
               setSaveMessage(null);
+              setSaving(true);
               try {
                 await updateProfile(draft, { persist: true });
                 setSaveMessage(t("profileSaved"));
               } catch {
                 setSaveMessage(t("saveError"));
+              } finally {
+                setSaving(false);
               }
             }}
-            className="rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+            className="rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
           >
-            {t("saveProfile")}
+            {saving ? (
+              <span className="inline-flex items-center gap-2">
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                {t("saving")}
+              </span>
+            ) : (
+              t("saveProfile")
+            )}
           </button>
         </div>
         {saveMessage ? (

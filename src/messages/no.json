@@ -135,6 +135,7 @@
     "avatarUrl": "Avatar (URL)",
     "avatarPlaceholder": "https://example.com/avatar.jpg",
     "avatarUploadNote": "Reell opplasting krever Cloudinary/Supabase Storage-integrasjon.",
+    "uploadAvatar": "Upload image",
     "displayName": "Visningsnavn",
     "firstName": "Fornavn (valgfritt)",
     "bio": "Kort beskrivelse (bio)",

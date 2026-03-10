@@ -135,6 +135,7 @@
     "avatarUrl": "Avatar (URL)",
     "avatarPlaceholder": "https://example.com/avatar.jpg",
     "avatarUploadNote": "Tegelik üleslaadimine nöuab Cloudinary/Supabase Storage integratsiooni.",
+    "uploadAvatar": "Upload image",
     "displayName": "Kuvatav nimi",
     "firstName": "Eesnimi (valikuline)",
     "bio": "Lühikirjeldus (bio)",

@@ -135,6 +135,7 @@
     "avatarUrl": "Avatar (URL)",
     "avatarPlaceholder": "https://example.com/avatar.jpg",
     "avatarUploadNote": "Teastaíonn comhthathu Cloudinary/Supabase Storage le haghaidh fior-uasluchtú.",
+    "uploadAvatar": "Upload image",
     "displayName": "Ainm taispeana",
     "firstName": "Cead ainm (roghnach)",
     "bio": "Cur sios gearr (bio)",

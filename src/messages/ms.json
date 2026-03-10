@@ -135,6 +135,7 @@
     "avatarUrl": "Avatar (URL)",
     "avatarPlaceholder": "https://example.com/avatar.jpg",
     "avatarUploadNote": "Muat naik sebenar memerlukan integrasi Cloudinary/Supabase Storage.",
+    "uploadAvatar": "Upload image",
     "displayName": "Nama paparan",
     "firstName": "Nama pertama (pilihan)",
     "bio": "Penerangan ringkas (bio)",

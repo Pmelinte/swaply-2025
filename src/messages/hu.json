@@ -135,6 +135,7 @@
     "avatarUrl": "Avatar (URL)",
     "avatarPlaceholder": "https://example.com/avatar.jpg",
     "avatarUploadNote": "A valódi feltöltéshez Cloudinary/Supabase Storage integráció szükséges.",
+    "uploadAvatar": "Upload image",
     "displayName": "Megjelenítendő név",
     "firstName": "Keresztnév (opcionális)",
     "bio": "Rövid leírás (bemutatkozás)",

@@ -135,6 +135,7 @@
     "avatarUrl": "Avatar (URL)",
     "avatarPlaceholder": "https://example.com/avatar.jpg",
     "avatarUploadNote": "Gerçek yükleme için Cloudinary/Supabase Storage entegrasyonu gereklidir.",
+    "uploadAvatar": "Upload image",
     "displayName": "Görünen ad",
     "firstName": "Ad (isteğe bağlı)",
     "bio": "Kısa açıklama (biyografi)",

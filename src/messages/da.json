@@ -135,6 +135,7 @@
     "avatarUrl": "Avatar (URL)",
     "avatarPlaceholder": "https://example.com/avatar.jpg",
     "avatarUploadNote": "Reel upload kræver Cloudinary/Supabase Storage integration.",
+    "uploadAvatar": "Upload image",
     "displayName": "Visningsnavn",
     "firstName": "Fornavn (valgfrit)",
     "bio": "Kort beskrivelse (bio)",

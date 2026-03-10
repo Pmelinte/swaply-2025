@@ -135,6 +135,7 @@
     "avatarUrl": "Аватар (URL)",
     "avatarPlaceholder": "https://example.com/avatar.jpg",
     "avatarUploadNote": "Жинхэнэ байршуулалтад Cloudinary/Supabase Storage холболт шаардлагатай.",
+    "uploadAvatar": "Upload image",
     "displayName": "Дэлгэх нэр",
     "firstName": "Нэр (сонголттой)",
     "bio": "Товч танилцуулга (био)",
