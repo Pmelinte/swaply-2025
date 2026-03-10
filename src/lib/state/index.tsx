@@ -1,8 +1,13 @@
 "use client";
 
 /**
- * Application state provider — orchestrates all state modules.
- * Refactored from monolithic state.tsx into modular imports.
+ * Application state provider — orchestrates all state slice hooks.
+ * Split from monolithic 1,752-line file into modular hooks:
+ *   - useItemActions    (CRUD for items)
+ *   - useChatActions    (conversations & messages)
+ *   - useSwapActions    (swap lifecycle + disputes)
+ *   - useSafetyActions  (reports, blocks, notifications)
+ *   - useMonetization   (tokens, streaks, shop, achievements)
  */
 import type { ReactNode } from "react";
 import {
@@ -19,10 +24,7 @@ import { getSupabaseClient } from "../supabase/client";
 import type {
   AccountStatus,
   Achievement,
-  AchievementId,
-  AnalyticsEvent,
   Announcement,
-  ChatMessage,
   Conversation,
   FeatureToggle,
   HouseProfile,
@@ -50,37 +52,8 @@ import {
   mockUser,
 } from "../mock-data";
 import { generateDemoData } from "../demo-generator";
-import {
-  ALL_SHOP_ITEMS,
-  applyPromoDiscount,
-  computeBalance,
-  computeStreak,
-  generateReferralCode,
-  getActivePromotions,
-  getStreakReward,
-  getSwapMilestones,
-  getTokenMultiplier,
-  getUnclaimedMilestoneBonus,
-  getLoyaltyMilestones,
-  computeDaysActive,
-  GIFT_MIN,
-  GIFT_MAX,
-  INSURANCE_COST,
-  FEATURED_COST,
-  FEATURED_DURATION_HOURS,
-  REFERRAL_REWARD_REFERRED,
-  REFERRAL_REWARD_REFERRER,
-  VERIFIED_BADGE_COST,
-  BUSINESS_UPGRADE_COST,
-  validateGiftAmount,
-  hasFeatureAccess,
-  TOKEN_PACKAGES,
-  SUBSCRIPTION_PLANS,
-  PROFILE_THEMES,
-  LOYALTY_MILESTONES,
-  SWAP_MILESTONES,
-  DEFAULT_PROMOTIONS,
-} from "../monetization";
+import { computeBalance } from "../monetization";
+import type { PremiumFeature } from "../monetization";
 import type {
   FeaturedListing,
   LoginStreak,
@@ -92,7 +65,6 @@ import type {
   TokenGift,
   UserSubscription,
 } from "../types";
-import type { PremiumFeature } from "../monetization";
 import type {
   TrustScore,
   FrictionLimits,
@@ -141,6 +113,13 @@ import {
   createMapSwapIntent,
 } from "./mappers";
 import { useRealtime } from "./useRealtime";
+
+// ── Feature slice hooks ──
+import { useItemActions } from "./useItemActions";
+import { useChatActions } from "./useChatActions";
+import { useSwapActions } from "./useSwapActions";
+import { useSafetyActions } from "./useSafetyActions";
+import { useMonetization } from "./useMonetization";
 
 // ── Re-export for backwards compatibility ──
 export { computeMatchesForUser } from "./matching";
@@ -333,6 +312,13 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const mapSwapIntent = useCallback(createMapSwapIntent(), []);
   const mapNotification = useCallback(createMapNotification(), []);
 
+  // ── Analytics ──
+  const analyticsBuffer = useRef<{ event: string; properties?: Record<string, string | number | boolean>; timestamp: string }[]>([]);
+  const trackEvent = useCallback((event: string, properties?: Record<string, string | number | boolean>) => {
+    analyticsBuffer.current.push({ event, properties, timestamp: new Date().toISOString() });
+    if (process.env.NODE_ENV === "development") console.debug("[analytics]", event, properties ?? "");
+  }, []);
+
   // ── Matching (with user context for distance/blocked) ──
   const matchingContext = useMemo<MatchingUserContext | undefined>(
     () => user ? buildUserContext(user, blockedUsers) : undefined,
@@ -458,7 +444,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       if (messagesError) setLastError(messagesError.message);
       if (messagesData) {
         const mappedMessages = messagesData.map(mapMessage);
-        const byConversation = new Map<string, ChatMessage[]>();
+        const byConversation = new Map<string, import("../types").ChatMessage[]>();
         for (const msg of mappedMessages) {
           const list = byConversation.get(msg.conversationId) ?? [];
           list.push(msg);
@@ -777,759 +763,31 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     [supabaseConfigured, mapProfile, supabase],
   );
 
-  // ── Items (with optimistic updates + soft delete) ──
-  const upsertItem = useCallback(
-    async (item: Item) => {
-      // Optimistic update — apply immediately
-      setItems((prev) => {
-        const idx = prev.findIndex((i) => i.id === item.id);
-        if (idx >= 0) { const next = [...prev]; next[idx] = item; return next; }
-        return [item, ...prev];
-      });
-
-      if (dataSource === "supabase" && supabase && user?.id) {
-        const payload = {
-          id: item.id, owner_id: user.id, title: item.title,
-          category: item.category, condition: item.condition,
-          description: item.description,
-          status: item.status === "traded" ? "traded" : item.status,
-          is_active: item.isActive ?? true,
-          is_demo: item.isDemo ?? false, location: item.location,
-          tags: item.userFinalTags ?? item.aiSuggestedTags ?? [],
-          images: (item.photos ?? []).map((url: string) => url),
-          image_url: (item.photos ?? [])[0] ?? null,
-          ai_metadata: {
-            intent: item.intent ?? null, flexibility: item.flexibility ?? null,
-            perceivedValue: item.perceivedValue ?? null, clarity: item.clarity ?? null,
-            context: item.context ?? null, acceptsBundle: item.acceptsBundle ?? false,
-            recipientMatters: item.recipientMatters ?? false,
-            conditionImpact: item.conditionImpact ?? [], aiNote: item.aiNote ?? null,
-            wishlist: item.wishlist ?? null,
-          },
-          updated_at: new Date().toISOString(),
-        };
-
-        const query = item.id
-          ? supabase.from("items").upsert(payload).select().maybeSingle()
-          : supabase.from("items").insert(payload).select().maybeSingle();
-
-        const { data, error } = await query;
-        if (error) {
-          setLastError(error.message);
-          // Revert optimistic update on error
-          setItems((prev) => prev.filter((i) => i.id !== item.id));
-          return null;
-        }
-        if (data) {
-          const mapped = mapItem(data);
-          setItems((prev) => {
-            const idx = prev.findIndex((i) => i.id === mapped.id);
-            if (idx >= 0) { const next = [...prev]; next[idx] = mapped; return next; }
-            return [mapped, ...prev];
-          });
-          return mapped;
-        }
-      }
-      return item;
-    },
-    [dataSource, mapItem, supabase, user],
-  );
-
-  // Soft delete: set deleted_at instead of hard delete
-  const deleteItem = useCallback(
-    async (id: string) => {
-      // Optimistic: remove from list immediately
-      const previousItems = items;
-      setItems((prev) => prev.filter((i) => i.id !== id));
-
-      if (dataSource === "supabase" && supabase) {
-        const { error } = await supabase
-          .from("items")
-          .update({ is_active: false, status: "archived", updated_at: new Date().toISOString() })
-          .eq("id", id);
-        if (error) {
-          setLastError(error.message);
-          // Revert on error
-          setItems(previousItems);
-        }
-      }
-    },
-    [dataSource, items, supabase],
-  );
-
-  const duplicateItem = useCallback(async (id: string) => {
-    const source = items.find((i) => i.id === id);
-    if (!source || !user?.id) return null;
-    const copy: Item = { ...source, id: crypto.randomUUID(), title: `${source.title} (copy)`,
-      status: "active", isActive: true, createdAt: new Date().toISOString() };
-    return upsertItem(copy);
-  }, [items, upsertItem, user]);
-
-  const setItemStatus = useCallback(async (id: string, status: Item["status"]) => {
-    const item = items.find((i) => i.id === id);
-    if (!item) return;
-    await upsertItem({ ...item, status, isActive: status === "active" });
-  }, [items, upsertItem]);
-
-  // ── Chat ──
-  const ensureConversation = useCallback(
-    async (participantId: string) => {
-      if (!user?.id || !participantId || participantId === user.id) return null;
-      const conversationId = makeDmConversationId(user.id, participantId);
-      if (conversations.some((c) => c.id === conversationId)) return conversationId;
-
-      let participantName = `Utilizator ${participantId.slice(0, 8)}`;
-      let participantBadge: UserProfile["badge"] = "free";
-
-      if (dataSource === "supabase" && supabase) {
-        const { data, error } = await supabase.from("profiles")
-          .select("user_id, display_name, badge").eq("user_id", participantId).maybeSingle();
-        if (error) setLastError(error.message);
-        else if (data) {
-          participantName = safeString(data.display_name, participantName);
-          participantBadge = safeBadgeTier(data.badge, participantBadge);
-        }
-      }
-
-      setConversations((prev) => [{
-        id: conversationId, participantId, participantName, participantBadge,
-        lastMessage: "", updatedAt: new Date().toISOString(), messages: [], translationEnabled: false,
-      }, ...prev]);
-      return conversationId;
-    },
-    [conversations, dataSource, supabase, user?.id],
-  );
-
-  const addMessage = useCallback(
-    async (conversationId: string, content: string) => {
-      if (!user?.id) return;
-      setLastError(null);
-
-      const now = new Date().toISOString();
-      const optimisticMessage: ChatMessage = {
-        id: nanoid(), conversationId, senderId: user.id, content, createdAt: now, attachments: [],
-      };
-
-      // Optimistic: add message immediately
-      setConversations((prev) => prev.map((c) =>
-        c.id === conversationId
-          ? { ...c, messages: [...c.messages, optimisticMessage], lastMessage: content, updatedAt: now }
-          : c,
-      ));
-
-      if (dataSource === "supabase" && supabase) {
-        const { data, error } = await supabase.from("messages")
-          .insert({ conversation_id: conversationId, sender_id: user.id,
-            content, attachments: [] })
-          .select("*").maybeSingle();
-
-        if (error) {
-          setLastError(error.message);
-          // Revert optimistic message on error
-          setConversations((prev) => prev.map((c) =>
-            c.id === conversationId
-              ? { ...c, messages: c.messages.filter((m) => m.id !== optimisticMessage.id) }
-              : c,
-          ));
-          return;
-        }
-
-        if (data) {
-          const inserted = mapMessage(data);
-          // Replace optimistic message with server response
-          setConversations((prev) => prev.map((c) =>
-            c.id === conversationId
-              ? { ...c, messages: c.messages.map((m) => m.id === optimisticMessage.id ? inserted : m),
-                  lastMessage: inserted.content, updatedAt: inserted.createdAt }
-              : c,
-          ));
-        }
-      }
-    },
-    [dataSource, mapMessage, supabase, user?.id],
-  );
-
-  const toggleConversationTranslation = useCallback((conversationId: string) => {
-    setConversations((prev) => prev.map((c) =>
-      c.id === conversationId ? { ...c, translationEnabled: !c.translationEnabled } : c,
-    ));
-  }, []);
-
-  // ── Swaps ──
-  const proposeSwap = useCallback(
-    async ({ requesterItemId, responderItemId, responderId, swapType, requesterBundleIds, responderBundleIds }: {
-      requesterItemId: string; responderItemId: string; responderId: string;
-      swapType?: SwapType; requesterBundleIds?: string[]; responderBundleIds?: string[];
-    }) => {
-      if (!user?.id || !requesterItemId || !responderItemId || !responderId || responderId === user.id) return null;
-      setLastError(null);
-
-      const logistics: SwapIntent["logistics"] = {
-        locationType: user.swapPreferences.logistics === "courier" ? "courier" : "public_spot",
-      };
-
-      if (dataSource === "supabase" && supabase) {
-        // Check item availability (lock status) before proposing swap
-        const [reqAvail, resAvail] = await Promise.all([
-          supabase.rpc("is_item_available", { item_uuid: requesterItemId }),
-          supabase.rpc("is_item_available", { item_uuid: responderItemId }),
-        ]);
-        if (reqAvail.data === false) {
-          setLastError("Obiectul tău nu mai este disponibil");
-          return null;
-        }
-        if (resAvail.data === false) {
-          setLastError("Obiectul nu mai este disponibil");
-          return null;
-        }
-
-        const { data, error } = await supabase.from("swaps")
-          .insert({ requester_id: user.id, responder_id: responderId,
-            offered_item_id: requesterItemId, requested_item_id: responderItemId,
-            status: "pending", logistics, notifications: ["Propunere swap trimisă."],
-            updated_at: new Date().toISOString() })
-          .select("*").maybeSingle();
-        if (error) { setLastError(error.message); return null; }
-        if (!data) return null;
-        const mapped = mapSwapIntent(data);
-        setSwaps((prev) => [mapped, ...prev.filter((s) => s.id !== mapped.id)]);
-        return mapped;
-      }
-
-      const now = new Date().toISOString();
-      const localSwap: SwapIntent = {
-        id: nanoid(), requesterId: user.id, responderId, requesterItemId, responderItemId,
-        swapType: swapType ?? "object", requesterBundleIds, responderBundleIds,
-        status: "pending", logistics, notifications: ["Propunere swap trimisă."], createdAt: now, updatedAt: now,
-      };
-      setSwaps((prev) => [localSwap, ...prev]);
-
-      const reqItem = items.find((i) => i.id === requesterItemId);
-      const resItem = items.find((i) => i.id === responderItemId);
-      setNotifications((prev) => [{
-        id: `swap-new-${localSwap.id}`, userId: user.id, type: "swap_proposed",
-        message: `Propunere de schimb trimisă: ${reqItem?.title ?? "?"} ↔ ${resItem?.title ?? "?"}`,
-        read: false, priority: "info", createdAt: now,
-      }, ...prev]);
-      return localSwap;
-    },
-    [dataSource, items, mapSwapIntent, supabase, user],
-  );
-
-  const updateSwapStatus = useCallback(
-    async (swapId: string, status: SwapIntent["status"]) => {
-      if (!swapId) return;
-      setLastError(null);
-      const existing = swaps.find((s) => s.id === swapId);
-      const nextNotifications = [...(existing?.notifications ?? []), `Status actualizat: ${status}`];
-
-      if (dataSource === "supabase" && supabase) {
-        const { data, error } = await supabase.from("swaps")
-          .update({ status, notifications: nextNotifications, updated_at: new Date().toISOString() })
-          .eq("id", swapId).select("*").maybeSingle();
-        if (error) { setLastError(error.message); return; }
-        if (data) { const mapped = mapSwapIntent(data); setSwaps((prev) => prev.map((s) => s.id === swapId ? mapped : s)); }
-        sendAuditLog({ userId: user?.id ?? "", action: "swap.status_changed", entityType: "swap", entityId: swapId, oldData: { status: existing?.status }, newData: { status } });
-        return;
-      }
-
-      setSwaps((prev) => prev.map((s) => s.id === swapId ? { ...s, status, notifications: nextNotifications } : s));
-      sendAuditLog({ userId: user?.id ?? "", action: "swap.status_changed", entityType: "swap", entityId: swapId, oldData: { status: existing?.status }, newData: { status } });
-
-      const statusMessages: Record<string, string> = {
-        accepted: "Schimbul a fost acceptat!",
-        rejected: "Schimbul a fost refuzat.",
-        completed: "Schimbul a fost finalizat cu succes!",
-        cancelled: "Schimbul a fost anulat.",
-        expired: "Schimbul a expirat.",
-      };
-      if (statusMessages[status]) {
-        const reqItem = items.find((i) => i.id === existing?.requesterItemId);
-        const resItem = items.find((i) => i.id === existing?.responderItemId);
-        setNotifications((prev) => [{
-          id: `swap-${swapId}-${status}-${Date.now()}`, userId: user?.id ?? "", type: "swap_update",
-          message: `${statusMessages[status]} (${reqItem?.title ?? "?"} ↔ ${resItem?.title ?? "?"})`,
-          read: false,
-          priority: status === "completed" ? "success" : status === "cancelled" ? "warning" : "info",
-          createdAt: new Date().toISOString(),
-        }, ...prev]);
-      }
-    },
-    [dataSource, items, mapSwapIntent, sendAuditLog, supabase, swaps, user?.id],
-  );
-
-  const addSwapFeedback = useCallback(
-    async (swapId: string, rating: number, comment: string) => {
-      if (!swapId) return;
-      setLastError(null);
-      const existing = swaps.find((s) => s.id === swapId);
-      const nextNot = [...(existing?.notifications ?? []), "Feedback trimis."];
-
-      if (dataSource === "supabase" && supabase) {
-        const { data, error } = await supabase.from("swaps")
-          .update({ feedback: { rating, comment }, notifications: nextNot, updated_at: new Date().toISOString() })
-          .eq("id", swapId).select("*").maybeSingle();
-        if (error) { setLastError(error.message); return; }
-        if (data) { const mapped = mapSwapIntent(data); setSwaps((prev) => prev.map((s) => s.id === swapId ? mapped : s)); }
-        return;
-      }
-      setSwaps((prev) => prev.map((s) => s.id === swapId ? { ...s, feedback: { rating, comment }, notifications: nextNot } : s));
-    },
-    [dataSource, mapSwapIntent, supabase, swaps],
-  );
-
-  const updateSwapLogistics = useCallback(
-    async (swapId: string, logistics: SwapIntent["logistics"]) => {
-      if (!swapId) return;
-      setLastError(null);
-      const existing = swaps.find((s) => s.id === swapId);
-      const nextNot = [...(existing?.notifications ?? []), `Logistics updated: ${logistics.locationType}`];
-
-      if (dataSource === "supabase" && supabase) {
-        const { data, error } = await supabase.from("swaps")
-          .update({ logistics, notifications: nextNot, updated_at: new Date().toISOString() })
-          .eq("id", swapId).select("*").maybeSingle();
-        if (error) { setLastError(error.message); return; }
-        if (data) { const mapped = mapSwapIntent(data); setSwaps((prev) => prev.map((s) => s.id === swapId ? mapped : s)); }
-        return;
-      }
-      setSwaps((prev) => prev.map((s) => s.id === swapId ? { ...s, logistics, notifications: nextNot } : s));
-    },
-    [dataSource, mapSwapIntent, supabase, swaps],
-  );
-
-  // ── Analytics (moved before confirmDelivery so trackEvent is available) ──
-  const analyticsBuffer = useRef<AnalyticsEvent[]>([]);
-  const trackEvent = useCallback((event: string, properties?: Record<string, string | number | boolean>) => {
-    analyticsBuffer.current.push({ event, properties, timestamp: new Date().toISOString() });
-    if (process.env.NODE_ENV === "development") console.debug("[analytics]", event, properties ?? "");
-  }, []);
-
-  // ── Confirm Delivery / File Dispute ──
-  const confirmDelivery = useCallback(async (swapId: string, side: "requester" | "responder") => {
-    if (!user?.id) return;
-    const swap = swaps.find((s) => s.id === swapId);
-    if (!swap) return;
-
-    const field = side === "requester" ? "requesterConfirmed" : "responderConfirmed";
-    const otherConfirmed = side === "requester" ? swap.responderConfirmed : swap.requesterConfirmed;
-
-    const updated = { ...swap, [field]: true };
-    // If both confirmed → auto-complete
-    if (otherConfirmed) {
-      updated.status = "completed";
-      updated.notifications = [...updated.notifications, "Ambele părți au confirmat. Schimb finalizat!"];
-    } else {
-      updated.notifications = [...updated.notifications, `${side === "requester" ? "Solicitantul" : "Partenerul"} a confirmat predarea.`];
-    }
-
-    setSwaps((prev) => prev.map((s) => s.id === swapId ? updated : s));
-
-    if (dataSource === "supabase" && supabase) {
-      const payload: Record<string, unknown> = {
-        [side === "requester" ? "requester_confirmed" : "responder_confirmed"]: true,
-        notifications: updated.notifications,
-        updated_at: new Date().toISOString(),
-      };
-      if (otherConfirmed) payload.status = "completed";
-      await supabase.from("swaps").update(payload).eq("id", swapId);
-    }
-
-    trackEvent("swap_delivery_confirmed", { swapId, side });
-    if (otherConfirmed) trackEvent("swap_auto_completed", { swapId });
-  }, [user?.id, swaps, dataSource, supabase, trackEvent]);
-
-  const fileDispute = useCallback(async (
-    swapId: string,
-    reason: "item_not_received" | "wrong_item" | "damaged" | "condition_mismatch" | "no_show" | "other",
-    description: string,
-    photos?: string[],
-  ) => {
-    if (!user?.id) return;
-    const swap = swaps.find((s) => s.id === swapId);
-    if (!swap) return;
-
-    const dispute: NonNullable<SwapIntent["dispute"]> = {
-      filedBy: user.id,
-      reason,
-      description,
-      evidencePhotos: photos ?? [],
-      status: "open",
-      filedAt: new Date().toISOString(),
-    };
-
-    const updated = {
-      ...swap,
-      status: "disputed" as const,
-      dispute,
-      notifications: [...swap.notifications, `Dispută deschisă: ${reason}`],
-    };
-
-    setSwaps((prev) => prev.map((s) => s.id === swapId ? updated : s));
-
-    if (dataSource === "supabase" && supabase) {
-      await supabase.from("swaps").update({
-        status: "disputed",
-        dispute,
-        notifications: updated.notifications,
-        updated_at: new Date().toISOString(),
-      }).eq("id", swapId);
-    }
-
-    setNotifications((prev) => [{
-      id: `dispute-${swapId}-${Date.now()}`,
-      userId: user.id,
-      type: "dispute_filed",
-      message: `Dispută deschisă pentru schimbul ${swap.requesterItemId.slice(0, 8)}`,
-      read: false,
-      priority: "warning",
-      createdAt: new Date().toISOString(),
-    }, ...prev]);
-
-    trackEvent("dispute_filed", { swapId, reason });
-  }, [user?.id, swaps, dataSource, supabase, trackEvent]);
-
-  // ── Safety ──
-  const reportUser = useCallback(
-    async (params: { reportedUserId: string; reportedItemId?: string; reason: string; description?: string }) => {
-      if (!user?.id) return;
-      setLastError(null);
-      if (dataSource === "supabase" && supabase) {
-        const entityType = params.reportedItemId ? "item" : "user";
-        const entityId = params.reportedItemId ?? params.reportedUserId;
-        const payload: Record<string, unknown> = {
-          reporter_id: user.id, entity_type: entityType, entity_id: entityId,
-          reason: params.reason, description: params.description ?? "", status: "pending",
-        };
-        const { error } = await supabase.from("reports").insert(payload);
-        if (error) setLastError(error.message);
-        sendAuditLog({ userId: user.id, action: "user.reported", entityType: "user", entityId: params.reportedUserId, newData: { reason: params.reason, reportedItemId: params.reportedItemId } });
-      }
-    },
-    [dataSource, sendAuditLog, supabase, user?.id],
-  );
-
-  const blockUser = useCallback(async (targetUserId: string) => {
-    if (!user?.id || !targetUserId) return;
-    setLastError(null);
-    if (dataSource === "supabase" && supabase) {
-      const { error } = await supabase.from("blocked_users").insert({ blocker_id: user.id, blocked_id: targetUserId });
-      if (error) setLastError(error.message);
-    }
-    setBlockedUsers((prev) => [...prev, targetUserId]);
-    sendAuditLog({ userId: user?.id ?? "", action: "user.blocked", entityType: "user", entityId: targetUserId });
-  }, [dataSource, sendAuditLog, supabase, user?.id]);
-
-  const unblockUser = useCallback(async (targetUserId: string) => {
-    if (!user?.id || !targetUserId) return;
-    setLastError(null);
-    if (dataSource === "supabase" && supabase) {
-      const { error } = await supabase.from("blocked_users").delete().eq("blocker_id", user.id).eq("blocked_id", targetUserId);
-      if (error) setLastError(error.message);
-    }
-    setBlockedUsers((prev) => prev.filter((id) => id !== targetUserId));
-  }, [dataSource, supabase, user?.id]);
-
-  const markNotificationRead = useCallback(async (notificationId: string) => {
-    if (!notificationId) return;
-    setLastError(null);
-    if (dataSource === "supabase" && supabase) {
-      const { error } = await supabase.from("notifications").update({ read: true }).eq("id", notificationId);
-      if (error) setLastError(error.message);
-    }
-    setNotifications((prev) => prev.map((n) => n.id === notificationId ? { ...n, read: true } : n));
-  }, [dataSource, supabase]);
-
-  const startNewItem = useCallback(() => {
-    if (!user) return null;
-    const item = createEmptyItem(user.id);
-    if (user.location?.city) item.location = user.location.city;
-    return item;
-  }, [user]);
-
-  const clearNotifications = useCallback(() => setNotifications([]), []);
-
-  // ── Monetization ──
-  const [tokenLedger, setTokenLedger] = useState<TokenLedgerEntry[]>(() => {
-    if (!user) return [];
-    return [{ id: nanoid(), userId: user?.id ?? "", amount: 10, reason: "signup_bonus" as const,
-      description: "Welcome bonus", createdAt: new Date().toISOString() }];
+  // ── Feature slice hooks ──
+  const itemActions = useItemActions({
+    user, dataSource, supabase, setLastError, mapItem, items, setItems,
   });
 
+  const chatActions = useChatActions({
+    user, dataSource, supabase, setLastError, mapMessage, conversations, setConversations,
+  });
+
+  const swapActions = useSwapActions({
+    user, dataSource, supabase, setLastError, mapSwapIntent,
+    swaps, setSwaps, items, setNotifications, sendAuditLog, trackEvent,
+  });
+
+  const safetyActions = useSafetyActions({
+    user, dataSource, supabase, setLastError, sendAuditLog,
+    setNotifications, setBlockedUsers,
+  });
+
+  const monetization = useMonetization({
+    user, items, swaps, trackEvent,
+  });
+
+  // ── Tier benefits ──
   const tierBenefits = useMemo(() => computeTierBenefits(user?.badge ?? "free"), [user?.badge]);
-
-  // Token grants on swap completion
-  useEffect(() => {
-    const completedSwaps = swaps.filter((s) => s.status === "completed");
-    const grantedSwapIds = new Set(tokenLedger.filter((e) => e.reason === "swap_completed").map((e) => e.description));
-    for (const swap of completedSwaps) {
-      if (!grantedSwapIds.has(swap.id) && user?.id) {
-        setTokenLedger((prev) => [...prev, {
-          id: nanoid(), userId: user.id, amount: 5, reason: "swap_completed" as const,
-          description: swap.id, createdAt: new Date().toISOString(),
-        }]);
-        trackEvent("tokens_granted", { amount: 5, reason: "swap_completed", swapId: swap.id });
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [swaps, user?.id]);
-
-  // ── Achievements ──
-  const achievements = useMemo<Achievement[]>(() => {
-    if (!user) return [];
-    const cs = user.stats.completedSwaps;
-    const ti = items.filter((i) => i.ownerId === user.id).length;
-    const defs: { id: AchievementId; title: string; icon: string; target: number; current: number; desc: string }[] = [
-      { id: "first_swap", title: "First Swap", icon: "🔄", target: 1, current: cs, desc: "Complete your first swap" },
-      { id: "five_swaps", title: "Swap Veteran", icon: "🏅", target: 5, current: cs, desc: "Complete 5 swaps" },
-      { id: "ten_swaps", title: "Swap Master", icon: "🏆", target: 10, current: cs, desc: "Complete 10 swaps" },
-      { id: "twenty_five_swaps", title: "Swap Legend", icon: "👑", target: 25, current: cs, desc: "Complete 25 swaps" },
-      { id: "first_listing", title: "First Listing", icon: "📦", target: 1, current: ti, desc: "List your first item" },
-      { id: "ten_listings", title: "Collector", icon: "🗄️", target: 10, current: ti, desc: "List 10 items" },
-      { id: "eco_warrior", title: "Eco Warrior", icon: "🌿", target: 3, current: cs, desc: "Save the planet with 3 swaps" },
-      { id: "house_swapper", title: "Home Exchange", icon: "🏠", target: 1, current: 0, desc: "Complete a house swap" },
-      { id: "service_provider", title: "Service Star", icon: "⚡", target: 1, current: 0, desc: "Complete a service swap" },
-      { id: "premium_member", title: "Premium", icon: "💎", target: 1, current: user.badge !== "free" ? 1 : 0, desc: "Upgrade to premium" },
-      { id: "early_adopter", title: "Early Adopter", icon: "🚀", target: 1, current: 1, desc: "Join Swaply early" },
-    ];
-    return defs.map((d) => ({
-      id: d.id, title: d.title, description: d.desc, icon: d.icon,
-      progress: Math.min(100, Math.round((d.current / d.target) * 100)),
-      target: d.target, current: Math.min(d.current, d.target),
-      unlockedAt: d.current >= d.target ? new Date().toISOString() : undefined,
-    }));
-  }, [user, items]);
-
-  // ── Shop (expanded — 16 items across 5 categories) ──
-  const shopItems = useMemo<ShopItem[]>(() => {
-    const promos = getActivePromotions();
-    return ALL_SHOP_ITEMS.map((item) => ({
-      ...item,
-      cost: applyPromoDiscount(item.cost, promos),
-    }));
-  }, []);
-
-  const purchaseShopItem = useCallback(async (itemId: TokenShopItem): Promise<{ error?: string }> => {
-    if (!user) return { error: "Not logged in" };
-    const item = shopItems.find((si) => si.id === itemId);
-    if (!item) return { error: "Item not found" };
-    const balance = tokenLedger.reduce((sum, e) => sum + e.amount, 0);
-    if (balance < item.cost) return { error: "Insufficient tokens" };
-    setTokenLedger((prev) => [...prev, {
-      id: nanoid(), userId: user.id, amount: -item.cost,
-      reason: "boost_spent" as const, description: `Purchased: ${item.title}`,
-      createdAt: new Date().toISOString(),
-    }]);
-    trackEvent("shop_purchase", { itemId, cost: item.cost });
-    return {};
-  }, [user, shopItems, tokenLedger, trackEvent]);
-
-  // ── 4. Daily Login Streak ──
-  const [loginStreak, setLoginStreak] = useState<LoginStreak>({
-    currentStreak: 1, longestStreak: 1, lastLoginDate: new Date().toISOString(),
-    todayClaimed: false, nextReward: 2,
-  });
-
-  const claimDailyReward = useCallback(async () => {
-    if (!user) return { error: "Not logged in" };
-    if (loginStreak.todayClaimed) return { error: "Deja revendicat azi" };
-    const reward = getStreakReward(loginStreak.currentStreak);
-    const promos = getActivePromotions();
-    const multiplier = getTokenMultiplier(promos);
-    const finalReward = reward * multiplier;
-    setTokenLedger((prev) => [...prev, {
-      id: nanoid(), userId: user.id, amount: finalReward,
-      reason: "daily_streak" as const,
-      description: `Streak zi ${loginStreak.currentStreak}${multiplier > 1 ? ` (×${multiplier} promo)` : ""}`,
-      createdAt: new Date().toISOString(),
-    }]);
-    setLoginStreak((prev) => ({ ...prev, todayClaimed: true, nextReward: getStreakReward(prev.currentStreak + 1) }));
-    trackEvent("daily_streak_claimed", { day: loginStreak.currentStreak, tokens: finalReward });
-    return { tokens: finalReward };
-  }, [user, loginStreak, trackEvent]);
-
-  // Update streak on each session
-  useEffect(() => {
-    if (user) {
-      setLoginStreak((prev) => computeStreak(prev.lastLoginDate, prev.currentStreak));
-    }
-  }, [user?.id]);
-
-  // ── 3. Referral Program ──
-  const referralCode = useMemo(() => user ? generateReferralCode(user.id) : "", [user?.id]);
-  const [referrals, setReferrals] = useState<Referral[]>([]);
-
-  const sendReferralInvite = useCallback(async (email: string): Promise<{ error?: string }> => {
-    if (!user) return { error: "Not logged in" };
-    if (!email.includes("@")) return { error: "Email invalid" };
-    setReferrals((prev) => [...prev, {
-      id: nanoid(), referrerId: user.id, referredId: "", referredEmail: email,
-      referralCode, status: "pending" as const, tokensEarned: 0,
-      createdAt: new Date().toISOString(),
-    }]);
-    trackEvent("referral_sent", { email });
-    return {};
-  }, [user, referralCode, trackEvent]);
-
-  // ── 7. Gift Tokens ──
-  const giftTokens = useCallback(async (recipientId: string, amount: number, message: string): Promise<{ error?: string }> => {
-    if (!user) return { error: "Not logged in" };
-    const balance = computeBalance(tokenLedger);
-    const err = validateGiftAmount(amount, balance);
-    if (err) return { error: err };
-    setTokenLedger((prev) => [
-      ...prev,
-      { id: nanoid(), userId: user.id, amount: -amount, reason: "gift_sent" as const, description: `Gift → ${recipientId}: ${message}`, createdAt: new Date().toISOString() },
-      { id: nanoid(), userId: recipientId, amount, reason: "gift_received" as const, description: `Gift de la ${user.displayName}: ${message}`, createdAt: new Date().toISOString() },
-    ]);
-    trackEvent("tokens_gifted", { recipientId, amount });
-    return {};
-  }, [user, tokenLedger, trackEvent]);
-
-  // ── 5. Featured Listing Slots ──
-  const [featuredListings, setFeaturedListings] = useState<FeaturedListing[]>([]);
-
-  const purchaseFeaturedSlot = useCallback(async (itemId: string): Promise<{ error?: string }> => {
-    if (!user) return { error: "Not logged in" };
-    const balance = computeBalance(tokenLedger);
-    if (balance < FEATURED_COST) return { error: "Fonduri insuficiente" };
-    setTokenLedger((prev) => [...prev, {
-      id: nanoid(), userId: user.id, amount: -FEATURED_COST,
-      reason: "featured_spent" as const, description: `Featured: ${itemId}`,
-      createdAt: new Date().toISOString(),
-    }]);
-    const expiresAt = new Date(Date.now() + FEATURED_DURATION_HOURS * 60 * 60 * 1000).toISOString();
-    setFeaturedListings((prev) => [...prev, {
-      id: nanoid(), itemId, userId: user.id, position: prev.length,
-      expiresAt, createdAt: new Date().toISOString(),
-    }]);
-    trackEvent("featured_purchased", { itemId, cost: FEATURED_COST });
-    return {};
-  }, [user, tokenLedger, trackEvent]);
-
-  // ── 6. Swap Insurance ──
-  const purchaseInsurance = useCallback(async (swapId: string): Promise<{ error?: string }> => {
-    if (!user) return { error: "Not logged in" };
-    const balance = computeBalance(tokenLedger);
-    if (balance < INSURANCE_COST) return { error: "Fonduri insuficiente" };
-    setTokenLedger((prev) => [...prev, {
-      id: nanoid(), userId: user.id, amount: -INSURANCE_COST,
-      reason: "insurance_spent" as const, description: `Insurance: ${swapId}`,
-      createdAt: new Date().toISOString(),
-    }]);
-    trackEvent("insurance_purchased", { swapId, cost: INSURANCE_COST });
-    return {};
-  }, [user, tokenLedger, trackEvent]);
-
-  // ── 9. Verified Badge ──
-  const [isVerified, setIsVerified] = useState(false);
-
-  const purchaseVerifiedBadge = useCallback(async (): Promise<{ error?: string }> => {
-    if (!user) return { error: "Not logged in" };
-    if (isVerified) return { error: "Deja verificat" };
-    const balance = computeBalance(tokenLedger);
-    if (balance < VERIFIED_BADGE_COST) return { error: "Fonduri insuficiente" };
-    setTokenLedger((prev) => [...prev, {
-      id: nanoid(), userId: user.id, amount: -VERIFIED_BADGE_COST,
-      reason: "verified_spent" as const, description: "Verified badge",
-      createdAt: new Date().toISOString(),
-    }]);
-    setIsVerified(true);
-    trackEvent("verified_badge_purchased", { cost: VERIFIED_BADGE_COST });
-    return {};
-  }, [user, isVerified, tokenLedger, trackEvent]);
-
-  // ── 10. Profile Themes ──
-  const [purchasedThemes, setPurchasedThemes] = useState<string[]>([]);
-  const [activeTheme, setActiveTheme] = useState<string | null>(null);
-
-  const purchaseTheme = useCallback(async (themeId: string): Promise<{ error?: string }> => {
-    if (!user) return { error: "Not logged in" };
-    if (purchasedThemes.includes(themeId)) return { error: "Deja cumpărat" };
-    const theme = PROFILE_THEMES.find((t) => t.id === themeId);
-    if (!theme) return { error: "Tema inexistentă" };
-    const balance = computeBalance(tokenLedger);
-    if (balance < theme.cost) return { error: "Fonduri insuficiente" };
-    setTokenLedger((prev) => [...prev, {
-      id: nanoid(), userId: user.id, amount: -theme.cost,
-      reason: "theme_spent" as const, description: `Theme: ${theme.name}`,
-      createdAt: new Date().toISOString(),
-    }]);
-    setPurchasedThemes((prev) => [...prev, themeId]);
-    setActiveTheme(themeId);
-    trackEvent("theme_purchased", { themeId, cost: theme.cost });
-    return {};
-  }, [user, purchasedThemes, tokenLedger, trackEvent]);
-
-  const activateTheme = useCallback((themeId: string) => {
-    if (purchasedThemes.includes(themeId) || !themeId) setActiveTheme(themeId || null);
-  }, [purchasedThemes]);
-
-  // ── 17. Business Account ──
-  const [isBusiness, setIsBusiness] = useState(false);
-
-  const purchaseBusinessUpgrade = useCallback(async (companyName: string): Promise<{ error?: string }> => {
-    if (!user) return { error: "Not logged in" };
-    if (isBusiness) return { error: "Deja business" };
-    const balance = computeBalance(tokenLedger);
-    if (balance < BUSINESS_UPGRADE_COST) return { error: "Fonduri insuficiente" };
-    setTokenLedger((prev) => [...prev, {
-      id: nanoid(), userId: user.id, amount: -BUSINESS_UPGRADE_COST,
-      reason: "business_upgrade" as const, description: `Business: ${companyName}`,
-      createdAt: new Date().toISOString(),
-    }]);
-    setIsBusiness(true);
-    trackEvent("business_upgrade", { companyName, cost: BUSINESS_UPGRADE_COST });
-    return {};
-  }, [user, isBusiness, tokenLedger, trackEvent]);
-
-  // ── 2. Subscription ──
-  const [subscription] = useState<UserSubscription>({
-    planId: (user?.badge ?? "free") as "free" | "premium" | "platinum",
-    status: "active", currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-    cancelAtPeriodEnd: false,
-  });
-
-  // ── 18. Active Promotions ──
-  const activePromotions = useMemo(() => getActivePromotions(), []);
-
-  // ── 19. Swap Milestones ──
-  const swapMilestones = useMemo(() =>
-    getSwapMilestones(user?.stats.completedSwaps ?? 0),
-    [user?.stats.completedSwaps],
-  );
-
-  // Auto-grant milestone bonuses
-  useEffect(() => {
-    if (!user) return;
-    const milestone = getUnclaimedMilestoneBonus(user.stats.completedSwaps, []);
-    if (milestone) {
-      const promos = getActivePromotions();
-      const multiplier = getTokenMultiplier(promos);
-      setTokenLedger((prev) => [...prev, {
-        id: nanoid(), userId: user.id, amount: milestone.bonusTokens * multiplier,
-        reason: "milestone_bonus" as const,
-        description: `Milestone: ${milestone.label}`,
-        createdAt: new Date().toISOString(),
-      }]);
-      trackEvent("milestone_bonus", { swapCount: milestone.swapCount, tokens: milestone.bonusTokens * multiplier });
-    }
-  }, [user?.stats.completedSwaps]);
-
-  // ── 20. Loyalty Milestones ──
-  const loyaltyMilestones = useMemo(() => {
-    if (!user) return LOYALTY_MILESTONES;
-    const days = computeDaysActive(user.stats.completedSwaps > 0 ? user.stats.completedSwaps.toString() : new Date().toISOString());
-    return getLoyaltyMilestones(days);
-  }, [user]);
-
-  // ── 11-16. Feature gating ──
-  const hasFeature = useCallback((feature: PremiumFeature) => {
-    return hasFeatureAccess(user?.badge ?? "free", feature);
-  }, [user?.badge]);
-
-  // ── Token balance (computed) ──
-  const tokenBalance = useMemo(() => computeBalance(tokenLedger), [tokenLedger]);
 
   // ── GDPR ──
   const exportUserData = useCallback(async (): Promise<string> => {
@@ -1538,11 +796,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       profile: user, items: items.filter((i) => i.ownerId === user.id),
       conversations, swaps: swaps.filter((s) => s.requesterId === user.id || s.responderId === user.id),
       notifications: notifications.filter((n) => n.userId === user.id),
-      tokenLedger: tokenLedger.filter((t) => t.userId === user.id),
-      achievements: achievements.filter((a) => a.unlockedAt),
+      tokenLedger: monetization.tokenLedger.filter((t) => t.userId === user.id),
+      achievements: monetization.achievements.filter((a) => a.unlockedAt),
       exportedAt: new Date().toISOString(),
     }, null, 2);
-  }, [user, items, conversations, swaps, notifications, tokenLedger, achievements]);
+  }, [user, items, conversations, swaps, notifications, monetization.tokenLedger, monetization.achievements]);
 
   // ── Account management ──
   const [accountStatus, setAccountStatus] = useState<AccountStatus>("active");
@@ -1550,10 +808,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const pauseAccount = useCallback(async () => {
     setAccountStatus("paused");
     for (const item of items.filter((i) => i.ownerId === user?.id && i.status === "active")) {
-      await setItemStatus(item.id, "paused");
+      await itemActions.setItemStatus(item.id, "paused");
     }
     trackEvent("account_paused");
-  }, [items, user?.id, setItemStatus, trackEvent]);
+  }, [items, user?.id, itemActions.setItemStatus, trackEvent]);
 
   const resumeAccount = useCallback(async () => {
     setAccountStatus("active");
@@ -1589,9 +847,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const itemLimitReached = useMemo(() => {
     if (!user) return false;
     const ownItems = items.filter((i) => i.ownerId === user.id && i.status !== "archived");
-    const limit = isBusiness ? 200 : tierBenefits.itemLimit;
+    const limit = monetization.isBusiness ? 200 : tierBenefits.itemLimit;
     return ownItems.length >= limit;
-  }, [user, items]);
+  }, [user, items, monetization.isBusiness, tierBenefits.itemLimit]);
 
   // ── Demo mode ──
   const activateDemoMode = useCallback((count: number) => {
@@ -1639,10 +897,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       reportsAgainst: 0,
       averageRating: 4.0,
       totalRatingsReceived: user.stats.completedSwaps,
-      consecutiveLoginDays: loginStreak.currentStreak,
+      consecutiveLoginDays: monetization.loginStreak.currentStreak,
     });
     return computeTrustScore(signals);
-  }, [user, loginStreak.currentStreak]);
+  }, [user, monetization.loginStreak.currentStreak]);
 
   const frictionLimits = useMemo<FrictionLimits>(() => {
     return computeFriction(trustScore.score, 0);
@@ -1691,26 +949,63 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     user, dataSource, loading, lastError, announcements, notifications, items, matches,
     conversations, swaps, featureToggles, language, setLanguage, login, logout, register,
     resetPassword, deleteAccount, changeEmail, changePassword, updateProfile,
-    upsertItem, deleteItem, duplicateItem, setItemStatus,
-    ensureConversation, addMessage, toggleConversationTranslation,
-    proposeSwap, updateSwapStatus, addSwapFeedback, updateSwapLogistics,
-    reportUser, blockUser, unblockUser, blockedUsers,
-    markNotificationRead, clearNotifications, startNewItem,
-    infoStats: mockInfoStats, tierBenefits, tokenLedger, trackEvent,
-    achievements, shopItems, purchaseShopItem, exportUserData,
-    accountStatus, pauseAccount, resumeAccount, itemLimitReached,
+    // Item actions (from hook)
+    upsertItem: itemActions.upsertItem,
+    deleteItem: itemActions.deleteItem,
+    duplicateItem: itemActions.duplicateItem,
+    setItemStatus: itemActions.setItemStatus,
+    startNewItem: itemActions.startNewItem,
+    // Chat actions (from hook)
+    ensureConversation: chatActions.ensureConversation,
+    addMessage: chatActions.addMessage,
+    toggleConversationTranslation: chatActions.toggleConversationTranslation,
+    // Swap actions (from hook)
+    proposeSwap: swapActions.proposeSwap,
+    updateSwapStatus: swapActions.updateSwapStatus,
+    addSwapFeedback: swapActions.addSwapFeedback,
+    updateSwapLogistics: swapActions.updateSwapLogistics,
+    confirmDelivery: swapActions.confirmDelivery,
+    fileDispute: swapActions.fileDispute,
+    // Safety actions (from hook)
+    reportUser: safetyActions.reportUser,
+    blockUser: safetyActions.blockUser,
+    unblockUser: safetyActions.unblockUser,
+    markNotificationRead: safetyActions.markNotificationRead,
+    clearNotifications: safetyActions.clearNotifications,
+    blockedUsers,
+    // Monetization (from hook)
+    tokenLedger: monetization.tokenLedger,
+    tokenBalance: monetization.tokenBalance,
+    loginStreak: monetization.loginStreak,
+    claimDailyReward: monetization.claimDailyReward,
+    referralCode: monetization.referralCode,
+    referrals: monetization.referrals,
+    sendReferralInvite: monetization.sendReferralInvite,
+    giftTokens: monetization.giftTokens,
+    featuredListings: monetization.featuredListings,
+    purchaseFeaturedSlot: monetization.purchaseFeaturedSlot,
+    purchaseInsurance: monetization.purchaseInsurance,
+    isVerified: monetization.isVerified,
+    purchaseVerifiedBadge: monetization.purchaseVerifiedBadge,
+    activeTheme: monetization.activeTheme,
+    purchaseTheme: monetization.purchaseTheme,
+    activateTheme: monetization.activateTheme,
+    isBusiness: monetization.isBusiness,
+    purchaseBusinessUpgrade: monetization.purchaseBusinessUpgrade,
+    subscription: monetization.subscription,
+    activePromotions: monetization.activePromotions,
+    swapMilestones: monetization.swapMilestones,
+    loyaltyMilestones: monetization.loyaltyMilestones,
+    hasFeature: monetization.hasFeature,
+    achievements: monetization.achievements,
+    shopItems: monetization.shopItems,
+    purchaseShopItem: monetization.purchaseShopItem,
+    // Remaining
+    infoStats: mockInfoStats, tierBenefits, trackEvent,
+    exportUserData, accountStatus, pauseAccount, resumeAccount, itemLimitReached,
     updateHouseProfile, addServiceProfile, removeServiceProfile,
     demoMode, demoItemCount, activateDemoMode, deactivateDemoMode,
     setTyping, markMessagesRead,
-    // Dispute / Confirmation
-    confirmDelivery, fileDispute,
-    // Monetization (20 capabilities)
-    loginStreak, claimDailyReward, referralCode, referrals, sendReferralInvite,
-    giftTokens, purchaseFeaturedSlot, purchaseInsurance, purchaseVerifiedBadge,
-    purchaseTheme, activateTheme, purchaseBusinessUpgrade,
-    subscription, activePromotions, featuredListings,
-    swapMilestones, loyaltyMilestones, tokenBalance, hasFeature,
-    activeTheme, isVerified, isBusiness,
     // Trust & Safety
     trustScore, frictionLimits, checkScam,
     safeMeetingChecklist: safeMeetingChecklistVal,
@@ -1721,24 +1016,36 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   }), [
     dataSource, loading, lastError, announcements, notifications, conversations,
     featureToggles, items, login, resetPassword, deleteAccount, changeEmail,
-    changePassword, clearNotifications, logout, matches, register, swaps,
-    updateProfile, upsertItem, deleteItem, duplicateItem, setItemStatus,
-    ensureConversation, addMessage, toggleConversationTranslation,
-    proposeSwap, updateSwapStatus, addSwapFeedback, updateSwapLogistics,
-    reportUser, blockUser, unblockUser, blockedUsers,
-    startNewItem, markNotificationRead, language, setLanguage, user,
-    tierBenefits, tokenLedger, trackEvent, achievements, shopItems, purchaseShopItem,
+    changePassword, logout, matches, register, swaps,
+    updateProfile, blockedUsers,
+    // Item actions
+    itemActions.upsertItem, itemActions.deleteItem, itemActions.duplicateItem,
+    itemActions.setItemStatus, itemActions.startNewItem,
+    // Chat actions
+    chatActions.ensureConversation, chatActions.addMessage, chatActions.toggleConversationTranslation,
+    // Swap actions
+    swapActions.proposeSwap, swapActions.updateSwapStatus, swapActions.addSwapFeedback,
+    swapActions.updateSwapLogistics, swapActions.confirmDelivery, swapActions.fileDispute,
+    // Safety actions
+    safetyActions.reportUser, safetyActions.blockUser, safetyActions.unblockUser,
+    safetyActions.markNotificationRead, safetyActions.clearNotifications,
+    // Monetization
+    monetization.tokenLedger, monetization.tokenBalance, monetization.loginStreak,
+    monetization.claimDailyReward, monetization.referralCode, monetization.referrals,
+    monetization.sendReferralInvite, monetization.giftTokens, monetization.featuredListings,
+    monetization.purchaseFeaturedSlot, monetization.purchaseInsurance, monetization.isVerified,
+    monetization.purchaseVerifiedBadge, monetization.activeTheme, monetization.purchaseTheme,
+    monetization.activateTheme, monetization.isBusiness, monetization.purchaseBusinessUpgrade,
+    monetization.subscription, monetization.activePromotions, monetization.swapMilestones,
+    monetization.loyaltyMilestones, monetization.hasFeature, monetization.achievements,
+    monetization.shopItems, monetization.purchaseShopItem,
+    // Remaining
+    language, setLanguage, user, tierBenefits, trackEvent,
     exportUserData, accountStatus, pauseAccount, resumeAccount, itemLimitReached,
     updateHouseProfile, addServiceProfile, removeServiceProfile,
     demoMode, demoItemCount, activateDemoMode, deactivateDemoMode,
-    setTyping, markMessagesRead, confirmDelivery, fileDispute,
-    loginStreak, claimDailyReward, referralCode, referrals, sendReferralInvite,
-    giftTokens, purchaseFeaturedSlot, purchaseInsurance, purchaseVerifiedBadge,
-    purchaseTheme, activateTheme, purchaseBusinessUpgrade,
-    subscription, activePromotions, featuredListings,
-    swapMilestones, loyaltyMilestones, tokenBalance, hasFeature,
-    activeTheme, isVerified, isBusiness,
-    trustScore, frictionLimits, checkScam, safeMeetingChecklistVal, trustLevelConfigVal,
+    setTyping, markMessagesRead, trustScore, frictionLimits, checkScam,
+    safeMeetingChecklistVal, trustLevelConfigVal,
     featureFlags, setFeatureFlag, isFeatureEnabled, cronJobs, metricsFunnel, funnelRates,
   ]);
 
