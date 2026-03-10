@@ -89,6 +89,7 @@ async function callGroq(prompt: string, systemPrompt: string): Promise<string | 
         max_tokens: 300,
         response_format: { type: "json_object" },
       }),
+      signal: AbortSignal.timeout(8_000),
     });
     if (!res.ok) return null;
     const data = await res.json();
@@ -112,6 +113,7 @@ async function callGemini(prompt: string, systemPrompt: string): Promise<string 
           contents: [{ parts: [{ text: prompt }] }],
           generationConfig: { temperature: 0.3, maxOutputTokens: 300, responseMimeType: "application/json" },
         }),
+        signal: AbortSignal.timeout(10_000),
       },
     );
     if (!res.ok) return null;
@@ -153,12 +155,12 @@ export async function POST(request: Request) {
 
     const prompt = buildUserPrompt(validated!);
 
-    // Try Groq first (fast), then Gemini
+    // Try Groq first (fast, 8s timeout), fall back to Gemini (10s timeout)
     let raw = await callGroq(prompt, SYSTEM_PROMPT);
     let provider = "groq";
     if (!raw) {
       raw = await callGemini(prompt, SYSTEM_PROMPT);
-      provider = "gemini";
+      provider = raw ? "gemini" : "fallback";
     }
 
     const parsed = parseAiResponse(raw);

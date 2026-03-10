@@ -432,7 +432,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       ] = await Promise.all([
         supabase.from("items").select("*")
           .or(`is_active.eq.true,owner_id.eq.${userId}`)
-          .order("created_at", { ascending: false }),
+          .order("created_at", { ascending: false })
+          .limit(2000),
         supabase.from("swaps").select("*")
           .or(`requester_id.eq.${userId},responder_id.eq.${userId}`)
           .order("updated_at", { ascending: false }),
@@ -1631,7 +1632,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       });
     }
     const signals = buildTrustSignals(user, {
-      accountAgeDays: 30, // TODO: compute from createdAt
+      accountAgeDays: user.createdAt
+        ? Math.floor((Date.now() - new Date(user.createdAt).getTime()) / 86_400_000)
+        : 0,
       emailVerified: true,
       reportsAgainst: 0,
       averageRating: 4.0,

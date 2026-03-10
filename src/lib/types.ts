@@ -55,6 +55,7 @@ export interface UserProfile {
     completedSwaps: number;
     activeListings: number;
   };
+  createdAt?: string;
   houseProfile?: HouseProfile;
   serviceProfiles?: ServiceProfile[];
 }
