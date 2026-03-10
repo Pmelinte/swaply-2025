@@ -738,11 +738,17 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     async (updates: Partial<UserProfile>, options?: { persist?: boolean }) => {
       setUser((prev) => (prev ? { ...prev, ...updates } : prev));
       const currentUser = userRef.current;
-      if (supabaseConfigured && supabase && options?.persist && currentUser?.id) {
+      if (options?.persist && supabaseConfigured && supabase) {
+        const userId = currentUser?.id ?? updates.id;
+        if (!userId) {
+          const msg = "Cannot save profile: user not loaded yet.";
+          setLastError(msg);
+          throw new Error(msg);
+        }
         setLastError(null);
         const merged = { ...currentUser, ...updates };
         const payload: Record<string, unknown> = {
-          id: currentUser.id, email: merged.email,
+          id: userId, email: merged.email,
           display_name: merged.displayName,
           first_name: merged.firstName ?? null, avatar_url: merged.avatarUrl ?? null,
           bio: merged.bio ?? null, badge: merged.badge, languages: merged.languages,
@@ -757,7 +763,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
         // Mark onboarding step_profile when avatar + bio + location are all present
         if (merged.avatarUrl && merged.bio && merged.location?.city) {
-          supabase.rpc("complete_onboarding_step", { p_user_id: currentUser.id, p_step: "profile" }).then(({ error: rpcErr }) => {
+          supabase.rpc("complete_onboarding_step", { p_user_id: userId, p_step: "profile" }).then(({ error: rpcErr }) => {
             if (rpcErr) console.error("[onboarding] complete_onboarding_step error:", rpcErr.message);
           });
         }
