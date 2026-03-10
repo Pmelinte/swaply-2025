@@ -3,20 +3,31 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { sendGAEvent } from "@next/third-parties/google";
 import { X, UserPlus } from "lucide-react";
 
 interface AuthGateModalProps {
   children: React.ReactNode;
   returnTo?: string;
+  /** GA4 event name to fire when the gate is triggered */
+  gaEvent?: string;
 }
 
 /**
  * Wraps an interaction button. On click, shows a modal prompting
  * the guest to create a free account instead of performing the action.
  */
-export function AuthGateModal({ children, returnTo = "/login" }: AuthGateModalProps) {
+export function AuthGateModal({ children, returnTo = "/login", gaEvent }: AuthGateModalProps) {
   const [open, setOpen] = useState(false);
   const t = useTranslations("guest");
+
+  const handleOpen = () => {
+    setOpen(true);
+    if (gaEvent) {
+      sendGAEvent("event", gaEvent);
+    }
+    sendGAEvent("event", "register_from_object_page");
+  };
 
   return (
     <>
@@ -27,12 +38,12 @@ export function AuthGateModal({ children, returnTo = "/login" }: AuthGateModalPr
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          setOpen(true);
+          handleOpen();
         }}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
-            setOpen(true);
+            handleOpen();
           }
         }}
       >

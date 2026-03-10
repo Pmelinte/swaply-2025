@@ -12,7 +12,9 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@next/third-parties": "^16.1.6",
     "@supabase/supabase-js": "^2.49.0",
+    "@vercel/analytics": "^1.6.1",
     "clsx": "^2.1.1",
     "country-state-city": "^3.2.1",
     "lucide-react": "^0.468.0",

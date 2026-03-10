@@ -13,6 +13,7 @@ import { GuestBanner } from "@/components/GuestBanner";
 import { ReportBlockButtons } from "@/components/safety/ReportBlockButtons";
 import { NO_IMAGE_URL } from "@/lib/storage";
 import { getSupabaseClient } from "@/lib/supabase/client";
+import { sendGAEvent } from "@next/third-parties/google";
 import {
   ChevronLeft,
   ChevronRight,
@@ -136,6 +137,16 @@ export default function ObjectDetailClient() {
     if (typeof window !== "undefined") setMeta("og:url", window.location.href);
 
     return () => { document.title = "Swaply"; };
+  }, [item]);
+
+  // GA4: object_page_view event
+  useEffect(() => {
+    if (!item) return;
+    sendGAEvent("event", "object_page_view", {
+      item_id: item.id,
+      item_category: item.category,
+      item_location: item.location,
+    });
   }, [item]);
 
   const myActiveItems = useMemo(
@@ -575,7 +586,7 @@ export default function ObjectDetailClient() {
           ) : (
             <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
               <div className="space-y-2">
-                <AuthGateModal returnTo={`/login?returnTo=/objects/${item.id}`}>
+                <AuthGateModal returnTo={`/login?returnTo=/objects/${item.id}`} gaEvent="propose_swap_click">
                   <button
                     type="button"
                     className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white"
