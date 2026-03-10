@@ -85,7 +85,7 @@ export async function middleware(request: NextRequest) {
     // Page routes → redirect to login with return URL
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/login";
-    loginUrl.searchParams.set("redirectTo", pathname);
+    loginUrl.searchParams.set("returnTo", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
