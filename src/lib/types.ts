@@ -593,6 +593,119 @@ export interface UserTrustInfo {
   holdReason?: string;
 }
 
+/* ─── Reviews ─── */
+
+export type ReviewTag =
+  | "punctual" | "honest" | "communicative" | "generous"
+  | "professional" | "friendly" | "flexible" | "reliable";
+
+export interface Review {
+  id: string;
+  swapId: string;
+  reviewerId: string;
+  reviewedId: string;
+  reviewerName?: string;
+  reviewerAvatar?: string;
+  rating: number;
+  comment: string;
+  tags: ReviewTag[];
+  photos: string[];
+  response?: string;
+  createdAt: string;
+}
+
+export interface UserRating {
+  avgRating: number;
+  reviewCount: number;
+  reviews: Review[];
+  tagCounts: Partial<Record<ReviewTag, number>>;
+}
+
+/* ─── Swap Chains ─── */
+
+export type SwapChainStatus = "forming" | "confirmed" | "in_progress" | "completed" | "cancelled";
+
+export interface SwapChainLink {
+  id: string;
+  chainId: string;
+  position: number;
+  giverId: string;
+  receiverId: string;
+  giverName?: string;
+  receiverName?: string;
+  itemId: string;
+  itemTitle?: string;
+  confirmed: boolean;
+  createdAt: string;
+}
+
+export interface SwapChain {
+  id: string;
+  name: string;
+  status: SwapChainStatus;
+  initiatorId: string;
+  links: SwapChainLink[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+/* ─── Identity Verification ─── */
+
+export type VerificationType = "email" | "phone" | "id_document" | "selfie" | "address";
+export type VerificationStatus = "pending" | "verified" | "rejected" | "expired";
+
+export interface Verification {
+  id: string;
+  userId: string;
+  type: VerificationType;
+  status: VerificationStatus;
+  verifiedAt?: string;
+  expiresAt?: string;
+  metadata: Record<string, unknown>;
+  createdAt: string;
+}
+
+export interface VerificationBadges {
+  email: boolean;
+  phone: boolean;
+  idDocument: boolean;
+  selfie: boolean;
+  address: boolean;
+  count: number;
+  level: "none" | "basic" | "standard" | "full";
+}
+
+/* ─── Image Gallery ─── */
+
+export interface ItemImage {
+  id: string;
+  itemId: string;
+  url: string;
+  position: number;
+  caption: string;
+  width?: number;
+  height?: number;
+  sizeBytes?: number;
+  uploadedAt: string;
+}
+
+/* ─── Search ─── */
+
+export interface SearchFilters {
+  query: string;
+  category?: string;
+  condition?: Item["condition"];
+  location?: string;
+  sortBy: "relevance" | "date" | "distance";
+  listingType?: ListingType;
+  maxDistance?: number;
+}
+
+export interface SearchResult {
+  item: Item;
+  relevance: number;
+}
+
 /* ─── Account Status ─── */
 
 export type AccountStatus = "active" | "paused" | "deleted";

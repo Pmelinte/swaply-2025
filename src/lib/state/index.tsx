@@ -29,17 +29,27 @@ import type {
   FeatureToggle,
   HouseProfile,
   Item,
+  ItemImage,
   LanguageCode,
   MatchCandidate,
   Notification,
+  Review,
+  ReviewTag,
+  SearchFilters,
+  SearchResult,
   ServiceProfile,
   ShopItem,
+  SwapChain,
+  SwapChainLink,
   SwapIntent,
   SwapType,
   TierBenefits,
   TokenLedgerEntry,
   TokenShopItem,
   UserProfile,
+  UserRating,
+  Verification,
+  VerificationBadges,
 } from "../types";
 import {
   createEmptyItem,
@@ -120,6 +130,11 @@ import { useChatActions } from "./useChatActions";
 import { useSwapActions } from "./useSwapActions";
 import { useSafetyActions } from "./useSafetyActions";
 import { useMonetization } from "./useMonetization";
+import { useReviews } from "./useReviews";
+import { useSwapChains } from "./useSwapChains";
+import { useVerification } from "./useVerification";
+import { useSearch } from "./useSearch";
+import { useImageGallery } from "./useImageGallery";
 
 // ── Re-export for backwards compatibility ──
 export { computeMatchesForUser } from "./matching";
@@ -233,6 +248,52 @@ interface AppStateContextProps {
   cronJobs: CronJob[];
   metricsFunnel: MetricsFunnel;
   funnelRates: ReturnType<typeof computeFunnelRates>;
+  // ── Reviews ──
+  reviews: Review[];
+  myReviews: Review[];
+  receivedReviews: Review[];
+  submitReview: (params: { swapId: string; reviewedId: string; rating: number; comment: string; tags?: ReviewTag[]; photos?: string[] }) => Promise<{ error?: string }>;
+  respondToReview: (reviewId: string, response: string) => Promise<{ error?: string }>;
+  getUserRating: (targetUserId: string) => UserRating;
+  canReview: (swapId: string) => boolean;
+  // ── Swap Chains ──
+  swapChains: SwapChain[];
+  myChains: SwapChain[];
+  pendingChainConfirmations: Array<{ chain: SwapChain; link: SwapChainLink }>;
+  createChain: (name: string, links: Omit<SwapChainLink, "id" | "chainId" | "confirmed" | "createdAt">[]) => Promise<SwapChain | null>;
+  confirmChainLink: (chainId: string, linkId: string) => Promise<{ error?: string }>;
+  startChain: (chainId: string) => Promise<{ error?: string }>;
+  completeChain: (chainId: string) => Promise<{ error?: string }>;
+  cancelChain: (chainId: string) => Promise<{ error?: string }>;
+  // ── Search & Discovery ──
+  searchFilters: SearchFilters;
+  searchResults: SearchResult[];
+  searchTotalResults: number;
+  searchCategoryCounts: Array<{ category: string; count: number }>;
+  searchLocationCounts: Array<{ location: string; count: number }>;
+  savedSearches: SearchFilters[];
+  updateSearchFilters: (updates: Partial<SearchFilters>) => void;
+  clearSearchFilters: () => void;
+  saveSearch: () => void;
+  removeSavedSearch: (index: number) => void;
+  // ── Image Gallery ──
+  imageUploading: boolean;
+  imageUploadProgress: number;
+  maxImagesPerItem: number;
+  uploadImages: (itemId: string, files: File[], existing?: ItemImage[]) => Promise<{ images: ItemImage[]; errors: string[] }>;
+  deleteImage: (image: ItemImage) => Promise<void>;
+  reorderImages: (images: ItemImage[], from: number, to: number) => ItemImage[];
+  updateImageCaption: (images: ItemImage[], imageId: string, caption: string) => ItemImage[];
+  setImageAsCover: (images: ItemImage[], imageId: string) => ItemImage[];
+  // ── Verification ──
+  verifications: Verification[];
+  verificationBadges: VerificationBadges;
+  requestEmailVerification: () => Promise<{ error?: string }>;
+  verifyEmailCode: (code: string) => Promise<{ error?: string }>;
+  requestPhoneVerification: (phone: string) => Promise<{ error?: string }>;
+  verifyPhoneCode: (code: string) => Promise<{ error?: string }>;
+  submitIdDocument: (url: string, type: string) => Promise<{ error?: string }>;
+  submitSelfie: (url: string) => Promise<{ error?: string }>;
 }
 
 const AppStateContext = createContext<AppStateContextProps | undefined>(undefined);
@@ -585,13 +646,15 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     return () => { if (unsubscribe) unsubscribe(); };
   }, [hydrateSupabase, supabase, supabaseConfigured]);
 
-  // ── Real-time chat ──
+  // ── Real-time chat + swaps ──
   const { setTyping, markMessagesRead } = useRealtime({
     supabase,
     userId: user?.id ?? null,
     conversations,
     setConversations,
     setNotifications,
+    setSwaps,
+    mapSwapIntent,
   });
 
   // ── Auth actions ──
@@ -785,6 +848,35 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
   const monetization = useMonetization({
     user, items, swaps, trackEvent,
+  });
+
+  // ── New feature hooks ──
+  const reviewsHook = useReviews({
+    userId: user?.id ?? null,
+    swaps,
+    trackEvent,
+  });
+
+  const chainsHook = useSwapChains({
+    userId: user?.id ?? null,
+    trackEvent,
+  });
+
+  const verificationHook = useVerification({
+    userId: user?.id ?? null,
+    userEmail: user?.email,
+    trackEvent,
+  });
+
+  const searchHook = useSearch({
+    items,
+    userId: user?.id ?? null,
+    userCoordinates: user?.location?.coordinates,
+  });
+
+  const galleryHook = useImageGallery({
+    userId: user?.id ?? null,
+    trackEvent,
   });
 
   // ── Tier benefits ──
@@ -1014,6 +1106,52 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     // Product Control
     featureFlags, setFeatureFlag, isFeatureEnabled,
     cronJobs, metricsFunnel, funnelRates,
+    // ── Reviews ──
+    reviews: reviewsHook.reviews,
+    myReviews: reviewsHook.myReviews,
+    receivedReviews: reviewsHook.receivedReviews,
+    submitReview: reviewsHook.submitReview,
+    respondToReview: reviewsHook.respondToReview,
+    getUserRating: reviewsHook.getUserRating,
+    canReview: reviewsHook.canReview,
+    // ── Swap Chains ──
+    swapChains: chainsHook.chains,
+    myChains: chainsHook.myChains,
+    pendingChainConfirmations: chainsHook.pendingConfirmations,
+    createChain: chainsHook.createChain,
+    confirmChainLink: chainsHook.confirmChainLink,
+    startChain: chainsHook.startChain,
+    completeChain: chainsHook.completeChain,
+    cancelChain: chainsHook.cancelChain,
+    // ── Search & Discovery ──
+    searchFilters: searchHook.filters,
+    searchResults: searchHook.results,
+    searchTotalResults: searchHook.totalResults,
+    searchCategoryCounts: searchHook.categoryCounts,
+    searchLocationCounts: searchHook.locationCounts,
+    savedSearches: searchHook.savedSearches,
+    updateSearchFilters: searchHook.updateFilters,
+    clearSearchFilters: searchHook.clearFilters,
+    saveSearch: searchHook.saveSearch,
+    removeSavedSearch: searchHook.removeSavedSearch,
+    // ── Image Gallery ──
+    imageUploading: galleryHook.uploading,
+    imageUploadProgress: galleryHook.uploadProgress,
+    maxImagesPerItem: galleryHook.maxImages,
+    uploadImages: galleryHook.uploadImages,
+    deleteImage: galleryHook.deleteImage,
+    reorderImages: galleryHook.reorderImages,
+    updateImageCaption: galleryHook.updateCaption,
+    setImageAsCover: galleryHook.setAsCover,
+    // ── Verification ──
+    verifications: verificationHook.verifications,
+    verificationBadges: verificationHook.badges,
+    requestEmailVerification: verificationHook.requestEmailVerification,
+    verifyEmailCode: verificationHook.verifyEmailCode,
+    requestPhoneVerification: verificationHook.requestPhoneVerification,
+    verifyPhoneCode: verificationHook.verifyPhoneCode,
+    submitIdDocument: verificationHook.submitIdDocument,
+    submitSelfie: verificationHook.submitSelfie,
   }), [
     dataSource, loading, lastError, announcements, notifications, conversations,
     featureToggles, items, login, resetPassword, deleteAccount, changeEmail,
@@ -1040,6 +1178,26 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     monetization.subscription, monetization.activePromotions, monetization.swapMilestones,
     monetization.loyaltyMilestones, monetization.hasFeature, monetization.achievements,
     monetization.shopItems, monetization.purchaseShopItem,
+    // Reviews
+    reviewsHook.reviews, reviewsHook.myReviews, reviewsHook.receivedReviews,
+    reviewsHook.submitReview, reviewsHook.respondToReview, reviewsHook.getUserRating, reviewsHook.canReview,
+    // Swap Chains
+    chainsHook.chains, chainsHook.myChains, chainsHook.pendingConfirmations,
+    chainsHook.createChain, chainsHook.confirmChainLink, chainsHook.startChain,
+    chainsHook.completeChain, chainsHook.cancelChain,
+    // Search
+    searchHook.filters, searchHook.results, searchHook.totalResults,
+    searchHook.categoryCounts, searchHook.locationCounts, searchHook.savedSearches,
+    searchHook.updateFilters, searchHook.clearFilters, searchHook.saveSearch, searchHook.removeSavedSearch,
+    // Gallery
+    galleryHook.uploading, galleryHook.uploadProgress, galleryHook.maxImages,
+    galleryHook.uploadImages, galleryHook.deleteImage, galleryHook.reorderImages,
+    galleryHook.updateCaption, galleryHook.setAsCover,
+    // Verification
+    verificationHook.verifications, verificationHook.badges,
+    verificationHook.requestEmailVerification, verificationHook.verifyEmailCode,
+    verificationHook.requestPhoneVerification, verificationHook.verifyPhoneCode,
+    verificationHook.submitIdDocument, verificationHook.submitSelfie,
     // Remaining
     language, setLanguage, user, tierBenefits, trackEvent,
     exportUserData, accountStatus, pauseAccount, resumeAccount, itemLimitReached,
