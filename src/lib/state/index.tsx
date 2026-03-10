@@ -417,7 +417,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           swap_preferences: newProfile.swapPreferences,
           security: newProfile.security,
           stats: newProfile.stats,
-        });
+        }, { onConflict: "id" });
         if (insertError) setLastError(insertError.message);
       }
 
@@ -751,7 +751,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           security: merged.security, stats: merged.stats,
           updated_at: new Date().toISOString(),
         };
-        const { error, data } = await supabase.from("profiles").upsert(payload).select().maybeSingle();
+        const { error, data } = await supabase.from("profiles").upsert(payload, { onConflict: "id" }).select().maybeSingle();
         if (error) { setLastError(error.message); throw new Error(error.message); }
         else if (data) setUser(mapProfile(data));
 
