@@ -40,7 +40,7 @@ const STATUS_COLORS: Record<Item["status"], string> = {
   active: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300",
   paused: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
   reserved: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
-  swapped: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
+  traded: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
   archived: "bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400",
 };
 
@@ -232,7 +232,7 @@ export default function MyObjectsPage() {
     active: myItems.filter((i) => i.status === "active").length,
     paused: myItems.filter((i) => i.status === "paused").length,
     reserved: myItems.filter((i) => i.status === "reserved").length,
-    swapped: myItems.filter((i) => i.status === "swapped").length,
+    traded: myItems.filter((i) => i.status === "traded").length,
     archived: myItems.filter((i) => i.status === "archived").length,
   };
 
@@ -309,7 +309,7 @@ export default function MyObjectsPage() {
     { key: "active", label: t("statusActive") },
     { key: "paused", label: t("statusPaused") },
     { key: "reserved", label: t("statusReserved") },
-    { key: "swapped", label: t("statusSwapped") },
+    { key: "traded", label: t("statusSwapped") },
     { key: "archived", label: t("statusArchived") },
   ];
 
@@ -361,7 +361,7 @@ export default function MyObjectsPage() {
             <ArrowRightLeft className="h-3.5 w-3.5" />
             {t("analyticsSwapped")}
           </div>
-          <p className="mt-1 text-xl font-bold text-purple-700 dark:text-purple-300">{statusCounts.swapped}</p>
+          <p className="mt-1 text-xl font-bold text-purple-700 dark:text-purple-300">{statusCounts.traded}</p>
         </div>
         <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-3 dark:border-blue-900 dark:bg-blue-950/20">
           <div className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400">

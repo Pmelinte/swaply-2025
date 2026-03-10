@@ -33,6 +33,8 @@ export function createMapProfile(userRef: MutableRef<UserProfile | null>) {
         safeString(data.user_id, safeString(data.uid, nanoid())),
       ),
       email: safeString(data.email, currentUser?.email ?? ""),
+      username: safeString(data.username, currentUser?.username),
+      fullName: safeString(data.full_name, safeString(data.fullName, currentUser?.fullName)),
       displayName: safeString(
         data.display_name,
         safeString(data.displayName, "Utilizator Swaply"),
@@ -119,6 +121,13 @@ export function createMapItem(userRef: MutableRef<UserProfile | null>) {
   return (row: Partial<Item> & Record<string, unknown>): Item => {
     const currentUser = userRef.current;
     const aiMeta = safeObject(row.ai_metadata, {}) as Record<string, unknown>;
+    // DB images is JSONB array of URLs; app photos is string[]
+    const imagesRaw = row.images ?? row.photos;
+    const photosList = Array.isArray(imagesRaw)
+      ? (imagesRaw as (string | { url?: string })[]).map((img) =>
+          typeof img === "string" ? img : safeString((img as Record<string, unknown>)?.url),
+        ).filter(Boolean)
+      : [];
     return {
       id: safeString(row.id, nanoid()),
       ownerId: safeString(
@@ -134,10 +143,10 @@ export function createMapItem(userRef: MutableRef<UserProfile | null>) {
       isDemo: safeBoolean(row.is_demo, false),
       isActive: safeBoolean(row.is_active, true),
       createdAt: safeString(row.created_at, new Date().toISOString()),
-      location: safeString(row.location, safeString(row.city)),
-      aiSuggestedTags: safeArray<string>(row.ai_suggested_tags, safeArray<string>(row.tags, row.aiSuggestedTags ?? [])),
-      userFinalTags: safeArray<string>(row.user_final_tags, safeArray<string>(row.tags, row.userFinalTags ?? [])),
-      photos: safeArray<string>(row.photos, safeArray<string>(row.images, [])),
+      location: safeString(row.location, safeString(row.location_city, safeString(row.city))),
+      aiSuggestedTags: safeArray<string>(row.tags, safeArray<string>(row.ai_suggested_tags, row.aiSuggestedTags ?? [])),
+      userFinalTags: safeArray<string>(row.tags, safeArray<string>(row.user_final_tags, row.userFinalTags ?? [])),
+      photos: photosList as string[],
       intent: (safeString(aiMeta.intent) || undefined) as Item["intent"],
       flexibility: (safeString(aiMeta.flexibility) || undefined) as Item["flexibility"],
       perceivedValue: (safeString(aiMeta.perceivedValue) || undefined) as Item["perceivedValue"],
@@ -162,10 +171,13 @@ export function createMapMessage() {
 
     return {
       id: safeString(row.id, nanoid()),
-      conversationId: safeString(row.conversation_id, safeString(row.conversationId)),
+      // DB uses conversation_id (text) or swap_id (uuid) — both map to conversationId
+      conversationId: safeString(row.conversation_id, safeString(row.swap_id, safeString(row.conversationId))),
       senderId: safeString(row.sender_id, safeString(row.senderId)),
+      recipientId: safeString(row.recipient_id, safeString(row.recipientId)) || undefined,
       content: safeString(row.content),
       createdAt: safeString(row.created_at, safeString(row.createdAt, new Date().toISOString())),
+      isRead: safeBoolean(row.is_read, false),
       translated: safeBoolean(row.translated, false),
       attachments,
       moderated: safeBoolean(row.moderated, false),
@@ -192,15 +204,16 @@ export function createMapSwapIntent() {
       id: safeString(row.id, nanoid()),
       requesterId: safeString(row.requester_id, safeString(row.requesterId)),
       responderId: safeString(row.responder_id, safeString(row.responderId)),
+      // DB `swaps` table uses offered_item_id / requested_item_id
       requesterItemId: safeString(
-        row.requester_item_id,
-        safeString(row.requesterItemId),
+        row.offered_item_id,
+        safeString(row.requester_item_id, safeString(row.requesterItemId)),
       ),
       responderItemId: safeString(
-        row.responder_item_id,
-        safeString(row.responderItemId),
+        row.requested_item_id,
+        safeString(row.responder_item_id, safeString(row.responderItemId)),
       ),
-      status: safeSwapStatus(row.status, "proposed"),
+      status: safeSwapStatus(row.status, "pending"),
       logistics: {
         locationType: safeLocationType(logistics.locationType),
         meetupPoint: safeString(logistics.meetupPoint),
@@ -218,13 +231,21 @@ export function createMapSwapIntent() {
 }
 
 export function createMapNotification() {
-  return (row: Partial<Notification> & Record<string, unknown>): Notification => ({
-    id: safeString(row.id, nanoid()),
-    userId: safeString(row.user_id, safeString(row.userId)),
-    type: safeString(row.type, "info"),
-    message: safeString(row.message),
-    read: safeBoolean(row.read, false),
-    priority: safeNotificationPriority(row.priority, "info"),
-    createdAt: safeString(row.created_at, safeString(row.createdAt, new Date().toISOString())),
-  });
+  return (row: Partial<Notification> & Record<string, unknown>): Notification => {
+    // DB uses title+body; app uses message. Combine for display.
+    const title = safeString(row.title);
+    const body = safeString(row.body);
+    const message = safeString(row.message) || (title && body ? `${title}: ${body}` : title || body);
+    return {
+      id: safeString(row.id, nanoid()),
+      userId: safeString(row.user_id, safeString(row.userId)),
+      type: safeString(row.type, "info"),
+      title: title || undefined,
+      message,
+      // DB uses is_read; app uses read
+      read: safeBoolean(row.is_read, safeBoolean(row.read, false)),
+      priority: safeNotificationPriority(row.priority, "info"),
+      createdAt: safeString(row.created_at, safeString(row.createdAt, new Date().toISOString())),
+    };
+  };
 }

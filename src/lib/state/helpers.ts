@@ -37,13 +37,14 @@ export const safeNotificationPriority = (
 
 export const safeSwapStatus = (
   value: unknown,
-  fallback: SwapIntent["status"] = "proposed",
+  fallback: SwapIntent["status"] = "pending",
 ) =>
-  value === "proposed" ||
-  value === "scheduled" ||
-  value === "in_progress" ||
+  value === "pending" ||
+  value === "accepted" ||
+  value === "rejected" ||
   value === "completed" ||
   value === "cancelled" ||
+  value === "expired" ||
   value === "disputed"
     ? value
     : fallback;

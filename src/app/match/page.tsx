@@ -109,7 +109,7 @@ export default function MatchPage() {
 
   // Apply dealbreakers to matches
   const dealbrokenMatches = useMemo(() => {
-    const conditionRank = { new: 3, good: 2, used: 1 } as const;
+    const conditionRank = { new: 3, good: 2, used_good: 2, used: 1 } as const;
     return matches.filter((m) => {
       // Condition filter
       if (minCondition !== "any") {

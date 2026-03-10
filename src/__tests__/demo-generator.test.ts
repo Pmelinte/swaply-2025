@@ -50,7 +50,7 @@ describe("generateDemoData", () => {
       expect(["new", "good", "used"]).toContain(item.condition);
       expect(item.description).toBeTruthy();
       expect(item.wishlist).toBeTruthy();
-      expect(["active", "paused", "reserved", "swapped", "archived"]).toContain(item.status);
+      expect(["active", "paused", "reserved", "traded", "archived"]).toContain(item.status);
       expect(item.isDemo).toBe(true);
       expect(item.createdAt).toBeTruthy();
       expect(item.photos.length).toBeGreaterThan(0);

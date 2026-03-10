@@ -101,8 +101,8 @@ export function ContextBar() {
       </div>
     );
   } else if (pathname === "/change" || pathname.startsWith("/change")) {
-    const pendingSwaps = swaps.filter((s) => s.status === "proposed" || s.status === "scheduled");
-    const inProgressSwaps = swaps.filter((s) => s.status === "in_progress");
+    const pendingSwaps = swaps.filter((s) => s.status === "pending");
+    const inProgressSwaps = swaps.filter((s) => s.status === "accepted");
     content = (
       <div className="flex items-center gap-3">
         <span className="inline-flex items-center gap-1">

@@ -142,11 +142,11 @@ describe("Type system validation", () => {
       requesterItemId: "item-1",
       responderItemId: "item-2",
       swapType: "object",
-      status: "proposed",
+      status: "pending",
       logistics: { locationType: "public_spot", meetupPoint: "Piata Unirii" },
       notifications: ["Swap proposed"],
     };
-    expect(swap.status).toBe("proposed");
+    expect(swap.status).toBe("pending");
     expect(swap.logistics.locationType).toBe("public_spot");
   });
 

@@ -2,7 +2,7 @@
 
 /**
  * SafeMeetingChecklist — interactive safety checklist for swap meetups.
- * Displayed when a swap status moves to "scheduled" or "in_progress".
+ * Displayed when a swap status moves to "accepted".
  */
 
 import { useState } from "react";

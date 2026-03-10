@@ -354,7 +354,7 @@ export const mockSwaps: SwapIntent[] = [
     responderId: "user-2",
     requesterItemId: mockItems[0].id,
     responderItemId: mockItems[2].id,
-    status: "scheduled",
+    status: "accepted",
     logistics: {
       locationType: "public_spot",
       meetupPoint: "Iulius Mall, intrarea principală",

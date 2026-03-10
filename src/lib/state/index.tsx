@@ -405,10 +405,13 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         const newProfile = mapProfile({ id: userId, email });
         setUser(newProfile);
 
+        const emailLocal = email.split("@")[0] || "user";
         const { error: insertError } = await supabase.from("profiles").upsert({
           user_id: userId,
           email,
-          display_name: email.split("@")[0],
+          username: emailLocal,
+          full_name: emailLocal,
+          display_name: emailLocal,
           badge: "free",
           languages: ["ro"],
           location: {},
@@ -428,10 +431,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         { data: messagesData, error: messagesError },
       ] = await Promise.all([
         supabase.from("items").select("*")
-          .is("deleted_at", null)
           .or(`is_active.eq.true,owner_id.eq.${userId}`)
           .order("created_at", { ascending: false }),
-        supabase.from("swap_intents").select("*")
+        supabase.from("swaps").select("*")
           .or(`requester_id.eq.${userId},responder_id.eq.${userId}`)
           .order("updated_at", { ascending: false }),
         supabase.from("notifications").select("*")
@@ -439,7 +441,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           .order("created_at", { ascending: false })
           .limit(30),
         supabase.from("messages").select("*")
-          .ilike("conversation_id", `%${userId}%`)
+          .or(`sender_id.eq.${userId},recipient_id.eq.${userId}`)
           .order("created_at", { ascending: true })
           .limit(1000),
       ]);
@@ -557,7 +559,6 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         const { data: publicItems } = await supabase
           .from("items")
           .select("*")
-          .is("deleted_at", null)
           .eq("is_active", true)
           .eq("status", "active")
           .order("created_at", { ascending: false })
@@ -582,7 +583,6 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           const { data: publicItems } = await supabase
             .from("items")
             .select("*")
-            .is("deleted_at", null)
             .eq("is_active", true)
             .eq("status", "active")
             .order("created_at", { ascending: false })
@@ -747,12 +747,17 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         }
         setLastError(null);
         const merged = { ...currentUser, ...updates };
+        const emailLocal = (merged.email ?? "").split("@")[0] || "user";
         const payload: Record<string, unknown> = {
           user_id: userId, email: merged.email,
+          username: merged.username || merged.displayName?.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "") || emailLocal,
+          full_name: merged.fullName || [merged.displayName, merged.firstName].filter(Boolean).join(" ") || merged.displayName || emailLocal,
           display_name: merged.displayName,
           first_name: merged.firstName ?? null, avatar_url: merged.avatarUrl ?? null,
           bio: merged.bio ?? null, badge: merged.badge, languages: merged.languages,
-          location: merged.location ?? {}, visibility: merged.visibility,
+          location: merged.location ?? {},
+          location_text: [merged.location?.city, merged.location?.country].filter(Boolean).join(", ") || null,
+          visibility: merged.visibility,
           notifications: merged.notifications, swap_preferences: merged.swapPreferences,
           security: merged.security, stats: merged.stats,
           updated_at: new Date().toISOString(),
@@ -786,17 +791,20 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         const payload = {
           id: item.id, owner_id: user.id, title: item.title,
           category: item.category, condition: item.condition,
-          description: item.description, wishlist: item.wishlist,
-          status: item.status, is_active: item.isActive ?? true,
+          description: item.description,
+          status: item.status === "traded" ? "traded" : item.status,
+          is_active: item.isActive ?? true,
           is_demo: item.isDemo ?? false, location: item.location,
-          ai_suggested_tags: item.aiSuggestedTags ?? [],
-          user_final_tags: item.userFinalTags ?? [], photos: item.photos ?? [],
+          tags: item.userFinalTags ?? item.aiSuggestedTags ?? [],
+          images: (item.photos ?? []).map((url: string) => url),
+          image_url: (item.photos ?? [])[0] ?? null,
           ai_metadata: {
             intent: item.intent ?? null, flexibility: item.flexibility ?? null,
             perceivedValue: item.perceivedValue ?? null, clarity: item.clarity ?? null,
             context: item.context ?? null, acceptsBundle: item.acceptsBundle ?? false,
             recipientMatters: item.recipientMatters ?? false,
             conditionImpact: item.conditionImpact ?? [], aiNote: item.aiNote ?? null,
+            wishlist: item.wishlist ?? null,
           },
           updated_at: new Date().toISOString(),
         };
@@ -837,7 +845,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       if (dataSource === "supabase" && supabase) {
         const { error } = await supabase
           .from("items")
-          .update({ deleted_at: new Date().toISOString(), is_active: false })
+          .update({ is_active: false, status: "archived", updated_at: new Date().toISOString() })
           .eq("id", id);
         if (error) {
           setLastError(error.message);
@@ -910,9 +918,13 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       ));
 
       if (dataSource === "supabase" && supabase) {
+        // Parse conversation_id (dm:userA:userB) to get recipient
+        const parsed = parseDmConversationId(conversationId);
+        const recipientId = parsed?.a === user.id ? parsed.b : parsed?.a;
         const { data, error } = await supabase.from("messages")
-          .insert({ conversation_id: conversationId, sender_id: user.id, content,
-            attachments: [], translated: false, moderated: false })
+          .insert({ conversation_id: conversationId, sender_id: user.id,
+            recipient_id: recipientId ?? user.id,
+            content, attachments: [] })
           .select("*").maybeSingle();
 
         if (error) {
@@ -975,10 +987,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           return null;
         }
 
-        const { data, error } = await supabase.from("swap_intents")
+        const { data, error } = await supabase.from("swaps")
           .insert({ requester_id: user.id, responder_id: responderId,
-            requester_item_id: requesterItemId, responder_item_id: responderItemId,
-            status: "proposed", logistics, notifications: ["Propunere swap trimisă."],
+            offered_item_id: requesterItemId, requested_item_id: responderItemId,
+            status: "pending", logistics, notifications: ["Propunere swap trimisă."],
             updated_at: new Date().toISOString() })
           .select("*").maybeSingle();
         if (error) { setLastError(error.message); return null; }
@@ -992,7 +1004,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       const localSwap: SwapIntent = {
         id: nanoid(), requesterId: user.id, responderId, requesterItemId, responderItemId,
         swapType: swapType ?? "object", requesterBundleIds, responderBundleIds,
-        status: "proposed", logistics, notifications: ["Propunere swap trimisă."], createdAt: now, updatedAt: now,
+        status: "pending", logistics, notifications: ["Propunere swap trimisă."], createdAt: now, updatedAt: now,
       };
       setSwaps((prev) => [localSwap, ...prev]);
 
@@ -1016,7 +1028,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       const nextNotifications = [...(existing?.notifications ?? []), `Status actualizat: ${status}`];
 
       if (dataSource === "supabase" && supabase) {
-        const { data, error } = await supabase.from("swap_intents")
+        const { data, error } = await supabase.from("swaps")
           .update({ status, notifications: nextNotifications, updated_at: new Date().toISOString() })
           .eq("id", swapId).select("*").maybeSingle();
         if (error) { setLastError(error.message); return; }
@@ -1029,10 +1041,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       sendAuditLog({ userId: user?.id ?? "", action: "swap.status_changed", entityType: "swap", entityId: swapId, oldData: { status: existing?.status }, newData: { status } });
 
       const statusMessages: Record<string, string> = {
-        scheduled: "Schimbul a fost programat!",
-        in_progress: "Schimbul este în desfășurare.",
+        accepted: "Schimbul a fost acceptat!",
+        rejected: "Schimbul a fost refuzat.",
         completed: "Schimbul a fost finalizat cu succes!",
         cancelled: "Schimbul a fost anulat.",
+        expired: "Schimbul a expirat.",
       };
       if (statusMessages[status]) {
         const reqItem = items.find((i) => i.id === existing?.requesterItemId);
@@ -1057,7 +1070,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       const nextNot = [...(existing?.notifications ?? []), "Feedback trimis."];
 
       if (dataSource === "supabase" && supabase) {
-        const { data, error } = await supabase.from("swap_intents")
+        const { data, error } = await supabase.from("swaps")
           .update({ feedback: { rating, comment }, notifications: nextNot, updated_at: new Date().toISOString() })
           .eq("id", swapId).select("*").maybeSingle();
         if (error) { setLastError(error.message); return; }
@@ -1077,7 +1090,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       const nextNot = [...(existing?.notifications ?? []), `Logistics updated: ${logistics.locationType}`];
 
       if (dataSource === "supabase" && supabase) {
-        const { data, error } = await supabase.from("swap_intents")
+        const { data, error } = await supabase.from("swaps")
           .update({ logistics, notifications: nextNot, updated_at: new Date().toISOString() })
           .eq("id", swapId).select("*").maybeSingle();
         if (error) { setLastError(error.message); return; }
@@ -1123,7 +1136,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         updated_at: new Date().toISOString(),
       };
       if (otherConfirmed) payload.status = "completed";
-      await supabase.from("swap_intents").update(payload).eq("id", swapId);
+      await supabase.from("swaps").update(payload).eq("id", swapId);
     }
 
     trackEvent("swap_delivery_confirmed", { swapId, side });
@@ -1159,7 +1172,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     setSwaps((prev) => prev.map((s) => s.id === swapId ? updated : s));
 
     if (dataSource === "supabase" && supabase) {
-      await supabase.from("swap_intents").update({
+      await supabase.from("swaps").update({
         status: "disputed",
         dispute,
         notifications: updated.notifications,
@@ -1186,12 +1199,13 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       if (!user?.id) return;
       setLastError(null);
       if (dataSource === "supabase" && supabase) {
+        const entityType = params.reportedItemId ? "item" : "user";
+        const entityId = params.reportedItemId ?? params.reportedUserId;
         const payload: Record<string, unknown> = {
-          reporter_id: user.id, reported_user_id: params.reportedUserId,
+          reporter_id: user.id, entity_type: entityType, entity_id: entityId,
           reason: params.reason, description: params.description ?? "", status: "pending",
         };
-        if (params.reportedItemId) payload.reported_item_id = params.reportedItemId;
-        const { error } = await supabase.from("abuse_reports").insert(payload);
+        const { error } = await supabase.from("reports").insert(payload);
         if (error) setLastError(error.message);
         sendAuditLog({ userId: user.id, action: "user.reported", entityType: "user", entityId: params.reportedUserId, newData: { reason: params.reason, reportedItemId: params.reportedItemId } });
       }
@@ -1224,7 +1238,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     if (!notificationId) return;
     setLastError(null);
     if (dataSource === "supabase" && supabase) {
-      const { error } = await supabase.from("notifications").update({ read: true }).eq("id", notificationId);
+      const { error } = await supabase.from("notifications").update({ is_read: true }).eq("id", notificationId);
       if (error) setLastError(error.message);
     }
     setNotifications((prev) => prev.map((n) => n.id === notificationId ? { ...n, read: true } : n));
@@ -1661,7 +1675,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const metricsFunnel = useMemo<MetricsFunnel>(() => {
     const usersWithItems = items.filter((i) => i.ownerId === user?.id).length > 0 ? 1 : 0;
     const usersWithChats = conversations.length > 0 ? 1 : 0;
-    const usersWithSwaps = swaps.filter((s) => s.status === "proposed" || s.status === "scheduled" || s.status === "in_progress").length > 0 ? 1 : 0;
+    const usersWithSwaps = swaps.filter((s) => s.status === "pending" || s.status === "accepted").length > 0 ? 1 : 0;
     const completedSwaps = swaps.filter((s) => s.status === "completed").length;
     return computeMetricsFromState({
       totalUsers: user ? 1 : 0,
