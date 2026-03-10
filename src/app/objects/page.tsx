@@ -9,6 +9,7 @@ import { NO_IMAGE_URL } from "@/lib/storage";
 import { SafeImage } from "@/components/SafeImage";
 import { CTAButton, Pill } from "@/components/ui";
 import { AdBanner } from "@/components/AdBanner";
+import { GuestBanner } from "@/components/GuestBanner";
 import { SwipeCard } from "@/features/items/SwipeCard";
 import type { Item, ListingType } from "@/lib/types";
 import {
@@ -243,7 +244,10 @@ export default function ObjectsPage() {
       : "all";
 
   // --- Browse mode (secondary) ---
-  const [browseMode, setBrowseMode] = useState<BrowseMode | null>(initialListingType !== "all" ? "grid" : null);
+  // Guests default to grid view; swipe mode requires auth
+  const [browseMode, setBrowseMode] = useState<BrowseMode | null>(
+    !user || initialListingType !== "all" ? "grid" : null
+  );
   const [search, setSearch] = useState("");
   const [sortMode, setSortMode] = useState<"newest" | "category" | "condition" | "popular" | "trusted">("newest");
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
@@ -476,7 +480,11 @@ export default function ObjectsPage() {
   const isSwipeView = browseMode === null;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6">
+    <div>
+      {/* Guest banner */}
+      {!user && <GuestBanner />}
+
+      <div className="mx-auto max-w-6xl px-4 py-6">
       {/* ── Header ── */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -494,7 +502,7 @@ export default function ObjectsPage() {
             </Link>
           )}
           <Link
-            href="/objects/new"
+            href={user ? "/objects/new" : "/login?returnTo=/objects/new"}
             className="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
           >
             <Plus className="h-4 w-4" />
@@ -506,16 +514,18 @@ export default function ObjectsPage() {
       {/* ── View mode switcher ── */}
       <div className="mb-4 flex items-center gap-2">
         <div className="flex rounded-lg border border-zinc-200 dark:border-zinc-700">
-          <button
-            onClick={() => setBrowseMode(null)}
-            className={`rounded-l-lg px-3 py-2 text-xs font-medium ${isSwipeView ? "bg-blue-600 text-white" : "text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"}`}
-          >
-            <Layers className="inline h-3.5 w-3.5 mr-1" />
-            {t("swipeMode")}
-          </button>
+          {user && (
+            <button
+              onClick={() => setBrowseMode(null)}
+              className={`rounded-l-lg px-3 py-2 text-xs font-medium ${isSwipeView ? "bg-blue-600 text-white" : "text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"}`}
+            >
+              <Layers className="inline h-3.5 w-3.5 mr-1" />
+              {t("swipeMode")}
+            </button>
+          )}
           <button
             onClick={() => setBrowseMode("grid")}
-            className={`px-2.5 py-2 ${browseMode === "grid" ? "bg-blue-600 text-white" : "text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"}`}
+            className={`${user ? "" : "rounded-l-lg "}px-2.5 py-2 ${browseMode === "grid" ? "bg-blue-600 text-white" : "text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"}`}
           >
             <LayoutGrid className="h-3.5 w-3.5" />
           </button>
@@ -1025,6 +1035,7 @@ export default function ObjectsPage() {
           )}
         </>
       )}
+    </div>
     </div>
   );
 }

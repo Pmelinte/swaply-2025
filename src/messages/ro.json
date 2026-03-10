@@ -1448,6 +1448,14 @@
     "cookieReject": "Doar esențiale",
     "cookieLearnMore": "Află mai multe"
   },
+  "guest": {
+    "bannerText": "Înregistrează-te gratuit pentru a propune schimburi și a discuta cu proprietarii",
+    "bannerCta": "Înregistrare",
+    "modalTitle": "Creează un cont gratuit",
+    "modalDescription": "Creează un cont gratuit pentru a propune schimburi, trimite mesaje și începe să faci schimburi.",
+    "modalCta": "Creează cont gratuit",
+    "modalDismiss": "Poate mai târziu"
+  },
   "onboarding": {
     "step1Title": "Listează obiectele",
     "step1Desc": "Fă o poză sau adaugă un link. AI completează automat categoria, tag-urile și sugerează o descriere.",

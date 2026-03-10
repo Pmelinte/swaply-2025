@@ -549,10 +549,21 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       } else {
         setLoggedIn(false);
         setUser(null);
-        setItems([]);
         setConversations([]);
         setSwaps([]);
         setNotifications([]);
+        // Public fetch: load active items for guest browsing
+        setLoading((prev) => ({ ...prev, items: true }));
+        const { data: publicItems } = await supabase
+          .from("items")
+          .select("*")
+          .is("deleted_at", null)
+          .eq("is_active", true)
+          .eq("status", "active")
+          .order("created_at", { ascending: false })
+          .limit(100);
+        if (publicItems) setItems(publicItems.map(mapItem));
+        else setItems([]);
         setLoading((prev) => ({ ...prev, auth: false, profile: false, items: false }));
       }
 
@@ -564,10 +575,20 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         } else {
           setLoggedIn(false);
           setUser(null);
-          setItems([]);
           setConversations([]);
           setSwaps([]);
           setNotifications([]);
+          // Re-fetch public items on logout
+          const { data: publicItems } = await supabase
+            .from("items")
+            .select("*")
+            .is("deleted_at", null)
+            .eq("is_active", true)
+            .eq("status", "active")
+            .order("created_at", { ascending: false })
+            .limit(100);
+          if (publicItems) setItems(publicItems.map(mapItem));
+          else setItems([]);
         }
       });
       unsubscribe = () => listener.subscription.unsubscribe();
