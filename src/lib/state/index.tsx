@@ -392,7 +392,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       const { data: profileData, error: profileError } = await supabase
         .from("profiles")
         .select("*")
-        .eq("id", userId)
+        .eq("user_id", userId)
         .maybeSingle();
 
       if (profileError) setLastError(profileError.message);
@@ -406,7 +406,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         setUser(newProfile);
 
         const { error: insertError } = await supabase.from("profiles").upsert({
-          id: userId,
+          user_id: userId,
           email,
           display_name: email.split("@")[0],
           badge: "free",
@@ -417,7 +417,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           swap_preferences: newProfile.swapPreferences,
           security: newProfile.security,
           stats: newProfile.stats,
-        }, { onConflict: "id" });
+        }, { onConflict: "user_id" });
         if (insertError) setLastError(insertError.message);
       }
 
@@ -480,12 +480,12 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
         if (participantIds.length) {
           const { data: participantProfiles, error: ppError } = await supabase
-            .from("profiles").select("id, display_name, badge")
-            .in("id", participantIds);
+            .from("profiles").select("user_id, display_name, badge")
+            .in("user_id", participantIds);
           if (ppError) setLastError(ppError.message);
 
           for (const row of participantProfiles ?? []) {
-            const id = safeString(row.id);
+            const id = safeString(row.user_id);
             if (!id) continue;
             profilesById.set(id, {
               displayName: safeString(row.display_name, "Utilizator"),
@@ -721,7 +721,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     if (supabaseConfigured && supabase && user?.id) {
       await supabase.from("items").delete().eq("owner_id", user.id);
       await supabase.from("notifications").delete().eq("user_id", user.id);
-      await supabase.from("profiles").delete().eq("id", user.id);
+      await supabase.from("profiles").delete().eq("user_id", user.id);
       await supabase.auth.signOut();
     }
     setLoggedIn(false);
@@ -748,7 +748,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         setLastError(null);
         const merged = { ...currentUser, ...updates };
         const payload: Record<string, unknown> = {
-          id: userId, email: merged.email,
+          user_id: userId, email: merged.email,
           display_name: merged.displayName,
           first_name: merged.firstName ?? null, avatar_url: merged.avatarUrl ?? null,
           bio: merged.bio ?? null, badge: merged.badge, languages: merged.languages,
@@ -757,7 +757,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           security: merged.security, stats: merged.stats,
           updated_at: new Date().toISOString(),
         };
-        const { error, data } = await supabase.from("profiles").upsert(payload, { onConflict: "id" }).select().maybeSingle();
+        const { error, data } = await supabase.from("profiles").upsert(payload, { onConflict: "user_id" }).select().maybeSingle();
         if (error) { setLastError(error.message); throw new Error(error.message); }
         else if (data) setUser(mapProfile(data));
 
@@ -875,7 +875,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
       if (dataSource === "supabase" && supabase) {
         const { data, error } = await supabase.from("profiles")
-          .select("id, display_name, badge").eq("id", participantId).maybeSingle();
+          .select("user_id, display_name, badge").eq("user_id", participantId).maybeSingle();
         if (error) setLastError(error.message);
         else if (data) {
           participantName = safeString(data.display_name, participantName);

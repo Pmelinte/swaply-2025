@@ -25,13 +25,13 @@ export async function POST(request: Request) {
   const { data: responder } = await supabase
     .from("profiles")
     .select("display_name, email")
-    .eq("id", responderId)
+    .eq("user_id", responderId)
     .maybeSingle();
 
   const { data: requester } = await supabase
     .from("profiles")
     .select("display_name")
-    .eq("id", requesterId)
+    .eq("user_id", requesterId)
     .maybeSingle();
 
   const recipientEmail = (responder as Record<string, unknown>)?.email as string;

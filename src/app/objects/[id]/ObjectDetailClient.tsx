@@ -96,7 +96,7 @@ export default function ObjectDetailClient() {
     supabase
       .from("profiles")
       .select("display_name, avatar_url, location, badge, stats")
-      .eq("id", item.ownerId)
+      .eq("user_id", item.ownerId)
       .maybeSingle()
       .then(({ data }) => {
         if (data) {
