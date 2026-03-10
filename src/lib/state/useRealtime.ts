@@ -37,7 +37,7 @@ export function useRealtime({
           event: "INSERT",
           schema: "public",
           table: "messages",
-          filter: `conversation_id=ilike.%${userId}%`,
+          filter: `conversation_id=like.%${userId}%`,
         },
         (payload) => {
           const newMsg = mapMessage(payload.new as Record<string, unknown>);

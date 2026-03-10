@@ -441,7 +441,6 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           .order("created_at", { ascending: false })
           .limit(30),
         supabase.from("messages").select("*")
-          .or(`sender_id.eq.${userId},recipient_id.eq.${userId}`)
           .order("created_at", { ascending: true })
           .limit(1000),
       ]);
@@ -918,12 +917,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       ));
 
       if (dataSource === "supabase" && supabase) {
-        // Parse conversation_id (dm:userA:userB) to get recipient
-        const parsed = parseDmConversationId(conversationId);
-        const recipientId = parsed?.a === user.id ? parsed.b : parsed?.a;
         const { data, error } = await supabase.from("messages")
           .insert({ conversation_id: conversationId, sender_id: user.id,
-            recipient_id: recipientId ?? user.id,
             content, attachments: [] })
           .select("*").maybeSingle();
 
@@ -1238,7 +1233,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     if (!notificationId) return;
     setLastError(null);
     if (dataSource === "supabase" && supabase) {
-      const { error } = await supabase.from("notifications").update({ is_read: true }).eq("id", notificationId);
+      const { error } = await supabase.from("notifications").update({ read: true }).eq("id", notificationId);
       if (error) setLastError(error.message);
     }
     setNotifications((prev) => prev.map((n) => n.id === notificationId ? { ...n, read: true } : n));
