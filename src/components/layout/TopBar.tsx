@@ -143,6 +143,7 @@ export function TopBar() {
                   onClick={() => setNotifOpen((prev) => !prev)}
                   className="relative inline-flex items-center justify-center rounded-full p-2 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
                   title={t("notifications.title")}
+                  aria-label={t("notifications.title")}
                 >
                   <Bell className="h-5 w-5" />
                   {unread > 0 && (
@@ -237,6 +238,7 @@ export function TopBar() {
                 disabled={loggingOut}
                 className="inline-flex items-center justify-center rounded-full p-2 text-zinc-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-50 dark:hover:bg-red-900/30 dark:hover:text-red-400"
                 title={t("nav.logout")}
+                aria-label={t("nav.logout")}
               >
                 <LogOut className="h-4 w-4" />
               </button>

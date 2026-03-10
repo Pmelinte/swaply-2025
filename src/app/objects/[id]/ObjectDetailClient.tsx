@@ -243,6 +243,7 @@ export default function ObjectDetailClient() {
                   type="button"
                   onClick={() => setActivePhoto((p) => (p === 0 ? photos.length - 1 : p - 1))}
                   className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-1.5 text-white backdrop-blur transition hover:bg-black/60"
+                  aria-label={t("previousPhoto")}
                 >
                   <ChevronLeft className="h-5 w-5" />
                 </button>
@@ -250,6 +251,7 @@ export default function ObjectDetailClient() {
                   type="button"
                   onClick={() => setActivePhoto((p) => (p === photos.length - 1 ? 0 : p + 1))}
                   className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-1.5 text-white backdrop-blur transition hover:bg-black/60"
+                  aria-label={t("nextPhoto")}
                 >
                   <ChevronRight className="h-5 w-5" />
                 </button>
@@ -267,6 +269,7 @@ export default function ObjectDetailClient() {
                   key={`${photo}-${idx}`}
                   type="button"
                   onClick={() => setActivePhoto(idx)}
+                  aria-label={t("selectPhoto", { number: idx + 1 })}
                   className={`relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg border-2 transition ${
                     idx === activePhoto
                       ? "border-blue-600"

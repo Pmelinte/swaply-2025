@@ -327,7 +327,11 @@
     "profileCompleteness": "Completare profil",
     "completeProfileHint": "Completează-ți profilul pentru a îmbunătăți calitatea potrivirilor",
     "loginHistory": "Istoric autentificări",
-    "loginHistoryDesc": "Sesiuni recente pe contul tău"
+    "loginHistoryDesc": "Sesiuni recente pe contul tău",
+    "profileNavigation": "Navigare profil",
+    "removeLanguage": "Elimină limba",
+    "removeService": "Elimină serviciul",
+    "notificationSettings": "Setări notificări"
   },
   "home": {
     "welcome": "Bine ai revenit",
@@ -522,7 +526,10 @@
     "viewAll": "Vezi toate",
     "loginToInteract": "Conectează-te pentru a propune schimburi și a discuta",
     "photoCount": "{current} / {total}",
-    "share": "Distribuie"
+    "share": "Distribuie",
+    "previousPhoto": "Fotografia anterioară",
+    "nextPhoto": "Fotografia următoare",
+    "selectPhoto": "Selectează fotografia {number}"
   },
   "objectEdit": {
     "loading": "Se încarcă editorul",

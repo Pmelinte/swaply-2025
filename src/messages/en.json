@@ -327,7 +327,11 @@
     "completeProfileHint": "Complete your profile to improve match quality",
     "loginHistory": "Login history",
     "loginHistoryDesc": "Recent sessions on your account",
-    "profileCompleteness": "Profile completeness"
+    "profileCompleteness": "Profile completeness",
+    "profileNavigation": "Profile navigation",
+    "removeLanguage": "Remove language",
+    "removeService": "Remove service",
+    "notificationSettings": "Notification settings"
   },
   "home": {
     "welcome": "Welcome back",
@@ -522,7 +526,10 @@
     "viewAll": "View all",
     "loginToInteract": "Login to propose swaps and chat",
     "photoCount": "{current} / {total}",
-    "share": "Share"
+    "share": "Share",
+    "previousPhoto": "Previous photo",
+    "nextPhoto": "Next photo",
+    "selectPhoto": "Select photo {number}"
   },
   "objectEdit": {
     "loading": "Loading editor",

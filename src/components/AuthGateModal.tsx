@@ -58,6 +58,7 @@ export function AuthGateModal({ children, returnTo = "/login", gaEvent }: AuthGa
               type="button"
               onClick={() => setOpen(false)}
               className="absolute right-3 top-3 rounded-full p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-700"
+              aria-label="Close"
             >
               <X className="h-4 w-4" />
             </button>
