@@ -10,6 +10,8 @@ export type LanguageCode =
 export interface UserProfile {
   id: string;
   email: string;
+  username?: string;
+  fullName?: string;
   displayName: string;
   firstName?: string;
   avatarUrl?: string;

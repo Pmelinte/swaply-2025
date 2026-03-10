@@ -33,6 +33,8 @@ export function createMapProfile(userRef: MutableRef<UserProfile | null>) {
         safeString(data.user_id, safeString(data.uid, nanoid())),
       ),
       email: safeString(data.email, currentUser?.email ?? ""),
+      username: safeString(data.username, currentUser?.username),
+      fullName: safeString(data.full_name, safeString(data.fullName, currentUser?.fullName)),
       displayName: safeString(
         data.display_name,
         safeString(data.displayName, "Utilizator Swaply"),

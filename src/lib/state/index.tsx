@@ -405,10 +405,13 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         const newProfile = mapProfile({ id: userId, email });
         setUser(newProfile);
 
+        const emailLocal = email.split("@")[0] || "user";
         const { error: insertError } = await supabase.from("profiles").upsert({
           user_id: userId,
           email,
-          display_name: email.split("@")[0],
+          username: emailLocal,
+          full_name: emailLocal,
+          display_name: emailLocal,
           badge: "free",
           languages: ["ro"],
           location: {},
@@ -747,12 +750,17 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         }
         setLastError(null);
         const merged = { ...currentUser, ...updates };
+        const emailLocal = (merged.email ?? "").split("@")[0] || "user";
         const payload: Record<string, unknown> = {
           user_id: userId, email: merged.email,
+          username: merged.username || merged.displayName?.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "") || emailLocal,
+          full_name: merged.fullName || [merged.displayName, merged.firstName].filter(Boolean).join(" ") || merged.displayName || emailLocal,
           display_name: merged.displayName,
           first_name: merged.firstName ?? null, avatar_url: merged.avatarUrl ?? null,
           bio: merged.bio ?? null, badge: merged.badge, languages: merged.languages,
-          location: merged.location ?? {}, visibility: merged.visibility,
+          location: merged.location ?? {},
+          location_text: [merged.location?.city, merged.location?.country].filter(Boolean).join(", ") || null,
+          visibility: merged.visibility,
           notifications: merged.notifications, swap_preferences: merged.swapPreferences,
           security: merged.security, stats: merged.stats,
           updated_at: new Date().toISOString(),
