@@ -94,7 +94,7 @@ export async function middleware(request: NextRequest) {
     const { data: profile } = await supabase
       .from("profiles")
       .select("badge")
-      .eq("id", user.id)
+      .eq("user_id", user.id)
       .maybeSingle();
 
     const badge = (profile as Record<string, unknown> | null)?.badge as string;

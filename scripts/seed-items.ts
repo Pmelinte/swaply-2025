@@ -318,7 +318,7 @@ async function main() {
   // 1. Fetch all existing users
   const { data: profiles, error: profilesError } = await supabase
     .from("profiles")
-    .select("id, display_name");
+    .select("user_id, display_name");
 
   if (profilesError) {
     console.error("Error fetching profiles:", profilesError.message);
@@ -352,7 +352,7 @@ async function main() {
     for (const tpl of selected) {
       const row = {
         id: randomUUID(),
-        owner_id: profile.id,
+        owner_id: profile.user_id,
         title: tpl.title,
         category: tpl.category,
         condition: tpl.condition,

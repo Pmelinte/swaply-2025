@@ -57,7 +57,7 @@ async function upsertSubscription(
 
   // Also store stripe_customer_id on profile for portal access
   if (stripeCustomerId) {
-    await sb.from("profiles").update({ stripe_customer_id: stripeCustomerId }).eq("id", userId);
+    await sb.from("profiles").update({ stripe_customer_id: stripeCustomerId }).eq("user_id", userId);
   }
 }
 
