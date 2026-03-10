@@ -428,6 +428,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           .order("created_at", { ascending: false })
           .limit(30),
         supabase.from("messages").select("*")
+          .or(`sender_id.eq.${userId},conversation_id.ilike.%${userId}%`)
           .order("created_at", { ascending: true })
           .limit(1000),
       ]);

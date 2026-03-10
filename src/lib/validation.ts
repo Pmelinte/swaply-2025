@@ -62,7 +62,7 @@ export const itemSchema = z.object({
   id: z.string().max(100).optional(),
   title: z.string().min(1).max(200),
   category: z.string().min(1).max(100),
-  condition: z.enum(["new", "good", "used"]),
+  condition: z.enum(["new", "good", "used", "used_good"]),
   description: z.string().max(5000).default(""),
   wishlist: z.string().max(2000).default(""),
   status: z.enum(["active", "reserved", "traded", "paused", "archived"]).default("active"),

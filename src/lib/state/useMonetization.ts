@@ -111,8 +111,7 @@ export function useMonetization(deps: MonetizationDeps) {
   // ── Gift Tokens ──
   const giftTokens = useCallback(async (recipientId: string, amount: number, message: string): Promise<{ error?: string }> => {
     if (!user) return { error: "Not logged in" };
-    const balance = computeBalance(tokenLedger);
-    const err = validateGiftAmount(amount, balance);
+    const err = validateGiftAmount(amount, tokenBalance);
     if (err) return { error: err };
     setTokenLedger((prev) => [
       ...prev,
@@ -121,15 +120,14 @@ export function useMonetization(deps: MonetizationDeps) {
     ]);
     trackEvent("tokens_gifted", { recipientId, amount });
     return {};
-  }, [user, tokenLedger, trackEvent]);
+  }, [user, tokenBalance, trackEvent]);
 
   // ── Featured Listings ──
   const [featuredListings, setFeaturedListings] = useState<FeaturedListing[]>([]);
 
   const purchaseFeaturedSlot = useCallback(async (itemId: string): Promise<{ error?: string }> => {
     if (!user) return { error: "Not logged in" };
-    const balance = computeBalance(tokenLedger);
-    if (balance < FEATURED_COST) return { error: "Fonduri insuficiente" };
+    if (tokenBalance < FEATURED_COST) return { error: "Fonduri insuficiente" };
     setTokenLedger((prev) => [...prev, {
       id: nanoid(), userId: user.id, amount: -FEATURED_COST,
       reason: "featured_spent" as const, description: `Featured: ${itemId}`,
@@ -142,13 +140,12 @@ export function useMonetization(deps: MonetizationDeps) {
     }]);
     trackEvent("featured_purchased", { itemId, cost: FEATURED_COST });
     return {};
-  }, [user, tokenLedger, trackEvent]);
+  }, [user, tokenBalance, trackEvent]);
 
   // ── Insurance ──
   const purchaseInsurance = useCallback(async (swapId: string): Promise<{ error?: string }> => {
     if (!user) return { error: "Not logged in" };
-    const balance = computeBalance(tokenLedger);
-    if (balance < INSURANCE_COST) return { error: "Fonduri insuficiente" };
+    if (tokenBalance < INSURANCE_COST) return { error: "Fonduri insuficiente" };
     setTokenLedger((prev) => [...prev, {
       id: nanoid(), userId: user.id, amount: -INSURANCE_COST,
       reason: "insurance_spent" as const, description: `Insurance: ${swapId}`,
@@ -156,7 +153,7 @@ export function useMonetization(deps: MonetizationDeps) {
     }]);
     trackEvent("insurance_purchased", { swapId, cost: INSURANCE_COST });
     return {};
-  }, [user, tokenLedger, trackEvent]);
+  }, [user, tokenBalance, trackEvent]);
 
   // ── Verified Badge ──
   const [isVerified, setIsVerified] = useState(false);
@@ -164,8 +161,7 @@ export function useMonetization(deps: MonetizationDeps) {
   const purchaseVerifiedBadge = useCallback(async (): Promise<{ error?: string }> => {
     if (!user) return { error: "Not logged in" };
     if (isVerified) return { error: "Deja verificat" };
-    const balance = computeBalance(tokenLedger);
-    if (balance < VERIFIED_BADGE_COST) return { error: "Fonduri insuficiente" };
+    if (tokenBalance < VERIFIED_BADGE_COST) return { error: "Fonduri insuficiente" };
     setTokenLedger((prev) => [...prev, {
       id: nanoid(), userId: user.id, amount: -VERIFIED_BADGE_COST,
       reason: "verified_spent" as const, description: "Verified badge",
@@ -174,7 +170,7 @@ export function useMonetization(deps: MonetizationDeps) {
     setIsVerified(true);
     trackEvent("verified_badge_purchased", { cost: VERIFIED_BADGE_COST });
     return {};
-  }, [user, isVerified, tokenLedger, trackEvent]);
+  }, [user, isVerified, tokenBalance, trackEvent]);
 
   // ── Themes ──
   const [purchasedThemes, setPurchasedThemes] = useState<string[]>([]);
@@ -185,8 +181,7 @@ export function useMonetization(deps: MonetizationDeps) {
     if (purchasedThemes.includes(themeId)) return { error: "Deja cumpărat" };
     const theme = PROFILE_THEMES.find((t) => t.id === themeId);
     if (!theme) return { error: "Tema inexistentă" };
-    const balance = computeBalance(tokenLedger);
-    if (balance < theme.cost) return { error: "Fonduri insuficiente" };
+    if (tokenBalance < theme.cost) return { error: "Fonduri insuficiente" };
     setTokenLedger((prev) => [...prev, {
       id: nanoid(), userId: user.id, amount: -theme.cost,
       reason: "theme_spent" as const, description: `Theme: ${theme.name}`,
@@ -196,7 +191,7 @@ export function useMonetization(deps: MonetizationDeps) {
     setActiveTheme(themeId);
     trackEvent("theme_purchased", { themeId, cost: theme.cost });
     return {};
-  }, [user, purchasedThemes, tokenLedger, trackEvent]);
+  }, [user, purchasedThemes, tokenBalance, trackEvent]);
 
   const activateTheme = useCallback((themeId: string) => {
     if (purchasedThemes.includes(themeId) || !themeId) setActiveTheme(themeId || null);
@@ -208,8 +203,7 @@ export function useMonetization(deps: MonetizationDeps) {
   const purchaseBusinessUpgrade = useCallback(async (companyName: string): Promise<{ error?: string }> => {
     if (!user) return { error: "Not logged in" };
     if (isBusiness) return { error: "Deja business" };
-    const balance = computeBalance(tokenLedger);
-    if (balance < BUSINESS_UPGRADE_COST) return { error: "Fonduri insuficiente" };
+    if (tokenBalance < BUSINESS_UPGRADE_COST) return { error: "Fonduri insuficiente" };
     setTokenLedger((prev) => [...prev, {
       id: nanoid(), userId: user.id, amount: -BUSINESS_UPGRADE_COST,
       reason: "business_upgrade" as const, description: `Business: ${companyName}`,
@@ -218,7 +212,7 @@ export function useMonetization(deps: MonetizationDeps) {
     setIsBusiness(true);
     trackEvent("business_upgrade", { companyName, cost: BUSINESS_UPGRADE_COST });
     return {};
-  }, [user, isBusiness, tokenLedger, trackEvent]);
+  }, [user, isBusiness, tokenBalance, trackEvent]);
 
   // ── Subscription ──
   const [subscription] = useState<UserSubscription>({
@@ -263,18 +257,23 @@ export function useMonetization(deps: MonetizationDeps) {
     return hasFeatureAccess(user?.badge ?? "free", feature);
   }, [user?.badge]);
 
-  // ── Token grants on swap completion ──
+  // ── Token grants on swap completion (batched) ──
   useEffect(() => {
+    if (!user?.id) return;
     const completedSwaps = swaps.filter((s) => s.status === "completed");
     const grantedSwapIds = new Set(tokenLedger.filter((e) => e.reason === "swap_completed").map((e) => e.description));
+    const newEntries: TokenLedgerEntry[] = [];
     for (const swap of completedSwaps) {
-      if (!grantedSwapIds.has(swap.id) && user?.id) {
-        setTokenLedger((prev) => [...prev, {
+      if (!grantedSwapIds.has(swap.id)) {
+        newEntries.push({
           id: nanoid(), userId: user.id, amount: 5, reason: "swap_completed" as const,
           description: swap.id, createdAt: new Date().toISOString(),
-        }]);
+        });
         trackEvent("tokens_granted", { amount: 5, reason: "swap_completed", swapId: swap.id });
       }
+    }
+    if (newEntries.length > 0) {
+      setTokenLedger((prev) => [...prev, ...newEntries]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [swaps, user?.id]);
@@ -318,8 +317,7 @@ export function useMonetization(deps: MonetizationDeps) {
     if (!user) return { error: "Not logged in" };
     const item = shopItems.find((si) => si.id === itemId);
     if (!item) return { error: "Item not found" };
-    const balance = tokenLedger.reduce((sum, e) => sum + e.amount, 0);
-    if (balance < item.cost) return { error: "Insufficient tokens" };
+    if (tokenBalance < item.cost) return { error: "Insufficient tokens" };
     setTokenLedger((prev) => [...prev, {
       id: nanoid(), userId: user.id, amount: -item.cost,
       reason: "boost_spent" as const, description: `Purchased: ${item.title}`,
@@ -327,7 +325,7 @@ export function useMonetization(deps: MonetizationDeps) {
     }]);
     trackEvent("shop_purchase", { itemId, cost: item.cost });
     return {};
-  }, [user, shopItems, tokenLedger, trackEvent]);
+  }, [user, shopItems, tokenBalance, trackEvent]);
 
   return {
     tokenLedger, tokenBalance,

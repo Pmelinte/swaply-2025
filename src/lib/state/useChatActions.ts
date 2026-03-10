@@ -34,7 +34,7 @@ export function useChatActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
       }, ...prev]);
       return conversationId;
     },
-    [conversations, dataSource, supabase, user?.id, setLastError, setConversations, mapMessage],
+    [conversations, dataSource, supabase, user?.id, setLastError, setConversations],
   );
 
   const addMessage = useCallback(

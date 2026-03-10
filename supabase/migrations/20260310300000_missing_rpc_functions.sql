@@ -85,6 +85,6 @@ BEGIN
       -- Mark fully completed when all core steps are done
       (COALESCE(onboarding_steps, '{}'::JSONB) || jsonb_build_object(p_step, true)) ?& ARRAY['profile']
     )
-  WHERE id = p_user_id;
+  WHERE user_id = p_user_id;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

@@ -164,14 +164,6 @@ export function computeMatchesForUser(
     myWishlistCats.set(offered.id, cats);
   }
 
-  // Pre-filter: bucket other items by category for faster lookup
-  const otherByCategory = new Map<string, Item[]>();
-  for (const item of otherItems) {
-    const list = otherByCategory.get(item.category) ?? [];
-    list.push(item);
-    otherByCategory.set(item.category, list);
-  }
-
   for (const offered of myItems) {
     for (const requested of otherItems) {
       // Hard filters

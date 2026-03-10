@@ -1,29 +1,13 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { getServerSupabase } from "@/lib/supabase/server";
+import { rateLimit } from "@/lib/rate-limit";
 
 const resend = process.env.RESEND_API_KEY
   ? new Resend(process.env.RESEND_API_KEY)
   : null;
 
 const FROM_EMAIL = process.env.EMAIL_FROM || "Swaply <noreply@swaply.app>";
-
-// Simple in-memory rate limiter: max 5 emails per user per minute
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
-const RATE_LIMIT_WINDOW = 60_000;
-const RATE_LIMIT_MAX = 5;
-
-function checkRateLimit(userId: string): boolean {
-  const now = Date.now();
-  const entry = rateLimitMap.get(userId);
-  if (!entry || now > entry.resetAt) {
-    rateLimitMap.set(userId, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
-    return true;
-  }
-  if (entry.count >= RATE_LIMIT_MAX) return false;
-  entry.count++;
-  return true;
-}
 
 /**
  * POST /api/email/swap-proposal
@@ -44,7 +28,7 @@ export async function POST(request: Request) {
   }
 
   // Rate limit
-  if (!checkRateLimit(authUser.id)) {
+  if (!rateLimit(authUser.id, { limit: 5, windowMs: 60_000 }).allowed) {
     return NextResponse.json({ error: "Too many requests" }, { status: 429 });
   }
 
@@ -55,29 +39,29 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
-  // Fetch responder profile for email
-  const { data: responder } = await supabase
-    .from("profiles")
-    .select("display_name, email")
-    .eq("user_id", responderId)
-    .maybeSingle();
-
-  const { data: requester } = await supabase
-    .from("profiles")
-    .select("display_name")
-    .eq("user_id", requesterId)
-    .maybeSingle();
+  // Fetch both profiles in parallel
+  const [{ data: responder }, { data: requester }] = await Promise.all([
+    supabase.from("profiles").select("display_name, email").eq("user_id", responderId).maybeSingle(),
+    supabase.from("profiles").select("display_name").eq("user_id", requesterId).maybeSingle(),
+  ]);
 
   const recipientEmail = (responder as Record<string, unknown>)?.email as string;
-  const recipientName = (responder as Record<string, unknown>)?.display_name as string || "Swaply User";
-  const senderName = (requester as Record<string, unknown>)?.display_name as string || "Un utilizator Swaply";
+  const rawRecipientName = (responder as Record<string, unknown>)?.display_name as string || "Swaply User";
+  const rawSenderName = (requester as Record<string, unknown>)?.display_name as string || "Un utilizator Swaply";
 
   if (!recipientEmail) {
     return NextResponse.json({ error: "Recipient email not found" }, { status: 404 });
   }
 
+  // Escape HTML to prevent XSS in email templates
+  const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  const recipientName = esc(rawRecipientName);
+  const senderName = esc(rawSenderName);
+  const safeRequesterItem = esc(requesterItemTitle || "un obiect");
+  const safeResponderItem = esc(responderItemTitle || "obiectul tău");
+
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://swaply.app";
-  const swapUrl = `${appUrl}/change?swap=${swapId}`;
+  const swapUrl = `${appUrl}/change?swap=${encodeURIComponent(swapId)}`;
   const unsubscribeUrl = `${appUrl}/profile#notifications`;
 
   const htmlBody = `
@@ -85,8 +69,8 @@ export async function POST(request: Request) {
       <h2 style="color: #1a1a1a; margin-bottom: 16px;">Ai primit o propunere de schimb!</h2>
       <p style="color: #444; line-height: 1.6;">
         Salut <strong>${recipientName}</strong>,<br><br>
-        <strong>${senderName}</strong> vrea să schimbe <em>${requesterItemTitle || "un obiect"}</em>
-        cu <em>${responderItemTitle || "obiectul tău"}</em>.
+        <strong>${senderName}</strong> vrea să schimbe <em>${safeRequesterItem}</em>
+        cu <em>${safeResponderItem}</em>.
       </p>
       <a href="${swapUrl}"
          style="display: inline-block; background: #2563eb; color: #fff; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin: 16px 0;">
