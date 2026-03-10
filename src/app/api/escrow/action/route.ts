@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { performEscrowAction } from "@/lib/payments/escrow";
 import type { EscrowAction } from "@/lib/payments/escrow";
+import { logAction } from "@/lib/audit";
 
 export async function POST(request: NextRequest) {
   let body: Record<string, unknown>;
@@ -30,6 +31,15 @@ export async function POST(request: NextRequest) {
       userId: String(body.userId),
       trackingNumber: body.trackingNumber ? String(body.trackingNumber) : undefined,
       notes: body.notes ? String(body.notes) : undefined,
+    });
+
+    await logAction({
+      userId: String(body.userId),
+      action: `escrow.${String(body.action)}`,
+      entityType: "escrow",
+      entityId: String(body.transactionId),
+      newData: { action: String(body.action), result: result },
+      request,
     });
 
     return NextResponse.json(result);

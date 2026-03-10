@@ -135,6 +135,7 @@
     "avatarUrl": "অবতার (URL)",
     "avatarPlaceholder": "https://example.com/avatar.jpg",
     "avatarUploadNote": "প্রকৃত আপলোডের জন্য Cloudinary/Supabase Storage ইন্টিগ্রেশন প্রয়োজন।",
+    "uploadAvatar": "Upload image",
     "displayName": "প্রদর্শন নাম",
     "firstName": "প্রথম নাম (ঐচ্ছিক)",
     "bio": "সংক্ষিপ্ত বিবরণ (বায়ো)",
@@ -1601,5 +1602,13 @@
     "recommended": "Recommended",
     "required": "Required",
     "title": "Safe Meeting Checklist"
+  },
+  "guest": {
+    "bannerText": "বিনিময় প্রস্তাব এবং মালিকদের সাথে চ্যাট করতে বিনামূল্যে সাইন আপ করুন",
+    "bannerCta": "সাইন আপ",
+    "modalTitle": "একটি বিনামূল্যে অ্যাকাউন্ট তৈরি করুন",
+    "modalDescription": "বিনিময় প্রস্তাব, বার্তা পাঠাতে এবং বিনিময় শুরু করতে একটি বিনামূল্যে অ্যাকাউন্ট তৈরি করুন।",
+    "modalCta": "বিনামূল্যে অ্যাকাউন্ট তৈরি করুন",
+    "modalDismiss": "পরে হয়তো"
   }
 }

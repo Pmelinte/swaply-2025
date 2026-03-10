@@ -135,6 +135,7 @@
     "avatarUrl": "Avatar (URL)",
     "avatarPlaceholder": "https://example.com/avatar.jpg",
     "avatarUploadNote": "Muat naik sebenar memerlukan integrasi Cloudinary/Supabase Storage.",
+    "uploadAvatar": "Upload image",
     "displayName": "Nama paparan",
     "firstName": "Nama pertama (pilihan)",
     "bio": "Penerangan ringkas (bio)",
@@ -1601,5 +1602,13 @@
     "recommended": "Recommended",
     "required": "Required",
     "title": "Safe Meeting Checklist"
+  },
+  "guest": {
+    "bannerText": "Daftar percuma untuk mencadangkan pertukaran dan berbual dengan pemilik",
+    "bannerCta": "Daftar",
+    "modalTitle": "Buat akaun percuma",
+    "modalDescription": "Buat akaun percuma untuk mencadangkan pertukaran, menghantar mesej, dan mula bertukar.",
+    "modalCta": "Buat akaun percuma",
+    "modalDismiss": "Mungkin nanti"
   }
 }

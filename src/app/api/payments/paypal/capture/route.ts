@@ -4,9 +4,10 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { captureOrder, isPayPalConfigured } from "@/lib/payments/paypal";
+import { getFeatureFlag } from "@/lib/feature-flags";
 
 export async function POST(request: NextRequest) {
-  if (!isPayPalConfigured()) {
+  if (!isPayPalConfigured() || !(await getFeatureFlag("paypal_payments"))) {
     return NextResponse.json({ error: "PayPal nu este configurat" }, { status: 503 });
   }
 

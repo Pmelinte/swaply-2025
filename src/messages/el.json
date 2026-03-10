@@ -135,6 +135,7 @@
     "avatarUrl": "Avatar (URL)",
     "avatarPlaceholder": "https://example.com/avatar.jpg",
     "avatarUploadNote": "Η πραγματική μεταφόρτωση απαιτεί ενσωμάτωση Cloudinary/Supabase Storage.",
+    "uploadAvatar": "Upload image",
     "displayName": "Εμφανιζόμενο όνομα",
     "firstName": "Όνομα (προαιρετικό)",
     "bio": "Σύντομη περιγραφή (bio)",
@@ -1601,5 +1602,13 @@
     "recommended": "Recommended",
     "required": "Required",
     "title": "Safe Meeting Checklist"
+  },
+  "guest": {
+    "bannerText": "Εγγραφείτε δωρεάν για να προτείνετε ανταλλαγές και να συνομιλήσετε με τους ιδιοκτήτες",
+    "bannerCta": "Εγγραφή",
+    "modalTitle": "Δημιουργήστε δωρεάν λογαριασμό",
+    "modalDescription": "Δημιουργήστε δωρεάν λογαριασμό για να προτείνετε ανταλλαγές, να στείλετε μηνύματα και να ξεκινήσετε να ανταλλάσσετε.",
+    "modalCta": "Δημιουργία δωρεάν λογαριασμού",
+    "modalDismiss": "Ίσως αργότερα"
   }
 }

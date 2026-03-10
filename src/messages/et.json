@@ -135,6 +135,7 @@
     "avatarUrl": "Avatar (URL)",
     "avatarPlaceholder": "https://example.com/avatar.jpg",
     "avatarUploadNote": "Tegelik üleslaadimine nöuab Cloudinary/Supabase Storage integratsiooni.",
+    "uploadAvatar": "Upload image",
     "displayName": "Kuvatav nimi",
     "firstName": "Eesnimi (valikuline)",
     "bio": "Lühikirjeldus (bio)",
@@ -1601,5 +1602,13 @@
     "recommended": "Recommended",
     "required": "Required",
     "title": "Safe Meeting Checklist"
+  },
+  "guest": {
+    "bannerText": "Registreeru tasuta, et pakkuda vahetusi ja vestelda omanikega",
+    "bannerCta": "Registreeru",
+    "modalTitle": "Loo tasuta konto",
+    "modalDescription": "Loo tasuta konto, et pakkuda vahetusi, saata sõnumeid ja alustada vahetamist.",
+    "modalCta": "Loo tasuta konto",
+    "modalDismiss": "Võib-olla hiljem"
   }
 }

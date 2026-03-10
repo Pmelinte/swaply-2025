@@ -22,6 +22,7 @@ import {
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { MapPreview } from "@/components/MapPreview";
+import { OnboardingBanner } from "@/components/onboarding/OnboardingBanner";
 
 export default function HomePage() {
   const {
@@ -31,10 +32,6 @@ export default function HomePage() {
     matches,
     swaps,
     notifications,
-    demoMode,
-    demoItemCount,
-    activateDemoMode,
-    deactivateDemoMode,
   } = useAppState();
   const t = useTranslations("home");
 
@@ -48,34 +45,6 @@ export default function HomePage() {
 
   return (
     <div className="space-y-8">
-      {/* ── Demo Mode Banner ── */}
-      {demoMode ? (
-        <div className="flex items-center justify-between rounded-xl border border-violet-300 bg-violet-50 px-4 py-3 dark:border-violet-700 dark:bg-violet-950/40">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-violet-600 dark:text-violet-400" />
-            <span className="text-sm font-semibold text-violet-800 dark:text-violet-200">
-              Demo Mode: {demoItemCount.toLocaleString()} items · {items.length.toLocaleString()} total · {matches.length.toLocaleString()} matches
-            </span>
-          </div>
-          <button type="button" onClick={deactivateDemoMode} className="rounded-full bg-violet-200 px-3 py-1 text-xs font-bold text-violet-800 hover:bg-violet-300 dark:bg-violet-800 dark:text-violet-200 dark:hover:bg-violet-700">
-            Exit Demo
-          </button>
-        </div>
-      ) : (
-        <div className="flex items-center justify-between rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-2 dark:border-zinc-700 dark:bg-zinc-800/50">
-          <span className="text-xs text-zinc-500 dark:text-zinc-400">
-            {items.length} items · {matches.length} matches
-          </span>
-          <div className="flex gap-2">
-            {[1000, 10000, 50000].map((n) => (
-              <button key={n} type="button" onClick={() => activateDemoMode(n)} className="rounded-full bg-violet-100 px-2.5 py-1 text-[10px] font-bold text-violet-700 transition hover:bg-violet-200 dark:bg-violet-900/40 dark:text-violet-300 dark:hover:bg-violet-800">
-                Demo {(n / 1000)}K
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* ── Hero ── */}
       {user ? (
         <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 p-6 text-white shadow-xl sm:p-8">
@@ -169,6 +138,9 @@ export default function HomePage() {
           </div>
         </section>
       )}
+
+      {/* ── Onboarding Progress ── */}
+      {user && <OnboardingBanner />}
 
       {/* ── Quick Actions (logged in) ── */}
       {user && (

@@ -1,9 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { GET } from "@/app/api/health/route";
+import { flagCache, DEFAULT_FLAGS } from "@/lib/feature-flags";
 
 describe("GET /api/health", () => {
   beforeEach(() => {
     vi.unstubAllEnvs();
+    // Reset flag cache to defaults before each test
+    flagCache.flags = DEFAULT_FLAGS;
+    flagCache.fetchedAt = Date.now(); // prevent Supabase fetch
+    flagCache.promise = null;
   });
 
   it("returns 200 with status ok", async () => {
@@ -41,15 +46,17 @@ describe("GET /api/health", () => {
     expect(data.services.supabase).toBe(true);
   });
 
-  it("reports ai as false when HF not enabled", async () => {
-    vi.stubEnv("NEXT_PUBLIC_HF_ENABLED", "false");
+  it("reports ai as false when ai_matching flag disabled", async () => {
+    flagCache.flags = DEFAULT_FLAGS.map((f) =>
+      f.id === "ai_matching" ? { ...f, enabled: false } : f,
+    );
     const response = await GET();
     const data = await response.json();
     expect(data.services.ai).toBe(false);
   });
 
-  it("reports ai as true when HF enabled", async () => {
-    vi.stubEnv("NEXT_PUBLIC_HF_ENABLED", "true");
+  it("reports ai as true when ai_matching flag enabled", async () => {
+    // ai_matching is enabled by default in DEFAULT_FLAGS
     const response = await GET();
     const data = await response.json();
     expect(data.services.ai).toBe(true);

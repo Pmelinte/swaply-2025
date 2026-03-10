@@ -4,10 +4,13 @@ import { Providers } from "./providers";
 import { TopBar } from "@/components/layout/TopBar";
 import { ContextBar } from "@/components/layout/ContextBar";
 import { FooterNav } from "@/components/layout/FooterNav";
+import { LegalFooter } from "@/components/layout/LegalFooter";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { GlobalNudge } from "@/components/layout/GlobalNudge";
 import { CookieConsent } from "@/components/legal/CookieConsent";
 import { OnboardingTutorial } from "@/components/onboarding/OnboardingTutorial";
+import { Analytics } from "@vercel/analytics/react";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 export const metadata: Metadata = {
   title: {
@@ -60,6 +63,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      {process.env.NEXT_PUBLIC_GA_ID && (
+        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
+      )}
       <body
         suppressHydrationWarning
         className="bg-gradient-to-br from-zinc-50 to-blue-50 text-zinc-900 antialiased font-sans dark:from-zinc-950 dark:to-slate-900 dark:text-zinc-50"
@@ -71,10 +77,12 @@ export default function RootLayout({
           <div className="mx-auto min-h-screen max-w-6xl px-4 pb-24 pt-4">
             {children}
           </div>
+          <LegalFooter />
           <FooterNav />
           <InstallPrompt />
           <CookieConsent />
           <OnboardingTutorial />
+          <Analytics />
         </Providers>
       </body>
     </html>

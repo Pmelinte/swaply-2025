@@ -135,6 +135,7 @@
     "avatarUrl": "Avatar (URL)",
     "avatarPlaceholder": "https://example.com/avatar.jpg",
     "avatarUploadNote": "Für echten Upload ist die Integration von Cloudinary/Supabase Storage erforderlich.",
+    "uploadAvatar": "Upload image",
     "displayName": "Anzeigename",
     "firstName": "Vorname (optional)",
     "bio": "Kurzbeschreibung (Bio)",
@@ -1601,5 +1602,13 @@
     "recommended": "Recommended",
     "required": "Required",
     "title": "Safe Meeting Checklist"
+  },
+  "guest": {
+    "bannerText": "Registrieren Sie sich kostenlos, um Tausche vorzuschlagen und mit Besitzern zu chatten",
+    "bannerCta": "Registrieren",
+    "modalTitle": "Kostenloses Konto erstellen",
+    "modalDescription": "Erstellen Sie ein kostenloses Konto, um Tausche vorzuschlagen, Nachrichten zu senden und mit dem Tauschen zu beginnen.",
+    "modalCta": "Kostenloses Konto erstellen",
+    "modalDismiss": "Vielleicht später"
   }
 }

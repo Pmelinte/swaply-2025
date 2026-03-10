@@ -135,6 +135,7 @@
     "avatarUrl": "Avatārs (URL)",
     "avatarPlaceholder": "https://example.com/avatar.jpg",
     "avatarUploadNote": "Reālai augšupielādei nepieciešama Cloudinary/Supabase Storage integrācija.",
+    "uploadAvatar": "Upload image",
     "displayName": "Parādāmvārds",
     "firstName": "Vārds (neobligāts)",
     "bio": "Īss apraksts (bio)",
@@ -1601,5 +1602,13 @@
     "recommended": "Recommended",
     "required": "Required",
     "title": "Safe Meeting Checklist"
+  },
+  "guest": {
+    "bannerText": "Reģistrējieties bez maksas, lai piedāvātu apmaiņas un tērzētu ar īpašniekiem",
+    "bannerCta": "Reģistrēties",
+    "modalTitle": "Izveidojiet bezmaksas kontu",
+    "modalDescription": "Izveidojiet bezmaksas kontu, lai piedāvātu apmaiņas, sūtītu ziņojumus un sāktu apmainīties.",
+    "modalCta": "Izveidot bezmaksas kontu",
+    "modalDismiss": "Varbūt vēlāk"
   }
 }

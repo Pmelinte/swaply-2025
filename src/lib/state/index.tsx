@@ -114,12 +114,11 @@ import type {
   MetricsFunnel,
 } from "../feature-flags";
 import {
-  DEFAULT_FLAGS,
   DEFAULT_CRON_JOBS,
-  isFlagEnabled,
   computeFunnelRates,
   computeMetricsFromState,
 } from "../feature-flags";
+import { useFeatureFlags } from "../use-feature-flags";
 import { buildUserContext } from "./matching";
 import type { MatchingUserContext, OwnerCoordinatesMap } from "./matching";
 
@@ -292,6 +291,18 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [demoMode, setDemoMode] = useState(false);
   const [demoItemCount, setDemoItemCount] = useState(0);
 
+  // Fire-and-forget audit log via /api/audit (server-side uses service role)
+  const sendAuditLog = useCallback((params: {
+    userId: string; action: string; entityType: string;
+    entityId?: string; oldData?: Record<string, unknown>; newData?: Record<string, unknown>;
+  }) => {
+    fetch("/api/audit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(params),
+    }).catch(() => { /* audit is best-effort */ });
+  }, []);
+
   const [language, setLanguage] = useState<LanguageCode>(() => {
     if (typeof window === "undefined") return "en";
     const saved = window.localStorage.getItem("swaply_language");
@@ -406,7 +417,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           swap_preferences: newProfile.swapPreferences,
           security: newProfile.security,
           stats: newProfile.stats,
-        });
+        }, { onConflict: "id" });
         if (insertError) setLastError(insertError.message);
       }
 
@@ -538,10 +549,21 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       } else {
         setLoggedIn(false);
         setUser(null);
-        setItems([]);
         setConversations([]);
         setSwaps([]);
         setNotifications([]);
+        // Public fetch: load active items for guest browsing
+        setLoading((prev) => ({ ...prev, items: true }));
+        const { data: publicItems } = await supabase
+          .from("items")
+          .select("*")
+          .is("deleted_at", null)
+          .eq("is_active", true)
+          .eq("status", "active")
+          .order("created_at", { ascending: false })
+          .limit(100);
+        if (publicItems) setItems(publicItems.map(mapItem));
+        else setItems([]);
         setLoading((prev) => ({ ...prev, auth: false, profile: false, items: false }));
       }
 
@@ -553,10 +575,20 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         } else {
           setLoggedIn(false);
           setUser(null);
-          setItems([]);
           setConversations([]);
           setSwaps([]);
           setNotifications([]);
+          // Re-fetch public items on logout
+          const { data: publicItems } = await supabase
+            .from("items")
+            .select("*")
+            .is("deleted_at", null)
+            .eq("is_active", true)
+            .eq("status", "active")
+            .order("created_at", { ascending: false })
+            .limit(100);
+          if (publicItems) setItems(publicItems.map(mapItem));
+          else setItems([]);
         }
       });
       unsubscribe = () => listener.subscription.unsubscribe();
@@ -719,9 +751,16 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           security: merged.security, stats: merged.stats,
           updated_at: new Date().toISOString(),
         };
-        const { error, data } = await supabase.from("profiles").upsert(payload).select().maybeSingle();
+        const { error, data } = await supabase.from("profiles").upsert(payload, { onConflict: "id" }).select().maybeSingle();
         if (error) { setLastError(error.message); throw new Error(error.message); }
         else if (data) setUser(mapProfile(data));
+
+        // Mark onboarding step_profile when avatar + bio + location are all present
+        if (merged.avatarUrl && merged.bio && merged.location?.city) {
+          supabase.rpc("complete_onboarding_step", { p_user_id: currentUser.id, p_step: "profile" }).then(({ error: rpcErr }) => {
+            if (rpcErr) console.error("[onboarding] complete_onboarding_step error:", rpcErr.message);
+          });
+        }
       }
     },
     [supabaseConfigured, mapProfile, supabase],
@@ -916,6 +955,20 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       };
 
       if (dataSource === "supabase" && supabase) {
+        // Check item availability (lock status) before proposing swap
+        const [reqAvail, resAvail] = await Promise.all([
+          supabase.rpc("is_item_available", { item_uuid: requesterItemId }),
+          supabase.rpc("is_item_available", { item_uuid: responderItemId }),
+        ]);
+        if (reqAvail.data === false) {
+          setLastError("Obiectul tău nu mai este disponibil");
+          return null;
+        }
+        if (resAvail.data === false) {
+          setLastError("Obiectul nu mai este disponibil");
+          return null;
+        }
+
         const { data, error } = await supabase.from("swap_intents")
           .insert({ requester_id: user.id, responder_id: responderId,
             requester_item_id: requesterItemId, responder_item_id: responderItemId,
@@ -962,10 +1015,12 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           .eq("id", swapId).select("*").maybeSingle();
         if (error) { setLastError(error.message); return; }
         if (data) { const mapped = mapSwapIntent(data); setSwaps((prev) => prev.map((s) => s.id === swapId ? mapped : s)); }
+        sendAuditLog({ userId: user?.id ?? "", action: "swap.status_changed", entityType: "swap", entityId: swapId, oldData: { status: existing?.status }, newData: { status } });
         return;
       }
 
       setSwaps((prev) => prev.map((s) => s.id === swapId ? { ...s, status, notifications: nextNotifications } : s));
+      sendAuditLog({ userId: user?.id ?? "", action: "swap.status_changed", entityType: "swap", entityId: swapId, oldData: { status: existing?.status }, newData: { status } });
 
       const statusMessages: Record<string, string> = {
         scheduled: "Schimbul a fost programat!",
@@ -985,7 +1040,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         }, ...prev]);
       }
     },
-    [dataSource, items, mapSwapIntent, supabase, swaps, user?.id],
+    [dataSource, items, mapSwapIntent, sendAuditLog, supabase, swaps, user?.id],
   );
 
   const addSwapFeedback = useCallback(
@@ -1132,9 +1187,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         if (params.reportedItemId) payload.reported_item_id = params.reportedItemId;
         const { error } = await supabase.from("abuse_reports").insert(payload);
         if (error) setLastError(error.message);
+        sendAuditLog({ userId: user.id, action: "user.reported", entityType: "user", entityId: params.reportedUserId, newData: { reason: params.reason, reportedItemId: params.reportedItemId } });
       }
     },
-    [dataSource, supabase, user?.id],
+    [dataSource, sendAuditLog, supabase, user?.id],
   );
 
   const blockUser = useCallback(async (targetUserId: string) => {
@@ -1145,7 +1201,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       if (error) setLastError(error.message);
     }
     setBlockedUsers((prev) => [...prev, targetUserId]);
-  }, [dataSource, supabase, user?.id]);
+    sendAuditLog({ userId: user?.id ?? "", action: "user.blocked", entityType: "user", entityId: targetUserId });
+  }, [dataSource, sendAuditLog, supabase, user?.id]);
 
   const unblockUser = useCallback(async (targetUserId: string) => {
     if (!user?.id || !targetUserId) return;
@@ -1577,18 +1634,22 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const safeMeetingChecklistVal = useMemo(() => SAFE_MEETING_CHECKLIST, []);
   const trustLevelConfigVal = useMemo(() => TRUST_LEVEL_CONFIG, []);
 
-  // ── Feature Flags (Product Control) ──
-  const [featureFlags, setFeatureFlags] = useState<FeatureFlag[]>(DEFAULT_FLAGS);
+  // ── Feature Flags (Product Control) — loaded from Supabase with 5-min cache ──
+  const {
+    flags: featureFlags,
+    isEnabled: isFeatureFlagEnabled,
+    setFlag: setFeatureFlagRaw,
+  } = useFeatureFlags(user?.id);
   const cronJobs = useMemo(() => DEFAULT_CRON_JOBS, []);
 
   const setFeatureFlag = useCallback((flagId: string, enabled: boolean) => {
-    setFeatureFlags((prev) => prev.map((f) => f.id === flagId ? { ...f, enabled } : f));
+    setFeatureFlagRaw(flagId, enabled);
     trackEvent("feature_flag_toggled", { flagId, enabled });
-  }, [trackEvent]);
+  }, [setFeatureFlagRaw, trackEvent]);
 
   const isFeatureEnabled = useCallback((flagId: string) => {
-    return isFlagEnabled(featureFlags, flagId, user?.id);
-  }, [featureFlags, user?.id]);
+    return isFeatureFlagEnabled(flagId);
+  }, [isFeatureFlagEnabled]);
 
   // ── Metrics Funnel ──
   const metricsFunnel = useMemo<MetricsFunnel>(() => {

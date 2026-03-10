@@ -1,12 +1,13 @@
 "use client";
 
+import { memo } from "react";
 import { SafeImage } from "@/components/SafeImage";
 import { useTranslations } from "next-intl";
 import { Item } from "@/lib/types";
 import { Pill } from "@/components/ui";
 import { NO_IMAGE_URL } from "@/lib/storage";
 
-export function ItemCard({
+export const ItemCard = memo(function ItemCard({
   item,
   onEdit,
   onDelete,
@@ -91,4 +92,4 @@ export function ItemCard({
       </div>
     </div>
   );
-}
+});

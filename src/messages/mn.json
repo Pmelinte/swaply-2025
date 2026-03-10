@@ -135,6 +135,7 @@
     "avatarUrl": "Аватар (URL)",
     "avatarPlaceholder": "https://example.com/avatar.jpg",
     "avatarUploadNote": "Жинхэнэ байршуулалтад Cloudinary/Supabase Storage холболт шаардлагатай.",
+    "uploadAvatar": "Upload image",
     "displayName": "Дэлгэх нэр",
     "firstName": "Нэр (сонголттой)",
     "bio": "Товч танилцуулга (био)",
@@ -1601,5 +1602,13 @@
     "recommended": "Recommended",
     "required": "Required",
     "title": "Safe Meeting Checklist"
+  },
+  "guest": {
+    "bannerText": "Солилцоо санал болгох, эзэмшигчидтэй чатлахын тулд үнэгүй бүртгүүлээрэй",
+    "bannerCta": "Бүртгүүлэх",
+    "modalTitle": "Үнэгүй бүртгэл үүсгэх",
+    "modalDescription": "Солилцоо санал болгох, мессеж илгээх, солилцоо эхлүүлэхийн тулд үнэгүй бүртгэл үүсгэнэ үү.",
+    "modalCta": "Үнэгүй бүртгэл үүсгэх",
+    "modalDismiss": "Магадгүй дараа"
   }
 }

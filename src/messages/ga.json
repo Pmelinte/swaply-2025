@@ -135,6 +135,7 @@
     "avatarUrl": "Avatar (URL)",
     "avatarPlaceholder": "https://example.com/avatar.jpg",
     "avatarUploadNote": "Teastaíonn comhthathu Cloudinary/Supabase Storage le haghaidh fior-uasluchtú.",
+    "uploadAvatar": "Upload image",
     "displayName": "Ainm taispeana",
     "firstName": "Cead ainm (roghnach)",
     "bio": "Cur sios gearr (bio)",
@@ -1601,5 +1602,13 @@
     "recommended": "Recommended",
     "required": "Required",
     "title": "Safe Meeting Checklist"
+  },
+  "guest": {
+    "bannerText": "Cláraigh saor in aisce chun babhtálacha a mholadh agus comhrá a dhéanamh le húinéirí",
+    "bannerCta": "Cláraigh",
+    "modalTitle": "Cruthaigh cuntas saor in aisce",
+    "modalDescription": "Cruthaigh cuntas saor in aisce chun babhtálacha a mholadh, teachtaireachtaí a sheoladh agus tosú ag babhtáil.",
+    "modalCta": "Cruthaigh cuntas saor in aisce",
+    "modalDismiss": "B'fhéidir níos déanaí"
   }
 }

@@ -135,6 +135,7 @@
     "avatarUrl": "Avatar (URL)",
     "avatarPlaceholder": "https://example.com/avatar.jpg",
     "avatarUploadNote": "Reell opplasting krever Cloudinary/Supabase Storage-integrasjon.",
+    "uploadAvatar": "Upload image",
     "displayName": "Visningsnavn",
     "firstName": "Fornavn (valgfritt)",
     "bio": "Kort beskrivelse (bio)",
@@ -1601,5 +1602,13 @@
     "recommended": "Recommended",
     "required": "Required",
     "title": "Safe Meeting Checklist"
+  },
+  "guest": {
+    "bannerText": "Registrer deg gratis for å foreslå bytter og chatte med eiere",
+    "bannerCta": "Registrer deg",
+    "modalTitle": "Opprett en gratis konto",
+    "modalDescription": "Opprett en gratis konto for å foreslå bytter, sende meldinger og begynne å bytte.",
+    "modalCta": "Opprett gratis konto",
+    "modalDismiss": "Kanskje senere"
   }
 }

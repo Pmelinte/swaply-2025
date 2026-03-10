@@ -135,6 +135,7 @@
     "avatarUrl": "अवतार (URL)",
     "avatarPlaceholder": "https://example.com/avatar.jpg",
     "avatarUploadNote": "वास्तविक अपलोड के लिए Cloudinary/Supabase Storage एकीकरण आवश्यक है।",
+    "uploadAvatar": "Upload image",
     "displayName": "प्रदर्शन नाम",
     "firstName": "पहला नाम (वैकल्पिक)",
     "bio": "संक्षिप्त विवरण (बायो)",
@@ -1601,5 +1602,13 @@
     "recommended": "Recommended",
     "required": "Required",
     "title": "Safe Meeting Checklist"
+  },
+  "guest": {
+    "bannerText": "स्वैप प्रस्तावित करने और मालिकों से चैट करने के लिए मुफ़्त में साइन अप करें",
+    "bannerCta": "साइन अप करें",
+    "modalTitle": "मुफ़्त खाता बनाएं",
+    "modalDescription": "स्वैप प्रस्तावित करने, संदेश भेजने और एक्सचेंज शुरू करने के लिए मुफ़्त खाता बनाएं।",
+    "modalCta": "मुफ़्त खाता बनाएं",
+    "modalDismiss": "शायद बाद में"
   }
 }

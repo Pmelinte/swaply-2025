@@ -135,6 +135,7 @@
     "avatarUrl": "Avatar (URL)",
     "avatarPlaceholder": "https://example.com/avatar.jpg",
     "avatarUploadNote": "Skutočné nahrávanie vyžaduje integráciu Cloudinary/Supabase Storage.",
+    "uploadAvatar": "Upload image",
     "displayName": "Zobrazované meno",
     "firstName": "Krstné meno (voliteľné)",
     "bio": "Krátky popis (životopis)",
@@ -1601,5 +1602,13 @@
     "recommended": "Recommended",
     "required": "Required",
     "title": "Safe Meeting Checklist"
+  },
+  "guest": {
+    "bannerText": "Zaregistrujte sa zadarmo a navrhujte výmeny a chatujte s vlastníkmi",
+    "bannerCta": "Registrácia",
+    "modalTitle": "Vytvorte si bezplatný účet",
+    "modalDescription": "Vytvorte si bezplatný účet na navrhovanie výmen, posielanie správ a začatie výmeny.",
+    "modalCta": "Vytvoriť bezplatný účet",
+    "modalDismiss": "Možno neskôr"
   }
 }

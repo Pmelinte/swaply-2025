@@ -135,6 +135,7 @@
     "avatarUrl": "รูปโปรไฟล์ (URL)",
     "avatarPlaceholder": "https://example.com/avatar.jpg",
     "avatarUploadNote": "การอัปโหลดจริงต้องใช้การเชื่อมต่อ Cloudinary/Supabase Storage",
+    "uploadAvatar": "Upload image",
     "displayName": "ชื่อที่แสดง",
     "firstName": "ชื่อจริง (ไม่บังคับ)",
     "bio": "คำอธิบายสั้น (ประวัติ)",
@@ -1601,5 +1602,13 @@
     "recommended": "Recommended",
     "required": "Required",
     "title": "Safe Meeting Checklist"
+  },
+  "guest": {
+    "bannerText": "สมัครฟรีเพื่อเสนอการแลกเปลี่ยนและแชทกับเจ้าของ",
+    "bannerCta": "สมัคร",
+    "modalTitle": "สร้างบัญชีฟรี",
+    "modalDescription": "สร้างบัญชีฟรีเพื่อเสนอการแลกเปลี่ยน ส่งข้อความ และเริ่มแลกเปลี่ยน",
+    "modalCta": "สร้างบัญชีฟรี",
+    "modalDismiss": "ไว้ทีหลัง"
   }
 }

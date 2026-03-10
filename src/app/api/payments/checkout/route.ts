@@ -5,9 +5,10 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { createTokenCheckout, createSubscriptionCheckout, createOneTimePayment, isStripeConfigured } from "@/lib/payments/stripe";
+import { getFeatureFlag } from "@/lib/feature-flags";
 
 export async function POST(request: NextRequest) {
-  if (!isStripeConfigured()) {
+  if (!isStripeConfigured() || !(await getFeatureFlag("stripe_payments"))) {
     return NextResponse.json({ error: "Stripe nu este configurat" }, { status: 503 });
   }
 

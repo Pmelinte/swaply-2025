@@ -135,6 +135,7 @@
     "avatarUrl": "Avatar (URL)",
     "avatarPlaceholder": "https://example.com/avatar.jpg",
     "avatarUploadNote": "Todellinen lataus vaatii Cloudinary/Supabase Storage -integraation.",
+    "uploadAvatar": "Upload image",
     "displayName": "Näyttönimi",
     "firstName": "Etunimi (valinnainen)",
     "bio": "Lyhyt kuvaus (bio)",
@@ -1601,5 +1602,13 @@
     "recommended": "Recommended",
     "required": "Required",
     "title": "Safe Meeting Checklist"
+  },
+  "guest": {
+    "bannerText": "Rekisteröidy ilmaiseksi ehdottaaksesi vaihtoja ja keskustellaksesi omistajien kanssa",
+    "bannerCta": "Rekisteröidy",
+    "modalTitle": "Luo ilmainen tili",
+    "modalDescription": "Luo ilmainen tili ehdottaaksesi vaihtoja, lähettääksesi viestejä ja aloittaaksesi vaihtamisen.",
+    "modalCta": "Luo ilmainen tili",
+    "modalDismiss": "Ehkä myöhemmin"
   }
 }

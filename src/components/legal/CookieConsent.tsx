@@ -53,7 +53,7 @@ export function CookieConsent() {
           {t("cookieReject")}
         </button>
         <Link
-          href="/privacy"
+          href="/cookies"
           className="text-sm text-blue-600 underline hover:text-blue-700 dark:text-blue-400"
         >
           {t("cookieLearnMore")}

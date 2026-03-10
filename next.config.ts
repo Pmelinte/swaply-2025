@@ -3,6 +3,10 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   output: "standalone",
   images: {
+    formats: ["image/avif", "image/webp"],
+    deviceSizes: [640, 750, 828, 1080, 1200],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256],
+    minimumCacheTTL: 60 * 60 * 24 * 30,
     remotePatterns: [
       { protocol: "https", hostname: "res.cloudinary.com" },
       { protocol: "https", hostname: "images.unsplash.com" },
@@ -21,11 +25,11 @@ const nextConfig: NextConfig = {
           key: "Content-Security-Policy",
           value: [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://va.vercel-scripts.com",
             "style-src 'self' 'unsafe-inline'",
             "img-src 'self' data: blob: https://res.cloudinary.com https://*.supabase.co https://images.unsplash.com https://picsum.photos https://i.pravatar.cc https://maps.googleapis.com https://flagcdn.com https://ui-avatars.com",
             "font-src 'self'",
-            "connect-src 'self' https://*.supabase.co https://api-inference.huggingface.co https://router.huggingface.co https://api.groq.com https://generativelanguage.googleapis.com",
+            "connect-src 'self' https://*.supabase.co https://api-inference.huggingface.co https://router.huggingface.co https://api.groq.com https://generativelanguage.googleapis.com https://www.google-analytics.com https://*.analytics.google.com https://va.vercel-scripts.com",
             "frame-src 'self' https://www.google.com https://maps.google.com",
             "object-src 'none'",
             "base-uri 'self'",

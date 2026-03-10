@@ -15,11 +15,14 @@ interface AdBannerProps {
 }
 
 export function AdBanner({ placement, className = "" }: AdBannerProps) {
-  const { user } = useAppState();
+  const { user, isFeatureEnabled } = useAppState();
   const t = useTranslations("adBanner");
 
   // Premium/Platinum users = ad-free
   if (user?.badge === "premium" || user?.badge === "platinum") return null;
+
+  // Feature flag gate — admin can disable all ads from Supabase
+  if (!isFeatureEnabled("ads_display")) return null;
 
   const adsenseId = process.env.NEXT_PUBLIC_ADSENSE_ID;
   const carbonServe = process.env.NEXT_PUBLIC_CARBON_SERVE;
