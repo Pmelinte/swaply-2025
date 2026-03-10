@@ -9,7 +9,7 @@ import { getServerSupabase } from "@/lib/supabase/server";
  * Currently logs the email payload for development.
  */
 export async function POST(request: Request) {
-  const supabase = getServerSupabase();
+  const supabase = await getServerSupabase();
   if (!supabase) {
     return NextResponse.json({ error: "Database not configured" }, { status: 503 });
   }

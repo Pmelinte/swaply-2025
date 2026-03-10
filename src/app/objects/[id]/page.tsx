@@ -7,7 +7,7 @@ interface Props {
 }
 
 async function getItem(id: string) {
-  const supabase = getServerSupabase();
+  const supabase = await getServerSupabase();
   if (!supabase) return null;
 
   const { data } = await supabase
