@@ -13,6 +13,8 @@ interface UseRealtimeParams {
   conversations: Conversation[];
   setConversations: React.Dispatch<React.SetStateAction<Conversation[]>>;
   setNotifications: React.Dispatch<React.SetStateAction<Notification[]>>;
+  setSwaps?: React.Dispatch<React.SetStateAction<import("../types").SwapIntent[]>>;
+  mapSwapIntent?: (row: Record<string, unknown>) => import("../types").SwapIntent;
 }
 
 export function useRealtime({
@@ -21,6 +23,8 @@ export function useRealtime({
   conversations,
   setConversations,
   setNotifications,
+  setSwaps,
+  mapSwapIntent,
 }: UseRealtimeParams) {
   const mapMessage = useMemo(() => createMapMessage(), []);
   const typingTimeouts = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
@@ -37,7 +41,7 @@ export function useRealtime({
           event: "INSERT",
           schema: "public",
           table: "messages",
-          filter: `conversation_id=ilike.%${userId}%`,
+          filter: `conversation_id=like.%${userId}%`,
         },
         (payload) => {
           const newMsg = mapMessage(payload.new as Record<string, unknown>);
@@ -160,6 +164,104 @@ export function useRealtime({
       supabase.removeChannel(channel);
     };
   }, [supabase, userId, setNotifications]);
+
+  // Subscribe to swap intent updates (status changes)
+  useEffect(() => {
+    if (!supabase || !userId || !setSwaps || !mapSwapIntent) return;
+
+    const channel = supabase
+      .channel(`swaps:${userId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "swap_intents",
+        },
+        (payload) => {
+          const data = payload.new as Record<string, unknown>;
+          const requesterId = String(data.requester_id ?? "");
+          const responderId = String(data.responder_id ?? "");
+
+          // Only process swaps the user is part of
+          if (requesterId !== userId && responderId !== userId) return;
+
+          const updated = mapSwapIntent(data);
+
+          setSwaps((prev) => {
+            const idx = prev.findIndex((s) => s.id === updated.id);
+            if (idx === -1) return [updated, ...prev];
+            const next = [...prev];
+            next[idx] = updated;
+            return next;
+          });
+
+          // Status-specific notifications
+          const statusLabels: Record<string, string> = {
+            accepted: "Schimbul a fost acceptat!",
+            completed: "Schimbul a fost finalizat!",
+            cancelled: "Schimbul a fost anulat.",
+            disputed: "A fost deschisă o dispută.",
+          };
+
+          const status = String(data.status ?? "");
+          const label = statusLabels[status];
+          if (label) {
+            setNotifications((prev) => [
+              {
+                id: `swap-${updated.id}-${status}`,
+                userId,
+                type: `swap_${status}`,
+                message: label,
+                read: false,
+                priority: status === "completed" ? "success" : status === "disputed" ? "warning" : "info",
+                createdAt: new Date().toISOString(),
+              },
+              ...prev,
+            ]);
+          }
+        },
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "swap_intents",
+        },
+        (payload) => {
+          const data = payload.new as Record<string, unknown>;
+          const responderId = String(data.responder_id ?? "");
+
+          // Notify responder of new swap proposal
+          if (responderId === userId) {
+            const newSwap = mapSwapIntent(data);
+            setSwaps((prev) => {
+              if (prev.some((s) => s.id === newSwap.id)) return prev;
+              return [newSwap, ...prev];
+            });
+
+            setNotifications((prev) => [
+              {
+                id: `swap-new-${newSwap.id}`,
+                userId,
+                type: "swap_proposal",
+                message: "Ai primit o propunere de schimb nouă!",
+                read: false,
+                priority: "success",
+                createdAt: new Date().toISOString(),
+              },
+              ...prev,
+            ]);
+          }
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [supabase, userId, setSwaps, mapSwapIntent, setNotifications]);
 
   // Send typing indicator
   const setTyping = useCallback(

@@ -28,7 +28,25 @@ export function ChatClient({
   }, [ensureConversation, to, user?.id]);
 
   if (!user) {
-    return <LoggedOutGate returnTo="/chat" />;
+    return (
+      <div className="space-y-6">
+        <SectionCard title="Chat securizat" description="Comunică direct cu ceilalți utilizatori Swaply">
+          <div className="space-y-4 text-sm text-zinc-600 dark:text-zinc-300">
+            <p>
+              Chat-ul Swaply îți permite să negociezi detaliile schimbului direct cu celălalt utilizator. Toate mesajele sunt moderate automat pentru a preveni spam-ul, limbajul abuziv și scurgerile de date personale.
+            </p>
+            <ul className="list-inside list-disc space-y-1.5 text-zinc-500 dark:text-zinc-400">
+              <li>Mesaje text în timp real între participanți</li>
+              <li>Moderare AI automată pentru siguranță</li>
+              <li>Istoric complet al conversațiilor</li>
+              <li>Notificări pentru mesaje noi</li>
+              <li>Buton rapid de confirmare a schimbului direct din chat</li>
+            </ul>
+          </div>
+        </SectionCard>
+        <LoggedOutGate returnTo="/chat" />
+      </div>
+    );
   }
 
   return (

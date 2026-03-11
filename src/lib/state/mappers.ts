@@ -113,6 +113,7 @@ export function createMapProfile(userRef: MutableRef<UserProfile | null>) {
             activeListings: 0,
           },
         ) as UserProfile["stats"],
+      createdAt: safeString(data.created_at, safeString(data.createdAt as string | undefined)),
     };
   };
 }

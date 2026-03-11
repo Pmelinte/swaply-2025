@@ -229,7 +229,48 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
   const isRequester = swap && user ? swap.requesterId === user.id : false;
 
   if (!user) {
-    return <LoggedOutGate returnTo="/change" />;
+    return (
+      <div className="space-y-6">
+        <SectionCard title="Schimburi în siguranță" description="Finalizează schimburi pas cu pas, cu protecție completă">
+          <div className="space-y-4 text-sm text-zinc-600 dark:text-zinc-300">
+            <p>
+              Pagina de schimb te ghidează prin fiecare etapă a unui swap — de la propunere până la confirmare. Fiecare pas este vizibil pentru ambele părți, cu timeline interactiv și notificări în timp real.
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="flex items-start gap-3 rounded-xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-800">
+                <ArrowRightLeft className="mt-0.5 h-5 w-5 shrink-0 text-blue-500" />
+                <div>
+                  <h4 className="font-semibold text-zinc-900 dark:text-zinc-50">Confirmare în doi pași</h4>
+                  <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Ambii participanți confirmă fiecare etapă — nimic nu se întâmplă unilateral.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 rounded-xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-800">
+                <Truck className="mt-0.5 h-5 w-5 shrink-0 text-green-500" />
+                <div>
+                  <h4 className="font-semibold text-zinc-900 dark:text-zinc-50">Livrare sau întâlnire</h4>
+                  <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Alege între curierat cu tracking sau întâlnire în persoană cu confirmare QR.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 rounded-xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-800">
+                <Shield className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" />
+                <div>
+                  <h4 className="font-semibold text-zinc-900 dark:text-zinc-50">Protecție escrow</h4>
+                  <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Opțional, un serviciu escrow protejează ambele părți în cazul obiectelor de valoare.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 rounded-xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-800">
+                <Clock className="mt-0.5 h-5 w-5 shrink-0 text-purple-500" />
+                <div>
+                  <h4 className="font-semibold text-zinc-900 dark:text-zinc-50">Timeline complet</h4>
+                  <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Vizualizează fiecare pas al schimbului — propus, acceptat, expediat, finalizat.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </SectionCard>
+        <LoggedOutGate returnTo="/change" />
+      </div>
+    );
   }
 
   const handleStatusChange = (status: SwapIntent["status"], label: string, color: string) => {

@@ -163,7 +163,35 @@ export default function MatchPage() {
   }, [dealbrokenMatches, tierFilter, sortBy, manualMode]);
 
   if (!user) {
-    return <LoggedOutGate returnTo="/match" />;
+    return (
+      <div className="space-y-6">
+        <SectionCard title="Potriviri inteligente" description="Algoritmul nostru AI găsește cele mai bune schimburi pentru tine">
+          <div className="space-y-4 text-sm text-zinc-600 dark:text-zinc-300">
+            <p>
+              Swaply analizează obiectele tale și le compară cu mii de listări din comunitate pentru a-ți sugera cele mai relevante schimburi. Fiecare potrivire primește un scor bazat pe compatibilitatea categoriei, proximitatea geografică și preferințele tale.
+            </p>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-800">
+                <Sparkles className="mb-2 h-5 w-5 text-blue-500" />
+                <h4 className="font-semibold text-zinc-900 dark:text-zinc-50">Scor AI</h4>
+                <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Fiecare potrivire are un scor de compatibilitate calculat automat.</p>
+              </div>
+              <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-800">
+                <SlidersHorizontal className="mb-2 h-5 w-5 text-green-500" />
+                <h4 className="font-semibold text-zinc-900 dark:text-zinc-50">Filtre avansate</h4>
+                <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Filtrează după categorie, distanță, strictețe și tip de schimb.</p>
+              </div>
+              <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-800">
+                <Hand className="mb-2 h-5 w-5 text-amber-500" />
+                <h4 className="font-semibold text-zinc-900 dark:text-zinc-50">Mod manual</h4>
+                <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Răsfoiește toate ofertele și alege-le manual, fără AI.</p>
+              </div>
+            </div>
+          </div>
+        </SectionCard>
+        <LoggedOutGate returnTo="/match" />
+      </div>
+    );
   }
 
   const handleProposeSwap = async (matchId: string) => {

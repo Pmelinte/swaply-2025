@@ -154,14 +154,37 @@ export function computeMatchesForUser(
 
   const candidates: MatchCandidate[] = [];
 
+  // Pre-compute wishlist category sets for O(1) lookup
+  const myWishlistCats = new Map<string, Set<string>>();
+  for (const offered of myItems) {
+    const cats = new Set<string>();
+    for (const cat of Object.keys(CATEGORY_KEYWORDS)) {
+      if (wishlistMatchesCategory(offered.wishlist, cat)) cats.add(cat);
+    }
+    myWishlistCats.set(offered.id, cats);
+  }
+
   for (const offered of myItems) {
     for (const requested of otherItems) {
       // Hard filters
-      const wantRequested = wishlistMatchesCategory(offered.wishlist, requested.category);
+      const wantRequested = myWishlistCats.get(offered.id)?.has(requested.category) ??
+        wishlistMatchesCategory(offered.wishlist, requested.category);
       const theyWantOffered = wishlistMatchesCategory(requested.wishlist, offered.category);
       const eitherFlexBroad = offered.flexibility === "broad" || requested.flexibility === "broad";
 
       if (!wantRequested && !theyWantOffered && !eitherFlexBroad) continue;
+
+      // Early distance rejection: skip items beyond 3x travel radius when coords available
+      const maxRadius = userContext?.travelRadiusKm ?? 50;
+      const myCoordsFast = userContext?.coordinates;
+      const theirCoordsFast = ownerCoords?.get(requested.ownerId);
+      if (myCoordsFast && theirCoordsFast) {
+        const quickDist = haversineDistance(
+          myCoordsFast.lat, myCoordsFast.lng,
+          theirCoordsFast.lat, theirCoordsFast.lng,
+        );
+        if (quickDist > maxRadius * 3) continue;
+      }
 
       // Soft signals (cumulative scoring)
       let score = 0;
