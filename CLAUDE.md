@@ -8,3 +8,4 @@
 ## Git
 - Always push to the designated feature branch, never directly to main.
 - Use GitHub PRs to merge into main.
+- Always check the actual remote state before making assumptions about branch history.
