@@ -1,10 +1,15 @@
+import { isAuthenticated } from "@/lib/supabase/auth";
+import { ChatGuestPreview } from "@/components/guest-previews/ChatGuestPreview";
 import { ChatClient } from "./ChatClient";
 
-export default function ChatPage({
+export default async function ChatPage({
   searchParams,
 }: {
   searchParams?: Record<string, string | string[] | undefined>;
 }) {
+  const authed = await isAuthenticated();
+  if (!authed) return <ChatGuestPreview />;
+
   const rawTo = searchParams?.to;
   const rawConversation = searchParams?.conversation;
   const to = Array.isArray(rawTo) ? rawTo[0] : rawTo ?? null;
@@ -12,4 +17,3 @@ export default function ChatPage({
 
   return <ChatClient to={to} conversationId={conversationId} />;
 }
-
