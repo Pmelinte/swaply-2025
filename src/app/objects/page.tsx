@@ -960,17 +960,59 @@ export default function ObjectsPage() {
 
           {filtered.length === 0 && (
             <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-zinc-200 py-16 dark:border-zinc-700">
-              <Package className="mb-4 h-12 w-12 text-zinc-300 dark:text-zinc-600" />
-              <p className="mb-2 text-zinc-500 dark:text-zinc-400">
-                {hasFilters ? t("noResults") : t("noObjects")}
-              </p>
-              {hasFilters && (
-                <button
-                  onClick={clearAllFilters}
-                  className="mt-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
-                >
-                  {t("clearFilters")}
-                </button>
+              {user ? (
+                <>
+                  <Package className="mb-4 h-12 w-12 text-zinc-300 dark:text-zinc-600" />
+                  <p className="mb-1 text-base font-semibold text-zinc-700 dark:text-zinc-200">
+                    {t("emptyLoggedTitle")}
+                  </p>
+                  <p className="mb-4 max-w-sm text-center text-sm text-zinc-500 dark:text-zinc-400">
+                    {hasFilters ? t("emptyLoggedSubFilters") : t("emptyLoggedSub")}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-3">
+                    {hasFilters && (
+                      <button
+                        onClick={clearAllFilters}
+                        className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
+                      >
+                        {t("clearFilters")}
+                      </button>
+                    )}
+                    <Link
+                      href="/objects/new"
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+                    >
+                      <Plus className="h-4 w-4" />
+                      {t("emptyLoggedCta")}
+                    </Link>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <span className="mb-4 text-5xl">📦</span>
+                  <p className="mb-1 text-base font-semibold text-zinc-700 dark:text-zinc-200">
+                    {hasFilters ? t("emptyGuestTitleFiltered") : t("emptyGuestTitle")}
+                  </p>
+                  <p className="mb-5 max-w-sm text-center text-sm text-zinc-500 dark:text-zinc-400">
+                    {t("emptyGuestSub")}
+                  </p>
+                  <div className="flex flex-col items-center gap-2">
+                    <Link
+                      href="/login"
+                      className="inline-flex items-center gap-1.5 rounded-full bg-blue-600 px-5 py-2.5 text-sm font-bold text-white shadow-md hover:bg-blue-700"
+                    >
+                      {t("emptyGuestCta")}
+                    </Link>
+                    {hasFilters && (
+                      <button
+                        onClick={clearAllFilters}
+                        className="text-sm text-blue-600 hover:underline dark:text-blue-400"
+                      >
+                        {t("emptyGuestBack")}
+                      </button>
+                    )}
+                  </div>
+                </>
               )}
             </div>
           )}
