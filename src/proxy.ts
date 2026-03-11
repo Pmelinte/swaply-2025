@@ -50,7 +50,7 @@ function isAdminRoute(pathname: string): boolean {
   );
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Skip middleware when Supabase env vars are missing (build time / CI)
