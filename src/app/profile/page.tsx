@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
-import { LoggedOutGate } from "@/components/gated";
-import { NextStepRecommendation, SectionCard, StateShowcase } from "@/components/ui";
+import { CTAButton, NextStepRecommendation, SectionCard, StateShowcase } from "@/components/ui";
 import type { UserProfile } from "@/lib/types";
 import ProfileTab from "./_components/ProfileTab";
 import PropertiesTab from "./_components/PropertiesTab";
@@ -58,32 +57,32 @@ export default function ProfilePage() {
   if (!user || !draft) {
     return (
       <div className="space-y-6">
-        <SectionCard title="Profilul tău Swaply" description="Construiește-ți reputația și gestionează-ți contul">
+        <SectionCard title={t("guestTitle")} description={t("guestDescription")}>
           <div className="space-y-4 text-sm text-zinc-600 dark:text-zinc-300">
-            <p>
-              Profilul tău este cartea ta de vizită în comunitatea Swaply. Cu cât este mai complet, cu atât mai multă încredere inspiră celorlalți utilizatori.
-            </p>
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="rounded-xl bg-zinc-50 p-4 dark:bg-zinc-900">
-                <h4 className="font-semibold text-zinc-900 dark:text-zinc-50">Verificare identitate</h4>
-                <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Verifică-ți email-ul, telefonul și identitatea pentru badge-ul de utilizator verificat.</p>
+                <h4 className="font-semibold text-zinc-900 dark:text-zinc-50">{t("guestFeatureRating")}</h4>
+                <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{t("guestFeatureRatingDesc")}</p>
               </div>
               <div className="rounded-xl bg-zinc-50 p-4 dark:bg-zinc-900">
-                <h4 className="font-semibold text-zinc-900 dark:text-zinc-50">Sistem de reputație</h4>
-                <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Primește recenzii după fiecare schimb și urcă în clasamentul comunității.</p>
+                <h4 className="font-semibold text-zinc-900 dark:text-zinc-50">{t("guestFeatureBadge")}</h4>
+                <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{t("guestFeatureBadgeDesc")}</p>
               </div>
               <div className="rounded-xl bg-zinc-50 p-4 dark:bg-zinc-900">
-                <h4 className="font-semibold text-zinc-900 dark:text-zinc-50">Realizări și badge-uri</h4>
-                <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Deblochează realizări pe măsură ce faci schimburi și contribui la comunitate.</p>
+                <h4 className="font-semibold text-zinc-900 dark:text-zinc-50">{t("guestFeatureHistory")}</h4>
+                <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{t("guestFeatureHistoryDesc")}</p>
               </div>
               <div className="rounded-xl bg-zinc-50 p-4 dark:bg-zinc-900">
-                <h4 className="font-semibold text-zinc-900 dark:text-zinc-50">Control GDPR complet</h4>
-                <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Exportă sau șterge datele tale oricând, conform reglementărilor europene.</p>
+                <h4 className="font-semibold text-zinc-900 dark:text-zinc-50">{t("guestFeatureVerify")}</h4>
+                <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{t("guestFeatureVerifyDesc")}</p>
               </div>
             </div>
           </div>
         </SectionCard>
-        <LoggedOutGate returnTo="/profile" />
+
+        <div className="text-center">
+          <CTAButton href="/register">{t("guestCta")}</CTAButton>
+        </div>
       </div>
     );
   }
