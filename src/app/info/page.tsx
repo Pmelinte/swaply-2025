@@ -6,7 +6,10 @@ import { useTranslations } from "next-intl";
 import { StatsGrid } from "@/features/info/StatsGrid";
 import { useAppState } from "@/lib/state";
 import { NextStepRecommendation, Pill, SectionCard } from "@/components/ui";
-import { Check, ChevronDown, Minus, Package, Search, MessageCircle, Repeat2, Leaf, Trophy, Flame, Crown, Quote, Calculator } from "lucide-react";
+import {
+  Check, ChevronDown, Minus, Package, Search, MessageCircle, Repeat2, Leaf,
+  Trophy, Flame, Crown, Quote, Calculator, UserPlus, Camera, Sparkles, ArrowRight,
+} from "lucide-react";
 
 function FaqItem({ question, answer }: { question: string; answer: string }) {
   const [open, setOpen] = useState(false);
@@ -27,41 +30,64 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
   );
 }
 
+const GUIDE_STEPS = [
+  { icon: UserPlus, color: "from-emerald-500 to-teal-600" },
+  { icon: Camera, color: "from-blue-500 to-cyan-600" },
+  { icon: Search, color: "from-violet-500 to-purple-600" },
+  { icon: MessageCircle, color: "from-amber-500 to-orange-600" },
+  { icon: Repeat2, color: "from-rose-500 to-pink-600" },
+] as const;
+
 export default function InfoPage() {
-  const { infoStats } = useAppState();
+  const { infoStats, items } = useAppState();
   const t = useTranslations("info");
+
+  const activeItems = items.filter((i) => i.status === "active").length;
+  const totalUsers = infoStats?.activeUsers ?? 0;
+  const isEarlyStage = activeItems < 100 && totalUsers < 100;
 
   return (
     <div className="space-y-4">
-      {/* How it works */}
-      <SectionCard title={t("howItWorks")} description={t("howItWorksDescription")}>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {[
-            { step: "1", icon: <Package className="h-5 w-5" />, title: t("howStep1"), desc: t("howStep1Desc"), color: "from-emerald-500 to-teal-600" },
-            { step: "2", icon: <Search className="h-5 w-5" />, title: t("howStep2"), desc: t("howStep2Desc"), color: "from-blue-500 to-cyan-600" },
-            { step: "3", icon: <MessageCircle className="h-5 w-5" />, title: t("howStep3"), desc: t("howStep3Desc"), color: "from-violet-500 to-purple-600" },
-            { step: "4", icon: <Repeat2 className="h-5 w-5" />, title: t("howStep4"), desc: t("howStep4Desc"), color: "from-amber-500 to-orange-600" },
-          ].map((s) => (
-            <div
-              key={s.step}
-              className="rounded-xl border border-zinc-200 bg-white/70 p-4 dark:border-zinc-800 dark:bg-zinc-900/70"
-            >
-              <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${s.color} text-white shadow-sm`}>
-                {s.icon}
+      {/* Title */}
+      <div className="text-center">
+        <h1 className="text-3xl font-extrabold text-zinc-900 dark:text-zinc-50">
+          {t("pageTitle")}
+        </h1>
+        <p className="mt-2 text-base text-zinc-500 dark:text-zinc-400">
+          {t("pageSubtitle")}
+        </p>
+      </div>
+
+      {/* Section 1 — Step-by-step guide */}
+      <SectionCard title={t("guideTitle")} description={t("guideDescription")}>
+        <div className="space-y-4">
+          {GUIDE_STEPS.map((s, i) => {
+            const Icon = s.icon;
+            const n = i + 1;
+            return (
+              <div
+                key={i}
+                className="flex gap-4 rounded-xl border border-zinc-200 bg-white/70 p-5 dark:border-zinc-800 dark:bg-zinc-900/70"
+              >
+                <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${s.color} text-white shadow-sm`}>
+                  <span className="text-lg font-extrabold">{n}</span>
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <Icon className="h-4 w-4 text-zinc-400" />
+                    <h3 className="font-bold text-zinc-900 dark:text-zinc-50">
+                      {t(`guideStep${n}Title` as `guideStep${1 | 2 | 3 | 4 | 5}Title`)}
+                    </h3>
+                  </div>
+                  <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                    {t(`guideStep${n}Text` as `guideStep${1 | 2 | 3 | 4 | 5}Text`)}
+                  </p>
+                </div>
               </div>
-              <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">{s.title}</p>
-              <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{s.desc}</p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </SectionCard>
-
-      {/* Stats */}
-      <div id="stats">
-        <SectionCard title={t("title")} description={t("description")}>
-          <StatsGrid stats={infoStats} />
-        </SectionCard>
-      </div>
 
       {/* FAQ */}
       <SectionCard title={t("faq")} description={t("faqDescription")}>
@@ -73,6 +99,46 @@ export default function InfoPage() {
           <FaqItem question={t("faqQ5")} answer={t("faqA5")} />
         </div>
       </SectionCard>
+
+      {/* Section 3 — Live stats */}
+      <SectionCard title={t("liveStatsTitle")} description={t("liveStatsDescription")}>
+        {isEarlyStage ? (
+          <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-blue-300 bg-blue-50/50 p-6 text-center dark:border-blue-800 dark:bg-blue-950/30">
+            <Sparkles className="h-8 w-8 text-blue-400" />
+            <p className="font-semibold text-zinc-800 dark:text-zinc-100">{t("earlyStageTitle")}</p>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">{t("earlyStageText")}</p>
+          </div>
+        ) : (
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div className="rounded-xl border border-green-200 bg-green-50/50 p-4 text-center dark:border-green-900 dark:bg-green-950/30">
+              <Package className="mx-auto mb-2 h-8 w-8 text-green-600 dark:text-green-400" />
+              <p className="text-2xl font-bold text-green-700 dark:text-green-300">
+                {activeItems.toLocaleString("ro-RO")}
+              </p>
+              <p className="text-xs text-green-600 dark:text-green-400">{t("statsActiveItems")}</p>
+            </div>
+            <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-4 text-center dark:border-blue-900 dark:bg-blue-950/30">
+              <UserPlus className="mx-auto mb-2 h-8 w-8 text-blue-600 dark:text-blue-400" />
+              <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">
+                {totalUsers.toLocaleString("ro-RO")}
+              </p>
+              <p className="text-xs text-blue-600 dark:text-blue-400">{t("statsUsers")}</p>
+            </div>
+            <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-4 text-center dark:border-amber-900 dark:bg-amber-950/30">
+              <Search className="mx-auto mb-2 h-8 w-8 text-amber-600 dark:text-amber-400" />
+              <p className="text-2xl font-bold text-amber-700 dark:text-amber-300">12</p>
+              <p className="text-xs text-amber-600 dark:text-amber-400">{t("statsCategories")}</p>
+            </div>
+          </div>
+        )}
+      </SectionCard>
+
+      {/* Stats Grid */}
+      <div id="stats">
+        <SectionCard title={t("title")} description={t("description")}>
+          <StatsGrid stats={infoStats} />
+        </SectionCard>
+      </div>
 
       {/* Map & Privacy */}
       <div id="map">
@@ -330,6 +396,17 @@ export default function InfoPage() {
           ))}
         </div>
       </SectionCard>
+
+      {/* CTA final */}
+      <div className="flex flex-col items-center gap-2 rounded-2xl border border-zinc-200 bg-gradient-to-br from-blue-50 to-white p-8 text-center shadow-sm dark:border-zinc-700 dark:from-blue-950/30 dark:to-zinc-900">
+        <Link
+          href="/login"
+          className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-6 py-3 text-base font-bold text-white shadow-md transition hover:bg-blue-700"
+        >
+          {t("ctaButton")}
+          <ArrowRight className="h-4 w-4" />
+        </Link>
+      </div>
 
       <NextStepRecommendation
         steps={[
