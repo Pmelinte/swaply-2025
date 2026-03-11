@@ -1759,5 +1759,32 @@
     "faqQ3": "Pot anula un schimb propus?",
     "faqA3": "Da, oricând înainte ca cealaltă persoană să confirme.",
     "ctaButton": "Începe gratuit"
+  },
+  "contact": {
+    "title": "Contact",
+    "subtitle": "Raspundem in 24 de ore.",
+    "formTitle": "Trimite-ne un mesaj",
+    "labelName": "Nume",
+    "labelEmail": "Email",
+    "labelSubject": "Subiect",
+    "labelMessage": "Mesaj",
+    "placeholderName": "Numele tau",
+    "placeholderEmail": "email@exemplu.com",
+    "placeholderMessage": "Descrie pe scurt problema sau sugestia ta...",
+    "subjectTechnical": "Problema tehnica",
+    "subjectSuggestion": "Sugestie",
+    "subjectPartnership": "Parteneriat",
+    "subjectOther": "Altele",
+    "submitButton": "Trimite mesajul",
+    "sending": "Se trimite...",
+    "successTitle": "Mesajul tau a fost trimis.",
+    "successText": "Te contactam in 24 de ore.",
+    "sendAnother": "Trimite alt mesaj",
+    "alternativesTitle": "Alternative de contact",
+    "emailDirect": "Email direct",
+    "emailPartnerships": "Pentru parteneriate si sponsorizari",
+    "emailSecurity": "Pentru probleme urgente de securitate",
+    "businessTitle": "Pentru business",
+    "businessText": "Esti un magazin second-hand, ONG sau organizatie? Avem un plan dedicat pentru tine. Scrie-ne la partnerships@swaply.world"
   }
 }

@@ -1759,5 +1759,32 @@
     "faqQ3": "Can I cancel a proposed swap?",
     "faqA3": "Yes, anytime before the other person confirms.",
     "ctaButton": "Start for free"
+  },
+  "contact": {
+    "title": "Contact",
+    "subtitle": "We respond within 24 hours.",
+    "formTitle": "Send us a message",
+    "labelName": "Name",
+    "labelEmail": "Email",
+    "labelSubject": "Subject",
+    "labelMessage": "Message",
+    "placeholderName": "Your name",
+    "placeholderEmail": "email@example.com",
+    "placeholderMessage": "Briefly describe your issue or suggestion...",
+    "subjectTechnical": "Technical issue",
+    "subjectSuggestion": "Suggestion",
+    "subjectPartnership": "Partnership",
+    "subjectOther": "Other",
+    "submitButton": "Send message",
+    "sending": "Sending...",
+    "successTitle": "Your message has been sent.",
+    "successText": "We'll get back to you within 24 hours.",
+    "sendAnother": "Send another message",
+    "alternativesTitle": "Alternative contact",
+    "emailDirect": "Direct email",
+    "emailPartnerships": "For partnerships and sponsorships",
+    "emailSecurity": "For urgent security issues",
+    "businessTitle": "For business",
+    "businessText": "Are you a second-hand shop, NGO, or organization? We have a dedicated plan for you. Write to us at partnerships@swaply.world"
   }
 }
