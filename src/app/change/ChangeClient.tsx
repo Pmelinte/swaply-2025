@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
-import { LoggedOutGate } from "@/components/gated";
 import { CTAButton, NextStepRecommendation, Pill, SectionCard, StateShowcase } from "@/components/ui";
 import { SwapTimeline } from "@/features/change/SwapTimeline";
 import type { SwapIntent, HouseAmenity, HouseRule, HouseSwapMode, PropertyType, ServiceCategory, SkillLevel, ServiceDelivery, ServiceMilestone, CancelReason } from "@/lib/types";
@@ -231,44 +230,45 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
   if (!user) {
     return (
       <div className="space-y-6">
-        <SectionCard title="Schimburi în siguranță" description="Finalizează schimburi pas cu pas, cu protecție completă">
+        <SectionCard title={t("guestTitle")} description={t("guestDescription")}>
           <div className="space-y-4 text-sm text-zinc-600 dark:text-zinc-300">
-            <p>
-              Pagina de schimb te ghidează prin fiecare etapă a unui swap — de la propunere până la confirmare. Fiecare pas este vizibil pentru ambele părți, cu timeline interactiv și notificări în timp real.
-            </p>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="flex items-start gap-3 rounded-xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-800">
-                <ArrowRightLeft className="mt-0.5 h-5 w-5 shrink-0 text-blue-500" />
-                <div>
-                  <h4 className="font-semibold text-zinc-900 dark:text-zinc-50">Confirmare în doi pași</h4>
-                  <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Ambii participanți confirmă fiecare etapă — nimic nu se întâmplă unilateral.</p>
+            {/* Visual timeline */}
+            <div className="flex items-center justify-between gap-1 overflow-x-auto rounded-xl bg-gradient-to-r from-blue-50 to-green-50 p-4 dark:from-blue-950/30 dark:to-green-950/30">
+              {[
+                { key: "guestStep1Title" as const, icon: <Package className="h-5 w-5" />, color: "text-blue-600 dark:text-blue-400" },
+                { key: "guestStep2Title" as const, icon: <Check className="h-5 w-5" />, color: "text-green-600 dark:text-green-400" },
+                { key: "guestStep3Title" as const, icon: <Truck className="h-5 w-5" />, color: "text-amber-600 dark:text-amber-400" },
+                { key: "guestStep4Title" as const, icon: <Shield className="h-5 w-5" />, color: "text-purple-600 dark:text-purple-400" },
+                { key: "guestStep5Title" as const, icon: <Star className="h-5 w-5" />, color: "text-yellow-600 dark:text-yellow-400" },
+              ].map((step, i) => (
+                <div key={step.key} className="flex items-center gap-1">
+                  <div className="flex flex-col items-center gap-1">
+                    <div className={`flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm dark:bg-zinc-800 ${step.color}`}>
+                      {step.icon}
+                    </div>
+                    <span className="text-[10px] font-semibold text-zinc-700 dark:text-zinc-300">{t(step.key)}</span>
+                  </div>
+                  {i < 4 && <div className="mx-1 h-0.5 w-6 bg-zinc-300 dark:bg-zinc-600 sm:w-10" />}
                 </div>
-              </div>
-              <div className="flex items-start gap-3 rounded-xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-800">
-                <Truck className="mt-0.5 h-5 w-5 shrink-0 text-green-500" />
-                <div>
-                  <h4 className="font-semibold text-zinc-900 dark:text-zinc-50">Livrare sau întâlnire</h4>
-                  <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Alege între curierat cu tracking sau întâlnire în persoană cu confirmare QR.</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3 rounded-xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-800">
-                <Shield className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" />
-                <div>
-                  <h4 className="font-semibold text-zinc-900 dark:text-zinc-50">Protecție escrow</h4>
-                  <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Opțional, un serviciu escrow protejează ambele părți în cazul obiectelor de valoare.</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3 rounded-xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-800">
-                <Clock className="mt-0.5 h-5 w-5 shrink-0 text-purple-500" />
-                <div>
-                  <h4 className="font-semibold text-zinc-900 dark:text-zinc-50">Timeline complet</h4>
-                  <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Vizualizează fiecare pas al schimbului — propus, acceptat, expediat, finalizat.</p>
-                </div>
-              </div>
+              ))}
             </div>
+
+            {/* Step descriptions */}
+            <div className="grid gap-2 sm:grid-cols-5">
+              {(["guestStep1Desc", "guestStep2Desc", "guestStep3Desc", "guestStep4Desc", "guestStep5Desc"] as const).map((key) => (
+                <p key={key} className="text-center text-[11px] text-zinc-500 dark:text-zinc-400">{t(key)}</p>
+              ))}
+            </div>
+
+            <p className="text-sm text-zinc-600 dark:text-zinc-300">
+              {t("guestLogistics")}
+            </p>
           </div>
         </SectionCard>
-        <LoggedOutGate returnTo="/change" />
+
+        <div className="text-center">
+          <CTAButton href="/register">{t("guestCta")}</CTAButton>
+        </div>
       </div>
     );
   }
