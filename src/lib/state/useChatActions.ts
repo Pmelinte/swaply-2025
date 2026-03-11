@@ -34,7 +34,7 @@ export function useChatActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
       }, ...prev]);
       return conversationId;
     },
-    [conversations, dataSource, supabase, user?.id, setLastError, setConversations],
+    [conversations, dataSource, supabase, user, setLastError, setConversations],
   );
 
   const addMessage = useCallback(
@@ -80,7 +80,7 @@ export function useChatActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
         }
       }
     },
-    [dataSource, mapMessage, supabase, user?.id, setLastError, setConversations],
+    [dataSource, mapMessage, supabase, user, setLastError, setConversations],
   );
 
   const toggleConversationTranslation = useCallback((conversationId: string) => {

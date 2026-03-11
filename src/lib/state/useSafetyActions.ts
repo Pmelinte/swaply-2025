@@ -25,7 +25,7 @@ export function useSafetyActions(deps: Pick<SharedDeps, "user" | "dataSource" | 
         sendAuditLog({ userId: user.id, action: "user.reported", entityType: "user", entityId: params.reportedUserId, newData: { reason: params.reason, reportedItemId: params.reportedItemId } });
       }
     },
-    [dataSource, sendAuditLog, supabase, user?.id, setLastError],
+    [dataSource, sendAuditLog, supabase, user, setLastError],
   );
 
   const blockUser = useCallback(async (targetUserId: string) => {
@@ -37,7 +37,7 @@ export function useSafetyActions(deps: Pick<SharedDeps, "user" | "dataSource" | 
     }
     setBlockedUsers((prev) => [...prev, targetUserId]);
     sendAuditLog({ userId: user?.id ?? "", action: "user.blocked", entityType: "user", entityId: targetUserId });
-  }, [dataSource, sendAuditLog, supabase, user?.id, setLastError, setBlockedUsers]);
+  }, [dataSource, sendAuditLog, supabase, user, setLastError, setBlockedUsers]);
 
   const unblockUser = useCallback(async (targetUserId: string) => {
     if (!user?.id || !targetUserId) return;
@@ -47,7 +47,7 @@ export function useSafetyActions(deps: Pick<SharedDeps, "user" | "dataSource" | 
       if (error) setLastError(error.message);
     }
     setBlockedUsers((prev) => prev.filter((id) => id !== targetUserId));
-  }, [dataSource, supabase, user?.id, setLastError, setBlockedUsers]);
+  }, [dataSource, supabase, user, setLastError, setBlockedUsers]);
 
   const markNotificationRead = useCallback(async (notificationId: string) => {
     if (!notificationId) return;

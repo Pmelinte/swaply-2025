@@ -3,7 +3,7 @@
  * Supports full-text search, category/condition/location filters, sorting.
  */
 import { useCallback, useMemo, useState } from "react";
-import type { Item, ListingType, SearchFilters, SearchResult } from "../types";
+import type { Item, SearchFilters, SearchResult } from "../types";
 
 interface UseSearchParams {
   items: Item[];
@@ -11,8 +11,19 @@ interface UseSearchParams {
   userCoordinates?: { lat: number; lng: number };
 }
 
+/** Get distance for an item (returns Infinity if no coordinates) */
+function getItemDistance(
+  _item: Item,
+  _coords: { lat: number; lng: number },
+): number {
+  // Items don't have coordinates in the current schema, so we'd need to
+  // geocode the location string. For now, return a large number.
+  // In production, items would have lat/lng from geocoding.
+  return Infinity;
+}
+
 /** Haversine distance in km */
-function haversineKm(
+function _haversineKm(
   lat1: number, lng1: number,
   lat2: number, lng2: number,
 ): number {
@@ -152,17 +163,6 @@ export function useSearch({ items, userId, userCoordinates }: UseSearchParams) {
 
     return scored;
   }, [items, userId, filters, userCoordinates, computeRelevance]);
-
-  /** Get distance for an item (returns Infinity if no coordinates) */
-  function getItemDistance(
-    item: Item,
-    coords: { lat: number; lng: number },
-  ): number {
-    // Items don't have coordinates in the current schema, so we'd need to
-    // geocode the location string. For now, return a large number.
-    // In production, items would have lat/lng from geocoding.
-    return Infinity;
-  }
 
   /** Update filters */
   const updateFilters = useCallback((updates: Partial<SearchFilters>) => {

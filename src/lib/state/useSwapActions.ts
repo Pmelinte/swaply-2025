@@ -229,7 +229,7 @@ export function useSwapActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
     }, ...prev]);
 
     trackEvent("dispute_filed", { swapId, reason });
-  }, [user?.id, swaps, dataSource, supabase, trackEvent, setSwaps, setNotifications]);
+  }, [user, swaps, dataSource, supabase, trackEvent, setSwaps, setNotifications]);
 
   return { proposeSwap, updateSwapStatus, addSwapFeedback, updateSwapLogistics, confirmDelivery, fileDispute };
 }
