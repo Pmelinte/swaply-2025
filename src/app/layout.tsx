@@ -1,16 +1,19 @@
 import type { Metadata, Viewport } from "next";
+import dynamic from "next/dynamic";
 import "./globals.css";
 import { Providers } from "./providers";
 import { TopBar } from "@/components/layout/TopBar";
 import { ContextBar } from "@/components/layout/ContextBar";
 import { FooterNav } from "@/components/layout/FooterNav";
 import { LegalFooter } from "@/components/layout/LegalFooter";
-import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { GlobalNudge } from "@/components/layout/GlobalNudge";
-import { CookieConsent } from "@/components/legal/CookieConsent";
-import { OnboardingTutorial } from "@/components/onboarding/OnboardingTutorial";
 import { Analytics } from "@vercel/analytics/react";
 import { GoogleAnalytics } from "@next/third-parties/google";
+
+// Dynamic imports — these are modals/banners not needed for initial render
+const InstallPrompt = dynamic(() => import("@/components/pwa/InstallPrompt").then((m) => m.InstallPrompt));
+const CookieConsent = dynamic(() => import("@/components/legal/CookieConsent").then((m) => m.CookieConsent));
+const OnboardingTutorial = dynamic(() => import("@/components/onboarding/OnboardingTutorial").then((m) => m.OnboardingTutorial));
 
 export const metadata: Metadata = {
   title: {
