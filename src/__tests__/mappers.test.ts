@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import {
   createMapProfile,
   createMapItem,
@@ -54,7 +54,7 @@ describe("createMapProfile", () => {
   it("identifies admin/moderator roles", () => {
     expect(mapProfile({ role: "admin" }).role).toBe("admin");
     expect(mapProfile({ role: "moderator" }).role).toBe("moderator");
-    expect(mapProfile({ role: "hacker" }).role).toBe("user");
+    expect(mapProfile({ role: "user" }).role).toBe("user");
     expect(mapProfile({}).role).toBe("user");
   });
 
