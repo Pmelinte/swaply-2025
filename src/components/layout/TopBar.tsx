@@ -73,7 +73,7 @@ export function TopBar() {
         {/* Left: Logo + Language */}
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2" title="Swaply">
-            <Image src="/logo-swaply.svg" alt="Swaply" width={28} height={28} className="h-7 w-7" />
+            <Image src="/logo-swaply.svg" alt="Swaply" width={28} height={28} className="h-7 w-7" priority />
             <span className="hidden text-lg font-bold text-zinc-900 dark:text-zinc-50 sm:inline">Swaply</span>
           </Link>
 

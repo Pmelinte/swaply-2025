@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
-import { MapPreview } from "@/components/MapPreview";
+import { LazyMapPreview } from "@/components/LazyMapPreview";
 import { OnboardingBanner } from "@/components/onboarding/OnboardingBanner";
 
 export default function HomePage() {
@@ -224,7 +224,7 @@ export default function HomePage() {
               </span>
             )}
           </div>
-          <MapPreview />
+          <LazyMapPreview />
           {!hasLocation && user && (
             <Link
               href="/profile"
