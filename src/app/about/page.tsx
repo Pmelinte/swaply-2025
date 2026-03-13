@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { SectionCard } from "@/components/ui";
-import { Camera, Search, MessageCircle, ArrowRight, Leaf, Check, X } from "lucide-react";
+import { Camera, Search, MessageCircle, ArrowRight } from "lucide-react";
 
 const STEPS_ICONS = [Camera, Search, MessageCircle] as const;
 

@@ -1,8 +1,13 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import { MapPin } from "lucide-react";
 import { useTranslations } from "next-intl";
+
+const MapPreviewDynamic = dynamic(
+  () => import("@/components/MapPreview").then((m) => m.MapPreview),
+);
 
 /**
  * Lazy-loaded MapPreview — only loads the Google Maps iframe
@@ -47,7 +52,5 @@ export function LazyMapPreview() {
     );
   }
 
-  // Dynamically import the real MapPreview only when visible
-  const MapPreviewLazy = require("@/components/MapPreview").MapPreview;
-  return <MapPreviewLazy />;
+  return <MapPreviewDynamic />;
 }
