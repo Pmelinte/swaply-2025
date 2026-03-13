@@ -1409,7 +1409,8 @@
     "apiKeyMissing": "API key lipsă",
     "unknownLocation": "Locație necunoscută",
     "mapTitle": "Hartă locație",
-    "noPins": "Niciun pin de afișat"
+    "noPins": "Niciun pin de afișat",
+    "loading": "Se încarcă harta…"
   },
   "location": {
     "country": "Țară",

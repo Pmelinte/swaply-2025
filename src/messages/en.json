@@ -1409,7 +1409,8 @@
     "apiKeyMissing": "API key missing",
     "unknownLocation": "Unknown location",
     "mapTitle": "Location map",
-    "noPins": "No pins to display"
+    "noPins": "No pins to display",
+    "loading": "Loading map…"
   },
   "location": {
     "country": "Country",

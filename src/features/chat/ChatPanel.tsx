@@ -157,6 +157,7 @@ function MessageBubble({
         type="button"
         onClick={() => setShowReactions(!showReactions)}
         className="absolute -top-2 right-2 hidden rounded-full bg-white p-1 shadow-sm group-hover:flex dark:bg-zinc-800"
+        aria-label="React to message"
       >
         <Smile className="h-3.5 w-3.5 text-zinc-400" />
       </button>
@@ -694,6 +695,7 @@ export function ChatPanel({
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 title={t("attachFile")}
+                aria-label={t("attachFile")}
                 className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-zinc-200 text-zinc-500 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
               >
                 <Paperclip className="h-4 w-4" />
@@ -704,6 +706,7 @@ export function ChatPanel({
                 onClick={() => void handleShareLocation()}
                 disabled={locationSharing}
                 title={tc("shareLocation")}
+                aria-label={tc("shareLocation")}
                 className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-zinc-200 text-zinc-500 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
               >
                 {locationSharing ? (
