@@ -533,7 +533,7 @@ export function MyObjectsClient() {
               {/* Main row */}
               <div className="flex items-center gap-4 p-4">
                 {/* Checkbox */}
-                <button type="button" onClick={() => toggleSelect(item.id)} className="shrink-0 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200">
+                <button type="button" onClick={() => toggleSelect(item.id)} className="shrink-0 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200" aria-label={isSelected ? "Deselect item" : "Select item"}>
                   {isSelected ? <CheckSquare className="h-4 w-4 text-blue-600" /> : <Square className="h-4 w-4" />}
                 </button>
 
@@ -593,6 +593,7 @@ export function MyObjectsClient() {
                 <button
                   onClick={() => setExpandedId(isExpanded ? null : item.id)}
                   className="shrink-0 rounded-lg p-2 text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-700"
+                  aria-label={isExpanded ? "Collapse details" : "Expand details"}
                 >
                   {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                 </button>

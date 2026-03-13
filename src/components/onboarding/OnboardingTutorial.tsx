@@ -44,6 +44,7 @@ export function OnboardingTutorial() {
           type="button"
           onClick={dismiss}
           className="absolute right-3 top-3 rounded-full p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-800"
+          aria-label="Close tutorial"
         >
           <X className="h-5 w-5" />
         </button>

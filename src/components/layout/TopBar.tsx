@@ -83,6 +83,7 @@ export function TopBar() {
               type="button"
               className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs text-zinc-500 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
               onClick={() => setLangOpen((prev) => !prev)}
+              aria-label="Change language"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={localeFlagUrl(language as Locale)} alt="" width={20} height={15} className="rounded-sm" />
@@ -215,6 +216,7 @@ export function TopBar() {
                 href="/profile"
                 className="inline-flex items-center justify-center rounded-full p-2 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
                 title={t("nav.profile")}
+                aria-label={t("nav.profile")}
               >
                 {user.avatarUrl ? (
                   <Image
