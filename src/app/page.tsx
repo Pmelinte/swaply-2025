@@ -98,10 +98,10 @@ export default function HomePage() {
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
-                href="/login"
+                href="/register"
                 className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-blue-700 shadow-lg transition hover:bg-blue-50"
               >
-                {t("getStarted")}
+                {t("createFreeAccount")}
                 <ChevronRight className="h-4 w-4" />
               </Link>
               <Link

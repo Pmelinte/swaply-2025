@@ -26,7 +26,10 @@ function LoginContent() {
   const router = useRouter();
   const t = useTranslations("login");
   const returnTo = params.get("returnTo") || "/profile";
-  const [activeTab, setActiveTab] = useState<string>("login");
+  const initialTab = params.get("tab");
+  const [activeTab, setActiveTab] = useState<string>(
+    initialTab === "register" || initialTab === "reset" ? initialTab : "login",
+  );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);

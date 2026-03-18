@@ -327,6 +327,8 @@
     "guestHeadline": "แลกสิ่งที่คุณมีเป็นสิ่งที่คุณต้องการ",
     "guestSubtitle": "Swaply เชื่อมต่อผู้คนที่ต้องการแลกเปลี่ยนสิ่งของ ไม่ต้องใช้เงิน เรียบง่าย ในพื้นที่ โปร่งใส",
     "getStarted": "เริ่มต้น",
+    "createFreeAccount": "Create your free account",
+    "loginCta": "Log in",
     "browseObjects": "ดูสิ่งของ",
     "actionAdd": "เพิ่มสิ่งของ",
     "actionAddDesc": "ลงรายการสิ่งของเพื่อแลกเปลี่ยน",
