@@ -105,6 +105,12 @@ export default function HomePage() {
                 <ChevronRight className="h-4 w-4" />
               </Link>
               <Link
+                href="/login"
+                className="inline-flex items-center gap-2 rounded-full border border-white/30 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+              >
+                {t("loginCta")}
+              </Link>
+              <Link
                 href="/objects"
                 className="inline-flex items-center gap-2 rounded-full border border-white/30 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
               >
