@@ -721,6 +721,16 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           setDataSource("supabase");
           await hydrateSupabase(data.session.user.id);
         }
+        // Send welcome email after successful registration
+        try {
+          await fetch("/api/email/welcome", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, name: email.split("@")[0] }),
+          });
+        } catch {
+          // Welcome email is non-critical — don't block registration
+        }
         return {};
       }
       setUser({ ...mockUser, id: nanoid(), email, displayName: email.split("@")[0], badge: "free",
