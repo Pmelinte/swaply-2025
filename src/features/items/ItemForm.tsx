@@ -121,6 +121,8 @@ export function ItemForm({
   const [imageUrlError, setImageUrlError] = useState<string | null>(null);
   const [loadingUrl, setLoadingUrl] = useState(false);
   const [aiConfidence, setAiConfidence] = useState<number | null>(null);
+  const [valueEstimate, setValueEstimate] = useState<{ min: number; max: number; currency: string; fairSwapExamples: string[] } | null>(null);
+  const [valueLoading, setValueLoading] = useState(false);
   const aiTriggered = useRef(false);
 
   const triggerAiOnBlur = useCallback(() => {
@@ -248,6 +250,48 @@ export function ItemForm({
     aiTriggered.current = true;
     void fetchAiSuggestionsInternal();
   };
+
+  const estimateValue = useCallback(() => {
+    setValueLoading(true);
+    // Simple local estimation based on category and condition
+    setTimeout(() => {
+      const categoryValues: Record<string, [number, number]> = {
+        "Electronics": [50, 500],
+        "Clothing": [10, 150],
+        "Books": [5, 50],
+        "Sports": [20, 300],
+        "Home & Garden": [15, 200],
+        "Toys": [10, 100],
+        "Music": [20, 300],
+        "Art": [30, 500],
+        "Collectibles": [25, 1000],
+        "Tools": [15, 250],
+      };
+      const conditionMultiplier: Record<string, number> = {
+        new: 1.0,
+        good: 0.7,
+        used: 0.4,
+        used_good: 0.55,
+      };
+      const baseRange = categoryValues[draft.category] ?? [10, 200];
+      const mult = conditionMultiplier[draft.condition] ?? 0.6;
+      const min = Math.round(baseRange[0] * mult);
+      const max = Math.round(baseRange[1] * mult);
+
+      // Generate fair swap examples based on category
+      const swapExamples: Record<string, string[]> = {
+        "Electronics": ["Tablet", "Bluetooth speaker", "Smart watch"],
+        "Clothing": ["Designer jacket", "Vintage dress", "Sneakers"],
+        "Books": ["Book collection", "E-reader", "Board game"],
+        "Sports": ["Bicycle", "Tennis racket", "Camping gear"],
+        "Home & Garden": ["Kitchen appliance", "Garden tools", "Lamp set"],
+      };
+      const examples = swapExamples[draft.category] ?? ["Similar condition item", "Item from same category", "Bundle of smaller items"];
+
+      setValueEstimate({ min, max, currency: "EUR", fairSwapExamples: examples });
+      setValueLoading(false);
+    }, 800);
+  }, [draft.category, draft.condition]);
 
   const analyzeImageWithAi = async (imageUrl: string, file?: File) => {
     setImageAiLoading(true);
@@ -619,6 +663,50 @@ export function ItemForm({
           }`}>
             {t("aiConfidence", { score: String(aiConfidence) })}
           </span>
+        )}
+      </div>
+
+      {/* AI Value Estimation */}
+      <div className="rounded-xl border border-emerald-200 bg-emerald-50/30 p-3 dark:border-emerald-900 dark:bg-emerald-950/20">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-200">
+              {t("valueEstimation")}
+            </p>
+            <p className="text-xs text-emerald-600 dark:text-emerald-400">
+              {t("valueEstimationDesc")}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={estimateValue}
+            disabled={valueLoading || !draft.category}
+            className="rounded-full bg-emerald-600 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
+          >
+            {valueLoading ? t("analyzing") : t("estimateValue")}
+          </button>
+        </div>
+        {valueEstimate && (
+          <div className="mt-3 space-y-2">
+            <div className="flex items-center gap-3">
+              <div className="rounded-lg bg-white px-3 py-2 shadow-sm dark:bg-zinc-800">
+                <p className="text-xs text-zinc-500">{t("estimatedRange")}</p>
+                <p className="text-lg font-bold text-emerald-700 dark:text-emerald-300">
+                  {valueEstimate.min}–{valueEstimate.max} {valueEstimate.currency}
+                </p>
+              </div>
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-300">{t("fairSwapExamples")}</p>
+              <div className="mt-1 flex flex-wrap gap-1">
+                {valueEstimate.fairSwapExamples.map((ex) => (
+                  <span key={ex} className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200">
+                    {ex}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
         )}
       </div>
 

@@ -404,6 +404,22 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
                 <p className="text-sm font-bold text-zinc-900 dark:text-zinc-50">
                   {requesterItem?.title ?? swap.requesterItemId}
                 </p>
+                {swap.requesterBundleIds && swap.requesterBundleIds.length > 0 && (
+                  <div className="mt-1.5 flex flex-wrap items-center gap-1">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-semibold text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">
+                      <Package className="h-3 w-3" />
+                      Bundle ({swap.requesterBundleIds.length + 1} items)
+                    </span>
+                    {swap.requesterBundleIds.map((bid) => {
+                      const bundleItem = items.find((i) => i.id === bid);
+                      return (
+                        <span key={bid} className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300">
+                          {bundleItem?.title ?? bid.slice(0, 8) + "\u2026"}
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
                 <div className="mt-1 flex items-center gap-1.5">
                   <span className={`inline-block h-2 w-2 rounded-full ${swap.status !== "cancelled" ? "bg-green-500" : "bg-red-500"}`} />
                   <span className="text-xs text-zinc-600 dark:text-zinc-300">
@@ -417,6 +433,22 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
                 <p className="text-sm font-bold text-zinc-900 dark:text-zinc-50">
                   {responderItem?.title ?? swap.responderItemId}
                 </p>
+                {swap.responderBundleIds && swap.responderBundleIds.length > 0 && (
+                  <div className="mt-1.5 flex flex-wrap items-center gap-1">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-semibold text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">
+                      <Package className="h-3 w-3" />
+                      Bundle ({swap.responderBundleIds.length + 1} items)
+                    </span>
+                    {swap.responderBundleIds.map((bid) => {
+                      const bundleItem = items.find((i) => i.id === bid);
+                      return (
+                        <span key={bid} className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300">
+                          {bundleItem?.title ?? bid.slice(0, 8) + "\u2026"}
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
                 <div className="mt-1 flex items-center gap-1.5">
                   <span className={`inline-block h-2 w-2 rounded-full ${swap.status !== "cancelled" ? "bg-green-500" : "bg-red-500"}`} />
                   <span className="text-xs text-zinc-600 dark:text-zinc-300">
