@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   },
   description: "Swaply conectează oameni care vor să facă schimb de obiecte, fără bani. Simplu, local, transparent. AI matching, chat securizat, flux complet de schimb.",
   manifest: "/manifest.json",
-  metadataBase: new URL("https://swaply.app"),
+  metadataBase: new URL("https://swaply.world"),
   openGraph: {
     type: "website",
     locale: "ro_RO",
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     googleBot: { index: true, follow: true },
   },
   alternates: {
-    canonical: "https://swaply.app",
+    canonical: "https://swaply.world",
   },
   appleWebApp: {
     capable: true,

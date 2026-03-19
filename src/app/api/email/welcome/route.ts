@@ -8,7 +8,7 @@ const resend = process.env.RESEND_API_KEY
   ? new Resend(process.env.RESEND_API_KEY)
   : null;
 
-const FROM_EMAIL = process.env.EMAIL_FROM || "Swaply <noreply@swaply.app>";
+const FROM_EMAIL = process.env.EMAIL_FROM || "Swaply <noreply@swaply.world>";
 
 /**
  * POST /api/email/welcome
@@ -59,7 +59,7 @@ export async function POST(request: Request) {
   const rawName = body.name || authUser.user_metadata?.display_name || "Swaply User";
   const name = esc(rawName);
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://swaply.app";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://swaply.world";
   const loginUrl = `${appUrl}/login`;
   const unsubscribeUrl = `${appUrl}/profile#notifications`;
 

@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/api/", "/profile", "/chat", "/change", "/my-objects"],
       },
     ],
-    sitemap: "https://swaply.app/sitemap.xml",
+    sitemap: "https://swaply.world/sitemap.xml",
   };
 }

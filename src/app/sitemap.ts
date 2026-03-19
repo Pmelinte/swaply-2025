@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://swaply.app";
+  const baseUrl = "https://swaply.world";
 
   return [
     { url: baseUrl, lastModified: new Date(), changeFrequency: "daily", priority: 1 },

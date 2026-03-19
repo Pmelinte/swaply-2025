@@ -705,24 +705,28 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         return { error };
       }
       if (supabaseConfigured && supabase) {
+        const siteUrl = typeof window !== "undefined" ? window.location.origin : "";
         const { data, error } = await supabase.auth.signUp({
           email, password,
-          options: { data: { accepted_terms: acceptTerms, language } },
+          options: {
+            data: { accepted_terms: acceptTerms, language },
+            emailRedirectTo: `${siteUrl}/auth/callback`,
+          },
         });
         if (error) { setLastError(error.message); return { error: error.message }; }
         if (data.session?.user.id) {
           setDataSource("supabase");
           await hydrateSupabase(data.session.user.id);
-        }
-        // Send welcome email after successful registration
-        try {
-          await fetch("/api/email/welcome", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, name: email.split("@")[0] }),
-          });
-        } catch {
-          // Welcome email is non-critical — don't block registration
+          // Send welcome email after confirmed registration with active session
+          try {
+            await fetch("/api/email/welcome", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email, name: email.split("@")[0] }),
+            });
+          } catch {
+            // Welcome email is non-critical — don't block registration
+          }
         }
         return {};
       }
