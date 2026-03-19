@@ -18,6 +18,11 @@ import {
   Home,
   Wrench,
   MessageSquare,
+  Megaphone,
+  Heart,
+  Leaf,
+  Clock,
+  CalendarDays,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
@@ -207,6 +212,59 @@ export default function HomePage() {
             title={t("actionFeedback")}
             description={t("actionFeedbackDesc")}
             gradient="from-rose-500 to-pink-600"
+          />
+        </div>
+      )}
+
+      {/* ── New Features ── */}
+      {user && (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <ActionCard
+            href="/wanted"
+            icon={<Megaphone className="h-5 w-5" />}
+            title={t("actionWanted")}
+            description={t("actionWantedDesc")}
+            gradient="from-orange-500 to-red-600"
+          />
+          <ActionCard
+            href="/favorites"
+            icon={<Heart className="h-5 w-5" />}
+            title={t("actionFavorites")}
+            description={t("actionFavoritesDesc")}
+            gradient="from-pink-500 to-rose-600"
+          />
+          <ActionCard
+            href="/leaderboard"
+            icon={<Trophy className="h-5 w-5" />}
+            title={t("actionLeaderboard")}
+            description={t("actionLeaderboardDesc")}
+            gradient="from-amber-500 to-yellow-600"
+          />
+          <ActionCard
+            href="/eco"
+            icon={<Leaf className="h-5 w-5" />}
+            title={t("actionEco")}
+            description={t("actionEcoDesc")}
+            gradient="from-green-500 to-emerald-600"
+          />
+        </div>
+      )}
+
+      {user && (
+        <div className="grid gap-3 sm:grid-cols-2">
+          <ActionCard
+            href="/history"
+            icon={<Clock className="h-5 w-5" />}
+            title={t("actionHistory")}
+            description={t("actionHistoryDesc")}
+            gradient="from-indigo-500 to-blue-600"
+          />
+          <ActionCard
+            href="/events"
+            icon={<CalendarDays className="h-5 w-5" />}
+            title={t("actionEvents")}
+            description={t("actionEventsDesc")}
+            gradient="from-cyan-500 to-teal-600"
           />
         </div>
       )}

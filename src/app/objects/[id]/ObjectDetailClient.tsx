@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, lazy, Suspense } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { SafeImage } from "@/components/SafeImage";
+import { ShareButtons } from "@/components/ShareButtons";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
@@ -361,6 +362,9 @@ export default function ObjectDetailClient() {
               )}
             </div>
           </div>
+
+          {/* Share buttons */}
+          <ShareButtons title={item.title} itemId={item.id} />
 
           {/* Description */}
           {item.description && (

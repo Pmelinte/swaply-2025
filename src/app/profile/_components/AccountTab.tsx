@@ -142,6 +142,43 @@ export default function AccountTab({
             </label>
           </div>
         </fieldset>
+
+        {/* Smart Notifications */}
+        <div className="mt-4 rounded-xl border border-blue-200 bg-blue-50/30 p-3 dark:border-blue-900 dark:bg-blue-950/20">
+          <p className="text-sm font-semibold text-blue-800 dark:text-blue-200">{t("smartNotifications")}</p>
+          <p className="mb-3 text-xs text-blue-600 dark:text-blue-400">{t("smartNotificationsDesc")}</p>
+          <div className="space-y-3">
+            <label className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
+              <input type="checkbox" checked={draft.notifications.swapUpdates}
+                onChange={(e) => update({ notifications: { ...draft.notifications, swapUpdates: e.target.checked } })} />
+              {t("swapUpdateAlerts")}
+            </label>
+            <div>
+              <p className="text-xs font-semibold text-zinc-600 dark:text-zinc-300">{t("digestFrequency")}</p>
+              <select
+                value="daily"
+                className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
+              >
+                <option value="realtime">{t("digestRealtime")}</option>
+                <option value="daily">{t("digestDaily")}</option>
+                <option value="weekly">{t("digestWeekly")}</option>
+                <option value="off">{t("digestOff")}</option>
+              </select>
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-zinc-600 dark:text-zinc-300">{t("matchScoreThreshold")}</p>
+              <p className="text-[11px] text-zinc-500 dark:text-zinc-400">{t("matchScoreThresholdDesc")}</p>
+              <select
+                value="70"
+                className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
+              >
+                <option value="50">{t("scoreAbove50")}</option>
+                <option value="70">{t("scoreAbove70")}</option>
+                <option value="90">{t("scoreAbove90")}</option>
+              </select>
+            </div>
+          </div>
+        </div>
       </SectionCard>
 
       <SectionCard title={t("emailChange")} description={t("emailChangeDescription")}>
