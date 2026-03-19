@@ -39,6 +39,15 @@ function LoginContent() {
   const [processing, setProcessing] = useState(false);
   const { login, register, resetPassword, user } = useAppState();
 
+  // Show error from auth callback (e.g. email confirmation failed)
+  useEffect(() => {
+    const errorParam = params.get("error");
+    if (errorParam === "confirmation") {
+      setMessage(t("confirmationFailed"));
+      setStatus("error");
+    }
+  }, [params, t]);
+
   const tabs = [
     { key: "login", label: t("authentication") },
     { key: "register", label: t("registration") },
@@ -91,9 +100,9 @@ function LoginContent() {
           router.replace(returnTo);
         }
       } else if (activeTab === "register") {
-        const { error } = await register(email, password, accept);
-        if (error) {
-          setMessage(error);
+        const result = await register(email, password, accept);
+        if (result.error) {
+          setMessage(typeof result.error === "string" ? result.error : String(result.error));
           setStatus("error");
         } else {
           setMessage(t("accountCreated"));

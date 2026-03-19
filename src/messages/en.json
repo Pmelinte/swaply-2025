@@ -100,6 +100,7 @@
     "authenticated": "Authenticated. Redirecting to profile…",
     "accountCreated": "Account created successfully! Check your email for account confirmation, then come back to login.",
     "resetSent": "Reset instructions sent to your email.",
+    "confirmationFailed": "Email confirmation failed or link expired. Please try registering again.",
     "unexpectedError": "Unexpected error: {error}",
     "strengthNone": "",
     "strengthWeak": "Weak password",

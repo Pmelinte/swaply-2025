@@ -714,10 +714,16 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           },
         });
         if (error) { setLastError(error.message); return { error: error.message }; }
+        // Detect fake success for already-registered emails (empty identities)
+        if (data.user && (!data.user.identities || data.user.identities.length === 0)) {
+          const msg = "An account with this email may already exist. Try logging in or resetting your password.";
+          setLastError(msg);
+          return { error: msg };
+        }
         if (data.session?.user.id) {
           setDataSource("supabase");
           await hydrateSupabase(data.session.user.id);
-          // Send welcome email after confirmed registration with active session
+          // Send welcome email only when session exists (email auto-confirmed)
           try {
             await fetch("/api/email/welcome", {
               method: "POST",
