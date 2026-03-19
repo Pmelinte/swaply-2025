@@ -327,6 +327,8 @@
     "guestHeadline": "Échangez ce que vous avez contre ce que vous voulez",
     "guestSubtitle": "Swaply connecte les personnes qui veulent échanger des objets, sans argent. Simple, local, transparent.",
     "getStarted": "Commencer",
+    "createFreeAccount": "Créez votre compte gratuit",
+    "loginCta": "Se connecter",
     "browseObjects": "Parcourir les objets",
     "actionAdd": "Ajouter un objet",
     "actionAddDesc": "Proposer quelque chose à l'échange",

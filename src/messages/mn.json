@@ -327,6 +327,8 @@
     "guestHeadline": "Байгаа зүйлээ хүссэн зүйлтэйгээ солио",
     "guestSubtitle": "Swaply зүйлс солилцохыг хүссэн хүмүүсийг холбодог, мөнгөгүй. Энгийн, орон нутгийн, ил тод.",
     "getStarted": "Эхлэх",
+    "createFreeAccount": "Create your free account",
+    "loginCta": "Log in",
     "browseObjects": "Зүйлс үзэх",
     "actionAdd": "Зүйл нэмэх",
     "actionAddDesc": "Солилцоонд зүйл бүртгэх",
