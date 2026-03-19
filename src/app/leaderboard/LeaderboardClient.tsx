@@ -8,10 +8,6 @@ import {
   Medal,
   Crown,
   ArrowRightLeft,
-  Star,
-  TrendingUp,
-  MapPin,
-  Flame,
 } from "lucide-react";
 
 type TimeRange = "all" | "month" | "week";
@@ -27,7 +23,7 @@ interface LeaderEntry {
 }
 
 export default function LeaderboardClient() {
-  const { user, swaps, items } = useAppState();
+  const { user, swaps } = useAppState();
   const t = useTranslations("leaderboard");
   const [timeRange, setTimeRange] = useState<TimeRange>("all");
 
