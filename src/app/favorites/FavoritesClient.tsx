@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
@@ -10,14 +10,13 @@ import {
   MapPin,
   Tag,
   Search,
-  Trash2,
   ArrowRightLeft,
   ChevronRight,
   Bookmark,
 } from "lucide-react";
 
 export default function FavoritesClient() {
-  const { user, items } = useAppState();
+  const { items } = useAppState();
   const t = useTranslations("favorites");
   const [search, setSearch] = useState("");
 

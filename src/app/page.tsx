@@ -104,7 +104,7 @@ export default function HomePage() {
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
                 href="/register"
-                className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-blue-700 shadow-lg transition hover:bg-blue-50"
+                className="inline-flex items-center gap-2 rounded-full bg-green-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition hover:bg-green-600"
               >
                 {t("createFreeAccount")}
                 <ChevronRight className="h-4 w-4" />

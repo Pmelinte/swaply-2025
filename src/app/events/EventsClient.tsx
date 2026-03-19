@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import {
@@ -9,9 +8,6 @@ import {
   MapPin,
   Users,
   Clock,
-  Tag,
-  Plus,
-  ChevronRight,
   CalendarDays,
   PartyPopper,
 } from "lucide-react";

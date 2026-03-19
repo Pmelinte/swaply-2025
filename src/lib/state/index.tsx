@@ -52,17 +52,14 @@ import type {
   VerificationBadges,
 } from "../types";
 import {
-  createEmptyItem,
   mockAnnouncements,
   mockConversations,
-  mockFeatureToggles,
   mockInfoStats,
   mockItems,
   mockSwaps,
   mockUser,
 } from "../mock-data";
 import { generateDemoData } from "../demo-generator";
-import { computeBalance } from "../monetization";
 import type { PremiumFeature } from "../monetization";
 import type {
   FeaturedListing,
@@ -70,16 +67,13 @@ import type {
   LoyaltyMilestone,
   Referral,
   SeasonalPromotion,
-  SwapInsurance,
   SwapMilestone,
-  TokenGift,
   UserSubscription,
 } from "../types";
 import type {
   TrustScore,
   FrictionLimits,
   ScamCheckResult,
-  TrustSignals,
 } from "../trust";
 import {
   buildTrustSignals,
@@ -102,13 +96,12 @@ import {
 } from "../feature-flags";
 import { useFeatureFlags } from "../use-feature-flags";
 import { buildUserContext } from "./matching";
-import type { MatchingUserContext, OwnerCoordinatesMap } from "./matching";
+import type { MatchingUserContext } from "./matching";
 
 // ── Extracted modules ──
 import {
   computeFeatureToggles,
   computeTierBenefits,
-  makeDmConversationId,
   parseDmConversationId,
   safeBadgeTier,
   safeString,

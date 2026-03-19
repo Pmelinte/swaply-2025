@@ -13,7 +13,6 @@ import {
   X,
   Megaphone,
   ArrowRightLeft,
-  ChevronRight,
 } from "lucide-react";
 
 interface WantedRequest {
@@ -47,7 +46,7 @@ export default function WantedClient() {
         location: item.location,
         offeredInReturn: item.title,
         createdAt: item.createdAt,
-        responses: Math.floor(Math.random() * 5),
+        responses: (item.id.charCodeAt(0) + item.id.length) % 5,
       }))
       .sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""));
   }, [items, user]);
