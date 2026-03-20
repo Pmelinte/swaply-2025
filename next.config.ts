@@ -29,7 +29,7 @@ const nextConfig: NextConfig = {
             "style-src 'self' 'unsafe-inline'",
             "img-src 'self' data: blob: https://res.cloudinary.com https://*.supabase.co https://images.unsplash.com https://picsum.photos https://i.pravatar.cc https://maps.googleapis.com https://flagcdn.com https://ui-avatars.com",
             "font-src 'self'",
-            "connect-src 'self' https://*.supabase.co https://api-inference.huggingface.co https://router.huggingface.co https://api.groq.com https://generativelanguage.googleapis.com https://www.google-analytics.com https://*.analytics.google.com https://va.vercel-scripts.com",
+            "connect-src 'self' https://*.supabase.co https://keaejxlwqtjjglijiplh.supabase.co/functions/v1/* https://keaejxlwqtjjglijiplh.supabase.co/rest/v1/* https://keaejxlwqtjjglijiplh.supabase.co/auth/v1/* wss://keaejxlwqtjjglijiplh.supabase.co/* https://api-inference.huggingface.co https://router.huggingface.co https://api.groq.com https://generativelanguage.googleapis.com https://www.google-analytics.com https://*.analytics.google.com https://va.vercel-scripts.com",
             "frame-src 'self' https://www.google.com https://maps.google.com",
             "object-src 'none'",
             "base-uri 'self'",
