@@ -104,8 +104,8 @@ export function StatsBar() {
   // Don't render until data loaded
   if (!stats) return null;
 
-  // Hide entirely if objects < 20
-  if (stats.objectsCount < 20) return null;
+  // Hide entirely if no objects at all
+  if (stats.objectsCount < 1) return null;
 
   const showUsersNumber = stats.usersCount >= 50;
   const showSwapsNumber = stats.swapsCount >= 5;
