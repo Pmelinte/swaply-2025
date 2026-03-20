@@ -34,19 +34,15 @@ function LoginContent() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [accept, setAccept] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-  const [status, setStatus] = useState<"idle" | "error" | "success">("idle");
+  const errorParam = params.get("error");
+  const [message, setMessage] = useState<string | null>(
+    errorParam === "confirmation" ? t("confirmationFailed") : null,
+  );
+  const [status, setStatus] = useState<"idle" | "error" | "success">(
+    errorParam === "confirmation" ? "error" : "idle",
+  );
   const [processing, setProcessing] = useState(false);
   const { login, register, resetPassword, user } = useAppState();
-
-  // Show error from auth callback (e.g. email confirmation failed)
-  useEffect(() => {
-    const errorParam = params.get("error");
-    if (errorParam === "confirmation") {
-      setMessage(t("confirmationFailed"));
-      setStatus("error");
-    }
-  }, [params, t]);
 
   const tabs = [
     { key: "login", label: t("authentication") },

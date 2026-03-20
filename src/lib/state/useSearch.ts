@@ -12,30 +12,12 @@ interface UseSearchParams {
 }
 
 /** Get distance for an item (returns Infinity if no coordinates) */
-function getItemDistance(
-  _item: Item,
-  _coords: { lat: number; lng: number },
-): number {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function getItemDistance(item: Item, coords: { lat: number; lng: number }): number {
   // Items don't have coordinates in the current schema, so we'd need to
   // geocode the location string. For now, return a large number.
   // In production, items would have lat/lng from geocoding.
   return Infinity;
-}
-
-/** Haversine distance in km */
-function _haversineKm(
-  lat1: number, lng1: number,
-  lat2: number, lng2: number,
-): number {
-  const R = 6371;
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLng = ((lng2 - lng1) * Math.PI) / 180;
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLng / 2) ** 2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
 const DEFAULT_FILTERS: SearchFilters = {
