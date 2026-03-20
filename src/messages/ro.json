@@ -441,7 +441,11 @@
     "statsObjects": "obiecte disponibile",
     "statsSwaps": "schimburi finalizate",
     "statsCities": "orașe active",
-    "statsCommunityGrowing": "Comunitate în creștere"
+    "statsCommunityGrowing": "Comunitate în creștere",
+    "recentItemsTitle": "Adăugate recent în comunitate",
+    "recentItemsViewAll": "Vezi toate obiectele →",
+    "recentItemsEmpty": "Fii primul care adaugă un obiect! 🚀",
+    "recentItemsAddCta": "Adaugă obiect →"
   },
   "objects": {
     "createAccount": "Creează cont",

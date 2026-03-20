@@ -441,7 +441,11 @@
     "statsObjects": "available items",
     "statsSwaps": "completed swaps",
     "statsCities": "active cities",
-    "statsCommunityGrowing": "Growing community"
+    "statsCommunityGrowing": "Growing community",
+    "recentItemsTitle": "Recently added in the community",
+    "recentItemsViewAll": "View all objects →",
+    "recentItemsEmpty": "Be the first to add an object!",
+    "recentItemsAddCta": "Add object →"
   },
   "objects": {
     "title": "Browse Objects",
