@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "type, userId, userEmail sunt obligatorii" }, { status: 400 });
   }
 
-  const origin = request.headers.get("origin") ?? "https://swaply.app";
+  const origin = request.headers.get("origin") ?? "https://swaply.world";
   const successUrl = `${origin}/monetization?payment=success&session_id={CHECKOUT_SESSION_ID}`;
   const cancelUrl = `${origin}/monetization?payment=cancelled`;
 

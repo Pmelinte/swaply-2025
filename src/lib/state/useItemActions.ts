@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
-import type { Item, UserProfile } from "../types";
+import type { Item } from "../types";
 import { createEmptyItem } from "../mock-data";
 import type { SharedDeps } from "./shared-deps";
 

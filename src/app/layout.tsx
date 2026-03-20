@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import dynamic from "next/dynamic";
 import "./globals.css";
 import { Providers } from "./providers";
 import { TopBar } from "@/components/layout/TopBar";
@@ -7,13 +6,9 @@ import { ContextBar } from "@/components/layout/ContextBar";
 import { FooterNav } from "@/components/layout/FooterNav";
 import { LegalFooter } from "@/components/layout/LegalFooter";
 import { GlobalNudge } from "@/components/layout/GlobalNudge";
+import { ClientOverlays } from "@/components/ClientOverlays";
 import { Analytics } from "@vercel/analytics/react";
 import { GoogleAnalytics } from "@next/third-parties/google";
-
-// Dynamic imports — these are modals/banners not needed for initial render
-const InstallPrompt = dynamic(() => import("@/components/pwa/InstallPrompt").then((m) => m.InstallPrompt));
-const CookieConsent = dynamic(() => import("@/components/legal/CookieConsent").then((m) => m.CookieConsent));
-const OnboardingTutorial = dynamic(() => import("@/components/onboarding/OnboardingTutorial").then((m) => m.OnboardingTutorial));
 
 export const metadata: Metadata = {
   title: {
@@ -22,20 +17,20 @@ export const metadata: Metadata = {
   },
   description: "Swaply conectează oameni care vor să facă schimb de obiecte, fără bani. Simplu, local, transparent. AI matching, chat securizat, flux complet de schimb.",
   manifest: "/manifest.json",
-  metadataBase: new URL("https://swaply.app"),
+  metadataBase: new URL("https://swaply.world"),
   openGraph: {
     type: "website",
     locale: "ro_RO",
     siteName: "Swaply",
     title: "Swaply — Schimb de obiecte fără bani",
     description: "Schimbă ce ai cu ce vrei. AI matching, chat securizat, flux complet de schimb.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Swaply" }],
+    images: [{ url: "/og-image.svg", width: 1200, height: 630, alt: "Swaply" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Swaply — Schimb de obiecte fără bani",
     description: "Schimbă ce ai cu ce vrei. AI matching, chat securizat.",
-    images: ["/og-image.png"],
+    images: ["/og-image.svg"],
   },
   robots: {
     index: true,
@@ -43,7 +38,7 @@ export const metadata: Metadata = {
     googleBot: { index: true, follow: true },
   },
   alternates: {
-    canonical: "https://swaply.app",
+    canonical: "https://swaply.world",
   },
   appleWebApp: {
     capable: true,
@@ -81,9 +76,7 @@ export default function RootLayout({
           </div>
           <LegalFooter />
           <FooterNav />
-          <InstallPrompt />
-          <CookieConsent />
-          <OnboardingTutorial />
+          <ClientOverlays />
           <Analytics />
         </Providers>
       </body>

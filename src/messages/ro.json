@@ -100,6 +100,7 @@
     "authenticated": "Autentificat. Redirect către profil…",
     "accountCreated": "Cont creat cu succes! Verifică-ți email-ul pentru confirmarea contului, apoi revino să te autentifici.",
     "resetSent": "Instrucțiuni de reset trimise pe email.",
+    "confirmationFailed": "Confirmarea email-ului a eșuat sau link-ul a expirat. Încearcă să te înregistrezi din nou.",
     "unexpectedError": "Eroare neașteptată: {error}",
     "strengthNone": "",
     "strengthWeak": "Parolă slabă",

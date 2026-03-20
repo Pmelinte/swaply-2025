@@ -34,8 +34,13 @@ function LoginContent() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [accept, setAccept] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-  const [status, setStatus] = useState<"idle" | "error" | "success">("idle");
+  const errorParam = params.get("error");
+  const [message, setMessage] = useState<string | null>(
+    errorParam === "confirmation" ? t("confirmationFailed") : null,
+  );
+  const [status, setStatus] = useState<"idle" | "error" | "success">(
+    errorParam === "confirmation" ? "error" : "idle",
+  );
   const [processing, setProcessing] = useState(false);
   const { login, register, resetPassword, user } = useAppState();
 
@@ -91,10 +96,13 @@ function LoginContent() {
           router.replace(returnTo);
         }
       } else if (activeTab === "register") {
-        const { error } = await register(email, password, accept);
-        if (error) {
-          setMessage(error);
-          setStatus("error");
+        const result = await register(email, password, accept);
+        if (result.error) {
+          const errorStr = typeof result.error === "string" ? result.error : String(result.error);
+          // Timeout errors are soft — the account may have been created
+          const isTimeout = errorStr.toLowerCase().includes("timeout") || errorStr.includes("Account may have been created");
+          setMessage(isTimeout ? errorStr : errorStr);
+          setStatus(isTimeout ? "success" : "error");
         } else {
           setMessage(t("accountCreated"));
           setStatus("success");

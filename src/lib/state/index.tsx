@@ -336,8 +336,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     }).catch(() => { /* audit is best-effort */ });
   }, []);
 
-  const [language, setLanguage] = useState<LanguageCode>(() => {
-    if (typeof window === "undefined") return "en";
+  const [language, setLanguage] = useState<LanguageCode>("en");
+
+  // Hydrate language from localStorage after mount to avoid SSR mismatch
+  useEffect(() => {
     const saved = window.localStorage.getItem("swaply_language");
     if (saved) {
       const locales: string[] = [
@@ -347,10 +349,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         "hi","bn","ja","ko","vi","th","id","ms","fil","fa",
         "mn","uk",
       ];
-      if (locales.includes(saved)) return saved as LanguageCode;
+      if (locales.includes(saved)) setLanguage(saved as LanguageCode);
     }
-    return "en";
-  });
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -705,24 +706,48 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         return { error };
       }
       if (supabaseConfigured && supabase) {
+        const siteUrl = typeof window !== "undefined" ? window.location.origin : "";
         const { data, error } = await supabase.auth.signUp({
           email, password,
-          options: { data: { accepted_terms: acceptTerms, language } },
+          options: {
+            data: { accepted_terms: acceptTerms, language },
+            emailRedirectTo: `${siteUrl}/auth/callback`,
+          },
         });
-        if (error) { setLastError(error.message); return { error: error.message }; }
+        if (error) {
+          // Supabase gateway timeout — the account is usually created despite the 504.
+          // Tell the user to check their email instead of showing a cryptic error.
+          const isTimeout =
+            error.status === 504 ||
+            error.message?.toLowerCase().includes("timeout") ||
+            error.message?.toLowerCase().includes("gateway");
+          if (isTimeout) {
+            const msg =
+              "Account may have been created. Please check your email for the confirmation link, then come back to log in. If you don't receive an email within a few minutes, try registering again.";
+            setLastError(msg);
+            return { error: msg };
+          }
+          setLastError(error.message); return { error: error.message };
+        }
+        // Detect fake success for already-registered emails (empty identities)
+        if (data.user && (!data.user.identities || data.user.identities.length === 0)) {
+          const msg = "An account with this email may already exist. Try logging in or resetting your password.";
+          setLastError(msg);
+          return { error: msg };
+        }
         if (data.session?.user.id) {
           setDataSource("supabase");
           await hydrateSupabase(data.session.user.id);
-        }
-        // Send welcome email after successful registration
-        try {
-          await fetch("/api/email/welcome", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, name: email.split("@")[0] }),
-          });
-        } catch {
-          // Welcome email is non-critical — don't block registration
+          // Send welcome email only when session exists (email auto-confirmed)
+          try {
+            await fetch("/api/email/welcome", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email, name: email.split("@")[0] }),
+            });
+          } catch {
+            // Welcome email is non-critical — don't block registration
+          }
         }
         return {};
       }

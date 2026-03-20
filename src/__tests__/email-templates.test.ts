@@ -4,8 +4,8 @@ import { renderWelcomeEmail, renderSwapProposalEmail } from "@/lib/email-templat
 describe("renderWelcomeEmail", () => {
   const data = {
     name: "Ion",
-    loginUrl: "https://swaply.app/login",
-    unsubscribeUrl: "https://swaply.app/unsubscribe",
+    loginUrl: "https://swaply.world/login",
+    unsubscribeUrl: "https://swaply.world/unsubscribe",
   };
 
   it("returns valid HTML", () => {
@@ -21,12 +21,12 @@ describe("renderWelcomeEmail", () => {
 
   it("includes login URL", () => {
     const html = renderWelcomeEmail(data);
-    expect(html).toContain("https://swaply.app/login");
+    expect(html).toContain("https://swaply.world/login");
   });
 
   it("includes unsubscribe URL", () => {
     const html = renderWelcomeEmail(data);
-    expect(html).toContain("https://swaply.app/unsubscribe");
+    expect(html).toContain("https://swaply.world/unsubscribe");
   });
 
   it("includes Swaply branding", () => {
@@ -55,8 +55,8 @@ describe("renderSwapProposalEmail", () => {
     senderName: "Ion",
     requesterItemTitle: "Chitară Yamaha",
     responderItemTitle: "Laptop Dell",
-    swapUrl: "https://swaply.app/swap/123",
-    unsubscribeUrl: "https://swaply.app/unsubscribe",
+    swapUrl: "https://swaply.world/swap/123",
+    unsubscribeUrl: "https://swaply.world/unsubscribe",
   };
 
   it("returns valid HTML", () => {
@@ -83,7 +83,7 @@ describe("renderSwapProposalEmail", () => {
 
   it("includes swap URL", () => {
     const html = renderSwapProposalEmail(data);
-    expect(html).toContain("https://swaply.app/swap/123");
+    expect(html).toContain("https://swaply.world/swap/123");
   });
 
   it("includes swap arrow indicator", () => {
@@ -93,6 +93,6 @@ describe("renderSwapProposalEmail", () => {
 
   it("includes unsubscribe link", () => {
     const html = renderSwapProposalEmail(data);
-    expect(html).toContain("https://swaply.app/unsubscribe");
+    expect(html).toContain("https://swaply.world/unsubscribe");
   });
 });

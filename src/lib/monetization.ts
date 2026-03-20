@@ -133,7 +133,7 @@ export function generateReferralCode(userId: string): string {
 }
 
 export function referralLink(code: string): string {
-  return `https://swaply.app/join?ref=${code}`;
+  return `https://swaply.world/join?ref=${code}`;
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

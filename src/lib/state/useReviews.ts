@@ -13,7 +13,7 @@ interface UseReviewsParams {
 
 export function useReviews({ userId, swaps, trackEvent }: UseReviewsParams) {
   const [reviews, setReviews] = useState<Review[]>([]);
-  const [loadingReviews, setLoadingReviews] = useState(false);
+  const [loadingReviews] = useState(false);
 
   /** Submit a review for a completed swap */
   const submitReview = useCallback(
