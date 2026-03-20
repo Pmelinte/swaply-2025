@@ -13,7 +13,7 @@ export async function GET() {
   const { data, error } = await supabase
     .from("items")
     .select(
-      "id, title, category, photos, images, image_url, location, location_city, estimated_value, created_at, condition",
+      "id, title, category, images, image_url, location, location_city, estimated_value, created_at, condition",
     )
     .eq("status", "active")
     .eq("is_active", true)

@@ -10,7 +10,6 @@ interface RecentItem {
   id: string;
   title: string;
   category: string;
-  photos: string[] | null;
   images: unknown;
   image_url: string | null;
   location: string | null;
@@ -32,8 +31,6 @@ const CATEGORY_COLORS: Record<string, string> = {
 const DEFAULT_BADGE = "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300";
 
 function getItemImage(item: RecentItem): string | null {
-  // Try photos array first
-  if (item.photos && item.photos.length > 0) return item.photos[0];
   // Try images JSONB (could be array of strings or array of objects)
   if (item.images && Array.isArray(item.images) && item.images.length > 0) {
     const first = item.images[0];

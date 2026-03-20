@@ -14,9 +14,11 @@ export async function GET() {
   }
 
   const [usersRes, objectsRes, swapsRes, citiesRes] = await Promise.all([
+    // Use items owner_id to count unique users (profiles RLS blocks anon)
     supabase
-      .from("profiles")
-      .select("user_id", { count: "exact", head: true }),
+      .from("items")
+      .select("owner_id")
+      .eq("status", "active"),
     supabase
       .from("items")
       .select("id", { count: "exact", head: true })
@@ -25,18 +27,24 @@ export async function GET() {
       .from("swaps")
       .select("id", { count: "exact", head: true })
       .eq("status", "completed"),
+    // Use items location_city for cities (profiles RLS blocks anon)
     supabase
-      .from("profiles")
-      .select("location_text")
-      .not("location_text", "is", null),
+      .from("items")
+      .select("location_city")
+      .eq("status", "active")
+      .not("location_city", "is", null),
   ]);
 
+  const uniqueUsers = new Set(
+    (usersRes.data ?? []).map((i) => i.owner_id),
+  );
+
   const uniqueCities = new Set(
-    (citiesRes.data ?? []).map((p) => (p.location_text as string).trim().toLowerCase()),
+    (citiesRes.data ?? []).map((i) => (i.location_city as string).trim().toLowerCase()),
   );
 
   return NextResponse.json({
-    usersCount: usersRes.count ?? 0,
+    usersCount: uniqueUsers.size,
     objectsCount: objectsRes.count ?? 0,
     swapsCount: swapsRes.count ?? 0,
     citiesCount: uniqueCities.size,
