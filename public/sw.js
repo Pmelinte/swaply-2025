@@ -27,6 +27,11 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
 
+  // Skip non-http(s) schemes (e.g. chrome-extension://) and third-party origins
+  if (!url.protocol.startsWith("http") || url.origin !== self.location.origin) {
+    return;
+  }
+
   // Network-first for API routes and non-GET requests
   if (url.pathname.startsWith("/api/") || event.request.method !== "GET") {
     event.respondWith(
