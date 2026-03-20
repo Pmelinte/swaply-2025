@@ -306,6 +306,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [lastError, setLastError] = useState<string | null>(null);
   const [user, setUser] = useState<UserProfile | null>(null);
   const userRef = useRef<UserProfile | null>(null);
+  const hydratingRef = useRef<string | null>(null);
 
   const announcements = useMemo<Announcement[]>(() => {
     return mockAnnouncements.filter((ann) => {
@@ -427,6 +428,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const hydrateSupabase = useCallback(
     async (userId: string) => {
       if (!supabase) return;
+      // Prevent concurrent hydrations for the same user
+      if (hydratingRef.current === userId) return;
+      hydratingRef.current = userId;
       setLastError(null);
       setLoading((prev) => ({ ...prev, profile: true, items: true }));
 
@@ -562,6 +566,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       }
 
       setLoading((prev) => ({ ...prev, profile: false, items: false, auth: false }));
+      hydratingRef.current = null;
     },
     [mapItem, mapMessage, mapNotification, mapProfile, mapSwapIntent, supabase, supabaseConfigured],
   );

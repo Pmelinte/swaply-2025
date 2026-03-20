@@ -12,12 +12,6 @@ export function getSupabaseClient(): SupabaseClient | null {
     return null;
   }
 
-  cachedClient = createBrowserClient(url, key, {
-    auth: {
-      flowType: "pkce",
-      // Use a unique storage key to reduce cross-tab lock contention
-      storageKey: "swaply-auth-token",
-    },
-  });
+  cachedClient = createBrowserClient(url, key);
   return cachedClient;
 }
