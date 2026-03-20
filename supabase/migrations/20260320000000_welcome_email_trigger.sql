@@ -6,11 +6,16 @@ CREATE OR REPLACE FUNCTION public.handle_new_user_welcome_email()
 RETURNS TRIGGER AS $$
 DECLARE
   edge_url text := 'https://keaejxlwqtjjglijiplh.supabase.co/functions/v1/send-welcome-email';
-  service_key text := current_setting('supabase.service_role_key', true);
+  service_key text;
 BEGIN
-  -- If service_role_key is not available via current_setting, skip silently
+  -- Read service_role_key from Supabase Vault
+  SELECT decrypted_secret INTO service_key
+  FROM vault.decrypted_secrets
+  WHERE name = 'service_role_key'
+  LIMIT 1;
+
   IF service_key IS NULL OR service_key = '' THEN
-    RAISE LOG 'welcome_email: service_role_key not available, skipping';
+    RAISE LOG 'welcome_email: service_role_key not found in vault, skipping';
     RETURN NEW;
   END IF;
 
