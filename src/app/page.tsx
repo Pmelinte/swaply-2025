@@ -28,6 +28,7 @@ import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { LazyMapPreview } from "@/components/LazyMapPreview";
 import { OnboardingBanner } from "@/components/onboarding/OnboardingBanner";
+import { StatsBar } from "@/components/homepage/StatsBar";
 
 export default function HomePage() {
   const {
@@ -126,6 +127,9 @@ export default function HomePage() {
           </div>
         </section>
       )}
+
+      {/* ── Social Proof Stats ── */}
+      <StatsBar />
 
       {/* ── How it works (guest) ── */}
       {!user && (
