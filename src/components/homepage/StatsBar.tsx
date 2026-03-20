@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
 interface Stats {
@@ -79,22 +79,27 @@ export function StatsBar() {
   const t = useTranslations("home");
   const [stats, setStats] = useState<Stats | null>(null);
 
-  const fetchStats = useCallback(async () => {
-    try {
-      const res = await fetch("/api/stats");
-      if (res.ok) {
-        setStats(await res.json());
-      }
-    } catch {
-      // silently fail — section just won't render
-    }
-  }, []);
-
   useEffect(() => {
-    fetchStats();
-    const interval = setInterval(fetchStats, 60_000);
-    return () => clearInterval(interval);
-  }, [fetchStats]);
+    let cancelled = false;
+
+    async function load() {
+      try {
+        const res = await fetch("/api/stats");
+        if (res.ok && !cancelled) {
+          setStats(await res.json());
+        }
+      } catch {
+        // silently fail — section just won't render
+      }
+    }
+
+    load();
+    const interval = setInterval(load, 60_000);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, []);
 
   // Don't render until data loaded
   if (!stats) return null;
