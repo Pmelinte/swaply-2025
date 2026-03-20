@@ -436,7 +436,12 @@
     "actionHistory": "Swap History",
     "actionHistoryDesc": "Your complete swap journey",
     "actionEvents": "Swap Events",
-    "actionEventsDesc": "Local swap meetups near you"
+    "actionEventsDesc": "Local swap meetups near you",
+    "statsUsers": "registered users",
+    "statsObjects": "available items",
+    "statsSwaps": "completed swaps",
+    "statsCities": "active cities",
+    "statsCommunityGrowing": "Growing community"
   },
   "objects": {
     "title": "Browse Objects",
