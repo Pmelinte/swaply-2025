@@ -27,7 +27,13 @@
     "noData": "No data available",
     "errorOccurred": "Something went wrong",
     "tryAgain": "Try again",
-    "nextStep": "Recommended next step"
+    "nextStep": "Recommended next step",
+    "nudgeSignIn": "Sign in to start swapping",
+    "nudgeLogin": "Login",
+    "nudgeCompleteProfile": "Complete your profile — add location for better matches",
+    "nudgeProfile": "Profile",
+    "nudgeAddObject": "Add your first object to start receiving swap proposals",
+    "nudgeAddObjectLabel": "Add object"
   },
   "nav": {
     "home": "Home",

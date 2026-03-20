@@ -1,4 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
+import path from "path";
 
 /**
  * Playwright E2E configuration for Swaply.
@@ -8,6 +9,9 @@ import { defineConfig, devices } from "@playwright/test";
  * UI mode:         npx playwright test --ui
  * Debug:           npx playwright test --debug
  */
+
+const authFile = path.join(__dirname, "e2e", ".auth", "user.json");
+
 export default defineConfig({
   testDir: "./e2e",
   /* Maximum time one test can run */
@@ -35,9 +39,29 @@ export default defineConfig({
   },
 
   projects: [
+    /* Auth setup — logs in once and saves session state */
+    {
+      name: "setup",
+      testMatch: /auth\.setup\.ts/,
+    },
+
+    /* Public tests — no authentication needed */
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
+      testIgnore: /auth\.setup\.ts/,
+      grepInvert: /@auth/,
+    },
+
+    /* Authenticated tests — depend on setup project */
+    {
+      name: "chromium-auth",
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: authFile,
+      },
+      dependencies: ["setup"],
+      grep: /@auth/,
     },
   ],
 

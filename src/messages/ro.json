@@ -27,7 +27,13 @@
     "noData": "Nu sunt date disponibile",
     "errorOccurred": "Ceva nu a mers bine",
     "tryAgain": "Încearcă din nou",
-    "nextStep": "Pasul următor recomandat"
+    "nextStep": "Pasul următor recomandat",
+    "nudgeSignIn": "Autentifică-te pentru a începe schimburile",
+    "nudgeLogin": "Autentificare",
+    "nudgeCompleteProfile": "Completează-ți profilul — adaugă locația pentru potriviri mai bune",
+    "nudgeProfile": "Profil",
+    "nudgeAddObject": "Adaugă primul tău obiect pentru a primi propuneri de schimb",
+    "nudgeAddObjectLabel": "Adaugă obiect"
   },
   "nav": {
     "home": "Acasă",

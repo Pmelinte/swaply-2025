@@ -3,9 +3,8 @@ import { test, expect } from "@playwright/test";
 /**
  * Item management tests.
  *
- * Most item operations require authentication. Tests that need a logged-in
- * user are marked with `test.skip` until we set up an auth fixture with
- * test credentials.
+ * Tests that need a logged-in user are tagged with @auth and run in the
+ * "chromium-auth" project which uses the saved session from auth.setup.ts.
  */
 test.describe("Item management", () => {
   // ── Public item browsing ────────────────────────────────────────────
@@ -17,8 +16,7 @@ test.describe("Item management", () => {
 
   // ── Create new item (requires auth) ─────────────────────────────────
 
-  test.skip("new item form loads at /objects/new", async ({ page }) => {
-    // TODO: authenticate first via auth fixture
+  test("new item form loads at /objects/new @auth", async ({ page }) => {
     await page.goto("/objects/new");
 
     // The ItemForm should be rendered inside a SectionCard
@@ -26,12 +24,11 @@ test.describe("Item management", () => {
     await expect(form).toBeVisible();
 
     // Should have the title input field
-    const titleInput = page.locator('input[placeholder]').first();
+    const titleInput = page.locator("input[placeholder]").first();
     await expect(titleInput).toBeVisible();
   });
 
-  test.skip("new item form has category dropdown", async ({ page }) => {
-    // TODO: authenticate first via auth fixture
+  test("new item form has category dropdown @auth", async ({ page }) => {
     await page.goto("/objects/new");
 
     // The form should have at least one <select> for category
@@ -43,10 +40,9 @@ test.describe("Item management", () => {
     expect(optionCount).toBeGreaterThan(1);
   });
 
-  test.skip("new item form has condition and status dropdowns", async ({
+  test("new item form has condition and status dropdowns @auth", async ({
     page,
   }) => {
-    // TODO: authenticate first via auth fixture
     await page.goto("/objects/new");
 
     // The form has three selects in the condition/status/location row:
@@ -57,10 +53,9 @@ test.describe("Item management", () => {
     expect(selectCount).toBeGreaterThanOrEqual(2);
   });
 
-  test.skip("new item form validates required fields on submit", async ({
+  test("new item form validates required fields on submit @auth", async ({
     page,
   }) => {
-    // TODO: authenticate first via auth fixture
     await page.goto("/objects/new");
 
     // Submit the form without filling anything
@@ -74,8 +69,7 @@ test.describe("Item management", () => {
     expect(errorCount).toBeGreaterThan(0);
   });
 
-  test.skip("category selection shows subcategories", async ({ page }) => {
-    // TODO: authenticate first via auth fixture
+  test("category selection shows subcategories @auth", async ({ page }) => {
     await page.goto("/objects/new");
 
     // Select the first real category (skip the placeholder)
@@ -99,10 +93,9 @@ test.describe("Item management", () => {
     }
   });
 
-  test.skip("AI suggestions button is present on the form", async ({
+  test("AI suggestions button is present on the form @auth", async ({
     page,
   }) => {
-    // TODO: authenticate first via auth fixture
     await page.goto("/objects/new");
 
     // The AI suggestions button uses purple styling
@@ -112,16 +105,14 @@ test.describe("Item management", () => {
 
   // ── My objects page (requires auth) ─────────────────────────────────
 
-  test.skip("my-objects page loads for authenticated user", async ({
+  test("my-objects page loads for authenticated user @auth", async ({
     page,
   }) => {
-    // TODO: authenticate first via auth fixture
     await page.goto("/my-objects");
     await expect(page).toHaveURL("/my-objects");
   });
 
-  test.skip("item appears in my-objects after creation", async ({ page }) => {
-    // TODO: authenticate first via auth fixture
+  test("item appears in my-objects after creation @auth", async ({ page }) => {
     // 1. Navigate to /objects/new
     await page.goto("/objects/new");
 
@@ -136,7 +127,7 @@ test.describe("Item management", () => {
       if (value) await categorySelect.selectOption(value);
     }
     //    Location
-    const locationInput = page.locator('input[placeholder]').last();
+    const locationInput = page.locator("input[placeholder]").last();
     await locationInput.fill("Bucharest");
 
     // 3. Submit the form

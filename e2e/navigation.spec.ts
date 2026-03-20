@@ -94,8 +94,7 @@ test.describe("Navigation — public pages", () => {
 });
 
 test.describe("Navigation — authenticated pages", () => {
-  // These pages require authentication. We mark them as skipped since
-  // we do not have test credentials in this skeleton.
+  // These tests run in the "chromium-auth" project with saved session state.
 
   const authPages = [
     { path: "/my-objects", description: "My objects page" },
@@ -106,10 +105,9 @@ test.describe("Navigation — authenticated pages", () => {
   ];
 
   for (const { path, description } of authPages) {
-    test.skip(`${description} (${path}) loads for authenticated user`, async ({
+    test(`${description} (${path}) loads for authenticated user @auth`, async ({
       page,
     }) => {
-      // TODO: implement auth fixture with test credentials
       await page.goto(path);
       // Should not redirect to login (when authenticated)
       await expect(page).toHaveURL(path);
