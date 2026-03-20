@@ -15,3 +15,12 @@ export function getSupabaseClient(): SupabaseClient | null {
   cachedClient = createBrowserClient(url, key);
   return cachedClient;
 }
+
+/**
+ * Discard the cached Supabase client so the next getSupabaseClient()
+ * call creates a fresh instance. This is critical after sign-out to
+ * avoid Navigator Locks deadlocks that can permanently block auth.
+ */
+export function resetSupabaseClient(): void {
+  cachedClient = null;
+}

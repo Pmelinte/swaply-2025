@@ -20,7 +20,7 @@ import {
   useState,
 } from "react";
 import { nanoid } from "nanoid";
-import { getSupabaseClient } from "../supabase/client";
+import { getSupabaseClient, resetSupabaseClient } from "../supabase/client";
 import type {
   AccountStatus,
   Achievement,
@@ -681,12 +681,34 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         return { error };
       }
       if (supabaseConfigured && supabase) {
-        // Retry once on transient navigator lock errors ("Lock broken by another request")
-        let result = await supabase.auth.signInWithPassword({ email, password });
-        if (result.error?.message?.includes("Lock broken")) {
-          await new Promise((r) => setTimeout(r, 300));
-          result = await supabase.auth.signInWithPassword({ email, password });
+        // signInWithPassword can deadlock on stale Navigator Locks.
+        // Race it with a 8s timeout; on timeout, create a fresh client and retry once.
+        const signIn = async (client: typeof supabase) => {
+          const result = await Promise.race([
+            client.auth.signInWithPassword({ email, password }),
+            new Promise<never>((_, reject) =>
+              setTimeout(() => reject(new Error("signIn timeout")), 8_000),
+            ),
+          ]);
+          return result;
+        };
+
+        let result: Awaited<ReturnType<typeof supabase.auth.signInWithPassword>>;
+        try {
+          result = await signIn(supabase);
+        } catch {
+          // Likely Navigator Lock deadlock — reset client and retry with a fresh instance
+          console.warn("[login] signInWithPassword timed out, resetting Supabase client");
+          resetSupabaseClient();
+          const freshClient = getSupabaseClient();
+          if (!freshClient) return { error: "Supabase client unavailable" };
+          try {
+            result = await signIn(freshClient);
+          } catch {
+            return { error: "Login timed out. Please refresh the page and try again." };
+          }
         }
+
         const { data, error } = result;
         if (error) { setLastError(error.message); return { error: error.message }; }
         if (data.session?.user.id) {
@@ -731,6 +753,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     setLastError(null);
     if (dataSource === "supabase" && supabase) {
       try { await supabase.auth.signOut(); } catch { /* ignore */ }
+      // Discard the Supabase client so the next login gets a fresh
+      // instance without any stale Navigator Locks that could deadlock.
+      resetSupabaseClient();
     }
     setDataSource(supabaseConfigured ? "supabase" : "mock");
   }, [dataSource, supabase, supabaseConfigured]);
