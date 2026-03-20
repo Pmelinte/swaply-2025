@@ -692,7 +692,17 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         if (data.session?.user.id) {
           setLoggedIn(true);
           setDataSource("supabase");
-          await hydrateSupabase(data.session.user.id);
+          // Hydrate with a 10s timeout so login never hangs indefinitely
+          try {
+            await Promise.race([
+              hydrateSupabase(data.session.user.id),
+              new Promise((_, reject) => setTimeout(() => reject(new Error("hydration timeout")), 10_000)),
+            ]);
+          } catch (e) {
+            console.warn("[login] hydration issue:", e);
+            // Even if hydration fails/times out, the session is valid — clear loading so the UI proceeds
+            setLoading((prev) => ({ ...prev, profile: false, items: false, auth: false }));
+          }
         }
         return {};
       }
