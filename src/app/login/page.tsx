@@ -102,8 +102,11 @@ function LoginContent() {
       } else if (activeTab === "register") {
         const result = await register(email, password, accept);
         if (result.error) {
-          setMessage(typeof result.error === "string" ? result.error : String(result.error));
-          setStatus("error");
+          const errorStr = typeof result.error === "string" ? result.error : String(result.error);
+          // Timeout errors are soft — the account may have been created
+          const isTimeout = errorStr.toLowerCase().includes("timeout") || errorStr.includes("Account may have been created");
+          setMessage(isTimeout ? errorStr : errorStr);
+          setStatus(isTimeout ? "success" : "error");
         } else {
           setMessage(t("accountCreated"));
           setStatus("success");

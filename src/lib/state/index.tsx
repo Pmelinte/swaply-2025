@@ -713,7 +713,21 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
             emailRedirectTo: `${siteUrl}/auth/callback`,
           },
         });
-        if (error) { setLastError(error.message); return { error: error.message }; }
+        if (error) {
+          // Supabase gateway timeout — the account is usually created despite the 504.
+          // Tell the user to check their email instead of showing a cryptic error.
+          const isTimeout =
+            error.status === 504 ||
+            error.message?.toLowerCase().includes("timeout") ||
+            error.message?.toLowerCase().includes("gateway");
+          if (isTimeout) {
+            const msg =
+              "Account may have been created. Please check your email for the confirmation link, then come back to log in. If you don't receive an email within a few minutes, try registering again.";
+            setLastError(msg);
+            return { error: msg };
+          }
+          setLastError(error.message); return { error: error.message };
+        }
         // Detect fake success for already-registered emails (empty identities)
         if (data.user && (!data.user.identities || data.user.identities.length === 0)) {
           const msg = "An account with this email may already exist. Try logging in or resetting your password.";
