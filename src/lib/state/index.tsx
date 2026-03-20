@@ -428,11 +428,19 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const hydrateSupabase = useCallback(
     async (userId: string) => {
       if (!supabase) return;
-      // Prevent concurrent hydrations for the same user
-      if (hydratingRef.current === userId) return;
+      // Prevent concurrent hydrations for the same user.
+      // If already hydrating this user, wait for the in-flight one to finish (max 15s).
+      if (hydratingRef.current === userId) {
+        const deadline = Date.now() + 15_000;
+        while (hydratingRef.current === userId && Date.now() < deadline) {
+          await new Promise((r) => setTimeout(r, 80));
+        }
+        return;
+      }
       hydratingRef.current = userId;
       setLastError(null);
       setLoading((prev) => ({ ...prev, profile: true, items: true }));
+      try {
 
       const { data: profileData, error: profileError } = await supabase
         .from("profiles")
@@ -566,7 +574,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       }
 
       setLoading((prev) => ({ ...prev, profile: false, items: false, auth: false }));
-      hydratingRef.current = null;
+      } finally {
+        hydratingRef.current = null;
+      }
     },
     [mapItem, mapMessage, mapNotification, mapProfile, mapSwapIntent, supabase, supabaseConfigured],
   );
@@ -615,17 +625,22 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         setLoading((prev) => ({ ...prev, auth: false, profile: false, items: false }));
       }
 
-      const { data: listener } = supabase.auth.onAuthStateChange(async (_event, nextSession) => {
+      const { data: listener } = supabase.auth.onAuthStateChange(async (event, nextSession) => {
         if (nextSession?.user?.id) {
-          setDataSource("supabase");
-          setLoggedIn(true);
-          await hydrateSupabase(nextSession.user.id);
+          // Only hydrate on TOKEN_REFRESHED or INITIAL_SESSION events from the listener.
+          // SIGNED_IN is handled by login() directly to avoid race conditions.
+          if (event === "TOKEN_REFRESHED" || event === "INITIAL_SESSION") {
+            setDataSource("supabase");
+            setLoggedIn(true);
+            await hydrateSupabase(nextSession.user.id);
+          }
         } else {
           setLoggedIn(false);
           setUser(null);
           setConversations([]);
           setSwaps([]);
           setNotifications([]);
+          setLoading({ profile: false, items: false, auth: false });
           // Re-fetch public items on logout
           const { data: publicItems } = await supabase
             .from("items")
@@ -694,6 +709,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   );
 
   const logout = useCallback(async () => {
+    // Clear any in-flight hydration lock first
+    hydratingRef.current = null;
     setLoggedIn(false);
     setUser(null);
     setItems([]);
