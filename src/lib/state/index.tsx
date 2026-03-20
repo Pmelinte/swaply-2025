@@ -661,7 +661,13 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         return { error };
       }
       if (supabaseConfigured && supabase) {
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        // Retry once on transient navigator lock errors ("Lock broken by another request")
+        let result = await supabase.auth.signInWithPassword({ email, password });
+        if (result.error?.message?.includes("Lock broken")) {
+          await new Promise((r) => setTimeout(r, 300));
+          result = await supabase.auth.signInWithPassword({ email, password });
+        }
+        const { data, error } = result;
         if (error) { setLastError(error.message); return { error: error.message }; }
         if (data.session?.user.id) {
           setLoggedIn(true);
