@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 
 export default function EcoClient() {
-  const { user, swaps, items } = useAppState();
+  const { user, swaps, items, loading } = useAppState();
   const t = useTranslations("eco");
 
   const stats = useMemo(() => {
@@ -43,7 +43,29 @@ export default function EcoClient() {
     };
   }, [user, swaps, items]);
 
-  if (!stats) return null;
+  if (loading.auth) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-3 py-12 text-zinc-400 dark:text-zinc-500">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-300 border-t-blue-500 dark:border-zinc-600 dark:border-t-blue-400" />
+      </div>
+    );
+  }
+
+  if (!stats) {
+    return (
+      <div className="space-y-6">
+        <section className="rounded-2xl border border-zinc-200 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/80">
+          <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">{t("title")}</h2>
+          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">{t("subtitle")}</p>
+          <div className="mt-4 text-center">
+            <a href="/register" className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700">
+              {t("tip1Title")}
+            </a>
+          </div>
+        </section>
+      </div>
+    );
+  }
 
   const ecoLevel =
     stats.totalSwaps >= 50
