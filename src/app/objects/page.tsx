@@ -10,6 +10,7 @@ import { SafeImage } from "@/components/SafeImage";
 import { CTAButton, Pill } from "@/components/ui";
 import { AdBanner } from "@/components/AdBanner";
 import { GuestBanner } from "@/components/GuestBanner";
+import { AuthGateModal } from "@/components/AuthGateModal";
 import { SwipeCard } from "@/features/items/SwipeCard";
 import type { Item, ListingType } from "@/lib/types";
 import {
@@ -233,7 +234,7 @@ function ObjectCard({ item, mode }: { item: Item; mode: BrowseMode }) {
 export default function ObjectsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, items } = useAppState();
+  const { user, items, loading } = useAppState();
   const t = useTranslations("objects");
   const tc = useTranslations("common");
 
@@ -981,11 +982,28 @@ export default function ObjectsPage() {
          ════════════════════════════════════════════════════════ */}
       {!isSwipeView && (
         <>
-          <p className="mb-3 text-xs text-zinc-400">
-            {t("resultsCount", { count: filtered.length })}
-          </p>
+          {/* Loading skeleton for guests while items load */}
+          {loading.items && filtered.length === 0 && (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="animate-pulse rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-800">
+                  <div className="aspect-[4/3] w-full rounded-t-xl bg-zinc-200 dark:bg-zinc-700" />
+                  <div className="p-3 space-y-2">
+                    <div className="h-4 w-3/4 rounded bg-zinc-200 dark:bg-zinc-700" />
+                    <div className="h-3 w-1/2 rounded bg-zinc-200 dark:bg-zinc-700" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
 
-          {filtered.length === 0 && (
+          {!loading.items && (
+            <p className="mb-3 text-xs text-zinc-400">
+              {t("resultsCount", { count: filtered.length })}
+            </p>
+          )}
+
+          {!loading.items && filtered.length === 0 && (
             <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-zinc-200 py-16 dark:border-zinc-700">
               {user ? (
                 <>
@@ -1053,7 +1071,7 @@ export default function ObjectsPage() {
                 {filtered.slice(0, visibleCount).map((item) => (
                   <div key={item.id} className="relative">
                     <ObjectCard item={item} mode="grid" />
-                    {user && (
+                    {user ? (
                       <button
                         type="button"
                         onClick={(e) => { e.stopPropagation(); toggleFavorite(item.id); }}
@@ -1061,6 +1079,15 @@ export default function ObjectsPage() {
                       >
                         <Heart className={`h-3.5 w-3.5 ${favorites.has(item.id) ? "fill-red-500 text-red-500" : "text-zinc-400"}`} />
                       </button>
+                    ) : (
+                      <AuthGateModal returnTo="/login?returnTo=/objects" gaEvent="favorite_click_guest">
+                        <button
+                          type="button"
+                          className="absolute right-3 top-3 z-10 rounded-full bg-white/90 p-1.5 shadow-sm backdrop-blur hover:bg-white dark:bg-zinc-900/80 dark:hover:bg-zinc-800"
+                        >
+                          <Heart className="h-3.5 w-3.5 text-zinc-400" />
+                        </button>
+                      </AuthGateModal>
                     )}
                   </div>
                 ))}
@@ -1081,7 +1108,7 @@ export default function ObjectsPage() {
                 {filtered.slice(0, visibleCount).map((item) => (
                   <div key={item.id} className="relative">
                     <ObjectCard item={item} mode="list" />
-                    {user && (
+                    {user ? (
                       <button
                         type="button"
                         onClick={(e) => { e.stopPropagation(); toggleFavorite(item.id); }}
@@ -1089,6 +1116,15 @@ export default function ObjectsPage() {
                       >
                         <Heart className={`h-3.5 w-3.5 ${favorites.has(item.id) ? "fill-red-500 text-red-500" : "text-zinc-400"}`} />
                       </button>
+                    ) : (
+                      <AuthGateModal returnTo="/login?returnTo=/objects" gaEvent="favorite_click_guest">
+                        <button
+                          type="button"
+                          className="absolute right-3 top-3 z-10 rounded-full bg-white/90 p-1.5 shadow-sm backdrop-blur hover:bg-white dark:bg-zinc-900/80 dark:hover:bg-zinc-800"
+                        >
+                          <Heart className="h-3.5 w-3.5 text-zinc-400" />
+                        </button>
+                      </AuthGateModal>
                     )}
                   </div>
                 ))}
