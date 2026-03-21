@@ -1998,7 +1998,16 @@
     "leave": "Leave",
     "full": "Full",
     "noEvents": "No events found",
-    "noEventsDesc": "Check back soon for new swap meetups!"
+    "noEventsDesc": "Check back soon for new themed events!",
+    "weeklyTitle": "Weekly Events",
+    "weeklySubtitle": "Every week brings a new theme and a challenge with collectible badges!",
+    "currentEvent": "Live now",
+    "week": "Week",
+    "weeklyChallenge": "Weekly challenge",
+    "upcomingWeeks": "Upcoming weeks",
+    "pastWeeks": "Past weeks",
+    "noActiveEvent": "No active event right now",
+    "noActiveEventDesc": "The next themed event starts soon!"
   },
   "eco": {
     "title": "Eco Impact",

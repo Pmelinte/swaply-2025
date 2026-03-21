@@ -707,6 +707,26 @@ export interface SearchResult {
   relevance: number;
 }
 
+/* ─── Weekly Events ─── */
+
+export interface WeeklyEvent {
+  id: string;
+  weekNumber: number;
+  year: number;
+  title: string;
+  emoji: string;
+  description: string;
+  focusCategories: string[];
+  challengeDescription: string;
+  challengeBadgeName: string;
+  hashtags: string[];
+  sponsorName?: string;
+  sponsorLogoUrl?: string;
+  startsAt: string;
+  endsAt: string;
+  createdAt: string;
+}
+
 /* ─── Account Status ─── */
 
 export type AccountStatus = "active" | "paused" | "deleted";
