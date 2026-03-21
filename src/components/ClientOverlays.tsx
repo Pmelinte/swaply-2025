@@ -14,6 +14,10 @@ const OnboardingTutorial = dynamic(
   () => import("@/components/onboarding/OnboardingTutorial").then((m) => m.OnboardingTutorial),
   { ssr: false },
 );
+const OnboardingChecklist = dynamic(
+  () => import("@/components/onboarding/OnboardingChecklist").then((m) => m.OnboardingChecklist),
+  { ssr: false },
+);
 
 export function ClientOverlays() {
   return (
@@ -21,6 +25,7 @@ export function ClientOverlays() {
       <InstallPrompt />
       <CookieConsent />
       <OnboardingTutorial />
+      <OnboardingChecklist />
     </>
   );
 }

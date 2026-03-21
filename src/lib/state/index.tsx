@@ -907,10 +907,16 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         if (error) { setLastError(error.message); throw new Error(error.message); }
         else if (data) setUser(mapProfile(data));
 
-        // Mark onboarding step_profile when avatar + bio + location are all present
-        if (merged.avatarUrl && merged.bio && merged.location?.city) {
+        // Mark onboarding step_profile when full_name + avatar + location are all present
+        if (merged.fullName && merged.avatarUrl && merged.location?.city) {
           supabase.rpc("complete_onboarding_step", { p_user_id: userId, p_step: "profile" }).then(({ error: rpcErr }) => {
             if (rpcErr) console.error("[onboarding] complete_onboarding_step error:", rpcErr.message);
+          });
+          supabase.from("onboarding_progress").upsert(
+            { user_id: userId, step_profile: true },
+            { onConflict: "user_id" },
+          ).then(({ error: obErr }) => {
+            if (obErr) console.error("[onboarding] step_profile update error:", obErr.message);
           });
         }
       }
