@@ -31,6 +31,7 @@ import { LazyMapPreview } from "@/components/LazyMapPreview";
 import { OnboardingBanner } from "@/components/onboarding/OnboardingBanner";
 import { StatsBar } from "@/components/homepage/StatsBar";
 import { RecentItems } from "@/components/homepage/RecentItems";
+import { CurrentEventBanner } from "@/components/events/CurrentEventBanner";
 
 export default function HomePage() {
   const {
@@ -132,6 +133,9 @@ export default function HomePage() {
 
       {/* ── Social Proof Stats ── */}
       <StatsBar />
+
+      {/* ── Weekly Event Banner ── */}
+      <CurrentEventBanner />
 
       {/* ── How it works (guest) ── */}
       {!user && (

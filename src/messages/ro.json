@@ -1997,8 +1997,17 @@
     "join": "Join",
     "leave": "Leave",
     "full": "Full",
-    "noEvents": "No events found",
-    "noEventsDesc": "Check back soon for new swap meetups!"
+    "noEvents": "Nu există evenimente",
+    "noEventsDesc": "Revino curând pentru noi evenimente tematice!",
+    "weeklyTitle": "Evenimente Săptămânale",
+    "weeklySubtitle": "În fiecare săptămână, o nouă temă și un challenge cu badge de colectat!",
+    "currentEvent": "Eveniment activ acum",
+    "week": "Săptămâna",
+    "weeklyChallenge": "Challenge săptămânal",
+    "upcomingWeeks": "Săptămâni viitoare",
+    "pastWeeks": "Săptămâni trecute",
+    "noActiveEvent": "Niciun eveniment activ acum",
+    "noActiveEventDesc": "Următorul eveniment tematic va începe curând!"
   },
   "eco": {
     "title": "Eco Impact",
