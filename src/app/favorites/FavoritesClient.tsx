@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 
 export default function FavoritesClient() {
-  const { items } = useAppState();
+  const { items, loading } = useAppState();
   const t = useTranslations("favorites");
   const [search, setSearch] = useState("");
 
@@ -52,6 +52,14 @@ export default function FavoritesClient() {
         i.category.toLowerCase().includes(q)
     );
   }, [favoriteItems, search]);
+
+  if (loading.auth) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-3 py-12 text-zinc-400 dark:text-zinc-500">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-300 border-t-blue-500 dark:border-zinc-600 dark:border-t-blue-400" />
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-6 space-y-6">

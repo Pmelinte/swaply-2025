@@ -1,6 +1,4 @@
 import dynamic from "next/dynamic";
-import { isAuthenticated } from "@/lib/supabase/auth";
-import { ChatGuestPreview } from "@/components/guest-previews/ChatGuestPreview";
 
 const ChatClient = dynamic(() => import("./ChatClient").then((m) => m.ChatClient));
 
@@ -9,9 +7,6 @@ export default async function ChatPage({
 }: {
   searchParams?: Record<string, string | string[] | undefined>;
 }) {
-  const authed = await isAuthenticated();
-  if (!authed) return <ChatGuestPreview />;
-
   const rawTo = searchParams?.to;
   const rawConversation = searchParams?.conversation;
   const to = Array.isArray(rawTo) ? rawTo[0] : rawTo ?? null;
