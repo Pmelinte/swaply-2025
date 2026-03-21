@@ -33,7 +33,15 @@
     "nudgeCompleteProfile": "Complete your profile — add location for better matches",
     "nudgeProfile": "Profile",
     "nudgeAddObject": "Add your first object to start receiving swap proposals",
-    "nudgeAddObjectLabel": "Add object"
+    "nudgeAddObjectLabel": "Add object",
+    "tokenBalance": "Token balance",
+    "tokenHowToEarn": "How to earn tokens",
+    "tokenEarnItem": "Add a new object",
+    "tokenEarnSwap": "Complete a swap",
+    "tokenEarnReview": "Leave a review",
+    "tokenEarnDaily": "Daily login streak",
+    "tokenHistory": "Recent transactions",
+    "tokenNoHistory": "No transactions yet"
   },
   "nav": {
     "home": "Home",

@@ -4,12 +4,14 @@ import { useCallback } from "react";
 import type { Item } from "../types";
 import { createEmptyItem } from "../mock-data";
 import type { SharedDeps } from "./shared-deps";
+import { showTokenToast } from "@/components/tokens/TokenToast";
 
 export function useItemActions(deps: Pick<SharedDeps, "user" | "dataSource" | "supabase" | "setLastError" | "mapItem" | "items" | "setItems">) {
   const { user, dataSource, supabase, setLastError, mapItem, items, setItems } = deps;
 
   const upsertItem = useCallback(
     async (item: Item) => {
+      const isNew = !items.some((i) => i.id === item.id);
       setItems((prev) => {
         const idx = prev.findIndex((i) => i.id === item.id);
         if (idx >= 0) { const next = [...prev]; next[idx] = item; return next; }
@@ -58,9 +60,10 @@ export function useItemActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
           return mapped;
         }
       }
+      if (isNew && !item.isDemo) showTokenToast(10, "add_item");
       return item;
     },
-    [dataSource, mapItem, supabase, user, setItems, setLastError],
+    [dataSource, items, mapItem, supabase, user, setItems, setLastError],
   );
 
   const deleteItem = useCallback(

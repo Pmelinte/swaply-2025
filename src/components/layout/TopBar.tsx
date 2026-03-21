@@ -9,6 +9,7 @@ import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { locales, languageNames, localeFlagUrl, type Locale } from "@/i18n/config";
 import type { LanguageCode } from "@/lib/types";
+import { TokensDisplay } from "@/components/tokens/TokensDisplay";
 
 export function TopBar() {
   const t = useTranslations();
@@ -137,6 +138,9 @@ export function TopBar() {
         <div className="flex items-center gap-1.5">
           {user ? (
             <>
+              {/* Token balance */}
+              <TokensDisplay />
+
               {/* Bell / Notifications */}
               <div ref={notifRef} className="relative">
                 <button
