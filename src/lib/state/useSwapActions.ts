@@ -4,6 +4,7 @@ import { useCallback } from "react";
 import { nanoid } from "nanoid";
 import type { SwapIntent, SwapType } from "../types";
 import type { SharedDeps } from "./shared-deps";
+import { showTokenToast } from "@/components/tokens/TokenToast";
 
 export function useSwapActions(deps: Pick<SharedDeps, "user" | "dataSource" | "supabase" | "setLastError" | "mapSwapIntent" | "swaps" | "setSwaps" | "items" | "setNotifications" | "sendAuditLog" | "trackEvent">) {
   const { user, dataSource, supabase, setLastError, mapSwapIntent, swaps, setSwaps, items, setNotifications, sendAuditLog, trackEvent } = deps;
@@ -104,6 +105,9 @@ export function useSwapActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
           priority: status === "completed" ? "success" : status === "cancelled" ? "warning" : "info",
           createdAt: new Date().toISOString(),
         }, ...prev]);
+      }
+      if (status === "completed") {
+        showTokenToast(30, "complete_swap");
       }
     },
     [dataSource, items, mapSwapIntent, sendAuditLog, supabase, swaps, user?.id, setLastError, setSwaps, setNotifications],

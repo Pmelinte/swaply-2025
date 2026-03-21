@@ -258,7 +258,8 @@ export interface TokenLedgerEntry {
     | "signup_bonus" | "purchase" | "admin_grant" | "daily_streak"
     | "gift_sent" | "gift_received" | "insurance_spent" | "featured_spent"
     | "verified_spent" | "theme_spent" | "bundle_discount" | "business_upgrade"
-    | "milestone_bonus" | "loyalty_reward" | "seasonal_bonus" | "auction_fee";
+    | "milestone_bonus" | "loyalty_reward" | "seasonal_bonus" | "auction_fee"
+    | "welcome_bonus" | "add_item" | "complete_swap" | "review" | "daily_login" | "boost_item";
   description: string;
   createdAt: string;
 }

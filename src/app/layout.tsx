@@ -7,6 +7,7 @@ import { FooterNav } from "@/components/layout/FooterNav";
 import { LegalFooter } from "@/components/layout/LegalFooter";
 import { GlobalNudge } from "@/components/layout/GlobalNudge";
 import { ClientOverlays } from "@/components/ClientOverlays";
+import { TokenToast } from "@/components/tokens/TokenToast";
 import { Analytics } from "@vercel/analytics/react";
 import { GoogleAnalytics } from "@next/third-parties/google";
 
@@ -77,6 +78,7 @@ export default function RootLayout({
           <LegalFooter />
           <FooterNav />
           <ClientOverlays />
+          <TokenToast />
           <Analytics />
         </Providers>
       </body>

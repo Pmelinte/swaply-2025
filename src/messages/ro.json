@@ -33,7 +33,15 @@
     "nudgeCompleteProfile": "Completează-ți profilul — adaugă locația pentru potriviri mai bune",
     "nudgeProfile": "Profil",
     "nudgeAddObject": "Adaugă primul tău obiect pentru a primi propuneri de schimb",
-    "nudgeAddObjectLabel": "Adaugă obiect"
+    "nudgeAddObjectLabel": "Adaugă obiect",
+    "tokenBalance": "Balanță tokens",
+    "tokenHowToEarn": "Cum câștigi tokens",
+    "tokenEarnItem": "Adaugă un obiect nou",
+    "tokenEarnSwap": "Finalizează un swap",
+    "tokenEarnReview": "Lasă un review",
+    "tokenEarnDaily": "Login zilnic (streak)",
+    "tokenHistory": "Tranzacții recente",
+    "tokenNoHistory": "Nicio tranzacție încă"
   },
   "nav": {
     "home": "Acasă",

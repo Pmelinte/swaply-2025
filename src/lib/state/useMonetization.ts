@@ -42,6 +42,7 @@ import {
   PROFILE_THEMES,
   LOYALTY_MILESTONES,
 } from "../monetization";
+import { showTokenToast } from "@/components/tokens/TokenToast";
 
 interface MonetizationDeps {
   user: UserProfile | null;
@@ -88,6 +89,7 @@ export function useMonetization(deps: MonetizationDeps) {
       createdAt: new Date().toISOString(),
     }]);
     setLoginStreak((prev) => ({ ...prev, todayClaimed: true, nextReward: getStreakReward(prev.currentStreak + 1) }));
+    showTokenToast(finalReward, "daily_streak");
     trackEvent("daily_streak_claimed", { day: loginStreak.currentStreak, tokens: finalReward });
     return { tokens: finalReward };
   }, [user, loginStreak, trackEvent]);
@@ -242,6 +244,7 @@ export function useMonetization(deps: MonetizationDeps) {
         description: `Milestone: ${milestone.label}`,
         createdAt: new Date().toISOString(),
       }]);
+      showTokenToast(milestone.bonusTokens * multiplier, "milestone_bonus");
       trackEvent("milestone_bonus", { swapCount: milestone.swapCount, tokens: milestone.bonusTokens * multiplier });
     }
   }, [user?.stats.completedSwaps]);
