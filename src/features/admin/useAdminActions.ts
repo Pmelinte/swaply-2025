@@ -77,12 +77,12 @@ export function useAdminActions() {
       if (!supabase || !user?.id) return { error: "Not authenticated" };
 
       const { error } = await supabase.from("moderation_actions").insert({
-        admin_id: user.id,
-        target_user_id: params.targetUserId,
+        moderator_id: user.id,
+        target_type: "user",
+        target_id: params.targetUserId,
         action: params.action,
         reason: params.reason,
         report_id: params.reportId ?? null,
-        details: params.details ?? {},
       });
 
       if (error) return { error: error.message };
