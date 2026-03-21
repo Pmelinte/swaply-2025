@@ -15,8 +15,10 @@ export function GlobalNudge() {
   const tc = useTranslations("common");
   const pathname = usePathname();
 
-  // Don't show during loading
-  if (loading.auth || loading.profile) return null;
+  // Reserve space during loading to prevent CLS
+  if (loading.auth || loading.profile) {
+    return <div className="mx-auto mb-2 h-10 max-w-6xl" />;
+  }
 
   type NudgeConfig = { message: string; href: string; label: string; color: string };
   let nudge: NudgeConfig | null = null;
