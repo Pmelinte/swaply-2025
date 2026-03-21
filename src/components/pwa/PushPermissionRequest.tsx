@@ -55,7 +55,14 @@ export function PushPermissionRequest() {
   }, [user]);
 
   useEffect(() => {
+    // Debug: log why the prompt might not show
+    console.log("[push-debug] VAPID_PUBLIC_KEY set:", !!VAPID_PUBLIC_KEY);
+    console.log("[push-debug] Notification in window:", "Notification" in window);
+    console.log("[push-debug] serviceWorker in navigator:", "serviceWorker" in navigator);
+    console.log("[push-debug] user?.id:", user?.id);
+
     if (!("Notification" in window) || !("serviceWorker" in navigator) || !VAPID_PUBLIC_KEY) {
+      console.log("[push-debug] Early return — missing requirement");
       return;
     }
 
@@ -70,6 +77,8 @@ export function PushPermissionRequest() {
     } else {
       setTimeout(() => setPushState("prompt"), 0);
     }
+
+    console.log("[push-debug] Notification.permission:", permission);
 
     if (sessionStorage.getItem("swaply-push-dismissed")) {
       setTimeout(() => setDismissed(true), 0);
