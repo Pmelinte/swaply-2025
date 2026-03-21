@@ -141,7 +141,7 @@ const CHECKLIST_KEYS = [
 ] as const;
 
 export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null }) {
-  const { user, swaps, updateSwapStatus, addSwapFeedback, updateSwapLogistics, items, trackEvent, confirmDelivery, fileDispute } = useAppState();
+  const { user, loading, swaps, updateSwapStatus, addSwapFeedback, updateSwapLogistics, items, trackEvent, confirmDelivery, fileDispute } = useAppState();
   const t = useTranslations("change");
   const [feedback, setFeedback] = useState({ rating: 5, comment: "" });
   const [statusError, setStatusError] = useState<string | null>(null);
@@ -226,6 +226,14 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
   const requesterItem = swap ? items.find((i) => i.id === swap.requesterItemId) : null;
   const responderItem = swap ? items.find((i) => i.id === swap.responderItemId) : null;
   const isRequester = swap && user ? swap.requesterId === user.id : false;
+
+  if (loading.auth) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-3 py-12 text-zinc-400 dark:text-zinc-500">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-300 border-t-blue-500 dark:border-zinc-600 dark:border-t-blue-400" />
+      </div>
+    );
+  }
 
   if (!user) {
     return (

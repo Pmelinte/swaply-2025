@@ -13,7 +13,7 @@ export function ChatClient({
   to?: string | null;
   conversationId?: string | null;
 }) {
-  const { user, conversations, ensureConversation } = useAppState();
+  const { user, loading, conversations, ensureConversation } = useAppState();
   const t = useTranslations("chat");
   const dmConversationId =
     to && user?.id ? `dm:${[user.id, to].sort().join(":")}` : undefined;
@@ -25,6 +25,14 @@ export function ChatClient({
     // Ensure the conversation exists in state (creates the shell + pulls participant profile if possible).
     void ensureConversation(to);
   }, [ensureConversation, to, user?.id]);
+
+  if (loading.auth) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-3 py-12 text-zinc-400 dark:text-zinc-500">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-300 border-t-blue-500 dark:border-zinc-600 dark:border-t-blue-400" />
+      </div>
+    );
+  }
 
   if (!user) {
     return (
