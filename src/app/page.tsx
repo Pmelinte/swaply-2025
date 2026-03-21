@@ -23,6 +23,7 @@ import {
   Leaf,
   Clock,
   CalendarDays,
+  Tag,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
@@ -154,6 +155,42 @@ export default function HomePage() {
           </div>
         </section>
       )}
+
+      {/* ── Browse by Category ── */}
+      <section>
+        <h2 className="mb-3 text-lg font-bold text-zinc-900 dark:text-zinc-50">
+          {t("browseByCategory", { defaultValue: "Categorii populare" })}
+        </h2>
+        <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
+          {[
+            { slug: "electronics", label: "Electronică", gradient: "from-blue-500 to-cyan-600" },
+            { slug: "sport", label: "Sport", gradient: "from-emerald-500 to-teal-600" },
+            { slug: "arts", label: "Artă & Hobby", gradient: "from-violet-500 to-purple-600" },
+            { slug: "books", label: "Cărți", gradient: "from-amber-500 to-orange-600" },
+            { slug: "home", label: "Casă", gradient: "from-rose-500 to-pink-600" },
+            { slug: "fashion", label: "Modă", gradient: "from-fuchsia-500 to-pink-600" },
+            { slug: "automotive", label: "Auto", gradient: "from-zinc-500 to-zinc-700" },
+            { slug: "music", label: "Muzică", gradient: "from-indigo-500 to-blue-600" },
+            { slug: "garden", label: "Grădină", gradient: "from-green-500 to-emerald-600" },
+            { slug: "toys", label: "Jucării", gradient: "from-yellow-500 to-amber-600" },
+            { slug: "tools", label: "Unelte", gradient: "from-orange-500 to-red-600" },
+            { slug: "other", label: "Altele", gradient: "from-slate-500 to-slate-700" },
+          ].map((cat) => (
+            <Link
+              key={cat.slug}
+              href={`/objects/category/${cat.slug}`}
+              className="group flex flex-col items-center gap-2 rounded-2xl border border-zinc-200 bg-white/80 p-3 shadow-sm backdrop-blur transition hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900/80"
+            >
+              <div className={`flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br ${cat.gradient} text-white shadow-sm`}>
+                <Tag className="h-4 w-4" />
+              </div>
+              <span className="text-center text-xs font-medium text-zinc-700 group-hover:text-blue-700 dark:text-zinc-200 dark:group-hover:text-blue-400">
+                {cat.label}
+              </span>
+            </Link>
+          ))}
+        </div>
+      </section>
 
       {/* ── Recent Items (public, no login required) ── */}
       <RecentItems />
