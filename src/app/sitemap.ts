@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getAllPosts } from "@/lib/blog";
+import { SEO_CATEGORIES, SEO_CITIES } from "@/lib/seo-data";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://swaply.world";
@@ -24,5 +25,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }));
 
-  return [...staticPages, ...blogPosts];
+  const categoryPages: MetadataRoute.Sitemap = SEO_CATEGORIES.map((cat) => ({
+    url: `${baseUrl}/objects/category/${cat.slug}`,
+    lastModified: new Date(),
+    changeFrequency: "weekly" as const,
+    priority: 0.8,
+  }));
+
+  const cityPages: MetadataRoute.Sitemap = SEO_CITIES.map((city) => ({
+    url: `${baseUrl}/objects/city/${city.slug}`,
+    lastModified: new Date(),
+    changeFrequency: "weekly" as const,
+    priority: 0.8,
+  }));
+
+  return [...staticPages, ...categoryPages, ...cityPages, ...blogPosts];
 }

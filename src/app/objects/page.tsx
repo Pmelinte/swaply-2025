@@ -511,6 +511,33 @@ export default function ObjectsPage() {
         </div>
       </div>
 
+      {/* ── Category SEO nav ── */}
+      <nav className="mb-5 flex flex-wrap gap-2">
+        {[
+          { slug: "electronics", label: "Electronică" },
+          { slug: "sport", label: "Sport" },
+          { slug: "arts", label: "Artă & Hobby" },
+          { slug: "books", label: "Cărți" },
+          { slug: "home", label: "Casă" },
+          { slug: "fashion", label: "Modă" },
+          { slug: "automotive", label: "Auto" },
+          { slug: "music", label: "Muzică" },
+          { slug: "garden", label: "Grădină" },
+          { slug: "toys", label: "Jucării" },
+          { slug: "tools", label: "Unelte" },
+          { slug: "other", label: "Altele" },
+        ].map((cat) => (
+          <Link
+            key={cat.slug}
+            href={`/objects/category/${cat.slug}`}
+            className="inline-flex items-center gap-1 rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-600 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:border-blue-600 dark:hover:bg-blue-900/20"
+          >
+            <Tag className="h-3 w-3" />
+            {cat.label}
+          </Link>
+        ))}
+      </nav>
+
       {/* ── View mode switcher ── */}
       <div className="mb-4 flex items-center gap-2">
         <div className="flex rounded-lg border border-zinc-200 dark:border-zinc-700">
