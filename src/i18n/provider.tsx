@@ -22,14 +22,12 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   const [activeLocale, setActiveLocale] = useState<Locale>(defaultLocale);
 
   useEffect(() => {
-    // Skip dynamic load if already using the default locale
-    if (locale === defaultLocale) {
-      setMessages(defaultMessages);
-      setActiveLocale(defaultLocale);
-      return;
-    }
     let cancelled = false;
-    loadMessages(locale).then((msgs) => {
+    // Default locale is statically imported — resolve immediately via microtask
+    const promise = locale === defaultLocale
+      ? Promise.resolve(defaultMessages)
+      : loadMessages(locale);
+    promise.then((msgs) => {
       if (!cancelled) {
         setMessages(msgs);
         setActiveLocale(locale);
