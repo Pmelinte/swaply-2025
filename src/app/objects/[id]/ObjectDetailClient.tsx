@@ -82,13 +82,14 @@ export default function ObjectDetailClient() {
 
   // Direct Supabase fetch for guests or when item isn't in state (e.g. direct link)
   const [directItem, setDirectItem] = useState<import("@/lib/types").Item | null>(null);
-  const [directLoading, setDirectLoading] = useState(false);
+  const [directFetchDone, setDirectFetchDone] = useState(false);
+  const directLoading = !stateItem && !loading.items && !directFetchDone;
 
   useEffect(() => {
     if (stateItem || loading.items) return;
     const supabase = getSupabaseClient();
     if (!supabase) return;
-    setDirectLoading(true);
+    let cancelled = false;
     supabase
       .from("items")
       .select("*")
@@ -96,6 +97,7 @@ export default function ObjectDetailClient() {
       .eq("is_active", true)
       .maybeSingle()
       .then(({ data }) => {
+        if (cancelled) return;
         if (data) {
           const photos = Array.isArray(data.photos)
             ? (data.photos as (string | { url?: string })[]).map((img) =>
@@ -129,8 +131,9 @@ export default function ObjectDetailClient() {
             aiNote: String(aiMeta.aiNote ?? "") || undefined,
           });
         }
-        setDirectLoading(false);
+        setDirectFetchDone(true);
       });
+    return () => { cancelled = true; };
   }, [stateItem, loading.items, params.id]);
 
   const item = stateItem ?? directItem;
