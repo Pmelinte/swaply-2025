@@ -55,14 +55,7 @@ export function PushPermissionRequest() {
   }, [user]);
 
   useEffect(() => {
-    // Debug: log why the prompt might not show
-    console.log("[push-debug] VAPID_PUBLIC_KEY set:", !!VAPID_PUBLIC_KEY);
-    console.log("[push-debug] Notification in window:", "Notification" in window);
-    console.log("[push-debug] serviceWorker in navigator:", "serviceWorker" in navigator);
-    console.log("[push-debug] user?.id:", user?.id);
-
     if (!("Notification" in window) || !("serviceWorker" in navigator) || !VAPID_PUBLIC_KEY) {
-      console.log("[push-debug] Early return — missing requirement");
       return;
     }
 
@@ -77,8 +70,6 @@ export function PushPermissionRequest() {
     } else {
       setTimeout(() => setPushState("prompt"), 0);
     }
-
-    console.log("[push-debug] Notification.permission:", permission);
 
     if (sessionStorage.getItem("swaply-push-dismissed")) {
       setTimeout(() => setDismissed(true), 0);
@@ -113,7 +104,7 @@ export function PushPermissionRequest() {
   }
 
   return (
-    <div className="fixed bottom-20 left-4 right-4 z-40 mx-auto max-w-sm animate-in slide-in-from-bottom-4 sm:left-auto sm:right-6">
+    <div className="fixed bottom-20 left-4 z-40 max-w-sm animate-in slide-in-from-bottom-4 sm:left-6">
       <div className="rounded-2xl border border-blue-200 bg-white p-4 shadow-lg dark:border-blue-800 dark:bg-zinc-900">
         <div className="flex items-start gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-100 dark:bg-blue-900/40">
