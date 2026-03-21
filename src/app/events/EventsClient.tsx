@@ -39,21 +39,21 @@ function getEventStatus(event: WeeklyEventRow): EventStatus {
   return "current";
 }
 
+function calcCountdown(endDate: string) {
+  const diff = new Date(endDate).getTime() - Date.now();
+  if (diff <= 0) return "";
+  const d = Math.floor(diff / 86400000);
+  const h = Math.floor((diff % 86400000) / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  if (d > 0) return `${d}z ${h}h`;
+  return `${h}h ${m}m`;
+}
+
 function useCountdown(endDate: string) {
-  const [timeLeft, setTimeLeft] = useState("");
+  const [timeLeft, setTimeLeft] = useState(() => calcCountdown(endDate));
 
   useEffect(() => {
-    function calc() {
-      const diff = new Date(endDate).getTime() - Date.now();
-      if (diff <= 0) return "";
-      const d = Math.floor(diff / 86400000);
-      const h = Math.floor((diff % 86400000) / 3600000);
-      const m = Math.floor((diff % 3600000) / 60000);
-      if (d > 0) return `${d}z ${h}h`;
-      return `${h}h ${m}m`;
-    }
-    setTimeLeft(calc());
-    const interval = setInterval(() => setTimeLeft(calc()), 60000);
+    const interval = setInterval(() => setTimeLeft(calcCountdown(endDate)), 60000);
     return () => clearInterval(interval);
   }, [endDate]);
 
