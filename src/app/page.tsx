@@ -159,7 +159,7 @@ export default function HomePage() {
       {/* ── Browse by Category ── */}
       <section>
         <h2 className="mb-3 text-lg font-bold text-zinc-900 dark:text-zinc-50">
-          {t("browseByCategory", { defaultValue: "Categorii populare" })}
+          {t("browseByCategory")}
         </h2>
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
           {[
@@ -476,7 +476,7 @@ export default function HomePage() {
                 >
                   {item.photos?.[0] ? (
                     <div className="relative mb-2 aspect-square overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
-                      <Image src={item.photos[0]} alt={item.title} fill className="object-cover transition group-hover:scale-105" sizes="160px" unoptimized />
+                      <Image src={item.photos[0]} alt={item.title} fill className="object-cover transition group-hover:scale-105" sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 160px" loading="lazy" />
                     </div>
                   ) : (
                     <div className="mb-2 flex aspect-square items-center justify-center rounded-xl bg-zinc-100 text-2xl font-bold text-zinc-300 dark:bg-zinc-800">{item.title.charAt(0).toUpperCase()}</div>
@@ -585,7 +585,7 @@ export default function HomePage() {
                 >
                   {item.photos?.[0] ? (
                     <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800">
-                      <Image src={item.photos[0]} alt={item.title} fill className="object-cover" sizes="56px" unoptimized />
+                      <Image src={item.photos[0]} alt={item.title} fill className="object-cover" sizes="56px" loading="lazy" />
                     </div>
                   ) : (
                     <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-zinc-100 text-lg font-bold text-zinc-300 dark:bg-zinc-800">

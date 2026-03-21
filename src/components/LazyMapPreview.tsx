@@ -7,6 +7,10 @@ import { useTranslations } from "next-intl";
 
 const MapPreviewDynamic = dynamic(
   () => import("@/components/MapPreview").then((m) => m.MapPreview),
+  {
+    ssr: false,
+    loading: () => <div className="h-60 animate-pulse rounded-xl bg-zinc-100 dark:bg-zinc-800" />,
+  },
 );
 
 /**

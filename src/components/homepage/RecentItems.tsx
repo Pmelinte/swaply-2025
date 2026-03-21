@@ -146,7 +146,7 @@ export function RecentItems() {
                     fill
                     className="object-cover transition group-hover:scale-105"
                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                    unoptimized
+                    loading="lazy"
                   />
                 </div>
               ) : (

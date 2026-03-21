@@ -7,7 +7,12 @@ import { Badge, SectionCard } from "@/components/ui";
 import { MissingDataCallout } from "@/components/gated";
 import type { UserProfile, LanguageCode } from "@/lib/types";
 import { languageNames, localeFlagUrl, type Locale, locales } from "@/i18n/config";
-import LocationPicker from "@/components/LocationPicker";
+import dynamic from "next/dynamic";
+
+const LocationPicker = dynamic(() => import("@/components/LocationPicker"), {
+  ssr: false,
+  loading: () => <div className="h-20 animate-pulse rounded-lg bg-zinc-100 dark:bg-zinc-800" />,
+});
 import { uploadItemPhoto } from "@/lib/storage";
 
 interface ProfileTabProps {
