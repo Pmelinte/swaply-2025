@@ -1,14 +1,6 @@
 // @ts-expect-error -- web-push has no type declarations
 import webpush from "web-push";
 
-const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? "";
-const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY ?? "";
-const VAPID_SUBJECT = process.env.VAPID_SUBJECT || "mailto:hello@swaply.world";
-
-if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
-  webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
-}
-
 export interface PushPayload {
   title: string;
   body: string;
@@ -18,10 +10,26 @@ export interface PushPayload {
   tag?: string;
 }
 
+let vapidConfigured = false;
+
+function ensureVapid() {
+  if (vapidConfigured) return true;
+  const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+  const privateKey = process.env.VAPID_PRIVATE_KEY;
+  if (!publicKey || !privateKey) return false;
+  const subject = process.env.VAPID_SUBJECT || "mailto:hello@swaply.world";
+  webpush.setVapidDetails(subject, publicKey, privateKey);
+  vapidConfigured = true;
+  return true;
+}
+
 export async function sendPushNotification(
   subscription: webpush.PushSubscription,
   payload: PushPayload,
 ) {
+  if (!ensureVapid()) {
+    throw new Error("VAPID keys not configured");
+  }
   return webpush.sendNotification(
     subscription,
     JSON.stringify({
@@ -35,4 +43,4 @@ export async function sendPushNotification(
   );
 }
 
-export { VAPID_PUBLIC_KEY, webpush };
+export { webpush };
