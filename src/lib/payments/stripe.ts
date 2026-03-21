@@ -110,13 +110,19 @@ export async function createSubscriptionCheckout(params: SubscriptionCheckoutPar
 
   const priceId = getStripePriceId(params.planId, params.interval);
 
-  // If no pre-created price, create an ad-hoc price
+  // RON prices for subscription plans
+  const ronPrices: Record<string, Record<string, number>> = {
+    premium: { monthly: 1900, yearly: 18900 },  // 19 RON/mo, 189 RON/yr
+    platinum: { monthly: 4900, yearly: 47900 },  // 49 RON/mo, 479 RON/yr
+  };
+
+  // If no pre-created price, create an ad-hoc price in RON
   const lineItem: Stripe.Checkout.SessionCreateParams.LineItem = priceId
     ? { price: priceId, quantity: 1 }
     : {
         price_data: {
-          currency: "eur",
-          unit_amount: Math.round(
+          currency: "ron",
+          unit_amount: ronPrices[params.planId]?.[params.interval] ?? Math.round(
             (params.interval === "yearly" ? plan.priceYearly : plan.priceMonthly) * 100,
           ),
           recurring: {
@@ -134,6 +140,7 @@ export async function createSubscriptionCheckout(params: SubscriptionCheckoutPar
     mode: "subscription",
     payment_method_types: ["card"],
     customer_email: params.userEmail,
+    locale: "ro",
     metadata: {
       type: "subscription",
       planId: params.planId,

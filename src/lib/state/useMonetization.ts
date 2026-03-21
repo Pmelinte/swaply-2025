@@ -129,6 +129,7 @@ export function useMonetization(deps: MonetizationDeps) {
 
   const purchaseFeaturedSlot = useCallback(async (itemId: string): Promise<{ error?: string }> => {
     if (!user) return { error: "Not logged in" };
+    if (!hasFeatureAccess(user.badge, "boost_item")) return { error: "Funcție disponibilă doar pentru Premium" };
     if (tokenBalance < FEATURED_COST) return { error: "Fonduri insuficiente" };
     setTokenLedger((prev) => [...prev, {
       id: nanoid(), userId: user.id, amount: -FEATURED_COST,

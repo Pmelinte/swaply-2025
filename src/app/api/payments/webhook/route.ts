@@ -137,6 +137,15 @@ export async function POST(request: NextRequest) {
             session.customer as string | undefined,
             session.subscription as string | undefined,
           );
+          // Update profile badge to match subscription plan
+          const sb2 = getServiceSupabase();
+          if (sb2 && meta.userId && meta.planId) {
+            await sb2.from("profiles").update({ badge: meta.planId }).eq("user_id", meta.userId);
+          }
+          // Grant upgrade bonus tokens
+          if (meta.userId) {
+            await creditTokens(meta.userId, 100, "upgrade_bonus", `Bonus upgrade ${meta.planId}: +100 tokens`);
+          }
           await recordTransaction(
             meta.userId,
             session.id ?? "",
@@ -269,6 +278,8 @@ export async function POST(request: NextRequest) {
               updated_at: new Date().toISOString(),
             })
             .eq("user_id", meta.userId);
+          // Downgrade profile badge to free
+          await sb.from("profiles").update({ badge: "free" }).eq("user_id", meta.userId);
         }
         await logAction({ userId: meta.userId ?? "system", action: "subscription.cancelled", entityType: "subscription", entityId: subscription.id, oldData: { planId: meta.planId }, newData: { planId: "free", status: "canceled" }, request });
         console.log(`[webhook] Subscription cancelled: user ${meta.userId}`);
