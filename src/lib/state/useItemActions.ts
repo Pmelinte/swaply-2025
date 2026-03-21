@@ -5,6 +5,7 @@ import type { Item } from "../types";
 import { createEmptyItem } from "../mock-data";
 import type { SharedDeps } from "./shared-deps";
 import { showTokenToast } from "@/components/tokens/TokenToast";
+import { getSupabaseClient } from "@/lib/supabase/client";
 
 export function useItemActions(deps: Pick<SharedDeps, "user" | "dataSource" | "supabase" | "setLastError" | "mapItem" | "items" | "setItems">) {
   const { user, dataSource, supabase, setLastError, mapItem, items, setItems } = deps;
@@ -60,7 +61,19 @@ export function useItemActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
           return mapped;
         }
       }
-      if (isNew && !item.isDemo) showTokenToast(10, "add_item");
+      if (isNew && !item.isDemo) {
+        showTokenToast(10, "add_item");
+        // Mark onboarding step_first_item
+        const sb = getSupabaseClient();
+        if (sb && user?.id) {
+          sb.from("onboarding_progress").upsert(
+            { user_id: user.id, step_first_item: true },
+            { onConflict: "user_id" },
+          ).then(({ error: obErr }) => {
+            if (obErr) console.error("[onboarding] step_first_item error:", obErr.message);
+          });
+        }
+      }
       return item;
     },
     [dataSource, items, mapItem, supabase, user, setItems, setLastError],

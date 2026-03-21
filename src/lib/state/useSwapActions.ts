@@ -5,6 +5,7 @@ import { nanoid } from "nanoid";
 import type { SwapIntent, SwapType } from "../types";
 import type { SharedDeps } from "./shared-deps";
 import { showTokenToast } from "@/components/tokens/TokenToast";
+import { getSupabaseClient } from "@/lib/supabase/client";
 
 export function useSwapActions(deps: Pick<SharedDeps, "user" | "dataSource" | "supabase" | "setLastError" | "mapSwapIntent" | "swaps" | "setSwaps" | "items" | "setNotifications" | "sendAuditLog" | "trackEvent">) {
   const { user, dataSource, supabase, setLastError, mapSwapIntent, swaps, setSwaps, items, setNotifications, sendAuditLog, trackEvent } = deps;
@@ -45,7 +46,25 @@ export function useSwapActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
         if (!data) return null;
         const mapped = mapSwapIntent(data);
         setSwaps((prev) => [mapped, ...prev.filter((s) => s.id !== mapped.id)]);
+        // Mark onboarding step_first_swap
+        supabase.from("onboarding_progress").upsert(
+          { user_id: user.id, step_first_swap: true },
+          { onConflict: "user_id" },
+        ).then(({ error: obErr }) => {
+          if (obErr) console.error("[onboarding] step_first_swap error:", obErr.message);
+        });
         return mapped;
+      }
+
+      // Mark onboarding step_first_swap
+      const sb = getSupabaseClient();
+      if (sb) {
+        sb.from("onboarding_progress").upsert(
+          { user_id: user.id, step_first_swap: true },
+          { onConflict: "user_id" },
+        ).then(({ error: obErr }) => {
+          if (obErr) console.error("[onboarding] step_first_swap error:", obErr.message);
+        });
       }
 
       const now = new Date().toISOString();
