@@ -19,6 +19,7 @@ import {
   VERIFIED_BADGE_COST,
   BUSINESS_UPGRADE_COST,
 } from "@/lib/monetization";
+import { PremiumGate } from "@/components/gated";
 import type { ShopItem } from "@/lib/types";
 import {
   Award,
@@ -327,26 +328,52 @@ export function MonetizationHub() {
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {filteredShop.map((item) => {
               const canBuy = tokenBalance >= item.cost;
+              const isBoostItem = item.category === "boost";
               return (
                 <div key={item.id} className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-900">
-                  <span className="text-2xl">{item.icon}</span>
-                  <div className="flex-1">
-                    <p className="font-semibold text-zinc-900 dark:text-zinc-50">{item.title}</p>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400">{item.description}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold text-amber-600">{item.cost}</p>
-                    <button
-                      onClick={async () => {
-                        const res = await purchaseShopItem(item.id);
-                        showFeedback(res.error || `${item.title} ${t("purchased")}`);
-                      }}
-                      disabled={!canBuy}
-                      className="mt-1 rounded-lg bg-blue-600 px-3 py-1 text-xs font-semibold text-white hover:bg-blue-700 disabled:opacity-40"
-                    >
-                      {canBuy ? t("buy") : t("insufficient")}
-                    </button>
-                  </div>
+                  {isBoostItem ? (
+                    <PremiumGate feature="boost_item">
+                      <span className="text-2xl">{item.icon}</span>
+                      <div className="flex-1">
+                        <p className="font-semibold text-zinc-900 dark:text-zinc-50">{item.title}</p>
+                        <p className="text-xs text-zinc-500 dark:text-zinc-400">{item.description}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-amber-600">{item.cost}</p>
+                        <button
+                          onClick={async () => {
+                            const res = await purchaseShopItem(item.id);
+                            showFeedback(res.error || `${item.title} ${t("purchased")}`);
+                          }}
+                          disabled={!canBuy}
+                          className="mt-1 rounded-lg bg-blue-600 px-3 py-1 text-xs font-semibold text-white hover:bg-blue-700 disabled:opacity-40"
+                        >
+                          {canBuy ? t("buy") : t("insufficient")}
+                        </button>
+                      </div>
+                    </PremiumGate>
+                  ) : (
+                    <>
+                      <span className="text-2xl">{item.icon}</span>
+                      <div className="flex-1">
+                        <p className="font-semibold text-zinc-900 dark:text-zinc-50">{item.title}</p>
+                        <p className="text-xs text-zinc-500 dark:text-zinc-400">{item.description}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-amber-600">{item.cost}</p>
+                        <button
+                          onClick={async () => {
+                            const res = await purchaseShopItem(item.id);
+                            showFeedback(res.error || `${item.title} ${t("purchased")}`);
+                          }}
+                          disabled={!canBuy}
+                          className="mt-1 rounded-lg bg-blue-600 px-3 py-1 text-xs font-semibold text-white hover:bg-blue-700 disabled:opacity-40"
+                        >
+                          {canBuy ? t("buy") : t("insufficient")}
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
               );
             })}

@@ -25,8 +25,10 @@ export async function POST(request: NextRequest) {
   }
 
   const origin = request.headers.get("origin") ?? "https://swaply.world";
-  const successUrl = `${origin}/monetization?payment=success&session_id={CHECKOUT_SESSION_ID}`;
-  const cancelUrl = `${origin}/monetization?payment=cancelled`;
+  // Allow caller to specify return page (pricing vs monetization)
+  const returnPage = body.returnPage ?? "monetization";
+  const successUrl = `${origin}/${returnPage}?payment=success&session_id={CHECKOUT_SESSION_ID}`;
+  const cancelUrl = `${origin}/${returnPage}?payment=cancelled`;
 
   try {
     // Token purchase
@@ -59,7 +61,7 @@ export async function POST(request: NextRequest) {
         interval,
         userId,
         userEmail,
-        successUrl: `${origin}/monetization?subscription=success&session_id={CHECKOUT_SESSION_ID}`,
+        successUrl: `${origin}/${returnPage}?subscription=success&session_id={CHECKOUT_SESSION_ID}`,
         cancelUrl,
       });
 

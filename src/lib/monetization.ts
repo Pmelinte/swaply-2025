@@ -279,7 +279,10 @@ export type PremiumFeature =
   | "ad_free"           // #13
   | "analytics"         // #14
   | "export_reports"    // #15
-  | "auction_mode";     // #16
+  | "auction_mode"      // #16
+  | "boost_item"        // boost obiect
+  | "item_stats"        // statistici avansate (vizualizari, wishlist)
+  | "map_visibility";   // obiecte pe harta vizibile public
 
 const FEATURE_MIN_TIER: Record<PremiumFeature, "free" | "premium" | "platinum"> = {
   extended_filters: "premium",
@@ -288,6 +291,9 @@ const FEATURE_MIN_TIER: Record<PremiumFeature, "free" | "premium" | "platinum"> 
   analytics: "premium",
   export_reports: "platinum",
   auction_mode: "platinum",
+  boost_item: "premium",
+  item_stats: "premium",
+  map_visibility: "premium",
 };
 
 const TIER_RANK = { free: 0, premium: 1, platinum: 2 } as const;
