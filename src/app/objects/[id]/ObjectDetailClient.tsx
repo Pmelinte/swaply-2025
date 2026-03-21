@@ -78,7 +78,62 @@ export default function ObjectDetailClient() {
   const [activePhoto, setActivePhoto] = useState(0);
   const [offerItemId, setOfferItemId] = useState<string>("");
 
-  const item = items.find((i) => i.id === params.id);
+  const stateItem = items.find((i) => i.id === params.id);
+
+  // Direct Supabase fetch for guests or when item isn't in state (e.g. direct link)
+  const [directItem, setDirectItem] = useState<import("@/lib/types").Item | null>(null);
+  const [directLoading, setDirectLoading] = useState(false);
+
+  useEffect(() => {
+    if (stateItem || loading.items) return;
+    const supabase = getSupabaseClient();
+    if (!supabase) return;
+    setDirectLoading(true);
+    supabase
+      .from("items")
+      .select("*")
+      .eq("id", params.id)
+      .eq("is_active", true)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) {
+          const photos = Array.isArray(data.photos)
+            ? (data.photos as (string | { url?: string })[]).map((img) =>
+                typeof img === "string" ? img : String((img as Record<string, unknown>)?.url ?? ""),
+              ).filter(Boolean)
+            : [];
+          const aiMeta = (typeof data.ai_metadata === "object" && data.ai_metadata ? data.ai_metadata : {}) as Record<string, unknown>;
+          setDirectItem({
+            id: String(data.id),
+            ownerId: String(data.owner_id),
+            title: String(data.title ?? ""),
+            category: String(data.category ?? ""),
+            condition: (String(data.condition ?? "good") as import("@/lib/types").Item["condition"]),
+            description: String(data.description ?? ""),
+            wishlist: String(data.wishlist ?? ""),
+            status: (String(data.status ?? "active") as import("@/lib/types").Item["status"]),
+            isDemo: Boolean(data.is_demo),
+            isActive: Boolean(data.is_active),
+            createdAt: String(data.created_at ?? ""),
+            location: String(data.location ?? ""),
+            aiSuggestedTags: Array.isArray(data.ai_suggested_tags) ? data.ai_suggested_tags as string[] : [],
+            userFinalTags: Array.isArray(data.user_final_tags) ? data.user_final_tags as string[] : [],
+            photos,
+            intent: (String(aiMeta.intent ?? "") || undefined) as import("@/lib/types").Item["intent"],
+            flexibility: (String(aiMeta.flexibility ?? "") || undefined) as import("@/lib/types").Item["flexibility"],
+            perceivedValue: (String(aiMeta.perceivedValue ?? "") || undefined) as import("@/lib/types").Item["perceivedValue"],
+            clarity: (String(aiMeta.clarity ?? "") || undefined) as import("@/lib/types").Item["clarity"],
+            context: (String(aiMeta.context ?? "") || undefined) as import("@/lib/types").Item["context"],
+            acceptsBundle: typeof aiMeta.acceptsBundle === "boolean" ? aiMeta.acceptsBundle : undefined,
+            recipientMatters: typeof aiMeta.recipientMatters === "boolean" ? aiMeta.recipientMatters : undefined,
+            aiNote: String(aiMeta.aiNote ?? "") || undefined,
+          });
+        }
+        setDirectLoading(false);
+      });
+  }, [stateItem, loading.items, params.id]);
+
+  const item = stateItem ?? directItem;
   const [shareToast, setShareToast] = useState(false);
 
   // Fetch owner profile for public display
@@ -177,7 +232,7 @@ export default function ObjectDetailClient() {
   // Semantic fields present
   const hasSemanticFields = item && (item.intent || item.flexibility || item.perceivedValue || item.clarity || item.context);
 
-  if (loading.items) {
+  if (loading.items || directLoading) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-6">
         <SectionCard title={t("loading")} description={t("loadingDescription")}>
