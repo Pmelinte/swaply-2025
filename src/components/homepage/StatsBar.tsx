@@ -101,8 +101,22 @@ export function StatsBar() {
     };
   }, []);
 
-  // Don't render until data loaded
-  if (!stats) return null;
+  // Show skeleton placeholder while loading to prevent CLS
+  if (!stats) {
+    return (
+      <section className="rounded-2xl bg-[#F8F9FA] px-4 py-8 shadow-sm dark:bg-zinc-800/50 sm:px-6">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="flex flex-col items-center gap-2 rounded-2xl border border-zinc-200/60 bg-white px-4 py-5 shadow-sm dark:border-zinc-700/50 dark:bg-zinc-900">
+              <div className="h-8 w-8 animate-pulse rounded-full bg-zinc-200 dark:bg-zinc-700" />
+              <div className="h-7 w-16 animate-pulse rounded bg-zinc-200 dark:bg-zinc-700" />
+              <div className="h-3 w-20 animate-pulse rounded bg-zinc-100 dark:bg-zinc-800" />
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
 
   // Hide entirely if no objects at all
   if (stats.objectsCount < 1) return null;
