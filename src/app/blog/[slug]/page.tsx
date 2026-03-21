@@ -2,8 +2,17 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
-import { getAllPosts, getPostBySlug } from "@/lib/blog";
-import { ArrowLeft, Calendar, Clock, Tag } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, Tag, User } from "lucide-react";
+import {
+  getAllPosts,
+  getPostBySlug,
+  getPostsByCategory,
+  extractHeadings,
+} from "@/lib/blog";
+import { TableOfContents } from "@/components/blog/TableOfContents";
+import { BlogShareButtons } from "@/components/blog/BlogShareButtons";
+import { AuthorCard } from "@/components/blog/AuthorCard";
+import { RelatedPosts } from "@/components/blog/RelatedPosts";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -27,23 +36,56 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: post.description,
       type: "article",
       publishedTime: post.date,
+      authors: [post.author],
       tags: post.tags,
+      ...(post.coverImage && {
+        images: [{ url: post.coverImage, alt: post.title }],
+      }),
     },
     twitter: {
-      card: "summary",
+      card: post.coverImage ? "summary_large_image" : "summary",
       title: post.title,
       description: post.description,
+      ...(post.coverImage && { images: [post.coverImage] }),
     },
   };
 }
+
+/** Custom MDX components that add IDs to headings for TOC linking */
+function createHeadingComponent(level: 2 | 3) {
+  const Tag = level === 2 ? "h2" : "h3";
+  return function HeadingComponent({
+    children,
+  }: {
+    children?: React.ReactNode;
+  }) {
+    const text = String(children ?? "");
+    const id = text
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, "")
+      .replace(/\s+/g, "-");
+    return <Tag id={id}>{children}</Tag>;
+  };
+}
+
+const mdxComponents = {
+  h2: createHeadingComponent(2),
+  h3: createHeadingComponent(3),
+};
 
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
   const post = getPostBySlug(slug);
   if (!post) notFound();
 
+  const headings = extractHeadings(post.content);
+
+  const related = getPostsByCategory(post.category)
+    .filter((p) => p.slug !== slug)
+    .slice(0, 3);
+
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="mx-auto max-w-[720px] space-y-8">
       {/* Back nav */}
       <Link
         href="/blog"
@@ -54,15 +96,28 @@ export default async function BlogPostPage({ params }: Props) {
       </Link>
 
       {/* Header */}
-      <header>
-        <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+      <header className="space-y-4">
+        <Link
+          href={`/blog/category/${encodeURIComponent(post.category)}`}
+          className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 transition hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50"
+        >
           <Tag className="h-3 w-3" />
           {post.category}
-        </span>
-        <h1 className="mt-3 text-3xl font-bold text-zinc-900 dark:text-zinc-50">
+        </Link>
+
+        <h1 className="text-3xl font-bold leading-tight text-zinc-900 dark:text-zinc-50 sm:text-4xl">
           {post.title}
         </h1>
-        <div className="mt-3 flex items-center gap-4 text-sm text-zinc-500 dark:text-zinc-400">
+
+        <p className="text-lg text-zinc-600 dark:text-zinc-400">
+          {post.description}
+        </p>
+
+        <div className="flex flex-wrap items-center gap-4 text-sm text-zinc-500 dark:text-zinc-400">
+          <span className="flex items-center gap-1">
+            <User className="h-4 w-4" />
+            {post.author}
+          </span>
           <span className="flex items-center gap-1">
             <Calendar className="h-4 w-4" />
             {post.date}
@@ -72,15 +127,49 @@ export default async function BlogPostPage({ params }: Props) {
             {post.readingTime}
           </span>
         </div>
+
+        <BlogShareButtons title={post.title} slug={post.slug} />
       </header>
 
+      {/* Cover image */}
+      {post.coverImage && (
+        <img
+          src={post.coverImage}
+          alt={post.title}
+          className="w-full rounded-2xl object-cover shadow-sm"
+        />
+      )}
+
+      {/* Table of Contents */}
+      {headings.length > 2 && <TableOfContents headings={headings} />}
+
       {/* MDX content */}
-      <article className="prose prose-zinc dark:prose-invert max-w-none prose-headings:font-bold prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-img:rounded-xl">
-        <MDXRemote source={post.content} />
+      <article className="prose prose-zinc max-w-none dark:prose-invert prose-headings:font-bold prose-headings:tracking-tight prose-h2:text-2xl prose-h3:text-xl prose-p:leading-relaxed prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline prose-img:rounded-xl prose-pre:rounded-xl prose-pre:bg-zinc-900 prose-pre:text-zinc-100 dark:prose-a:text-blue-400 dark:prose-pre:bg-zinc-800">
+        <MDXRemote source={post.content} components={mdxComponents} />
       </article>
 
+      {/* Tags */}
+      {post.tags.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {post.tags.map((tag) => (
+            <span
+              key={tag}
+              className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300"
+            >
+              #{tag}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Author card */}
+      <AuthorCard />
+
+      {/* Related posts */}
+      <RelatedPosts posts={related} />
+
       {/* CTA */}
-      <div className="rounded-2xl border border-blue-200 bg-blue-50/50 p-6 text-center dark:border-blue-800 dark:bg-blue-950/30">
+      <div className="rounded-2xl border border-green-200 bg-green-50/50 p-6 text-center dark:border-green-800 dark:bg-green-950/30">
         <p className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
           Gata să încerci barter-ul modern?
         </p>
@@ -88,8 +177,8 @@ export default async function BlogPostPage({ params }: Props) {
           Listează obiectele tale și descoperă ce poți obține în schimb.
         </p>
         <Link
-          href="/login"
-          className="mt-4 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
+          href="/register"
+          className="mt-4 inline-flex items-center gap-2 rounded-xl bg-green-600 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700"
         >
           Încearcă Swaply gratuit →
         </Link>
