@@ -4,11 +4,11 @@
  * Handles service worker registration, permission requests,
  * and push subscription management via the Web Push API.
  *
- * Requires NEXT_PUBLIC_VAPID_KEY to be set in the environment
+ * Requires NEXT_PUBLIC_VAPID_PUBLIC_KEY to be set in the environment
  * for push subscription to work.
  */
 
-const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_KEY ?? "";
+const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? "";
 const SW_PATH = "/sw.js";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -96,7 +96,7 @@ export async function subscribeToPush(): Promise<PushSubscription | null> {
   }
 
   if (!VAPID_PUBLIC_KEY) {
-    console.error("[push] NEXT_PUBLIC_VAPID_KEY is not configured.");
+    console.error("[push] NEXT_PUBLIC_VAPID_PUBLIC_KEY is not configured.");
     return null;
   }
 
