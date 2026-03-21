@@ -40,10 +40,23 @@ const DEFAULT_PROGRESS: OnboardingProgress = {
   completedAt: null,
 };
 
+function mapRow(row: Record<string, unknown>): OnboardingProgress {
+  return {
+    stepProfile: (row.step_profile as boolean) ?? false,
+    stepFirstItem: (row.step_first_item as boolean) ?? false,
+    stepFirstMatch: (row.step_first_match as boolean) ?? false,
+    stepFirstSwap: (row.step_first_swap as boolean) ?? false,
+    stepVerified: (row.step_verified as boolean) ?? false,
+    completedAt: (row.completed_at as string) ?? null,
+  };
+}
+
 export function useOnboarding() {
   const { user } = useAppState();
+  const userId = user?.id ?? null;
   const [progress, setProgress] = useState<OnboardingProgress | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Track which userId the current progress was fetched for
+  const [fetchedForUser, setFetchedForUser] = useState<string | null>(null);
   const mountedRef = useRef(true);
 
   useEffect(() => {
@@ -55,77 +68,59 @@ export function useOnboarding() {
 
   // Fetch onboarding_progress for current user
   useEffect(() => {
-    if (!user?.id) {
-      setProgress(null);
-      setLoading(false);
-      return;
-    }
+    if (!userId) return;
 
     const supabase = getSupabaseClient();
-    if (!supabase) {
-      setLoading(false);
-      return;
-    }
+    if (!supabase) return;
 
-    setLoading(true);
+    let cancelled = false;
+
     supabase
       .from("onboarding_progress")
       .select(
         "step_profile, step_first_item, step_first_match, step_first_swap, step_verified, completed_at",
       )
-      .eq("user_id", user.id)
+      .eq("user_id", userId)
       .maybeSingle()
       .then(({ data }) => {
-        if (!mountedRef.current) return;
-        if (data) {
-          setProgress({
-            stepProfile: data.step_profile ?? false,
-            stepFirstItem: data.step_first_item ?? false,
-            stepFirstMatch: data.step_first_match ?? false,
-            stepFirstSwap: data.step_first_swap ?? false,
-            stepVerified: data.step_verified ?? false,
-            completedAt: data.completed_at ?? null,
-          });
-        } else {
-          setProgress({ ...DEFAULT_PROGRESS });
-        }
-        setLoading(false);
+        if (!mountedRef.current || cancelled) return;
+        setProgress(
+          data
+            ? mapRow(data as Record<string, unknown>)
+            : { ...DEFAULT_PROGRESS },
+        );
+        setFetchedForUser(userId);
       });
 
     // Subscribe to realtime updates
     const channel = supabase
-      .channel(`onboarding_${user.id}`)
+      .channel(`onboarding_${userId}`)
       .on(
         "postgres_changes",
         {
           event: "UPDATE",
           schema: "public",
           table: "onboarding_progress",
-          filter: `user_id=eq.${user.id}`,
+          filter: `user_id=eq.${userId}`,
         },
         (payload) => {
-          if (!mountedRef.current) return;
-          const row = payload.new as Record<string, unknown>;
-          setProgress({
-            stepProfile: (row.step_profile as boolean) ?? false,
-            stepFirstItem: (row.step_first_item as boolean) ?? false,
-            stepFirstMatch: (row.step_first_match as boolean) ?? false,
-            stepFirstSwap: (row.step_first_swap as boolean) ?? false,
-            stepVerified: (row.step_verified as boolean) ?? false,
-            completedAt: (row.completed_at as string) ?? null,
-          });
+          if (!mountedRef.current || cancelled) return;
+          setProgress(mapRow(payload.new as Record<string, unknown>));
         },
       )
       .subscribe();
 
     return () => {
+      cancelled = true;
       supabase.removeChannel(channel);
     };
-  }, [user?.id]);
+  }, [userId]);
 
   const markStepComplete = useCallback(
     async (step: OnboardingStep) => {
-      if (!user?.id) return;
+      if (!user) return;
+      const uid = user.id;
+      if (!uid) return;
       const supabase = getSupabaseClient();
       if (!supabase) return;
 
@@ -135,30 +130,33 @@ export function useOnboarding() {
       const dbField = DB_FIELD_MAP[step];
       await supabase
         .from("onboarding_progress")
-        .upsert(
-          { user_id: user.id, [dbField]: true },
-          { onConflict: "user_id" },
-        );
+        .upsert({ user_id: uid, [dbField]: true }, { onConflict: "user_id" });
     },
-    [user?.id],
+    [user],
   );
 
   const isStepComplete = useCallback(
     (step: OnboardingStep): boolean => {
-      if (!progress) return false;
-      return progress[step];
+      if (!effectiveProgress) return false;
+      return effectiveProgress[step];
     },
-    [progress],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [progress, userId, fetchedForUser],
   );
 
+  // Derive loading and effective progress — no synchronous setState needed
+  const loading = userId !== null && fetchedForUser !== userId;
+  const effectiveProgress =
+    userId && fetchedForUser === userId ? progress : null;
+
   const overallProgress = STEP_KEYS.filter(
-    (k) => progress?.[k] === true,
+    (k) => effectiveProgress?.[k] === true,
   ).length;
 
-  const isCompleted = progress?.completedAt != null;
+  const isCompleted = effectiveProgress?.completedAt != null;
 
   return {
-    progress,
+    progress: effectiveProgress,
     loading,
     markStepComplete,
     isStepComplete,

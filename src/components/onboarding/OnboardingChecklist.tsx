@@ -26,6 +26,13 @@ import { useOnboarding } from "@/hooks/useOnboarding";
 import type { OnboardingStep } from "@/hooks/useOnboarding";
 import { useAppState } from "@/lib/state";
 
+// Pre-computed at module level to avoid impure Math.random() during render
+const CONFETTI_SEEDS = Array.from({ length: 20 }, () => ({
+  duration: 1.5 + Math.random() * 2,
+  delay: Math.random() * 0.5,
+  translateX: (Math.random() - 0.5) * 200,
+}));
+
 interface StepDef {
   key: OnboardingStep;
   label: string;
@@ -91,19 +98,24 @@ export function OnboardingChecklist() {
 
   const [minimized, setMinimized] = useState(false);
   const [dismissed, setDismissed] = useState(false);
-  const [showConfetti, setShowConfetti] = useState(false);
-  const [justCompleted, setJustCompleted] = useState(false);
+  const [confettiExpired, setConfettiExpired] = useState(false);
 
-  // Track when all 5 steps become complete
+  // Derive completion state — no synchronous setState needed
+  const allStepsDone = overallProgress === totalSteps;
+  const justCompleted = allStepsDone && !dismissed;
+  const showConfetti = allStepsDone && !confettiExpired && !dismissed;
+
+  // Auto-dismiss confetti after 5s (setState only inside setTimeout = async)
   useEffect(() => {
-    if (overallProgress === totalSteps && !isCompleted && !justCompleted) {
-      setJustCompleted(true);
-      setShowConfetti(true);
-      setMinimized(false);
-      const timer = setTimeout(() => setShowConfetti(false), 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [overallProgress, totalSteps, isCompleted, justCompleted]);
+    if (!allStepsDone) return;
+    // Expand minimized card immediately via microtask
+    const raf = requestAnimationFrame(() => setMinimized(false));
+    const timer = setTimeout(() => setConfettiExpired(true), 5000);
+    return () => {
+      cancelAnimationFrame(raf);
+      clearTimeout(timer);
+    };
+  }, [allStepsDone]);
 
   const handleMinimize = useCallback(() => {
     setMinimized((prev) => !prev);
@@ -128,7 +140,7 @@ export function OnboardingChecklist() {
         {showConfetti && (
           <div className="pointer-events-none absolute -top-20 left-1/2 -translate-x-1/2">
             <div className="flex gap-1">
-              {Array.from({ length: 20 }).map((_, i) => (
+              {CONFETTI_SEEDS.map((seed, i) => (
                 <span
                   key={i}
                   className="inline-block h-2 w-2 rounded-full"
@@ -141,8 +153,8 @@ export function OnboardingChecklist() {
                       "#ef4444",
                       "#ec4899",
                     ][i % 6],
-                    animation: `confetti-fall ${1.5 + Math.random() * 2}s ease-in ${Math.random() * 0.5}s forwards`,
-                    transform: `translateX(${(Math.random() - 0.5) * 200}px)`,
+                    animation: `confetti-fall ${seed.duration}s ease-in ${seed.delay}s forwards`,
+                    transform: `translateX(${seed.translateX}px)`,
                   }}
                 />
               ))}
