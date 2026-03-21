@@ -45,7 +45,14 @@ export const metadata: Metadata = {
     capable: true,
     statusBarStyle: "default",
     title: "Swaply",
+    startupImage: [
+      { url: "/icons/apple-touch-icon.png" },
+    ],
   },
+  icons: [
+    { rel: "icon", url: "/icons/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+    { rel: "apple-touch-icon", url: "/icons/apple-touch-icon.png", sizes: "180x180" },
+  ],
 };
 
 export const viewport: Viewport = {

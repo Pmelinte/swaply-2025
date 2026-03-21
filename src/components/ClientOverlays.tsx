@@ -18,6 +18,10 @@ const OnboardingChecklist = dynamic(
   () => import("@/components/onboarding/OnboardingChecklist").then((m) => m.OnboardingChecklist),
   { ssr: false },
 );
+const PushPermissionRequest = dynamic(
+  () => import("@/components/pwa/PushPermissionRequest").then((m) => m.PushPermissionRequest),
+  { ssr: false },
+);
 
 export function ClientOverlays() {
   return (
@@ -26,6 +30,7 @@ export function ClientOverlays() {
       <CookieConsent />
       <OnboardingTutorial />
       <OnboardingChecklist />
+      <PushPermissionRequest />
     </>
   );
 }

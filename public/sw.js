@@ -71,8 +71,8 @@ self.addEventListener("push", (event) => {
   let data = {
     title: "Swaply",
     body: "Ai o notificare noua!",
-    icon: "/icon-192.svg",
-    badge: "/icon-192.svg",
+    icon: "/icons/icon-192x192.png",
+    badge: "/icons/icon-96x96.png",
     url: "/",
     tag: "swaply-default",
   };
