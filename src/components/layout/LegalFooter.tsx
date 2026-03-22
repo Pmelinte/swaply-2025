@@ -19,6 +19,8 @@ export function LegalFooter() {
   const t = useTranslations("legal");
 
   const links = [
+    { href: "/about", label: "Despre" },
+    { href: "/pricing", label: "Prețuri" },
     { href: "/blog", label: "Blog" },
     { href: "/terms", label: t("termsTitle") },
     { href: "/privacy", label: t("privacyTitle") },

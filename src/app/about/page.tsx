@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { SectionCard } from "@/components/ui";
-import { Camera, Search, MessageCircle, ArrowRight } from "lucide-react";
+import { Camera, Search, MessageCircle, ArrowRight, Code2 } from "lucide-react";
 
 const STEPS_ICONS = [Camera, Search, MessageCircle] as const;
 
@@ -101,10 +101,22 @@ export default function AboutPage() {
         </blockquote>
       </SectionCard>
 
-      {/* Section 5 — CTA */}
+      {/* Section 5 — Tech stack */}
+      <SectionCard title={t("techTitle")}>
+        <div className="flex items-start gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-zinc-500 dark:bg-zinc-700 dark:text-zinc-400">
+            <Code2 className="h-5 w-5" />
+          </div>
+          <p className="text-sm text-zinc-600 dark:text-zinc-300">
+            {t("techDescription")}
+          </p>
+        </div>
+      </SectionCard>
+
+      {/* Section 6 — CTA */}
       <div className="flex flex-col items-center gap-2 rounded-2xl border border-zinc-200 bg-gradient-to-br from-blue-50 to-white p-8 text-center shadow-sm dark:border-zinc-700 dark:from-blue-950/30 dark:to-zinc-900">
         <Link
-          href="/login"
+          href="/register"
           className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-6 py-3 text-base font-bold text-white shadow-md transition hover:bg-blue-700"
         >
           {t("ctaButton")}
