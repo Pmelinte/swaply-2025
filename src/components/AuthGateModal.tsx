@@ -17,7 +17,7 @@ interface AuthGateModalProps {
  * Wraps an interaction button. On click, shows a modal prompting
  * the guest to create a free account instead of performing the action.
  */
-export function AuthGateModal({ children, returnTo = "/login", gaEvent }: AuthGateModalProps) {
+export function AuthGateModal({ children, returnTo = "/register", gaEvent }: AuthGateModalProps) {
   const [open, setOpen] = useState(false);
   const t = useTranslations("guest");
 

@@ -503,7 +503,7 @@ export default function ObjectsPage() {
             </Link>
           )}
           <Link
-            href={user ? "/objects/new" : "/login?returnTo=/objects/new"}
+            href={user ? "/objects/new" : "/register?returnTo=/objects/new"}
             className="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
           >
             <Plus className="h-4 w-4" />
@@ -738,7 +738,7 @@ export default function ObjectsPage() {
               {!user ? (
                 <div className="rounded-2xl border-2 border-dashed border-blue-200 bg-blue-50/50 p-8 text-center dark:border-blue-800 dark:bg-blue-950/20">
                   <p className="text-sm text-zinc-500">{t("loginToList")}</p>
-                  <CTAButton href="/login">{t("loginButton")}</CTAButton>
+                  <CTAButton href="/register">{t("loginButton")}</CTAButton>
                 </div>
               ) : wishBlocked ? (
                 <div className="rounded-2xl border-2 border-blue-200 bg-blue-50 p-6 text-center dark:border-blue-800 dark:bg-blue-950/30">
@@ -865,7 +865,7 @@ export default function ObjectsPage() {
               {!user ? (
                 <div className="rounded-2xl border-2 border-dashed border-emerald-200 bg-emerald-50/50 p-8 text-center dark:border-emerald-800 dark:bg-emerald-950/20">
                   <p className="text-sm text-zinc-500">{t("loginToList")}</p>
-                  <CTAButton href="/login">{t("loginButton")}</CTAButton>
+                  <CTAButton href="/register">{t("loginButton")}</CTAButton>
                 </div>
               ) : offerBlocked ? (
                 <div className="rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-6 text-center dark:border-emerald-800 dark:bg-emerald-950/30">
@@ -1043,7 +1043,7 @@ export default function ObjectsPage() {
                   </p>
                   <div className="flex flex-col items-center gap-2">
                     <Link
-                      href="/login"
+                      href="/register"
                       className="inline-flex items-center gap-1.5 rounded-full bg-blue-600 px-5 py-2.5 text-sm font-bold text-white shadow-md hover:bg-blue-700"
                     >
                       {t("emptyGuestCta")}
@@ -1080,7 +1080,7 @@ export default function ObjectsPage() {
                         <Heart className={`h-3.5 w-3.5 ${favorites.has(item.id) ? "fill-red-500 text-red-500" : "text-zinc-400"}`} />
                       </button>
                     ) : (
-                      <AuthGateModal returnTo="/login?returnTo=/objects" gaEvent="favorite_click_guest">
+                      <AuthGateModal returnTo="/register?returnTo=/objects" gaEvent="favorite_click_guest">
                         <button
                           type="button"
                           className="absolute right-3 top-3 z-10 rounded-full bg-white/90 p-1.5 shadow-sm backdrop-blur hover:bg-white dark:bg-zinc-900/80 dark:hover:bg-zinc-800"
@@ -1117,7 +1117,7 @@ export default function ObjectsPage() {
                         <Heart className={`h-3.5 w-3.5 ${favorites.has(item.id) ? "fill-red-500 text-red-500" : "text-zinc-400"}`} />
                       </button>
                     ) : (
-                      <AuthGateModal returnTo="/login?returnTo=/objects" gaEvent="favorite_click_guest">
+                      <AuthGateModal returnTo="/register?returnTo=/objects" gaEvent="favorite_click_guest">
                         <button
                           type="button"
                           className="absolute right-3 top-3 z-10 rounded-full bg-white/90 p-1.5 shadow-sm backdrop-blur hover:bg-white dark:bg-zinc-900/80 dark:hover:bg-zinc-800"

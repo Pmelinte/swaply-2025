@@ -680,7 +680,7 @@ export default function ObjectDetailClient() {
           ) : (
             <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
               <div className="space-y-2">
-                <AuthGateModal returnTo={`/login?returnTo=/objects/${item.id}`} gaEvent="propose_swap_click">
+                <AuthGateModal returnTo={`/register?returnTo=/objects/${item.id}`} gaEvent="propose_swap_click">
                   <button
                     type="button"
                     className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white"
@@ -689,7 +689,7 @@ export default function ObjectDetailClient() {
                     {t("proposeExchange")}
                   </button>
                 </AuthGateModal>
-                <AuthGateModal returnTo={`/login?returnTo=/objects/${item.id}`}>
+                <AuthGateModal returnTo={`/register?returnTo=/objects/${item.id}`}>
                   <button
                     type="button"
                     className="flex w-full items-center justify-center gap-2 rounded-xl bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white dark:bg-zinc-700"
