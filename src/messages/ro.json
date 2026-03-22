@@ -1852,6 +1852,8 @@
     "compare_ecoImpact_swaply": "♻️ Pozitiv",
     "whoTitle": "Cine suntem",
     "whoQuote": "Swaply e construit de Petru Melinte din Jurilovca, România. Nu suntem o corporație. Suntem un proiect real, construit cu convingerea că economia de schimb e mai umană decât economia de consum.",
+    "techTitle": "Tehnologie",
+    "techDescription": "Swaply e construit cu Next.js, React, Supabase și Tailwind CSS. Hosting pe Vercel, plăți prin Stripe. Tot codul e scris de un singur developer — fără echipă, fără investitori, doar pasiune și cafea.",
     "ctaButton": "Începe să schimbi",
     "ctaSub": "Gratuit. Fără card. Fără comisioane."
   },

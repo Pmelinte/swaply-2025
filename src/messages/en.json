@@ -1852,6 +1852,8 @@
     "compare_ecoImpact_swaply": "♻️ Positive",
     "whoTitle": "Who We Are",
     "whoQuote": "Swaply is built by Petru Melinte from Jurilovca, Romania. We're not a corporation. We're a real project, built on the belief that the barter economy is more human than the consumer economy.",
+    "techTitle": "Technology",
+    "techDescription": "Swaply is built with Next.js, React, Supabase, and Tailwind CSS. Hosted on Vercel, payments via Stripe. All code is written by a single developer — no team, no investors, just passion and coffee.",
     "ctaButton": "Start swapping",
     "ctaSub": "Free. No card required. No commissions."
   },
