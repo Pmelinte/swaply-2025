@@ -1,6 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
@@ -12,8 +11,6 @@ export default function NewObjectPage() {
   const { user, loading, startNewItem, upsertItem } = useAppState();
   const t = useTranslations("objectNew");
   const router = useRouter();
-  const item = useMemo(() => startNewItem(), [startNewItem]);
-
   if (loading.auth) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-12 text-zinc-400 dark:text-zinc-500">
@@ -22,9 +19,11 @@ export default function NewObjectPage() {
     );
   }
 
-  if (!user || !item) {
+  if (!user) {
     return <LoggedOutGate returnTo="/objects/new" />;
   }
+
+  const item = startNewItem()!;
 
   return (
     <div className="space-y-4">
