@@ -28,7 +28,7 @@ export function GuestBanner() {
         {t("bannerText")}
       </span>
       <Link
-        href="/login"
+        href="/register"
         className="inline-flex shrink-0 items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-50"
       >
         {t("bannerCta")}
