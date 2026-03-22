@@ -59,7 +59,7 @@ async function getItems(categoryName: string): Promise<ItemRow[]> {
   const { data } = await supabase
     .from("items")
     .select("id, title, category, condition, photos, location, wishlist, created_at")
-    .ilike("category", `%${categoryName}%`)
+    .eq("category", categoryName)
     .eq("status", "active")
     .order("created_at", { ascending: false })
     .limit(24);
@@ -72,7 +72,7 @@ export default async function CategoryPage({ params }: Props) {
   const cat = getCategoryBySlug(slug);
   if (!cat) notFound();
 
-  const items = await getItems(cat.name);
+  const items = await getItems(cat.dbCategory);
   const relatedCategories = cat.related
     .map((r) => getCategoryBySlug(r))
     .filter(Boolean) as SEOCategory[];
