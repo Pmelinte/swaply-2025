@@ -5,10 +5,11 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { StatsGrid } from "@/features/info/StatsGrid";
 import { useAppState } from "@/lib/state";
+import { useInfoStats } from "@/hooks/useInfoStats";
 import { NextStepRecommendation, Pill, SectionCard } from "@/components/ui";
 import {
   Check, ChevronDown, Minus, Package, Search, MessageCircle, Repeat2, Leaf,
-  Trophy, Flame, Crown, Quote, Calculator, UserPlus, Camera, Sparkles, ArrowRight,
+  Trophy, Calculator, UserPlus, Camera, Sparkles, ArrowRight,
 } from "lucide-react";
 
 function FaqItem({ question, answer }: { question: string; answer: string }) {
@@ -39,12 +40,14 @@ const GUIDE_STEPS = [
 ] as const;
 
 export default function InfoPage() {
-  const { infoStats, items } = useAppState();
+  const { items } = useAppState();
+  const infoStats = useInfoStats();
   const t = useTranslations("info");
 
   const activeItems = items.filter((i) => i.status === "active").length;
-  const totalUsers = infoStats?.activeUsers ?? 0;
-  const isEarlyStage = activeItems < 100 && totalUsers < 100;
+  const totalUsers = infoStats.activeUsers;
+  // TODO: Unhide when real user count > 50
+  const isEarlyStage = activeItems < 10 || totalUsers < 10;
 
   return (
     <div className="space-y-4">
@@ -133,12 +136,14 @@ export default function InfoPage() {
         )}
       </SectionCard>
 
-      {/* Stats Grid */}
-      <div id="stats">
-        <SectionCard title={t("title")} description={t("description")}>
-          <StatsGrid stats={infoStats} />
-        </SectionCard>
-      </div>
+      {/* Stats Grid — only show with real data */}
+      {!isEarlyStage && (
+        <div id="stats">
+          <SectionCard title={t("title")} description={t("description")}>
+            <StatsGrid stats={infoStats} />
+          </SectionCard>
+        </div>
+      )}
 
       {/* Map & Privacy */}
       <div id="map">
@@ -154,64 +159,53 @@ export default function InfoPage() {
         </SectionCard>
       </div>
 
-      {/* Sustainability Counter */}
-      <div id="sustainability">
-        <SectionCard title={t("sustainabilityTitle")} description={t("sustainabilityDescription")}>
-          <div className="grid gap-3 sm:grid-cols-3">
-            <div className="rounded-xl border border-green-200 bg-green-50/50 p-4 text-center dark:border-green-900 dark:bg-green-950/30">
-              <Leaf className="mx-auto mb-2 h-8 w-8 text-green-600 dark:text-green-400" />
-              <p className="text-2xl font-bold text-green-700 dark:text-green-300">
-                {((infoStats?.globalSwaps ?? 0) * 4.2).toFixed(0)} kg
-              </p>
-              <p className="text-xs text-green-600 dark:text-green-400">{t("co2Saved")}</p>
-            </div>
-            <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-4 text-center dark:border-blue-900 dark:bg-blue-950/30">
-              <Package className="mx-auto mb-2 h-8 w-8 text-blue-600 dark:text-blue-400" />
-              <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">
-                {infoStats?.globalSwaps ?? 0}
-              </p>
-              <p className="text-xs text-blue-600 dark:text-blue-400">{t("objectsReused")}</p>
-            </div>
-            <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-4 text-center dark:border-amber-900 dark:bg-amber-950/30">
-              <Repeat2 className="mx-auto mb-2 h-8 w-8 text-amber-600 dark:text-amber-400" />
-              <p className="text-2xl font-bold text-amber-700 dark:text-amber-300">
-                {((infoStats?.globalSwaps ?? 0) * 15).toFixed(0)} RON
-              </p>
-              <p className="text-xs text-amber-600 dark:text-amber-400">{t("moneySaved")}</p>
-            </div>
-          </div>
-          <p className="mt-3 text-xs text-zinc-500 dark:text-zinc-400">{t("sustainabilityNote")}</p>
-        </SectionCard>
-      </div>
-
-      {/* Leaderboard */}
-      <div id="leaderboard">
-        <SectionCard title={t("leaderboardTitle")} description={t("leaderboardDescription")}>
-          <div className="space-y-2">
-            {[
-              { rank: 1, icon: <Crown className="h-4 w-4 text-amber-500" />, name: t("leaderboard1"), swaps: 47, streak: 12 },
-              { rank: 2, icon: <Trophy className="h-4 w-4 text-zinc-400" />, name: t("leaderboard2"), swaps: 35, streak: 8 },
-              { rank: 3, icon: <Trophy className="h-4 w-4 text-amber-700" />, name: t("leaderboard3"), swaps: 28, streak: 5 },
-            ].map((entry) => (
-              <div key={entry.rank} className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white/70 p-3 dark:border-zinc-800 dark:bg-zinc-900/70">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-sm font-bold text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
-                  {entry.rank}
-                </div>
-                {entry.icon}
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">{entry.name}</p>
-                  <p className="text-xs text-zinc-500">{t("leaderboardSwaps", { count: entry.swaps })}</p>
-                </div>
-                <div className="flex items-center gap-1 rounded-full bg-orange-100 px-2 py-0.5 text-[10px] font-bold text-orange-700 dark:bg-orange-900/30 dark:text-orange-300">
-                  <Flame className="h-3 w-3" />
-                  {entry.streak} {t("streak")}
-                </div>
+      {/* Sustainability Counter — only show when there are real completed swaps */}
+      {!isEarlyStage && infoStats.globalSwaps > 0 && (
+        <div id="sustainability">
+          <SectionCard title={t("sustainabilityTitle")} description={t("sustainabilityDescription")}>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="rounded-xl border border-green-200 bg-green-50/50 p-4 text-center dark:border-green-900 dark:bg-green-950/30">
+                <Leaf className="mx-auto mb-2 h-8 w-8 text-green-600 dark:text-green-400" />
+                <p className="text-2xl font-bold text-green-700 dark:text-green-300">
+                  {(infoStats.globalSwaps * 4.2).toFixed(0)} kg
+                </p>
+                <p className="text-xs text-green-600 dark:text-green-400">{t("co2Saved")}</p>
               </div>
-            ))}
-          </div>
-          <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">{t("leaderboardNote")}</p>
-        </SectionCard>
-      </div>
+              <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-4 text-center dark:border-blue-900 dark:bg-blue-950/30">
+                <Package className="mx-auto mb-2 h-8 w-8 text-blue-600 dark:text-blue-400" />
+                <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">
+                  {infoStats.globalSwaps}
+                </p>
+                <p className="text-xs text-blue-600 dark:text-blue-400">{t("objectsReused")}</p>
+              </div>
+              <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-4 text-center dark:border-amber-900 dark:bg-amber-950/30">
+                <Repeat2 className="mx-auto mb-2 h-8 w-8 text-amber-600 dark:text-amber-400" />
+                <p className="text-2xl font-bold text-amber-700 dark:text-amber-300">
+                  {(infoStats.globalSwaps * 15).toFixed(0)} RON
+                </p>
+                <p className="text-xs text-amber-600 dark:text-amber-400">{t("moneySaved")}</p>
+              </div>
+            </div>
+            <p className="mt-3 text-xs text-zinc-500 dark:text-zinc-400">{t("sustainabilityNote")}</p>
+          </SectionCard>
+        </div>
+      )}
+
+      {/* Leaderboard — hidden until real swap data exists
+         TODO: Unhide when real user count > 50
+         Query: SELECT profile_id, COUNT(*) as swaps FROM swaps WHERE status='completed'
+                GROUP BY profile_id ORDER BY swaps DESC LIMIT 3 */}
+      {!isEarlyStage && infoStats.globalSwaps >= 10 && (
+        <div id="leaderboard">
+          <SectionCard title={t("leaderboardTitle")} description={t("leaderboardDescription")}>
+            <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-amber-300 bg-amber-50/50 p-6 text-center dark:border-amber-800 dark:bg-amber-950/30">
+              <Trophy className="h-8 w-8 text-amber-400" />
+              <p className="font-semibold text-zinc-800 dark:text-zinc-100">{t("earlyStageTitle")}</p>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">{t("earlyStageText")}</p>
+            </div>
+          </SectionCard>
+        </div>
+      )}
 
       {/* Help & Legal */}
       <div id="legal">
@@ -332,30 +326,8 @@ export default function InfoPage() {
         </SectionCard>
       </div>
 
-      {/* ── Success Stories ── */}
-      <SectionCard title={t("successStories")} description={t("successStoriesDesc")}>
-        <div className="space-y-3">
-          {[
-            { name: "Maria & Andrei", city: "Cluj-Napoca", story: t("story1"), emoji: "📱↔️🎸" },
-            { name: "Elena & Mihai", city: "București", story: t("story2"), emoji: "🏠↔️🏠" },
-            { name: "Dan & Alexandra", city: "Timișoara", story: t("story3"), emoji: "💻↔️📷" },
-          ].map((s) => (
-            <div key={s.name} className="flex gap-3 rounded-xl border border-zinc-200 bg-white/70 p-4 dark:border-zinc-800 dark:bg-zinc-900/70">
-              <Quote className="mt-0.5 h-5 w-5 shrink-0 text-blue-400" />
-              <div>
-                <p className="text-sm italic text-zinc-700 dark:text-zinc-300">&ldquo;{s.story}&rdquo;</p>
-                <div className="mt-2 flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
-                  <span className="font-semibold text-zinc-800 dark:text-zinc-100">{s.name}</span>
-                  <span>·</span>
-                  <span>{s.city}</span>
-                  <span>·</span>
-                  <span>{s.emoji}</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </SectionCard>
+      {/* Success Stories — hidden: contains demo names, not real users
+         TODO: Unhide when real user count > 50 and replace with real testimonials */}
 
       {/* ── Cost Calculator ── */}
       <SectionCard title={t("costCalculator")} description={t("costCalculatorDesc")}>
@@ -400,7 +372,7 @@ export default function InfoPage() {
       {/* CTA final */}
       <div className="flex flex-col items-center gap-2 rounded-2xl border border-zinc-200 bg-gradient-to-br from-blue-50 to-white p-8 text-center shadow-sm dark:border-zinc-700 dark:from-blue-950/30 dark:to-zinc-900">
         <Link
-          href="/login"
+          href="/register"
           className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-6 py-3 text-base font-bold text-white shadow-md transition hover:bg-blue-700"
         >
           {t("ctaButton")}
