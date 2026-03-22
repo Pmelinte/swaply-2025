@@ -1,26 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { ItemForm } from "@/features/items/ItemForm";
 import { LoggedOutGate } from "@/components/gated";
 import { SectionCard, StateShowcase } from "@/components/ui";
-import { Item } from "@/lib/types";
 
 export default function NewObjectPage() {
   const { user, loading, startNewItem, upsertItem } = useAppState();
   const t = useTranslations("objectNew");
   const router = useRouter();
-  const [item, setItem] = useState<Item | null>(() => startNewItem());
-
-  // Re-create item once auth finishes and user becomes available
-  useEffect(() => {
-    if (user && !item) {
-      setItem(startNewItem());
-    }
-  }, [user, item, startNewItem]);
+  const item = useMemo(() => startNewItem(), [startNewItem]);
 
   if (loading.auth) {
     return (
