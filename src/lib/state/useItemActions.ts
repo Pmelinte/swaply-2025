@@ -13,6 +13,7 @@ export function useItemActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
   const upsertItem = useCallback(
     async (item: Item) => {
       const isNew = !items.some((i) => i.id === item.id);
+      const previousItem = items.find((i) => i.id === item.id);
       setItems((prev) => {
         const idx = prev.findIndex((i) => i.id === item.id);
         if (idx >= 0) { const next = [...prev]; next[idx] = item; return next; }
@@ -48,7 +49,11 @@ export function useItemActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
         const { data, error } = await query;
         if (error) {
           setLastError(error.message);
-          setItems((prev) => prev.filter((i) => i.id !== item.id));
+          if (isNew) {
+            setItems((prev) => prev.filter((i) => i.id !== item.id));
+          } else if (previousItem) {
+            setItems((prev) => prev.map((i) => i.id === item.id ? previousItem : i));
+          }
           return null;
         }
         if (data) {
