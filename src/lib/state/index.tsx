@@ -337,10 +337,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     }).catch(() => { /* audit is best-effort */ });
   }, []);
 
-  const [language, setLanguage] = useState<LanguageCode>("en");
-
-  // Hydrate language from localStorage after mount to avoid SSR mismatch
-  useEffect(() => {
+  const [language, setLanguage] = useState<LanguageCode>(() => {
+    if (typeof window === "undefined") return "en";
     const saved = window.localStorage.getItem("swaply_language");
     if (saved) {
       const locales: string[] = [
@@ -350,9 +348,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         "hi","bn","ja","ko","vi","th","id","ms","fil","fa",
         "mn","uk",
       ];
-      if (locales.includes(saved)) setLanguage(saved as LanguageCode);
+      if (locales.includes(saved)) return saved as LanguageCode;
     }
-  }, []);
+    return "en";
+  });
 
   useEffect(() => {
     if (typeof window === "undefined") return;

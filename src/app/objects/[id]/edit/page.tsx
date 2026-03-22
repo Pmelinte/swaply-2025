@@ -13,7 +13,7 @@ import { SectionCard, StateShowcase } from "@/components/ui";
 export default function EditObjectPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const { items, user, upsertItem } = useAppState();
+  const { items, user, loading: appLoading, upsertItem } = useAppState();
   const t = useTranslations("objectEdit");
   const [loading, setLoading] = useState(true);
   const [item, setItem] = useState<Item | null>(null);
@@ -25,6 +25,14 @@ export default function EditObjectPage() {
     }, 250);
     return () => clearTimeout(timer);
   }, [items, params.id]);
+
+  if (appLoading.auth) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-3 py-12 text-zinc-400 dark:text-zinc-500">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-300 border-t-blue-500 dark:border-zinc-600 dark:border-t-blue-400" />
+      </div>
+    );
+  }
 
   if (!user) {
     return <LoggedOutGate returnTo={`/objects/${params.id}/edit`} />;
