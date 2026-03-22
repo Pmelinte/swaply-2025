@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "update:images": "npx tsx scripts/update-demo-images.ts"
   },
   "dependencies": {
     "@next/third-parties": "^16.1.6",
