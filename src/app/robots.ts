@@ -6,9 +6,9 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/api/", "/profile", "/chat", "/change", "/my-objects"],
+        disallow: ["/admin", "/api/"],
       },
     ],
-    sitemap: "https://swaply.world/sitemap.xml",
+    sitemap: "https://www.swaply.world/sitemap.xml",
   };
 }
