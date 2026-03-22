@@ -2,10 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { createMiddlewareSupabase } from "@/lib/supabase/middleware";
 
 // ── Routes that require authentication ──────────────────────────────
-// Guest preview pages (/match, /chat, /my-objects, /change, /profile) are
-// handled at the component level — they show a preview to unauthenticated
-// visitors instead of redirecting to /login.
 const AUTH_ROUTES = [
+  "/profile",
+  "/chat",
+  "/match",
+  "/change",
+  "/my-objects",
   "/objects/new",
   "/monetization",
   "/integrations",
@@ -125,6 +127,6 @@ export const config = {
      * - favicon.ico, icon.svg, manifest.json, sw.js, etc.
      * - Public assets in /images, /icons, etc.
      */
-    "/((?!_next/static|_next/image|favicon\\.ico|icon\\.svg|manifest\\.json|sw\\.js|workbox-.*\\.js|og-image\\.png|images/|icons/).*)",
+    "/((?!_next/static|_next/image|favicon\\.ico|icon\\.svg|manifest\\.json|sw\\.js|workbox-.*\\.js|og-image\\.png|robots\\.txt|sitemap\\.xml|logo-swaply\\.svg|images/|icons/|flags/).*)",
   ],
 };
