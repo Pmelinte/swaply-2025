@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Script from "next/script";
 import { useTranslations } from "next-intl";
 import { StatsGrid } from "@/features/info/StatsGrid";
 import { useAppState } from "@/lib/state";
@@ -49,8 +50,27 @@ export default function InfoPage() {
   // TODO: Unhide when real user count > 50
   const isEarlyStage = activeItems < 10 || totalUsers < 10;
 
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: Array.from({ length: 5 }, (_, i) => ({
+      "@type": "Question",
+      name: t(`faqQ${i + 1}` as `faqQ${1 | 2 | 3 | 4 | 5}`),
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: t(`faqA${i + 1}` as `faqA${1 | 2 | 3 | 4 | 5}`),
+      },
+    })),
+  };
+
   return (
     <div className="space-y-4">
+      <Script
+        id="faq-schema"
+        type="application/ld+json"
+        strategy="lazyOnload"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
       {/* Title */}
       <div className="text-center">
         <h1 className="text-3xl font-extrabold text-zinc-900 dark:text-zinc-50">
