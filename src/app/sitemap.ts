@@ -2,6 +2,9 @@ import type { MetadataRoute } from "next";
 import { getAllPosts } from "@/lib/blog";
 import { getServiceSupabase } from "@/lib/supabase/service";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 3600; // re-generate at most every hour
+
 const BASE_URL = "https://www.swaply.world";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
