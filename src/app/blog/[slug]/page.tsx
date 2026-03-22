@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Script from "next/script";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { ArrowLeft, Calendar, Clock, Tag, User } from "lucide-react";
@@ -84,8 +85,25 @@ export default async function BlogPostPage({ params }: Props) {
     .filter((p) => p.slug !== slug)
     .slice(0, 3);
 
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    description: post.description,
+    author: { "@type": "Person", name: "Petru Melinte" },
+    datePublished: post.date,
+    publisher: { "@type": "Organization", name: "Swaply" },
+    ...(post.coverImage && { image: post.coverImage }),
+  };
+
   return (
     <div className="mx-auto max-w-[720px] space-y-8">
+      <Script
+        id="article-schema"
+        type="application/ld+json"
+        strategy="lazyOnload"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+      />
       {/* Back nav */}
       <Link
         href="/blog"

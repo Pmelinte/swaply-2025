@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { getServerSupabase } from "@/lib/supabase/server";
 import ObjectDetailClient from "./ObjectDetailClient";
 
@@ -79,8 +80,10 @@ export default async function ObjectDetailPage({ params }: Props) {
   return (
     <>
       {jsonLd && (
-        <script
+        <Script
+          id="product-schema"
           type="application/ld+json"
+          strategy="lazyOnload"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       )}

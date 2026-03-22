@@ -10,6 +10,7 @@ import { ClientOverlays } from "@/components/ClientOverlays";
 import { TokenToast } from "@/components/tokens/TokenToast";
 import { Analytics } from "@vercel/analytics/react";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   title: {
@@ -73,6 +74,25 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://res.cloudinary.com" />
         <link rel="dns-prefetch" href="https://keaejxlwqtjjglijiplh.supabase.co" />
+        <Script
+          id="organization-schema"
+          type="application/ld+json"
+          strategy="lazyOnload"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "Swaply",
+              url: "https://www.swaply.world",
+              logo: "https://www.swaply.world/logo-swaply.svg",
+              description: "Platformă de schimb de obiecte fără bani în România",
+              contactPoint: {
+                "@type": "ContactPoint",
+                email: "support@swaply.app",
+              },
+            }),
+          }}
+        />
       </head>
       {process.env.NEXT_PUBLIC_GA_ID && (
         <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
