@@ -35,48 +35,41 @@ export function useSavedSearches(userId: string | undefined) {
   const [loading, setLoading] = useState(false);
   const fetchedRef = useRef(false);
 
+  const fetchData = useCallback(async (uid: string) => {
+    const sb = getSupabaseClient();
+    if (!sb) return;
+
+    setLoading(true);
+    const { data } = await sb
+      .from("saved_searches")
+      .select("*")
+      .eq("user_id", uid)
+      .order("created_at", { ascending: false });
+
+    if (data) {
+      const { data: counts } = await sb
+        .from("saved_search_notifications")
+        .select("saved_search_id")
+        .eq("seen", false)
+        .in("saved_search_id", data.map((s) => s.id));
+
+      const countMap = new Map<string, number>();
+      counts?.forEach((n) => {
+        countMap.set(n.saved_search_id, (countMap.get(n.saved_search_id) ?? 0) + 1);
+      });
+
+      setSearches(
+        data.map((s) => ({ ...s, new_count: countMap.get(s.id) ?? 0 }))
+      );
+    }
+    setLoading(false);
+  }, []);
+
   useEffect(() => {
     if (!userId || fetchedRef.current) return;
     fetchedRef.current = true;
-    let cancelled = false;
-
-    async function doFetch() {
-      const sb = getSupabaseClient();
-      if (!sb) return;
-
-      setLoading(true);
-      const { data } = await sb
-        .from("saved_searches")
-        .select("*")
-        .eq("user_id", userId)
-        .order("created_at", { ascending: false });
-
-      if (cancelled) return;
-
-      if (data) {
-        const { data: counts } = await sb
-          .from("saved_search_notifications")
-          .select("saved_search_id")
-          .eq("seen", false)
-          .in("saved_search_id", data.map((s) => s.id));
-
-        if (cancelled) return;
-
-        const countMap = new Map<string, number>();
-        counts?.forEach((n) => {
-          countMap.set(n.saved_search_id, (countMap.get(n.saved_search_id) ?? 0) + 1);
-        });
-
-        setSearches(
-          data.map((s) => ({ ...s, new_count: countMap.get(s.id) ?? 0 }))
-        );
-      }
-      setLoading(false);
-    }
-
-    void doFetch();
-    return () => { cancelled = true; };
-  }, [userId]);
+    void fetchData(userId);
+  }, [userId, fetchData]);
 
   const createSearch = useCallback(
     async (name: string, filters: SavedSearchFilters) => {
@@ -156,6 +149,6 @@ export function useSavedSearches(userId: string | undefined) {
     deleteSearch,
     toggleAlert,
     markNotificationsSeen,
-    refetch: fetchSearches,
+    refetch: () => userId ? fetchData(userId) : Promise.resolve(),
   };
 }
