@@ -199,6 +199,54 @@ export interface SwapIntent {
   updatedAt?: string;
 }
 
+/** House swap terms — persisted in swap_house_terms table */
+export interface SwapHouseTerms {
+  id: string;
+  swapId: string;
+  propertyType?: string;
+  rooms?: number;
+  rules?: string;
+  intervalStart?: string;
+  intervalEnd?: string;
+  simultaneous?: boolean;
+  inventory?: string;
+  emergencyContact?: string;
+  inspectionNotes?: string;
+  createdAt?: string;
+}
+
+/** Service swap terms — persisted in swap_service_terms table */
+export interface SwapServiceTerms {
+  id: string;
+  swapId: string;
+  skill: string;
+  level?: "beginner" | "intermediate" | "expert";
+  deliveryMode?: "remote" | "in_person" | "hybrid";
+  milestones?: Array<{ title: string; done: boolean }>;
+  portfolioUrl?: string;
+  estimatedHours?: number;
+  createdAt?: string;
+}
+
+/** Audit trail event — persisted in swap_events table */
+export interface SwapEvent {
+  id: string;
+  swapId: string;
+  actorId: string;
+  action: string;
+  fromStatus?: string;
+  toStatus?: string;
+  metadata?: Record<string, unknown>;
+  createdAt?: string;
+}
+
+/** Typed metadata stored in swaps.swap_metadata */
+export interface SwapMetadata {
+  objectDetails?: { condition: string; accessories: string[] };
+  houseDetails?: Omit<SwapHouseTerms, "id" | "swapId" | "createdAt">;
+  serviceDetails?: Omit<SwapServiceTerms, "id" | "swapId" | "createdAt">;
+}
+
 export interface Announcement {
   id: string;
   message: string;
