@@ -28,21 +28,16 @@ function writeLocalStorage(ids: Set<string>) {
  */
 export function useFavorites(userId: string | null | undefined) {
   const [favoriteIds, setFavoriteIds] = useState<Set<string>>(readLocalStorage);
-  const [loaded, setLoaded] = useState(false);
+  const needsFetch = !!userId && !!getSupabaseClient();
+  const [loaded, setLoaded] = useState(!needsFetch);
   const migratedRef = useRef(false);
 
   // --- Hydrate from Supabase when user is logged in ---
   useEffect(() => {
-    if (!userId) {
-      setLoaded(true);
-      return;
-    }
+    if (!userId) return;
 
     const sb = getSupabaseClient();
-    if (!sb) {
-      setLoaded(true);
-      return;
-    }
+    if (!sb) return;
 
     let cancelled = false;
 
