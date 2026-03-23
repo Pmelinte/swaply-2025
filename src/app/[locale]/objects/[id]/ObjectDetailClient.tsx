@@ -165,7 +165,7 @@ export default function ObjectDetailClient() {
   }, []);
 
   const itemLang = item ? detectLang(`${item.title} ${item.description ?? ""}`) : "en";
-  const needsTranslation = item ? itemLang !== locale : false;
+  const needsTranslation = !!item;
 
   const handleTranslateAll = useCallback(async () => {
     if (showTranslation || !item) {
