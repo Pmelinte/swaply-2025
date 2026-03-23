@@ -86,7 +86,7 @@ function UsersContent() {
       }
       setActionLoading(null);
     },
-    [changeBadge],
+    [changeBadge, t],
   );
 
   const handleSuspend = useCallback(
@@ -108,7 +108,7 @@ function UsersContent() {
       }
       setActionLoading(null);
     },
-    [suspendUser],
+    [suspendUser, t],
   );
 
   const handleBan = useCallback(
@@ -129,7 +129,7 @@ function UsersContent() {
       }
       setActionLoading(null);
     },
-    [banUser],
+    [banUser, t],
   );
 
   const handleUnban = useCallback(
@@ -149,7 +149,7 @@ function UsersContent() {
       }
       setActionLoading(null);
     },
-    [unbanUser],
+    [unbanUser, t],
   );
 
   return (

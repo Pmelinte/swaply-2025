@@ -192,6 +192,7 @@ function ReportsContent() {
       toggleItemActive,
       insertModerationAction,
       fetchReports,
+      t,
     ],
   );
 

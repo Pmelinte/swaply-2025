@@ -112,7 +112,7 @@ function ItemsContent() {
       }
       setActionLoading(null);
     },
-    [toggleItemActive],
+    [toggleItemActive, t],
   );
 
   const handleDelete = useCallback(
@@ -133,7 +133,7 @@ function ItemsContent() {
       }
       setActionLoading(null);
     },
-    [deleteItem],
+    [deleteItem, t],
   );
 
   const handleToggleDemo = useCallback(
@@ -151,7 +151,7 @@ function ItemsContent() {
       }
       setActionLoading(null);
     },
-    [toggleItemDemo],
+    [toggleItemDemo, t],
   );
 
   return (
