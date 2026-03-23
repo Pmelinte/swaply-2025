@@ -4,26 +4,23 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
-import { Bell, ChevronDown, LogOut } from "lucide-react";
+import { ChevronDown, LogOut } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { locales, languageNames, localeFlagUrl, type Locale } from "@/i18n/config";
 import type { LanguageCode } from "@/lib/types";
 import { TokensDisplay } from "@/components/tokens/TokensDisplay";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 
 export function TopBar() {
   const t = useTranslations();
   const router = useRouter();
-  const { user, logout, language, setLanguage, notifications, markNotificationRead, clearNotifications } =
+  const { user, logout, language, setLanguage } =
     useAppState();
   const [loggingOut, setLoggingOut] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const [langSearch, setLangSearch] = useState("");
-  const [notifOpen, setNotifOpen] = useState(false);
   const langRef = useRef<HTMLDivElement>(null);
-  const notifRef = useRef<HTMLDivElement>(null);
-
-  const unread = notifications.filter((n) => !n.read).length;
 
   const handleLogout = async () => {
     setLoggingOut(true);
@@ -42,13 +39,10 @@ export function TopBar() {
         setLangOpen(false);
         setLangSearch("");
       }
-      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
-        setNotifOpen(false);
-      }
     }
-    if (langOpen || notifOpen) document.addEventListener("mousedown", handleClick);
+    if (langOpen) document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
-  }, [langOpen, notifOpen]);
+  }, [langOpen]);
 
   const filteredLocales = locales.filter((loc) => {
     if (!langSearch) return true;
@@ -142,78 +136,7 @@ export function TopBar() {
               <TokensDisplay />
 
               {/* Bell / Notifications */}
-              <div ref={notifRef} className="relative">
-                <button
-                  type="button"
-                  onClick={() => setNotifOpen((prev) => !prev)}
-                  className="relative inline-flex items-center justify-center rounded-full p-2 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
-                  title={t("notifications.title")}
-                  aria-label={t("notifications.title")}
-                >
-                  <Bell className="h-5 w-5" />
-                  {unread > 0 && (
-                    <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
-                      {unread > 9 ? "9+" : unread}
-                    </span>
-                  )}
-                </button>
-
-                {notifOpen && (
-                  <div className="absolute right-0 top-full z-30 mt-1 w-80 rounded-xl border border-zinc-200 bg-white shadow-lg dark:border-zinc-700 dark:bg-zinc-800">
-                    <div className="flex items-center justify-between border-b border-zinc-100 px-4 py-2.5 dark:border-zinc-700">
-                      <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
-                        {t("notifications.title")}
-                      </span>
-                      {notifications.length > 0 && (
-                        <button
-                          type="button"
-                          onClick={() => clearNotifications()}
-                          className="text-[11px] font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400"
-                        >
-                          {t("notifications.clearAll")}
-                        </button>
-                      )}
-                    </div>
-                    <div className="max-h-80 overflow-y-auto">
-                      {notifications.length > 0 ? (
-                        notifications.slice(0, 10).map((n) => (
-                          <button
-                            key={n.id}
-                            type="button"
-                            onClick={() => void markNotificationRead(n.id)}
-                            className={`w-full border-b border-zinc-50 px-4 py-3 text-left transition last:border-0 dark:border-zinc-700/50 ${
-                              n.read ? "opacity-50" : ""
-                            } ${
-                              n.priority === "warning"
-                                ? "hover:bg-amber-50 dark:hover:bg-amber-900/20"
-                                : n.priority === "success"
-                                  ? "hover:bg-green-50 dark:hover:bg-green-900/20"
-                                  : "hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                            }`}
-                          >
-                            <div className="flex items-start gap-2">
-                              <span
-                                className={`mt-1.5 inline-block h-2 w-2 shrink-0 rounded-full ${
-                                  n.priority === "warning"
-                                    ? "bg-amber-400"
-                                    : n.priority === "success"
-                                      ? "bg-green-400"
-                                      : "bg-blue-400"
-                                }`}
-                              />
-                              <span className="text-xs text-zinc-700 dark:text-zinc-200">{n.message}</span>
-                            </div>
-                          </button>
-                        ))
-                      ) : (
-                        <div className="px-4 py-6 text-center text-xs text-zinc-400">
-                          {t("notifications.empty")}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
+              <NotificationBell userId={user.id} />
 
               {/* Profile avatar */}
               <Link
