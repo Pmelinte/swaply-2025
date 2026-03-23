@@ -6,12 +6,14 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { useFavorites } from "@/hooks/useFavorites";
+import { useSavedSearches } from "@/hooks/useSavedSearches";
 import { NO_IMAGE_URL } from "@/lib/storage";
 import { SafeImage } from "@/components/SafeImage";
 import { CTAButton, Pill } from "@/components/ui";
 import { AdBanner } from "@/components/AdBanner";
 import { GuestBanner } from "@/components/GuestBanner";
 import { AuthGateModal } from "@/components/AuthGateModal";
+import { SaveSearchModal } from "@/components/SaveSearchModal";
 import { SwipeCard } from "@/features/items/SwipeCard";
 import type { Item, ListingType } from "@/lib/types";
 import {
@@ -30,6 +32,7 @@ import {
   Wrench,
   Heart,
   Undo2,
+  Bell,
 } from "lucide-react";
 
 const MAX_RIGHT_SWIPES = 3;
@@ -237,8 +240,10 @@ export default function ObjectsPage() {
   const searchParams = useSearchParams();
   const { user, items, loading } = useAppState();
   const { favoriteIds: favorites, toggleFavorite } = useFavorites(user?.id);
+  const { createSearch } = useSavedSearches(user?.id);
   const t = useTranslations("objects");
   const tc = useTranslations("common");
+  const tss = useTranslations("savedSearches");
 
   const initialTypeFromUrl = searchParams.get("type");
   const initialListingType: ListingType | "all" =
@@ -258,6 +263,8 @@ export default function ObjectsPage() {
   const [locationFilter, setLocationFilter] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [listingTypeFilter, setListingTypeFilter] = useState<ListingType | "all">(initialListingType);
+  const [saveSearchOpen, setSaveSearchOpen] = useState(false);
+  const [searchSavedToast, setSearchSavedToast] = useState(false);
 
   // --- Infinite scroll for browse ---
   const [visibleCount, setVisibleCount] = useState(20);
@@ -611,6 +618,18 @@ export default function ObjectsPage() {
               <option value="popular">Popular</option>
               <option value="trusted">Trust ridicat</option>
             </select>
+
+            {/* Save search alert button */}
+            {user && hasFilters && (
+              <button
+                type="button"
+                onClick={() => setSaveSearchOpen(true)}
+                className="inline-flex items-center gap-1 rounded-lg bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700 transition hover:bg-amber-100 dark:bg-amber-900/30 dark:text-amber-300 dark:hover:bg-amber-900/50"
+              >
+                <Bell className="h-3.5 w-3.5" />
+                {tss("saveSearch")}
+              </button>
+            )}
           </>
         )}
       </div>
@@ -1126,6 +1145,32 @@ export default function ObjectsPage() {
         </>
       )}
     </div>
+
+    {/* Save search modal */}
+    <SaveSearchModal
+      open={saveSearchOpen}
+      onClose={() => setSaveSearchOpen(false)}
+      onSave={async (name, filters) => {
+        await createSearch(name, filters);
+        setSearchSavedToast(true);
+        setTimeout(() => setSearchSavedToast(false), 3000);
+      }}
+      filters={{
+        category: categoryFilter,
+        city: locationFilter || null,
+        keywords: search || null,
+        listingType: listingTypeFilter !== "all" ? listingTypeFilter : null,
+        condition: conditionFilter,
+      }}
+    />
+
+    {/* Toast */}
+    {searchSavedToast && (
+      <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-xl bg-green-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg">
+        <Bell className="mr-1.5 inline h-4 w-4" />
+        {tss("searchSaved")}
+      </div>
+    )}
     </div>
   );
 }
