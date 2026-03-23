@@ -92,20 +92,53 @@ export function useSwapActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
       if (!swapId) return;
       setLastError(null);
       const existing = swaps.find((s) => s.id === swapId);
+      const previousStatus = existing?.status;
       const nextNotifications = [...(existing?.notifications ?? []), `Status actualizat: ${status}`];
 
+      // Optimistic update
+      setSwaps((prev) => prev.map((s) => s.id === swapId ? { ...s, status, notifications: nextNotifications } : s));
+
       if (dataSource === "supabase" && supabase) {
-        const { data, error } = await supabase.from("swaps")
-          .update({ status, notifications: nextNotifications, updated_at: new Date().toISOString() })
-          .eq("id", swapId).select("*").maybeSingle();
-        if (error) { setLastError(error.message); return; }
-        if (data) { const mapped = mapSwapIntent(data); setSwaps((prev) => prev.map((s) => s.id === swapId ? mapped : s)); }
-        sendAuditLog({ userId: user?.id ?? "", action: "swap.status_changed", entityType: "swap", entityId: swapId, oldData: { status: existing?.status }, newData: { status } });
+        try {
+          // Call server-side state machine for validated transition
+          const session = await supabase.auth.getSession();
+          const accessToken = session.data.session?.access_token;
+
+          const res = await fetch("/api/swaps/transition", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+            },
+            body: JSON.stringify({ swapId, toStatus: status }),
+          });
+
+          const result = await res.json();
+          if (!res.ok) {
+            // Rollback optimistic update
+            setSwaps((prev) => prev.map((s) => s.id === swapId ? { ...s, status: previousStatus ?? s.status, notifications: existing?.notifications ?? s.notifications } : s));
+            setLastError(result.error ?? "Transition failed");
+            return;
+          }
+
+          // Apply server-confirmed data
+          if (result.swap) {
+            const mapped = mapSwapIntent(result.swap);
+            setSwaps((prev) => prev.map((s) => s.id === swapId ? mapped : s));
+          }
+        } catch (err) {
+          // Rollback on network error
+          setSwaps((prev) => prev.map((s) => s.id === swapId ? { ...s, status: previousStatus ?? s.status, notifications: existing?.notifications ?? s.notifications } : s));
+          setLastError(err instanceof Error ? err.message : "Network error");
+          return;
+        }
+
+        sendAuditLog({ userId: user?.id ?? "", action: "swap.status_changed", entityType: "swap", entityId: swapId, oldData: { status: previousStatus }, newData: { status } });
         return;
       }
 
-      setSwaps((prev) => prev.map((s) => s.id === swapId ? { ...s, status, notifications: nextNotifications } : s));
-      sendAuditLog({ userId: user?.id ?? "", action: "swap.status_changed", entityType: "swap", entityId: swapId, oldData: { status: existing?.status }, newData: { status } });
+      // Mock/local fallback — no server validation
+      sendAuditLog({ userId: user?.id ?? "", action: "swap.status_changed", entityType: "swap", entityId: swapId, oldData: { status: previousStatus }, newData: { status } });
 
       const statusMessages: Record<string, string> = {
         accepted: "Schimbul a fost acceptat!",
@@ -180,6 +213,10 @@ export function useSwapActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
     const field = side === "requester" ? "requesterConfirmed" : "responderConfirmed";
     const otherConfirmed = side === "requester" ? swap.responderConfirmed : swap.requesterConfirmed;
 
+    // Determine which delivery status to transition to
+    const isFirstDelivery = !swap.requesterConfirmed && !swap.responderConfirmed;
+    const deliveryStatus = isFirstDelivery ? "delivered_by_a" : "delivered_by_b";
+
     const updated = { ...swap, [field]: true };
     if (otherConfirmed) {
       updated.status = "completed";
@@ -191,13 +228,29 @@ export function useSwapActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
     setSwaps((prev) => prev.map((s) => s.id === swapId ? updated : s));
 
     if (dataSource === "supabase" && supabase) {
-      const payload: Record<string, unknown> = {
-        [side === "requester" ? "requester_confirmed" : "responder_confirmed"]: true,
+      const dbField = side === "requester" ? "requester_confirmed" : "responder_confirmed";
+      await supabase.from("swaps").update({
+        [dbField]: true,
         notifications: updated.notifications,
         updated_at: new Date().toISOString(),
-      };
-      if (otherConfirmed) payload.status = "completed";
-      await supabase.from("swaps").update(payload).eq("id", swapId);
+      }).eq("id", swapId);
+
+      // Use server-side state machine for the status transition
+      const targetStatus = otherConfirmed ? "completed" : deliveryStatus;
+      try {
+        const session = await supabase.auth.getSession();
+        const accessToken = session.data.session?.access_token;
+        await fetch("/api/swaps/transition", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+          },
+          body: JSON.stringify({ swapId, toStatus: targetStatus }),
+        });
+      } catch {
+        // confirmation fields saved, status transition logged as best-effort
+      }
     }
 
     trackEvent("swap_delivery_confirmed", { swapId, side });
@@ -233,12 +286,34 @@ export function useSwapActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
     setSwaps((prev) => prev.map((s) => s.id === swapId ? updated : s));
 
     if (dataSource === "supabase" && supabase) {
+      // Save dispute data first
       await supabase.from("swaps").update({
-        status: "disputed",
         dispute,
         notifications: updated.notifications,
         updated_at: new Date().toISOString(),
       }).eq("id", swapId);
+
+      // Use server-side state machine for status → disputed
+      try {
+        const session = await supabase.auth.getSession();
+        const accessToken = session.data.session?.access_token;
+        const res = await fetch("/api/swaps/transition", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+          },
+          body: JSON.stringify({ swapId, toStatus: "disputed" }),
+        });
+        if (!res.ok) {
+          // Rollback optimistic update
+          setSwaps((prev) => prev.map((s) => s.id === swapId ? swap : s));
+          return;
+        }
+      } catch {
+        setSwaps((prev) => prev.map((s) => s.id === swapId ? swap : s));
+        return;
+      }
     }
 
     setNotifications((prev) => [{
