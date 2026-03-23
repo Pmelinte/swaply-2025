@@ -274,7 +274,7 @@ export default async function CityPage({ params }: Props) {
               className="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-600 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:border-blue-600 dark:hover:bg-blue-900/20"
             >
               <Tag className="h-3 w-3" />
-              {cat.nameRo}
+              {cat.nameLocal}
             </Link>
           ))}
         </div>

@@ -197,21 +197,21 @@ const LAST_NAMES = [
 ];
 
 const WISHLISTS = [
-  "Electronică sau gadget-uri", "Cărți sau jocuri de societate", "Echipament sport",
-  "Mobilă sau accesorii casă", "Instrumente muzicale", "Cursuri online",
-  "Obiecte artizanale", "Unelte bricolaj", "Haine brand", "Bijuterii handmade",
-  "Aparatură foto", "Bicicletă sau trotinetă", "Echipament camping",
-  "Set bucătărie profesional", "Puzzle-uri sau Lego", "Orice interesant",
-  "Servicii design grafic", "Lecții de muzică", "Cazare la mare sau munte",
-  "Schimb de servicii IT",
+  "Electronics or gadgets", "Books or board games", "Sports equipment",
+  "Furniture or home accessories", "Musical instruments", "Online courses",
+  "Handcrafted items", "DIY tools", "Brand clothing", "Handmade jewelry",
+  "Photography gear", "Bicycle or scooter", "Camping equipment",
+  "Professional kitchen set", "Puzzles or Lego", "Anything interesting",
+  "Graphic design services", "Music lessons", "Beach or mountain accommodation",
+  "IT service exchange",
 ];
 
 const DESCRIPTIONS_SUFFIX = [
-  "Stare excelentă, puțin folosit.", "Funcționează perfect.", "Câteva urme de utilizare.",
-  "Ca nou, folosit doar câteva luni.", "Include toate accesoriile originale.",
-  "Ideal pentru cadou.", "Preț de magazin mult mai mare.", "Rare, greu de găsit.",
-  "Perfect pentru colecționari.", "Disponibil imediat.", "Negociabil.",
-  "Accept și schimb parțial + diferență.", "Ambalaj original inclus.",
+  "Excellent condition, barely used.", "Works perfectly.", "Some signs of use.",
+  "Like new, used only a few months.", "Includes all original accessories.",
+  "Ideal for a gift.", "Store price much higher.", "Rare, hard to find.",
+  "Perfect for collectors.", "Available immediately.", "Negotiable.",
+  "Also accept partial swap + difference.", "Original packaging included.",
 ];
 
 const UNSPLASH_IDS = [
@@ -268,11 +268,11 @@ export function generateDemoData(itemCount: number = 10_000, seed: number = 42):
       displayName: `${fn} ${ln}`,
       firstName: fn,
       avatarUrl: `https://ui-avatars.com/api/?name=${fn}+${ln}&background=random`,
-      bio: `Utilizator Swaply din ${loc.city}. Pasionat de schimburi echitabile.`,
+      bio: `Swaply user from ${loc.city}. Passionate about fair swaps.`,
       languages: ["ro", ...(rand() > 0.5 ? ["en" as const] : []), ...(rand() > 0.8 ? [pick(["fr", "de", "es", "it", "hu"] as const)] : [])],
       badge,
       location: {
-        country: "România",
+        country: loc.region,
         region: loc.region,
         city: loc.city,
         postalCode: `${randInt(100000, 999999)}`,
@@ -288,7 +288,7 @@ export function generateDemoData(itemCount: number = 10_000, seed: number = 42):
       notifications: { email: true, push: rand() > 0.3, chat: true, matches: true, swapUpdates: true },
       swapPreferences: {
         logistics: pick(["in_person", "courier", "flexible"]),
-        notes: rand() > 0.5 ? "Prefer zone publice pentru întâlniri." : undefined,
+        notes: rand() > 0.5 ? "Prefer public places for meetups." : undefined,
       },
       security: {
         twoFactorEnabled: rand() > 0.7,
@@ -329,17 +329,17 @@ export function generateDemoData(itemCount: number = 10_000, seed: number = 42):
 
     if (listingType === "object") {
       category = pick(OBJECT_CATEGORIES);
-      const catTitles = OBJECT_TITLES[category] ?? OBJECT_TITLES["Electronică"];
+      const catTitles = OBJECT_TITLES[category] ?? OBJECT_TITLES["Electronics"];
       title = pick(catTitles);
       description = `${title}. ${pick(DESCRIPTIONS_SUFFIX)}`;
     } else if (listingType === "property") {
       title = pick(PROPERTY_TITLES);
-      category = "Cazare";
-      description = `${title} în ${loc.city}. ${pick(DESCRIPTIONS_SUFFIX)}`;
+      category = "Accommodation";
+      description = `${title} in ${loc.city}. ${pick(DESCRIPTIONS_SUFFIX)}`;
     } else {
       title = pick(SERVICE_TITLES);
-      category = pick(["Educație", "IT & Tech", "Sănătate", "Artă", "Sport"]);
-      description = `${title} — experiență ${pick(["2", "3", "5", "8", "10"])} ani. ${pick(DESCRIPTIONS_SUFFIX)}`;
+      category = pick(["Education", "IT & Tech", "Health", "Art", "Sport"]);
+      description = `${title} — ${pick(["2", "3", "5", "8", "10"])} years experience. ${pick(DESCRIPTIONS_SUFFIX)}`;
     }
 
     const item: Item = {
@@ -379,10 +379,10 @@ export function generateDemoData(itemCount: number = 10_000, seed: number = 42):
         squareMeters: randInt(30, 200),
         amenities: pickN(AMENITIES, randInt(3, 8)) as HouseAmenity[],
         rules: pickN(RULES, randInt(1, 3)) as HouseRule[],
-        description: `Proprietate în ${loc.city}, ${loc.region}.`,
-        neighborhood: `Zonă liniștită, acces facil la transport.`,
-        nearbyAttractions: `Centre comerciale, parcuri, restaurante.`,
-        transport: `Transport public la ${randInt(2, 15)} min.`,
+        description: `Property in ${loc.city}, ${loc.region}.`,
+        neighborhood: `Quiet area, easy access to transport.`,
+        nearbyAttractions: `Shopping centers, parks, restaurants.`,
+        transport: `Public transport ${randInt(2, 15)} min away.`,
         photos: [`https://images.unsplash.com/${pick(UNSPLASH_IDS)}?w=400`],
         availableDates: [{ from: "2026-03-01", to: "2026-12-31" }],
         minStayDays: pick([2, 3, 5, 7]),
@@ -415,16 +415,16 @@ export function generateDemoData(itemCount: number = 10_000, seed: number = 42):
   const matches: MatchCandidate[] = [];
 
   const reasonTemplates = [
-    "Categorii reciproc compatibile",
-    "Wishlist-ul se potrivește cu oferta",
-    "Valoare percepută apropiată",
-    "Aceeași locație — logistică simplă",
-    "Intenție de schimb compatibilă",
-    "Flexibilitate ridicată la ambele părți",
-    "Tag-uri comune detectate",
-    "Condiție similară a obiectelor",
-    "Subcategorii înrudite",
-    "Destinatar potrivit pentru obiect sentimental",
+    "Mutually compatible categories",
+    "Wishlist matches the offer",
+    "Similar perceived value",
+    "Same location — simple logistics",
+    "Compatible swap intent",
+    "High flexibility on both sides",
+    "Common tags detected",
+    "Similar item condition",
+    "Related subcategories",
+    "Suitable recipient for sentimental item",
   ];
 
   for (let i = 0; i < matchCount; i++) {

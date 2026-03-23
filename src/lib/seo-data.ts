@@ -10,8 +10,8 @@ export interface SEOCategory {
   name: string;
   /** Exact value stored in the items.category column in Supabase */
   dbCategory: string;
-  /** Romanian display name for H1/titles */
-  nameRo: string;
+  /** Localized display name for H1/titles */
+  nameLocal: string;
   /** Unique intro paragraph (150-200 words) */
   intro: string;
   /** Related category slugs for internal linking */
@@ -25,9 +25,9 @@ export const SEO_CATEGORIES: SEOCategory[] = [
     slug: "electronics",
     name: "Electronics",
     dbCategory: "Electronică",
-    nameRo: "Electronică",
+    nameLocal: "Electronics",
     intro:
-      "Telefoane, laptopuri, console de jocuri, căști și gadget-uri — electronicele sunt cele mai schimbate obiecte pe Swaply. Ciclul rapid de upgrade face ca milioane de dispozitive funcționale să rămână neutilizate în sertare. În loc să le vinzi la preț redus sau să le arunci, le poți schimba direct pe alt dispozitiv de care ai nevoie. Un iPhone din generația anterioară poate deveni un monitor de gaming. O tabletă veche poate deveni o pereche de căști wireless premium. Pe Swaply, algoritmul AI analizează starea, marca și valoarea estimată pentru a-ți sugera cele mai echitabile potriviri. Nu plătești comisioane și nu aștepți cumpărători — doar schimb direct, rapid și sigur.",
+      "Phones, laptops, gaming consoles, headphones, and gadgets — electronics are the most swapped items on Swaply. The rapid upgrade cycle leaves millions of functional devices unused in drawers. Instead of selling at a discount or throwing them away, you can swap them directly for another device you need. A previous-gen iPhone can become a gaming monitor. An old tablet can become premium wireless headphones. On Swaply, the AI algorithm analyzes condition, brand, and estimated value to suggest the fairest matches. No commissions, no waiting for buyers — just direct, fast, and safe swaps.",
     related: ["toys", "music", "tools"],
     icon: "monitor",
   },
@@ -35,9 +35,9 @@ export const SEO_CATEGORIES: SEOCategory[] = [
     slug: "sport",
     name: "Sport",
     dbCategory: "Sport & Outdoor",
-    nameRo: "Sport & Outdoor",
+    nameLocal: "Sport & Outdoor",
     intro:
-      "Biciclete, echipament de fitness, trotinete, ski-uri, echipament de camping și tot ce ține de sport și activități în aer liber. Sezonalitatea sporturilor face barter-ul ideal: iarna schimbi rolele pe ski-uri, vara schimbi sania pe o bicicletă. Echipamentul sportiv de calitate este scump nou, dar își păstrează funcționalitatea ani de zile. Pe Swaply, poți schimba acel set de gantere pe care nu le mai folosești pe o rachetă de tenis, sau trampolina copiilor pe un cort de camping. Comunitatea de sportivi activi din România crește constant pe platformă, iar potrivirile sunt rapide datorită cererii ridicate din această categorie.",
+      "Bicycles, fitness equipment, scooters, skis, camping gear, and everything related to sports and outdoor activities. The seasonal nature of sports makes bartering ideal: in winter swap your rollerblades for skis, in summer swap your sled for a bicycle. Quality sports equipment is expensive when new but retains functionality for years. On Swaply, you can swap those dumbbells you no longer use for a tennis racket, or the kids' trampoline for a camping tent. The active sports community grows constantly on the platform, and matches are quick thanks to high demand in this category.",
     related: ["fashion", "electronics", "garden"],
     icon: "bike",
   },
@@ -45,9 +45,9 @@ export const SEO_CATEGORIES: SEOCategory[] = [
     slug: "arts",
     name: "Arts",
     dbCategory: "Hobby & Jocuri",
-    nameRo: "Artă & Hobby",
+    nameLocal: "Art & Hobby",
     intro:
-      "Instrumente muzicale, echipament de pictură, jocuri de societate, colecții și tot ce ține de hobby-uri creative. Pasiunile se schimbă, dar obiectele rămân. Chitara pe care ai învățat primele acorduri poate deveni un set profesional de acuarele pentru altcineva. Un colț de Lego neutilizat poate deveni un puzzle de 5000 de piese. Categoria Artă & Hobby este una dintre cele mai diverse de pe Swaply — aici găsești de la vinilinuri rare la echipament de fotografie analogică, de la seturi de desen manga la instrumente de ceramică. Fiecare obiect are o poveste, iar prin schimb, acea poveste continuă în mâinile cuiva care îl va folosi cu adevărat.",
+      "Musical instruments, painting equipment, board games, collections, and everything related to creative hobbies. Passions change, but objects remain. The guitar you learned your first chords on can become a professional watercolor set for someone else. An unused Lego corner can become a 5000-piece puzzle. The Art & Hobby category is one of the most diverse on Swaply — here you'll find everything from rare vinyl records to analog photography equipment, from manga drawing sets to ceramics tools. Every item has a story, and through swapping, that story continues in the hands of someone who will truly use it.",
     related: ["books", "music", "toys"],
     icon: "palette",
   },
@@ -55,9 +55,9 @@ export const SEO_CATEGORIES: SEOCategory[] = [
     slug: "books",
     name: "Books",
     dbCategory: "Cărți & Media",
-    nameRo: "Cărți & Media",
+    nameLocal: "Books & Media",
     intro:
-      "Romane, manuale, cărți de dezvoltare personală, benzi desenate, DVD-uri și viniluri. România are una dintre cele mai active comunități de schimb de cărți din Europa. O carte citită o dată nu trebuie să adune praf pe raft — poate ajunge la un cititor care o caută de luni de zile. Pe Swaply, poți schimba un lot de cărți de ficțiune pe un set de manuale universitare, sau colecția ta de DVD-uri pe viniluri clasice. Algoritmul nostru detectează automat titlul, autorul și ediția din fotografie, facilitând listarea rapidă. Categoria include și media fizică: CD-uri, Blu-ray-uri, viniluri și casete — tot ce are valoare pentru colecționari și entuziaști.",
+      "Novels, textbooks, self-help books, comics, DVDs, and vinyl records. Swaply has one of the most active book-swapping communities in Europe. A book read once doesn't need to gather dust on a shelf — it can reach a reader who's been looking for it for months. On Swaply, you can swap a batch of fiction books for a set of university textbooks, or your DVD collection for classic vinyl records. Our algorithm automatically detects the title, author, and edition from the photo, facilitating quick listing. The category also includes physical media: CDs, Blu-rays, vinyl records, and cassettes — everything that has value for collectors and enthusiasts.",
     related: ["arts", "toys", "music"],
     icon: "book-open",
   },
@@ -65,9 +65,9 @@ export const SEO_CATEGORIES: SEOCategory[] = [
     slug: "home",
     name: "Home",
     dbCategory: "Casă & Grădină",
-    nameRo: "Casă & Grădină",
+    nameLocal: "Home & Garden",
     intro:
-      "Mobilier, electrocasnice, decorațiuni, ustensile de bucătărie și tot ce ține de amenajarea casei. Reamenajezi un apartament? În loc să cumperi totul nou, schimbă ce nu mai folosești pe ce ai nevoie. O canapea în stare bună poate deveni un birou ergonomic. Un set de oale profesional poate deveni un aspirator vertical. Barter-ul de mobilier și obiecte casnice este extrem de popular în orașele mari din România, unde apartamentele se renovează constant. Pe Swaply, poți filtra după locație pentru a găsi schimburi locale și a evita costurile de transport pentru piese voluminoase.",
+      "Furniture, appliances, decorations, kitchen utensils, and everything related to home improvement. Redecorating an apartment? Instead of buying everything new, swap what you no longer use for what you need. A couch in good condition can become an ergonomic desk. A professional pot set can become an upright vacuum. Furniture and household item bartering is extremely popular in major cities, where apartments are constantly being renovated. On Swaply, you can filter by location to find local swaps and avoid shipping costs for bulky items.",
     related: ["garden", "tools", "electronics"],
     icon: "home",
   },
@@ -75,9 +75,9 @@ export const SEO_CATEGORIES: SEOCategory[] = [
     slug: "fashion",
     name: "Fashion",
     dbCategory: "Modă & Accesorii",
-    nameRo: "Modă & Accesorii",
+    nameLocal: "Fashion & Accessories",
     intro:
-      "Haine, încălțăminte, genți, ceasuri, bijuterii și accesorii. Fast fashion-ul generează tone de deșeuri textile anual, iar barter-ul este antidotul perfect. Pe Swaply, poți schimba hainele de brand pe care nu le mai porți pe piese noi pentru garderobă, fără să cheltuiești un leu. Categoria include îmbrăcăminte pentru bărbați, femei și copii, încălțăminte de toate tipurile, genți și rucsacuri, ceasuri și bijuterii. Schimbul de haine vintage și de designer este deosebit de popular în rândul tinerilor din Cluj, București și Timișoara. Fiecare schimb de modă este un pas mic spre sustenabilitate.",
+      "Clothes, footwear, bags, watches, jewelry, and accessories. Fast fashion generates tons of textile waste annually, and bartering is the perfect antidote. On Swaply, you can swap brand clothes you no longer wear for new wardrobe pieces without spending a cent. The category includes clothing for men, women, and children, footwear of all types, bags and backpacks, watches and jewelry. Vintage and designer clothing swapping is particularly popular among young people. Every fashion swap is a small step toward sustainability.",
     related: ["sport", "arts", "home"],
     icon: "shirt",
   },
@@ -85,9 +85,9 @@ export const SEO_CATEGORIES: SEOCategory[] = [
     slug: "automotive",
     name: "Automotive",
     dbCategory: "Auto & Moto",
-    nameRo: "Auto & Moto",
+    nameLocal: "Auto & Moto",
     intro:
-      "Piese auto, accesorii moto, anvelope, jante, echipament de întreținere și gadget-uri pentru mașină. Industria auto generează o cantitate enormă de piese reutilizabile care pot fi schimbate în loc să fie casate. Anvelope de iarnă pe care le-ai schimbat pe altele? Schimbă-le pe un set de anvelope de vară. O cameră auto pe care nu o mai folosești poate deveni un set de scule auto. Pe Swaply, categoria Auto & Moto conectează proprietari de mașini și motociclete care vor să facă schimb de piese și accesorii fără intermediari sau service-uri scumpe.",
+      "Auto parts, motorcycle accessories, tires, rims, maintenance equipment, and car gadgets. The automotive industry generates an enormous amount of reusable parts that can be swapped instead of scrapped. Winter tires you've replaced? Swap them for a set of summer tires. A dashcam you no longer use can become a set of auto tools. On Swaply, the Auto & Moto category connects car and motorcycle owners who want to exchange parts and accessories without intermediaries or expensive service centers.",
     related: ["tools", "electronics", "sport"],
     icon: "car",
   },
@@ -95,9 +95,9 @@ export const SEO_CATEGORIES: SEOCategory[] = [
     slug: "music",
     name: "Music",
     dbCategory: "Muzică & Audio",
-    nameRo: "Muzică & Audio",
+    nameLocal: "Music & Audio",
     intro:
-      "Instrumente muzicale, echipament audio, viniluri, pick-up-uri, amplificatoare și accesorii. Muzica este o pasiune care evoluează, iar instrumentele care nu mai sunt folosite merită să ajungă la cineva care le va da viață din nou. Pe Swaply, o chitară acustică pentru începători poate deveni un sintetizator MIDI. Un set de tobe acustice poate deveni un pick-up vintage. Comunitatea muzicală din România este activă și diversă, iar barter-ul de instrumente elimină bariera financiară care împiedică mulți tineri să învețe un instrument nou. Algoritmul AI recunoaște automat marca și modelul instrumentului din fotografie.",
+      "Musical instruments, audio equipment, vinyl records, turntables, amplifiers, and accessories. Music is a passion that evolves, and instruments that are no longer used deserve to reach someone who will bring them to life again. On Swaply, a beginner acoustic guitar can become a MIDI synthesizer. A set of acoustic drums can become a vintage turntable. The musical community is active and diverse, and instrument bartering eliminates the financial barrier that prevents many young people from learning a new instrument. The AI algorithm automatically recognizes the brand and model from the photo.",
     related: ["electronics", "arts", "books"],
     icon: "music",
   },
@@ -105,9 +105,9 @@ export const SEO_CATEGORIES: SEOCategory[] = [
     slug: "garden",
     name: "Garden",
     dbCategory: "Grădinărit & Exterior",
-    nameRo: "Grădinărit & Exterior",
+    nameLocal: "Gardening & Outdoor",
     intro:
-      "Unelte de grădinărit, plante, mobilier de exterior, grătare, decorațiuni de grădină și tot ce ține de spațiul exterior. Primăvara și vara aduc un val de interes pentru grădinărit, iar barter-ul face accesibilă echiparea unei grădini fără investiții mari. Pe Swaply, poți schimba un set de unelte de grădinărit pe butași de plante rare, sau un grătar vechi pe un set de mobilier de terasă. Comunitatea de grădinari amatori din România crește de la an la an, iar schimbul de plante și semințe este una dintre cele mai apreciate forme de barter de pe platformă — natural, ecologic și fără niciun cost.",
+      "Gardening tools, plants, outdoor furniture, barbecues, garden decorations, and everything related to outdoor spaces. Spring and summer bring a wave of interest in gardening, and bartering makes equipping a garden accessible without major investments. On Swaply, you can swap a gardening tool set for rare plant cuttings, or an old barbecue for a set of patio furniture. The amateur gardening community grows year after year, and the exchange of plants and seeds is one of the most appreciated forms of barter on the platform — natural, ecological, and completely free.",
     related: ["home", "tools", "sport"],
     icon: "sprout",
   },
@@ -115,9 +115,9 @@ export const SEO_CATEGORIES: SEOCategory[] = [
     slug: "toys",
     name: "Toys",
     dbCategory: "Jucării & Copii",
-    nameRo: "Jucării & Copii",
+    nameLocal: "Toys & Kids",
     intro:
-      "Jucării, echipamente pentru copii, cărucioare, scaune auto, jocuri educative și tot ce ține de universul copiilor. Copiii cresc rapid, iar jucăriile și echipamentele lor au o durată de utilizare surprinzător de scurtă. Un cărucior folosit 8 luni poate deveni un scaun auto pentru următoarea etapă. Un set de Lego Duplo poate deveni un set Lego Technic. Barter-ul de jucării și echipamente pentru copii este una dintre cele mai active categorii pe Swaply, cu părinți care schimbă constant pe măsură ce micuții lor cresc. Este economie circulară în forma ei cea mai naturală — obiectele circulă de la o familie la alta.",
+      "Toys, children's equipment, strollers, car seats, educational games, and everything related to the children's world. Kids grow fast, and their toys and equipment have a surprisingly short usage period. A stroller used for 8 months can become a car seat for the next stage. A Lego Duplo set can become a Lego Technic set. Toy and children's equipment bartering is one of the most active categories on Swaply, with parents constantly swapping as their little ones grow. It's circular economy in its most natural form — items circulate from one family to another.",
     related: ["books", "electronics", "fashion"],
     icon: "baby",
   },
@@ -125,9 +125,9 @@ export const SEO_CATEGORIES: SEOCategory[] = [
     slug: "tools",
     name: "Tools",
     dbCategory: "Unelte & Bricolaj",
-    nameRo: "Unelte & Bricolaj",
+    nameLocal: "Tools & DIY",
     intro:
-      "Bormasini, seturi de chei, scări, echipament de sudură, unelte electrice și manuale pentru bricolaj. Multe unelte sunt cumpărate pentru un singur proiect și apoi uitate în garaj. Pe Swaply, acea bormaschină pe care ai folosit-o o dată poate deveni un fierăstrău circular de care ai nevoie acum. Un compresor de aer poate deveni un set de scule de precizie. Comunitatea de bricoleuri și meșteșugari din România folosește activ barter-ul pentru a-și extinde arsenalul de unelte fără investiții majore. Categoria include atât unelte electrice profesionale, cât și seturi de mână pentru hobbyiști.",
+      "Drills, wrench sets, ladders, welding equipment, power tools, and hand tools for DIY. Many tools are bought for a single project and then forgotten in the garage. On Swaply, that drill you used once can become a circular saw you need now. An air compressor can become a set of precision tools. The DIY and crafts community actively uses bartering to expand their tool arsenal without major investments. The category includes both professional power tools and hand tool sets for hobbyists.",
     related: ["home", "garden", "automotive"],
     icon: "hammer",
   },
@@ -135,9 +135,9 @@ export const SEO_CATEGORIES: SEOCategory[] = [
     slug: "other",
     name: "Other",
     dbCategory: "Altele",
-    nameRo: "Altele",
+    nameLocal: "Other",
     intro:
-      "Tot ce nu se încadrează într-o categorie specifică are loc aici. De la obiecte de colecție neobișnuite la echipament specializat, de la materiale de artizanat la piese vintage unice. Categoria Altele este spațiul pentru obiectele care sfidează clasificarea tradițională — și tocmai de aceea sunt adesea cele mai interesante schimburi de pe Swaply. Aici poți găsi un glob pământesc vintage, un costum de astronaut pentru petreceri, o mașină de scris funcțională sau un set complet de draperii de teatru. Surprizele sunt garantate, iar algoritmul AI se adaptează pentru a găsi potriviri chiar și pentru cele mai neobișnuite obiecte.",
+      "Everything that doesn't fit into a specific category has a place here. From unusual collectibles to specialized equipment, from craft materials to unique vintage pieces. The Other category is the space for items that defy traditional classification — and that's precisely why they're often the most interesting swaps on Swaply. Here you might find a vintage globe, an astronaut costume for parties, a working typewriter, or a complete set of theater curtains. Surprises are guaranteed, and the AI algorithm adapts to find matches even for the most unusual items.",
     related: ["arts", "home", "toys"],
     icon: "package",
   },
@@ -156,21 +156,21 @@ export interface SEOCity {
 }
 
 export const SEO_CITIES: SEOCity[] = [
-  { slug: "bucuresti", name: "București", county: "București" },
-  { slug: "cluj-napoca", name: "Cluj-Napoca", county: "Cluj" },
-  { slug: "timisoara", name: "Timișoara", county: "Timiș" },
-  { slug: "iasi", name: "Iași", county: "Iași" },
-  { slug: "constanta", name: "Constanța", county: "Constanța" },
-  { slug: "craiova", name: "Craiova", county: "Dolj" },
-  { slug: "brasov", name: "Brașov", county: "Brașov" },
-  { slug: "galati", name: "Galați", county: "Galați" },
-  { slug: "ploiesti", name: "Ploiești", county: "Prahova" },
-  { slug: "oradea", name: "Oradea", county: "Bihor" },
-  { slug: "braila", name: "Brăila", county: "Brăila" },
-  { slug: "arad", name: "Arad", county: "Arad" },
-  { slug: "pitesti", name: "Pitești", county: "Argeș" },
-  { slug: "sibiu", name: "Sibiu", county: "Sibiu" },
-  { slug: "bacau", name: "Bacău", county: "Bacău" },
+  { slug: "london", name: "London", county: "England" },
+  { slug: "berlin", name: "Berlin", county: "Berlin" },
+  { slug: "paris", name: "Paris", county: "Île-de-France" },
+  { slug: "madrid", name: "Madrid", county: "Madrid" },
+  { slug: "rome", name: "Rome", county: "Lazio" },
+  { slug: "amsterdam", name: "Amsterdam", county: "Noord-Holland" },
+  { slug: "vienna", name: "Vienna", county: "Wien" },
+  { slug: "prague", name: "Prague", county: "Praha" },
+  { slug: "stockholm", name: "Stockholm", county: "Stockholm" },
+  { slug: "warsaw", name: "Warsaw", county: "Masovia" },
+  { slug: "budapest", name: "Budapest", county: "Pest" },
+  { slug: "lisbon", name: "Lisbon", county: "Lisboa" },
+  { slug: "barcelona", name: "Barcelona", county: "Catalonia" },
+  { slug: "munich", name: "Munich", county: "Bavaria" },
+  { slug: "milan", name: "Milan", county: "Lombardy" },
 ];
 
 export function getCityBySlug(slug: string): SEOCity | undefined {
