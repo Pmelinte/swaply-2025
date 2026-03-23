@@ -128,7 +128,7 @@ export interface CountryServiceConfig {
 // ── Registry Data ──
 
 const COUNTRY_REGISTRY: CountryServiceConfig[] = [
-  // ── Romania (home market) ──
+  // ── Romania ──
   {
     code: "RO",
     name: "Romania",

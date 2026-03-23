@@ -1,6 +1,6 @@
 /**
  * Categories taxonomy — curated from Google Product Taxonomy,
- * filtered for barter-relevant items, translated to Romanian.
+ * filtered for barter-relevant items, with English display names.
  *
  * Used by:
  * - ItemForm (cascading dropdown)
@@ -15,6 +15,7 @@
 export interface CategoryNode {
   id: string;
   name: string;
+  nameEn?: string;
   parentId: string | null;
   level: number;
   keywords: string[];

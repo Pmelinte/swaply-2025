@@ -88,7 +88,7 @@ async function searchKiwiFlights(params: FlightSearchParams): Promise<FlightResu
     `adults=${params.adults}`,
     `children=${params.children ?? 0}`,
     `curr=${currency}`,
-    `locale=ro`,
+    `locale=en`,
     `partner=${affiliateId}`,
     `limit=10`,
     `sort=price`,
@@ -178,7 +178,7 @@ export function getFlightAffiliateLinks(params: FlightSearchParams): FlightAffil
     {
       provider: "kiwi",
       name: "Kiwi.com",
-      searchUrl: `https://www.kiwi.com/ro/search/results/${encodeURIComponent(params.originCity)}/${encodeURIComponent(params.destinationCity)}/${params.departDate}${params.returnDate ? `/${params.returnDate}` : ""}?adults=${params.adults}`,
+      searchUrl: `https://www.kiwi.com/en/search/results/${encodeURIComponent(params.originCity)}/${encodeURIComponent(params.destinationCity)}/${params.departDate}${params.returnDate ? `/${params.returnDate}` : ""}?adults=${params.adults}`,
       icon: "✈️",
     },
     {
@@ -222,7 +222,7 @@ export function estimateFlightPrice(
   destCountry: string,
 ): { minEur: number; maxEur: number; label: string } {
   if (originCountry === destCountry) {
-    return { minEur: 20, maxEur: 80, label: "Zbor intern" };
+    return { minEur: 20, maxEur: 80, label: "Domestic flight" };
   }
 
   const europeanCountries = new Set([
@@ -232,8 +232,8 @@ export function estimateFlightPrice(
   ]);
 
   if (europeanCountries.has(originCountry) && europeanCountries.has(destCountry)) {
-    return { minEur: 30, maxEur: 200, label: "Zbor european" };
+    return { minEur: 30, maxEur: 200, label: "European flight" };
   }
 
-  return { minEur: 200, maxEur: 800, label: "Zbor internațional" };
+  return { minEur: 200, maxEur: 800, label: "International flight" };
 }

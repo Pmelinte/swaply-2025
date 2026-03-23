@@ -41,27 +41,27 @@ function mulberry32(seed: number) {
 
 /* ─── Catalog data ─── */
 
-const ROMANIAN_CITIES = [
-  { city: "București", region: "Ilfov", lat: 44.43, lng: 26.1 },
-  { city: "Cluj-Napoca", region: "Cluj", lat: 46.77, lng: 23.59 },
-  { city: "Timișoara", region: "Timiș", lat: 45.75, lng: 21.23 },
-  { city: "Iași", region: "Iași", lat: 47.16, lng: 27.58 },
-  { city: "Constanța", region: "Constanța", lat: 44.17, lng: 28.63 },
-  { city: "Brașov", region: "Brașov", lat: 45.65, lng: 25.6 },
-  { city: "Sibiu", region: "Sibiu", lat: 45.79, lng: 24.15 },
-  { city: "Craiova", region: "Dolj", lat: 44.33, lng: 23.8 },
-  { city: "Oradea", region: "Bihor", lat: 47.05, lng: 21.92 },
-  { city: "Galați", region: "Galați", lat: 45.44, lng: 28.05 },
-  { city: "Ploiești", region: "Prahova", lat: 44.94, lng: 26.03 },
-  { city: "Arad", region: "Arad", lat: 46.17, lng: 21.32 },
-  { city: "Pitești", region: "Argeș", lat: 44.86, lng: 24.87 },
-  { city: "Târgu Mureș", region: "Mureș", lat: 46.54, lng: 24.56 },
-  { city: "Baia Mare", region: "Maramureș", lat: 47.66, lng: 23.58 },
-  { city: "Buzău", region: "Buzău", lat: 45.15, lng: 26.82 },
-  { city: "Suceava", region: "Suceava", lat: 47.63, lng: 26.26 },
-  { city: "Bacău", region: "Bacău", lat: 46.58, lng: 26.91 },
-  { city: "Deva", region: "Hunedoara", lat: 45.88, lng: 22.9 },
-  { city: "Alba Iulia", region: "Alba", lat: 46.07, lng: 23.58 },
+const MAJOR_CITIES = [
+  { city: "London", region: "England", lat: 51.51, lng: -0.13 },
+  { city: "New York", region: "New York", lat: 40.71, lng: -74.01 },
+  { city: "Tokyo", region: "Kanto", lat: 35.68, lng: 139.69 },
+  { city: "Sydney", region: "NSW", lat: -33.87, lng: 151.21 },
+  { city: "Toronto", region: "Ontario", lat: 43.65, lng: -79.38 },
+  { city: "São Paulo", region: "São Paulo", lat: -23.55, lng: -46.63 },
+  { city: "Mumbai", region: "Maharashtra", lat: 19.08, lng: 72.88 },
+  { city: "Seoul", region: "Seoul", lat: 37.57, lng: 126.98 },
+  { city: "Mexico City", region: "CDMX", lat: 19.43, lng: -99.13 },
+  { city: "Istanbul", region: "Istanbul", lat: 41.01, lng: 28.98 },
+  { city: "Bangkok", region: "Bangkok", lat: 13.76, lng: 100.50 },
+  { city: "Lagos", region: "Lagos", lat: 6.52, lng: 3.38 },
+  { city: "Cairo", region: "Cairo", lat: 30.04, lng: 31.24 },
+  { city: "Buenos Aires", region: "CABA", lat: -34.60, lng: -58.38 },
+  { city: "Johannesburg", region: "Gauteng", lat: -26.20, lng: 28.05 },
+  { city: "Singapore", region: "Singapore", lat: 1.35, lng: 103.82 },
+  { city: "Dubai", region: "Dubai", lat: 25.20, lng: 55.27 },
+  { city: "Stockholm", region: "Stockholm", lat: 59.33, lng: 18.07 },
+  { city: "Bucharest", region: "Ilfov", lat: 44.43, lng: 26.1 },
+  { city: "Warsaw", region: "Masovia", lat: 52.23, lng: 21.01 },
 ];
 
 const EU_CITIES = [
@@ -77,123 +77,123 @@ const EU_CITIES = [
   { city: "Lisbon", region: "Lisboa", lat: 38.72, lng: -9.14 },
 ];
 
-const ALL_CITIES = [...ROMANIAN_CITIES, ...EU_CITIES];
+const ALL_CITIES = [...MAJOR_CITIES, ...EU_CITIES];
 
 const OBJECT_CATEGORIES = [
-  "Electronică", "Cărți", "Îmbrăcăminte", "Sport & Outdoor", "Casă & Grădină",
-  "Jucării", "Artă", "Muzică", "Vehicule", "Unelte", "Hobby & Jocuri",
-  "Mobilă", "Electronice mici", "Bijuterii", "Fotografie",
+  "Electronics", "Books", "Clothing", "Sport & Outdoor", "Home & Garden",
+  "Toys", "Art", "Music", "Vehicles", "Tools", "Hobby & Games",
+  "Furniture", "Small Electronics", "Jewelry", "Photography",
 ];
 
 const OBJECT_TITLES: Record<string, string[]> = {
-  "Electronică": [
-    "Laptop Dell Inspiron", "Monitor 27'' 4K", "Tastatură mecanică RGB", "Mouse wireless gaming",
-    "Tabletă Samsung Galaxy", "Ceas smart Garmin", "Difuzor Bluetooth JBL", "Consolă PlayStation 4",
-    "Cameră web Logitech", "SSD extern 1TB", "Încărcător wireless", "Căști noise-cancelling",
-    "Router WiFi 6", "Imprimantă color", "Cititor e-book Kindle", "Proiector mini LED",
-    "Stație de andocare USB-C", "Powerbank 20000mAh", "Boxă inteligentă Alexa", "Telecomandă universală",
+  "Electronics": [
+    "Dell Inspiron Laptop", "27'' 4K Monitor", "RGB Mechanical Keyboard", "Wireless Gaming Mouse",
+    "Samsung Galaxy Tablet", "Garmin Smartwatch", "JBL Bluetooth Speaker", "PlayStation 4 Console",
+    "Logitech Webcam", "1TB External SSD", "Wireless Charger", "Noise-cancelling Headphones",
+    "WiFi 6 Router", "Color Printer", "Kindle E-reader", "Mini LED Projector",
+    "USB-C Docking Station", "20000mAh Powerbank", "Alexa Smart Speaker", "Universal Remote",
   ],
-  "Cărți": [
-    "Colecție Harry Potter", "Sapiens – Yuval Noah Harari", "Atlas de anatomie", "Carte de bucate vegane",
-    "Enciclopedie pentru copii", "Trilogia Stăpânul Inelelor", "Ghid de programare Python",
-    "Roman de Paulo Coelho", "Manual de fotografie", "Carte de design grafic",
-    "Dicționar Oxford EN-RO", "Biblia (ediție de lux)", "Colecție reviste National Geographic",
-    "Carte de meditație", "Ghid turistic Europa",
+  "Books": [
+    "Harry Potter Collection", "Sapiens – Yuval Noah Harari", "Anatomy Atlas", "Vegan Cookbook",
+    "Children's Encyclopedia", "Lord of the Rings Trilogy", "Python Programming Guide",
+    "Paulo Coelho Novel", "Photography Manual", "Graphic Design Book",
+    "Oxford Dictionary", "Bible (Luxury Edition)", "National Geographic Collection",
+    "Meditation Book", "Europe Travel Guide",
   ],
-  "Îmbrăcăminte": [
-    "Geacă de iarnă North Face", "Adidași Nike Air Max", "Ceas Casio G-Shock", "Rucsac Osprey 40L",
-    "Pantaloni ski Salomon", "Rochie de seară", "Costum bărbătesc M", "Palton lână Zara",
-    "Bocanci drumeție", "Ochelari de soare Ray-Ban", "Cravată mătase", "Curea piele naturală",
-    "Pulover cașmir", "Șapcă New Era", "Mănuși touchscreen",
+  "Clothing": [
+    "North Face Winter Jacket", "Nike Air Max Sneakers", "Casio G-Shock Watch", "Osprey 40L Backpack",
+    "Salomon Ski Pants", "Evening Dress", "Men's Suit M", "Zara Wool Coat",
+    "Hiking Boots", "Ray-Ban Sunglasses", "Silk Tie", "Genuine Leather Belt",
+    "Cashmere Sweater", "New Era Cap", "Touchscreen Gloves",
   ],
   "Sport & Outdoor": [
-    "Bicicletă urbană", "Set gantere 20kg", "Bandă de alergat", "Corturi camping 4 pers",
-    "Skateboard electric", "Rachete badminton", "Minge fotbal Adidas", "Sac de dormit -10°C",
-    "Caiac gonflabil", "Trotineta electrică", "Aparat fitness multifuncțional", "Set yoga complet",
-    "Rolele inline", "Crose de golf", "Mingii de tenis (set)",
+    "Urban Bicycle", "20kg Dumbbell Set", "Treadmill", "4-Person Camping Tent",
+    "Electric Skateboard", "Badminton Rackets", "Adidas Football", "-10°C Sleeping Bag",
+    "Inflatable Kayak", "Electric Scooter", "Multi-function Fitness Machine", "Complete Yoga Set",
+    "Inline Skates", "Golf Clubs", "Tennis Balls (Set)",
   ],
-  "Casă & Grădină": [
-    "Aspirator robot", "Mașina de spălat vase", "Set de cuțite profesional", "Grill pe gaz Weber",
-    "Set de grădinărit", "Perdele blackout", "Candelabru cristal", "Covor persan 2x3m",
-    "Pernă memory foam", "Uscător de haine", "Robot de bucătărie", "Aparat de făcut pâine",
-    "Set de prosoape bamboo", "Oglindă baie LED", "Masă pliabilă lemn",
+  "Home & Garden": [
+    "Robot Vacuum", "Dishwasher", "Professional Knife Set", "Weber Gas Grill",
+    "Gardening Tool Set", "Blackout Curtains", "Crystal Chandelier", "Persian Rug 2x3m",
+    "Memory Foam Pillow", "Clothes Dryer", "Food Processor", "Bread Maker",
+    "Bamboo Towel Set", "LED Bathroom Mirror", "Foldable Wood Table",
   ],
-  "Jucării": [
-    "Set Lego Technic", "Păpușă Barbie", "Puzzle 3D", "Trenuleț electric",
-    "Robot programabil", "Set chimie copii", "Joc de societate Monopoly", "Nerf Blaster",
-    "Drona mini pentru copii", "Kit construcție K'NEX",
+  "Toys": [
+    "Lego Technic Set", "Barbie Doll", "3D Puzzle", "Electric Train",
+    "Programmable Robot", "Kids Chemistry Set", "Monopoly Board Game", "Nerf Blaster",
+    "Mini Drone for Kids", "K'NEX Construction Kit",
   ],
-  "Artă": [
-    "Set picturi acrilic", "Șevalet profesional", "Tablou artă modernă", "Set ceramică handmade",
-    "Sculptură lemn tradițională", "Kit caligrafie", "Albume foto artizanale",
-    "Set desene pastel", "Gravură pe lemn", "Poster vintage colecție",
+  "Art": [
+    "Acrylic Paint Set", "Professional Easel", "Modern Art Painting", "Handmade Ceramics Set",
+    "Traditional Wood Sculpture", "Calligraphy Kit", "Artisan Photo Albums",
+    "Pastel Drawing Set", "Wood Engraving", "Vintage Poster Collection",
   ],
-  "Muzică": [
-    "Chitară acustică Yamaha", "Pian digital Casio", "Amplificator Marshall", "Mixerul audio 4 canale",
-    "Set tobe electronice", "Vioară 4/4", "Ukulele concert", "Microfon studio USB",
-    "Platane vinyl", "Fluier irland",
+  "Music": [
+    "Yamaha Acoustic Guitar", "Casio Digital Piano", "Marshall Amplifier", "4-Channel Audio Mixer",
+    "Electronic Drum Set", "4/4 Violin", "Concert Ukulele", "USB Studio Microphone",
+    "Vinyl Turntable", "Irish Flute",
   ],
-  "Vehicule": [
-    "Bicicletă mountain bike", "Trotinetă electrică Xiaomi", "Accesorii auto LED",
-    "Portbagaj acoperiș", "Set cauciucuri iarnă", "Suport bicicletă auto",
-    "Kit reparații pneuri", "Husă scaun auto", "Modulator FM Bluetooth",
+  "Vehicles": [
+    "Mountain Bike", "Xiaomi Electric Scooter", "LED Car Accessories",
+    "Roof Rack", "Winter Tire Set", "Car Bike Rack",
+    "Tire Repair Kit", "Car Seat Cover", "Bluetooth FM Transmitter",
   ],
-  "Unelte": [
-    "Bormasina acumulator Bosch", "Set chei tubulare", "Fierăstrău circular",
-    "Polizor unghiular", "Kit sudură", "Banc de lucru", "Set șurubelnițe precision",
-    "Nivel laser", "Compresor aer", "Multi-tool Leatherman",
+  "Tools": [
+    "Bosch Cordless Drill", "Socket Wrench Set", "Circular Saw",
+    "Angle Grinder", "Welding Kit", "Workbench", "Precision Screwdriver Set",
+    "Laser Level", "Air Compressor", "Leatherman Multi-tool",
   ],
-  "Hobby & Jocuri": [
-    "Puzzle 1000 piese", "Set poker profesional", "Drona cu cameră 4K", "Telescop astronomic",
-    "Kit broderie", "Set origami premium", "Cub Rubik speedcube", "Set pinball vintage",
-    "Binoclu Nikon", "Kit aeromodele",
+  "Hobby & Games": [
+    "1000 Piece Puzzle", "Professional Poker Set", "4K Camera Drone", "Astronomical Telescope",
+    "Embroidery Kit", "Premium Origami Set", "Speedcube Rubik's Cube", "Vintage Pinball Set",
+    "Nikon Binoculars", "Model Aircraft Kit",
   ],
-  "Mobilă": [
-    "Birou ergonomic reglabil", "Scaun gaming", "Raft cărți lemn masiv",
-    "Canapea extensibilă", "Dulap hol", "Pat supraetajat copii",
-    "Masă sufragerie extensibilă", "Comodă vintage", "Noptieră minimalistă",
+  "Furniture": [
+    "Adjustable Ergonomic Desk", "Gaming Chair", "Solid Wood Bookshelf",
+    "Sofa Bed", "Hallway Cabinet", "Kids Bunk Bed",
+    "Extendable Dining Table", "Vintage Dresser", "Minimalist Nightstand",
   ],
-  "Electronice mici": [
-    "Ceas fitness Xiaomi", "AirPods replica", "Căști in-ear Sony",
-    "Stick USB 128GB", "Card SD 256GB", "Baterie externă", "Cablu USB-C rapid",
-    "Adaptor universal călătorie", "Termometru digital",
+  "Small Electronics": [
+    "Xiaomi Fitness Watch", "AirPods Replica", "Sony In-ear Headphones",
+    "128GB USB Stick", "256GB SD Card", "Power Bank", "Fast USB-C Cable",
+    "Universal Travel Adapter", "Digital Thermometer",
   ],
-  "Bijuterii": [
-    "Brățară argint handmade", "Colier perle naturale", "Inel logodnă placat aur",
-    "Cercei cristal Swarovski", "Ceas de damă Fossil", "Lanț argint 925",
-    "Broșă vintage", "Set bijuterii oțel inoxidabil",
+  "Jewelry": [
+    "Handmade Silver Bracelet", "Natural Pearl Necklace", "Gold-plated Engagement Ring",
+    "Swarovski Crystal Earrings", "Fossil Women's Watch", "925 Silver Chain",
+    "Vintage Brooch", "Stainless Steel Jewelry Set",
   ],
-  "Fotografie": [
-    "Aparat foto DSLR Canon", "Obiectiv 50mm f/1.8", "Trepied carbon", "Flash extern Godox",
-    "Filtru ND set", "Geantă foto Lowepro", "Stabilizator gimbal", "Kit studio foto",
-    "Drone DJI Mini", "Card CFexpress",
+  "Photography": [
+    "Canon DSLR Camera", "50mm f/1.8 Lens", "Carbon Tripod", "Godox External Flash",
+    "ND Filter Set", "Lowepro Camera Bag", "Gimbal Stabilizer", "Photo Studio Kit",
+    "DJI Mini Drone", "CFexpress Card",
   ],
 };
 
 const PROPERTY_TITLES = [
-  "Apartament 2 camere central", "Vilă la munte", "Cabană Bucovina", "Garsonieră modernă",
-  "Casă cu grădină", "Apartament 3 camere", "Studio design", "Penthouse cu terasă",
-  "Casă tradițională", "Apartament la mare", "Vilă cu piscină", "Cameră în centru",
-  "Apartament Airbnb-ready", "Cabină lemn munte", "Duplex cu curte",
+  "2-Bedroom Central Apartment", "Mountain Villa", "Countryside Cabin", "Modern Studio",
+  "House with Garden", "3-Bedroom Apartment", "Design Studio", "Penthouse with Terrace",
+  "Traditional House", "Seaside Apartment", "Villa with Pool", "Room in City Center",
+  "Airbnb-ready Apartment", "Wooden Mountain Cabin", "Duplex with Yard",
 ];
 
 const SERVICE_TITLES = [
-  "Lecții programare", "Ore de engleză", "Design grafic", "Fotografie profesională",
-  "Masaj terapeutic", "Reparații electrice", "Coaching personal", "Lecții chitară",
-  "Training fitness", "Consultanță IT", "Dezvoltare web", "Lecții pictură",
-  "Meditații matematică", "Traduceri EN-RO", "Lecții de gătit",
+  "Programming Lessons", "English Classes", "Graphic Design", "Professional Photography",
+  "Therapeutic Massage", "Electrical Repairs", "Personal Coaching", "Guitar Lessons",
+  "Fitness Training", "IT Consulting", "Web Development", "Painting Lessons",
+  "Math Tutoring", "Translation Services", "Cooking Lessons",
 ];
 
 const FIRST_NAMES = [
-  "Ana", "Mihai", "Elena", "Alexandru", "Maria", "Andrei", "Ioana", "Cristian",
-  "Andreea", "Vlad", "Diana", "George", "Raluca", "Dan", "Bianca", "Tudor",
-  "Florina", "Bogdan", "Simona", "Radu", "Carmen", "Ion", "Laura", "Cosmin",
-  "Monica", "Adrian", "Alina", "Stefan", "Mara", "Pavel",
+  "Emma", "James", "Sofia", "Lucas", "Yuki", "Mohammed", "Isabella", "Alexander",
+  "Priya", "Noah", "Mei", "Oscar", "Fatima", "Leo", "Amara", "Felix",
+  "Aisha", "Hugo", "Sakura", "Marcus", "Zara", "Ivan", "Luna", "Arjun",
+  "Chloe", "Mateo", "Hana", "Erik", "Maya", "Pavel",
 ];
 const LAST_NAMES = [
-  "Popescu", "Ionescu", "Popa", "Stan", "Stoica", "Gheorghe", "Rusu", "Dumitru",
-  "Munteanu", "Matei", "Marin", "Constantin", "Dobre", "Barbu", "Moldovan",
-  "Toma", "Radu", "Luca", "Crișan", "Mureșan",
+  "Smith", "Garcia", "Kim", "Mueller", "Singh", "Tanaka", "Johnson", "Silva",
+  "Chen", "Martinez", "Petrov", "Ahmed", "Williams", "Nakamura", "Anderson",
+  "Dubois", "Kowalski", "Santos", "Brown", "Sato",
 ];
 
 const WISHLISTS = [

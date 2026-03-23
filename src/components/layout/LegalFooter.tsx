@@ -4,15 +4,15 @@ import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 
 const FOOTER_CITIES = [
-  { slug: "bucuresti", name: "București" },
-  { slug: "cluj-napoca", name: "Cluj" },
-  { slug: "timisoara", name: "Timișoara" },
-  { slug: "iasi", name: "Iași" },
-  { slug: "constanta", name: "Constanța" },
-  { slug: "brasov", name: "Brașov" },
-  { slug: "craiova", name: "Craiova" },
-  { slug: "sibiu", name: "Sibiu" },
-  { slug: "oradea", name: "Oradea" },
+  { slug: "london", name: "London" },
+  { slug: "berlin", name: "Berlin" },
+  { slug: "paris", name: "Paris" },
+  { slug: "madrid", name: "Madrid" },
+  { slug: "rome", name: "Rome" },
+  { slug: "amsterdam", name: "Amsterdam" },
+  { slug: "vienna", name: "Vienna" },
+  { slug: "prague", name: "Prague" },
+  { slug: "stockholm", name: "Stockholm" },
 ];
 
 export function LegalFooter() {
