@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useAppState } from "@/lib/state";
 import { getSupabaseClient } from "@/lib/supabase/client";
@@ -24,6 +25,7 @@ interface OverviewStats {
 }
 
 function AdminOverview() {
+  const t = useTranslations("admin");
   const [stats, setStats] = useState<OverviewStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [showProductControl, setShowProductControl] = useState(false);
@@ -77,7 +79,7 @@ function AdminOverview() {
       {/* Stats grid */}
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-          Statistici platformă
+          {t("platformStats")}
         </h2>
         <button
           type="button"
@@ -88,33 +90,33 @@ function AdminOverview() {
           <RefreshCw
             className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`}
           />
-          Actualizează
+          {t("refresh")}
         </button>
       </div>
 
       {stats ? (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <StatCard
-            label="Utilizatori activi"
+            label={t("activeUsers")}
             value={stats.totalUsers}
             icon={Users}
             color="bg-blue-500"
           />
           <StatCard
-            label="Obiecte active"
+            label={t("activeItems")}
             value={stats.activeItems}
             icon={Package}
             color="bg-emerald-500"
           />
           <StatCard
-            label="Swap-uri în curs"
+            label={t("activeSwaps")}
             value={stats.activeSwaps}
             icon={Repeat2}
             color="bg-violet-500"
           />
           <Link href="/admin/reports">
             <StatCard
-              label="Rapoarte deschise"
+              label={t("openReports")}
               value={stats.openReports}
               icon={Flag}
               color={
@@ -139,18 +141,18 @@ function AdminOverview() {
         {[
           {
             href: "/admin/reports",
-            label: "Rapoarte deschise",
-            desc: "Gestionează rapoartele de abuz",
+            label: t("openReports"),
+            desc: t("manageReports"),
           },
           {
             href: "/admin/users",
-            label: "Utilizatori",
-            desc: "Caută, suspendă, modifică badge",
+            label: t("users"),
+            desc: t("usersDesc"),
           },
           {
             href: "/admin/items",
-            label: "Obiecte",
-            desc: "Activare, dezactivare, demo",
+            label: t("items"),
+            desc: t("itemsDesc"),
           },
         ].map((item) => (
           <Link
@@ -180,8 +182,8 @@ function AdminOverview() {
         >
           <Settings className="h-4 w-4" />
           {showProductControl
-            ? "Ascunde Product Control"
-            : "Afișează Product Control"}
+            ? t("hideProductControl")
+            : t("showProductControl")}
         </button>
         {showProductControl && (
           <div className="mt-4">

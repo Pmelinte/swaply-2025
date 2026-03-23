@@ -18,9 +18,11 @@ const FOOTER_CITIES = [
 export function LegalFooter() {
   const t = useTranslations("legal");
 
+  const tFooter = useTranslations("footer");
+
   const links = [
-    { href: "/about", label: "Despre" },
-    { href: "/pricing", label: "Prețuri" },
+    { href: "/about", label: tFooter("about") },
+    { href: "/pricing", label: tFooter("pricing") },
     { href: "/blog", label: "Blog" },
     { href: "/terms", label: t("termsTitle") },
     { href: "/privacy", label: t("privacyTitle") },
@@ -62,7 +64,7 @@ export function LegalFooter() {
 
         {/* Active cities */}
         <div className="flex flex-wrap items-center justify-center gap-x-1 gap-y-0.5 text-[11px] text-zinc-400 dark:text-zinc-500">
-          <span className="mr-1 font-medium">Orașe active:</span>
+          <span className="mr-1 font-medium">{tFooter("activeCities")}</span>
           {FOOTER_CITIES.map((city, i) => (
             <span key={city.slug} className="inline-flex items-center">
               {i > 0 && <span className="mx-1">|</span>}

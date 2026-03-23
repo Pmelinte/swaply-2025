@@ -5,32 +5,12 @@ import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { Coins, TrendingUp, TrendingDown, X } from "lucide-react";
 
-const REASON_LABELS: Record<string, string> = {
-  welcome_bonus: "Bonus de bun venit",
-  signup_bonus: "Bonus înregistrare",
-  add_item: "Obiect nou adăugat",
-  complete_swap: "Swap finalizat",
-  swap_completed: "Swap finalizat",
-  review: "Review lăsat",
-  daily_login: "Login zilnic",
-  daily_streak: "Streak zilnic",
-  boost_item: "Boost obiect",
-  boost_spent: "Boost cheltuit",
-  referral: "Recomandare",
-  monthly_grant: "Grant lunar",
-  admin_grant: "Grant admin",
-  gift_sent: "Cadou trimis",
-  gift_received: "Cadou primit",
-  purchase: "Achiziție",
-  milestone_bonus: "Bonus milestone",
-  loyalty_reward: "Recompensă loialitate",
-};
-
 export function TokensDisplay() {
   const { user, tokenLedger, tokenBalance } = useAppState();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const t = useTranslations("common");
+  const tReasons = useTranslations("tokenReasons");
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -124,7 +104,7 @@ export function TokensDisplay() {
                       )}
                       <div>
                         <p className="text-xs font-medium text-zinc-700 dark:text-zinc-200">
-                          {REASON_LABELS[entry.reason] ?? entry.reason}
+                          {tReasons.has(entry.reason) ? tReasons(entry.reason) : entry.reason}
                         </p>
                         <p className="text-[10px] text-zinc-400">
                           {new Date(entry.createdAt).toLocaleDateString("ro-RO", {

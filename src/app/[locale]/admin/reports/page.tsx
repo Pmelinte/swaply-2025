@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { AdminGuard } from "@/features/admin/AdminShell";
@@ -41,16 +42,18 @@ const STATUS_COLORS: Record<string, string> = {
   dismissed: "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400",
 };
 
-const REASON_LABELS: Record<string, string> = {
-  spam: "Spam",
-  harassment: "Hărțuire",
-  inappropriate: "Conținut inadecvat",
-  scam: "Înșelătorie",
-  prohibited_item: "Obiect interzis",
-  other: "Altele",
-};
+// REASON_LABELS will be derived from translations inside the component
 
 function ReportsContent() {
+  const t = useTranslations("admin");
+  const REASON_LABELS: Record<string, string> = {
+    spam: t("reasonSpam"),
+    harassment: t("reasonHarassment"),
+    inappropriate: t("reasonInappropriate"),
+    scam: t("reasonScam"),
+    prohibited_item: t("reasonProhibitedItem"),
+    other: t("reasonOther"),
+  };
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("pending");
@@ -174,7 +177,7 @@ function ReportsContent() {
       setActionLoading(false);
 
       if (result.error) {
-        alert(`Eroare: ${result.error}`);
+        alert(`${t("error")}: ${result.error}`);
       } else {
         setSelectedReport(null);
         fetchReports();
@@ -201,13 +204,13 @@ function ReportsContent() {
           className="flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200"
         >
           <ArrowLeft className="h-4 w-4" />
-          Înapoi la rapoarte
+          {t("backToReports")}
         </button>
 
         <div className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
-              Raport #{selectedReport.id.slice(0, 8)}
+              {t("reportId")} #{selectedReport.id.slice(0, 8)}
             </h3>
             <span
               className={`rounded-full px-2.5 py-1 text-xs font-medium ${STATUS_COLORS[selectedReport.status] ?? ""}`}
@@ -218,26 +221,26 @@ function ReportsContent() {
 
           <div className="grid gap-3 text-sm sm:grid-cols-2">
             <div>
-              <p className="text-zinc-500 dark:text-zinc-400">Motiv</p>
+              <p className="text-zinc-500 dark:text-zinc-400">{t("reason")}</p>
               <p className="font-medium text-zinc-900 dark:text-zinc-50">
                 {REASON_LABELS[selectedReport.reason] ?? selectedReport.reason}
               </p>
             </div>
             <div>
-              <p className="text-zinc-500 dark:text-zinc-400">Data</p>
+              <p className="text-zinc-500 dark:text-zinc-400">{t("date")}</p>
               <p className="font-medium text-zinc-900 dark:text-zinc-50">
                 {new Date(selectedReport.created_at).toLocaleString("ro-RO")}
               </p>
             </div>
             <div>
-              <p className="text-zinc-500 dark:text-zinc-400">Reporter ID</p>
+              <p className="text-zinc-500 dark:text-zinc-400">{t("reporterId")}</p>
               <p className="font-mono text-xs text-zinc-700 dark:text-zinc-300">
                 {selectedReport.reporter_id}
               </p>
             </div>
             <div>
               <p className="text-zinc-500 dark:text-zinc-400">
-                Utilizator raportat
+                {t("reportedUser")}
               </p>
               <p className="font-mono text-xs text-zinc-700 dark:text-zinc-300">
                 {selectedReport.reported_user_id ?? "N/A"}
@@ -246,7 +249,7 @@ function ReportsContent() {
             {selectedReport.reported_item_id && (
               <div>
                 <p className="text-zinc-500 dark:text-zinc-400">
-                  Obiect raportat
+                  {t("reportedItem")}
                 </p>
                 <p className="font-mono text-xs text-zinc-700 dark:text-zinc-300">
                   {selectedReport.reported_item_id}
@@ -255,7 +258,7 @@ function ReportsContent() {
             )}
             {selectedReport.description && (
               <div className="sm:col-span-2">
-                <p className="text-zinc-500 dark:text-zinc-400">Descriere</p>
+                <p className="text-zinc-500 dark:text-zinc-400">{t("description")}</p>
                 <p className="mt-1 rounded-lg bg-zinc-50 p-3 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
                   {selectedReport.description}
                 </p>
@@ -269,7 +272,7 @@ function ReportsContent() {
           selectedReport.status !== "dismissed" && (
             <div className="space-y-2">
               <h4 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-                Acțiuni disponibile
+                {t("availableActions")}
               </h4>
               <div className="flex flex-wrap gap-2">
                 <button
@@ -279,7 +282,7 @@ function ReportsContent() {
                   className="flex items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100 disabled:opacity-50 dark:border-blue-800 dark:bg-blue-950/30 dark:text-blue-300"
                 >
                   <Eye className="h-4 w-4" />
-                  Marchează ca investigat
+                  {t("markInvestigated")}
                 </button>
                 <button
                   type="button"
@@ -288,7 +291,7 @@ function ReportsContent() {
                   className="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
                 >
                   <CheckCircle className="h-4 w-4" />
-                  Rezolvă — conținut valid
+                  {t("resolveValid")}
                 </button>
                 {selectedReport.reported_user_id && (
                   <button
@@ -298,7 +301,7 @@ function ReportsContent() {
                     className="flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-700 hover:bg-amber-100 disabled:opacity-50 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-300"
                   >
                     <AlertTriangle className="h-4 w-4" />
-                    Avertizează user
+                    {t("warnUser")}
                   </button>
                 )}
                 {selectedReport.reported_item_id && (
@@ -309,7 +312,7 @@ function ReportsContent() {
                     className="flex items-center gap-1.5 rounded-lg border border-orange-200 bg-orange-50 px-3 py-2 text-sm font-medium text-orange-700 hover:bg-orange-100 disabled:opacity-50 dark:border-orange-800 dark:bg-orange-950/30 dark:text-orange-300"
                   >
                     <EyeOff className="h-4 w-4" />
-                    Ascunde obiect
+                    {t("hideItem")}
                   </button>
                 )}
                 {selectedReport.reported_user_id && (
@@ -320,7 +323,7 @@ function ReportsContent() {
                     className="flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-100 disabled:opacity-50 dark:border-red-800 dark:bg-red-950/30 dark:text-red-300"
                   >
                     <Ban className="h-4 w-4" />
-                    Suspendă user 7 zile
+                    {t("suspendUser7Days")}
                   </button>
                 )}
               </div>
@@ -336,7 +339,7 @@ function ReportsContent() {
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
           <Flag className="mb-0.5 mr-2 inline h-5 w-5" />
-          Rapoarte
+          {t("reports")}
         </h2>
       </div>
 
@@ -347,7 +350,7 @@ function ReportsContent() {
           onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
           className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
         >
-          <option value="all">Toate statusurile</option>
+          <option value="all">{t("allStatuses")}</option>
           <option value="pending">Pending</option>
           <option value="reviewed">Investigated</option>
           <option value="resolved">Resolved</option>
@@ -358,13 +361,13 @@ function ReportsContent() {
           onChange={(e) => setReasonFilter(e.target.value as ReasonFilter)}
           className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
         >
-          <option value="all">Toate motivele</option>
-          <option value="spam">Spam</option>
-          <option value="harassment">Hărțuire</option>
-          <option value="inappropriate">Inadecvat</option>
-          <option value="scam">Înșelătorie</option>
-          <option value="prohibited_item">Obiect interzis</option>
-          <option value="other">Altele</option>
+          <option value="all">{t("allReasons")}</option>
+          <option value="spam">{t("reasonSpam")}</option>
+          <option value="harassment">{t("reasonHarassment")}</option>
+          <option value="inappropriate">{t("reasonInappropriate")}</option>
+          <option value="scam">{t("reasonScam")}</option>
+          <option value="prohibited_item">{t("reasonProhibitedItem")}</option>
+          <option value="other">{t("reasonOther")}</option>
         </select>
       </div>
 
@@ -382,7 +385,7 @@ function ReportsContent() {
         <div className="rounded-xl border border-zinc-200 bg-white p-8 text-center dark:border-zinc-800 dark:bg-zinc-900">
           <CheckCircle className="mx-auto h-8 w-8 text-emerald-500" />
           <p className="mt-2 text-sm text-zinc-500">
-            Niciun raport cu aceste filtre.
+            {t("noReports")}
           </p>
         </div>
       ) : (
@@ -391,22 +394,22 @@ function ReportsContent() {
             <thead>
               <tr className="border-b border-zinc-200 bg-zinc-50 text-left dark:border-zinc-700 dark:bg-zinc-800/50">
                 <th className="px-4 py-3 font-medium text-zinc-500 dark:text-zinc-400">
-                  ID
+                  {t("tableId")}
                 </th>
                 <th className="px-4 py-3 font-medium text-zinc-500 dark:text-zinc-400">
-                  Tip
+                  {t("tableType")}
                 </th>
                 <th className="px-4 py-3 font-medium text-zinc-500 dark:text-zinc-400">
-                  Motiv
+                  {t("tableReason")}
                 </th>
                 <th className="px-4 py-3 font-medium text-zinc-500 dark:text-zinc-400">
-                  Reporter
+                  {t("tableReporter")}
                 </th>
                 <th className="px-4 py-3 font-medium text-zinc-500 dark:text-zinc-400">
-                  Data
+                  {t("tableDate")}
                 </th>
                 <th className="px-4 py-3 font-medium text-zinc-500 dark:text-zinc-400">
-                  Status
+                  {t("tableStatus")}
                 </th>
               </tr>
             </thead>
@@ -421,7 +424,7 @@ function ReportsContent() {
                     {report.id.slice(0, 8)}
                   </td>
                   <td className="px-4 py-3 text-zinc-700 dark:text-zinc-300">
-                    {report.reported_item_id ? "Obiect" : "Utilizator"}
+                    {report.reported_item_id ? t("typeItem") : t("typeUser")}
                   </td>
                   <td className="px-4 py-3">
                     <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">

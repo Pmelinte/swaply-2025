@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Share2, Copy, Check } from "lucide-react";
 
 export function BlogShareButtons({ title, slug }: { title: string; slug: string }) {
+  const t = useTranslations("blog");
   const [copied, setCopied] = useState(false);
 
   const getUrl = () =>
@@ -42,7 +44,7 @@ export function BlogShareButtons({ title, slug }: { title: string; slug: string 
         className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs font-medium text-zinc-700 shadow-sm transition hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
       >
         <Share2 className="h-3.5 w-3.5" />
-        Distribuie
+        {t("share")}
       </button>
       <button
         onClick={copyLink}
@@ -53,7 +55,7 @@ export function BlogShareButtons({ title, slug }: { title: string; slug: string 
         ) : (
           <Copy className="h-3.5 w-3.5" />
         )}
-        {copied ? "Copiat!" : "Copiază link"}
+        {copied ? t("copied") : t("copyLink")}
       </button>
     </div>
   );

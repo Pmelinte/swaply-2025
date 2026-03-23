@@ -7,6 +7,7 @@
  */
 
 import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import {
   User,
@@ -35,8 +36,8 @@ const CONFETTI_SEEDS = Array.from({ length: 20 }, () => ({
 
 interface StepDef {
   key: OnboardingStep;
-  label: string;
-  description: string;
+  labelKey: string;
+  descKey: string;
   href: string;
   icon: typeof User;
   color: string;
@@ -45,40 +46,40 @@ interface StepDef {
 const STEPS: StepDef[] = [
   {
     key: "stepProfile",
-    label: "Completează profilul",
-    description: "Adaugă numele, avatarul și locația ta",
+    labelKey: "stepProfileLabel",
+    descKey: "stepProfileDesc",
     href: "/profile",
     icon: User,
     color: "from-blue-500 to-indigo-600",
   },
   {
     key: "stepFirstItem",
-    label: "Adaugă primul obiect",
-    description: "Listează un obiect pe care vrei să-l schimbi",
+    labelKey: "stepFirstItemLabel",
+    descKey: "stepFirstItemDesc",
     href: "/my-objects",
     icon: Package,
     color: "from-emerald-500 to-teal-600",
   },
   {
     key: "stepFirstMatch",
-    label: "Explorează matchurile tale",
-    description: "Descoperă ce potriviri ai",
+    labelKey: "stepFirstMatchLabel",
+    descKey: "stepFirstMatchDesc",
     href: "/match",
     icon: Sparkles,
     color: "from-violet-500 to-purple-600",
   },
   {
     key: "stepFirstSwap",
-    label: "Trimite prima propunere de swap",
-    description: "Propune un schimb cu altcineva",
+    labelKey: "stepFirstSwapLabel",
+    descKey: "stepFirstSwapDesc",
     href: "/change",
     icon: Repeat2,
     color: "from-amber-500 to-orange-600",
   },
   {
     key: "stepVerified",
-    label: "Verifică-ți identitatea",
-    description: "Setează o metodă de securitate",
+    labelKey: "stepVerifiedLabel",
+    descKey: "stepVerifiedDesc",
     href: "/profile#verify",
     icon: ShieldCheck,
     color: "from-rose-500 to-pink-600",
@@ -86,6 +87,7 @@ const STEPS: StepDef[] = [
 ];
 
 export function OnboardingChecklist() {
+  const t = useTranslations("onboardingChecklist");
   const { user } = useAppState();
   const {
     progress,
@@ -174,15 +176,15 @@ export function OnboardingChecklist() {
           <div className="flex flex-col items-center text-center">
             <PartyPopper className="mb-2 h-10 w-10 text-amber-500" />
             <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
-              Ai completat onboarding-ul!
+              {t("completionTitle")}
             </h3>
             <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-              Felicitări! Ești pregătit să faci schimburi.
+              {t("completionMessage")}
             </p>
             <div className="mt-3 flex items-center gap-2 rounded-full bg-amber-100 px-4 py-2 dark:bg-amber-900/40">
               <Coins className="h-5 w-5 text-amber-600 dark:text-amber-400" />
               <span className="text-sm font-bold text-amber-700 dark:text-amber-300">
-                +50 tokens bonus
+                {t("completionBonus")}
               </span>
             </div>
           </div>
@@ -241,7 +243,7 @@ export function OnboardingChecklist() {
             </span>
           </div>
           <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-            Primii pași
+            {t("minimizedLabel")}
           </span>
           <Maximize2 className="h-3.5 w-3.5 text-zinc-400" />
         </button>
@@ -257,10 +259,10 @@ export function OnboardingChecklist() {
         <div className="flex items-center justify-between border-b border-zinc-100 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 dark:border-zinc-800 dark:from-blue-950/30 dark:to-indigo-950/30">
           <div className="flex-1">
             <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-50">
-              Primii pași pe Swaply
+              {t("title")}
             </h3>
             <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
-              {overallProgress}/{totalSteps} completate
+              {t("completed", { current: overallProgress, total: totalSteps })}
             </p>
           </div>
           <div className="flex items-center gap-1">
@@ -334,11 +336,11 @@ export function OnboardingChecklist() {
                         : "text-zinc-700 dark:text-zinc-200"
                     }`}
                   >
-                    {step.label}
+                    {t(step.labelKey)}
                   </p>
                   {!completed && (
                     <p className="text-[11px] text-zinc-400 dark:text-zinc-500">
-                      {step.description}
+                      {t(step.descKey)}
                     </p>
                   )}
                 </div>
@@ -371,7 +373,7 @@ export function OnboardingChecklist() {
         <div className="border-t border-zinc-100 bg-zinc-50/50 px-4 py-2.5 dark:border-zinc-800 dark:bg-zinc-800/30">
           <div className="flex items-center justify-between">
             <p className="text-[11px] text-zinc-400 dark:text-zinc-500">
-              Bonus la completare
+              {t("bonusLabel")}
             </p>
             <div className="flex items-center gap-1">
               <Coins className="h-3 w-3 text-amber-400" />

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { AdminGuard } from "@/features/admin/AdminShell";
@@ -42,6 +43,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 function ItemsContent() {
+  const t = useTranslations("admin");
   const [items, setItems] = useState<AdminItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
@@ -94,7 +96,7 @@ function ItemsContent() {
       setActionLoading(itemId);
       const result = await toggleItemActive(itemId, !currentActive);
       if (result.error) {
-        alert(`Eroare: ${result.error}`);
+        alert(`${t("error")}: ${result.error}`);
       } else {
         setItems((prev) =>
           prev.map((item) =>
@@ -115,11 +117,11 @@ function ItemsContent() {
 
   const handleDelete = useCallback(
     async (itemId: string) => {
-      if (!confirm("Ești sigur că vrei să arhivezi acest obiect?")) return;
+      if (!confirm(t("archiveConfirm"))) return;
       setActionLoading(itemId);
       const result = await deleteItem(itemId);
       if (result.error) {
-        alert(`Eroare: ${result.error}`);
+        alert(`${t("error")}: ${result.error}`);
       } else {
         setItems((prev) =>
           prev.map((item) =>
@@ -139,7 +141,7 @@ function ItemsContent() {
       setActionLoading(itemId);
       const result = await toggleItemDemo(itemId, !currentDemo);
       if (result.error) {
-        alert(`Eroare: ${result.error}`);
+        alert(`${t("error")}: ${result.error}`);
       } else {
         setItems((prev) =>
           prev.map((item) =>
@@ -156,7 +158,7 @@ function ItemsContent() {
     <div className="space-y-4">
       <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
         <Package className="mb-0.5 mr-2 inline h-5 w-5" />
-        Obiecte
+        {t("items")}
       </h2>
 
       {/* Filters */}
@@ -170,7 +172,7 @@ function ItemsContent() {
               setSearchQuery(e.target.value);
               setPage(0);
             }}
-            placeholder="Caută după titlu..."
+            placeholder={t("searchByTitle")}
             className="w-full rounded-lg border border-zinc-200 bg-white py-2 pl-10 pr-4 text-sm outline-none focus:border-blue-400 dark:border-zinc-700 dark:bg-zinc-900"
           />
         </div>
@@ -182,7 +184,7 @@ function ItemsContent() {
           }}
           className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
         >
-          <option value="all">Toate statusurile</option>
+          <option value="all">{t("allStatusFilter")}</option>
           <option value="active">Active</option>
           <option value="paused">Paused</option>
           <option value="reserved">Reserved</option>
@@ -197,9 +199,9 @@ function ItemsContent() {
           }}
           className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
         >
-          <option value="all">Toate</option>
-          <option value="real">Reale</option>
-          <option value="demo">Demo</option>
+          <option value="all">{t("allFilter")}</option>
+          <option value="real">{t("realFilter")}</option>
+          <option value="demo">{t("demoFilter")}</option>
         </select>
       </div>
 
@@ -217,7 +219,7 @@ function ItemsContent() {
         <div className="rounded-xl border border-zinc-200 bg-white p-8 text-center dark:border-zinc-800 dark:bg-zinc-900">
           <Package className="mx-auto h-8 w-8 text-zinc-300 dark:text-zinc-600" />
           <p className="mt-2 text-sm text-zinc-500">
-            Niciun obiect cu aceste filtre.
+            {t("noItems")}
           </p>
         </div>
       ) : (
@@ -227,22 +229,22 @@ function ItemsContent() {
               <thead>
                 <tr className="border-b border-zinc-200 bg-zinc-50 text-left dark:border-zinc-700 dark:bg-zinc-800/50">
                   <th className="px-4 py-3 font-medium text-zinc-500 dark:text-zinc-400">
-                    Titlu
+                    {t("tableTitle")}
                   </th>
                   <th className="px-4 py-3 font-medium text-zinc-500 dark:text-zinc-400">
-                    Categorie
+                    {t("tableCategory")}
                   </th>
                   <th className="px-4 py-3 font-medium text-zinc-500 dark:text-zinc-400">
-                    Status
+                    {t("tableStatus")}
                   </th>
                   <th className="px-4 py-3 font-medium text-zinc-500 dark:text-zinc-400">
-                    Demo
+                    {t("tableDemo")}
                   </th>
                   <th className="px-4 py-3 font-medium text-zinc-500 dark:text-zinc-400">
-                    Data
+                    {t("tableDate")}
                   </th>
                   <th className="px-4 py-3 text-right font-medium text-zinc-500 dark:text-zinc-400">
-                    Acțiuni
+                    {t("tableActions")}
                   </th>
                 </tr>
               </thead>
@@ -309,7 +311,7 @@ function ItemsContent() {
                                 : "border-emerald-200 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-800"
                             }`}
                             title={
-                              item.is_active ? "Dezactivează" : "Activează"
+                              item.is_active ? t("deactivate") : t("activate")
                             }
                           >
                             {item.is_active ? (
@@ -327,8 +329,8 @@ function ItemsContent() {
                             className="rounded-lg border border-purple-200 p-1.5 text-purple-600 hover:bg-purple-50 disabled:opacity-50 dark:border-purple-800"
                             title={
                               item.is_demo
-                                ? "Marchează ca real"
-                                : "Marchează ca demo"
+                                ? t("markReal")
+                                : t("markDemo")
                             }
                           >
                             <Beaker className="h-4 w-4" />
@@ -338,7 +340,7 @@ function ItemsContent() {
                             disabled={isLoading}
                             onClick={() => handleDelete(item.id)}
                             className="rounded-lg border border-red-200 p-1.5 text-red-600 hover:bg-red-50 disabled:opacity-50 dark:border-red-800"
-                            title="Arhivează"
+                            title={t("archive")}
                           >
                             <Trash2 className="h-4 w-4" />
                           </button>
@@ -354,7 +356,7 @@ function ItemsContent() {
           {/* Pagination */}
           <div className="flex items-center justify-between">
             <p className="text-xs text-zinc-500">
-              Pagina {page + 1} · {items.length} rezultate
+              {t("page")} {page + 1} · {items.length} {t("results")}
             </p>
             <div className="flex gap-1">
               <button
