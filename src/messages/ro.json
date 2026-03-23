@@ -2099,5 +2099,13 @@
     "disableAlert": "Dezactivează alerta",
     "delete": "Șterge",
     "alertsTab": "Alerte"
+  },
+  "translate": {
+    "translate": "Traduce",
+    "translating": "Se traduce…",
+    "showOriginal": "Vezi originalul",
+    "retryTranslate": "Reîncearcă",
+    "translatedContent": "Conținut tradus",
+    "autoTranslated": "Tradus automat"
   }
 }

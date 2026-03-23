@@ -2,9 +2,9 @@
 
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
-import { useEffect, useState } from "react";
-import { MapPin, ChevronRight, Plus } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useEffect, useState, useCallback } from "react";
+import { MapPin, ChevronRight, Plus, Globe, Loader2 } from "lucide-react";
+import { useTranslations, useLocale } from "next-intl";
 
 interface RecentItem {
   id: string;
@@ -58,6 +58,64 @@ const CONDITION_MAP: Record<string, string> = {
   used: "conditionUsed",
   used_good: "conditionGood",
 };
+
+function CardTranslateButton({ text, itemId }: { text: string; itemId: string }) {
+  const locale = useLocale();
+  const tl = useTranslations("translate");
+  const [translated, setTranslated] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [show, setShow] = useState(false);
+
+  const handleClick = useCallback(
+    async (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (translated) {
+        setShow((s) => !s);
+        return;
+      }
+      setLoading(true);
+      try {
+        const res = await fetch("/api/translate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text, from: "auto", to: locale }),
+        });
+        const data = await res.json();
+        if (data.translated && data.status !== "fallback") {
+          setTranslated(data.translated);
+          setShow(true);
+        }
+      } catch {
+        // Silently fail
+      } finally {
+        setLoading(false);
+      }
+    },
+    [text, locale, translated],
+  );
+
+  return (
+    <>
+      {show && translated && (
+        <p className="line-clamp-2 text-xs text-blue-700 dark:text-blue-300">{translated}</p>
+      )}
+      <button
+        type="button"
+        onClick={handleClick}
+        disabled={loading}
+        className="inline-flex items-center gap-0.5 text-[10px] text-zinc-400 transition hover:text-blue-600 disabled:opacity-50 dark:text-zinc-500 dark:hover:text-blue-400"
+      >
+        {loading ? (
+          <Loader2 className="h-2.5 w-2.5 animate-spin" />
+        ) : (
+          <Globe className="h-2.5 w-2.5" />
+        )}
+        {show ? tl("showOriginal") : tl("translate")}
+      </button>
+    </>
+  );
+}
 
 export function RecentItems() {
   const t = useTranslations("home");
@@ -163,6 +221,9 @@ export function RecentItems() {
                     ? item.title.slice(0, 50) + "…"
                     : item.title}
                 </p>
+
+                {/* Inline translate */}
+                <CardTranslateButton text={item.title} itemId={item.id} />
 
                 {/* Category badge */}
                 <span

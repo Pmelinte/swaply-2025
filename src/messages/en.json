@@ -2099,5 +2099,13 @@
     "disableAlert": "Disable alert",
     "delete": "Delete",
     "alertsTab": "Alerts"
+  },
+  "translate": {
+    "translate": "Translate",
+    "translating": "Translating…",
+    "showOriginal": "Show original",
+    "retryTranslate": "Retry",
+    "translatedContent": "Translated content",
+    "autoTranslated": "Auto-translated"
   }
 }
