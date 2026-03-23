@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Trophy, ChevronRight, Clock } from "lucide-react";
 
@@ -17,7 +18,7 @@ interface EventData {
 
 function calcCountdown(endDate: string) {
   const diff = new Date(endDate).getTime() - Date.now();
-  if (diff <= 0) return "Expirat";
+  if (diff <= 0) return null;
   const d = Math.floor(diff / 86400000);
   const h = Math.floor((diff % 86400000) / 3600000);
   const m = Math.floor((diff % 3600000) / 60000);
@@ -37,6 +38,7 @@ function useCountdown(endDate: string) {
 }
 
 export function CurrentEventBanner() {
+  const t = useTranslations("eventBanner");
   const [event, setEvent] = useState<EventData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -71,7 +73,7 @@ export function CurrentEventBanner() {
             </h3>
             <span className="flex shrink-0 items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
               <Clock className="h-3 w-3" />
-              {countdown}
+              {countdown ?? t("expired")}
             </span>
           </div>
 
@@ -87,7 +89,7 @@ export function CurrentEventBanner() {
 
         {/* CTA arrow */}
         <div className="flex shrink-0 items-center gap-1 text-xs font-semibold text-amber-600 transition group-hover:text-amber-700 dark:text-amber-400">
-          <span className="hidden sm:inline">Participă</span>
+          <span className="hidden sm:inline">{t("participate")}</span>
           <ChevronRight className="h-4 w-4" />
         </div>
       </div>

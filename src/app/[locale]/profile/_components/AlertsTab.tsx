@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useSavedSearches } from "@/hooks/useSavedSearches";
 import { Bell, BellOff, Trash2, Search, MapPin, Tag, Package } from "lucide-react";
 import { Link } from "@/i18n/navigation";
@@ -36,6 +36,7 @@ function FilterBadges({ filters }: { filters: SavedSearchFilters }) {
 
 export default function AlertsTab({ userId }: { userId: string }) {
   const t = useTranslations("savedSearches");
+  const locale = useLocale();
   const {
     searches,
     loading,
@@ -107,7 +108,7 @@ export default function AlertsTab({ userId }: { userId: string }) {
                 <FilterBadges filters={search.filters} />
               </div>
               <p className="mt-1.5 text-[10px] text-zinc-400">
-                {t("created")} {new Date(search.created_at).toLocaleDateString("ro-RO")}
+                {t("created")} {new Date(search.created_at).toLocaleDateString(locale)}
               </p>
             </div>
 

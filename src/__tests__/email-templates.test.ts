@@ -32,14 +32,20 @@ describe("renderWelcomeEmail", () => {
   it("includes Swaply branding", () => {
     const html = renderWelcomeEmail(data);
     expect(html).toContain("Swaply");
-    expect(html).toContain("Bine ai venit");
+    expect(html).toContain("Welcome to Swaply");
   });
 
   it("includes onboarding steps", () => {
     const html = renderWelcomeEmail(data);
+    expect(html).toContain("Add your first item");
+    expect(html).toContain("Discover offers");
+    expect(html).toContain("Propose a swap");
+  });
+
+  it("renders Romanian when locale is ro", () => {
+    const html = renderWelcomeEmail({ ...data, locale: "ro" });
+    expect(html).toContain("Bine ai venit");
     expect(html).toContain("Adaugă primul tău obiect");
-    expect(html).toContain("Descoperă oferte");
-    expect(html).toContain("Propune un schimb");
   });
 
   it("escapes special characters in name", () => {

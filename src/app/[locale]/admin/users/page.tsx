@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { AdminGuard } from "@/features/admin/AdminShell";
@@ -39,6 +40,8 @@ const BADGE_COLORS: Record<string, string> = {
 };
 
 function UsersContent() {
+  const t = useTranslations("admin");
+  const locale = useLocale();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -73,7 +76,7 @@ function UsersContent() {
       setActionLoading(userId);
       const result = await changeBadge(userId, newBadge);
       if (result.error) {
-        alert(`Eroare: ${result.error}`);
+        alert(`${t("error")}: ${result.error}`);
       } else {
         setUsers((prev) =>
           prev.map((u) =>
@@ -83,17 +86,17 @@ function UsersContent() {
       }
       setActionLoading(null);
     },
-    [changeBadge],
+    [changeBadge, t],
   );
 
   const handleSuspend = useCallback(
     async (userId: string) => {
-      const reason = prompt("Motiv suspendare:");
+      const reason = prompt(t("suspendReason"));
       if (!reason) return;
       setActionLoading(userId);
       const result = await suspendUser(userId, 7, reason);
       if (result.error) {
-        alert(`Eroare: ${result.error}`);
+        alert(`${t("error")}: ${result.error}`);
       } else {
         setUsers((prev) =>
           prev.map((u) =>
@@ -105,18 +108,18 @@ function UsersContent() {
       }
       setActionLoading(null);
     },
-    [suspendUser],
+    [suspendUser, t],
   );
 
   const handleBan = useCallback(
     async (userId: string) => {
-      const reason = prompt("Motiv ban permanent:");
+      const reason = prompt(t("banReason"));
       if (!reason) return;
-      if (!confirm("Ești sigur că vrei să blochezi permanent acest utilizator?")) return;
+      if (!confirm(t("banConfirm"))) return;
       setActionLoading(userId);
       const result = await banUser(userId, reason);
       if (result.error) {
-        alert(`Eroare: ${result.error}`);
+        alert(`${t("error")}: ${result.error}`);
       } else {
         setUsers((prev) =>
           prev.map((u) =>
@@ -126,7 +129,7 @@ function UsersContent() {
       }
       setActionLoading(null);
     },
-    [banUser],
+    [banUser, t],
   );
 
   const handleUnban = useCallback(
@@ -134,7 +137,7 @@ function UsersContent() {
       setActionLoading(userId);
       const result = await unbanUser(userId);
       if (result.error) {
-        alert(`Eroare: ${result.error}`);
+        alert(`${t("error")}: ${result.error}`);
       } else {
         setUsers((prev) =>
           prev.map((u) =>
@@ -146,14 +149,14 @@ function UsersContent() {
       }
       setActionLoading(null);
     },
-    [unbanUser],
+    [unbanUser, t],
   );
 
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
         <Users className="mb-0.5 mr-2 inline h-5 w-5" />
-        Utilizatori
+        {t("users")}
       </h2>
 
       {/* Search */}
@@ -165,7 +168,7 @@ function UsersContent() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-            placeholder="Caută după email, username sau nume..."
+            placeholder={t("searchPlaceholder")}
             className="w-full rounded-lg border border-zinc-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 dark:border-zinc-700 dark:bg-zinc-900"
           />
         </div>
@@ -175,7 +178,7 @@ function UsersContent() {
           disabled={loading}
           className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
         >
-          Caută
+          {t("search")}
         </button>
       </div>
 
@@ -194,8 +197,8 @@ function UsersContent() {
           <Search className="mx-auto h-8 w-8 text-zinc-300 dark:text-zinc-600" />
           <p className="mt-2 text-sm text-zinc-500">
             {searchQuery
-              ? "Niciun utilizator găsit."
-              : "Caută un utilizator după email sau username."}
+              ? t("noUsersFound")
+              : t("searchPrompt")}
           </p>
         </div>
       ) : (
@@ -252,14 +255,14 @@ function UsersContent() {
                     <div className="mt-1 flex items-center gap-3 text-[11px] text-zinc-400">
                       <span>
                         <Clock className="mb-0.5 mr-0.5 inline h-3 w-3" />
-                        {new Date(u.created_at).toLocaleDateString("ro-RO")}
+                        {new Date(u.created_at).toLocaleDateString(locale)}
                       </span>
                       <span>
                         <Star className="mb-0.5 mr-0.5 inline h-3 w-3" />
                         {u.rating?.toFixed(1) ?? "0.0"} ({u.rating_count ?? 0})
                       </span>
                       <span>
-                        Swap-uri: {u.stats?.completedSwaps ?? 0}
+                        {t("swaps")}: {u.stats?.completedSwaps ?? 0}
                       </span>
                     </div>
                   </div>
@@ -286,7 +289,7 @@ function UsersContent() {
                           disabled={isLoading}
                           onClick={() => handleSuspend(u.id)}
                           className="rounded-lg border border-amber-200 p-1.5 text-amber-600 hover:bg-amber-50 disabled:opacity-50 dark:border-amber-800 dark:hover:bg-amber-950/30"
-                          title="Suspendă 7 zile"
+                          title={t("suspend7Days")}
                         >
                           <Clock className="h-4 w-4" />
                         </button>
@@ -295,7 +298,7 @@ function UsersContent() {
                           disabled={isLoading}
                           onClick={() => handleBan(u.id)}
                           className="rounded-lg border border-red-200 p-1.5 text-red-600 hover:bg-red-50 disabled:opacity-50 dark:border-red-800 dark:hover:bg-red-950/30"
-                          title="Ban permanent"
+                          title={t("permanentBan")}
                         >
                           <Ban className="h-4 w-4" />
                         </button>
@@ -306,7 +309,7 @@ function UsersContent() {
                         disabled={isLoading}
                         onClick={() => handleUnban(u.id)}
                         className="rounded-lg border border-emerald-200 p-1.5 text-emerald-600 hover:bg-emerald-50 disabled:opacity-50 dark:border-emerald-800 dark:hover:bg-emerald-950/30"
-                        title="Deblochează"
+                        title={t("unblock")}
                       >
                         <Undo2 className="h-4 w-4" />
                       </button>
@@ -316,7 +319,7 @@ function UsersContent() {
 
                 {u.suspended_until && u.is_suspended && (
                   <p className="mt-2 text-xs text-red-500">
-                    Suspendat până la:{" "}
+                    {t("suspendedUntil")}{" "}
                     {new Date(u.suspended_until).toLocaleString("ro-RO")}
                   </p>
                 )}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { Coins } from "lucide-react";
 
 interface TokenToastMessage {
@@ -8,21 +9,6 @@ interface TokenToastMessage {
   amount: number;
   reason: string;
 }
-
-const REASON_MESSAGES: Record<string, string> = {
-  welcome_bonus: "Bonus de bun venit!",
-  signup_bonus: "Bine ai venit pe Swaply!",
-  add_item: "Ai adăugat un obiect nou.",
-  complete_swap: "Swap finalizat cu succes!",
-  swap_completed: "Swap finalizat cu succes!",
-  review: "Mulțumim pentru review!",
-  daily_login: "Login zilnic revendicat.",
-  daily_streak: "Streak zilnic!",
-  boost_item: "Obiect promovat!",
-  referral: "Recomandare reușită!",
-  milestone_bonus: "Ai atins un milestone!",
-  loyalty_reward: "Recompensă de loialitate!",
-};
 
 // Global event bus for token toast notifications
 const listeners = new Set<(msg: TokenToastMessage) => void>();
@@ -33,6 +19,7 @@ export function showTokenToast(amount: number, reason: string) {
 }
 
 export function TokenToast() {
+  const tToast = useTranslations("tokenToast");
   const [toasts, setToasts] = useState<TokenToastMessage[]>([]);
 
   const addToast = useCallback((msg: TokenToastMessage) => {
@@ -67,7 +54,7 @@ export function TokenToast() {
               +{toast.amount} tokens
             </p>
             <p className="text-xs text-amber-600 dark:text-amber-400">
-              {REASON_MESSAGES[toast.reason] ?? toast.reason}
+              {tToast.has(toast.reason) ? tToast(toast.reason) : toast.reason}
             </p>
           </div>
         </div>

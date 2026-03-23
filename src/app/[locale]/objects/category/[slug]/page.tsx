@@ -23,16 +23,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const cat = getCategoryBySlug(slug);
   if (!cat) return { title: "Categorie negăsită — Swaply" };
 
-  const title = `Schimb ${cat.nameRo} fără bani | Swaply.world`;
-  const description = `Găsește ${cat.nameRo} de schimbat în România. Obiecte disponibile acum. Barter fără bani, fără comisioane.`;
+  const title = `Schimb ${cat.nameLocal} fără bani | Swaply.world`;
+  const description = `Găsește ${cat.nameLocal} de schimbat în România. Obiecte disponibile acum. Barter fără bani, fără comisioane.`;
 
   return {
     title,
     description,
     keywords: [
-      `schimb ${cat.nameRo.toLowerCase()}`,
-      `barter ${cat.nameRo.toLowerCase()}`,
-      `${cat.nameRo.toLowerCase()} second hand Romania`,
+      `schimb ${cat.nameLocal.toLowerCase()}`,
+      `barter ${cat.nameLocal.toLowerCase()}`,
+      `${cat.nameLocal.toLowerCase()} second hand Romania`,
     ],
     openGraph: { title, description, type: "website" },
     twitter: { card: "summary", title, description },
@@ -96,7 +96,7 @@ export default async function CategoryPage({ params }: Props) {
       {/* Header */}
       <header>
         <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50">
-          Schimb de {cat.nameRo} în România
+          Schimb de {cat.nameLocal} în România
         </h1>
         <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
           {items.length} obiecte disponibile pentru schimb
@@ -196,7 +196,7 @@ export default async function CategoryPage({ params }: Props) {
                 className="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:border-blue-600 dark:hover:bg-blue-900/20"
               >
                 <Tag className="h-3.5 w-3.5" />
-                {rc.nameRo}
+                {rc.nameLocal}
               </Link>
             ))}
           </div>
@@ -206,7 +206,7 @@ export default async function CategoryPage({ params }: Props) {
       {/* CTA */}
       <div className="rounded-2xl border border-green-200 bg-green-50/50 p-6 text-center dark:border-green-800 dark:bg-green-950/30">
         <p className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
-          Ai {cat.nameRo.toLowerCase()} de schimbat?
+          Ai {cat.nameLocal.toLowerCase()} de schimbat?
         </p>
         <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
           Listează gratuit și găsește un schimb în câteva minute.

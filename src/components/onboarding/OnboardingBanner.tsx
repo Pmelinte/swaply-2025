@@ -7,6 +7,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useAppState } from "@/lib/state";
 import { getSupabaseClient } from "@/lib/supabase/client";
@@ -60,14 +61,15 @@ const STEPS = [
   },
 ] as const;
 
-const STEP_LABELS: Record<string, { title: string; action: string }> = {
-  profile: { title: "Profil complet", action: "Completează profilul" },
-  first_item: { title: "Primul obiect", action: "Listează primul obiect" },
-  first_match: { title: "Primul match", action: "Găsește un match" },
-  first_swap: { title: "Primul schimb", action: "Propune un schimb" },
+const STEP_LABEL_KEYS: Record<string, { title: string; action: string }> = {
+  profile: { title: "profileTitle", action: "profileAction" },
+  first_item: { title: "firstItemTitle", action: "firstItemAction" },
+  first_match: { title: "firstMatchTitle", action: "firstMatchAction" },
+  first_swap: { title: "firstSwapTitle", action: "firstSwapAction" },
 };
 
 export function OnboardingBanner() {
+  const t = useTranslations("onboardingBanner");
   const { user } = useAppState();
   const [progress, setProgress] = useState<OnboardingProgress | null>(null);
   const [dismissed, setDismissed] = useState(false);
@@ -138,10 +140,10 @@ export function OnboardingBanner() {
       {/* Header */}
       <div className="mb-4">
         <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-50">
-          Bine ai venit pe Swaply!
+          {t("welcome")}
         </h3>
         <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
-          {completedCount}/{STEPS.length} pași completați
+          {t("stepsCompleted", { completed: completedCount, total: STEPS.length })}
         </p>
       </div>
 
@@ -159,7 +161,7 @@ export function OnboardingBanner() {
           const isCompleted = progress[step.field];
           const isCurrent = idx === activeStep;
           const Icon = step.icon;
-          const labels = STEP_LABELS[step.key];
+          const labelKeys = STEP_LABEL_KEYS[step.key];
 
           return (
             <div
@@ -188,7 +190,7 @@ export function OnboardingBanner() {
                       ? "text-emerald-700 dark:text-emerald-300"
                       : "text-zinc-700 dark:text-zinc-200"
                   }`}>
-                    {labels.title}
+                    {t(labelKeys.title)}
                   </p>
                 </div>
               </div>
@@ -198,7 +200,7 @@ export function OnboardingBanner() {
                   href={step.href}
                   className="mt-2 flex items-center justify-center gap-1 rounded-lg bg-blue-600 px-2 py-1.5 text-[11px] font-semibold text-white hover:bg-blue-700"
                 >
-                  {labels.action}
+                  {t(labelKeys.action)}
                   <ChevronRight className="h-3 w-3" />
                 </Link>
               )}

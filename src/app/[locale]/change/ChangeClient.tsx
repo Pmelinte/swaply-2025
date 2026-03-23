@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { CTAButton, NextStepRecommendation, Pill, SectionCard, StateShowcase } from "@/components/ui";
 import { SwapTimeline } from "@/features/change/SwapTimeline";
@@ -151,6 +151,7 @@ const CHECKLIST_KEYS = [
 export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null }) {
   const { user, loading, swaps, updateSwapStatus, addSwapFeedback, updateSwapLogistics, items, trackEvent, confirmDelivery, fileDispute } = useAppState();
   const t = useTranslations("change");
+  const locale = useLocale();
   const [feedback, setFeedback] = useState({ rating: 5, comment: "" });
   const [statusError, setStatusError] = useState<string | null>(null);
   const [activeSwapId, setActiveSwapId] = useState<string | null>(swapFromQuery ?? null);
@@ -1373,14 +1374,14 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
                     </span>
                   </div>
                   <p className="text-xs text-red-700 dark:text-red-300">
-                    <span className="font-semibold">Motiv:</span> {swap.dispute.reason.replace(/_/g, " ")}
+                    <span className="font-semibold">{t("disputeReason")}</span> {swap.dispute.reason.replace(/_/g, " ")}
                   </p>
                   <p className="mt-1 text-xs text-red-600 dark:text-red-400">{swap.dispute.description}</p>
                   {swap.dispute.evidencePhotos && swap.dispute.evidencePhotos.length > 0 && (
-                    <p className="mt-1 text-[10px] text-red-500">{swap.dispute.evidencePhotos.length} dovezi atașate</p>
+                    <p className="mt-1 text-[10px] text-red-500">{t("disputeEvidenceCount", { count: swap.dispute.evidencePhotos.length })}</p>
                   )}
                   <p className="mt-2 text-[10px] text-red-500 dark:text-red-400">
-                    Deschisă pe {new Date(swap.dispute.filedAt).toLocaleDateString("ro-RO")}
+                    {t("disputeOpenedOn", { date: new Date(swap.dispute.filedAt).toLocaleDateString(locale) })}
                   </p>
                 </div>
               )}

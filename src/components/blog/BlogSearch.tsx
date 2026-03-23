@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Search, Calendar, Clock, Tag, User } from "lucide-react";
 import type { BlogPost } from "@/lib/blog";
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export function BlogSearch({ posts, categories }: Props) {
+  const t = useTranslations("blog");
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
@@ -34,7 +36,7 @@ export function BlogSearch({ posts, categories }: Props) {
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
         <input
           type="text"
-          placeholder="Caută articole..."
+          placeholder={t("searchPlaceholder")}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="w-full rounded-xl border border-zinc-200 bg-white py-2.5 pl-10 pr-4 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-blue-500 dark:focus:ring-blue-900/30"
@@ -51,7 +53,7 @@ export function BlogSearch({ posts, categories }: Props) {
               : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
           }`}
         >
-          Toate
+          {t("all")}
         </button>
         {categories.map((cat) => (
           <button
@@ -73,7 +75,7 @@ export function BlogSearch({ posts, categories }: Props) {
       {/* Posts grid */}
       {filtered.length === 0 ? (
         <p className="py-8 text-center text-sm text-zinc-500">
-          Niciun articol găsit.
+          {t("noResults")}
         </p>
       ) : (
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -126,7 +128,7 @@ export function BlogSearch({ posts, categories }: Props) {
                 </div>
 
                 <span className="mt-3 text-sm font-semibold text-blue-600 group-hover:text-blue-700 dark:text-blue-400">
-                  Citește mai mult →
+                  {t("readMore")}
                 </span>
               </div>
             </Link>

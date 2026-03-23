@@ -10,14 +10,14 @@ export async function POST(request: NextRequest) {
   try {
     body = await request.json() as Record<string, unknown>;
   } catch {
-    return NextResponse.json({ error: "JSON invalid" }, { status: 400 });
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
   const sender = body.sender as Record<string, string> | undefined;
   const receiver = body.receiver as Record<string, string> | undefined;
 
   if (!sender?.name || !receiver?.name || !body.swapId) {
-    return NextResponse.json({ error: "sender, receiver și swapId sunt obligatorii" }, { status: 400 });
+    return NextResponse.json({ error: "sender, receiver and swapId are required" }, { status: 400 });
   }
 
   try {
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
         addressLine2: sender.addressLine2,
         city: sender.city ?? "",
         postalCode: sender.postalCode ?? "",
-        countryCode: sender.countryCode ?? "RO",
+        countryCode: sender.countryCode ?? "",
       },
       receiver: {
         name: receiver.name,
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
         addressLine2: receiver.addressLine2,
         city: receiver.city ?? "",
         postalCode: receiver.postalCode ?? "",
-        countryCode: receiver.countryCode ?? "RO",
+        countryCode: receiver.countryCode ?? "",
       },
       weight: Number(body.weight ?? 1),
       width: body.width ? Number(body.width) : undefined,
@@ -54,6 +54,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(result);
   } catch (err) {
     console.error("[dhl/ship] Error:", err);
-    return NextResponse.json({ error: "Eroare la crearea expedierii DHL" }, { status: 500 });
+    return NextResponse.json({ error: "Error creating DHL shipment" }, { status: 500 });
   }
 }

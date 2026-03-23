@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import {
   Download, Pause, Play, Shield, AlertTriangle, Trash2,
 } from "lucide-react";
@@ -28,6 +28,7 @@ export default function AccountTab({
   deleteAccount, exportUserData, accountStatus, pauseAccount, resumeAccount,
 }: AccountTabProps) {
   const t = useTranslations("profile");
+  const locale = useLocale();
   const router = useRouter();
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -340,12 +341,12 @@ export default function AccountTab({
         <div className="space-y-3">
           {gdprExportPending && (
             <div className="rounded-lg bg-blue-50 p-3 text-sm text-blue-800 dark:bg-blue-900/30 dark:text-blue-200">
-              <Shield className="mr-1 inline h-4 w-4" />{t("gdprExportPending", { date: new Date(gdprExportPending).toLocaleDateString("ro-RO") })}
+              <Shield className="mr-1 inline h-4 w-4" />{t("gdprExportPending", { date: new Date(gdprExportPending).toLocaleDateString(locale) })}
             </div>
           )}
           {gdprDeletePending && (
             <div className="rounded-lg bg-red-50 p-3 text-sm text-red-800 dark:bg-red-900/30 dark:text-red-200">
-              <AlertTriangle className="mr-1 inline h-4 w-4" />{t("gdprDeletePending", { date: new Date(gdprDeletePending).toLocaleDateString("ro-RO") })}
+              <AlertTriangle className="mr-1 inline h-4 w-4" />{t("gdprDeletePending", { date: new Date(gdprDeletePending).toLocaleDateString(locale) })}
             </div>
           )}
           {gdprMessage && (

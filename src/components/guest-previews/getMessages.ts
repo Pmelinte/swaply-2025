@@ -5,10 +5,10 @@ type Messages = Record<string, Record<string, string>>;
 /**
  * Load translation messages server-side.
  * Reads the user's preferred locale from the "locale" cookie,
- * falling back to Romanian (primary market).
+ * falling back to English.
  */
 export async function getMessages(): Promise<Messages> {
-  let locale = "ro";
+  let locale = "en";
   try {
     const cookieStore = await cookies();
     const localeCookie = cookieStore.get("locale")?.value;
@@ -20,6 +20,6 @@ export async function getMessages(): Promise<Messages> {
   try {
     return (await import(`../../messages/${locale}.json`)).default;
   } catch {
-    return (await import("../../messages/ro.json")).default;
+    return (await import("../../messages/en.json")).default;
   }
 }

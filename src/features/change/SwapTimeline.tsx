@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { formatDate } from "@/lib/utils";
 import { SwapIntent } from "@/lib/types";
 import { Pill } from "@/components/ui";
@@ -15,6 +15,7 @@ export function SwapTimeline({
   responderLabel?: string;
 }) {
   const t = useTranslations("swapTimeline");
+  const locale = useLocale();
 
   const statusLabels: Record<SwapIntent["status"], string> = {
     pending: t("proposed"),
@@ -92,7 +93,7 @@ export function SwapTimeline({
         {t("autoNotifications")} {swap.notifications.join(" · ")}
       </div>
       <div className="text-xs text-zinc-500 dark:text-zinc-400">
-        {t("lastUpdate")} {formatDate(swap.updatedAt || swap.createdAt || new Date().toISOString())}
+        {t("lastUpdate")} {formatDate(swap.updatedAt || swap.createdAt || new Date().toISOString(), locale)}
       </div>
     </div>
   );

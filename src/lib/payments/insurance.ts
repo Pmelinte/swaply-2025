@@ -129,10 +129,10 @@ function calculateShippingPremium(itemValue: number, isInternational: boolean): 
     coverage: itemValue,
     deductible: 0,
     coverageDetails: [
-      "Pierdere totală în tranzit",
-      "Deteriorare în timpul transportului",
-      "Furt din colet",
-      isInternational ? "Acoperire vamală" : "Livrare în România",
+      "Total loss in transit",
+      "Damage during shipping",
+      "Package theft",
+      isInternational ? "Customs coverage" : "Domestic delivery coverage",
     ],
     validUntil: new Date(Date.now() + 24 * 3600000).toISOString(),
   };
@@ -156,12 +156,12 @@ function calculateTravelPremium(days: number, travelers: number, isEurope: boole
     coverage,
     deductible: 50,
     coverageDetails: [
-      `Cheltuieli medicale până la €${coverage.toLocaleString()}`,
-      "Anulare călătorie",
-      "Bagaj pierdut/întârziat",
-      "Asistență 24/7",
-      "Repatriere",
-      isEurope ? "Card European Sănătate" : "Acoperire globală",
+      `Medical expenses up to €${coverage.toLocaleString()}`,
+      "Trip cancellation",
+      "Lost/delayed luggage",
+      "24/7 assistance",
+      "Repatriation",
+      isEurope ? "European Health Card" : "Global coverage",
     ],
     validUntil: new Date(Date.now() + 48 * 3600000).toISOString(),
   };
@@ -184,11 +184,11 @@ function calculatePropertyPremium(propertyValue: number, stayDays: number): Insu
     coverage: Math.min(propertyValue, 50000),
     deductible: 100,
     coverageDetails: [
-      "Daune aduse proprietății",
-      "Furt din locuință",
-      "Responsabilitate civilă",
-      "Cheltuieli de curățare excesivă",
-      "Pierdere chei/încuietori",
+      "Property damage",
+      "Theft from property",
+      "Civil liability",
+      "Excessive cleaning costs",
+      "Lost keys/locks",
     ],
     validUntil: new Date(Date.now() + 72 * 3600000).toISOString(),
   };
@@ -283,7 +283,7 @@ export async function fileClaim(claim: InsuranceClaim): Promise<InsuranceClaimRe
       success: true,
       claimId: `claim_${Date.now()}`,
       status: "submitted",
-      message: "Cererea de despăgubire a fost înregistrată (mock)",
+      message: "Claim has been submitted (mock)",
     };
   }
 
@@ -311,7 +311,7 @@ export async function fileClaim(claim: InsuranceClaim): Promise<InsuranceClaimRe
     success: true,
     claimId: data.id,
     status: (data.status ?? "submitted") as InsuranceClaimResult["status"],
-    message: "Cererea de despăgubire a fost înregistrată cu succes",
+    message: "Claim has been submitted successfully",
   };
 }
 
@@ -330,19 +330,19 @@ export function getTravelInsuranceLinks(
     {
       provider: "allianz",
       name: "Allianz Travel",
-      url: `https://www.allianz-travel.ro/ro_RO/travel-insurance.html?dest=${encodeURIComponent(destination)}&from=${startDate}&to=${endDate}&travelers=${travelers}${ref}`,
+      url: `https://www.allianz-travel.com/en_XX/travel-insurance.html?dest=${encodeURIComponent(destination)}&from=${startDate}&to=${endDate}&travelers=${travelers}${ref}`,
       icon: "🛡️",
     },
     {
-      provider: "euroins",
-      name: "Euroins",
-      url: `https://www.euroins.ro/asigurari-calatorie?destinatie=${encodeURIComponent(destination)}`,
+      provider: "worldnomads",
+      name: "World Nomads",
+      url: `https://www.worldnomads.com/travel-insurance?dest=${encodeURIComponent(destination)}&from=${startDate}&to=${endDate}&travelers=${travelers}`,
       icon: "🏥",
     },
     {
-      provider: "nn",
-      name: "NN Asigurări",
-      url: `https://www.nn.ro/asigurare-de-calatorie`,
+      provider: "safetywing",
+      name: "SafetyWing",
+      url: `https://www.safetywing.com/travel-insurance`,
       icon: "🌍",
     },
   ];

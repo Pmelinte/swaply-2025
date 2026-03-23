@@ -4,23 +4,25 @@ import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 
 const FOOTER_CITIES = [
-  { slug: "bucuresti", name: "București" },
-  { slug: "cluj-napoca", name: "Cluj" },
-  { slug: "timisoara", name: "Timișoara" },
-  { slug: "iasi", name: "Iași" },
-  { slug: "constanta", name: "Constanța" },
-  { slug: "brasov", name: "Brașov" },
-  { slug: "craiova", name: "Craiova" },
-  { slug: "sibiu", name: "Sibiu" },
-  { slug: "oradea", name: "Oradea" },
+  { slug: "london", name: "London" },
+  { slug: "berlin", name: "Berlin" },
+  { slug: "paris", name: "Paris" },
+  { slug: "madrid", name: "Madrid" },
+  { slug: "rome", name: "Rome" },
+  { slug: "amsterdam", name: "Amsterdam" },
+  { slug: "vienna", name: "Vienna" },
+  { slug: "prague", name: "Prague" },
+  { slug: "stockholm", name: "Stockholm" },
 ];
 
 export function LegalFooter() {
   const t = useTranslations("legal");
 
+  const tFooter = useTranslations("footer");
+
   const links = [
-    { href: "/about", label: "Despre" },
-    { href: "/pricing", label: "Prețuri" },
+    { href: "/about", label: tFooter("about") },
+    { href: "/pricing", label: tFooter("pricing") },
     { href: "/blog", label: "Blog" },
     { href: "/terms", label: t("termsTitle") },
     { href: "/privacy", label: t("privacyTitle") },
@@ -62,7 +64,7 @@ export function LegalFooter() {
 
         {/* Active cities */}
         <div className="flex flex-wrap items-center justify-center gap-x-1 gap-y-0.5 text-[11px] text-zinc-400 dark:text-zinc-500">
-          <span className="mr-1 font-medium">Orașe active:</span>
+          <span className="mr-1 font-medium">{tFooter("activeCities")}</span>
           {FOOTER_CITIES.map((city, i) => (
             <span key={city.slug} className="inline-flex items-center">
               {i > 0 && <span className="mx-1">|</span>}

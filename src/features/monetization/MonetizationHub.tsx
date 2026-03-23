@@ -6,7 +6,7 @@
  */
 
 import { useState, useMemo, useCallback } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useAppState } from "@/lib/state";
 import {
   TOKEN_PACKAGES,
@@ -42,6 +42,7 @@ type Tab = "pricing" | "shop" | "streak" | "referrals" | "milestones" | "themes"
 
 export function MonetizationHub() {
   const t = useTranslations("monetization");
+  const locale = useLocale();
   const {
     user, tokenBalance, tokenLedger, shopItems, purchaseShopItem,
     loginStreak, claimDailyReward, referralCode, referrals, sendReferralInvite,
@@ -761,7 +762,7 @@ export function MonetizationHub() {
             <div key={entry.id} className="flex items-center justify-between border-b border-zinc-100 py-1.5 last:border-0 dark:border-zinc-800">
               <div>
                 <p className="text-sm text-zinc-700 dark:text-zinc-300">{entry.description}</p>
-                <p className="text-[10px] text-zinc-400">{new Date(entry.createdAt).toLocaleDateString("ro-RO")}</p>
+                <p className="text-[10px] text-zinc-400">{new Date(entry.createdAt).toLocaleDateString(locale)}</p>
               </div>
               <span className={`font-bold ${entry.amount >= 0 ? "text-emerald-600" : "text-red-500"}`}>
                 {entry.amount >= 0 ? "+" : ""}{entry.amount}

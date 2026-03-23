@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Bell, BellOff, X } from "lucide-react";
 import { useAppState } from "@/lib/state";
 
@@ -20,6 +21,7 @@ function urlBase64ToUint8Array(base64String: string) {
 type PushState = "prompt" | "granted" | "denied" | "unsupported";
 
 export function PushPermissionRequest() {
+  const t = useTranslations("push");
   const { user } = useAppState();
   const [pushState, setPushState] = useState<PushState>("unsupported");
   const [dismissed, setDismissed] = useState(false);
@@ -112,10 +114,10 @@ export function PushPermissionRequest() {
           </div>
           <div className="flex-1">
             <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
-              Activează notificările
+              {t("enableTitle")}
             </p>
             <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
-              Fii la curent cu propuneri de swap, mesaje noi și match-uri.
+              {t("enableDescription")}
             </p>
             <div className="mt-3 flex gap-2">
               <button
@@ -125,7 +127,7 @@ export function PushPermissionRequest() {
                 className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
               >
                 <Bell className="h-3.5 w-3.5" />
-                {loading ? "Se activează..." : "Activează"}
+                {loading ? t("activating") : t("activate")}
               </button>
               <button
                 type="button"
@@ -133,7 +135,7 @@ export function PushPermissionRequest() {
                 className="flex items-center gap-1.5 rounded-lg border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-500 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-800"
               >
                 <BellOff className="h-3.5 w-3.5" />
-                Nu acum
+                {t("notNow")}
               </button>
             </div>
           </div>

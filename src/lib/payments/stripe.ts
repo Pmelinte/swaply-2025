@@ -49,10 +49,10 @@ export interface TokenCheckoutParams {
 
 export async function createTokenCheckout(params: TokenCheckoutParams): Promise<{ url: string | null; error?: string }> {
   const stripe = getStripe();
-  if (!stripe) return { url: null, error: "Stripe nu este configurat" };
+  if (!stripe) return { url: null, error: "Stripe is not configured" };
 
   const pkg = TOKEN_PACKAGES.find((p) => p.id === params.packageId);
-  if (!pkg) return { url: null, error: `Pachet invalid: ${params.packageId}` };
+  if (!pkg) return { url: null, error: `Invalid package: ${params.packageId}` };
 
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
@@ -71,7 +71,7 @@ export async function createTokenCheckout(params: TokenCheckoutParams): Promise<
           unit_amount: Math.round(pkg.priceEur * 100), // cents
           product_data: {
             name: `Swaply Tokens — ${pkg.label}`,
-            description: `${pkg.tokens} tokens pentru contul tău Swaply`,
+            description: `${pkg.tokens} tokens for your Swaply account`,
           },
         },
         quantity: 1,
@@ -103,10 +103,10 @@ function getStripePriceId(planId: string, interval: string): string | null {
 
 export async function createSubscriptionCheckout(params: SubscriptionCheckoutParams): Promise<{ url: string | null; error?: string }> {
   const stripe = getStripe();
-  if (!stripe) return { url: null, error: "Stripe nu este configurat" };
+  if (!stripe) return { url: null, error: "Stripe is not configured" };
 
   const plan = SUBSCRIPTION_PLANS.find((p) => p.id === params.planId);
-  if (!plan) return { url: null, error: `Plan invalid: ${params.planId}` };
+  if (!plan) return { url: null, error: `Invalid plan: ${params.planId}` };
 
   const priceId = getStripePriceId(params.planId, params.interval);
 
@@ -140,7 +140,6 @@ export async function createSubscriptionCheckout(params: SubscriptionCheckoutPar
     mode: "subscription",
     payment_method_types: ["card"],
     customer_email: params.userEmail,
-    locale: "ro",
     metadata: {
       type: "subscription",
       planId: params.planId,
@@ -160,10 +159,10 @@ export async function createSubscriptionCheckout(params: SubscriptionCheckoutPar
 export type OneTimePaymentType = "boost_24h" | "featured_48h" | "super_boost_7d" | "swap_insurance";
 
 const ONE_TIME_PRODUCTS: Record<OneTimePaymentType, { name: string; amount: number; description: string }> = {
-  boost_24h: { name: "Boost 24h", amount: 99, description: "Articol promovat 24 de ore" },       // €0.99
-  featured_48h: { name: "Featured 48h", amount: 199, description: "Articol pe homepage 48h" },   // €1.99
-  super_boost_7d: { name: "Super Boost 7 zile", amount: 499, description: "Top rezultate + notificări 7 zile" }, // €4.99
-  swap_insurance: { name: "Asigurare Swap", amount: 299, description: "Protecție completă pentru schimbul tău" }, // €2.99
+  boost_24h: { name: "Boost 24h", amount: 99, description: "Item promoted for 24 hours" },       // €0.99
+  featured_48h: { name: "Featured 48h", amount: 199, description: "Item on homepage for 48h" },   // €1.99
+  super_boost_7d: { name: "Super Boost 7 days", amount: 499, description: "Top results + notifications for 7 days" }, // €4.99
+  swap_insurance: { name: "Swap Insurance", amount: 299, description: "Full protection for your swap" }, // €2.99
 };
 
 export interface OneTimePaymentParams {
@@ -176,10 +175,10 @@ export interface OneTimePaymentParams {
 
 export async function createOneTimePayment(params: OneTimePaymentParams): Promise<{ clientSecret: string | null; error?: string }> {
   const stripe = getStripe();
-  if (!stripe) return { clientSecret: null, error: "Stripe nu este configurat" };
+  if (!stripe) return { clientSecret: null, error: "Stripe is not configured" };
 
   const product = ONE_TIME_PRODUCTS[params.type];
-  if (!product) return { clientSecret: null, error: `Produs invalid: ${params.type}` };
+  if (!product) return { clientSecret: null, error: `Invalid product: ${params.type}` };
 
   const intent = await stripe.paymentIntents.create({
     amount: product.amount,
