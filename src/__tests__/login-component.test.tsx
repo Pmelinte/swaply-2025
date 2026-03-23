@@ -27,6 +27,15 @@ vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
 }));
 
+vi.mock("@/i18n/navigation", () => ({
+  Link: ({ href, children, ...props }: Record<string, unknown>) =>
+    React.createElement("a", { href, ...props }, children as React.ReactNode),
+  useRouter: () => mockRouter,
+  usePathname: () => "/login",
+  redirect: vi.fn(),
+  getPathname: vi.fn(),
+}));
+
 // Mock lucide-react icons
 vi.mock("lucide-react", () => ({
   Eye: (props: Record<string, unknown>) => React.createElement("span", { "data-testid": "eye-icon", ...props }, "Eye"),
@@ -42,7 +51,7 @@ vi.mock("@/components/ui", () => ({
 }));
 
 // Need to import after mocks
-import LoginPage from "@/app/login/page";
+import LoginPage from "@/app/[locale]/login/page";
 
 describe("LoginPage Component", () => {
   beforeEach(() => {

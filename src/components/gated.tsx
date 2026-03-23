@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { Crown } from "lucide-react";
 import type { PremiumFeature } from "@/lib/monetization";

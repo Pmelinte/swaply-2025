@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useTranslations } from "next-intl";
-import Link from "next/link";
+import { useTranslations, useLocale } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { Conversation, ChatMessage } from "@/lib/types";
 import { useAppState } from "@/lib/state";
 import { formatDate } from "@/lib/utils";
@@ -216,7 +216,8 @@ export function ChatPanel({
 }) {
   const t = useTranslations("chatPanel");
   const tc = useTranslations("chat");
-  const { addMessage, toggleConversationTranslation, language, items, swaps, user, setTyping, markMessagesRead } = useAppState();
+  const { addMessage, toggleConversationTranslation, items, swaps, user, setTyping, markMessagesRead } = useAppState();
+  const language = useLocale();
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
   const [draft, setDraft] = useState("");
   const [moderationError, setModerationError] = useState<string | null>(null);
