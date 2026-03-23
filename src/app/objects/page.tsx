@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
+import { useFavorites } from "@/hooks/useFavorites";
 import { NO_IMAGE_URL } from "@/lib/storage";
 import { SafeImage } from "@/components/SafeImage";
 import { CTAButton, Pill } from "@/components/ui";
@@ -235,6 +236,7 @@ export default function ObjectsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, items, loading } = useAppState();
+  const { favoriteIds: favorites, toggleFavorite } = useFavorites(user?.id);
   const t = useTranslations("objects");
   const tc = useTranslations("common");
 
@@ -256,23 +258,6 @@ export default function ObjectsPage() {
   const [locationFilter, setLocationFilter] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [listingTypeFilter, setListingTypeFilter] = useState<ListingType | "all">(initialListingType);
-
-  // --- Favorites ---
-  const [favorites, setFavorites] = useState<Set<string>>(() => {
-    if (typeof window === "undefined") return new Set<string>();
-    try {
-      const saved = localStorage.getItem("swaply_favorites");
-      return saved ? new Set(JSON.parse(saved) as string[]) : new Set<string>();
-    } catch { return new Set<string>(); }
-  });
-  const toggleFavorite = useCallback((id: string) => {
-    setFavorites((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
-      localStorage.setItem("swaply_favorites", JSON.stringify([...next]));
-      return next;
-    });
-  }, []);
 
   // --- Infinite scroll for browse ---
   const [visibleCount, setVisibleCount] = useState(20);
