@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState, lazy, Suspense } from "react";
+import { useEffect, useMemo, useState, useCallback, lazy, Suspense } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import { SafeImage } from "@/components/SafeImage";
 import { ShareButtons } from "@/components/ShareButtons";
 import { Link } from "@/i18n/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { Pill, SectionCard } from "@/components/ui";
 import { AuthGateModal } from "@/components/AuthGateModal";
@@ -16,6 +16,7 @@ const ReportBlockButtons = lazy(() =>
   import("@/components/safety/ReportBlockButtons").then((m) => ({ default: m.ReportBlockButtons })),
 );
 import { NO_IMAGE_URL } from "@/lib/storage";
+import { TranslateButton } from "@/components/TranslateButton";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { sendGAEvent } from "@next/third-parties/google";
 import {
@@ -139,6 +140,60 @@ export default function ObjectDetailClient() {
 
   const item = stateItem ?? directItem;
   const [shareToast, setShareToast] = useState(false);
+
+  // ── Translation state ─────────────────────────────────────────────
+  const locale = useLocale();
+  const [translatedTitle, setTranslatedTitle] = useState<string | null>(null);
+  const [translatedDesc, setTranslatedDesc] = useState<string | null>(null);
+  const [translatedWishlist, setTranslatedWishlist] = useState<string | null>(null);
+  const [showTranslation, setShowTranslation] = useState(false);
+
+  // Simple language detection: check for non-ASCII patterns
+  const detectLang = useCallback((text: string): string => {
+    if (/[ăâîșț]/i.test(text)) return "ro";
+    if (/[äöüß]/i.test(text)) return "de";
+    if (/[àâçéèêëîïôùûüÿœæ]/i.test(text)) return "fr";
+    if (/[ñáéíóúü¿¡]/i.test(text)) return "es";
+    if (/[àèéìíîòóùú]/i.test(text)) return "it";
+    if (/[ãõçáéíóú]/i.test(text)) return "pt";
+    if (/[\u0400-\u04FF]/i.test(text)) return "ru";
+    if (/[\u4e00-\u9fff]/i.test(text)) return "zh";
+    if (/[\u3040-\u309F\u30A0-\u30FF]/i.test(text)) return "ja";
+    if (/[\uAC00-\uD7AF]/i.test(text)) return "ko";
+    if (/[\u0600-\u06FF]/i.test(text)) return "ar";
+    return "en";
+  }, []);
+
+  const itemLang = item ? detectLang(`${item.title} ${item.description ?? ""}`) : "en";
+  const needsTranslation = item ? itemLang !== locale : false;
+
+  const handleTranslateAll = useCallback(async () => {
+    if (showTranslation || !item) {
+      setShowTranslation(false);
+      return;
+    }
+    const translateOne = async (text: string) => {
+      const res = await fetch("/api/translate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text, from: itemLang, to: locale }),
+      });
+      const data = await res.json();
+      return data.status !== "fallback" ? data.translated : null;
+    };
+
+    const [title, desc, wish] = await Promise.all([
+      translateOne(item.title),
+      item.description ? translateOne(item.description) : Promise.resolve(null),
+      item.wishlist ? translateOne(item.wishlist) : Promise.resolve(null),
+    ]);
+    if (title) {
+      setTranslatedTitle(title);
+      setTranslatedDesc(desc);
+      setTranslatedWishlist(wish);
+      setShowTranslation(true);
+    }
+  }, [item, itemLang, locale, showTranslation]);
 
   // Fetch owner profile for public display
   const [ownerProfile, setOwnerProfile] = useState<{
@@ -351,8 +406,22 @@ export default function ObjectDetailClient() {
 
           {/* Title + metadata + share */}
           <div>
+            {/* Translate button */}
+            {needsTranslation && (
+              <div className="mb-2">
+                <TranslateButton
+                  text={`${item.title}\n${item.description ?? ""}`}
+                  sourceLang={itemLang}
+                  onTranslated={() => void handleTranslateAll()}
+                  onShowOriginal={() => setShowTranslation(false)}
+                  showingTranslation={showTranslation}
+                />
+              </div>
+            )}
             <div className="flex items-start justify-between gap-2">
-              <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{item.title}</h1>
+              <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
+                {showTranslation && translatedTitle ? translatedTitle : item.title}
+              </h1>
               <div className="flex shrink-0 items-center gap-1">
                 {/* WhatsApp share */}
                 <a
@@ -427,14 +496,18 @@ export default function ObjectDetailClient() {
 
           {/* Description */}
           {item.description && (
-            <p className="text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">{item.description}</p>
+            <p className="text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
+              {showTranslation && translatedDesc ? translatedDesc : item.description}
+            </p>
           )}
 
           {/* Wishlist */}
           {item.wishlist && (
             <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-3 dark:border-blue-900 dark:bg-blue-950/30">
               <p className="text-xs font-semibold uppercase text-blue-600 dark:text-blue-400">{t("wishlist")}</p>
-              <p className="mt-1 text-sm text-blue-900 dark:text-blue-100">{item.wishlist}</p>
+              <p className="mt-1 text-sm text-blue-900 dark:text-blue-100">
+                {showTranslation && translatedWishlist ? translatedWishlist : item.wishlist}
+              </p>
             </div>
           )}
 

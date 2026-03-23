@@ -2142,5 +2142,23 @@
     "type_saved_search_result_desc": "New items matching your saved searches.",
     "type_feedback_requested": "Feedback requested",
     "type_feedback_requested_desc": "Reminders to leave a review after a swap."
+  ,
+  "translate": {
+    "translate": "Translate",
+    "translating": "Translating…",
+    "showOriginal": "Show original",
+    "retryTranslate": "Retry",
+    "translatedContent": "Translated content",
+    "autoTranslated": "Auto-translated"
+  }
+}
+,
+  "translate": {
+    "translate": "Translate",
+    "translating": "Translating…",
+    "showOriginal": "Show original",
+    "retryTranslate": "Retry",
+    "translatedContent": "Translated content",
+    "autoTranslated": "Auto-translated"
   }
 }
