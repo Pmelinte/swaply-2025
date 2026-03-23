@@ -2036,5 +2036,28 @@
     "tip1Desc": "Every swap prevents the production of a new item.",
     "tip2Title": "Share with friends",
     "tip2Desc": "Invite friends to multiply your positive impact."
+  },
+  "savedSearches": {
+    "modalTitle": "Salvează căutarea",
+    "modalDescription": "Primești notificări când apar obiecte noi care corespund filtrelor tale.",
+    "alertName": "Numele alertei",
+    "alertNamePlaceholder": "ex: Biciclete în Cluj",
+    "notificationHint": "Poți dezactiva notificările oricând din profilul tău.",
+    "cancel": "Anulează",
+    "saving": "Se salvează...",
+    "saveAlert": "Salvează alerta",
+    "saveSearch": "Alertă căutare",
+    "searchSaved": "Căutare salvată!",
+    "tabTitle": "Alerte căutări",
+    "emptyTitle": "Nicio alertă activă",
+    "emptyDescription": "Salvează o căutare din pagina de obiecte pentru a primi notificări când apar obiecte noi.",
+    "browseObjects": "Explorează obiecte",
+    "newItems": "noi",
+    "created": "Creată pe",
+    "viewNew": "Vezi noi",
+    "enableAlert": "Activează alerta",
+    "disableAlert": "Dezactivează alerta",
+    "delete": "Șterge",
+    "alertsTab": "Alerte"
   }
 }

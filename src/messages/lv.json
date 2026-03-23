@@ -1853,5 +1853,28 @@
     "tip1Desc": "Every swap prevents the production of a new item.",
     "tip2Title": "Share with friends",
     "tip2Desc": "Invite friends to multiply your positive impact."
+  },
+  "savedSearches": {
+    "modalTitle": "Save search",
+    "modalDescription": "Get notified when new items matching your filters are listed.",
+    "alertName": "Alert name",
+    "alertNamePlaceholder": "e.g.: Bikes in London",
+    "notificationHint": "You can disable notifications anytime from your profile.",
+    "cancel": "Cancel",
+    "saving": "Saving...",
+    "saveAlert": "Save alert",
+    "saveSearch": "Search alert",
+    "searchSaved": "Search saved!",
+    "tabTitle": "Search alerts",
+    "emptyTitle": "No active alerts",
+    "emptyDescription": "Save a search from the objects page to get notified when new items are listed.",
+    "browseObjects": "Browse objects",
+    "newItems": "new",
+    "created": "Created on",
+    "viewNew": "View new",
+    "enableAlert": "Enable alert",
+    "disableAlert": "Disable alert",
+    "delete": "Delete",
+    "alertsTab": "Alerts"
   }
 }
