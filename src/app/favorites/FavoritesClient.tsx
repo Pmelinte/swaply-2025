@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
+import { useFavorites } from "@/hooks/useFavorites";
 import {
   Heart,
   MapPin,
@@ -16,28 +17,10 @@ import {
 } from "lucide-react";
 
 export default function FavoritesClient() {
-  const { items, loading } = useAppState();
+  const { items, loading, user } = useAppState();
+  const { favoriteIds, toggleFavorite } = useFavorites(user?.id);
   const t = useTranslations("favorites");
   const [search, setSearch] = useState("");
-
-  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(() => {
-    if (typeof window === "undefined") return new Set<string>();
-    try {
-      const saved = localStorage.getItem("swaply_favorites");
-      return saved ? new Set(JSON.parse(saved) as string[]) : new Set<string>();
-    } catch {
-      return new Set<string>();
-    }
-  });
-
-  const removeFavorite = useCallback((id: string) => {
-    setFavoriteIds((prev) => {
-      const next = new Set(prev);
-      next.delete(id);
-      localStorage.setItem("swaply_favorites", JSON.stringify([...next]));
-      return next;
-    });
-  }, []);
 
   const favoriteItems = useMemo(() => {
     return items.filter((i) => favoriteIds.has(i.id));
@@ -160,7 +143,7 @@ export default function FavoritesClient() {
                 </div>
               </Link>
               <button
-                onClick={() => removeFavorite(item.id)}
+                onClick={() => toggleFavorite(item.id)}
                 className="absolute right-2 top-2 rounded-full bg-white/90 p-2 shadow-sm backdrop-blur transition hover:bg-red-50 dark:bg-zinc-900/80 dark:hover:bg-red-900/30"
                 title={t("remove")}
               >
