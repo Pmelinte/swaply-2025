@@ -168,7 +168,7 @@ export interface SwapIntent {
   requesterBundleIds?: string[];
   /** Cross-swap: additional item IDs from responder side */
   responderBundleIds?: string[];
-  status: "pending" | "accepted" | "rejected" | "cancelled" | "completed" | "expired" | "disputed";
+  status: "pending" | "accepted" | "in_progress" | "delivered_by_a" | "delivered_by_b" | "rejected" | "cancelled" | "completed" | "expired" | "disputed" | "resolved";
   logistics: {
     locationType: "public_spot" | "courier" | "pickup";
     meetupPoint?: string;

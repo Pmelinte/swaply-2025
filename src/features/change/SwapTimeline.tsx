@@ -19,11 +19,15 @@ export function SwapTimeline({
   const statusLabels: Record<SwapIntent["status"], string> = {
     pending: t("proposed"),
     accepted: t("scheduled"),
+    in_progress: t("scheduled"),
+    delivered_by_a: t("scheduled"),
+    delivered_by_b: t("scheduled"),
     rejected: t("cancelled"),
     completed: t("completed"),
     cancelled: t("cancelled"),
     expired: t("cancelled"),
     disputed: t("disputed"),
+    resolved: t("completed"),
   };
 
   const steps: Array<{ title: string; description: string; done: boolean }> = [

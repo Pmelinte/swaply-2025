@@ -15,13 +15,17 @@ import {
 } from "lucide-react";
 
 const VALID_TRANSITIONS: Record<SwapIntent["status"], SwapIntent["status"][]> = {
-  pending: ["accepted", "rejected", "cancelled"],
-  accepted: ["completed", "cancelled", "disputed"],
+  pending: ["accepted", "cancelled"],
+  accepted: ["in_progress", "cancelled", "disputed"],
+  in_progress: ["delivered_by_a", "cancelled", "disputed"],
+  delivered_by_a: ["delivered_by_b", "disputed"],
+  delivered_by_b: ["completed", "disputed"],
   rejected: [],
   completed: [],
   cancelled: [],
   expired: [],
-  disputed: ["cancelled"],
+  disputed: ["resolved"],
+  resolved: [],
 };
 
 function StarRating({ value, onChange }: { value: number; onChange: (v: number) => void }) {
@@ -93,11 +97,15 @@ function ConfirmDialog({
 const STATUS_LABELS: Record<SwapIntent["status"], string> = {
   pending: "proposed",
   accepted: "accepted",
+  in_progress: "in progress",
+  delivered_by_a: "delivered (1/2)",
+  delivered_by_b: "delivered (2/2)",
   rejected: "cancelled",
   completed: "completed",
   cancelled: "cancelled",
   expired: "cancelled",
   disputed: "disputed",
+  resolved: "resolved",
 };
 
 const LOCATION_TYPES: SwapIntent["logistics"]["locationType"][] = ["public_spot", "courier", "pickup"];
