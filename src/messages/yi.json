@@ -1091,7 +1091,9 @@
     "guestStep5Title": "Rating & Tokens",
     "guestStep5Desc": "Leave reviews and each receive 30 bonus tokens",
     "guestCta": "Start your first swap →",
-    "guestCtaLogin": "Already have an account? Log in"
+    "guestCtaLogin": "Already have an account? Log in",
+    "trustTitle": "Trust score",
+    "trustDescription": "Trust assessment for this exchange based on real signals"
   },
   "feedback": {
     "title": "Feedback",
@@ -2301,5 +2303,28 @@
     "ctaDescription": "List for free and find a swap in minutes.",
     "ctaButton": "Try Swaply for free →",
     "lookingFor": "Looking for:"
+  },
+  "trustScore": {
+    "trustScoreTitle": "Trust score",
+    "swapTrustTitle": "Swap trust",
+    "forParticipant": "For {name}",
+    "tier_excellent": "Excellent",
+    "tier_good": "Good",
+    "tier_moderate": "Moderate",
+    "tier_low": "Low",
+    "signal_accountAge": "Account older than 30 days",
+    "signal_emailVerified": "Email verified",
+    "signal_phoneVerified": "Phone verified",
+    "signal_completedSwaps": "Completed swaps",
+    "signal_responseRate": "High response rate",
+    "signal_descriptionComplete": "Complete description (100+ chars)",
+    "signal_photos": "Photos added",
+    "signal_noRecentDisputes": "No disputes in last 6 months",
+    "signal_locationSet": "Location set",
+    "signal_activeDispute": "Active open dispute",
+    "signal_noShow": "No-show reported",
+    "signal_newAccount": "New account (< 7 days)",
+    "signal_recentlyEdited": "Item edited recently (< 24h)",
+    "signal_multipleRejected": "Multiple rejected listings"
   }
 }

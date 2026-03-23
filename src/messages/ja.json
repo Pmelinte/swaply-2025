@@ -947,7 +947,9 @@
     "profileCompleteness": "Profile completeness",
     "courierDescription": "Coordinate AWB and tracking for secure shipping.",
     "exchangeDescription": "Participants confirm delivery or meetup.",
-    "meetupDescription": "Select a public point and confirm availability."
+    "meetupDescription": "Select a public point and confirm availability.",
+    "trustTitle": "Trust score",
+    "trustDescription": "Trust assessment for this exchange based on real signals"
   },
   "info": {
     "title": "Swaply統計",
@@ -2118,5 +2120,28 @@
     "ctaDescription": "List for free and find a swap in minutes.",
     "ctaButton": "Try Swaply for free →",
     "lookingFor": "Looking for:"
+  },
+  "trustScore": {
+    "trustScoreTitle": "Trust score",
+    "swapTrustTitle": "Swap trust",
+    "forParticipant": "For {name}",
+    "tier_excellent": "Excellent",
+    "tier_good": "Good",
+    "tier_moderate": "Moderate",
+    "tier_low": "Low",
+    "signal_accountAge": "Account older than 30 days",
+    "signal_emailVerified": "Email verified",
+    "signal_phoneVerified": "Phone verified",
+    "signal_completedSwaps": "Completed swaps",
+    "signal_responseRate": "High response rate",
+    "signal_descriptionComplete": "Complete description (100+ chars)",
+    "signal_photos": "Photos added",
+    "signal_noRecentDisputes": "No disputes in last 6 months",
+    "signal_locationSet": "Location set",
+    "signal_activeDispute": "Active open dispute",
+    "signal_noShow": "No-show reported",
+    "signal_newAccount": "New account (< 7 days)",
+    "signal_recentlyEdited": "Item edited recently (< 24h)",
+    "signal_multipleRejected": "Multiple rejected listings"
   }
 }

@@ -875,6 +875,8 @@
     "viewStatsDescription": "Verifică-ți reputația și tokenii",
     "bilateralStatus": "Status bilateral",
     "bilateralDescription": "Vizualizează statusul fiecărei părți în schimb",
+    "trustTitle": "Scor de încredere",
+    "trustDescription": "Evaluarea încrederii pentru acest schimb pe baza semnalelor reale",
     "requester": "Inițiator",
     "responder": "Partener",
     "you": "Tu",
@@ -2296,5 +2298,28 @@
     "ctaDescription": "Listează gratuit și găsește un schimb în câteva minute.",
     "ctaButton": "Încearcă Swaply gratuit →",
     "lookingFor": "Caută:"
+  },
+  "trustScore": {
+    "trustScoreTitle": "Scor de încredere",
+    "swapTrustTitle": "Încredere în schimb",
+    "forParticipant": "Pentru {name}",
+    "tier_excellent": "Excelent",
+    "tier_good": "Bun",
+    "tier_moderate": "Moderat",
+    "tier_low": "Scăzut",
+    "signal_accountAge": "Cont mai vechi de 30 de zile",
+    "signal_emailVerified": "Email verificat",
+    "signal_phoneVerified": "Telefon verificat",
+    "signal_completedSwaps": "Schimburi finalizate",
+    "signal_responseRate": "Rată de răspuns ridicată",
+    "signal_descriptionComplete": "Descriere completă (100+ caractere)",
+    "signal_photos": "Poze adăugate",
+    "signal_noRecentDisputes": "Fără dispute în ultimele 6 luni",
+    "signal_locationSet": "Locație setată",
+    "signal_activeDispute": "Dispută activă deschisă",
+    "signal_noShow": "No-show raportat",
+    "signal_newAccount": "Cont nou (< 7 zile)",
+    "signal_recentlyEdited": "Obiect editat recent (< 24h)",
+    "signal_multipleRejected": "Mai multe anunțuri respinse"
   }
 }
