@@ -10,6 +10,7 @@ import PropertiesTab from "./_components/PropertiesTab";
 import AccountTab from "./_components/AccountTab";
 import ReputationTab from "./_components/ReputationTab";
 import AlertsTab from "./_components/AlertsTab";
+import NotificationSettingsTab from "./_components/NotificationSettingsTab";
 
 export function ProfileClient() {
   const t = useTranslations("profile");
@@ -23,7 +24,8 @@ export function ProfileClient() {
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const tss = useTranslations("savedSearches");
-  const [activeTab, setActiveTab] = useState<"profil" | "cont" | "reputatie" | "proprietati" | "alerte">("profil");
+  const tn = useTranslations("notificationSettings");
+  const [activeTab, setActiveTab] = useState<"profil" | "cont" | "reputatie" | "proprietati" | "alerte" | "notificari">("profil");
   const [loadingTimeout, setLoadingTimeout] = useState(false);
 
   const profileTabs = [
@@ -32,6 +34,7 @@ export function ProfileClient() {
     { key: "cont" as const, label: t("accountAndSettings") },
     { key: "reputatie" as const, label: t("reputation") },
     { key: "alerte" as const, label: tss("alertsTab") },
+    { key: "notificari" as const, label: tn("tabLabel") },
   ];
 
   // Sync draft with user during render
@@ -180,6 +183,7 @@ export function ProfileClient() {
         />
       )}
       {activeTab === "alerte" && <AlertsTab userId={user.id} />}
+      {activeTab === "notificari" && <NotificationSettingsTab userId={user.id} />}
 
       {/* Save button (always visible) */}
       <SectionCard title={t("saveProfile")} description={t("saveDescription")}>

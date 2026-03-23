@@ -243,6 +243,8 @@ export function createMapNotification() {
       type: safeString(row.type, "info"),
       title: title || undefined,
       message,
+      body: body || undefined,
+      data: (row.data && typeof row.data === "object" ? row.data : {}) as Record<string, unknown>,
       // DB uses is_read; app uses read
       read: safeBoolean(row.is_read, safeBoolean(row.read, false)),
       priority: safeNotificationPriority(row.priority, "info"),

@@ -32,7 +32,18 @@
   "notifications": {
     "title": "Aviseringar (gilla/intresse/chatt/swaply)",
     "empty": "Inga aviseringar just nu.",
-    "clearAll": "Rensa alla"
+    "clearAll": "Rensa alla",
+    "markAllRead": "Mark all as read",
+    "viewAll": "View all notifications",
+    "delete": "Delete",
+    "loginRequired": "Sign in to see your notifications.",
+    "loginButton": "Sign in",
+    "managePreferences": "Manage notification preferences",
+    "filterAll": "All",
+    "filterUnread": "Unread",
+    "filterSwaps": "Swaps",
+    "filterMessages": "Messages",
+    "filterAlerts": "Alerts"
   },
   "contextBar": {
     "itemsActive": "{count} aktiva objekt",
@@ -2102,5 +2113,34 @@
     "disableAlert": "Disable alert",
     "delete": "Delete",
     "alertsTab": "Alerts"
+  },
+  "notificationSettings": {
+    "tabLabel": "Notifications",
+    "title": "Notification Preferences",
+    "description": "Choose how you want to be notified for each type of event.",
+    "notificationType": "Notification type",
+    "channel_inapp": "In-app",
+    "channel_email": "Email",
+    "channel_push": "Push",
+    "type_match_new": "New match",
+    "type_match_new_desc": "When a new match is found for your items.",
+    "type_message": "New message",
+    "type_message_desc": "When someone sends you a chat message.",
+    "type_swap_proposed": "Swap proposed",
+    "type_swap_proposed_desc": "When someone proposes a swap with you.",
+    "type_swap_accepted": "Swap accepted",
+    "type_swap_accepted_desc": "When your swap proposal is accepted.",
+    "type_logistics_updated": "Logistics updated",
+    "type_logistics_updated_desc": "Updates about meetup point or courier tracking.",
+    "type_meeting_reminder": "Meeting reminder",
+    "type_meeting_reminder_desc": "Reminders before your scheduled swap meetup.",
+    "type_dispute_update": "Dispute update",
+    "type_dispute_update_desc": "Updates on dispute resolution status.",
+    "type_favorite_updated": "Favorite updated",
+    "type_favorite_updated_desc": "Changes to items you have saved as favorites.",
+    "type_saved_search_result": "Search alert",
+    "type_saved_search_result_desc": "New items matching your saved searches.",
+    "type_feedback_requested": "Feedback requested",
+    "type_feedback_requested_desc": "Reminders to leave a review after a swap."
   }
 }

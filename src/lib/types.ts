@@ -253,15 +253,61 @@ export interface Announcement {
   priority: "info" | "warning" | "success";
 }
 
+export type NotificationType =
+  | "match_new" | "message" | "swap_proposed" | "swap_accepted"
+  | "logistics_updated" | "meeting_reminder" | "dispute_update"
+  | "favorite_updated" | "saved_search_result" | "feedback_requested";
+
+export type NotificationPriority = "low" | "normal" | "high" | "urgent" | "info" | "warning" | "success";
+
 export interface Notification {
   id: string;
   userId: string;
   type: string;
   title?: string;
   message: string;
+  body?: string;
+  data?: Record<string, unknown>;
   read: boolean;
-  priority: "info" | "warning" | "success";
+  priority: NotificationPriority;
   createdAt: string;
+}
+
+export type NotificationChannel = "inapp" | "email" | "push";
+
+export interface NotificationPreferences {
+  userId: string;
+  match_new_inapp: boolean;
+  match_new_email: boolean;
+  match_new_push: boolean;
+  message_inapp: boolean;
+  message_email: boolean;
+  message_push: boolean;
+  swap_proposed_inapp: boolean;
+  swap_proposed_email: boolean;
+  swap_proposed_push: boolean;
+  swap_accepted_inapp: boolean;
+  swap_accepted_email: boolean;
+  swap_accepted_push: boolean;
+  logistics_updated_inapp: boolean;
+  logistics_updated_email: boolean;
+  logistics_updated_push: boolean;
+  meeting_reminder_inapp: boolean;
+  meeting_reminder_email: boolean;
+  meeting_reminder_push: boolean;
+  dispute_update_inapp: boolean;
+  dispute_update_email: boolean;
+  dispute_update_push: boolean;
+  favorite_updated_inapp: boolean;
+  favorite_updated_email: boolean;
+  favorite_updated_push: boolean;
+  saved_search_result_inapp: boolean;
+  saved_search_result_email: boolean;
+  saved_search_result_push: boolean;
+  feedback_requested_inapp: boolean;
+  feedback_requested_email: boolean;
+  feedback_requested_push: boolean;
+  updatedAt?: string;
 }
 
 export interface InfoStats {
