@@ -77,6 +77,13 @@ describe("computeTrustScore", () => {
     expect(result.breakdown.behavior).toBeGreaterThan(10);
   });
 
+  it("penalizes meeting no-show reports by -10 each", () => {
+    const clean = computeTrustScore(signals());
+    const noShow = computeTrustScore(signals({ noShowReportsAgainst: 1 }));
+    expect(noShow.breakdown.behavior).toBeLessThan(clean.breakdown.behavior);
+    expect(clean.breakdown.behavior - noShow.breakdown.behavior).toBeGreaterThanOrEqual(5);
+  });
+
   it("gives engagement for avatar and location", () => {
     const result = computeTrustScore(signals({ hasAvatar: true, hasLocation: true }));
     expect(result.breakdown.engagement).toBeGreaterThanOrEqual(4);

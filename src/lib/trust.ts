@@ -14,6 +14,7 @@ export interface TrustSignals {
   totalRatingsReceived: number;
   reportsAgainst: number;       // pending or confirmed
   reportsDismissed: number;     // reports that were dismissed (false positives)
+  noShowReportsAgainst: number; // meeting no-show reports received
   isBlocked: boolean;           // currently blocked by admin/system
   profileCompleteness: number;  // 0–100
   hasAvatar: boolean;
@@ -70,6 +71,7 @@ export function computeTrustScore(signals: TrustSignals): TrustScore {
   let behavior = 10; // start with baseline trust
   behavior -= signals.reportsAgainst * 5;  // each active report hurts
   behavior += signals.reportsDismissed * 2; // dismissed = false reports
+  behavior -= signals.noShowReportsAgainst * 10; // -10 per meeting no-show
   behavior = Math.max(-10, Math.min(15, behavior));
 
   // 6. Engagement (0–10)
@@ -390,6 +392,7 @@ export function defaultTrustSignals(): TrustSignals {
     totalRatingsReceived: 0,
     reportsAgainst: 0,
     reportsDismissed: 0,
+    noShowReportsAgainst: 0,
     isBlocked: false,
     profileCompleteness: 0,
     hasAvatar: false,
@@ -409,6 +412,7 @@ export function buildTrustSignals(
     accountAgeDays?: number;
     emailVerified?: boolean;
     reportsAgainst?: number;
+    noShowReportsAgainst?: number;
     averageRating?: number;
     totalRatingsReceived?: number;
     consecutiveLoginDays?: number;
@@ -433,6 +437,7 @@ export function buildTrustSignals(
     totalRatingsReceived: extra.totalRatingsReceived ?? 0,
     reportsAgainst: extra.reportsAgainst ?? 0,
     reportsDismissed: 0,
+    noShowReportsAgainst: extra.noShowReportsAgainst ?? 0,
     isBlocked: false,
     profileCompleteness,
     hasAvatar: !!user.avatarUrl,
