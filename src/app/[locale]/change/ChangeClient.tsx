@@ -6,6 +6,8 @@ import { useAppState } from "@/lib/state";
 import { CTAButton, NextStepRecommendation, Pill, SectionCard, StateShowcase } from "@/components/ui";
 import { SwapTimeline } from "@/features/change/SwapTimeline";
 import type { SwapIntent, HouseAmenity, HouseRule, HouseSwapMode, PropertyType, ServiceCategory, SkillLevel, ServiceDelivery, ServiceMilestone, CancelReason } from "@/lib/types";
+import { TrustCard } from "@/components/trust/TrustCard";
+import { calculateTrustScore } from "@/lib/utils/trustScore";
 import {
   MapPin, Truck, Package, Check, Globe, Plane, Home, Wrench, QrCode, Shield, Calendar,
   Wifi, Car, Snowflake, Flame as Heating, WashingMachine, CookingPot, Waves,
@@ -474,6 +476,32 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
                 </div>
                 {!isRequester ? <Pill color="blue">{t("you")}</Pill> : null}
               </div>
+            </div>
+          </SectionCard>
+
+          {/* Trust Score */}
+          <SectionCard title={t("trustTitle")} description={t("trustDescription")}>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {user && requesterItem && (
+                <TrustCard
+                  result={calculateTrustScore(user, isRequester ? requesterItem : responderItem ?? null, swaps)}
+                  participantLabel={isRequester
+                    ? (requesterItem?.title ?? swap.requesterItemId)
+                    : (responderItem?.title ?? swap.responderItemId)}
+                />
+              )}
+              {user && responderItem && (
+                <TrustCard
+                  result={calculateTrustScore(
+                    { ...user, id: isRequester ? swap.responderId : swap.requesterId },
+                    isRequester ? responderItem : requesterItem ?? null,
+                    swaps,
+                  )}
+                  participantLabel={isRequester
+                    ? (responderItem?.title ?? swap.responderItemId)
+                    : (requesterItem?.title ?? swap.requesterItemId)}
+                />
+              )}
             </div>
           </SectionCard>
 

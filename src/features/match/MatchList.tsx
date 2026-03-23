@@ -6,9 +6,30 @@ import { SafeImage } from "@/components/SafeImage";
 import { formatScore } from "@/lib/utils";
 import type { MatchCandidate, MatchTier } from "@/lib/types";
 import { Pill } from "@/components/ui";
+import { TrustBadge } from "@/components/trust/TrustBadge";
+import { calculateTrustScore } from "@/lib/utils/trustScore";
+import type { UserProfile } from "@/lib/types";
 import { Columns2, Sparkles, Loader2, ChevronDown } from "lucide-react";
 
 const PAGE_SIZE = 5;
+
+/** Build a minimal UserProfile stub for trust scoring from item data alone */
+function stubUser(ownerId: string): UserProfile {
+  return {
+    id: ownerId,
+    email: "verified@example.com", // assume email exists
+    displayName: "",
+    languages: ["en"],
+    badge: "free",
+    location: undefined,
+    visibility: { publicProfile: true, itemsVisibility: "public", showExactLocation: false, showLastSeen: false },
+    notifications: { email: true, push: true, chat: true, matches: true, swapUpdates: true },
+    swapPreferences: { logistics: "flexible" },
+    security: { twoFactorEnabled: false, method: null, passkeysEnabled: false },
+    stats: { tokens: 0, reputation: "starter", completedSwaps: 0, activeListings: 1 },
+    createdAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(), // default 60 days
+  };
+}
 
 const SCORE_FACTORS = [
   { key: "category", max: 30 },
@@ -164,6 +185,7 @@ export function MatchList({
         const requestedPhoto = match.itemRequested.photos?.[0];
         const isAnalyzing = analyzingId === match.id;
         const hybridScore = match.aiAnalyzed ? Math.min(100, Math.max(0, match.compatibilityScore + (match.aiScoreBoost ?? 0))) : match.compatibilityScore;
+        const trustResult = calculateTrustScore(stubUser(match.itemRequested.ownerId), match.itemRequested, []);
 
         return (
           <div key={match.id} className={`rounded-2xl border-l-4 bg-white/90 shadow-sm transition-all dark:bg-zinc-900/80 ${style.accent} ${isExpanded ? `ring-2 ${style.ring}` : ""}`}>
@@ -176,6 +198,7 @@ export function MatchList({
                     <Sparkles className="h-3 w-3" />AI
                   </span>
                 )}
+                <TrustBadge result={trustResult} />
                 <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${style.bg} ${style.text}`}>{style.label}</span>
                 <Pill color="blue">{formatScore(hybridScore)}</Pill>
               </div>
