@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { AdminGuard } from "@/features/admin/AdminShell";
@@ -46,6 +46,7 @@ const STATUS_COLORS: Record<string, string> = {
 
 function ReportsContent() {
   const t = useTranslations("admin");
+  const locale = useLocale();
   const REASON_LABELS: Record<string, string> = {
     spam: t("reasonSpam"),
     harassment: t("reasonHarassment"),
@@ -435,7 +436,7 @@ function ReportsContent() {
                     {report.reporter_id.slice(0, 8)}
                   </td>
                   <td className="px-4 py-3 text-xs text-zinc-500">
-                    {new Date(report.created_at).toLocaleDateString("ro-RO")}
+                    {new Date(report.created_at).toLocaleDateString(locale)}
                   </td>
                   <td className="px-4 py-3">
                     <span

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { AdminGuard } from "@/features/admin/AdminShell";
@@ -41,6 +41,7 @@ const BADGE_COLORS: Record<string, string> = {
 
 function UsersContent() {
   const t = useTranslations("admin");
+  const locale = useLocale();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -254,7 +255,7 @@ function UsersContent() {
                     <div className="mt-1 flex items-center gap-3 text-[11px] text-zinc-400">
                       <span>
                         <Clock className="mb-0.5 mr-0.5 inline h-3 w-3" />
-                        {new Date(u.created_at).toLocaleDateString("ro-RO")}
+                        {new Date(u.created_at).toLocaleDateString(locale)}
                       </span>
                       <span>
                         <Star className="mb-0.5 mr-0.5 inline h-3 w-3" />

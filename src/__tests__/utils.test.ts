@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { formatDate, formatScore } from "@/lib/utils";
 
 describe("formatDate", () => {
-  it("formats ISO date to Romanian short format", () => {
+  it("formats ISO date to short format", () => {
     const result = formatDate("2026-01-15T12:00:00Z");
     expect(result).toBeTruthy();
     expect(result).toContain("15");

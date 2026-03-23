@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { Coins, TrendingUp, TrendingDown, X } from "lucide-react";
 
@@ -11,6 +11,7 @@ export function TokensDisplay() {
   const ref = useRef<HTMLDivElement>(null);
   const t = useTranslations("common");
   const tReasons = useTranslations("tokenReasons");
+  const locale = useLocale();
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -107,7 +108,7 @@ export function TokensDisplay() {
                           {tReasons.has(entry.reason) ? tReasons(entry.reason) : entry.reason}
                         </p>
                         <p className="text-[10px] text-zinc-400">
-                          {new Date(entry.createdAt).toLocaleDateString("ro-RO", {
+                          {new Date(entry.createdAt).toLocaleDateString(locale, {
                             day: "numeric",
                             month: "short",
                             hour: "2-digit",

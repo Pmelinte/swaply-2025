@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import {
   Calendar,
   Clock,
@@ -60,16 +60,17 @@ function useCountdown(endDate: string) {
   return timeLeft;
 }
 
-function formatDateRange(start: string, end: string) {
+function formatDateRange(start: string, end: string, locale = "en") {
   const s = new Date(start);
   const e = new Date(end);
   const opts: Intl.DateTimeFormatOptions = { day: "numeric", month: "short" };
-  return `${s.toLocaleDateString("ro-RO", opts)} – ${e.toLocaleDateString("ro-RO", opts)}`;
+  return `${s.toLocaleDateString(locale, opts)} – ${e.toLocaleDateString(locale, opts)}`;
 }
 
 /* ── Hero Section for Current Event ── */
 function CurrentEventHero({ event }: { event: WeeklyEventRow }) {
   const t = useTranslations("events");
+  const locale = useLocale();
   const countdown = useCountdown(event.ends_at);
 
   return (
@@ -88,7 +89,7 @@ function CurrentEventHero({ event }: { event: WeeklyEventRow }) {
           <div>
             <h1 className="text-2xl font-bold sm:text-3xl">{event.title}</h1>
             <p className="mt-1 text-sm text-amber-100">
-              {t("week")} {event.week_number} · {formatDateRange(event.starts_at, event.ends_at)}
+              {t("week")} {event.week_number} · {formatDateRange(event.starts_at, event.ends_at, locale)}
             </p>
           </div>
         </div>
@@ -146,6 +147,7 @@ function CurrentEventHero({ event }: { event: WeeklyEventRow }) {
 
 /* ── Calendar Grid Card ── */
 function EventCard({ event }: { event: WeeklyEventRow }) {
+  const locale = useLocale();
   const status = getEventStatus(event);
   const [expanded, setExpanded] = useState(false);
 
@@ -178,7 +180,7 @@ function EventCard({ event }: { event: WeeklyEventRow }) {
           </div>
           <p className="text-xs text-zinc-500 dark:text-zinc-400">
             <Calendar className="mr-1 inline h-3 w-3" />
-            {formatDateRange(event.starts_at, event.ends_at)}
+            {formatDateRange(event.starts_at, event.ends_at, locale)}
           </p>
         </div>
         <ChevronRight

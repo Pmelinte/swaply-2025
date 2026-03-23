@@ -68,6 +68,7 @@ function MessageBubble({
 }) {
   const t = useTranslations("chatPanel");
   const tc = useTranslations("chat");
+  const locale = useLocale();
   const [translatedText, setTranslatedText] = useState<string | null>(null);
   const [translating, setTranslating] = useState(false);
   const [showReactions, setShowReactions] = useState(false);
@@ -113,7 +114,7 @@ function MessageBubble({
       <div className="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400">
         <span>{isMe ? t("you") : t("partner")}</span>
         <div className="flex items-center gap-1.5">
-          <span>{formatDate(msg.createdAt)}</span>
+          <span>{formatDate(msg.createdAt, locale)}</span>
           {/* Read receipts */}
           {isMe && (
             <span className="ml-0.5">
