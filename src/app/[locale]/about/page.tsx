@@ -71,7 +71,7 @@ export default function AboutPage() {
             <thead>
               <tr className="border-b border-zinc-200 dark:border-zinc-700">
                 <th className="pb-2 pr-4 font-semibold text-zinc-500 dark:text-zinc-400" />
-                <th className="pb-2 pr-4 font-semibold text-zinc-500 dark:text-zinc-400">OLX</th>
+                <th className="pb-2 pr-4 font-semibold text-zinc-500 dark:text-zinc-400">{t("compareColumnOther")}</th>
                 <th className="pb-2 font-semibold text-blue-600 dark:text-blue-400">Swaply</th>
               </tr>
             </thead>

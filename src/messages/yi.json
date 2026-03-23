@@ -1874,7 +1874,7 @@
     "step2Text": "Browse or auto-match — the algorithm does the heavy lifting.",
     "step3Title": "Propose the swap",
     "step3Text": "Direct chat, agree on the details, and swap.",
-    "whyTitle": "Why Swaply and not OLX?",
+    "whyTitle": "Why Swaply and not a classic marketplace?",
     "compare_needMoney_label": "Need money",
     "compare_needMoney_olx": "✅ Yes",
     "compare_needMoney_swaply": "❌ No",
@@ -1895,7 +1895,8 @@
     "techTitle": "Technology",
     "techDescription": "Swaply is built with Next.js, React, Supabase, and Tailwind CSS. Hosted on Vercel, payments via Stripe. All code is written by a single developer — no team, no investors, just passion and coffee.",
     "ctaButton": "Start swapping",
-    "ctaSub": "Free. No card required. No commissions."
+    "ctaSub": "Free. No card required. No commissions.",
+    "compareColumnOther": "Classic marketplace"
   },
   "pricing": {
     "title": "Pricing",
@@ -2098,18 +2099,16 @@
     "enableAlert": "Enable alert",
     "disableAlert": "Disable alert",
     "delete": "Delete",
-    "alertsTab": "Alerts"
-  ,
-  "translate": {
-    "translate": "Translate",
-    "translating": "Translating…",
-    "showOriginal": "Show original",
-    "retryTranslate": "Retry",
-    "translatedContent": "Translated content",
-    "autoTranslated": "Auto-translated"
-  }
-}
-,
+    "alertsTab": "Alerts",
+    "translate": {
+      "translate": "Translate",
+      "translating": "Translating…",
+      "showOriginal": "Show original",
+      "retryTranslate": "Retry",
+      "translatedContent": "Translated content",
+      "autoTranslated": "Auto-translated"
+    }
+  },
   "translate": {
     "translate": "Translate",
     "translating": "Translating…",
