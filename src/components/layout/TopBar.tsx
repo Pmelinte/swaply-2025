@@ -1,7 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { useRouter, usePathname, Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import { ChevronDown, LogOut } from "lucide-react";
@@ -55,11 +54,14 @@ export function TopBar() {
     );
   });
 
+  const pathname = usePathname();
+
   const handleSelectLanguage = (loc: Locale) => {
     setLanguage(loc as LanguageCode);
     setLangOpen(false);
     setLangSearch("");
-    document.documentElement.lang = loc;
+    // Navigate to the same page in the new locale
+    router.replace(pathname, { locale: loc });
   };
 
   return (

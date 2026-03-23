@@ -291,7 +291,7 @@ interface AppStateContextProps {
 
 const AppStateContext = createContext<AppStateContextProps | undefined>(undefined);
 
-export function AppStateProvider({ children }: { children: ReactNode }) {
+export function AppStateProvider({ children, initialLocale }: { children: ReactNode; initialLocale?: string }) {
   const supabase = getSupabaseClient();
   const supabaseConfigured = Boolean(supabase);
 
@@ -337,21 +337,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     }).catch(() => { /* audit is best-effort */ });
   }, []);
 
-  const [language, setLanguage] = useState<LanguageCode>(() => {
-    if (typeof window === "undefined") return "en";
-    const saved = window.localStorage.getItem("swaply_language");
-    if (saved) {
-      const locales: string[] = [
-        "en","ro","fr","de","es","it","pt","nl","pl","el",
-        "hu","bg","cs","sk","hr","sl","sr","sv","da","fi",
-        "no","lt","lv","et","ga","mt","ru","tr","ar","zh",
-        "hi","bn","ja","ko","vi","th","id","ms","fil","fa",
-        "mn","uk",
-      ];
-      if (locales.includes(saved)) return saved as LanguageCode;
-    }
-    return "en";
-  });
+  const [language, setLanguage] = useState<LanguageCode>(
+    (initialLocale as LanguageCode) || "en",
+  );
 
   useEffect(() => {
     if (typeof window === "undefined") return;

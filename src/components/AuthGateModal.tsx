@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { sendGAEvent } from "@next/third-parties/google";
 import { X, UserPlus } from "lucide-react";
