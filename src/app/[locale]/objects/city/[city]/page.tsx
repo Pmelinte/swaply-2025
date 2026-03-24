@@ -261,7 +261,7 @@ export default async function CityPage({ params }: Props) {
         </div>
       )}
 
-      {/* Browse categories in this city */}
+      {/* Browse categories in this city — links to category+city intersection */}
       <section>
         <h2 className="mb-4 text-lg font-bold text-zinc-900 dark:text-zinc-50">
           Categorii populare în {city.name}
@@ -270,7 +270,7 @@ export default async function CityPage({ params }: Props) {
           {SEO_CATEGORIES.filter((c) => c.slug !== "other").map((cat) => (
             <Link
               key={cat.slug}
-              href={`/objects/category/${cat.slug}`}
+              href={`/objects/city/${citySlug}/${cat.slug}`}
               className="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-600 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:border-blue-600 dark:hover:bg-blue-900/20"
             >
               <Tag className="h-3 w-3" />

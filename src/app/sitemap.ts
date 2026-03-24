@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { getAllPosts } from "@/lib/blog";
 import { getServiceSupabase } from "@/lib/supabase/service";
 import { locales } from "@/i18n/config";
+import { SEO_CITIES, SEO_CATEGORIES } from "@/lib/seo-data";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 3600; // re-generate at most every hour
@@ -129,11 +130,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
+  // Category + City intersection pages (programmatic SEO)
+  const categoryCityPages: MetadataRoute.Sitemap = [];
+  for (const city of SEO_CITIES) {
+    for (const cat of SEO_CATEGORIES) {
+      if (cat.slug === "other") continue;
+      categoryCityPages.push(
+        ...localizedEntry(`/objects/city/${city.slug}/${cat.slug}`, {
+          changeFrequency: "weekly",
+          priority: 0.85,
+        }),
+      );
+    }
+  }
+
   return [
     ...staticHigh,
     ...staticMedium,
     ...categoryPages,
     ...cityPages,
+    ...categoryCityPages,
     ...objectPages,
     ...blogPosts,
   ];
