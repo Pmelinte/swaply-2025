@@ -1747,6 +1747,26 @@
     "status_cancelled": "Anulat",
     "blockedMessage": "[Mesaj blocat de moderare]"
   },
+  "aiAssist": {
+    "title": "Asistent AI",
+    "rephrase": "Reformulează politicos",
+    "translate": "Traduce mesajul",
+    "summarize": "Rezumă oferta",
+    "generateResponse": "Generează răspuns",
+    "checklist": "Checklist schimb",
+    "processing": "Se procesează...",
+    "genericError": "Ceva nu a mers bine. Încearcă din nou.",
+    "dailyLimitReached": "Ai atins limita zilnică de asistări AI. Fă upgrade pentru mai multe!",
+    "selectVariant": "Alege un răspuns",
+    "back": "Înapoi",
+    "insertInChat": "Inserează în chat",
+    "swapChecklist": "Checklist Schimb",
+    "warningEmail": "Mesajul tău conține o adresă de email. Pentru siguranță, comunică doar pe Swaply.",
+    "warningPhone": "Mesajul tău conține un număr de telefon. Pentru siguranță, comunică doar pe Swaply.",
+    "warningLink": "Mesajul tău conține un link extern. Link-urile nu sunt permise în chat.",
+    "warningOffensive": "Mesajul tău poate conține limbaj ofensiv. Consideră reformularea.",
+    "suggestRephrase": "Reformulează cu AI"
+  },
   "statsGrid": {
     "globalExchanges": "Schimburi globale",
     "globalDescription": "Swaply este activ în mai multe regiuni",

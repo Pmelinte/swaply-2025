@@ -106,6 +106,22 @@ export const profileUpdateSchema = z.object({
   }).optional(),
 }).partial();
 
+// ── AI Chat Assist Route ──
+export const aiChatAssistSchema = z.object({
+  message: z.string().max(5000).optional(),
+  action: z.enum(["rephrase_polite", "translate", "summarize_offer", "generate_response", "generate_checklist"]),
+  conversationContext: z.array(z.string().max(1000)).max(50).optional(),
+  swapContext: z.object({
+    reqItem: z.string().max(200).optional(),
+    resItem: z.string().max(200).optional(),
+    status: z.string().max(50).optional(),
+    logistics: z.string().max(100).optional(),
+    meetupPoint: z.string().max(200).optional(),
+  }).optional(),
+  userId: z.string().max(100).optional(),
+  userTier: z.enum(["free", "premium", "platinum"]).optional(),
+});
+
 // ── Swap Proposal Validation ──
 export const swapProposalSchema = z.object({
   requesterItemId: z.string().min(1).max(100),

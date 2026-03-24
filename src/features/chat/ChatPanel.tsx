@@ -21,6 +21,7 @@ import {
   Smile,
   X,
 } from "lucide-react";
+import { AIChatAssist } from "./AIChatAssist";
 
 const BLOCKED_EXTENSIONS = [".exe", ".bat", ".sh", ".cmd", ".zip", ".rar", ".7z", ".tar"];
 const URL_REGEX = /https?:\/\/[^\s]+/i;
@@ -717,6 +718,19 @@ export function ChatPanel({
                   <MapPin className="h-4 w-4" />
                 )}
               </button>
+              {/* AI Chat Assist */}
+              <AIChatAssist
+                draft={draft}
+                conversationMessages={active.messages.map((m) => m.content)}
+                swapContext={swapContext ? {
+                  reqItem: swapContext.reqItem?.title,
+                  resItem: swapContext.resItem?.title,
+                  status: swapContext.swap.status,
+                  logistics: swapContext.swap.logistics.locationType,
+                  meetupPoint: swapContext.swap.logistics.meetupPoint,
+                } : undefined}
+                onInsertText={(text) => setDraft(text)}
+              />
               <input
                 value={draft}
                 onChange={(e) => {
