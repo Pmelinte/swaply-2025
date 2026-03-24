@@ -113,6 +113,33 @@ export interface Item {
 
 export type MatchTier = "weak" | "possible" | "good" | "strong";
 
+export type NearMatchSuggestionType =
+  | "add_bundle_item"
+  | "accept_courier"
+  | "extend_radius"
+  | "add_photos"
+  | "complete_description"
+  | "lower_value"
+  | "accept_flexible";
+
+export interface NearMatchSuggestion {
+  type: NearMatchSuggestionType;
+  labelKey: string;
+  scoreBoost: number;
+  /** For radius suggestions */
+  newRadiusKm?: number;
+  /** How many new matches this would unlock */
+  newMatchesCount?: number;
+}
+
+export interface MatchExplanation {
+  score: number;
+  positives: string[];
+  negatives: string[];
+  missing: string[];
+  alternatives: NearMatchSuggestion[];
+}
+
 export interface MatchCandidate {
   id: string;
   itemOffered: Item;
@@ -132,6 +159,8 @@ export interface MatchCandidate {
   /** v2: Distance & explanation fields */
   distanceKm?: number;
   explanations?: Array<{ icon: string; label: string; detail: string }>;
+  /** v3: Structured match explanation with positives/negatives/suggestions */
+  matchExplanation?: MatchExplanation;
 }
 
 export type ChatMessageType = "text" | "location" | "image";

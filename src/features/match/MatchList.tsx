@@ -10,6 +10,8 @@ import { TrustBadge } from "@/components/trust/TrustBadge";
 import { calculateTrustScore } from "@/lib/utils/trustScore";
 import type { UserProfile } from "@/lib/types";
 import { Columns2, Sparkles, Loader2, ChevronDown } from "lucide-react";
+import { MatchExplanationPanel } from "./MatchExplanationPanel";
+import type { NearMatchSuggestion } from "@/lib/types";
 
 const PAGE_SIZE = 5;
 
@@ -119,12 +121,14 @@ export function MatchList({
   onNegotiate,
   onReject,
   onAiAnalyze,
+  onApplySuggestion,
 }: {
   matches: MatchCandidate[];
   onAccept?: (match: MatchCandidate) => void;
   onNegotiate?: (match: MatchCandidate) => void;
   onReject?: (match: MatchCandidate, reason?: RejectReason) => void;
   onAiAnalyze?: (matchId: string) => Promise<void>;
+  onApplySuggestion?: (matchId: string, suggestion: NearMatchSuggestion) => void;
 }) {
   const t = useTranslations("matchList");
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -271,7 +275,17 @@ export function MatchList({
                   </button>
                 )}
               </div>
-              {isExpanded && <ScoreBreakdown reasons={match.reasons ?? []} score={hybridScore} t={t} />}
+              {isExpanded && (
+                match.matchExplanation ? (
+                  <MatchExplanationPanel
+                    explanation={{ ...match.matchExplanation, score: hybridScore }}
+                    distanceKm={match.distanceKm}
+                    onApplySuggestion={onApplySuggestion ? (s) => onApplySuggestion(match.id, s) : undefined}
+                  />
+                ) : (
+                  <ScoreBreakdown reasons={match.reasons ?? []} score={hybridScore} t={t} />
+                )
+              )}
               {compareId === match.id && (
                 <div className="mt-3 grid grid-cols-2 gap-3 rounded-xl border border-violet-200 bg-violet-50/50 p-3 dark:border-violet-800 dark:bg-violet-950/20">
                   {[

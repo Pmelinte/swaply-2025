@@ -10,6 +10,8 @@ import { CTAButton, NextStepRecommendation, SectionCard, StateShowcase } from "@
 import { MapEmbed } from "@/components/maps/MapEmbed";
 import type { MatchCandidate, MatchTier } from "@/lib/types";
 import { SlidersHorizontal, Sparkles, Hand, X } from "lucide-react";
+import { NearMatchSuggestions } from "@/features/match/NearMatchSuggestions";
+import type { NearMatchSuggestion } from "@/lib/types";
 
 type SortOption = "score" | "category" | "location";
 
@@ -250,6 +252,25 @@ export function MatchClient() {
     trackEvent("match_rejected", { matchId: match.id, reason: reason ?? "none", score: match.compatibilityScore });
   };
 
+  const handleApplySuggestion = (suggestion: NearMatchSuggestion) => {
+    trackEvent("near_match_suggestion_applied", { type: suggestion.type, scoreBoost: suggestion.scoreBoost });
+    if (suggestion.type === "extend_radius" && suggestion.newRadiusKm) {
+      router.push("/profile");
+    } else if (suggestion.type === "accept_courier") {
+      router.push("/profile");
+    } else if (suggestion.type === "add_bundle_item") {
+      router.push("/objects");
+    } else if (suggestion.type === "add_photos" || suggestion.type === "complete_description") {
+      router.push("/objects");
+    } else if (suggestion.type === "accept_flexible") {
+      router.push("/profile");
+    }
+  };
+
+  const handleMatchSuggestion = (_matchId: string, suggestion: NearMatchSuggestion) => {
+    handleApplySuggestion(suggestion);
+  };
+
   // Dealbreaker counts
   const dealbreakersCount = (minCondition !== "any" ? 1 : 0) + (excludedCategories.size > 0 ? 1 : 0) + (minScore > 0 ? 1 : 0);
   const clearDealbreakers = () => {
@@ -280,6 +301,7 @@ export function MatchClient() {
             onNegotiate={(match) => handleNegotiate(match.id)}
             onReject={(match, reason) => handleReject(match, reason)}
             onAiAnalyze={handleAiAnalyze}
+            onApplySuggestion={handleMatchSuggestion}
           />
         ) : (
           <div className="rounded-xl bg-zinc-50 p-4 text-center text-sm text-zinc-500 dark:bg-zinc-800/50">
@@ -577,6 +599,15 @@ export function MatchClient() {
           onNegotiate={(match) => handleNegotiate(match.id)}
           onReject={() => {}}
           onAiAnalyze={handleAiAnalyze}
+          onApplySuggestion={handleMatchSuggestion}
+        />
+      </SectionCard>
+
+      {/* ── Near-Match Suggestions ── */}
+      <SectionCard title={t("nearMatchTitle")} description={t("nearMatchDescription")}>
+        <NearMatchSuggestions
+          matches={dealbrokenMatches}
+          onApply={handleApplySuggestion}
         />
       </SectionCard>
 
