@@ -11,7 +11,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "about" });
+  const t = await getTranslations({ locale, namespace: "objects" });
 
   const title = `${t("metaTitle")} | Swaply`;
   const description = t("metaDescription");
@@ -22,15 +22,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: { title, description, type: "website" },
     twitter: { card: "summary", title, description },
     alternates: {
-      canonical: `${BASE_URL}/${locale}/about`,
+      canonical: `${BASE_URL}/${locale}/objects`,
       languages: Object.fromEntries([
-        ...locales.map((loc) => [loc, `${BASE_URL}/${loc}/about`]),
-        ["x-default", `${BASE_URL}/en/about`],
+        ...locales.map((loc) => [loc, `${BASE_URL}/${loc}/objects`]),
+        ["x-default", `${BASE_URL}/en/objects`],
       ]),
     },
   };
 }
 
-export default function AboutLayout({ children }: Props) {
+export default function ObjectsLayout({ children }: Props) {
   return children;
 }

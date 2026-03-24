@@ -625,7 +625,9 @@
     "servicesType": "Servicii",
     "undoSwipe": "Anulează ultima glisare",
     "loadMoreItems": "Încarcă mai multe",
-    "remainingItems": "rămase"
+    "remainingItems": "rămase",
+    "metaTitle": "Schimb de obiecte fără bani",
+    "metaDescription": "Răsfoiește și schimbă obiecte fără bani. Potrivire AI, schimb local, chat securizat."
   },
   "objectDetail": {
     "loading": "Se încarcă obiectul",
@@ -1008,7 +1010,7 @@
     "bundleLockedDesc": "Acest bundle a fost blocat la acceptarea schimbului. Obiectele nu pot fi modificate.",
     "bundleItems": "{count} obiecte în bundle",
     "bundleCurrency": "RON",
-    "bundleSwapSummary": "Schimb: {left} \u2194 {right}",
+    "bundleSwapSummary": "Schimb: {left} ↔ {right}",
     "trustTitle": "Scor de încredere",
     "trustDescription": "Evaluarea încrederii pentru acest schimb pe baza semnalelor reale",
     "requester": "Inițiator",
@@ -1512,7 +1514,9 @@
     "streak": "zile consecutive",
     "leaderboardNote": "Clasamentul se resetează lunar. Activitatea include schimburi completate, evaluări pozitive și engagement constant.",
     "badgeBenefits": "Beneficii badge",
-    "badgeBenefitsDescription": "Beneficii Premium și Platinum: prioritate în analiză, pin-uri pe hartă, indicator completare și altele."
+    "badgeBenefitsDescription": "Beneficii Premium și Platinum: prioritate în analiză, pin-uri pe hartă, indicator completare și altele.",
+    "metaTitle": "Cum funcționează Swaply",
+    "metaDescription": "Află cum funcționează Swaply: postează obiecte, primești potriviri AI, discuți și schimbi. Platformă gratuită."
   },
   "itemForm": {
     "conditionNew": "Nou",
@@ -2210,7 +2214,9 @@
     "techTitle": "Tehnologie",
     "techDescription": "Swaply e construit cu Next.js, React, Supabase și Tailwind CSS. Hosting pe Vercel, plăți prin Stripe. Tot codul e scris de un singur developer — fără echipă, fără investitori, doar pasiune și cafea.",
     "ctaButton": "Începe să schimbi",
-    "ctaSub": "Gratuit. Fără card. Fără comisioane."
+    "ctaSub": "Gratuit. Fără card. Fără comisioane.",
+    "metaTitle": "Despre Swaply",
+    "metaDescription": "Povestea din spatele Swaply — platforma de schimb de obiecte fără bani."
   },
   "pricing": {
     "title": "Prețuri",
@@ -2253,7 +2259,9 @@
     "faqA2": "Avem un sistem de rating și raportare. Userii cu comportament problematic sunt suspendați.",
     "faqQ3": "Pot anula un schimb propus?",
     "faqA3": "Da, oricând înainte ca cealaltă persoană să confirme.",
-    "ctaButton": "Începe gratuit"
+    "ctaButton": "Începe gratuit",
+    "metaTitle": "Prețuri — Gratuit, Premium, Platinum",
+    "metaDescription": "Compară planurile Swaply: Gratuit, Premium și Platinum. Schimbul e mereu gratuit, fără comisioane."
   },
   "contact": {
     "title": "Contact",
