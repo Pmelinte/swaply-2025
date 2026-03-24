@@ -110,10 +110,10 @@ export async function createSubscriptionCheckout(params: SubscriptionCheckoutPar
 
   const priceId = getStripePriceId(params.planId, params.interval);
 
-  // RON prices for subscription plans
+  // RON prices for subscription plans (in bani = RON × 100)
   const ronPrices: Record<string, Record<string, number>> = {
-    premium: { monthly: 1900, yearly: 18900 },  // 19 RON/mo, 189 RON/yr
-    platinum: { monthly: 4900, yearly: 47900 },  // 49 RON/mo, 479 RON/yr
+    premium: { monthly: 1900, yearly: 18900 },   // 19 RON/lună, 189 RON/an
+    platinum: { monthly: 4900, yearly: 47900 },   // 49 RON/lună, 479 RON/an
   };
 
   // If no pre-created price, create an ad-hoc price in RON
