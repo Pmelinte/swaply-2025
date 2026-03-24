@@ -1327,7 +1327,19 @@
     "shipmentStatusPickedUp": "Picked up",
     "shipmentStatusInTransit": "In transit",
     "shipmentStatusDelivered": "Delivered",
-    "shipmentStatusFailed": "Failed"
+    "shipmentStatusFailed": "Failed",
+    "escrowTitle": "Courier guarantee",
+    "escrowDescription": "Good-faith deposit for courier-based swaps",
+    "escrowBannerTitle": "Good-faith guarantee: 15 RON",
+    "escrowBannerDesc": "This amount is automatically returned when both parties confirm they received the items. It is not a payment — just a trust deposit.",
+    "escrowPayButton": "Accept and pay guarantee",
+    "escrowStatusPending": "Awaiting payment",
+    "escrowStatusHeld": "Guarantee held",
+    "escrowStatusReleased": "Guarantee returned",
+    "escrowStatusDisputed": "Disputed — under review",
+    "escrowBothHeld": "Both guarantees are active. Ship your items — the deposit returns automatically upon mutual confirmation.",
+    "escrowReleased": "Both guarantees have been returned. Swap completed successfully!",
+    "escrowNote": "The guarantee does not cover the value of the items — it only ensures good faith. If no confirmation is received within 14 days, a reminder is sent. After 21 days, an admin review is triggered."
   },
   "feedback": {
     "title": "Feedback",

@@ -1327,7 +1327,19 @@
     "shipmentStatusPickedUp": "Ridicat",
     "shipmentStatusInTransit": "În tranzit",
     "shipmentStatusDelivered": "Livrat",
-    "shipmentStatusFailed": "Eșuat"
+    "shipmentStatusFailed": "Eșuat",
+    "escrowTitle": "Garanție curier",
+    "escrowDescription": "Garanție de bună-credință pentru schimburile prin curier",
+    "escrowBannerTitle": "Garanție de bună-credință: 15 RON",
+    "escrowBannerDesc": "Aceasta se returnează automat când confirmați ambii că ați primit obiectele. Nu este o plată — doar o garanție de încredere.",
+    "escrowPayButton": "Acceptă și plătește garanția",
+    "escrowStatusPending": "Așteaptă plata",
+    "escrowStatusHeld": "Garanție reținută",
+    "escrowStatusReleased": "Garanție returnată",
+    "escrowStatusDisputed": "Disputat — în analiză",
+    "escrowBothHeld": "Ambele garanții sunt active. Trimiteți obiectele — depozitul se returnează automat la confirmarea reciprocă.",
+    "escrowReleased": "Ambele garanții au fost returnate. Schimb finalizat cu succes!",
+    "escrowNote": "Garanția NU acoperă valoarea obiectelor — doar buna-credință. Dacă nu se confirmă primirea în 14 zile, se trimite reminder. După 21 zile, intervine un admin."
   },
   "feedback": {
     "title": "Păreri",

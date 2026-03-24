@@ -245,6 +245,12 @@ export interface SwapIntent {
   };
   cancelReason?: CancelReason;
   cancelNote?: string;
+  /** Escrow guarantee for courier swaps */
+  escrow?: {
+    requesterStatus: "none" | "held" | "released" | "refunded" | "disputed";
+    responderStatus: "none" | "held" | "released" | "refunded" | "disputed";
+    amountRon: number;
+  };
   /** Structured bundles */
   requesterBundle?: SwapBundle;
   responderBundle?: SwapBundle;
