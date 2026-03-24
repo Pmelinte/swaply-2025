@@ -8,6 +8,7 @@ import { SwapTimeline } from "@/features/change/SwapTimeline";
 import type { SwapIntent, HouseAmenity, HouseRule, HouseSwapMode, PropertyType, ServiceCategory, SkillLevel, ServiceDelivery, ServiceMilestone, CancelReason } from "@/lib/types";
 import { TrustCard } from "@/components/trust/TrustCard";
 import { calculateTrustScore } from "@/lib/utils/trustScore";
+import { MeetingModule } from "@/components/meetings/MeetingModule";
 import {
   MapPin, Truck, Package, Check, Globe, Plane, Home, Wrench, QrCode, Shield, Calendar,
   Wifi, Car, Snowflake, Flame as Heating, WashingMachine, CookingPot, Waves,
@@ -1252,6 +1253,15 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
                 {t("logisticsHelp")}
               </p>
             </SectionCard>
+          )}
+
+          {/* Safe Meeting Module */}
+          {swap.status !== "completed" && swap.status !== "cancelled" && user && (
+            <MeetingModule
+              swap={swap}
+              currentUserId={user.id}
+              isRequester={isRequester}
+            />
           )}
 
           {/* Pre-exchange checklist */}

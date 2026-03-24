@@ -1061,9 +1061,9 @@ export function AppStateProvider({ children, initialLocale }: { children: ReactN
       return computeTrustScore({
         accountAgeDays: 0, emailVerified: false, phoneVerified: false,
         completedSwaps: 0, averageRating: 0, totalRatingsReceived: 0,
-        reportsAgainst: 0, reportsDismissed: 0, isBlocked: false,
-        profileCompleteness: 0, hasAvatar: false, hasLocation: false,
-        consecutiveLoginDays: 0,
+        reportsAgainst: 0, reportsDismissed: 0, noShowReportsAgainst: 0,
+        isBlocked: false, profileCompleteness: 0, hasAvatar: false,
+        hasLocation: false, consecutiveLoginDays: 0,
       });
     }
     const signals = buildTrustSignals(user, {

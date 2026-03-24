@@ -247,6 +247,33 @@ export interface SwapMetadata {
   serviceDetails?: Omit<SwapServiceTerms, "id" | "swapId" | "createdAt">;
 }
 
+/** Meeting session — safe meeting with confirmation code */
+export type MeetingStatus = "scheduled" | "confirmed_a" | "confirmed_b" | "completed" | "no_show";
+
+export interface MeetingSession {
+  id: string;
+  swapId: string;
+  proposerId: string;
+  locationName: string;
+  locationAddress?: string;
+  scheduledAt: string;
+  confirmationCode: string;
+  status: MeetingStatus;
+  aCheckedInAt?: string;
+  bCheckedInAt?: string;
+  createdAt: string;
+}
+
+/** No-show report for a meeting */
+export interface MeetingNoShowReport {
+  id: string;
+  meetingId: string;
+  reporterId: string;
+  reportedUserId: string;
+  notes?: string;
+  createdAt: string;
+}
+
 export interface Announcement {
   id: string;
   message: string;
