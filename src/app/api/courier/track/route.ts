@@ -12,11 +12,11 @@ export async function GET(request: NextRequest) {
   const provider = searchParams.get("provider") as CourierProvider | null;
 
   if (!awb || !provider) {
-    return NextResponse.json({ error: "awb și provider sunt obligatorii" }, { status: 400 });
+    return NextResponse.json({ error: "awb and provider are required" }, { status: 400 });
   }
 
   if (!["fancourier", "sameday", "cargus"].includes(provider)) {
-    return NextResponse.json({ error: "Provider invalid" }, { status: 400 });
+    return NextResponse.json({ error: "Invalid provider" }, { status: 400 });
   }
 
   try {
@@ -24,6 +24,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(result);
   } catch (err) {
     console.error("[courier/track] Error:", err);
-    return NextResponse.json({ error: "Eroare la tracking" }, { status: 500 });
+    return NextResponse.json({ error: "Tracking error" }, { status: 500 });
   }
 }
