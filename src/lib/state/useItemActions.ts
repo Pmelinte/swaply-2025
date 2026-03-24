@@ -63,6 +63,12 @@ export function useItemActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
             if (idx >= 0) { const next = [...prev]; next[idx] = mapped; return next; }
             return [mapped, ...prev];
           });
+          // Fire-and-forget: generate semantic embedding for this item
+          fetch("/api/embeddings", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ itemId: mapped.id }),
+          }).catch(() => { /* embedding generation is non-critical */ });
           return mapped;
         }
       }

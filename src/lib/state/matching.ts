@@ -7,6 +7,10 @@
  */
 import type { Item, MatchCandidate, MatchExplanation, MatchTier, NearMatchSuggestion, UserProfile } from "../types";
 import { getAllKeywords, areSiblingCategories } from "../categories";
+import { calculateMatchScore as calcWeightedScore, weightedScoreTier } from "../matching/score";
+
+/** Semantic scores map: "itemA_id:itemB_id" → cosine similarity (0-1) */
+export type SemanticScoresMap = Map<string, number>;
 
 // ── Category keyword map for wishlist matching ──
 
@@ -139,6 +143,8 @@ export function computeMatchesForUser(
   items: Item[],
   userContext?: MatchingUserContext,
   ownerCoords?: OwnerCoordinatesMap,
+  semanticScores?: SemanticScoresMap,
+  userProfiles?: Map<string, UserProfile>,
 ): MatchCandidate[] {
   const myItems = items.filter(
     (item) => item.ownerId === userId && item.isActive && item.status === "active",
@@ -451,19 +457,34 @@ export function computeMatchesForUser(
         alternatives: uniqueAlts,
       };
 
+      // v4: Compute weighted 9-factor score if semantic data is available
+      const semanticKey = `${offered.id}:${requested.id}`;
+      const semScore = semanticScores?.get(semanticKey);
+      const userA = userProfiles?.get(userId) ?? null;
+      const userB = userProfiles?.get(requested.ownerId) ?? null;
+      const weighted = calcWeightedScore(offered, requested, userA, userB, semScore);
+
+      // Use the higher of legacy score or weighted score for backward compatibility.
+      // When semantic data is present, prefer weighted score.
+      const finalScore = semScore !== undefined ? weighted.total : score;
+      const finalTier = semScore !== undefined ? weightedScoreTier(finalScore) : tier;
+
       candidates.push({
         id: `match_${offered.id}_${requested.id}`,
         itemOffered: offered,
         itemRequested: requested,
-        compatibilityScore: score,
-        tier,
+        compatibilityScore: finalScore,
+        tier: finalTier,
         reasons,
         reason: reasons.slice(0, 3).join(". ") + ".",
         manualFallbackReason: "Analiza calculata local (scor cumulativ).",
         // Enhanced fields
         distanceKm,
         explanations: explanations.length > 0 ? explanations : undefined,
-        matchExplanation,
+        matchExplanation: { ...matchExplanation, score: finalScore },
+        // v4 fields
+        semanticScore: semScore,
+        weightedScore: weighted,
       });
     }
   }
