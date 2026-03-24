@@ -141,6 +141,20 @@ export async function POST(request: NextRequest) {
           const sb2 = getServiceSupabase();
           if (sb2 && meta.userId && meta.planId) {
             await sb2.from("profiles").update({ badge: meta.planId }).eq("user_id", meta.userId);
+            // Upsert into user_subscriptions
+            await sb2
+              .from("user_subscriptions")
+              .upsert(
+                {
+                  user_id: meta.userId,
+                  stripe_customer_id: (session.customer as string) ?? null,
+                  stripe_subscription_id: (session.subscription as string) ?? null,
+                  plan: meta.planId,
+                  status: "active",
+                  current_period_end: new Date(Date.now() + (meta.interval === "yearly" ? 365 : 30) * 86400000).toISOString(),
+                },
+                { onConflict: "user_id" },
+              );
           }
           // Grant upgrade bonus tokens
           if (meta.userId) {
@@ -291,6 +305,69 @@ export async function POST(request: NextRequest) {
         break;
       }
 
+      case "customer.subscription.updated": {
+        const subscription = event.data.object as {
+          id?: string;
+          status?: string;
+          metadata?: Record<string, string>;
+          current_period_end?: number;
+          customer?: string;
+          items?: { data?: Array<{ price?: { metadata?: Record<string, string> } }> };
+        };
+        const meta = subscription.metadata ?? {};
+        const userId = meta.userId;
+
+        if (userId) {
+          const sb = getServiceSupabase();
+          if (sb) {
+            // Map Stripe status to our status
+            const statusMap: Record<string, string> = {
+              active: "active",
+              past_due: "past_due",
+              canceled: "cancelled",
+              unpaid: "past_due",
+              incomplete: "past_due",
+              trialing: "active",
+            };
+            const mappedStatus = statusMap[subscription.status ?? ""] ?? "active";
+            const periodEnd = subscription.current_period_end
+              ? new Date(subscription.current_period_end * 1000).toISOString()
+              : new Date(Date.now() + 30 * 86400000).toISOString();
+
+            // Update existing subscriptions table
+            await sb
+              .from("subscriptions")
+              .update({
+                status: mappedStatus === "cancelled" ? "canceled" : mappedStatus,
+                current_period_end: periodEnd,
+                stripe_customer_id: (subscription.customer as string) ?? null,
+                stripe_subscription_id: subscription.id ?? null,
+                updated_at: new Date().toISOString(),
+              })
+              .eq("user_id", userId);
+
+            // Upsert into user_subscriptions table
+            await sb
+              .from("user_subscriptions")
+              .upsert(
+                {
+                  user_id: userId,
+                  stripe_customer_id: (subscription.customer as string) ?? null,
+                  stripe_subscription_id: subscription.id ?? null,
+                  plan: meta.planId ?? "free",
+                  status: mappedStatus,
+                  current_period_end: periodEnd,
+                  updated_at: new Date().toISOString(),
+                },
+                { onConflict: "user_id" },
+              );
+          }
+        }
+        await logAction({ userId: userId ?? "system", action: "subscription.updated", entityType: "subscription", entityId: subscription.id, newData: { status: subscription.status, planId: meta.planId }, request });
+        console.log(`[webhook] Subscription updated: status=${subscription.status}, user ${userId}`);
+        break;
+      }
+
       case "customer.subscription.deleted": {
         const subscription = event.data.object as {
           id?: string;
@@ -310,6 +387,18 @@ export async function POST(request: NextRequest) {
             .eq("user_id", meta.userId);
           // Downgrade profile badge to free
           await sb.from("profiles").update({ badge: "free" }).eq("user_id", meta.userId);
+          // Downgrade user_subscriptions
+          await sb
+            .from("user_subscriptions")
+            .upsert(
+              {
+                user_id: meta.userId,
+                plan: "free",
+                status: "cancelled",
+                updated_at: new Date().toISOString(),
+              },
+              { onConflict: "user_id" },
+            );
         }
         await logAction({ userId: meta.userId ?? "system", action: "subscription.cancelled", entityType: "subscription", entityId: subscription.id, oldData: { planId: meta.planId }, newData: { planId: "free", status: "canceled" }, request });
         console.log(`[webhook] Subscription cancelled: user ${meta.userId}`);
