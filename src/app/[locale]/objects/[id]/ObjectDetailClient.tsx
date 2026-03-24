@@ -16,6 +16,7 @@ const ReportBlockButtons = lazy(() =>
   import("@/components/safety/ReportBlockButtons").then((m) => ({ default: m.ReportBlockButtons })),
 );
 import { NO_IMAGE_URL } from "@/lib/storage";
+import { BoostPanel } from "@/components/BoostPanel";
 import { TranslateButton } from "@/components/TranslateButton";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { sendGAEvent } from "@next/third-parties/google";
@@ -662,13 +663,22 @@ export default function ObjectDetailClient() {
               </div>
             </div>
             {isOwner && (
-              <Link
-                href={`/objects/${item.id}/edit`}
-                className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-xl border border-zinc-200 px-3 py-2 text-sm font-semibold text-zinc-700 hover:bg-zinc-50 dark:border-zinc-600 dark:text-zinc-200 dark:hover:bg-zinc-700"
-              >
-                <Pencil className="h-3.5 w-3.5" />
-                {t("editObject")}
-              </Link>
+              <>
+                <Link
+                  href={`/objects/${item.id}/edit`}
+                  className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-xl border border-zinc-200 px-3 py-2 text-sm font-semibold text-zinc-700 hover:bg-zinc-50 dark:border-zinc-600 dark:text-zinc-200 dark:hover:bg-zinc-700"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                  {t("editObject")}
+                </Link>
+                <div className="mt-3">
+                  <BoostPanel
+                    itemId={item.id}
+                    userId={user!.id}
+                    userEmail={user!.email ?? ""}
+                  />
+                </div>
+              </>
             )}
           </div>
 

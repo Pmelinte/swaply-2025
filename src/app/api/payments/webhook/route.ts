@@ -244,6 +244,36 @@ export async function POST(request: NextRequest) {
           console.log(`[webhook] Boost activated: ${type} → item ${meta.itemId} → user ${meta.userId}`);
         }
 
+        // Item boost (RON) — activate boost in item_boosts table
+        if (type === "item_boost") {
+          const sb = getServiceSupabase();
+          if (sb && meta.itemId && intent.id) {
+            const durationHours = parseInt(meta.durationHours ?? "24", 10);
+            const now = new Date();
+            const expiresAt = new Date(now.getTime() + durationHours * 3600000);
+
+            // Update the pending record created by /api/payments/boost
+            await sb
+              .from("item_boosts")
+              .update({
+                stripe_payment_status: "succeeded",
+                starts_at: now.toISOString(),
+                expires_at: expiresAt.toISOString(),
+              })
+              .eq("stripe_payment_intent_id", intent.id);
+
+            // Also insert into featured_listings for backward compatibility
+            await sb.from("featured_listings").insert({
+              item_id: meta.itemId,
+              user_id: meta.userId,
+              expires_at: expiresAt.toISOString(),
+            });
+          }
+          await recordTransaction(meta.userId, intent.id ?? "", "item_boost", intent.amount ?? 0, intent.currency ?? "ron", "completed", meta);
+          await logAction({ userId: meta.userId, action: "payment.item_boost", entityType: "item", entityId: meta.itemId, newData: { durationHours: meta.durationHours, priceRon: meta.priceRon, amountBani: intent.amount }, request });
+          console.log(`[webhook] Item boost activated: ${meta.durationHours}h → item ${meta.itemId} → user ${meta.userId}`);
+        }
+
         if (type === "swap_insurance") {
           const sb = getServiceSupabase();
           if (sb && meta.swapId) {

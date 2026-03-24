@@ -34,6 +34,7 @@ import {
   Heart,
   Undo2,
   Bell,
+  Zap,
 } from "lucide-react";
 
 const MAX_RIGHT_SWIPES = 3;
@@ -163,7 +164,15 @@ function ObjectCard({ item, mode }: { item: Item; mode: BrowseMode }) {
           />
         </div>
         <div className="min-w-0 flex-1">
-          <h3 className="truncate font-semibold text-zinc-900 dark:text-zinc-50">{item.title}</h3>
+          <div className="flex items-center gap-1.5">
+            <h3 className="truncate font-semibold text-zinc-900 dark:text-zinc-50">{item.title}</h3>
+            {item.isBoosted && (
+              <span className="flex shrink-0 items-center gap-0.5 rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                <Zap className="h-2.5 w-2.5" />
+                Promovat
+              </span>
+            )}
+          </div>
           <div className="mt-0.5 flex items-center gap-2 text-xs text-zinc-500">
             <span className="rounded-full bg-zinc-100 px-2 py-0.5 dark:bg-zinc-700">{item.category}</span>
             <span>{item.condition}</span>
@@ -201,6 +210,12 @@ function ObjectCard({ item, mode }: { item: Item; mode: BrowseMode }) {
         <span className="absolute left-2 top-2 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-zinc-700 backdrop-blur dark:bg-zinc-900/80 dark:text-zinc-200">
           {item.condition}
         </span>
+        {item.isBoosted && (
+          <span className="absolute left-2 top-8 flex items-center gap-0.5 rounded-full bg-amber-500/90 px-2 py-0.5 text-[10px] font-bold text-white backdrop-blur">
+            <Zap className="h-2.5 w-2.5" />
+            Promovat
+          </span>
+        )}
         {item.listingType === "property" && (
           <span className="absolute right-2 top-2 rounded-full bg-purple-600/90 px-2 py-0.5 text-[10px] font-semibold text-white backdrop-blur">
             <Home className="inline h-2.5 w-2.5 mr-0.5" />Property
@@ -427,32 +442,40 @@ export default function ObjectsPage() {
       const loc = locationFilter.toLowerCase();
       result = result.filter((i) => i.location?.toLowerCase().includes(loc));
     }
+    // Helper: boosted items always appear first regardless of sort
+    const boostFirst = (arr: typeof result) =>
+      [...arr].sort((a, b) => {
+        const aBoost = a.isBoosted ? 1 : 0;
+        const bBoost = b.isBoosted ? 1 : 0;
+        return bBoost - aBoost;
+      });
+
     switch (sortMode) {
       case "newest":
-        result = [...result].sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""));
+        result = boostFirst([...result].sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || "")));
         break;
       case "category":
-        result = [...result].sort((a, b) => a.category.localeCompare(b.category));
+        result = boostFirst([...result].sort((a, b) => a.category.localeCompare(b.category)));
         break;
       case "condition":
-        result = [...result].sort((a, b) => a.condition.localeCompare(b.condition));
+        result = boostFirst([...result].sort((a, b) => a.condition.localeCompare(b.condition)));
         break;
       case "popular":
         // Sort by photo count (proxy for completeness/effort) then by tags count
-        result = [...result].sort((a, b) => {
+        result = boostFirst([...result].sort((a, b) => {
           const aScore = (a.photos?.length ?? 0) * 2 + (a.userFinalTags?.length ?? 0) + (a.aiSuggestedTags?.length ?? 0);
           const bScore = (b.photos?.length ?? 0) * 2 + (b.userFinalTags?.length ?? 0) + (b.aiSuggestedTags?.length ?? 0);
           return bScore - aScore;
-        });
+        }));
         break;
       case "trusted":
         // Sort by owner's completedSwaps (proxy for trust) — items from experienced swappers first
-        result = [...result].sort((a, b) => {
+        result = boostFirst([...result].sort((a, b) => {
           // Prefer non-demo items from real users
           const aDemoScore = a.isDemo ? -10 : 0;
           const bDemoScore = b.isDemo ? -10 : 0;
           return bDemoScore - aDemoScore || (b.createdAt || "").localeCompare(a.createdAt || "");
-        });
+        }));
         break;
     }
     return result;

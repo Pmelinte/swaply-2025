@@ -197,6 +197,49 @@ export async function createOneTimePayment(params: OneTimePaymentParams): Promis
   return { clientSecret: intent.client_secret };
 }
 
+// ── Payment Intent: Item Boost (RON pricing) ──
+
+export type BoostDuration = "24h" | "72h" | "7d";
+
+export const BOOST_PRICES: Record<BoostDuration, { durationHours: number; priceRon: number; amountBani: number; label: string }> = {
+  "24h": { durationHours: 24, priceRon: 5, amountBani: 500, label: "Boost 24h — 5 RON" },
+  "72h": { durationHours: 72, priceRon: 12, amountBani: 1200, label: "Boost 72h — 12 RON" },
+  "7d":  { durationHours: 168, priceRon: 25, amountBani: 2500, label: "Boost 7 zile — 25 RON" },
+};
+
+export interface BoostPaymentParams {
+  duration: BoostDuration;
+  itemId: string;
+  userId: string;
+  userEmail: string;
+}
+
+export async function createBoostPaymentIntent(params: BoostPaymentParams): Promise<{ clientSecret: string | null; paymentIntentId: string | null; error?: string }> {
+  const stripe = getStripe();
+  if (!stripe) return { clientSecret: null, paymentIntentId: null, error: "Stripe is not configured" };
+
+  const plan = BOOST_PRICES[params.duration];
+  if (!plan) return { clientSecret: null, paymentIntentId: null, error: `Invalid duration: ${params.duration}` };
+
+  const intent = await stripe.paymentIntents.create({
+    amount: plan.amountBani,
+    currency: "ron",
+    payment_method_types: ["card"],
+    metadata: {
+      type: "item_boost",
+      duration: params.duration,
+      durationHours: String(plan.durationHours),
+      priceRon: String(plan.priceRon),
+      itemId: params.itemId,
+      userId: params.userId,
+    },
+    receipt_email: params.userEmail,
+    description: `Swaply ${plan.label} — vizibilitate crescută`,
+  });
+
+  return { clientSecret: intent.client_secret, paymentIntentId: intent.id };
+}
+
 // ── Webhook Verification ──
 
 export function constructWebhookEvent(body: string, signature: string): Stripe.Event | null {

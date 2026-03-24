@@ -109,6 +109,9 @@ export interface Item {
   clarity?: ItemClarity;
   context?: ItemContext;
   aiNote?: string;
+  /* --- Boost / promotion --- */
+  isBoosted?: boolean;
+  boostExpiresAt?: string;
 }
 
 export type MatchTier = "weak" | "possible" | "good" | "strong";
