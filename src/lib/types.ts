@@ -707,6 +707,44 @@ export interface Achievement {
   current: number;
 }
 
+/* ─── Dispute Workflow ─── */
+
+export type DisputeStatus =
+  | "open" | "waiting_evidence" | "under_review"
+  | "resolved_requester" | "resolved_responder"
+  | "resolved_split" | "rejected";
+
+export type DisputeReason =
+  | "item_not_received" | "wrong_item" | "damaged"
+  | "condition_mismatch" | "no_show" | "other";
+
+export type EvidenceType =
+  | "photo" | "chat_screenshot" | "tracking"
+  | "meeting_code" | "location_proof" | "note";
+
+export interface Dispute {
+  id: string;
+  swapId: string;
+  initiatorId: string;
+  respondentId: string;
+  reason: DisputeReason;
+  description: string;
+  status: DisputeStatus;
+  resolutionNotes?: string;
+  resolvedBy?: string;
+  resolvedAt?: string;
+  createdAt: string;
+}
+
+export interface DisputeEvidence {
+  id: string;
+  disputeId: string;
+  submittedBy: string;
+  evidenceType: EvidenceType;
+  content: string;
+  createdAt: string;
+}
+
 /* ─── Cancel Reason ─── */
 
 export type CancelReason =
