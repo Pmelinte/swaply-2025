@@ -2261,7 +2261,14 @@
     "faqA3": "Da, oricând înainte ca cealaltă persoană să confirme.",
     "ctaButton": "Începe gratuit",
     "metaTitle": "Prețuri — Gratuit, Premium, Platinum",
-    "metaDescription": "Compară planurile Swaply: Gratuit, Premium și Platinum. Schimbul e mereu gratuit, fără comisioane."
+    "metaDescription": "Compară planurile Swaply: Gratuit, Premium și Platinum. Schimbul e mereu gratuit, fără comisioane.",
+    "currentPlanBadge": "Plan actual",
+    "freePrice": "0 lei",
+    "premiumPrice": "19 lei",
+    "includedInPlatinum": "Inclus în Platinum",
+    "manageSubscription": "Gestionează abonamentul",
+    "paymentSuccess": "Felicitări! Plata a fost procesată cu succes.",
+    "paymentCanceled": "Plata a fost anulată. Poți încerca din nou."
   },
   "contact": {
     "title": "Contact",

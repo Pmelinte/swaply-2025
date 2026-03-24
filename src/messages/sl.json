@@ -2707,5 +2707,29 @@
     "messagesTitle": "Swap Messages",
     "messagesDescription": "Conversations related to active swaps",
     "noMessages": "No swap-related messages."
+  },
+  "cityPage": {
+    "notFoundTitle": "City not found — Swaply",
+    "metaTitle": "Swap objects in {city} | Swaply.world",
+    "metaDescription": "Swap objects without money in {city}. Items available locally. Free barter platform.",
+    "keyword_swap": "swap objects {city}",
+    "keyword_barter": "barter {city}",
+    "keyword_secondhand": "second hand objects {city}",
+    "jsonLdDescription": "Free object swapping platform in {city}, {country}.",
+    "allObjects": "All objects",
+    "heroTitle": "Swap objects in {city}",
+    "heroDescription": "The Swaply community in {city} connects active users who want to swap objects. Find items to trade nearby or swap by courier with any user in the country.",
+    "localItemsTitle": "Objects in {city}",
+    "nearbyItemsFallback": "Objects from {county} county and from all of {country}",
+    "nearbyItemsTitle": "Other objects from {county}",
+    "emptyStateMessage": "No objects available at the moment in {city}.",
+    "emptyStateHint": "Be the first to list an object in this city!",
+    "listObject": "List an object",
+    "popularCategories": "Popular categories in {city}",
+    "otherCities": "Other active cities",
+    "ctaTitle": "Swap objects in {city}",
+    "ctaDescription": "Create a free account and list your first object.",
+    "ctaButton": "Try Swaply for free →",
+    "lookingFor": "Looking for: {wishlist}"
   }
 }
