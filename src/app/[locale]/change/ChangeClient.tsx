@@ -10,6 +10,9 @@ import { TrustCard } from "@/components/trust/TrustCard";
 import { calculateTrustScore } from "@/lib/utils/trustScore";
 import { MeetingModule } from "@/components/meetings/MeetingModule";
 import { ShipmentModule } from "@/components/shipments/ShipmentModule";
+import { DisputeWorkflow } from "@/features/disputes/DisputeWorkflow";
+import { DisputeDetail } from "@/features/disputes/DisputeDetail";
+import type { Dispute, DisputeEvidence, DisputeReason, DisputeStatus, EvidenceType } from "@/lib/types";
 import {
   MapPin, Truck, Package, Check, Globe, Plane, Home, Wrench, QrCode, Shield, Calendar,
   Wifi, Car, Snowflake, Flame as Heating, WashingMachine, CookingPot, Waves,
@@ -216,6 +219,10 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
   const [disputeReason, setDisputeReason] = useState<NonNullable<SwapIntent["dispute"]>["reason"]>("item_not_received");
   const [disputeDescription, setDisputeDescription] = useState("");
   const [disputeSubmitting, setDisputeSubmitting] = useState(false);
+  // New dispute workflow state
+  const [showDisputeWorkflow, setShowDisputeWorkflow] = useState(false);
+  const [activeDispute, setActiveDispute] = useState<Dispute | null>(null);
+  const [activeDisputeEvidence, setActiveDisputeEvidence] = useState<DisputeEvidence[]>([]);
 
   // Logistics local state
   const [logisticsType, setLogisticsType] = useState<SwapIntent["logistics"]["locationType"]>("public_spot");
@@ -1411,12 +1418,36 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
                 </div>
               )}
 
-              {/* Active dispute display */}
-              {swap.dispute && (
+              {/* Active dispute — full detail view */}
+              {swap.dispute && activeDispute ? (
+                <div className="mt-4">
+                  <DisputeDetail
+                    dispute={activeDispute}
+                    evidence={activeDisputeEvidence}
+                    currentUserId={user?.id ?? ""}
+                    isAdmin={user?.role === "admin" || user?.role === "moderator"}
+                    onResolve={async (resolution, notes) => {
+                      try {
+                        const session = await (await import("@/lib/supabase/client")).getSupabaseClient()?.auth.getSession();
+                        const token = session?.data.session?.access_token;
+                        await fetch("/api/disputes/resolve", {
+                          method: "POST",
+                          headers: {
+                            "Content-Type": "application/json",
+                            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                          },
+                          body: JSON.stringify({ disputeId: activeDispute.id, resolution, notes }),
+                        });
+                        setActiveDispute({ ...activeDispute, status: resolution, resolutionNotes: notes, resolvedAt: new Date().toISOString() });
+                      } catch { /* handled */ }
+                    }}
+                  />
+                </div>
+              ) : swap.dispute && !activeDispute ? (
                 <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950/30">
                   <div className="mb-2 flex items-center gap-2">
                     <AlertTriangle className="h-5 w-5 text-red-600" />
-                    <h4 className="text-sm font-bold text-red-800 dark:text-red-200">Dispută activă</h4>
+                    <h4 className="text-sm font-bold text-red-800 dark:text-red-200">{t("disputeDetailTitle")}</h4>
                     <span className="ml-auto rounded-full bg-red-200 px-2 py-0.5 text-[10px] font-semibold uppercase text-red-800 dark:bg-red-800 dark:text-red-200">
                       {swap.dispute.status}
                     </span>
@@ -1432,89 +1463,29 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
                     {t("disputeOpenedOn", { date: new Date(swap.dispute.filedAt).toLocaleDateString(locale) })}
                   </p>
                 </div>
-              )}
+              ) : null}
 
-              {/* File dispute button/form */}
-              {swap.status === "accepted" && !swap.dispute && (
+              {/* File dispute — new 3-step workflow */}
+              {!swap.dispute && VALID_TRANSITIONS[swap.status].includes("disputed") && (
                 <div className="mt-4">
-                  {!showDisputeForm ? (
+                  {!showDisputeWorkflow ? (
                     <button
                       type="button"
-                      onClick={() => setShowDisputeForm(true)}
+                      onClick={() => setShowDisputeWorkflow(true)}
                       className="flex items-center gap-2 text-xs font-medium text-red-600 hover:text-red-700 dark:text-red-400"
                     >
                       <AlertTriangle className="h-3.5 w-3.5" />
-                      Am o problemă cu acest schimb
+                      {t("disputeWorkflowTitle")}
                     </button>
                   ) : (
-                    <div className="rounded-xl border border-red-200 bg-red-50/50 p-4 dark:border-red-800 dark:bg-red-950/20">
-                      <h4 className="mb-3 flex items-center gap-2 text-sm font-bold text-red-800 dark:text-red-200">
-                        <AlertTriangle className="h-4 w-4" />
-                        Raportează o problemă
-                      </h4>
-                      <div className="space-y-3">
-                        <div>
-                          <p className="mb-1.5 text-xs font-semibold text-red-700 dark:text-red-300">Motiv</p>
-                          <div className="grid gap-1.5 sm:grid-cols-2">
-                            {(["item_not_received", "wrong_item", "damaged", "condition_mismatch", "no_show", "other"] as const).map((reason) => {
-                              const labels: Record<string, string> = {
-                                item_not_received: "Nu am primit obiectul",
-                                wrong_item: "Obiect diferit de cel convenit",
-                                damaged: "Obiect deteriorat",
-                                condition_mismatch: "Stare diferită de descriere",
-                                no_show: "Partenerul nu s-a prezentat",
-                                other: "Alt motiv",
-                              };
-                              return (
-                                <label key={reason} className={`flex items-center gap-2 rounded-lg border p-2 text-xs cursor-pointer transition ${
-                                  disputeReason === reason
-                                    ? "border-red-300 bg-red-100 dark:border-red-700 dark:bg-red-900/40"
-                                    : "border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-800"
-                                }`}>
-                                  <input type="radio" name="dispute_reason" checked={disputeReason === reason}
-                                    onChange={() => setDisputeReason(reason)}
-                                    className="h-3 w-3 text-red-600" />
-                                  <span className="text-zinc-700 dark:text-zinc-200">{labels[reason]}</span>
-                                </label>
-                              );
-                            })}
-                          </div>
-                        </div>
-                        <label className="block text-xs font-semibold text-red-700 dark:text-red-300">
-                          Descriere detaliată
-                          <textarea
-                            value={disputeDescription}
-                            onChange={(e) => setDisputeDescription(e.target.value)}
-                            placeholder="Descrie problema întâmpinată..."
-                            rows={3}
-                            className="mt-1 w-full rounded-lg border border-red-200 bg-white px-3 py-2 text-sm dark:border-red-800 dark:bg-zinc-800 dark:text-zinc-100"
-                          />
-                        </label>
-                        <div className="flex gap-2">
-                          <button
-                            type="button"
-                            onClick={() => { setShowDisputeForm(false); setDisputeDescription(""); }}
-                            className="rounded-full bg-zinc-100 px-4 py-2 text-xs font-semibold text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-200"
-                          >
-                            Renunță
-                          </button>
-                          <button
-                            type="button"
-                            disabled={!disputeDescription.trim() || disputeSubmitting}
-                            onClick={async () => {
-                              setDisputeSubmitting(true);
-                              await fileDispute(swap.id, disputeReason, disputeDescription.trim());
-                              setShowDisputeForm(false);
-                              setDisputeDescription("");
-                              setDisputeSubmitting(false);
-                            }}
-                            className="rounded-full bg-red-600 px-4 py-2 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-40"
-                          >
-                            {disputeSubmitting ? "Se trimite..." : "Trimite disputa"}
-                          </button>
-                        </div>
-                      </div>
-                    </div>
+                    <DisputeWorkflow
+                      swapId={swap.id}
+                      onCancel={() => setShowDisputeWorkflow(false)}
+                      onSubmit={async ({ reason, description, evidence }) => {
+                        await fileDispute(swap.id, reason as NonNullable<SwapIntent["dispute"]>["reason"], description, evidence.map((e) => e.content));
+                        setShowDisputeWorkflow(false);
+                      }}
+                    />
                   )}
                 </div>
               )}
@@ -1590,9 +1561,9 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
                 <button
                   type="button"
                   className="rounded-full bg-amber-600 px-4 py-2 text-white hover:bg-amber-700"
-                  onClick={() => setShowDisputeForm(true)}
+                  onClick={() => setShowDisputeWorkflow(true)}
                 >
-                  Raportează problemă
+                  {t("disputeWorkflowTitle")}
                 </button>
               ) : null}
               {VALID_TRANSITIONS[swap.status].includes("cancelled") ? (

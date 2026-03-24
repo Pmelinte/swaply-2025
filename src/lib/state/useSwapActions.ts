@@ -286,33 +286,49 @@ export function useSwapActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
     setSwaps((prev) => prev.map((s) => s.id === swapId ? updated : s));
 
     if (dataSource === "supabase" && supabase) {
-      // Save dispute data first
-      await supabase.from("swaps").update({
-        dispute,
-        notifications: updated.notifications,
-        updated_at: new Date().toISOString(),
-      }).eq("id", swapId);
-
-      // Use server-side state machine for status → disputed
       try {
         const session = await supabase.auth.getSession();
         const accessToken = session.data.session?.access_token;
-        const res = await fetch("/api/swaps/transition", {
+
+        // Use the new disputes API which handles both dispute creation and swap transition
+        const res = await fetch("/api/disputes", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
           },
-          body: JSON.stringify({ swapId, toStatus: "disputed" }),
+          body: JSON.stringify({
+            swapId,
+            reason,
+            description,
+            evidence: (photos ?? []).map((url: string) => ({ evidenceType: "photo", content: url })),
+          }),
         });
+
         if (!res.ok) {
-          // Rollback optimistic update
-          setSwaps((prev) => prev.map((s) => s.id === swapId ? swap : s));
-          return;
+          // Fallback: save dispute data directly + use transition API
+          await supabase.from("swaps").update({
+            dispute,
+            notifications: updated.notifications,
+            updated_at: new Date().toISOString(),
+          }).eq("id", swapId);
+
+          await fetch("/api/swaps/transition", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+            },
+            body: JSON.stringify({ swapId, toStatus: "disputed" }),
+          });
         }
       } catch {
-        setSwaps((prev) => prev.map((s) => s.id === swapId ? swap : s));
-        return;
+        // Fallback: save directly to swaps table
+        await supabase?.from("swaps").update({
+          dispute,
+          notifications: updated.notifications,
+          updated_at: new Date().toISOString(),
+        }).eq("id", swapId);
       }
     }
 
