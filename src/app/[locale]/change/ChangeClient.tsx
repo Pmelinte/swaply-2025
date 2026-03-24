@@ -1346,6 +1346,109 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
             </SectionCard>
           )}
 
+          {/* Escrow Guarantee Banner — courier swaps only */}
+          {swap.status !== "completed" && swap.status !== "cancelled" && user &&
+           (logisticsType === "courier" || swapType === "courier_national" || swapType === "courier_international") && (
+            <SectionCard title={t("escrowTitle")} description={t("escrowDescription")}>
+              <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-4 dark:border-amber-800 dark:bg-amber-950/30">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/50">
+                    <Shield className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-amber-800 dark:text-amber-200">
+                      {t("escrowBannerTitle")}
+                    </p>
+                    <p className="mt-1 text-xs text-amber-700 dark:text-amber-300">
+                      {t("escrowBannerDesc")}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Escrow status for both parties */}
+                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                  <div className={`rounded-lg border p-2.5 ${
+                    swap.escrow?.requesterStatus === "held"
+                      ? "border-emerald-300 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/30"
+                      : "border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-800"
+                  }`}>
+                    <p className="text-[10px] font-semibold uppercase text-zinc-500">{t("requester")}</p>
+                    <p className="text-xs font-bold text-zinc-700 dark:text-zinc-200">
+                      {swap.escrow?.requesterStatus === "held"
+                        ? t("escrowStatusHeld")
+                        : swap.escrow?.requesterStatus === "released"
+                          ? t("escrowStatusReleased")
+                          : swap.escrow?.requesterStatus === "disputed"
+                            ? t("escrowStatusDisputed")
+                            : t("escrowStatusPending")}
+                    </p>
+                  </div>
+                  <div className={`rounded-lg border p-2.5 ${
+                    swap.escrow?.responderStatus === "held"
+                      ? "border-emerald-300 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/30"
+                      : "border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-800"
+                  }`}>
+                    <p className="text-[10px] font-semibold uppercase text-zinc-500">{t("responder")}</p>
+                    <p className="text-xs font-bold text-zinc-700 dark:text-zinc-200">
+                      {swap.escrow?.responderStatus === "held"
+                        ? t("escrowStatusHeld")
+                        : swap.escrow?.responderStatus === "released"
+                          ? t("escrowStatusReleased")
+                          : swap.escrow?.responderStatus === "disputed"
+                            ? t("escrowStatusDisputed")
+                            : t("escrowStatusPending")}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Action button */}
+                {((isRequester && swap.escrow?.requesterStatus !== "held" && swap.escrow?.requesterStatus !== "released") ||
+                  (!isRequester && swap.escrow?.responderStatus !== "held" && swap.escrow?.responderStatus !== "released")) && (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        const sb = (await import("@/lib/supabase/client")).getSupabaseClient();
+                        const session = await sb?.auth.getSession();
+                        const tkn = session?.data.session?.access_token;
+                        await fetch("/api/payments/escrow", {
+                          method: "POST",
+                          headers: {
+                            "Content-Type": "application/json",
+                            ...(tkn ? { Authorization: `Bearer ${tkn}` } : {}),
+                          },
+                          body: JSON.stringify({ action: "create", swapId: swap.id, userId: user.id }),
+                        });
+                        trackEvent("escrow_guarantee_paid", { swapId: swap.id });
+                      } catch { /* handled */ }
+                    }}
+                    className="mt-3 w-full rounded-full bg-amber-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-amber-700 dark:bg-amber-500 dark:hover:bg-amber-600"
+                  >
+                    {t("escrowPayButton")}
+                  </button>
+                )}
+
+                {/* Both held — show release info */}
+                {swap.escrow?.requesterStatus === "held" && swap.escrow?.responderStatus === "held" && (
+                  <div className="mt-3 rounded-lg bg-emerald-50 p-2.5 text-center text-xs font-medium text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300">
+                    {t("escrowBothHeld")}
+                  </div>
+                )}
+
+                {/* Released */}
+                {swap.escrow?.requesterStatus === "released" && swap.escrow?.responderStatus === "released" && (
+                  <div className="mt-3 rounded-lg bg-green-50 p-2.5 text-center text-xs font-medium text-green-700 dark:bg-green-950/30 dark:text-green-300">
+                    {t("escrowReleased")}
+                  </div>
+                )}
+
+                <p className="mt-3 text-[10px] text-amber-600/80 dark:text-amber-400/60">
+                  {t("escrowNote")}
+                </p>
+              </div>
+            </SectionCard>
+          )}
+
           {/* Safe Meeting Module */}
           {swap.status !== "completed" && swap.status !== "cancelled" && user && (
             <MeetingModule
