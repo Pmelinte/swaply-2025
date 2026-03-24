@@ -6,17 +6,20 @@ import { useTranslations } from "next-intl";
 import { Item } from "@/lib/types";
 import { Pill } from "@/components/ui";
 import { NO_IMAGE_URL } from "@/lib/storage";
+import { VerificationBadgeTag } from "@/features/verification/VerificationBadgeTag";
 
 export const ItemCard = memo(function ItemCard({
   item,
   onEdit,
   onDelete,
   onView,
+  ownerVerification,
 }: {
   item: Item;
   onEdit?: () => void;
   onDelete?: () => void;
   onView?: () => void;
+  ownerVerification?: { emailVerified?: boolean; phoneVerified?: boolean; idVerified?: boolean };
 }) {
   const t = useTranslations("itemCard");
   const tc = useTranslations("common");
@@ -49,7 +52,17 @@ export const ItemCard = memo(function ItemCard({
               {item.title}
             </h3>
           </div>
-          <Pill color={statusColor[item.status]}>{item.status}</Pill>
+          <div className="flex items-center gap-1.5">
+            {ownerVerification && (
+              <VerificationBadgeTag
+                emailVerified={ownerVerification.emailVerified}
+                phoneVerified={ownerVerification.phoneVerified}
+                idVerified={ownerVerification.idVerified}
+                compact
+              />
+            )}
+            <Pill color={statusColor[item.status]}>{item.status}</Pill>
+          </div>
         </div>
         <p className="line-clamp-2 text-sm text-zinc-600 dark:text-zinc-300">
           {item.description}
