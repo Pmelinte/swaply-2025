@@ -253,11 +253,14 @@ interface AppStateContextProps {
   swapChains: SwapChain[];
   myChains: SwapChain[];
   pendingChainConfirmations: Array<{ chain: SwapChain; link: SwapChainLink }>;
+  detectedChainOpportunities: Array<{ participants: Array<{ userId: string; userName: string; givesItemId: string; givesItemTitle: string; receivesItemId: string; receivesItemTitle: string }>; score: number }>;
+  detectingChains: boolean;
   createChain: (name: string, links: Omit<SwapChainLink, "id" | "chainId" | "confirmed" | "createdAt">[]) => Promise<SwapChain | null>;
   confirmChainLink: (chainId: string, linkId: string) => Promise<{ error?: string }>;
   startChain: (chainId: string) => Promise<{ error?: string }>;
   completeChain: (chainId: string) => Promise<{ error?: string }>;
   cancelChain: (chainId: string) => Promise<{ error?: string }>;
+  detectChains: () => Promise<void>;
   // ── Search & Discovery ──
   searchFilters: SearchFilters;
   searchResults: SearchResult[];
@@ -1202,11 +1205,14 @@ export function AppStateProvider({ children, initialLocale }: { children: ReactN
     swapChains: chainsHook.chains,
     myChains: chainsHook.myChains,
     pendingChainConfirmations: chainsHook.pendingConfirmations,
+    detectedChainOpportunities: chainsHook.detectedOpportunities,
+    detectingChains: chainsHook.detecting,
     createChain: chainsHook.createChain,
     confirmChainLink: chainsHook.confirmChainLink,
     startChain: chainsHook.startChain,
     completeChain: chainsHook.completeChain,
     cancelChain: chainsHook.cancelChain,
+    detectChains: chainsHook.detectChains,
     // ── Search & Discovery ──
     searchFilters: searchHook.filters,
     searchResults: searchHook.results,

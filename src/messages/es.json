@@ -2281,5 +2281,30 @@
     "suggApply": "Apply",
     "suggAffects": "Affects {count} matches",
     "suggAvgPoints": "avg pts"
+  },
+  "chains": {
+    "participants": "participants",
+    "statusForming": "Forming",
+    "statusConfirmed": "Confirmed",
+    "statusLocked": "Locked",
+    "statusInProgress": "In progress",
+    "statusCompleted": "Completed",
+    "statusCancelled": "Cancelled",
+    "confirmed": "Confirmed",
+    "confirmBtn": "Confirm",
+    "waiting": "Waiting",
+    "chainComplete": "Chain complete — circular swap ready!",
+    "lockAndStart": "Lock & start",
+    "startExecution": "Start execution",
+    "markComplete": "Mark complete",
+    "cancel": "Cancel",
+    "opportunitiesTitle": "Chain opportunities",
+    "detecting": "Detecting...",
+    "detectBtn": "Detect chains",
+    "noOpportunities": "No chain opportunities detected yet",
+    "noOpportunitiesHint": "Add more objects or wait for new listings to unlock chain swaps",
+    "chainOpportunity": "Chain opportunity",
+    "chainCompleteIndicator": "Complete chain detected!",
+    "proposeChain": "Propose chain"
   }
 }

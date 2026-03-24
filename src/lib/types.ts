@@ -866,7 +866,7 @@ export interface UserRating {
 
 /* ─── Swap Chains ─── */
 
-export type SwapChainStatus = "forming" | "confirmed" | "in_progress" | "completed" | "cancelled";
+export type SwapChainStatus = "forming" | "confirmed" | "locked" | "in_progress" | "completed" | "cancelled";
 
 export interface SwapChainLink {
   id: string;
