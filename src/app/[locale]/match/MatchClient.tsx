@@ -12,6 +12,9 @@ import type { MatchCandidate, MatchTier } from "@/lib/types";
 import { SlidersHorizontal, Sparkles, Hand, X } from "lucide-react";
 import { NearMatchSuggestions } from "@/features/match/NearMatchSuggestions";
 import type { NearMatchSuggestion } from "@/lib/types";
+import { ChainVisualization } from "@/features/chains/ChainVisualization";
+import { ChainOpportunities } from "@/features/chains/ChainOpportunities";
+import type { DetectedChainOpportunity } from "@/lib/state/useSwapChains";
 
 type SortOption = "score" | "category" | "location";
 
@@ -22,7 +25,11 @@ const CATEGORIES = [
 
 export function MatchClient() {
   const router = useRouter();
-  const { user, loading, matches: rawMatches, featureToggles, proposeSwap, trackEvent } = useAppState();
+  const {
+    user, loading, matches: rawMatches, featureToggles, proposeSwap, trackEvent,
+    myChains, detectedChainOpportunities, detectingChains,
+    createChain, confirmChainLink, startChain, completeChain, cancelChain, detectChains,
+  } = useAppState();
   const [localMatches, setLocalMatches] = useState<MatchCandidate[]>([]);
   const [matchesInitialized, setMatchesInitialized] = useState(false);
   const [manualMode, setManualMode] = useState(false);
@@ -269,6 +276,19 @@ export function MatchClient() {
 
   const handleMatchSuggestion = (_matchId: string, suggestion: NearMatchSuggestion) => {
     handleApplySuggestion(suggestion);
+  };
+
+  const handleCreateChainFromOpportunity = async (opp: DetectedChainOpportunity) => {
+    const links = opp.participants.map((p, idx) => ({
+      position: idx,
+      giverId: p.userId,
+      receiverId: opp.participants[(idx + 1) % opp.participants.length].userId,
+      itemId: p.givesItemId,
+      itemTitle: p.givesItemTitle,
+      giverName: p.userName,
+      receiverName: opp.participants[(idx + 1) % opp.participants.length].userName,
+    }));
+    await createChain("Lanț detectat automat", links);
   };
 
   // Dealbreaker counts
@@ -610,6 +630,35 @@ export function MatchClient() {
           onApply={handleApplySuggestion}
         />
       </SectionCard>
+
+      {/* ── Chain Swap Opportunities ── */}
+      <SectionCard title={t("chainTitle")} description={t("chainDescription")}>
+        <ChainOpportunities
+          opportunities={detectedChainOpportunities}
+          detecting={detectingChains}
+          onDetect={() => void detectChains()}
+          onCreateFromOpportunity={(opp) => void handleCreateChainFromOpportunity(opp)}
+        />
+      </SectionCard>
+
+      {/* ── My Active Chains ── */}
+      {myChains.length > 0 && (
+        <SectionCard title={t("myChainsTitle")} description={t("myChainsDescription")}>
+          <div className="space-y-3">
+            {myChains.map((chain) => (
+              <ChainVisualization
+                key={chain.id}
+                chain={chain}
+                currentUserId={user.id}
+                onConfirmLink={(cId, lId) => void confirmChainLink(cId, lId)}
+                onStartChain={(cId) => void startChain(cId)}
+                onCompleteChain={(cId) => void completeChain(cId)}
+                onCancelChain={(cId) => void cancelChain(cId)}
+              />
+            ))}
+          </div>
+        </SectionCard>
+      )}
 
       <SectionCard title={t("howItWorks")} description={t("cumulativeScore")}>
         <div className="space-y-2 text-sm text-zinc-700 dark:text-zinc-300">
