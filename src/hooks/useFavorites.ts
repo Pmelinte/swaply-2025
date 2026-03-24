@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import { getSupabaseClient } from "@/lib/supabase/client";
+import { trackItemEvent } from "@/lib/item-analytics";
 
 const LS_KEY = "swaply_favorites";
 
@@ -83,6 +84,9 @@ export function useFavorites(userId: string | null | undefined) {
   const toggleFavorite = useCallback(
     async (itemId: string) => {
       const removing = favoriteIds.has(itemId);
+
+      // Track analytics event
+      trackItemEvent(itemId, removing ? "unfavorite" : "favorite", userId);
 
       // Optimistic update
       setFavoriteIds((prev) => {

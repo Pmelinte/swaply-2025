@@ -20,6 +20,7 @@ import { BoostPanel } from "@/components/BoostPanel";
 import { TranslateButton } from "@/components/TranslateButton";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { sendGAEvent } from "@next/third-parties/google";
+import { trackItemEvent } from "@/lib/item-analytics";
 import {
   ChevronLeft,
   ChevronRight,
@@ -257,7 +258,7 @@ export default function ObjectDetailClient() {
     return () => { document.title = "Swaply"; };
   }, [item]);
 
-  // GA4: object_page_view event
+  // GA4: object_page_view event + item analytics tracking
   useEffect(() => {
     if (!item) return;
     sendGAEvent("event", "object_page_view", {
@@ -265,7 +266,8 @@ export default function ObjectDetailClient() {
       item_category: item.category,
       item_location: item.location,
     });
-  }, [item]);
+    trackItemEvent(item.id, "view", user?.id);
+  }, [item, user?.id]);
 
   const myActiveItems = useMemo(
     () =>
