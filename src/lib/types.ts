@@ -892,6 +892,25 @@ export interface SwapChain {
   updatedAt: string;
 }
 
+/* ─── Wanted Requests ─── */
+
+export type WantedRequestStatus = "active" | "fulfilled" | "expired" | "cancelled";
+
+export interface WantedRequest {
+  id: string;
+  userId: string;
+  userName?: string;
+  title: string;
+  description?: string;
+  category?: string;
+  city?: string;
+  offerDescription?: string;
+  offerItemIds?: string[];
+  status: WantedRequestStatus;
+  expiresAt: string;
+  createdAt: string;
+}
+
 /* ─── Identity Verification ─── */
 
 export type VerificationType = "email" | "phone" | "id_document" | "selfie" | "address";

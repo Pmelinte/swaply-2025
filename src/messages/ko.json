@@ -557,8 +557,14 @@
     "editDescription": "미리 채워진 값이 있는 양식 + 명확한 상태."
   },
   "objectNew": {
-    "title": "물건 추가",
-    "description": "빌드를 중단하지 않는 완전한 양식."
+    "title": "Add object",
+    "description": "Complete form, without breaking the build.",
+    "modeObject": "List an object",
+    "modeObjectDesc": "You have something to swap — list it for others to see.",
+    "modeWanted": "Post a request",
+    "modeWantedDesc": "You're looking for something — let others know what you need.",
+    "wantedTitle": "Post a wanted request",
+    "wantedDescription": "Describe what you're looking for. We'll notify you when someone lists a matching item."
   },
   "match": {
     "title": "매칭 분석",
@@ -1819,18 +1825,31 @@
     "postRequest": "Post Request",
     "cancel": "Cancel",
     "newRequestTitle": "What are you looking for?",
-    "whatLookingFor": "Item you're looking for...",
-    "descriptionPlaceholder": "Describe what you need and why...",
+    "whatLookingFor": "What are you looking for?",
+    "titlePlaceholder": "e.g. Mountain bike, iPhone 14, vintage guitar...",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Describe what you need, condition, budget range...",
+    "categoryLabel": "Category",
     "categoryPlaceholder": "Category (e.g. Electronics)",
-    "offerPlaceholder": "What can you offer in exchange?",
+    "cityLabel": "City",
+    "cityPlaceholder": "City (e.g. Cluj-Napoca)",
+    "offerLabel": "What can you offer in exchange?",
+    "offerPlaceholder": "e.g. laptop, iPhone, or service...",
+    "offerHint": "Optional — you don't need to have something to offer right now",
     "publishRequest": "Publish Request",
+    "requestPublished": "Request published successfully! Matching items will be notified.",
+    "redirecting": "Redirecting...",
     "searchPlaceholder": "Search wanted requests...",
     "allCategories": "All",
     "noRequests": "No requests yet",
     "noRequestsDesc": "Be the first to post what you're looking for!",
     "offers": "Offers",
+    "canOffer": "Can offer",
     "respond": "Respond",
-    "responsesCount": "{count} responses"
+    "proposeSwap": "Propose swap",
+    "responsesCount": "{count} responses",
+    "searchPrefix": "Looking for:",
+    "daysRemaining": "{days} days left"
   },
   "history": {
     "title": "Swap History",
