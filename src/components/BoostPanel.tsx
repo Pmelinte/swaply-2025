@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { loadStripe, type Stripe as StripeJs } from "@stripe/stripe-js";
 import { Zap, CheckCircle, Loader2, AlertCircle, Clock } from "lucide-react";
 import { getSupabaseClient } from "@/lib/supabase/client";
@@ -33,8 +33,21 @@ function getStripeJs() {
   return stripePromise;
 }
 
+function getInitialBoostStatus(): BoostStatus {
+  if (typeof window === "undefined") return "idle";
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("boost") === "success") {
+    // Clean up URL
+    const url = new URL(window.location.href);
+    url.searchParams.delete("boost");
+    window.history.replaceState({}, "", url.toString());
+    return "success";
+  }
+  return "idle";
+}
+
 export function BoostPanel({ itemId, userId, userEmail }: BoostPanelProps) {
-  const [status, setStatus] = useState<BoostStatus>("idle");
+  const [status, setStatus] = useState<BoostStatus>(getInitialBoostStatus);
   const [error, setError] = useState<string | null>(null);
   const [selectedDuration, setSelectedDuration] = useState<string | null>(null);
   const [activeBoost, setActiveBoost] = useState<ActiveBoost | null>(null);
@@ -83,7 +96,7 @@ export function BoostPanel({ itemId, userId, userEmail }: BoostPanelProps) {
         return;
       }
 
-      // 2. Confirm payment with Stripe.js
+      // 2. Redirect to Stripe payment page
       setStatus("awaiting_payment");
       const stripe = await getStripeJs();
       if (!stripe) {
@@ -92,17 +105,6 @@ export function BoostPanel({ itemId, userId, userEmail }: BoostPanelProps) {
         return;
       }
 
-      const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(
-        data.clientSecret,
-        {
-          payment_method: {
-            card: { token: "tok_visa" } as never, // Will be replaced by Elements
-          },
-        },
-      );
-
-      // For production, we'd use Stripe Elements. For now, redirect to Checkout.
-      // Since confirmCardPayment needs a card element, use the redirect approach:
       const { error: redirectError } = await stripe.confirmPayment({
         clientSecret: data.clientSecret,
         confirmParams: {
@@ -128,23 +130,17 @@ export function BoostPanel({ itemId, userId, userEmail }: BoostPanelProps) {
     }
   }, [itemId, userId, userEmail]);
 
-  // Check URL params for boost success (redirect return)
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("boost") === "success") {
-      setStatus("success");
-      // Clean up URL
-      const url = new URL(window.location.href);
-      url.searchParams.delete("boost");
-      window.history.replaceState({}, "", url.toString());
-    }
-  }, []);
+  // Compute hours left from active boost (avoid Date.now() in render)
+  const [now] = useState(() => Date.now());
+  const hoursLeft = useMemo(() => {
+    if (!activeBoost) return 0;
+    const expiresAt = new Date(activeBoost.expires_at).getTime();
+    return Math.max(0, Math.ceil((expiresAt - now) / 3600000));
+  }, [activeBoost, now]);
 
   // Active boost display
   if (activeBoost) {
     const expiresAt = new Date(activeBoost.expires_at);
-    const remaining = expiresAt.getTime() - Date.now();
-    const hoursLeft = Math.max(0, Math.ceil(remaining / 3600000));
 
     return (
       <div className="rounded-xl border border-amber-200 bg-amber-50/80 p-4 dark:border-amber-800 dark:bg-amber-900/20">
