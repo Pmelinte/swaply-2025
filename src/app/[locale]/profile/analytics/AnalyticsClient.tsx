@@ -99,30 +99,30 @@ function InsightCard({ insight }: { insight: AnalyticsInsight }) {
 export default function AnalyticsClient() {
   const { user, items, loading } = useAppState();
   const [summary, setSummary] = useState<UserAnalyticsSummary | null>(null);
-  const [fetchLoading, setFetchLoading] = useState(true);
-
   const isPremium = user?.badge === "premium" || user?.badge === "platinum";
+  const [fetchLoading, setFetchLoading] = useState(!!user?.id && isPremium);
 
   const myItemCount = useMemo(
     () => items.filter((i) => i.ownerId === user?.id).length,
     [items, user?.id],
   );
 
+  const shouldFetch = !!user?.id && isPremium;
+
   useEffect(() => {
-    if (!user?.id || !isPremium) {
-      setFetchLoading(false);
+    if (!shouldFetch) {
       return;
     }
 
     let cancelled = false;
-    fetchUserAnalytics(user.id).then((data) => {
+    fetchUserAnalytics(user!.id).then((data) => {
       if (!cancelled) {
         setSummary(data);
         setFetchLoading(false);
       }
     });
     return () => { cancelled = true; };
-  }, [user?.id, isPremium]);
+  }, [shouldFetch, user?.id]);
 
   const insights = useMemo(() => {
     if (!summary) return [];
