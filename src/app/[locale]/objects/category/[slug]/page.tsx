@@ -6,6 +6,7 @@ import { ArrowLeft, Tag, MapPin, ChevronRight } from "lucide-react";
 import { getServerSupabase } from "@/lib/supabase/server";
 import {
   SEO_CATEGORIES,
+  SEO_CITIES,
   getCategoryBySlug,
   type SEOCategory,
 } from "@/lib/seo-data";
@@ -202,6 +203,25 @@ export default async function CategoryPage({ params }: Props) {
           </div>
         </section>
       )}
+
+      {/* Browse this category by city */}
+      <section>
+        <h2 className="mb-4 text-lg font-bold text-zinc-900 dark:text-zinc-50">
+          {cat.nameLocal} by city
+        </h2>
+        <div className="flex flex-wrap gap-2">
+          {SEO_CITIES.map((c) => (
+            <Link
+              key={c.slug}
+              href={`/objects/city/${c.slug}/${slug}`}
+              className="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-600 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:border-blue-600 dark:hover:bg-blue-900/20"
+            >
+              <MapPin className="h-3 w-3" />
+              {c.name}
+            </Link>
+          ))}
+        </div>
+      </section>
 
       {/* CTA */}
       <div className="rounded-2xl border border-green-200 bg-green-50/50 p-6 text-center dark:border-green-800 dark:bg-green-950/30">
