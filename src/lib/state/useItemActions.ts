@@ -77,6 +77,31 @@ export function useItemActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
           ).then(({ error: obErr }) => {
             if (obErr) console.error("[onboarding] step_first_item error:", obErr.message);
           });
+
+          // Check wanted_requests for matching and notify
+          if (item.category || item.title) {
+            sb.from("wanted_requests")
+              .select("id, user_id, title")
+              .eq("status", "active")
+              .neq("user_id", user.id)
+              .ilike("category", `%${item.category ?? ""}%`)
+              .limit(10)
+              .then(({ data: wantedMatches }) => {
+                if (wantedMatches && wantedMatches.length > 0) {
+                  for (const wr of wantedMatches) {
+                    sb.from("notifications").insert({
+                      user_id: wr.user_id,
+                      type: "wanted_item_listed",
+                      title: "New item matches your request!",
+                      message: `Someone listed "${item.title}" which matches your request "${wr.title}"`,
+                      read: false,
+                    }).then(({ error: nErr }) => {
+                      if (nErr) console.error("[wanted-match] notification error:", nErr.message);
+                    });
+                  }
+                }
+              });
+          }
         }
       }
       return item;
