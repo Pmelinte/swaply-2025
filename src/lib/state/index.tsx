@@ -491,7 +491,23 @@ export function AppStateProvider({ children, initialLocale }: { children: ReactN
       ]);
 
       if (itemsError) setLastError(itemsError.message);
-      if (itemsData) setItems(itemsData.map(mapItem));
+      if (itemsData) {
+        const mapped = itemsData.map(mapItem);
+        // Fetch active boosts to mark boosted items
+        const { data: activeBoosts } = await supabase
+          .from("item_boosts")
+          .select("item_id, expires_at")
+          .eq("stripe_payment_status", "succeeded")
+          .gt("expires_at", new Date().toISOString());
+        if (activeBoosts && activeBoosts.length > 0) {
+          const boostMap = new Map(activeBoosts.map((b: { item_id: string; expires_at: string }) => [b.item_id, b.expires_at]));
+          for (const item of mapped) {
+            const exp = boostMap.get(item.id);
+            if (exp) { item.isBoosted = true; item.boostExpiresAt = exp; }
+          }
+        }
+        setItems(mapped);
+      }
 
       if (swapsError) setLastError(swapsError.message);
       if (swapsData) setSwaps(swapsData.map(mapSwapIntent));
@@ -610,8 +626,23 @@ export function AppStateProvider({ children, initialLocale }: { children: ReactN
           .eq("status", "active")
           .order("created_at", { ascending: false })
           .limit(100);
-        if (publicItems) setItems(publicItems.map(mapItem));
-        else setItems([]);
+        if (publicItems) {
+          const mapped = publicItems.map(mapItem);
+          // Mark boosted items for guest view
+          const { data: guestBoosts } = await supabase
+            .from("item_boosts")
+            .select("item_id, expires_at")
+            .eq("stripe_payment_status", "succeeded")
+            .gt("expires_at", new Date().toISOString());
+          if (guestBoosts && guestBoosts.length > 0) {
+            const boostMap = new Map(guestBoosts.map((b: { item_id: string; expires_at: string }) => [b.item_id, b.expires_at]));
+            for (const item of mapped) {
+              const exp = boostMap.get(item.id);
+              if (exp) { item.isBoosted = true; item.boostExpiresAt = exp; }
+            }
+          }
+          setItems(mapped);
+        } else setItems([]);
         setLoading((prev) => ({ ...prev, auth: false, profile: false, items: false }));
       }
 

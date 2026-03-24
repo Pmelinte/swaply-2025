@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Link } from "@/i18n/navigation";
 import { locales } from "@/i18n/config";
 import { notFound } from "next/navigation";
-import { ArrowLeft, MapPin, ChevronRight, Tag } from "lucide-react";
+import { ArrowLeft, MapPin, Tag } from "lucide-react";
 import { getServerSupabase } from "@/lib/supabase/server";
 import { SEO_CITIES, SEO_CATEGORIES, getCityBySlug } from "@/lib/seo-data";
 
