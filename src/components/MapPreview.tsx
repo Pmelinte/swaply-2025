@@ -25,11 +25,11 @@ export function MapPreview() {
   const city = user?.location?.city;
   const lat = user?.location?.coordinates?.lat;
   const lng = user?.location?.coordinates?.lng;
-  const center = city || (lat && lng ? `${lat},${lng}` : "Romania");
+  const center = city || (lat && lng ? `${lat},${lng}` : "20,0");
 
   return (
     <div className="space-y-2">
-      <MapEmbed center={center} zoom={city ? 12 : 6} height={240} />
+      <MapEmbed center={center} zoom={city ? 12 : lat && lng ? 6 : 2} height={240} />
       <p className="text-xs text-zinc-500 dark:text-zinc-400">
         {city
           ? `${t("yourArea")} ${city}. ${t("premiumVisibility")}`

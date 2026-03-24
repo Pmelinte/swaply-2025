@@ -20,6 +20,8 @@ export interface SEOCategory {
   icon: string;
 }
 
+// NOTE: dbCategory values use Romanian names because they match the exact values
+// stored in the items.category column in Supabase. Do not rename without a DB migration.
 export const SEO_CATEGORIES: SEOCategory[] = [
   {
     slug: "electronics",
@@ -155,45 +157,9 @@ export interface SEOCity {
   county: string;
 }
 
-export const SEO_CITIES: SEOCity[] = [
-  // ── Romanian cities ──
-  { slug: "bucuresti", name: "București", county: "Ilfov" },
-  { slug: "cluj-napoca", name: "Cluj-Napoca", county: "Cluj" },
-  { slug: "timisoara", name: "Timișoara", county: "Timiș" },
-  { slug: "iasi", name: "Iași", county: "Iași" },
-  { slug: "brasov", name: "Brașov", county: "Brașov" },
-  { slug: "constanta", name: "Constanța", county: "Constanța" },
-  { slug: "sibiu", name: "Sibiu", county: "Sibiu" },
-  { slug: "craiova", name: "Craiova", county: "Dolj" },
-  { slug: "oradea", name: "Oradea", county: "Bihor" },
-  { slug: "galati", name: "Galați", county: "Galați" },
-  { slug: "ploiesti", name: "Ploiești", county: "Prahova" },
-  { slug: "pitesti", name: "Pitești", county: "Argeș" },
-  { slug: "arad", name: "Arad", county: "Arad" },
-  { slug: "targu-mures", name: "Târgu Mureș", county: "Mureș" },
-  { slug: "baia-mare", name: "Baia Mare", county: "Maramureș" },
-  { slug: "buzau", name: "Buzău", county: "Buzău" },
-  { slug: "satu-mare", name: "Satu Mare", county: "Satu Mare" },
-  { slug: "botosani", name: "Botoșani", county: "Botoșani" },
-  { slug: "suceava", name: "Suceava", county: "Suceava" },
-  { slug: "alba-iulia", name: "Alba Iulia", county: "Alba" },
-  // ── European cities ──
-  { slug: "london", name: "London", county: "England" },
-  { slug: "berlin", name: "Berlin", county: "Berlin" },
-  { slug: "paris", name: "Paris", county: "Île-de-France" },
-  { slug: "madrid", name: "Madrid", county: "Madrid" },
-  { slug: "rome", name: "Rome", county: "Lazio" },
-  { slug: "amsterdam", name: "Amsterdam", county: "Noord-Holland" },
-  { slug: "vienna", name: "Vienna", county: "Wien" },
-  { slug: "prague", name: "Prague", county: "Praha" },
-  { slug: "stockholm", name: "Stockholm", county: "Stockholm" },
-  { slug: "warsaw", name: "Warsaw", county: "Masovia" },
-  { slug: "budapest", name: "Budapest", county: "Pest" },
-  { slug: "lisbon", name: "Lisbon", county: "Lisboa" },
-  { slug: "barcelona", name: "Barcelona", county: "Catalonia" },
-  { slug: "munich", name: "Munich", county: "Bavaria" },
-  { slug: "milan", name: "Milan", county: "Lombardy" },
-];
+// Cities are loaded dynamically from the DB `cities` table.
+// This array is kept empty; use the cities table for all city lookups.
+export const SEO_CITIES: SEOCity[] = [];
 
 export function getCityBySlug(slug: string): SEOCity | undefined {
   return SEO_CITIES.find((c) => c.slug === slug);

@@ -32,6 +32,8 @@ export interface GroundTransportSearchParams {
   returnDate?: string;
   passengers?: number;
   mode?: GroundTransportMode;
+  /** ISO 3166-1 alpha-2 country code (e.g. "RO", "DE"). Used to include country-specific providers. */
+  countryCode?: string;
 }
 
 export interface GroundTransportLink {
@@ -48,7 +50,7 @@ export interface GroundTransportEstimate {
   provider: GroundTransportProvider;
   priceRange: { min: number; max: number; currency: string };
   durationRange: { minHours: number; maxHours: number };
-  frequency: string;    // e.g. "8 curse/zi"
+  frequency: string;    // e.g. "Multiple daily"
 }
 
 // ── Config ──
@@ -69,7 +71,7 @@ function flixbusUrl(params: GroundTransportSearchParams): string {
   const origin = encodeURIComponent(params.originCity);
   const dest = encodeURIComponent(params.destinationCity);
 
-  return `https://shop.flixbus.ro/search?departureCity=${origin}&arrivalCity=${dest}&route=${origin}-${dest}&rideDate=${params.departDate}&adult=${params.passengers ?? 1}${params.returnDate ? `&backRideDate=${params.returnDate}` : ""}${ref}`;
+  return `https://shop.flixbus.com/search?departureCity=${origin}&arrivalCity=${dest}&route=${origin}-${dest}&rideDate=${params.departDate}&adult=${params.passengers ?? 1}${params.returnDate ? `&backRideDate=${params.returnDate}` : ""}${ref}`;
 }
 
 function cfrUrl(params: GroundTransportSearchParams): string {
@@ -86,7 +88,7 @@ function omioUrl(params: GroundTransportSearchParams): string {
   const origin = encodeURIComponent(params.originCity);
   const dest = encodeURIComponent(params.destinationCity);
 
-  return `https://www.omio.ro/search-frontend/results/${origin}/${dest}/${params.departDate}/${params.returnDate ?? ""}${ref}`;
+  return `https://www.omio.com/search-frontend/results/${origin}/${dest}/${params.departDate}/${params.returnDate ?? ""}${ref}`;
 }
 
 function blablacarUrl(params: GroundTransportSearchParams): string {
@@ -95,20 +97,21 @@ function blablacarUrl(params: GroundTransportSearchParams): string {
   const origin = encodeURIComponent(params.originCity);
   const dest = encodeURIComponent(params.destinationCity);
 
-  return `https://www.blablacar.ro/search?fn=${origin}&tn=${dest}&db=${params.departDate}&seats=${params.passengers ?? 1}${ref}`;
+  return `https://www.blablacar.com/search?fn=${origin}&tn=${dest}&db=${params.departDate}&seats=${params.passengers ?? 1}${ref}`;
 }
 
 function rome2rioUrl(params: GroundTransportSearchParams): string {
   const origin = encodeURIComponent(params.originCity);
   const dest = encodeURIComponent(params.destinationCity);
 
-  return `https://www.rome2rio.com/ro/s/${origin}/${dest}`;
+  return `https://www.rome2rio.com/s/${origin}/${dest}`;
 }
 
 // ── Public API ──
 
 export function getGroundTransportLinks(params: GroundTransportSearchParams): GroundTransportLink[] {
   const links: GroundTransportLink[] = [];
+  const country = params.countryCode?.toUpperCase();
 
   if (!params.mode || params.mode === "bus") {
     links.push({
@@ -117,18 +120,19 @@ export function getGroundTransportLinks(params: GroundTransportSearchParams): Gr
       mode: "bus",
       searchUrl: flixbusUrl(params),
       icon: "🚌",
-      priceHint: "de la €5",
+      priceHint: "from €5",
     });
   }
 
-  if (!params.mode || params.mode === "train") {
+  // CFR Călători is Romania-only
+  if (country === "RO" && (!params.mode || params.mode === "train")) {
     links.push({
       provider: "cfr",
       name: "CFR Călători",
       mode: "train",
       searchUrl: cfrUrl(params),
       icon: "🚂",
-      priceHint: "de la 30 RON",
+      priceHint: "from 30 RON",
     });
   }
 
@@ -139,7 +143,7 @@ export function getGroundTransportLinks(params: GroundTransportSearchParams): Gr
       mode: "carpool",
       searchUrl: blablacarUrl(params),
       icon: "🚘",
-      priceHint: "de la €3",
+      priceHint: "from €3",
     });
   }
 
@@ -150,7 +154,7 @@ export function getGroundTransportLinks(params: GroundTransportSearchParams): Gr
     mode: "multi",
     searchUrl: omioUrl(params),
     icon: "🔀",
-    priceHint: "Compară toate opțiunile",
+    priceHint: "Compare all options",
   });
 
   links.push({
@@ -159,44 +163,53 @@ export function getGroundTransportLinks(params: GroundTransportSearchParams): Gr
     mode: "multi",
     searchUrl: rome2rioUrl(params),
     icon: "🗺️",
-    priceHint: "Toate rutele posibile",
+    priceHint: "All possible routes",
   });
 
   return links;
 }
 
 /**
- * Estimate ground transport options between two Romanian cities.
+ * Estimate ground transport options between two cities.
+ * When countryCode is "RO", includes CFR train estimates with RON pricing.
  */
 export function estimateGroundTransport(
   originCity: string,
   destCity: string,
+  countryCode?: string,
 ): GroundTransportEstimate[] {
-  // Simplified distance heuristics for Romanian cities
-  const majorCities = new Set(["București", "Cluj-Napoca", "Timișoara", "Iași", "Constanța", "Brașov", "Sibiu", "Oradea", "Craiova"]);
-  const isMajorRoute = majorCities.has(originCity) && majorCities.has(destCity);
+  const estimates: GroundTransportEstimate[] = [];
 
-  return [
-    {
+  // Include CFR train estimates only for Romania
+  if (countryCode?.toUpperCase() === "RO") {
+    const majorRoCities = new Set(["București", "Cluj-Napoca", "Timișoara", "Iași", "Constanța", "Brașov", "Sibiu", "Oradea", "Craiova"]);
+    const isMajorRoute = majorRoCities.has(originCity) && majorRoCities.has(destCity);
+
+    estimates.push({
       mode: "train",
       provider: "cfr",
       priceRange: { min: 30, max: 120, currency: "RON" },
       durationRange: { minHours: isMajorRoute ? 3 : 5, maxHours: isMajorRoute ? 6 : 12 },
-      frequency: isMajorRoute ? "4-8 trenuri/zi" : "1-3 trenuri/zi",
-    },
+      frequency: isMajorRoute ? "4-8 trains/day" : "1-3 trains/day",
+    });
+  }
+
+  estimates.push(
     {
       mode: "bus",
       provider: "flixbus",
       priceRange: { min: 5, max: 25, currency: "EUR" },
-      durationRange: { minHours: isMajorRoute ? 4 : 6, maxHours: isMajorRoute ? 7 : 14 },
-      frequency: isMajorRoute ? "3-6 curse/zi" : "1-2 curse/zi",
+      durationRange: { minHours: 4, maxHours: 14 },
+      frequency: "Multiple daily",
     },
     {
       mode: "carpool",
       provider: "blablacar",
       priceRange: { min: 3, max: 15, currency: "EUR" },
-      durationRange: { minHours: isMajorRoute ? 3 : 4, maxHours: isMajorRoute ? 5 : 8 },
-      frequency: "Variabil",
+      durationRange: { minHours: 3, maxHours: 8 },
+      frequency: "Variable",
     },
-  ];
+  );
+
+  return estimates;
 }

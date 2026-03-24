@@ -2697,5 +2697,29 @@
     "signal_newAccount": "Cont nou (< 7 zile)",
     "signal_recentlyEdited": "Obiect editat recent (< 24h)",
     "signal_multipleRejected": "Mai multe anunțuri respinse"
+  },
+  "cityPage": {
+    "notFoundTitle": "Oraș negăsit — Swaply",
+    "metaTitle": "Schimb de obiecte în {city} | Swaply.world",
+    "metaDescription": "Schimbă obiecte fără bani în {city}. Obiecte disponibile local. Platformă de barter gratuită.",
+    "keyword_swap": "schimb obiecte {city}",
+    "keyword_barter": "barter {city}",
+    "keyword_secondhand": "obiecte second hand {city}",
+    "jsonLdDescription": "Platformă de schimb de obiecte fără bani în {city}, {country}.",
+    "allObjects": "Toate obiectele",
+    "heroTitle": "Schimb de obiecte în {city}",
+    "heroDescription": "Comunitatea Swaply din {city} conectează utilizatori activi care vor să facă schimb de obiecte. Găsește obiecte de schimbat în apropierea ta sau schimbă prin curier cu orice utilizator din țară.",
+    "localItemsTitle": "Obiecte în {city}",
+    "nearbyItemsFallback": "Obiecte din județul {county} și din toată {country}",
+    "nearbyItemsTitle": "Alte obiecte din {county}",
+    "emptyStateMessage": "Niciun obiect disponibil momentan în {city}.",
+    "emptyStateHint": "Fii primul care listează un obiect în acest oraș!",
+    "listObject": "Listează un obiect",
+    "popularCategories": "Categorii populare în {city}",
+    "otherCities": "Alte orașe active",
+    "ctaTitle": "Schimbă obiecte în {city}",
+    "ctaDescription": "Creează un cont gratuit și listează primul tău obiect.",
+    "ctaButton": "Încearcă Swaply gratuit →",
+    "lookingFor": "Caută: {wishlist}"
   }
 }

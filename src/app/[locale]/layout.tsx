@@ -128,7 +128,8 @@ export default async function LocaleLayout({ children, params }: Props) {
               url: "https://www.swaply.world",
               logo: "https://www.swaply.world/logo-swaply.svg",
               description:
-                "Platform for swapping objects without money",
+                "Global barter platform available in 43 languages. Swap objects, services and homes without money — locally or internationally.",
+              areaServed: "Worldwide",
               contactPoint: {
                 "@type": "ContactPoint",
                 email: "support@swaply.app",
