@@ -199,6 +199,34 @@ export interface SwapIntent {
   updatedAt?: string;
 }
 
+/** Shipment direction within a swap */
+export type ShipmentDirection = "a_to_b" | "b_to_a";
+
+/** Shipment status lifecycle */
+export type ShipmentStatus = "pending" | "picked_up" | "in_transit" | "delivered" | "failed";
+
+/** Who pays for shipping */
+export type ShipmentPaidBy = "sender" | "receiver" | "split";
+
+/** Courier shipment tracking — persisted in swap_shipments table */
+export interface SwapShipment {
+  id: string;
+  swapId: string;
+  direction: ShipmentDirection;
+  courier?: string;
+  awb?: string;
+  trackingUrl?: string;
+  estimatedCost?: number;
+  paidBy?: ShipmentPaidBy;
+  status: ShipmentStatus;
+  sentAt?: string;
+  deliveredAt?: string;
+  createdAt: string;
+}
+
+/** Delivery type selector options */
+export type DeliveryType = "face_to_face" | "courier_same_city" | "courier_national" | "courier_international" | "locker_pickup";
+
 /** House swap terms — persisted in swap_house_terms table */
 export interface SwapHouseTerms {
   id: string;

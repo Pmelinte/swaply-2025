@@ -9,6 +9,7 @@ import type { SwapIntent, HouseAmenity, HouseRule, HouseSwapMode, PropertyType, 
 import { TrustCard } from "@/components/trust/TrustCard";
 import { calculateTrustScore } from "@/lib/utils/trustScore";
 import { MeetingModule } from "@/components/meetings/MeetingModule";
+import { ShipmentModule } from "@/components/shipments/ShipmentModule";
 import {
   MapPin, Truck, Package, Check, Globe, Plane, Home, Wrench, QrCode, Shield, Calendar,
   Wifi, Car, Snowflake, Flame as Heating, WashingMachine, CookingPot, Waves,
@@ -1258,6 +1259,15 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
           {/* Safe Meeting Module */}
           {swap.status !== "completed" && swap.status !== "cancelled" && user && (
             <MeetingModule
+              swap={swap}
+              currentUserId={user.id}
+              isRequester={isRequester}
+            />
+          )}
+
+          {/* Shipment / Courier Tracking Module */}
+          {swap.status !== "completed" && swap.status !== "cancelled" && user && (
+            <ShipmentModule
               swap={swap}
               currentUserId={user.id}
               isRequester={isRequester}
