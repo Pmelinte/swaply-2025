@@ -6,10 +6,38 @@ import { useAppState } from "@/lib/state";
 import { type Locale, defaultLocale } from "./config";
 import defaultMessages from "../messages/en.json";
 
-/** Dynamically import messages for a locale, fallback to English */
+/** Deep-merge source into target; target values take precedence. */
+function deepMerge(
+  target: Record<string, unknown>,
+  source: Record<string, unknown>,
+): Record<string, unknown> {
+  const result = { ...source };
+  for (const key of Object.keys(target)) {
+    const tVal = target[key];
+    const sVal = source[key];
+    if (
+      tVal &&
+      sVal &&
+      typeof tVal === "object" &&
+      typeof sVal === "object" &&
+      !Array.isArray(tVal)
+    ) {
+      result[key] = deepMerge(
+        tVal as Record<string, unknown>,
+        sVal as Record<string, unknown>,
+      );
+    } else {
+      result[key] = tVal;
+    }
+  }
+  return result;
+}
+
+/** Dynamically import messages for a locale, deep-merged with English fallback */
 async function loadMessages(locale: string): Promise<AbstractIntlMessages> {
   try {
-    return (await import(`../messages/${locale}.json`)).default;
+    const localeMessages = (await import(`../messages/${locale}.json`)).default;
+    return deepMerge(localeMessages, defaultMessages as Record<string, unknown>) as AbstractIntlMessages;
   } catch {
     return defaultMessages;
   }
