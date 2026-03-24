@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { SectionCard, Pill } from "@/components/ui";
 import {
-  Plus, Pencil, Trash2, Star, Globe, Search,
+  Trash2, Star, Globe, Search,
   Truck, Plane, Train, Car, Hotel, CreditCard,
 } from "lucide-react";
 import { getSupabaseClient } from "@/lib/supabase/client";
@@ -62,6 +62,7 @@ export default function AdminServicesPage() {
     setLoading(false);
   }, [filterCountry, filterType]);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch on filter change is intentional
   useEffect(() => { void fetchServices(); }, [fetchServices]);
 
   const toggleFeatured = async (s: ServiceRecord) => {

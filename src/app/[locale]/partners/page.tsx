@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
 import { SectionCard } from "@/components/ui";
 import {
   Handshake, Star, Zap, Globe, CheckCircle, ArrowRight, Mail,
@@ -29,7 +28,6 @@ const TIERS = [
 ] as const;
 
 export default function PartnersPage() {
-  const t = useTranslations("common");
   const [submitted, setSubmitted] = useState(false);
 
   return (
