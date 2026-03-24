@@ -5,9 +5,10 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, MapPin, Tag } from "lucide-react";
 import { getServerSupabase } from "@/lib/supabase/server";
 import { SEO_CITIES, SEO_CATEGORIES, getCityBySlug } from "@/lib/seo-data";
+import { getTranslations } from "next-intl/server";
 
 interface Props {
-  params: Promise<{ city: string }>;
+  params: Promise<{ locale: string; city: string }>;
 }
 
 export async function generateStaticParams() {
@@ -15,20 +16,22 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { city: citySlug } = await params;
+  const { locale, city: citySlug } = await params;
   const city = getCityBySlug(citySlug);
-  if (!city) return { title: "Oraș negăsit — Swaply" };
+  const t = await getTranslations({ locale, namespace: "cityPage" });
 
-  const title = `Schimb de obiecte în ${city.name} | Swaply.world`;
-  const description = `Schimbă obiecte fără bani în ${city.name}. Obiecte disponibile local. Platformă de barter gratuită.`;
+  if (!city) return { title: t("notFoundTitle") };
+
+  const title = t("metaTitle", { city: city.name });
+  const description = t("metaDescription", { city: city.name });
 
   return {
     title,
     description,
     keywords: [
-      `schimb obiecte ${city.name}`,
-      `barter ${city.name}`,
-      `obiecte second hand ${city.name}`,
+      t("keyword_swap", { city: city.name }),
+      t("keyword_barter", { city: city.name }),
+      t("keyword_secondhand", { city: city.name }),
     ],
     openGraph: { title, description, type: "website" },
     twitter: { card: "summary", title, description },
@@ -109,7 +112,7 @@ async function getCityItems(
   return { local, nearby };
 }
 
-function ItemCard({ item }: { item: ItemRow }) {
+function ItemCard({ item, lookingForLabel }: { item: ItemRow; lookingForLabel: string }) {
   return (
     <Link
       href={`/objects/${item.id}`}
@@ -143,7 +146,7 @@ function ItemCard({ item }: { item: ItemRow }) {
         )}
         {item.wishlist && (
           <p className="mt-1 truncate text-xs text-blue-500">
-            Caută: {item.wishlist}
+            {lookingForLabel}
           </p>
         )}
       </div>
@@ -151,10 +154,24 @@ function ItemCard({ item }: { item: ItemRow }) {
   );
 }
 
+const COUNTRY_NAMES: Record<string, string> = {
+  ro: "România",
+  en: "Romania",
+};
+
+const COUNTRY_CODES: Record<string, string> = {
+  ro: "RO",
+  en: "RO",
+};
+
 export default async function CityPage({ params }: Props) {
-  const { city: citySlug } = await params;
+  const { locale, city: citySlug } = await params;
   const city = getCityBySlug(citySlug);
   if (!city) notFound();
+
+  const t = await getTranslations({ locale, namespace: "cityPage" });
+  const countryName = COUNTRY_NAMES[locale] ?? "Romania";
+  const countryCode = COUNTRY_CODES[locale] ?? "RO";
 
   const { local, nearby } = await getCityItems(city.name, city.county);
   const totalCount = local.length + nearby.length;
@@ -164,12 +181,12 @@ export default async function CityPage({ params }: Props) {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     name: `Swaply ${city.name}`,
-    description: `Platformă de schimb de obiecte fără bani în ${city.name}, România.`,
+    description: t("jsonLdDescription", { city: city.name, country: countryName }),
     url: `https://swaply.world/objects/city/${citySlug}`,
     address: {
       "@type": "PostalAddress",
       addressLocality: city.name,
-      addressCountry: "RO",
+      addressCountry: countryCode,
     },
     areaServed: {
       "@type": "City",
@@ -191,18 +208,16 @@ export default async function CityPage({ params }: Props) {
         className="inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
       >
         <ArrowLeft className="h-4 w-4" />
-        Toate obiectele
+        {t("allObjects")}
       </Link>
 
       {/* Header */}
       <header>
         <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50">
-          Schimb de obiecte în {city.name}
+          {t("heroTitle", { city: city.name })}
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-          Comunitatea Swaply din {city.name} conectează utilizatori activi care
-          vor să facă schimb de obiecte. Găsește obiecte de schimbat în
-          apropierea ta sau schimbă prin curier cu orice utilizator din țară.
+          {t("heroDescription", { city: city.name })}
         </p>
       </header>
 
@@ -212,7 +227,7 @@ export default async function CityPage({ params }: Props) {
           <div className="mb-4 flex items-center gap-2">
             <MapPin className="h-4 w-4 text-blue-600 dark:text-blue-400" />
             <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
-              Obiecte în {city.name}
+              {t("localItemsTitle", { city: city.name })}
             </h2>
             <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
               {local.length}
@@ -220,7 +235,7 @@ export default async function CityPage({ params }: Props) {
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {local.map((item) => (
-              <ItemCard key={item.id} item={item} />
+              <ItemCard key={item.id} item={item} lookingForLabel={t("lookingFor", { wishlist: item.wishlist ?? "" })} />
             ))}
           </div>
         </section>
@@ -231,12 +246,12 @@ export default async function CityPage({ params }: Props) {
         <section>
           <h2 className="mb-4 text-lg font-bold text-zinc-900 dark:text-zinc-50">
             {local.length < 3
-              ? `Obiecte din județul ${city.county} și din toată România`
-              : `Alte obiecte din ${city.county}`}
+              ? t("nearbyItemsFallback", { county: city.county, country: countryName })
+              : t("nearbyItemsTitle", { county: city.county })}
           </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {nearby.map((item) => (
-              <ItemCard key={item.id} item={item} />
+              <ItemCard key={item.id} item={item} lookingForLabel={t("lookingFor", { wishlist: item.wishlist ?? "" })} />
             ))}
           </div>
         </section>
@@ -247,16 +262,16 @@ export default async function CityPage({ params }: Props) {
         <div className="rounded-2xl border border-dashed border-zinc-200 py-16 text-center dark:border-zinc-700">
           <MapPin className="mx-auto h-8 w-8 text-zinc-300 dark:text-zinc-600" />
           <p className="mt-3 text-sm text-zinc-500 dark:text-zinc-400">
-            Niciun obiect disponibil momentan în {city.name}.
+            {t("emptyStateMessage", { city: city.name })}
           </p>
           <p className="mt-1 text-xs text-zinc-400 dark:text-zinc-500">
-            Fii primul care listează un obiect în acest oraș!
+            {t("emptyStateHint")}
           </p>
           <Link
             href="/objects/new"
             className="mt-4 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
           >
-            Listează un obiect
+            {t("listObject")}
           </Link>
         </div>
       )}
@@ -264,7 +279,7 @@ export default async function CityPage({ params }: Props) {
       {/* Browse categories in this city — links to category+city intersection */}
       <section>
         <h2 className="mb-4 text-lg font-bold text-zinc-900 dark:text-zinc-50">
-          Categorii populare în {city.name}
+          {t("popularCategories", { city: city.name })}
         </h2>
         <div className="flex flex-wrap gap-2">
           {SEO_CATEGORIES.filter((c) => c.slug !== "other").map((cat) => (
@@ -283,7 +298,7 @@ export default async function CityPage({ params }: Props) {
       {/* Other cities */}
       <section>
         <h2 className="mb-4 text-lg font-bold text-zinc-900 dark:text-zinc-50">
-          Alte orașe active
+          {t("otherCities")}
         </h2>
         <div className="flex flex-wrap gap-2">
           {SEO_CITIES.filter((c) => c.slug !== citySlug).map((c) => (
@@ -302,16 +317,16 @@ export default async function CityPage({ params }: Props) {
       {/* CTA */}
       <div className="rounded-2xl border border-green-200 bg-green-50/50 p-6 text-center dark:border-green-800 dark:bg-green-950/30">
         <p className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
-          Schimbă obiecte în {city.name}
+          {t("ctaTitle", { city: city.name })}
         </p>
         <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-          Creează un cont gratuit și listează primul tău obiect.
+          {t("ctaDescription")}
         </p>
         <Link
           href="/register"
           className="mt-4 inline-flex items-center gap-2 rounded-xl bg-green-600 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700"
         >
-          Încearcă Swaply gratuit →
+          {t("ctaButton")}
         </Link>
       </div>
     </div>

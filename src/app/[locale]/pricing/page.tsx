@@ -132,12 +132,12 @@ function PricingContent() {
       {/* Success / Cancel banners */}
       {paymentSuccess && (
         <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-center text-sm font-medium text-green-800 dark:border-green-800 dark:bg-green-950/30 dark:text-green-300">
-          Felicitari! Abonamentul tau a fost activat cu succes. Ai primit +100 tokens bonus!
+          {t("paymentSuccess")}
         </div>
       )}
       {paymentCanceled && (
         <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-center text-sm font-medium text-amber-800 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-300">
-          Plata a fost anulata. Poti incerca din nou oricand.
+          {t("paymentCanceled")}
         </div>
       )}
 
@@ -158,14 +158,14 @@ function PricingContent() {
           {currentPlan === "free" && (
             <span className="absolute -top-3 left-4 flex items-center gap-1 rounded-full bg-blue-600 px-3 py-0.5 text-xs font-bold text-white">
               <Star className="h-3 w-3" />
-              Plan actual
+              {t("currentPlanBadge")}
             </span>
           )}
           <h3 className="mt-1 text-lg font-bold text-zinc-900 dark:text-zinc-50">
             {t("freeTitle")}
           </h3>
           <p className="mt-2">
-            <span className="text-3xl font-extrabold text-zinc-900 dark:text-zinc-50">0 lei</span>
+            <span className="text-3xl font-extrabold text-zinc-900 dark:text-zinc-50">{t("freePrice")}</span>
             <span className="text-sm text-zinc-400"> / {t("month")}</span>
           </p>
           <ul className="mt-5 space-y-2.5">
@@ -201,7 +201,7 @@ function PricingContent() {
           {currentPlan === "premium" && (
             <span className="absolute -top-3 left-4 flex items-center gap-1 rounded-full bg-amber-500 px-3 py-0.5 text-xs font-bold text-white">
               <Star className="h-3 w-3" />
-              Plan actual
+              {t("currentPlanBadge")}
             </span>
           )}
           <div className="flex items-center gap-2">
@@ -211,7 +211,7 @@ function PricingContent() {
             </h3>
           </div>
           <p className="mt-2">
-            <span className="text-3xl font-extrabold text-zinc-900 dark:text-zinc-50">19 lei</span>
+            <span className="text-3xl font-extrabold text-zinc-900 dark:text-zinc-50">{t("premiumPrice")}</span>
             <span className="text-sm text-zinc-400"> / {t("month")}</span>
           </p>
           <p className="text-xs text-zinc-400 dark:text-zinc-500">
@@ -240,11 +240,11 @@ function PricingContent() {
               ) : (
                 <ExternalLink className="h-4 w-4" />
               )}
-              Gestioneaza abonamentul
+              {t("manageSubscription")}
             </button>
           ) : currentPlan === "platinum" ? (
             <span className="mt-6 block w-full rounded-full bg-zinc-100 py-2.5 text-center text-sm font-bold text-zinc-400 dark:bg-zinc-700">
-              Inclus in Platinum
+              {t("includedInPlatinum")}
             </span>
           ) : (
             <button
@@ -264,7 +264,7 @@ function PricingContent() {
           {currentPlan === "platinum" && (
             <span className="absolute -top-3 left-4 flex items-center gap-1 rounded-full bg-zinc-700 px-3 py-0.5 text-xs font-bold text-white dark:bg-zinc-500">
               <Star className="h-3 w-3" />
-              Plan actual
+              {t("currentPlanBadge")}
             </span>
           )}
           <div className="flex items-center gap-2">
@@ -278,7 +278,7 @@ function PricingContent() {
           </p>
           <p className="mt-3">
             <span className="text-2xl font-extrabold text-zinc-900 dark:text-zinc-50">
-              49 lei
+              {t("businessPrice")}
             </span>
             <span className="text-sm text-zinc-400"> / {t("month")}</span>
           </p>
@@ -305,7 +305,7 @@ function PricingContent() {
               ) : (
                 <ExternalLink className="h-4 w-4" />
               )}
-              Gestioneaza abonamentul
+              {t("manageSubscription")}
             </button>
           ) : (
             <button

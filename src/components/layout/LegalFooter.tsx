@@ -5,14 +5,14 @@ import { useTranslations } from "next-intl";
 
 const FOOTER_CITIES = [
   { slug: "london", name: "London" },
+  { slug: "new-york", name: "New York" },
   { slug: "berlin", name: "Berlin" },
+  { slug: "tokyo", name: "Tokyo" },
   { slug: "paris", name: "Paris" },
-  { slug: "madrid", name: "Madrid" },
-  { slug: "rome", name: "Rome" },
-  { slug: "amsterdam", name: "Amsterdam" },
-  { slug: "vienna", name: "Vienna" },
-  { slug: "prague", name: "Prague" },
-  { slug: "stockholm", name: "Stockholm" },
+  { slug: "sydney", name: "Sydney" },
+  { slug: "toronto", name: "Toronto" },
+  { slug: "sao-paulo", name: "Sao Paulo" },
+  { slug: "mumbai", name: "Mumbai" },
 ];
 
 export function LegalFooter() {
