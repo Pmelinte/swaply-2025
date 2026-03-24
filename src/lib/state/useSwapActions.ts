@@ -6,6 +6,7 @@ import type { SwapIntent, SwapType } from "../types";
 import type { SharedDeps } from "./shared-deps";
 import { showTokenToast } from "@/components/tokens/TokenToast";
 import { getSupabaseClient } from "@/lib/supabase/client";
+import { trackItemEvent } from "@/lib/item-analytics";
 
 export function useSwapActions(deps: Pick<SharedDeps, "user" | "dataSource" | "supabase" | "setLastError" | "mapSwapIntent" | "swaps" | "setSwaps" | "items" | "setNotifications" | "sendAuditLog" | "trackEvent">) {
   const { user, dataSource, supabase, setLastError, mapSwapIntent, swaps, setSwaps, items, setNotifications, sendAuditLog, trackEvent } = deps;
@@ -46,6 +47,9 @@ export function useSwapActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
         if (!data) return null;
         const mapped = mapSwapIntent(data);
         setSwaps((prev) => [mapped, ...prev.filter((s) => s.id !== mapped.id)]);
+        // Track analytics for both items
+        trackItemEvent(responderItemId, "swap_proposed", user.id);
+        trackItemEvent(requesterItemId, "swap_proposed", user.id);
         // Mark onboarding step_first_swap
         supabase.from("onboarding_progress").upsert(
           { user_id: user.id, step_first_swap: true },
@@ -134,11 +138,23 @@ export function useSwapActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
         }
 
         sendAuditLog({ userId: user?.id ?? "", action: "swap.status_changed", entityType: "swap", entityId: swapId, oldData: { status: previousStatus }, newData: { status } });
+        // Track accepted/completed analytics
+        if (status === "accepted" || status === "completed") {
+          const evType = status === "accepted" ? "swap_accepted" as const : "swap_completed" as const;
+          if (existing?.requesterItemId) trackItemEvent(existing.requesterItemId, evType, user?.id);
+          if (existing?.responderItemId) trackItemEvent(existing.responderItemId, evType, user?.id);
+        }
         return;
       }
 
       // Mock/local fallback — no server validation
       sendAuditLog({ userId: user?.id ?? "", action: "swap.status_changed", entityType: "swap", entityId: swapId, oldData: { status: previousStatus }, newData: { status } });
+      // Track accepted/completed analytics (mock path)
+      if (status === "accepted" || status === "completed") {
+        const evType = status === "accepted" ? "swap_accepted" as const : "swap_completed" as const;
+        if (existing?.requesterItemId) trackItemEvent(existing.requesterItemId, evType, user?.id);
+        if (existing?.responderItemId) trackItemEvent(existing.responderItemId, evType, user?.id);
+      }
 
       const statusMessages: Record<string, string> = {
         accepted: "Schimbul a fost acceptat!",
