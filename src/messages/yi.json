@@ -625,7 +625,9 @@
     "servicesType": "Services",
     "undoSwipe": "Undo last swipe",
     "loadMoreItems": "Load more",
-    "remainingItems": "remaining"
+    "remainingItems": "remaining",
+    "metaTitle": "Swap objects without money",
+    "metaDescription": "Browse and swap objects without money. AI matching, local exchange, secure chat."
   },
   "objectDetail": {
     "loading": "Loading object",
@@ -1448,7 +1450,9 @@
     "streak": "day streak",
     "leaderboardNote": "Leaderboard resets monthly. Activity includes completed swaps, positive ratings, and consistent engagement.",
     "badgeBenefits": "Badge benefits",
-    "badgeBenefitsDescription": "Premium and Platinum benefits: priority in analysis, map pins, completeness indicator, and more."
+    "badgeBenefitsDescription": "Premium and Platinum benefits: priority in analysis, map pins, completeness indicator, and more.",
+    "metaTitle": "How Swaply Works",
+    "metaDescription": "Learn how Swaply works: post objects, get AI matches, chat and swap. Free platform for object exchange."
   },
   "itemForm": {
     "conditionNew": "New",
@@ -2106,7 +2110,9 @@
     "techDescription": "Swaply is built with Next.js, React, Supabase, and Tailwind CSS. Hosted on Vercel, payments via Stripe. All code is written by a single developer — no team, no investors, just passion and coffee.",
     "ctaButton": "Start swapping",
     "ctaSub": "Free. No card required. No commissions.",
-    "compareColumnOther": "Classic marketplace"
+    "compareColumnOther": "Classic marketplace",
+    "metaTitle": "About Swaply",
+    "metaDescription": "The story behind Swaply — the platform for swapping objects without money."
   },
   "pricing": {
     "title": "Pricing",
@@ -2149,7 +2155,9 @@
     "faqA2": "We have a rating and reporting system. Users with problematic behavior are suspended.",
     "faqQ3": "Can I cancel a proposed swap?",
     "faqA3": "Yes, anytime before the other person confirms.",
-    "ctaButton": "Start for free"
+    "ctaButton": "Start for free",
+    "metaTitle": "Pricing — Free, Premium, Platinum",
+    "metaDescription": "Compare Swaply plans: Free, Premium and Platinum. Swapping is always free, no commissions."
   },
   "contact": {
     "title": "Contact",

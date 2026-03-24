@@ -1,21 +1,36 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { locales } from "@/i18n/config";
 
 const BASE_URL = "https://www.swaply.world";
 
-export const metadata: Metadata = {
-  title: "Prețuri Swaply | Gratuit, Premium, Platinum",
-  description:
-    "Compară planurile Swaply: Gratuit, Premium și Platinum. Schimbul e mereu gratuit, fără comisioane.",
-  alternates: {
-    canonical: `${BASE_URL}/en/pricing`,
-    languages: Object.fromEntries([
-      ...locales.map((loc) => [loc, `${BASE_URL}/${loc}/pricing`]),
-      ["x-default", `${BASE_URL}/en/pricing`],
-    ]),
-  },
-};
+interface Props {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}
 
-export default function PricingLayout({ children }: { children: React.ReactNode }) {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "pricing" });
+
+  const title = `${t("metaTitle")} | Swaply`;
+  const description = t("metaDescription");
+
+  return {
+    title,
+    description,
+    openGraph: { title, description, type: "website" },
+    twitter: { card: "summary", title, description },
+    alternates: {
+      canonical: `${BASE_URL}/${locale}/pricing`,
+      languages: Object.fromEntries([
+        ...locales.map((loc) => [loc, `${BASE_URL}/${loc}/pricing`]),
+        ["x-default", `${BASE_URL}/en/pricing`],
+      ]),
+    },
+  };
+}
+
+export default function PricingLayout({ children }: Props) {
   return children;
 }
