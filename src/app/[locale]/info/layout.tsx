@@ -13,11 +13,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "info" });
 
-  const title = `${t("metaTitle")} | Swaply`;
+  const metaTitle = t("metaTitle");
+  const title = `${metaTitle} | Swaply`;
   const description = t("metaDescription");
 
   return {
-    title,
+    title: { absolute: title },
     description,
     openGraph: { title, description, type: "website" },
     twitter: { card: "summary", title, description },
