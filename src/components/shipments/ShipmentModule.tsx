@@ -19,11 +19,16 @@ const DELIVERY_TYPES: { key: DeliveryType; icon: typeof MapPin; titleKey: string
   { key: "locker_pickup", icon: LocateFixed, titleKey: "deliveryLockerPickup" },
 ];
 
+/**
+ * Courier options are now dynamic based on user's country.
+ * Falls back to international couriers + "Other" when country is unknown.
+ * The country registry (src/lib/payments/country-registry.ts) provides
+ * per-country courier lists; this static list is the UI fallback.
+ */
 const COURIERS = [
-  { key: "FanCourier", labelKey: "courierFanCourier" },
-  { key: "Sameday", labelKey: "courierSameday" },
-  { key: "Cargus", labelKey: "courierCargus" },
   { key: "DHL", labelKey: "courierDHL" },
+  { key: "FedEx", labelKey: "courierFedEx" },
+  { key: "UPS", labelKey: "courierUPS" },
   { key: "Other", labelKey: "courierOther" },
 ];
 

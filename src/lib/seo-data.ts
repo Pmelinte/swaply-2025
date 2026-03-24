@@ -155,12 +155,121 @@ export interface SEOCity {
   slug: string;
   name: string;
   county: string;
+  /** ISO 3166-1 alpha-2 country code */
+  countryCode: string;
 }
 
-// Cities are loaded dynamically from the DB `cities` table.
-// This array is kept empty; use the cities table for all city lookups.
-export const SEO_CITIES: SEOCity[] = [];
+export const SEO_CITIES: SEOCity[] = [
+  // ── Romania ──
+  { slug: "bucuresti", name: "București", county: "Ilfov", countryCode: "RO" },
+  { slug: "cluj-napoca", name: "Cluj-Napoca", county: "Cluj", countryCode: "RO" },
+  { slug: "timisoara", name: "Timișoara", county: "Timiș", countryCode: "RO" },
+  { slug: "iasi", name: "Iași", county: "Iași", countryCode: "RO" },
+  { slug: "constanta", name: "Constanța", county: "Constanța", countryCode: "RO" },
+  // ── Germany ──
+  { slug: "berlin", name: "Berlin", county: "Berlin", countryCode: "DE" },
+  { slug: "munich", name: "Munich", county: "Bavaria", countryCode: "DE" },
+  { slug: "hamburg", name: "Hamburg", county: "Hamburg", countryCode: "DE" },
+  { slug: "cologne", name: "Cologne", county: "North Rhine-Westphalia", countryCode: "DE" },
+  { slug: "frankfurt", name: "Frankfurt", county: "Hesse", countryCode: "DE" },
+  // ── France ──
+  { slug: "paris", name: "Paris", county: "Île-de-France", countryCode: "FR" },
+  { slug: "lyon", name: "Lyon", county: "Auvergne-Rhône-Alpes", countryCode: "FR" },
+  { slug: "marseille", name: "Marseille", county: "Provence-Alpes-Côte d'Azur", countryCode: "FR" },
+  { slug: "toulouse", name: "Toulouse", county: "Occitanie", countryCode: "FR" },
+  { slug: "nice", name: "Nice", county: "Provence-Alpes-Côte d'Azur", countryCode: "FR" },
+  // ── Italy ──
+  { slug: "rome", name: "Rome", county: "Lazio", countryCode: "IT" },
+  { slug: "milan", name: "Milan", county: "Lombardy", countryCode: "IT" },
+  { slug: "naples", name: "Naples", county: "Campania", countryCode: "IT" },
+  { slug: "turin", name: "Turin", county: "Piedmont", countryCode: "IT" },
+  { slug: "palermo", name: "Palermo", county: "Sicily", countryCode: "IT" },
+  // ── Spain ──
+  { slug: "madrid", name: "Madrid", county: "Madrid", countryCode: "ES" },
+  { slug: "barcelona", name: "Barcelona", county: "Catalonia", countryCode: "ES" },
+  { slug: "valencia", name: "Valencia", county: "Valencia", countryCode: "ES" },
+  { slug: "seville", name: "Seville", county: "Andalusia", countryCode: "ES" },
+  { slug: "bilbao", name: "Bilbao", county: "Basque Country", countryCode: "ES" },
+  // ── Netherlands ──
+  { slug: "amsterdam", name: "Amsterdam", county: "Noord-Holland", countryCode: "NL" },
+  { slug: "rotterdam", name: "Rotterdam", county: "Zuid-Holland", countryCode: "NL" },
+  { slug: "the-hague", name: "The Hague", county: "Zuid-Holland", countryCode: "NL" },
+  { slug: "utrecht", name: "Utrecht", county: "Utrecht", countryCode: "NL" },
+  // ── Poland ──
+  { slug: "warsaw", name: "Warsaw", county: "Masovia", countryCode: "PL" },
+  { slug: "krakow", name: "Krakow", county: "Lesser Poland", countryCode: "PL" },
+  { slug: "wroclaw", name: "Wroclaw", county: "Lower Silesia", countryCode: "PL" },
+  { slug: "gdansk", name: "Gdansk", county: "Pomerania", countryCode: "PL" },
+  // ── United Kingdom ──
+  { slug: "london", name: "London", county: "England", countryCode: "GB" },
+  { slug: "manchester", name: "Manchester", county: "England", countryCode: "GB" },
+  { slug: "birmingham", name: "Birmingham", county: "England", countryCode: "GB" },
+  { slug: "glasgow", name: "Glasgow", county: "Scotland", countryCode: "GB" },
+  // ── United States ──
+  { slug: "new-york", name: "New York", county: "New York", countryCode: "US" },
+  { slug: "los-angeles", name: "Los Angeles", county: "California", countryCode: "US" },
+  { slug: "chicago", name: "Chicago", county: "Illinois", countryCode: "US" },
+  { slug: "houston", name: "Houston", county: "Texas", countryCode: "US" },
+  { slug: "phoenix", name: "Phoenix", county: "Arizona", countryCode: "US" },
+  // ── Indonesia ──
+  { slug: "jakarta", name: "Jakarta", county: "DKI Jakarta", countryCode: "ID" },
+  { slug: "surabaya", name: "Surabaya", county: "East Java", countryCode: "ID" },
+  { slug: "bandung", name: "Bandung", county: "West Java", countryCode: "ID" },
+  { slug: "medan", name: "Medan", county: "North Sumatra", countryCode: "ID" },
+  // ── Japan ──
+  { slug: "tokyo", name: "Tokyo", county: "Kanto", countryCode: "JP" },
+  { slug: "osaka", name: "Osaka", county: "Kansai", countryCode: "JP" },
+  { slug: "kyoto", name: "Kyoto", county: "Kansai", countryCode: "JP" },
+  { slug: "yokohama", name: "Yokohama", county: "Kanto", countryCode: "JP" },
+  // ── South Korea ──
+  { slug: "seoul", name: "Seoul", county: "Seoul", countryCode: "KR" },
+  { slug: "busan", name: "Busan", county: "Busan", countryCode: "KR" },
+  { slug: "incheon", name: "Incheon", county: "Incheon", countryCode: "KR" },
+  // ── India ──
+  { slug: "mumbai", name: "Mumbai", county: "Maharashtra", countryCode: "IN" },
+  { slug: "delhi", name: "Delhi", county: "Delhi", countryCode: "IN" },
+  { slug: "bangalore", name: "Bangalore", county: "Karnataka", countryCode: "IN" },
+  { slug: "chennai", name: "Chennai", county: "Tamil Nadu", countryCode: "IN" },
+  // ── China ──
+  { slug: "beijing", name: "Beijing", county: "Beijing", countryCode: "CN" },
+  { slug: "shanghai", name: "Shanghai", county: "Shanghai", countryCode: "CN" },
+  { slug: "guangzhou", name: "Guangzhou", county: "Guangdong", countryCode: "CN" },
+  { slug: "shenzhen", name: "Shenzhen", county: "Guangdong", countryCode: "CN" },
+  // ── Turkey ──
+  { slug: "istanbul", name: "Istanbul", county: "Istanbul", countryCode: "TR" },
+  { slug: "ankara", name: "Ankara", county: "Ankara", countryCode: "TR" },
+  { slug: "izmir", name: "Izmir", county: "Izmir", countryCode: "TR" },
+  // ── Thailand ──
+  { slug: "bangkok", name: "Bangkok", county: "Bangkok", countryCode: "TH" },
+  { slug: "chiang-mai", name: "Chiang Mai", county: "Chiang Mai", countryCode: "TH" },
+  // ── Vietnam ──
+  { slug: "hanoi", name: "Hanoi", county: "Hanoi", countryCode: "VN" },
+  { slug: "ho-chi-minh", name: "Ho Chi Minh City", county: "Ho Chi Minh", countryCode: "VN" },
+  // ── Saudi Arabia ──
+  { slug: "riyadh", name: "Riyadh", county: "Riyadh", countryCode: "SA" },
+  { slug: "jeddah", name: "Jeddah", county: "Makkah", countryCode: "SA" },
+  // ── Kenya ──
+  { slug: "nairobi", name: "Nairobi", county: "Nairobi", countryCode: "KE" },
+  { slug: "mombasa", name: "Mombasa", county: "Mombasa", countryCode: "KE" },
+  // ── Other European ──
+  { slug: "vienna", name: "Vienna", county: "Wien", countryCode: "AT" },
+  { slug: "prague", name: "Prague", county: "Praha", countryCode: "CZ" },
+  { slug: "budapest", name: "Budapest", county: "Pest", countryCode: "HU" },
+  { slug: "lisbon", name: "Lisbon", county: "Lisboa", countryCode: "PT" },
+  { slug: "stockholm", name: "Stockholm", county: "Stockholm", countryCode: "SE" },
+  { slug: "copenhagen", name: "Copenhagen", county: "Capital Region", countryCode: "DK" },
+  { slug: "oslo", name: "Oslo", county: "Oslo", countryCode: "NO" },
+  { slug: "helsinki", name: "Helsinki", county: "Uusimaa", countryCode: "FI" },
+  { slug: "athens", name: "Athens", county: "Attica", countryCode: "GR" },
+  { slug: "sofia", name: "Sofia", county: "Sofia", countryCode: "BG" },
+  { slug: "kyiv", name: "Kyiv", county: "Kyiv", countryCode: "UA" },
+  { slug: "dublin", name: "Dublin", county: "Dublin", countryCode: "IE" },
+];
 
 export function getCityBySlug(slug: string): SEOCity | undefined {
   return SEO_CITIES.find((c) => c.slug === slug);
+}
+
+export function getCitiesByCountry(countryCode: string): SEOCity[] {
+  return SEO_CITIES.filter((c) => c.countryCode === countryCode);
 }

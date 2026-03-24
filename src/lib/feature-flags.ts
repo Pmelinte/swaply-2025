@@ -36,7 +36,7 @@ export const DEFAULT_FLAGS: FeatureFlag[] = [
   { id: "daily_streaks", name: "Daily Streaks", description: "Recompense zilnice pentru login consecutiv", enabled: true, category: "monetization", rolloutPercent: 100 },
   { id: "stripe_payments", name: "Stripe Payments", description: "Plăți prin Stripe (tokens, subscriptions, one-time)", enabled: true, category: "monetization", rolloutPercent: 100 },
   { id: "paypal_payments", name: "PayPal Payments", description: "Plăți prin PayPal (tokens, subscriptions)", enabled: true, category: "monetization", rolloutPercent: 100 },
-  { id: "courier_shipping", name: "Courier Shipping", description: "Livrare prin curier (FanCourier, SameDay, Cargus)", enabled: true, category: "core", rolloutPercent: 100 },
+  { id: "courier_shipping", name: "Courier Shipping", description: "Shipping via country-specific couriers (40+ countries)", enabled: true, category: "core", rolloutPercent: 100 },
   { id: "ads_display", name: "Ads Display", description: "Afișare reclame (AdSense, Carbon Ads, sponsori)", enabled: true, category: "monetization", rolloutPercent: 100 },
   { id: "auctions", name: "Licitații", description: "Mod licitație pentru obiecte (platinum)", enabled: false, category: "experimental", rolloutPercent: 0 },
   { id: "video_calls", name: "Video Calls", description: "Apeluri video pentru verificare înainte de întâlnire", enabled: false, category: "experimental", rolloutPercent: 0 },

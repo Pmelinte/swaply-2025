@@ -3,11 +3,11 @@
  * Bus and railway ticket affiliate links & API for traveling to swap locations.
  *
  * Providers:
- *   - FlixBus/FlixTrain: European bus & train network (affiliate program)
- *   - CFR Călători: Romanian national railway
- *   - Omio (GoEuro): Multi-modal European transport search
+ *   - FlixBus/FlixTrain: Global bus & train network (affiliate program)
+ *   - Omio: Multi-modal transport search (global)
  *   - BlaBlaCar: Carpooling (affiliate)
- *   - Rome2rio: Multi-modal route planning
+ *   - Rome2rio: Multi-modal route planning (global)
+ *   - Country-specific railways via services_by_country DB table
  *
  * Revenue model:
  *   - FlixBus: 3-5% CPA per booking
@@ -32,8 +32,6 @@ export interface GroundTransportSearchParams {
   returnDate?: string;
   passengers?: number;
   mode?: GroundTransportMode;
-  /** ISO 3166-1 alpha-2 country code (e.g. "RO", "DE"). Used to include country-specific providers. */
-  countryCode?: string;
 }
 
 export interface GroundTransportLink {
@@ -50,7 +48,7 @@ export interface GroundTransportEstimate {
   provider: GroundTransportProvider;
   priceRange: { min: number; max: number; currency: string };
   durationRange: { minHours: number; maxHours: number };
-  frequency: string;    // e.g. "Multiple daily"
+  frequency: string;    // e.g. "8 curse/zi"
 }
 
 // ── Config ──
@@ -111,7 +109,6 @@ function rome2rioUrl(params: GroundTransportSearchParams): string {
 
 export function getGroundTransportLinks(params: GroundTransportSearchParams): GroundTransportLink[] {
   const links: GroundTransportLink[] = [];
-  const country = params.countryCode?.toUpperCase();
 
   if (!params.mode || params.mode === "bus") {
     links.push({
@@ -124,15 +121,14 @@ export function getGroundTransportLinks(params: GroundTransportSearchParams): Gr
     });
   }
 
-  // CFR Călători is Romania-only
-  if (country === "RO" && (!params.mode || params.mode === "train")) {
+  if (!params.mode || params.mode === "train") {
     links.push({
       provider: "cfr",
-      name: "CFR Călători",
+      name: "National Railway",
       mode: "train",
       searchUrl: cfrUrl(params),
       icon: "🚂",
-      priceHint: "from 30 RON",
+      priceHint: "check prices",
     });
   }
 
@@ -171,45 +167,36 @@ export function getGroundTransportLinks(params: GroundTransportSearchParams): Gr
 
 /**
  * Estimate ground transport options between two cities.
- * When countryCode is "RO", includes CFR train estimates with RON pricing.
+ * Uses generic heuristics — real API integrations would provide accurate data.
  */
 export function estimateGroundTransport(
   originCity: string,
   destCity: string,
-  countryCode?: string,
 ): GroundTransportEstimate[] {
-  const estimates: GroundTransportEstimate[] = [];
+  // Generic heuristic: assume major route if both cities are known
+  const isMajorRoute = originCity.length > 0 && destCity.length > 0;
 
-  // Include CFR train estimates only for Romania
-  if (countryCode?.toUpperCase() === "RO") {
-    const majorRoCities = new Set(["București", "Cluj-Napoca", "Timișoara", "Iași", "Constanța", "Brașov", "Sibiu", "Oradea", "Craiova"]);
-    const isMajorRoute = majorRoCities.has(originCity) && majorRoCities.has(destCity);
-
-    estimates.push({
+  return [
+    {
       mode: "train",
-      provider: "cfr",
-      priceRange: { min: 30, max: 120, currency: "RON" },
-      durationRange: { minHours: isMajorRoute ? 3 : 5, maxHours: isMajorRoute ? 6 : 12 },
+      provider: "omio",
+      priceRange: { min: 10, max: 80, currency: "EUR" },
+      durationRange: { minHours: isMajorRoute ? 2 : 4, maxHours: isMajorRoute ? 5 : 10 },
       frequency: isMajorRoute ? "4-8 trains/day" : "1-3 trains/day",
-    });
-  }
-
-  estimates.push(
+    },
     {
       mode: "bus",
       provider: "flixbus",
-      priceRange: { min: 5, max: 25, currency: "EUR" },
-      durationRange: { minHours: 4, maxHours: 14 },
-      frequency: "Multiple daily",
+      priceRange: { min: 5, max: 35, currency: "EUR" },
+      durationRange: { minHours: isMajorRoute ? 3 : 5, maxHours: isMajorRoute ? 6 : 12 },
+      frequency: isMajorRoute ? "3-6 buses/day" : "1-2 buses/day",
     },
     {
       mode: "carpool",
       provider: "blablacar",
-      priceRange: { min: 3, max: 15, currency: "EUR" },
-      durationRange: { minHours: 3, maxHours: 8 },
+      priceRange: { min: 3, max: 20, currency: "EUR" },
+      durationRange: { minHours: isMajorRoute ? 2 : 4, maxHours: isMajorRoute ? 5 : 8 },
       frequency: "Variable",
     },
-  );
-
-  return estimates;
+  ];
 }

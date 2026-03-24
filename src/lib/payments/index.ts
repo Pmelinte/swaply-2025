@@ -44,7 +44,7 @@ export {
 } from "./paypal";
 export type { PayPalOrderParams, PayPalCaptureResult, PayPalSubscriptionParams } from "./paypal";
 
-// Courier (Romania)
+// Courier (direct API integrations)
 export {
   isCourierConfigured,
   getAvailableCouriers,

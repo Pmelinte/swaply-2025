@@ -1,11 +1,8 @@
 /**
- * Courier affiliate integration for Swaply.
- * Integrates with Romanian courier APIs for swap delivery.
- *
- * Supported couriers:
- *   - FanCourier (https://www.fancourier.ro/api/)
- *   - Sameday (https://sameday.ro/api/)
- *   - Cargus (https://www.cargus.ro/)
+ * Courier integration for Swaply.
+ * Direct API integrations for courier providers (currently FanCourier, Sameday, Cargus).
+ * For other countries, services are listed via the services_by_country DB table
+ * and the country-registry.ts configuration.
  *
  * Revenue model: 5-10% markup on shipping cost.
  *
@@ -27,7 +24,7 @@ export interface ShippingAddress {
   name: string;
   phone: string;
   email?: string;
-  county: string;       // Județ
+  county: string;       // State/Province/County
   city: string;
   street: string;
   postalCode: string;
@@ -131,7 +128,7 @@ async function fanCourierAuth(): Promise<string | null> {
 
 async function fanCourierCreateAWB(req: AWBRequest): Promise<AWBResult> {
   const token = await fanCourierAuth();
-  if (!token) return { success: false, estimatedCost: 0, swaplyFee: 0, totalCost: 0, error: "FanCourier autentificare eșuată" };
+  if (!token) return { success: false, estimatedCost: 0, swaplyFee: 0, totalCost: 0, error: "FanCourier authentication failed" };
 
   const res = await fetch("https://api.fancourier.ro/intern-awb", {
     method: "POST",
@@ -197,7 +194,7 @@ async function fanCourierCreateAWB(req: AWBRequest): Promise<AWBResult> {
 async function samedayCreateAWB(req: AWBRequest): Promise<AWBResult> {
   const apiKey = process.env.SAMEDAY_API_KEY;
   const apiUrl = process.env.SAMEDAY_API_URL ?? "https://api.sameday.ro";
-  if (!apiKey) return { success: false, estimatedCost: 0, swaplyFee: 0, totalCost: 0, error: "Sameday nu este configurat" };
+  if (!apiKey) return { success: false, estimatedCost: 0, swaplyFee: 0, totalCost: 0, error: "Sameday not configured" };
 
   // Authenticate
   const authRes = await fetch(`${apiUrl}/api/authenticate`, {
@@ -206,9 +203,9 @@ async function samedayCreateAWB(req: AWBRequest): Promise<AWBResult> {
     body: `username=${apiKey}`,
   });
 
-  if (!authRes.ok) return { success: false, estimatedCost: 0, swaplyFee: 0, totalCost: 0, error: "Sameday autentificare eșuată" };
+  if (!authRes.ok) return { success: false, estimatedCost: 0, swaplyFee: 0, totalCost: 0, error: "Sameday authentication failed" };
   const authData = await authRes.json() as { token?: string };
-  if (!authData.token) return { success: false, estimatedCost: 0, swaplyFee: 0, totalCost: 0, error: "Sameday token lipsă" };
+  if (!authData.token) return { success: false, estimatedCost: 0, swaplyFee: 0, totalCost: 0, error: "Sameday token missing" };
 
   const res = await fetch(`${apiUrl}/api/awb`, {
     method: "POST",
@@ -253,7 +250,7 @@ async function samedayCreateAWB(req: AWBRequest): Promise<AWBResult> {
 
 async function cargusCreateAWB(req: AWBRequest): Promise<AWBResult> {
   const apiKey = process.env.CARGUS_API_KEY;
-  if (!apiKey) return { success: false, estimatedCost: 0, swaplyFee: 0, totalCost: 0, error: "Cargus nu este configurat" };
+  if (!apiKey) return { success: false, estimatedCost: 0, swaplyFee: 0, totalCost: 0, error: "Cargus not configured" };
 
   const res = await fetch("https://urgentcargus.azure-api.net/api/Awbs/WithGetAwb", {
     method: "POST",
@@ -314,7 +311,7 @@ export async function createAWB(req: AWBRequest): Promise<AWBResult> {
     case "sameday":    return samedayCreateAWB(req);
     case "cargus":     return cargusCreateAWB(req);
     default:
-      return { success: false, estimatedCost: 0, swaplyFee: 0, totalCost: 0, error: `Curier necunoscut: ${req.provider}` };
+      return { success: false, estimatedCost: 0, swaplyFee: 0, totalCost: 0, error: `Unknown courier: ${req.provider}` };
   }
 }
 
@@ -372,8 +369,8 @@ export async function trackAWB(awbNumber: string, provider: CourierProvider): Pr
     provider,
     status: "in_transit",
     events: [
-      { date: new Date().toISOString(), status: "Preluat de curier", location: "Depozit central" },
-      { date: new Date(Date.now() - 3600000).toISOString(), status: "AWB creat", location: "Online" },
+      { date: new Date().toISOString(), status: "Picked up by courier", location: "Central depot" },
+      { date: new Date(Date.now() - 3600000).toISOString(), status: "AWB created", location: "Online" },
     ],
     estimatedDelivery: new Date(Date.now() + 86400000 * 2).toISOString().split("T")[0],
   };
