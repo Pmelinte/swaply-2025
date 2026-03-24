@@ -55,6 +55,16 @@ export interface UserProfile {
     completedSwaps: number;
     activeListings: number;
   };
+  /** Stepped identity verification */
+  phone?: string;
+  phoneVerified?: boolean;
+  idVerified?: boolean;
+  selfieVerified?: boolean;
+  /** Platform behaviour stats (0-100% where applicable) */
+  responseRate?: number;
+  completionRate?: number;
+  noShowCount?: number;
+  disputeRate?: number;
   createdAt?: string;
   houseProfile?: HouseProfile;
   serviceProfiles?: ServiceProfile[];

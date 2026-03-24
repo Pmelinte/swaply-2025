@@ -11,6 +11,7 @@ import AccountTab from "./_components/AccountTab";
 import ReputationTab from "./_components/ReputationTab";
 import AlertsTab from "./_components/AlertsTab";
 import NotificationSettingsTab from "./_components/NotificationSettingsTab";
+import { ProfileVerification } from "@/features/verification/ProfileVerification";
 
 export function ProfileClient() {
   const t = useTranslations("profile");
@@ -18,6 +19,7 @@ export function ProfileClient() {
     user, updateProfile, changeEmail, changePassword, deleteAccount, loading, lastError,
     achievements, shopItems, purchaseShopItem, exportUserData, accountStatus, pauseAccount, resumeAccount, tokenLedger,
     updateHouseProfile, addServiceProfile, removeServiceProfile,
+    verificationBadges, requestPhoneVerification, verifyPhoneCode, submitIdDocument, submitSelfie,
   } = useAppState();
 
   const [draft, setDraft] = useState<UserProfile | null>(user);
@@ -25,7 +27,7 @@ export function ProfileClient() {
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const tss = useTranslations("savedSearches");
   const tn = useTranslations("notificationSettings");
-  const [activeTab, setActiveTab] = useState<"profil" | "cont" | "reputatie" | "proprietati" | "alerte" | "notificari">("profil");
+  const [activeTab, setActiveTab] = useState<"profil" | "cont" | "reputatie" | "proprietati" | "alerte" | "notificari" | "verificare">("profil");
   const [loadingTimeout, setLoadingTimeout] = useState(false);
 
   const profileTabs = [
@@ -35,6 +37,7 @@ export function ProfileClient() {
     { key: "reputatie" as const, label: t("reputation") },
     { key: "alerte" as const, label: tss("alertsTab") },
     { key: "notificari" as const, label: tn("tabLabel") },
+    { key: "verificare" as const, label: t("verificationTitle") },
   ];
 
   // Sync draft with user during render
@@ -184,6 +187,16 @@ export function ProfileClient() {
       )}
       {activeTab === "alerte" && <AlertsTab userId={user.id} />}
       {activeTab === "notificari" && <NotificationSettingsTab userId={user.id} />}
+      {activeTab === "verificare" && (
+        <ProfileVerification
+          user={user}
+          badges={verificationBadges}
+          onRequestPhoneVerification={requestPhoneVerification}
+          onVerifyPhoneCode={verifyPhoneCode}
+          onSubmitIdDocument={submitIdDocument}
+          onSubmitSelfie={submitSelfie}
+        />
+      )}
 
       {/* Save button (always visible) */}
       <SectionCard title={t("saveProfile")} description={t("saveDescription")}>
