@@ -156,6 +156,28 @@ export interface SEOCity {
 }
 
 export const SEO_CITIES: SEOCity[] = [
+  // ── Romanian cities ──
+  { slug: "bucuresti", name: "București", county: "Ilfov" },
+  { slug: "cluj-napoca", name: "Cluj-Napoca", county: "Cluj" },
+  { slug: "timisoara", name: "Timișoara", county: "Timiș" },
+  { slug: "iasi", name: "Iași", county: "Iași" },
+  { slug: "brasov", name: "Brașov", county: "Brașov" },
+  { slug: "constanta", name: "Constanța", county: "Constanța" },
+  { slug: "sibiu", name: "Sibiu", county: "Sibiu" },
+  { slug: "craiova", name: "Craiova", county: "Dolj" },
+  { slug: "oradea", name: "Oradea", county: "Bihor" },
+  { slug: "galati", name: "Galați", county: "Galați" },
+  { slug: "ploiesti", name: "Ploiești", county: "Prahova" },
+  { slug: "pitesti", name: "Pitești", county: "Argeș" },
+  { slug: "arad", name: "Arad", county: "Arad" },
+  { slug: "targu-mures", name: "Târgu Mureș", county: "Mureș" },
+  { slug: "baia-mare", name: "Baia Mare", county: "Maramureș" },
+  { slug: "buzau", name: "Buzău", county: "Buzău" },
+  { slug: "satu-mare", name: "Satu Mare", county: "Satu Mare" },
+  { slug: "botosani", name: "Botoșani", county: "Botoșani" },
+  { slug: "suceava", name: "Suceava", county: "Suceava" },
+  { slug: "alba-iulia", name: "Alba Iulia", county: "Alba" },
+  // ── European cities ──
   { slug: "london", name: "London", county: "England" },
   { slug: "berlin", name: "Berlin", county: "Berlin" },
   { slug: "paris", name: "Paris", county: "Île-de-France" },
