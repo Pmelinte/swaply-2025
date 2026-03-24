@@ -33,7 +33,8 @@ function stubUser(ownerId: string): UserProfile {
   };
 }
 
-const SCORE_FACTORS = [
+/** Factor labels for the legacy breakdown (kept for backward compatibility) */
+const LEGACY_SCORE_FACTORS = [
   { key: "category", max: 30 },
   { key: "intent", max: 15 },
   { key: "flexibility", max: 10 },
@@ -45,12 +46,91 @@ const SCORE_FACTORS = [
   { key: "sentimental", max: 5 },
 ] as const;
 
+/** 9-factor weighted labels */
+const WEIGHTED_FACTOR_LABELS: Record<string, { icon: string; translationKey: string }> = {
+  semantic:    { icon: "🧠", translationKey: "factor_semantic" },
+  category:    { icon: "🏷️", translationKey: "factor_category" },
+  location:    { icon: "📍", translationKey: "factor_location" },
+  value:       { icon: "⚖️", translationKey: "factor_value" },
+  userRating:  { icon: "⭐", translationKey: "factor_userRating" },
+  response:    { icon: "💬", translationKey: "factor_response" },
+  photos:      { icon: "📷", translationKey: "factor_photos" },
+  description: { icon: "📝", translationKey: "factor_description" },
+  activity:    { icon: "🟢", translationKey: "factor_activity" },
+};
+
+/** Visual score badge with progress ring */
+function MatchScoreBadge({ score, tooltipLines }: { score: number; tooltipLines?: string[] }) {
+  const color = score >= 85 ? "text-green-600 dark:text-green-400"
+    : score >= 70 ? "text-blue-600 dark:text-blue-400"
+    : score >= 40 ? "text-amber-600 dark:text-amber-400"
+    : "text-red-600 dark:text-red-400";
+
+  const barColor = score >= 85 ? "bg-green-500"
+    : score >= 70 ? "bg-blue-500"
+    : score >= 40 ? "bg-amber-500"
+    : "bg-red-500";
+
+  return (
+    <div className="group relative flex items-center gap-2">
+      <span className={`text-lg font-black tabular-nums ${color}`}>{score}%</span>
+      <div className="h-2.5 w-20 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-700">
+        <div className={`h-full rounded-full transition-all duration-500 ${barColor}`} style={{ width: `${Math.min(100, score)}%` }} />
+      </div>
+      {tooltipLines && tooltipLines.length > 0 && (
+        <div className="pointer-events-none absolute bottom-full left-0 z-20 mb-2 hidden w-56 rounded-lg border border-zinc-200 bg-white p-2.5 text-xs shadow-lg group-hover:block dark:border-zinc-700 dark:bg-zinc-900">
+          {tooltipLines.map((line, i) => (
+            <p key={i} className="text-zinc-700 dark:text-zinc-300">{line}</p>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Weighted 9-factor score breakdown (pgvector-enhanced) */
+function WeightedScoreBreakdown({ factors, total, t }: {
+  factors: Array<{ key: string; raw: number; weighted: number; label: string }>;
+  total: number;
+  t: (key: string) => string;
+}) {
+  return (
+    <div className="mt-3 space-y-2 rounded-xl border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-700 dark:bg-zinc-800/50">
+      <p className="text-xs font-semibold uppercase text-zinc-500 dark:text-zinc-400">{t("scoreBreakdown")}</p>
+      <div className="space-y-1.5">
+        {factors.map((f) => {
+          const meta = WEIGHTED_FACTOR_LABELS[f.key];
+          const pct = Math.round(f.raw * 100);
+          const barColor = f.raw >= 0.7 ? "bg-green-500" : f.raw >= 0.4 ? "bg-blue-500" : "bg-zinc-400";
+          return (
+            <div key={f.key} className="flex items-center gap-2 text-xs">
+              <span className="w-5 shrink-0 text-center">{meta?.icon ?? "·"}</span>
+              <span className="w-24 shrink-0 font-medium text-zinc-700 dark:text-zinc-300">
+                {t(meta?.translationKey ?? `factor_${f.key}`)}
+              </span>
+              <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-700">
+                <div className={`h-full rounded-full transition-all ${barColor}`} style={{ width: `${pct}%` }} />
+              </div>
+              <span className="w-10 text-right text-zinc-500 dark:text-zinc-400">{pct}%</span>
+            </div>
+          );
+        })}
+      </div>
+      <div className="flex items-center justify-between border-t border-zinc-200 pt-2 dark:border-zinc-700">
+        <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-300">{t("totalScore")}</span>
+        <span className="text-sm font-bold text-blue-600 dark:text-blue-400">{formatScore(total)}</span>
+      </div>
+    </div>
+  );
+}
+
+/** Legacy score breakdown (used when weighted data is not available) */
 function ScoreBreakdown({ reasons, score, t }: { reasons: string[]; score: number; t: (key: string) => string }) {
   return (
     <div className="mt-3 space-y-2 rounded-xl border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-700 dark:bg-zinc-800/50">
       <p className="text-xs font-semibold uppercase text-zinc-500 dark:text-zinc-400">{t("scoreBreakdown")}</p>
       <div className="space-y-1.5">
-        {SCORE_FACTORS.map((factor) => {
+        {LEGACY_SCORE_FACTORS.map((factor) => {
           const relevant = reasons.find((r) => {
             const lc = r.toLowerCase();
             switch (factor.key) {
@@ -195,8 +275,13 @@ export function MatchList({
           <div key={match.id} className={`rounded-2xl border-l-4 bg-white/90 shadow-sm transition-all dark:bg-zinc-900/80 ${style.accent} ${isExpanded ? `ring-2 ${style.ring}` : ""}`}>
             {/* Header */}
             <div className="flex items-center justify-between border-b border-zinc-100 px-4 py-2 dark:border-zinc-800">
-              <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">{t("swapProposal")}</span>
+              <MatchScoreBadge score={hybridScore} tooltipLines={match.weightedScore?.tooltipLines} />
               <div className="flex items-center gap-2">
+                {match.semanticScore !== undefined && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-bold text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300">
+                    🧠 pgvector
+                  </span>
+                )}
                 {match.aiAnalyzed && (
                   <span className="inline-flex items-center gap-1 rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-bold text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">
                     <Sparkles className="h-3 w-3" />AI
@@ -276,7 +361,9 @@ export function MatchList({
                 )}
               </div>
               {isExpanded && (
-                match.matchExplanation ? (
+                match.weightedScore ? (
+                  <WeightedScoreBreakdown factors={match.weightedScore.factors} total={match.weightedScore.total} t={t} />
+                ) : match.matchExplanation ? (
                   <MatchExplanationPanel
                     explanation={{ ...match.matchExplanation, score: hybridScore }}
                     distanceKm={match.distanceKm}

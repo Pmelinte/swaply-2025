@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "update:images": "npx tsx scripts/update-demo-images.ts"
+    "update:images": "npx tsx scripts/update-demo-images.ts",
+    "generate:embeddings": "npx tsx scripts/generate-embeddings.ts"
   },
   "dependencies": {
     "@next/third-parties": "^16.1.6",

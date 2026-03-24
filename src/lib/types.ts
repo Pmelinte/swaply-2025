@@ -161,6 +161,14 @@ export interface MatchCandidate {
   explanations?: Array<{ icon: string; label: string; detail: string }>;
   /** v3: Structured match explanation with positives/negatives/suggestions */
   matchExplanation?: MatchExplanation;
+  /** v4: pgvector semantic similarity (0-1) */
+  semanticScore?: number;
+  /** v4: weighted 9-factor score breakdown */
+  weightedScore?: {
+    total: number;
+    factors: Array<{ key: string; raw: number; weighted: number; label: string }>;
+    tooltipLines: string[];
+  };
 }
 
 export type ChatMessageType = "text" | "location" | "image";
