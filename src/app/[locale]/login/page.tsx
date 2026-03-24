@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { NextStepRecommendation, SectionCard, StateShowcase } from "@/components/ui";
 import { Eye, EyeOff } from "lucide-react";
+import SocialAuth from "@/components/SocialAuth";
 
 /** Compute password strength 0–4 */
 function getPasswordStrength(pw: string): number {
@@ -232,6 +233,9 @@ function LoginContent() {
             }
           </button>
         </form>
+
+        {/* Social auth & Phone OTP */}
+        {activeTab !== "reset" && <SocialAuth />}
 
         {message ? (
           <div
