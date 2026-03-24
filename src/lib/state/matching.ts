@@ -5,7 +5,7 @@
  * v2: Enhanced with distance calculation, logistics matching, deal-breakers,
  *     and structured match explanations ("De ce ți-l arăt?").
  */
-import type { Item, MatchCandidate, MatchTier, UserProfile } from "../types";
+import type { Item, MatchCandidate, MatchExplanation, MatchTier, NearMatchSuggestion, UserProfile } from "../types";
 import { getAllKeywords, areSiblingCategories } from "../categories";
 
 // ── Category keyword map for wishlist matching ──
@@ -190,11 +190,16 @@ export function computeMatchesForUser(
       let score = 0;
       const reasons: string[] = [];
       const explanations: MatchReason[] = [];
+      const positives: string[] = [];
+      const negatives: string[] = [];
+      const missing: string[] = [];
+      const alternatives: NearMatchSuggestion[] = [];
 
       // 1. Category / wishlist match (max 30)
       if (wantRequested && theyWantOffered) {
         score += 30;
         reasons.push("Categorii reciproc compatibile");
+        positives.push("explPositiveMutualCategory");
         explanations.push({
           icon: "🎯",
           label: "Match reciproc",
@@ -203,6 +208,7 @@ export function computeMatchesForUser(
       } else if (wantRequested) {
         score += 20;
         reasons.push(`Wishlist-ul tau indica „${requested.category}"`);
+        positives.push("explPositiveYouWant");
         explanations.push({
           icon: "🔍",
           label: "Cauți asta",
@@ -211,6 +217,7 @@ export function computeMatchesForUser(
       } else if (theyWantOffered) {
         score += 20;
         reasons.push(`Partenerul cauta „${offered.category}"`);
+        positives.push("explPositiveTheyWant");
         explanations.push({
           icon: "🤝",
           label: "Te caută",
@@ -219,6 +226,7 @@ export function computeMatchesForUser(
       } else if (eitherFlexBroad) {
         score += 8;
         reasons.push("Flexibilitate larga permite explorare");
+        negatives.push("explNegativeNoCategoryMatch");
       }
 
       // 2. Intent compatibility (max 15)
@@ -228,8 +236,10 @@ export function computeMatchesForUser(
       score += intentScore;
       if (intentScore >= 10) {
         reasons.push("Intentii de schimb compatibile");
+        positives.push("explPositiveIntentMatch");
       } else if (intentScore <= 2) {
         reasons.push("Asteptari diferite de angajament");
+        negatives.push("explNegativeIntentMismatch");
       }
 
       // 3. Flexibility bonus (max 10)
@@ -240,6 +250,16 @@ export function computeMatchesForUser(
       score += flexBonus;
       if (flexBonus >= 7) {
         reasons.push("Ambele parti sunt flexibile");
+        positives.push("explPositiveFlexible");
+      } else if (flexBonus <= 2) {
+        negatives.push("explNegativeStrictPrefs");
+        if (offered.flexibility !== "broad") {
+          alternatives.push({
+            type: "accept_flexible",
+            labelKey: "suggAcceptFlexible",
+            scoreBoost: 6,
+          });
+        }
       }
 
       // 4. Perceived value proximity (max 15)
@@ -251,6 +271,7 @@ export function computeMatchesForUser(
       score += valBonus;
       if (valDiff === 0) {
         reasons.push("Valoare perceputa apropiata");
+        positives.push("explPositiveSameValue");
         explanations.push({
           icon: "⚖️",
           label: "Valoare similară",
@@ -258,6 +279,14 @@ export function computeMatchesForUser(
         });
       } else if (valDiff >= 2) {
         reasons.push("Diferenta mare de valoare perceputa");
+        negatives.push("explNegativeValueGap");
+        if (!offered.acceptsBundle) {
+          alternatives.push({
+            type: "add_bundle_item",
+            labelKey: "suggAddBundleItem",
+            scoreBoost: 13,
+          });
+        }
       }
 
       // 5. Location / Distance (max 15 — upgraded from 10)
@@ -279,6 +308,7 @@ export function computeMatchesForUser(
         if (distanceKm <= 5) {
           score += 15;
           reasons.push(`La ${distanceKm} km — foarte aproape`);
+          positives.push("explPositiveVeryClose");
           explanations.push({
             icon: "📍",
             label: `${distanceKm} km distanță`,
@@ -287,6 +317,7 @@ export function computeMatchesForUser(
         } else if (distanceKm <= 15) {
           score += 12;
           reasons.push(`La ${distanceKm} km — aproape`);
+          positives.push("explPositiveClose");
           explanations.push({
             icon: "📍",
             label: `${distanceKm} km distanță`,
@@ -295,6 +326,7 @@ export function computeMatchesForUser(
         } else if (distanceKm <= maxRadius) {
           score += 8;
           reasons.push(`La ${distanceKm} km — în raza ta de ${maxRadius} km`);
+          positives.push("explPositiveInRadius");
           explanations.push({
             icon: "📍",
             label: `${distanceKm} km distanță`,
@@ -303,29 +335,65 @@ export function computeMatchesForUser(
         } else if (distanceKm <= maxRadius * 2) {
           score += 3;
           reasons.push(`La ${distanceKm} km — depășește raza cu puțin`);
+          negatives.push("explNegativeSlightlyFar");
+          // Suggest extending radius
+          const suggestedRadius = Math.ceil(distanceKm / 10) * 10;
+          alternatives.push({
+            type: "extend_radius",
+            labelKey: "suggExtendRadius",
+            scoreBoost: 5,
+            newRadiusKm: suggestedRadius,
+          });
+        } else {
+          negatives.push("explNegativeFarAway");
+          if (userContext?.logistics !== "courier") {
+            alternatives.push({
+              type: "accept_courier",
+              labelKey: "suggAcceptCourier",
+              scoreBoost: 8,
+            });
+          }
+          const suggestedRadius = Math.ceil(distanceKm / 10) * 10;
+          alternatives.push({
+            type: "extend_radius",
+            labelKey: "suggExtendRadius",
+            scoreBoost: 5,
+            newRadiusKm: suggestedRadius,
+          });
         }
         // Beyond 2x radius: no distance bonus
       } else if (locA && locA === locB) {
         // Fallback: exact city name match
         score += 12;
         reasons.push("Aceeasi locatie — logistica simpla");
+        positives.push("explPositiveSameCity");
         explanations.push({
           icon: "📍",
           label: "Același oraș",
           detail: "Logistica simplificată — același oraș",
         });
+      } else {
+        negatives.push("explNegativeNoLocation");
       }
 
       // 6. Bundle compatibility (max 5)
       if (offered.acceptsBundle && requested.acceptsBundle) {
         score += 5;
         reasons.push("Ambii accepta pachet de obiecte");
+        positives.push("explPositiveBundleCompat");
+      } else if (!offered.acceptsBundle && requested.acceptsBundle) {
+        alternatives.push({
+          type: "add_bundle_item",
+          labelKey: "suggAddBundleItem",
+          scoreBoost: 5,
+        });
       }
 
       // 6b. Subcategory proximity bonus (max 5)
       if (areSiblingCategories(offered.category, requested.category)) {
         score += 5;
         reasons.push("Subcategorii inrudite");
+        positives.push("explPositiveSiblingCat");
       }
 
       // 7. Tags overlap (max 10)
@@ -337,6 +405,7 @@ export function computeMatchesForUser(
       score += tagBonus;
       if (tagOverlap >= 2) {
         reasons.push(`${tagOverlap} taguri comune`);
+        positives.push("explPositiveTagOverlap");
       }
 
       // 8. Sentimental / recipient matters (max 5)
@@ -344,12 +413,43 @@ export function computeMatchesForUser(
         if (offered.recipientMatters || requested.recipientMatters) {
           score += 5;
           reasons.push("Schimb cu valoare sentimentala — destinatarul conteaza");
+          positives.push("explPositiveSentimental");
         }
       }
+
+      // --- Missing improvements (things user can do to raise score) ---
+      if ((offered.photos?.length ?? 0) < 3) {
+        missing.push("missingMorePhotos");
+      }
+      if ((offered.description?.length ?? 0) < 50) {
+        missing.push("missingDescription");
+      }
+      if (!offered.userFinalTags?.length && !offered.aiSuggestedTags?.length) {
+        missing.push("missingTags");
+      }
+      if (!offered.perceivedValue) {
+        missing.push("missingPerceivedValue");
+      }
+
+      // Deduplicate alternatives by type
+      const seenAltTypes = new Set<string>();
+      const uniqueAlts = alternatives.filter((a) => {
+        if (seenAltTypes.has(a.type)) return false;
+        seenAltTypes.add(a.type);
+        return true;
+      });
 
       // Cap at 100
       score = Math.min(100, score);
       const tier = scoreTier(score);
+
+      const matchExplanation: MatchExplanation = {
+        score,
+        positives,
+        negatives,
+        missing,
+        alternatives: uniqueAlts,
+      };
 
       candidates.push({
         id: `match_${offered.id}_${requested.id}`,
@@ -363,6 +463,7 @@ export function computeMatchesForUser(
         // Enhanced fields
         distanceKm,
         explanations: explanations.length > 0 ? explanations : undefined,
+        matchExplanation,
       });
     }
   }
