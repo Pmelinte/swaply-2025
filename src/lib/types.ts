@@ -205,8 +205,24 @@ export interface SwapIntent {
   };
   cancelReason?: CancelReason;
   cancelNote?: string;
+  /** Structured bundles */
+  requesterBundle?: SwapBundle;
+  responderBundle?: SwapBundle;
   createdAt?: string;
   updatedAt?: string;
+}
+
+/** Structured bundle for a swap side */
+export interface SwapBundle {
+  id: string;
+  swapId: string;
+  side: "requester" | "responder";
+  itemIds: string[];
+  notes?: string;
+  totalEstimatedValue?: number;
+  locked: boolean;
+  lockedAt?: string;
+  createdAt: string;
 }
 
 /** Shipment direction within a swap */
