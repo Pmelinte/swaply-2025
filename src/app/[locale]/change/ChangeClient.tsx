@@ -12,13 +12,14 @@ import { MeetingModule } from "@/components/meetings/MeetingModule";
 import { ShipmentModule } from "@/components/shipments/ShipmentModule";
 import { DisputeWorkflow } from "@/features/disputes/DisputeWorkflow";
 import { DisputeDetail } from "@/features/disputes/DisputeDetail";
+import { BundleBuilder } from "@/features/bundles/BundleBuilder";
 import type { Dispute, DisputeEvidence, DisputeReason, DisputeStatus, EvidenceType } from "@/lib/types";
 import {
   MapPin, Truck, Package, Check, Globe, Plane, Home, Wrench, QrCode, Shield, Calendar,
   Wifi, Car, Snowflake, Flame as Heating, WashingMachine, CookingPot, Waves,
   Trees, Dog, Tv, Monitor, Ban, Clock, Users, Camera, Star,
   Palette, Code, GraduationCap, Hammer, Briefcase, Timer, CheckCircle2, XCircle,
-  ArrowRightLeft, AlertTriangle,
+  ArrowRightLeft, AlertTriangle, Lock,
 } from "lucide-react";
 
 const VALID_TRANSITIONS: Record<SwapIntent["status"], SwapIntent["status"][]> = {
@@ -224,6 +225,13 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
   const [activeDispute, setActiveDispute] = useState<Dispute | null>(null);
   const [activeDisputeEvidence, setActiveDisputeEvidence] = useState<DisputeEvidence[]>([]);
 
+  // Bundle builder state
+  const [bundleSelectedIds, setBundleSelectedIds] = useState<string[]>([]);
+  const [bundleNotes, setBundleNotes] = useState("");
+  const [bundleValue, setBundleValue] = useState<number | null>(null);
+  const [bundleLocked, setBundleLocked] = useState(false);
+  const [bundleSaving, setBundleSaving] = useState(false);
+
   // Logistics local state
   const [logisticsType, setLogisticsType] = useState<SwapIntent["logistics"]["locationType"]>("public_spot");
   const [meetupPoint, setMeetupPoint] = useState("");
@@ -243,9 +251,24 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [swap?.id, swap?.logistics.locationType, swap?.logistics.meetupPoint, swap?.logistics.courierTracking]);
+
   const requesterItem = swap ? items.find((i) => i.id === swap.requesterItemId) : null;
   const responderItem = swap ? items.find((i) => i.id === swap.responderItemId) : null;
   const isRequester = swap && user ? swap.requesterId === user.id : false;
+
+  // Sync bundle state when swap changes
+  useEffect(() => {
+    if (swap) {
+      const amRequester = user ? swap.requesterId === user.id : false;
+      const myBundleIds = amRequester ? (swap.requesterBundleIds ?? []) : (swap.responderBundleIds ?? []);
+      setBundleSelectedIds(myBundleIds);
+      const myBundle = amRequester ? swap.requesterBundle : swap.responderBundle;
+      setBundleNotes(myBundle?.notes ?? "");
+      setBundleValue(myBundle?.totalEstimatedValue ?? null);
+      setBundleLocked(myBundle?.locked ?? (swap.status !== "pending"));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [swap?.id, swap?.status, user?.id]);
 
   if (loading.auth) {
     return (
@@ -433,19 +456,28 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
                   {requesterItem?.title ?? swap.requesterItemId}
                 </p>
                 {swap.requesterBundleIds && swap.requesterBundleIds.length > 0 && (
-                  <div className="mt-1.5 flex flex-wrap items-center gap-1">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-semibold text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">
-                      <Package className="h-3 w-3" />
-                      Bundle ({swap.requesterBundleIds.length + 1} items)
-                    </span>
-                    {swap.requesterBundleIds.map((bid) => {
-                      const bundleItem = items.find((i) => i.id === bid);
-                      return (
-                        <span key={bid} className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300">
-                          {bundleItem?.title ?? bid.slice(0, 8) + "\u2026"}
-                        </span>
-                      );
-                    })}
+                  <div className="mt-1.5">
+                    <div className="flex flex-wrap items-center gap-1">
+                      <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                        bundleLocked && isRequester
+                          ? "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300"
+                          : "bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300"
+                      }`}>
+                        {bundleLocked && isRequester ? <Lock className="h-3 w-3" /> : <Package className="h-3 w-3" />}
+                        {t("bundleItems", { count: swap.requesterBundleIds.length + 1 })}
+                      </span>
+                      {swap.requesterBundleIds.map((bid) => {
+                        const bundleItem = items.find((i) => i.id === bid);
+                        return (
+                          <span key={bid} className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300">
+                            {bundleItem?.title ?? bid.slice(0, 8) + "\u2026"}
+                          </span>
+                        );
+                      })}
+                    </div>
+                    {swap.requesterBundle?.totalEstimatedValue != null && swap.requesterBundle.totalEstimatedValue > 0 && (
+                      <p className="mt-0.5 text-[10px] text-zinc-500">{t("bundleEstimatedValue")}: {swap.requesterBundle.totalEstimatedValue.toLocaleString()} {t("bundleCurrency")}</p>
+                    )}
                   </div>
                 )}
                 <div className="mt-1 flex items-center gap-1.5">
@@ -462,19 +494,28 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
                   {responderItem?.title ?? swap.responderItemId}
                 </p>
                 {swap.responderBundleIds && swap.responderBundleIds.length > 0 && (
-                  <div className="mt-1.5 flex flex-wrap items-center gap-1">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-semibold text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">
-                      <Package className="h-3 w-3" />
-                      Bundle ({swap.responderBundleIds.length + 1} items)
-                    </span>
-                    {swap.responderBundleIds.map((bid) => {
-                      const bundleItem = items.find((i) => i.id === bid);
-                      return (
-                        <span key={bid} className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300">
-                          {bundleItem?.title ?? bid.slice(0, 8) + "\u2026"}
-                        </span>
-                      );
-                    })}
+                  <div className="mt-1.5">
+                    <div className="flex flex-wrap items-center gap-1">
+                      <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                        bundleLocked && !isRequester
+                          ? "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300"
+                          : "bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300"
+                      }`}>
+                        {bundleLocked && !isRequester ? <Lock className="h-3 w-3" /> : <Package className="h-3 w-3" />}
+                        {t("bundleItems", { count: swap.responderBundleIds.length + 1 })}
+                      </span>
+                      {swap.responderBundleIds.map((bid) => {
+                        const bundleItem = items.find((i) => i.id === bid);
+                        return (
+                          <span key={bid} className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300">
+                            {bundleItem?.title ?? bid.slice(0, 8) + "\u2026"}
+                          </span>
+                        );
+                      })}
+                    </div>
+                    {swap.responderBundle?.totalEstimatedValue != null && swap.responderBundle.totalEstimatedValue > 0 && (
+                      <p className="mt-0.5 text-[10px] text-zinc-500">{t("bundleEstimatedValue")}: {swap.responderBundle.totalEstimatedValue.toLocaleString()} {t("bundleCurrency")}</p>
+                    )}
                   </div>
                 )}
                 <div className="mt-1 flex items-center gap-1.5">
@@ -487,6 +528,48 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
               </div>
             </div>
           </SectionCard>
+
+          {/* Bundle Builder */}
+          {swap.status !== "completed" && swap.status !== "cancelled" && (
+            <SectionCard title={t("bundleTitle")} description={t("bundleDesc")}>
+              <BundleBuilder
+                availableItems={items.filter((i) => i.ownerId === user?.id)}
+                primaryItemId={isRequester ? swap.requesterItemId : swap.responderItemId}
+                selectedIds={bundleSelectedIds}
+                notes={bundleNotes}
+                estimatedValue={bundleValue}
+                locked={bundleLocked}
+                saving={bundleSaving}
+                onAddItem={(id) => setBundleSelectedIds((prev) => [...prev, id])}
+                onRemoveItem={(id) => setBundleSelectedIds((prev) => prev.filter((x) => x !== id))}
+                onNotesChange={setBundleNotes}
+                onValueChange={setBundleValue}
+                onSave={async () => {
+                  setBundleSaving(true);
+                  try {
+                    const sb = (await import("@/lib/supabase/client")).getSupabaseClient();
+                    const session = await sb?.auth.getSession();
+                    const token = session?.data.session?.access_token;
+                    await fetch("/api/bundles", {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                      },
+                      body: JSON.stringify({
+                        swapId: swap.id,
+                        side: isRequester ? "requester" : "responder",
+                        itemIds: bundleSelectedIds,
+                        notes: bundleNotes,
+                        totalEstimatedValue: bundleValue,
+                      }),
+                    });
+                  } catch { /* handled */ }
+                  setBundleSaving(false);
+                }}
+              />
+            </SectionCard>
+          )}
 
           {/* Trust Score */}
           <SectionCard title={t("trustTitle")} description={t("trustDescription")}>

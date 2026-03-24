@@ -158,6 +158,32 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // --- Lock bundles on acceptance ---
+  if (toStatus === "accepted") {
+    const now = new Date().toISOString();
+    await db
+      .from("swap_bundles")
+      .update({ locked: true, locked_at: now })
+      .eq("swap_id", swapId)
+      .eq("locked", false)
+      .then(({ error: lockErr }) => {
+        if (lockErr) console.error("[swap-transition] bundle lock error:", lockErr.message);
+      });
+
+    // Log bundle lock event
+    await db
+      .from("swap_events")
+      .insert({
+        swap_id: swapId,
+        actor_id: user.id,
+        action: "bundle_locked",
+        metadata: { reason: "swap_accepted" },
+      })
+      .then(({ error: logErr }) => {
+        if (logErr) console.error("[swap-transition] bundle lock event error:", logErr.message);
+      });
+  }
+
   // --- Log audit event ---
   await db
     .from("swap_events")
