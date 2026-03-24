@@ -1344,6 +1344,26 @@
     "status_cancelled": "Zrušeno",
     "blockedMessage": "[Message blocked by moderation]"
   },
+  "aiAssist": {
+    "title": "AI Assistant",
+    "rephrase": "Rephrase politely",
+    "translate": "Translate message",
+    "summarize": "Summarize offer",
+    "generateResponse": "Generate response",
+    "checklist": "Swap checklist",
+    "processing": "Processing...",
+    "genericError": "Something went wrong. Try again.",
+    "dailyLimitReached": "Daily AI assist limit reached. Upgrade for more!",
+    "selectVariant": "Choose a response",
+    "back": "Back",
+    "insertInChat": "Insert in chat",
+    "swapChecklist": "Swap Checklist",
+    "warningEmail": "Your message contains an email address. Keep communication on Swaply.",
+    "warningPhone": "Your message contains a phone number. Keep communication on Swaply.",
+    "warningLink": "Your message contains an external link. Links are not allowed.",
+    "warningOffensive": "Your message may contain offensive language. Consider rephrasing.",
+    "suggestRephrase": "Rephrase with AI"
+  },
   "statsGrid": {
     "globalExchanges": "Globální výměny",
     "globalDescription": "Swaply je aktivní ve více regionech",
