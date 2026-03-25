@@ -156,8 +156,6 @@
     "confirmationFailed": "Email confirmation failed or link expired. Please try registering again.",
     "orContinueWith": "অথবা এর মাধ্যমে চালিয়ে যান",
     "continueWithGoogle": "Google দিয়ে চালিয়ে যান",
-    "continueWithFacebook": "Facebook দিয়ে চালিয়ে যান",
-    "continueWithApple": "Apple দিয়ে চালিয়ে যান",
     "continueWithPhone": "ফোন নম্বর দিয়ে চালিয়ে যান",
     "enterPhoneNumber": "আপনার ফোন নম্বর লিখুন",
     "enterVerificationCode": "৬-সংখ্যার যাচাইকরণ কোড লিখুন",

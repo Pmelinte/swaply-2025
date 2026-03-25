@@ -156,8 +156,6 @@
     "confirmationFailed": "Email confirmation failed or link expired. Please try registering again.",
     "orContinueWith": "nó lean ar aghaidh le",
     "continueWithGoogle": "Lean ar aghaidh le Google",
-    "continueWithFacebook": "Lean ar aghaidh le Facebook",
-    "continueWithApple": "Lean ar aghaidh le Apple",
     "continueWithPhone": "Lean ar aghaidh le huimhir fóin",
     "enterPhoneNumber": "Cuir isteach d'uimhir fóin",
     "enterVerificationCode": "Cuir isteach cód fíoraithe 6 dhigit",

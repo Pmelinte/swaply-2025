@@ -156,8 +156,6 @@
     "confirmationFailed": "Email confirmation failed or link expired. Please try registering again.",
     "orContinueWith": "of ga verder met",
     "continueWithGoogle": "Doorgaan met Google",
-    "continueWithFacebook": "Doorgaan met Facebook",
-    "continueWithApple": "Doorgaan met Apple",
     "continueWithPhone": "Doorgaan met telefoonnummer",
     "enterPhoneNumber": "Voer je telefoonnummer in",
     "enterVerificationCode": "Voer de 6-cijferige verificatiecode in",

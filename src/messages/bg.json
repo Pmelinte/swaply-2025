@@ -156,8 +156,6 @@
     "confirmationFailed": "Email confirmation failed or link expired. Please try registering again.",
     "orContinueWith": "или продължи с",
     "continueWithGoogle": "Продължи с Google",
-    "continueWithFacebook": "Продължи с Facebook",
-    "continueWithApple": "Продължи с Apple",
     "continueWithPhone": "Продължи с телефонен номер",
     "enterPhoneNumber": "Въведете телефонния си номер",
     "enterVerificationCode": "Въведете 6-цифрен код за потвърждение",

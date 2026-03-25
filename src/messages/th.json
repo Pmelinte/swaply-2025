@@ -156,8 +156,6 @@
     "confirmationFailed": "Email confirmation failed or link expired. Please try registering again.",
     "orContinueWith": "หรือดำเนินการต่อด้วย",
     "continueWithGoogle": "ดำเนินการต่อด้วย Google",
-    "continueWithFacebook": "ดำเนินการต่อด้วย Facebook",
-    "continueWithApple": "ดำเนินการต่อด้วย Apple",
     "continueWithPhone": "ดำเนินการต่อด้วยหมายเลขโทรศัพท์",
     "enterPhoneNumber": "กรอกหมายเลขโทรศัพท์ของคุณ",
     "enterVerificationCode": "กรอกรหัสยืนยัน 6 หลัก",

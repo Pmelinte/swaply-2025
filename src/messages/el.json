@@ -156,8 +156,6 @@
     "confirmationFailed": "Email confirmation failed or link expired. Please try registering again.",
     "orContinueWith": "ή συνεχίστε με",
     "continueWithGoogle": "Συνέχεια με Google",
-    "continueWithFacebook": "Συνέχεια με Facebook",
-    "continueWithApple": "Συνέχεια με Apple",
     "continueWithPhone": "Συνέχεια με αριθμό τηλεφώνου",
     "enterPhoneNumber": "Εισαγάγετε τον αριθμό τηλεφώνου σας",
     "enterVerificationCode": "Εισαγάγετε τον 6ψήφιο κωδικό επαλήθευσης",

@@ -156,8 +156,6 @@
     "confirmationFailed": "Email confirmation failed or link expired. Please try registering again.",
     "orContinueWith": "या इसके साथ जारी रखें",
     "continueWithGoogle": "Google से जारी रखें",
-    "continueWithFacebook": "Facebook से जारी रखें",
-    "continueWithApple": "Apple से जारी रखें",
     "continueWithPhone": "फ़ोन नंबर से जारी रखें",
     "enterPhoneNumber": "अपना फ़ोन नंबर दर्ज करें",
     "enterVerificationCode": "6-अंकीय सत्यापन कोड दर्ज करें",

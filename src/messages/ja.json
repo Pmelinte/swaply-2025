@@ -156,8 +156,6 @@
     "confirmationFailed": "Email confirmation failed or link expired. Please try registering again.",
     "orContinueWith": "または次で続行",
     "continueWithGoogle": "Googleで続行",
-    "continueWithFacebook": "Facebookで続行",
-    "continueWithApple": "Appleで続行",
     "continueWithPhone": "電話番号で続行",
     "enterPhoneNumber": "電話番号を入力",
     "enterVerificationCode": "6桁の認証コードを入力",

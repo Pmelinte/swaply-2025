@@ -156,8 +156,6 @@
     "confirmationFailed": "Email confirmation failed or link expired. Please try registering again.",
     "orContinueWith": "或继续使用",
     "continueWithGoogle": "使用 Google 继续",
-    "continueWithFacebook": "使用 Facebook 继续",
-    "continueWithApple": "使用 Apple 继续",
     "continueWithPhone": "使用手机号继续",
     "enterPhoneNumber": "输入您的手机号",
     "enterVerificationCode": "输入6位验证码",

@@ -156,8 +156,6 @@
     "confirmationFailed": "Email confirmation failed or link expired. Please try registering again.",
     "orContinueWith": "eller fortsæt med",
     "continueWithGoogle": "Fortsæt med Google",
-    "continueWithFacebook": "Fortsæt med Facebook",
-    "continueWithApple": "Fortsæt med Apple",
     "continueWithPhone": "Fortsæt med telefonnummer",
     "enterPhoneNumber": "Indtast dit telefonnummer",
     "enterVerificationCode": "Indtast 6-cifret bekræftelseskode",

@@ -156,8 +156,6 @@
     "confirmationFailed": "Email confirmation failed or link expired. Please try registering again.",
     "orContinueWith": "või jätka",
     "continueWithGoogle": "Jätka Google'iga",
-    "continueWithFacebook": "Jätka Facebookiga",
-    "continueWithApple": "Jätka Apple'iga",
     "continueWithPhone": "Jätka telefoninumbriga",
     "enterPhoneNumber": "Sisesta oma telefoninumber",
     "enterVerificationCode": "Sisesta 6-kohaline kinnituskood",

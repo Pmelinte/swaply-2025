@@ -156,8 +156,6 @@
     "confirmationFailed": "Email confirmation failed or link expired. Please try registering again.",
     "orContinueWith": "arba tęskite su",
     "continueWithGoogle": "Tęsti su Google",
-    "continueWithFacebook": "Tęsti su Facebook",
-    "continueWithApple": "Tęsti su Apple",
     "continueWithPhone": "Tęsti su telefono numeriu",
     "enterPhoneNumber": "Įveskite savo telefono numerį",
     "enterVerificationCode": "Įveskite 6 skaitmenų patvirtinimo kodą",

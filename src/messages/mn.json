@@ -156,8 +156,6 @@
     "confirmationFailed": "Email confirmation failed or link expired. Please try registering again.",
     "orContinueWith": "эсвэл үргэлжлүүлэх",
     "continueWithGoogle": "Google-ээр үргэлжлүүлэх",
-    "continueWithFacebook": "Facebook-ээр үргэлжлүүлэх",
-    "continueWithApple": "Apple-ээр үргэлжлүүлэх",
     "continueWithPhone": "Утасны дугаараар үргэлжлүүлэх",
     "enterPhoneNumber": "Утасны дугаараа оруулна уу",
     "enterVerificationCode": "6 оронтой баталгаажуулах код оруулна уу",
