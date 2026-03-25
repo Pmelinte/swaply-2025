@@ -2696,7 +2696,10 @@
     "ctaTitle": "Ai {category} de schimbat?",
     "ctaDescription": "Listează gratuit și găsește un schimb în câteva minute.",
     "ctaButton": "Încearcă Swaply gratuit →",
-    "lookingFor": "Caută:"
+    "lookingFor": "Caută:",
+    "metaTitle": "Schimb {category} fără bani | Swaply.world",
+    "metaDescription": "Găsește {category} de schimbat în România. Obiecte disponibile acum. Barter fără bani, fără comisioane.",
+    "byCity": "{category} pe orașe"
   },
   "trustScore": {
     "trustScoreTitle": "Scor de încredere",

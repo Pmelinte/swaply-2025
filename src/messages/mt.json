@@ -2549,7 +2549,10 @@
     "ctaTitle": "Have {category} to swap?",
     "ctaDescription": "List for free and find a swap in minutes.",
     "ctaButton": "Try Swaply for free →",
-    "lookingFor": "Looking for:"
+    "lookingFor": "Looking for:",
+    "metaTitle": "Swap {category} for free | Swaply.world",
+    "metaDescription": "Find {category} to swap. Items available now. Free barter, no fees.",
+    "byCity": "{category} by city"
   },
   "trustScore": {
     "trustScoreTitle": "Trust score",
