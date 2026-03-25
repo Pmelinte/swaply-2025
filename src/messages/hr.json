@@ -156,8 +156,6 @@
     "confirmationFailed": "Email confirmation failed or link expired. Please try registering again.",
     "orContinueWith": "ili nastavite s",
     "continueWithGoogle": "Nastavi s Google",
-    "continueWithFacebook": "Nastavi s Facebook",
-    "continueWithApple": "Nastavi s Apple",
     "continueWithPhone": "Nastavi s brojem telefona",
     "enterPhoneNumber": "Unesite svoj broj telefona",
     "enterVerificationCode": "Unesite 6-znamenkasti kod za potvrdu",

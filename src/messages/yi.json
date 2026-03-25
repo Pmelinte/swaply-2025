@@ -185,8 +185,6 @@
     "invalidCredentialsDescription": "Red message + demo password mention. No mock success; stay on page with CTA to reset password.",
     "orContinueWith": "אָדער פאָרזעצן מיט",
     "continueWithGoogle": "פאָרזעצן מיט Google",
-    "continueWithFacebook": "פאָרזעצן מיט Facebook",
-    "continueWithApple": "פאָרזעצן מיט Apple",
     "continueWithPhone": "פאָרזעצן מיט טעלעפאָן נומער",
     "enterPhoneNumber": "אַרײַנגעבן אײַער טעלעפאָן נומער",
     "enterVerificationCode": "אַרײַנגעבן 6-ציפֿער באַשטעטיקונג קאָד",

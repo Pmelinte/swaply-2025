@@ -156,8 +156,6 @@
     "confirmationFailed": "Email confirmation failed or link expired. Please try registering again.",
     "orContinueWith": "atau lanjutkan dengan",
     "continueWithGoogle": "Lanjutkan dengan Google",
-    "continueWithFacebook": "Lanjutkan dengan Facebook",
-    "continueWithApple": "Lanjutkan dengan Apple",
     "continueWithPhone": "Lanjutkan dengan nomor telepon",
     "enterPhoneNumber": "Masukkan nomor telepon Anda",
     "enterVerificationCode": "Masukkan kode verifikasi 6 digit",

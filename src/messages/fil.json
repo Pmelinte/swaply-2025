@@ -156,8 +156,6 @@
     "confirmationFailed": "Email confirmation failed or link expired. Please try registering again.",
     "orContinueWith": "o magpatuloy sa",
     "continueWithGoogle": "Magpatuloy sa Google",
-    "continueWithFacebook": "Magpatuloy sa Facebook",
-    "continueWithApple": "Magpatuloy sa Apple",
     "continueWithPhone": "Magpatuloy sa numero ng telepono",
     "enterPhoneNumber": "Ilagay ang iyong numero ng telepono",
     "enterVerificationCode": "Ilagay ang 6-digit na verification code",

@@ -185,8 +185,6 @@
     "invalidCredentialsDescription": "Red message + demo password mention. No mock success; stay on page with CTA to reset password.",
     "orContinueWith": "or continue with",
     "continueWithGoogle": "Continue with Google",
-    "continueWithFacebook": "Continue with Facebook",
-    "continueWithApple": "Continue with Apple",
     "continueWithPhone": "Continue with phone number",
     "enterPhoneNumber": "Enter your phone number",
     "enterVerificationCode": "Enter 6-digit verification code",

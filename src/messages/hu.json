@@ -156,8 +156,6 @@
     "confirmationFailed": "Email confirmation failed or link expired. Please try registering again.",
     "orContinueWith": "vagy folytasd ezzel",
     "continueWithGoogle": "Folytatás Google-lal",
-    "continueWithFacebook": "Folytatás Facebookkal",
-    "continueWithApple": "Folytatás Apple-lel",
     "continueWithPhone": "Folytatás telefonszámmal",
     "enterPhoneNumber": "Add meg a telefonszámod",
     "enterVerificationCode": "Add meg a 6 jegyű ellenőrző kódot",

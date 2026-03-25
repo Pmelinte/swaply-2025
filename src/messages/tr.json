@@ -156,8 +156,6 @@
     "confirmationFailed": "Email confirmation failed or link expired. Please try registering again.",
     "orContinueWith": "veya şununla devam et",
     "continueWithGoogle": "Google ile devam et",
-    "continueWithFacebook": "Facebook ile devam et",
-    "continueWithApple": "Apple ile devam et",
     "continueWithPhone": "Telefon numarasıyla devam et",
     "enterPhoneNumber": "Telefon numaranızı girin",
     "enterVerificationCode": "6 haneli doğrulama kodunu girin",

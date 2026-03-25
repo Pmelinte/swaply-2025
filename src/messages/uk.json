@@ -156,8 +156,6 @@
     "confirmationFailed": "Email confirmation failed or link expired. Please try registering again.",
     "orContinueWith": "або продовжити з",
     "continueWithGoogle": "Продовжити з Google",
-    "continueWithFacebook": "Продовжити з Facebook",
-    "continueWithApple": "Продовжити з Apple",
     "continueWithPhone": "Продовжити з номером телефону",
     "enterPhoneNumber": "Введіть номер телефону",
     "enterVerificationCode": "Введіть 6-значний код підтвердження",

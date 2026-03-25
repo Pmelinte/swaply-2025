@@ -156,8 +156,6 @@
     "confirmationFailed": "Email confirmation failed or link expired. Please try registering again.",
     "orContinueWith": "یا ادامه دهید با",
     "continueWithGoogle": "ادامه با Google",
-    "continueWithFacebook": "ادامه با Facebook",
-    "continueWithApple": "ادامه با Apple",
     "continueWithPhone": "ادامه با شماره تلفن",
     "enterPhoneNumber": "شماره تلفن خود را وارد کنید",
     "enterVerificationCode": "کد تأیید ۶ رقمی را وارد کنید",

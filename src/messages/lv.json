@@ -156,8 +156,6 @@
     "confirmationFailed": "Email confirmation failed or link expired. Please try registering again.",
     "orContinueWith": "vai turpiniet ar",
     "continueWithGoogle": "Turpināt ar Google",
-    "continueWithFacebook": "Turpināt ar Facebook",
-    "continueWithApple": "Turpināt ar Apple",
     "continueWithPhone": "Turpināt ar tālruņa numuru",
     "enterPhoneNumber": "Ievadiet savu tālruņa numuru",
     "enterVerificationCode": "Ievadiet 6 ciparu verifikācijas kodu",

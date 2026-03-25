@@ -156,8 +156,6 @@
     "confirmationFailed": "Email confirmation failed or link expired. Please try registering again.",
     "orContinueWith": "hoặc tiếp tục với",
     "continueWithGoogle": "Tiếp tục với Google",
-    "continueWithFacebook": "Tiếp tục với Facebook",
-    "continueWithApple": "Tiếp tục với Apple",
     "continueWithPhone": "Tiếp tục với số điện thoại",
     "enterPhoneNumber": "Nhập số điện thoại của bạn",
     "enterVerificationCode": "Nhập mã xác minh 6 chữ số",

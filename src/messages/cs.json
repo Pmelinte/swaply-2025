@@ -156,8 +156,6 @@
     "confirmationFailed": "Email confirmation failed or link expired. Please try registering again.",
     "orContinueWith": "nebo pokračujte s",
     "continueWithGoogle": "Pokračovat s Google",
-    "continueWithFacebook": "Pokračovat s Facebook",
-    "continueWithApple": "Pokračovat s Apple",
     "continueWithPhone": "Pokračovat s telefonním číslem",
     "enterPhoneNumber": "Zadejte své telefonní číslo",
     "enterVerificationCode": "Zadejte 6místný ověřovací kód",

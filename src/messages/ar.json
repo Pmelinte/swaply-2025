@@ -156,8 +156,6 @@
     "confirmationFailed": "Email confirmation failed or link expired. Please try registering again.",
     "orContinueWith": "أو تابع مع",
     "continueWithGoogle": "تابع مع Google",
-    "continueWithFacebook": "تابع مع Facebook",
-    "continueWithApple": "تابع مع Apple",
     "continueWithPhone": "تابع برقم الهاتف",
     "enterPhoneNumber": "أدخل رقم هاتفك",
     "enterVerificationCode": "أدخل رمز التحقق المكون من 6 أرقام",

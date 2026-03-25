@@ -156,8 +156,6 @@
     "confirmationFailed": "Email confirmation failed or link expired. Please try registering again.",
     "orContinueWith": "lub kontynuuj z",
     "continueWithGoogle": "Kontynuuj z Google",
-    "continueWithFacebook": "Kontynuuj z Facebook",
-    "continueWithApple": "Kontynuuj z Apple",
     "continueWithPhone": "Kontynuuj z numerem telefonu",
     "enterPhoneNumber": "Wpisz swój numer telefonu",
     "enterVerificationCode": "Wpisz 6-cyfrowy kod weryfikacyjny",

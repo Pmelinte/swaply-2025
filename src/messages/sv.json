@@ -128,8 +128,6 @@
     "confirmationFailed": "Email confirmation failed or link expired. Please try registering again.",
     "orContinueWith": "eller fortsätt med",
     "continueWithGoogle": "Fortsätt med Google",
-    "continueWithFacebook": "Fortsätt med Facebook",
-    "continueWithApple": "Fortsätt med Apple",
     "continueWithPhone": "Fortsätt med telefonnummer",
     "enterPhoneNumber": "Ange ditt telefonnummer",
     "enterVerificationCode": "Ange 6-siffrig verifieringskod",

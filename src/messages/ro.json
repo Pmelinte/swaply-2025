@@ -185,8 +185,6 @@
     "invalidCredentialsDescription": "Mesaj roșu + mențiune parolă demo. Nu facem mock success; rămânem pe pagină cu CTA spre reset parolă.",
     "orContinueWith": "sau continuă cu",
     "continueWithGoogle": "Continuă cu Google",
-    "continueWithFacebook": "Continuă cu Facebook",
-    "continueWithApple": "Continuă cu Apple",
     "continueWithPhone": "Continuă cu numărul de telefon",
     "enterPhoneNumber": "Introdu numărul de telefon",
     "enterVerificationCode": "Introdu codul de verificare din 6 cifre",
