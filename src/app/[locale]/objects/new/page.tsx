@@ -268,22 +268,22 @@ export default function NewObjectPage() {
       )}
 
       <StateShowcase
-        title="Stări ADAUGĂ OBIECT"
+        title="ADD OBJECT States"
         states={[
           {
             key: "loading",
-            title: "Preluare schemă formular",
-            description: "Afișăm skeleton pe câmpuri cât timp verificăm permisiunile utilizatorului.",
+            title: "Loading form schema",
+            description: "Skeleton on fields while we verify user permissions.",
           },
           {
             key: "empty",
-            title: "Formular gol",
-            description: "Validarea minimă previne submit-ul fără titlu, categorie și imagine. Upload are fallback.",
+            title: "Empty form",
+            description: "Minimal validation prevents submit without title, category and image. Upload has fallback.",
           },
           {
             key: "error",
-            title: "Eroare la salvare",
-            description: "Mesaj clar și redirecționare sigură către /objects fără a rupe build-ul.",
+            title: "Save error",
+            description: "Clear message and safe redirect to /objects without breaking the build.",
           },
         ]}
       />

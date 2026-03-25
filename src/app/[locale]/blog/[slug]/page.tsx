@@ -16,8 +16,10 @@ import { BlogShareButtons } from "@/components/blog/BlogShareButtons";
 import { AuthorCard } from "@/components/blog/AuthorCard";
 import { RelatedPosts } from "@/components/blog/RelatedPosts";
 
+import { getTranslations } from "next-intl/server";
+
 interface Props {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }
 
 export async function generateStaticParams() {
@@ -25,9 +27,10 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
+  const { locale, slug } = await params;
   const post = getPostBySlug(slug);
-  if (!post) return { title: "Articol negăsit — Swaply" };
+  const t = await getTranslations({ locale, namespace: "blog" });
+  if (!post) return { title: t("articleNotFound") };
 
   return {
     title: `${post.title} — Swaply Blog`,
@@ -83,7 +86,8 @@ const mdxComponents = {
 };
 
 export default async function BlogPostPage({ params }: Props) {
-  const { slug } = await params;
+  const { locale, slug } = await params;
+  const t = await getTranslations({ locale, namespace: "blog" });
   const post = getPostBySlug(slug);
   if (!post) notFound();
 
@@ -118,7 +122,7 @@ export default async function BlogPostPage({ params }: Props) {
         className="inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
       >
         <ArrowLeft className="h-4 w-4" />
-        Înapoi la blog
+        {t("backToBlog")}
       </Link>
 
       {/* Header */}
@@ -197,16 +201,16 @@ export default async function BlogPostPage({ params }: Props) {
       {/* CTA */}
       <div className="rounded-2xl border border-green-200 bg-green-50/50 p-6 text-center dark:border-green-800 dark:bg-green-950/30">
         <p className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
-          Gata să încerci barter-ul modern?
+          {t("ctaTitle")}
         </p>
         <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-          Listează obiectele tale și descoperă ce poți obține în schimb.
+          {t("ctaDescription")}
         </p>
         <Link
           href="/register"
           className="mt-4 inline-flex items-center gap-2 rounded-xl bg-green-600 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700"
         >
-          Încearcă Swaply gratuit →
+          {t("ctaButton")}
         </Link>
       </div>
     </div>

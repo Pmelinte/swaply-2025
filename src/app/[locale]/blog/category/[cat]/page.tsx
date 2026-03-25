@@ -3,9 +3,10 @@ import { Link } from "@/i18n/navigation";
 import { locales } from "@/i18n/config";
 import { ArrowLeft, Calendar, Clock, Tag, User } from "lucide-react";
 import { getAllCategories, getPostsByCategory } from "@/lib/blog";
+import { getTranslations } from "next-intl/server";
 
 interface Props {
-  params: Promise<{ cat: string }>;
+  params: Promise<{ locale: string; cat: string }>;
 }
 
 export async function generateStaticParams() {
@@ -13,11 +14,12 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { cat } = await params;
+  const { locale, cat } = await params;
   const category = decodeURIComponent(cat);
+  const t = await getTranslations({ locale, namespace: "blog" });
   return {
     title: `${category} — Blog Swaply`,
-    description: `Articole din categoria "${category}" pe blogul Swaply.`,
+    description: t("metaDescription", { category }),
     alternates: {
       canonical: `https://www.swaply.world/en/blog/category/${cat}`,
       languages: Object.fromEntries([
@@ -29,7 +31,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function CategoryPage({ params }: Props) {
-  const { cat } = await params;
+  const { locale, cat } = await params;
+  const t = await getTranslations({ locale, namespace: "blog" });
   const category = decodeURIComponent(cat);
   const posts = getPostsByCategory(category);
 
@@ -40,7 +43,7 @@ export default async function CategoryPage({ params }: Props) {
         className="inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
       >
         <ArrowLeft className="h-4 w-4" />
-        Toate articolele
+        {t("allArticles")}
       </Link>
 
       <div>
@@ -48,14 +51,13 @@ export default async function CategoryPage({ params }: Props) {
           {category}
         </h1>
         <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          {posts.length} {posts.length === 1 ? "articol" : "articole"} în
-          această categorie.
+          {posts.length} {posts.length === 1 ? t("articleCount", { count: posts.length }) : t("articlesCount", { count: posts.length })} {t("inCategory")}
         </p>
       </div>
 
       {posts.length === 0 ? (
         <p className="py-8 text-center text-sm text-zinc-500">
-          Niciun articol în această categorie.
+          {t("noArticlesInCategory")}
         </p>
       ) : (
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -107,7 +109,7 @@ export default async function CategoryPage({ params }: Props) {
                 </div>
 
                 <span className="mt-3 text-sm font-semibold text-blue-600 group-hover:text-blue-700 dark:text-blue-400">
-                  Citește mai mult →
+                  {t("readMore")}
                 </span>
               </div>
             </Link>

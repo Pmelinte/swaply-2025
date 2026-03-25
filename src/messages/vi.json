@@ -44,7 +44,8 @@
     "tokenNoHistory": "No transactions yet",
     "nextStepRecommended": "Recommended next step",
     "myDesk": "My Swap Desk",
-    "myDeskDescription": "Track active swaps, pending actions, and deadlines"
+    "myDeskDescription": "Track active swaps, pending actions, and deadlines",
+    "romania": "Romania"
   },
   "nav": {
     "home": "Trang chủ",
@@ -441,7 +442,8 @@
     "guestFeatureHistoryDesc": "All your swaps, visible to build trust.",
     "guestFeatureVerify": "Identity verification",
     "guestFeatureVerifyDesc": "Email, phone, and identity — for the verified user badge.",
-    "guestCta": "Create your free profile →"
+    "guestCta": "Create your free profile →",
+    "networkError": "Network error"
   },
   "home": {
     "welcome": "Chào mừng trở lại",
@@ -677,14 +679,17 @@
     "share": "Share",
     "previousPhoto": "Previous photo",
     "nextPhoto": "Next photo",
-    "selectPhoto": "Select photo {number}"
+    "selectPhoto": "Select photo {number}",
+    "reservedMessage": "This item is reserved and cannot be exchanged right now."
   },
   "objectEdit": {
     "loading": "Đang tải trình chỉnh sửa",
     "notFound": "Không tìm thấy đồ vật",
     "notFoundDescription": "Chúng tôi không thể tìm thấy đồ vật này. Bạn có thể quay lại danh sách hoặc thêm đồ vật mới.",
     "title": "Chỉnh sửa đồ vật",
-    "editDescription": "Biểu mẫu với giá trị đã điền sẵn + trạng thái rõ ràng."
+    "editDescription": "Biểu mẫu với giá trị đã điền sẵn + trạng thái rõ ràng.",
+    "backToObjects": "Back to objects",
+    "addObject": "Add object"
   },
   "objectNew": {
     "title": "Add object",
@@ -807,7 +812,8 @@
     "chainTitle": "Chain swap opportunities",
     "chainDescription": "Multi-party circular swaps: A gives to B, B gives to C, C gives to A",
     "myChainsTitle": "My active chains",
-    "myChainsDescription": "Chain swaps you're participating in"
+    "myChainsDescription": "Chain swaps you're participating in",
+    "chainDetected": "Chain detected automatically"
   },
   "chat": {
     "title": "Trò chuyện an toàn",
@@ -1270,7 +1276,18 @@
     "escrowStatusDisputed": "Disputed — under review",
     "escrowBothHeld": "Both guarantees are active. Ship your items — the deposit returns automatically upon mutual confirmation.",
     "escrowReleased": "Both guarantees have been returned. Swap completed successfully!",
-    "escrowNote": "The guarantee does not cover the value of the items — it only ensures good faith. If no confirmation is received within 14 days, a reminder is sent. After 21 days, an admin review is triggered."
+    "escrowNote": "The guarantee does not cover the value of the items — it only ensures good faith. If no confirmation is received within 14 days, a reminder is sent. After 21 days, an admin review is triggered.",
+    "transportToMeetup": "Transport to meeting point",
+    "deliveryConfirmation": "Delivery confirmation",
+    "deliveryConfirmationDesc": "Both parties must confirm that the exchange took place.",
+    "requesterLabel": "Requester",
+    "responderLabel": "Partner",
+    "confirmed": "Confirmed",
+    "awaitingConfirmation": "Awaiting confirmation",
+    "handedOver": "I have handed over the item",
+    "received": "I have received the item",
+    "bothConfirmed": "Both parties confirmed! The exchange is finalized.",
+    "chainDetected": "Chain detected automatically"
   },
   "info": {
     "title": "Thống kê Swaply",
@@ -2014,7 +2031,21 @@
     "verifiedBadgeDesc": "{cost} tokens — permanently verified identity",
     "whatsappInvite": "Hey! Join Swaply and swap items! Use my code: {code}",
     "yearly": "Yearly (-20%)",
-    "youGet": "You get {count} tokens per referral."
+    "youGet": "You get {count} tokens per referral.",
+    "guestTitle": "Plans and subscriptions",
+    "guestDescription": "Choose the right plan for you",
+    "guestIntro": "Swaply is free for basic swaps. Premium plans unlock advanced features that help you swap faster and safer.",
+    "planFree": "Free",
+    "planFreeDesc": "Up to 10 listed items, basic AI matching, unlimited chat.",
+    "planPremium": "Premium",
+    "planPremiumDesc": "Unlimited items, advanced AI matching, priority promotion, verified badge.",
+    "planPlatinum": "Platinum",
+    "planPlatinumDesc": "Everything in Premium plus swap insurance, priority support, and detailed analytics.",
+    "priceFree": "0",
+    "pricePremium": "19.99",
+    "pricePlatinum": "39.99",
+    "currency": "EUR",
+    "perMonthShort": "/mo"
   },
   "productControl": {
     "accountSuspended": "Account suspended: {reason}",
@@ -2370,7 +2401,8 @@
     "showOriginal": "Show original",
     "retryTranslate": "Retry",
     "translatedContent": "Translated content",
-    "autoTranslated": "Auto-translated"
+    "autoTranslated": "Auto-translated",
+    "originalLanguage": "Original language"
   },
   "tokenReasons": {
     "welcome_bonus": "Welcome bonus",
@@ -2415,7 +2447,21 @@
     "copied": "Copied!",
     "copyLink": "Copy link",
     "founderTitle": "Founder of Swaply",
-    "founderBio": "Passionate about circular economy, technology and local communities."
+    "founderBio": "Passionate about circular economy, technology and local communities.",
+    "pageTitle": "Blog Swaply — Swap guides, barter and circular economy",
+    "pageDescription": "Articles about barter, swapping objects, circular economy and how to use Swaply.",
+    "subtitle": "Swap guides, barter and circular economy.",
+    "allArticles": "All articles",
+    "articleCount": "{count} article",
+    "articlesCount": "{count} articles",
+    "inCategory": "in this category.",
+    "noArticlesInCategory": "No articles in this category.",
+    "articleNotFound": "Article not found — Swaply",
+    "backToBlog": "Back to blog",
+    "ctaTitle": "Ready to try modern bartering?",
+    "ctaDescription": "List your objects and discover what you can get in exchange.",
+    "ctaButton": "Try Swaply for free →",
+    "metaDescription": "Articles from the \"{category}\" category on the Swaply blog."
   },
   "push": {
     "enableTitle": "Enable notifications",
@@ -2536,7 +2582,16 @@
     "archive": "Archive",
     "archiveConfirm": "Are you sure you want to archive this item?",
     "page": "Page",
-    "results": "results"
+    "results": "results",
+    "overview": "Overview",
+    "panelTitle": "Admin Panel",
+    "panelSubtitle": "Moderation & platform management",
+    "authRequired": "Authentication required",
+    "authRequiredDesc": "You need to be authenticated to access the admin panel.",
+    "authenticate": "Sign in",
+    "accessRestricted": "Access restricted",
+    "accessRestrictedDesc": "Only administrators can access this page.",
+    "backHome": "Back to home"
   },
   "eventBanner": {
     "participate": "Join",
@@ -2770,5 +2825,21 @@
     "ctaDescription": "Create a free account and list your first object.",
     "ctaButton": "Try Swaply for free →",
     "lookingFor": "Looking for: {wishlist}"
+  },
+  "boost": {
+    "active": "Boost active",
+    "expiresIn": "Expires in {hours}h ({date})",
+    "expired": "Boost has expired",
+    "successTitle": "Boost activated successfully!",
+    "successDescription": "Your item will appear at the top of listings.",
+    "increaseVisibility": "Increase visibility",
+    "promotedDescription": "Your item will appear first in listings and will have the \"Promoted\" badge.",
+    "paymentError": "Error creating payment",
+    "paymentFailed": "Payment failed",
+    "unexpectedError": "Unexpected error. Try again.",
+    "stripeUnavailable": "Stripe is not available",
+    "securePayment": "Secure payment via Stripe. Visa, Mastercard, Apple Pay, Google Pay.",
+    "boost7days": "Boost 7 days",
+    "alreadyPurchased": "Already purchased"
   }
 }

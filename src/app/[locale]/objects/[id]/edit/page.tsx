@@ -61,10 +61,10 @@ export default function EditObjectPage() {
         </p>
         <div className="mt-3 flex flex-wrap gap-2 text-sm font-semibold">
           <Link className="rounded-full bg-blue-600 px-4 py-2 text-white" href="/objects">
-            Înapoi la obiecte
+            {t("backToObjects")}
           </Link>
           <Link className="rounded-full bg-zinc-900 px-4 py-2 text-white" href="/objects/new">
-            Adaugă obiect
+            {t("addObject")}
           </Link>
         </div>
       </SectionCard>
@@ -88,22 +88,22 @@ export default function EditObjectPage() {
       </SectionCard>
 
       <StateShowcase
-        title="Stări EDITARE OBIECT"
+        title="EDIT OBJECT States"
         states={[
           {
             key: "loading",
-            title: "Se încarcă valorile",
-            description: "Skeleton pe câmpuri la montare + spinner pe buton până preluăm obiectul.",
+            title: "Loading values",
+            description: "Skeleton on fields at mount + spinner on button until we fetch the object.",
           },
           {
             key: "empty",
-            title: "Formular fără date",
-            description: "Dacă obiectul nu returnează date, afișăm fallback cu link spre creare.",
+            title: "Form without data",
+            description: "If the object returns no data, we show a fallback with a link to create.",
           },
           {
             key: "error",
-            title: "Eroare la salvare",
-            description: "Mesaj clar și fără pierdere de date; utilizatorul poate reveni la /objects/[id].",
+            title: "Save error",
+            description: "Clear message without data loss; user can return to /objects/[id].",
           },
         ]}
       />

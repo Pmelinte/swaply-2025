@@ -4,11 +4,12 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { loadStripe, type Stripe as StripeJs } from "@stripe/stripe-js";
 import { Zap, CheckCircle, Loader2, AlertCircle, Clock } from "lucide-react";
 import { getSupabaseClient } from "@/lib/supabase/client";
+import { useTranslations } from "next-intl";
 
 const BOOST_OPTIONS = [
   { duration: "24h", label: "Boost 24h", price: "5 RON", durationHours: 24 },
   { duration: "72h", label: "Boost 72h", price: "12 RON", durationHours: 72 },
-  { duration: "7d", label: "Boost 7 zile", price: "25 RON", durationHours: 168 },
+  { duration: "7d", label: "Boost 7 days", price: "25 RON", durationHours: 168 },
 ] as const;
 
 interface BoostPanelProps {
@@ -47,6 +48,7 @@ function getInitialBoostStatus(): BoostStatus {
 }
 
 export function BoostPanel({ itemId, userId, userEmail }: BoostPanelProps) {
+  const t = useTranslations("boost");
   const [status, setStatus] = useState<BoostStatus>(getInitialBoostStatus);
   const [error, setError] = useState<string | null>(null);
   const [selectedDuration, setSelectedDuration] = useState<string | null>(null);
@@ -91,7 +93,7 @@ export function BoostPanel({ itemId, userId, userEmail }: BoostPanelProps) {
 
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || "Eroare la crearea plății");
+        setError(data.error || t("paymentError"));
         setStatus("error");
         return;
       }
@@ -100,7 +102,7 @@ export function BoostPanel({ itemId, userId, userEmail }: BoostPanelProps) {
       setStatus("awaiting_payment");
       const stripe = await getStripeJs();
       if (!stripe) {
-        setError("Stripe nu este disponibil");
+        setError(t("stripeUnavailable"));
         setStatus("error");
         return;
       }
@@ -115,7 +117,7 @@ export function BoostPanel({ itemId, userId, userEmail }: BoostPanelProps) {
       if (redirectError) {
         // User closed the payment sheet or card was declined
         if (redirectError.type !== "validation_error") {
-          setError(redirectError.message ?? "Plata a eșuat");
+          setError(redirectError.message ?? t("paymentFailed"));
         }
         setStatus("idle");
         return;
@@ -125,10 +127,10 @@ export function BoostPanel({ itemId, userId, userEmail }: BoostPanelProps) {
       setStatus("success");
     } catch (err) {
       console.error("[BoostPanel] Error:", err);
-      setError("Eroare neașteptată. Încearcă din nou.");
+      setError(t("unexpectedError"));
       setStatus("error");
     }
-  }, [itemId, userId, userEmail]);
+  }, [itemId, userId, userEmail, t]);
 
   // Compute hours left from active boost (avoid Date.now() in render)
   const [now] = useState(() => Date.now());
@@ -147,14 +149,14 @@ export function BoostPanel({ itemId, userId, userEmail }: BoostPanelProps) {
         <div className="flex items-center gap-2">
           <Zap className="h-4 w-4 text-amber-600 dark:text-amber-400" />
           <span className="text-sm font-semibold text-amber-800 dark:text-amber-200">
-            Boost activ
+            {t("active")}
           </span>
         </div>
         <div className="mt-2 flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-300">
           <Clock className="h-3 w-3" />
           {hoursLeft > 0
-            ? `Expiră în ${hoursLeft}h (${expiresAt.toLocaleDateString("ro-RO")})`
-            : "Boost-ul a expirat"}
+            ? t("expiresIn", { hours: hoursLeft, date: expiresAt.toLocaleDateString() })
+            : t("expired")}
         </div>
       </div>
     );
@@ -167,11 +169,11 @@ export function BoostPanel({ itemId, userId, userEmail }: BoostPanelProps) {
         <div className="flex items-center gap-2">
           <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
           <span className="text-sm font-semibold text-green-800 dark:text-green-200">
-            Boost activat cu succes!
+            {t("successTitle")}
           </span>
         </div>
         <p className="mt-1 text-xs text-green-700 dark:text-green-300">
-          Obiectul tău va apărea în top în listări.
+          {t("successDescription")}
         </p>
       </div>
     );
@@ -182,11 +184,11 @@ export function BoostPanel({ itemId, userId, userEmail }: BoostPanelProps) {
       <div className="mb-3 flex items-center gap-2">
         <Zap className="h-4 w-4 text-amber-600 dark:text-amber-400" />
         <span className="text-sm font-bold text-zinc-900 dark:text-zinc-50">
-          Crește vizibilitatea
+          {t("increaseVisibility")}
         </span>
       </div>
       <p className="mb-3 text-xs text-zinc-600 dark:text-zinc-400">
-        Obiectul tău va apărea primul în listări și va avea badge-ul &quot;Promovat&quot;.
+        {t("promotedDescription")}
       </p>
 
       {error && (
@@ -222,7 +224,7 @@ export function BoostPanel({ itemId, userId, userEmail }: BoostPanelProps) {
       </div>
 
       <p className="mt-2 text-center text-[10px] text-zinc-400 dark:text-zinc-500">
-        Plata securizată prin Stripe. Visa, Mastercard, Apple Pay, Google Pay.
+        {t("securePayment")}
       </p>
     </div>
   );

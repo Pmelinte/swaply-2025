@@ -3,25 +3,34 @@ import { Link } from "@/i18n/navigation";
 import { Rss } from "lucide-react";
 import { getAllPosts, getAllCategories } from "@/lib/blog";
 import { BlogSearch } from "@/components/blog/BlogSearch";
+import { getTranslations } from "next-intl/server";
 
-export const metadata: Metadata = {
-  title: "Blog Swaply — Ghiduri de schimb, barter și economie circulară",
-  description:
-    "Articole despre barter, schimb de obiecte, economie circulară și cum să folosești Swaply.",
-  openGraph: {
-    title: "Blog Swaply — Ghiduri de schimb, barter și economie circulară",
-    description:
-      "Articole despre barter, schimb de obiecte, economie circulară și cum să folosești Swaply.",
-    type: "website",
-  },
-  alternates: {
-    types: {
-      "application/rss+xml": "/blog/feed.xml",
+interface Props {
+  params: Promise<{ locale: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "blog" });
+  return {
+    title: t("pageTitle"),
+    description: t("pageDescription"),
+    openGraph: {
+      title: t("pageTitle"),
+      description: t("pageDescription"),
+      type: "website",
     },
-  },
-};
+    alternates: {
+      types: {
+        "application/rss+xml": "/blog/feed.xml",
+      },
+    },
+  };
+}
 
-export default function BlogPage() {
+export default async function BlogPage({ params }: Props) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "blog" });
   const posts = getAllPosts();
   const categories = getAllCategories();
 
@@ -33,7 +42,7 @@ export default function BlogPage() {
             Blog
           </h1>
           <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            Ghiduri de schimb, barter și economie circulară.
+            {t("subtitle")}
           </p>
         </div>
         <Link

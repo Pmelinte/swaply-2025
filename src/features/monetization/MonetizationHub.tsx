@@ -732,7 +732,7 @@ export function MonetizationHub() {
                         return;
                       }
                       const res = await purchaseTheme(theme.id);
-                      if (res.error && res.error !== "Deja cumpărat") {
+                      if (res.error && res.error !== "Already purchased") {
                         showFeedback(res.error);
                       } else {
                         activateTheme(theme.id);
