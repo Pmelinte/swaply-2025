@@ -625,7 +625,9 @@
     "itemsAvailable": "items available",
     "noItemsInCategory": "No items yet in this subcategory. Be the first to add one!",
     "addFirstItem": "Add first item",
-    "backToCategory": "Back to category"
+    "backToCategory": "Back to category",
+    "badgeProperty": "Property",
+    "badgeService": "Service"
   },
   "objectDetail": {
     "loading": "Chargement de l'objet",

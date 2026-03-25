@@ -654,7 +654,9 @@
     "itemsAvailable": "obiecte disponibile",
     "noItemsInCategory": "Nu există obiecte încă în această subcategorie. Fii primul care adaugă!",
     "addFirstItem": "Adaugă primul obiect",
-    "backToCategory": "Înapoi la categorie"
+    "backToCategory": "Înapoi la categorie",
+    "badgeProperty": "Property",
+    "badgeService": "Service"
   },
   "objectDetail": {
     "loading": "Se încarcă obiectul",
@@ -2023,7 +2025,6 @@
     "safetyReportingText": "Folosește butonul Raportează de pe orice profil sau listare pentru a semnala conținut suspect. Echipa noastră de moderare analizează toate raportările în 24 de ore. Poți bloca utilizatorii pentru a preveni contactul ulterior. Pentru probleme urgente de siguranță, contactează autoritățile locale mai întâi, apoi anunță-ne la safety@swaply.app.",
     "safetyContact": "6. Contact",
     "safetyContactText": "Pentru întrebări de siguranță sau pentru a raporta un incident, contactează safety@swaply.app. Pentru situații urgente, contactează întotdeauna serviciile de urgență locale mai întâi.",
-
     "dmcaTitle": "Politica DMCA",
     "dmcaSubtitle": "Conformitate cu Digital Millennium Copyright Act și proceduri de eliminare",
     "dmcaWhatIs": "1. Ce este DMCA",
@@ -2055,7 +2056,6 @@
     "dmcaFormSent": "Notificarea DMCA a fost trimisă cu succes",
     "dmcaFormSentDesc": "Vom analiza raportul tău în 2-3 zile lucrătoare și vom lua măsurile necesare.",
     "dmcaFormError": "Trimiterea a eșuat. Încearcă din nou sau trimite email la dmca@swaply.world.",
-
     "copyrightTitle": "Politica privind drepturile de autor",
     "copyrightSubtitle": "Proprietatea conținutului, drepturile de proprietate intelectuală și politica mărcilor",
     "copyrightOwnership": "1. Proprietatea conținutului",
@@ -2068,7 +2068,6 @@
     "copyrightPlatformRightsText": "Platforma Swaply, inclusiv numele, logo-ul, designul și codul sursă, sunt proprietatea intelectuală a Swaply. Utilizatorii nu pot copia sau modifica materialele platformei fără permisiune scrisă.",
     "copyrightTrademark": "5. Politica mărcilor",
     "copyrightTrademarkText": "Numele și logo-ul Swaply sunt mărci protejate. Pentru a raporta utilizarea neautorizată, contactați legal@swaply.world.",
-
     "termsIP": "9. Proprietate intelectuală și drepturi de autor",
     "termsIPText": "Swaply respectă drepturile de proprietate intelectuală. Utilizatorii nu trebuie să încarce conținut care încalcă drepturile de autor sau mărcile altora. Pentru detalii, consultați Politica DMCA (/dmca) și Politica drepturilor de autor (/copyright)."
   },

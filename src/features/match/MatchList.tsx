@@ -12,6 +12,7 @@ import type { UserProfile } from "@/lib/types";
 import { Columns2, Sparkles, Loader2, ChevronDown } from "lucide-react";
 import { MatchExplanationPanel } from "./MatchExplanationPanel";
 import type { NearMatchSuggestion } from "@/lib/types";
+import { useInlineTranslation } from "@/components/TranslateButton";
 
 const PAGE_SIZE = 5;
 
@@ -211,6 +212,7 @@ export function MatchList({
   onApplySuggestion?: (matchId: string, suggestion: NearMatchSuggestion) => void;
 }) {
   const t = useTranslations("matchList");
+  const { getText } = useInlineTranslation();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [compareId, setCompareId] = useState<string | null>(null);
   const [rejectedIds, setRejectedIds] = useState<Map<string, RejectReason | undefined>>(new Map());
@@ -299,7 +301,7 @@ export function MatchList({
                 <ItemThumb photo={offeredPhoto} title={match.itemOffered.title} />
                 <div className="min-w-0 flex-1">
                   <p className="text-[10px] font-semibold uppercase text-zinc-400">{t("iOffer")}</p>
-                  <h3 className="truncate text-sm font-bold text-zinc-900 dark:text-zinc-50">{match.itemOffered.title}</h3>
+                  <h3 className="truncate text-sm font-bold text-zinc-900 dark:text-zinc-50">{getText(`offer-${match.id}`, match.itemOffered.title)}</h3>
                   <p className="truncate text-xs text-zinc-500">{match.itemOffered.category} · {match.itemOffered.condition}</p>
                 </div>
               </div>
@@ -307,7 +309,7 @@ export function MatchList({
                 <ItemThumb photo={requestedPhoto} title={match.itemRequested.title} />
                 <div className="min-w-0 flex-1">
                   <p className="text-[10px] font-semibold uppercase text-emerald-600 dark:text-emerald-400">{t("iGet")}</p>
-                  <h3 className="truncate text-sm font-bold text-zinc-900 dark:text-zinc-50">{match.itemRequested.title}</h3>
+                  <h3 className="truncate text-sm font-bold text-zinc-900 dark:text-zinc-50">{getText(`req-${match.id}`, match.itemRequested.title)}</h3>
                   <p className="truncate text-xs text-zinc-500">{match.itemRequested.category} · {match.itemRequested.condition}{match.itemRequested.location ? ` · ${match.itemRequested.location}` : ""}</p>
                 </div>
               </div>

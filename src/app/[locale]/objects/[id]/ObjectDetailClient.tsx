@@ -150,6 +150,27 @@ export default function ObjectDetailClient() {
   const [translatedWishlist, setTranslatedWishlist] = useState<string | null>(null);
   const [showTranslation, setShowTranslation] = useState(false);
 
+  // Auto-translate on mount when locale is not Romanian
+  useEffect(() => {
+    if (!item?.id || locale === "ro") return;
+    let cancelled = false;
+    fetch("/api/translate/item", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ itemId: item.id, targetLocale: locale }),
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (!cancelled && data?.title) {
+          setTranslatedTitle(data.title);
+          setTranslatedDesc(data.description ?? null);
+          setShowTranslation(true);
+        }
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [item?.id, locale]);
+
   // Simple language detection: check for non-ASCII patterns
   const detectLang = useCallback((text: string): string => {
     if (/[ăâîșț]/i.test(text)) return "ro";
