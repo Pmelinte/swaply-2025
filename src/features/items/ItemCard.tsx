@@ -7,6 +7,8 @@ import { Item } from "@/lib/types";
 import { Pill } from "@/components/ui";
 import { NO_IMAGE_URL } from "@/lib/storage";
 import { VerificationBadgeTag } from "@/features/verification/VerificationBadgeTag";
+import { useItemTranslation } from "@/hooks/useItemTranslation";
+import { TranslationIndicator } from "@/components/TranslationIndicator";
 
 export const ItemCard = memo(function ItemCard({
   item,
@@ -23,6 +25,8 @@ export const ItemCard = memo(function ItemCard({
 }) {
   const t = useTranslations("itemCard");
   const tc = useTranslations("common");
+  const { title, description, isTranslated, isLoading, showingOriginal, toggleOriginal } =
+    useItemTranslation(item.id, item.title, item.description);
 
   const statusColor: Record<string, "green" | "amber" | "zinc" | "blue" | "red"> = {
     active: "green",
@@ -37,7 +41,7 @@ export const ItemCard = memo(function ItemCard({
       <div className="relative h-24 w-24 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
         <SafeImage
           src={item.photos?.[0] || NO_IMAGE_URL}
-          alt={item.title}
+          alt={title}
           fill
           className="object-cover"
           sizes="96px"
@@ -49,8 +53,14 @@ export const ItemCard = memo(function ItemCard({
           <div>
             <p className="text-xs uppercase text-zinc-500">{item.category}</p>
             <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-50">
-              {item.title}
+              {title}
             </h3>
+            <TranslationIndicator
+              isTranslated={isTranslated}
+              isLoading={isLoading}
+              showingOriginal={showingOriginal}
+              onToggle={toggleOriginal}
+            />
           </div>
           <div className="flex items-center gap-1.5">
             {ownerVerification && (
@@ -65,7 +75,7 @@ export const ItemCard = memo(function ItemCard({
           </div>
         </div>
         <p className="line-clamp-2 text-sm text-zinc-600 dark:text-zinc-300">
-          {item.description}
+          {description}
         </p>
         <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
           <span>{t("location")} {item.location || tc("unknown")}</span>

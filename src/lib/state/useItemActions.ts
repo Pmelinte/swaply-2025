@@ -69,6 +69,15 @@ export function useItemActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ itemId: mapped.id }),
           }).catch(() => { /* embedding generation is non-critical */ });
+
+          // Fire-and-forget: pre-translate to EN and DE (most common languages)
+          for (const lang of ["en", "de"]) {
+            fetch("/api/translate/item", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ itemId: mapped.id, targetLocale: lang }),
+            }).catch(() => { /* translation is non-critical */ });
+          }
           return mapped;
         }
       }
