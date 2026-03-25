@@ -156,7 +156,7 @@ const CHECKLIST_KEYS = [
   "checkBothConfirm",
 ] as const;
 
-export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null }) {
+export function ChangeClient({ swapFromQuery, serverAuthenticated = true }: { swapFromQuery?: string | null; serverAuthenticated?: boolean }) {
   const { user, loading, swaps, updateSwapStatus, addSwapFeedback, updateSwapLogistics, items, trackEvent, confirmDelivery, fileDispute } = useAppState();
   const t = useTranslations("change");
   const locale = useLocale();
@@ -270,7 +270,8 @@ export function ChangeClient({ swapFromQuery }: { swapFromQuery?: string | null 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [swap?.id, swap?.status, user?.id]);
 
-  if (loading.auth) {
+  // Skip auth spinner when server already resolved auth status
+  if (loading.auth && serverAuthenticated) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-12 text-zinc-400 dark:text-zinc-500">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-300 border-t-blue-500 dark:border-zinc-600 dark:border-t-blue-400" />

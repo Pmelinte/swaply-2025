@@ -1,4 +1,5 @@
 import { ChangeClient } from "./ChangeClient";
+import { getServerSupabase } from "@/lib/supabase/server";
 
 export default async function ChangePage({
   searchParams,
@@ -7,5 +8,14 @@ export default async function ChangePage({
 }) {
   const raw = searchParams?.swap;
   const swapFromQuery = Array.isArray(raw) ? raw[0] : raw ?? null;
-  return <ChangeClient swapFromQuery={swapFromQuery} />;
+
+  const supabase = await getServerSupabase();
+  let isAuthenticated = false;
+
+  if (supabase) {
+    const { data: { user } } = await supabase.auth.getUser();
+    isAuthenticated = !!user;
+  }
+
+  return <ChangeClient swapFromQuery={swapFromQuery} serverAuthenticated={isAuthenticated} />;
 }
