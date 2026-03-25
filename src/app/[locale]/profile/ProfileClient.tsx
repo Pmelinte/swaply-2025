@@ -15,6 +15,7 @@ import { ProfileVerification } from "@/features/verification/ProfileVerification
 
 export function ProfileClient() {
   const t = useTranslations("profile");
+  const tc = useTranslations("common");
   const {
     user, updateProfile, changeEmail, changePassword, deleteAccount, loading, lastError,
     achievements, shopItems, purchaseShopItem, exportUserData, accountStatus, pauseAccount, resumeAccount, tokenLedger,
@@ -226,6 +227,7 @@ export function ProfileClient() {
       </SectionCard>
 
       <NextStepRecommendation
+        title={tc("nextStepRecommended")}
         steps={[
           { label: t("addObjects"), href: "/objects/new", description: t("addObjectsDescription") },
           { label: t("findMatches"), href: "/match", description: t("findMatchesDescription") },

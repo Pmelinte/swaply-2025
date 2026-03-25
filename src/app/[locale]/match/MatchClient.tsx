@@ -44,6 +44,7 @@ export function MatchClient({ serverAuthenticated = true }: { serverAuthenticate
   const [maxDistanceKm, setMaxDistanceKm] = useState(0);
   const [swapTypeFilter, setSwapTypeFilter] = useState<"all" | "local" | "courier" | "vacation" | "service">("all");
   const t = useTranslations("match");
+  const tc = useTranslations("common");
 
   // Initialize localMatches from rawMatches on first load
   useEffect(() => {
@@ -725,6 +726,7 @@ export function MatchClient({ serverAuthenticated = true }: { serverAuthenticate
       </SectionCard>
 
       <NextStepRecommendation
+        title={tc("nextStepRecommended")}
         steps={[
           { label: t("sendMessage"), href: "/chat", description: t("sendMessageDescription") },
           { label: t("proposeExchange"), href: "/change", description: t("proposeExchangeDescription") },

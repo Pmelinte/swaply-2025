@@ -41,7 +41,8 @@
     "tokenEarnReview": "Lasă un review",
     "tokenEarnDaily": "Login zilnic (streak)",
     "tokenHistory": "Tranzacții recente",
-    "tokenNoHistory": "Nicio tranzacție încă"
+    "tokenNoHistory": "Nicio tranzacție încă",
+    "nextStepRecommended": "Următorul pas recomandat"
   },
   "nav": {
     "home": "Acasă",
@@ -643,7 +644,10 @@
     "loadMoreItems": "Încarcă mai multe",
     "remainingItems": "rămase",
     "metaTitle": "Schimb de obiecte fără bani",
-    "metaDescription": "Răsfoiește și schimbă obiecte fără bani. Potrivire AI, schimb local, chat securizat."
+    "metaDescription": "Răsfoiește și schimbă obiecte fără bani. Potrivire AI, schimb local, chat securizat.",
+    "promoted": "Promovat",
+    "sortPopular": "Popular",
+    "sortTrusted": "Trust ridicat"
   },
   "objectDetail": {
     "loading": "Se încarcă obiectul",
@@ -2700,6 +2704,20 @@
     "metaTitle": "Schimb {category} fără bani | Swaply.world",
     "metaDescription": "Găsește {category} de schimbat în România. Obiecte disponibile acum. Barter fără bani, fără comisioane.",
     "byCity": "{category} pe orașe"
+  },
+  "categories": {
+    "electronics": "Electronică",
+    "sport": "Sport",
+    "arts": "Artă & Hobby",
+    "books": "Cărți",
+    "home": "Casă",
+    "fashion": "Modă",
+    "automotive": "Auto",
+    "music": "Muzică",
+    "garden": "Grădină",
+    "toys": "Jucării",
+    "tools": "Unelte",
+    "other": "Altele"
   },
   "trustScore": {
     "trustScoreTitle": "Scor de încredere",

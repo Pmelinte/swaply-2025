@@ -1,8 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Link } from "@/i18n/navigation";
-import { usePathname } from "next/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import {

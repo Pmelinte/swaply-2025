@@ -169,7 +169,7 @@ function ObjectCard({ item, mode }: { item: Item; mode: BrowseMode }) {
             {item.isBoosted && (
               <span className="flex shrink-0 items-center gap-0.5 rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
                 <Zap className="h-2.5 w-2.5" />
-                Promovat
+                {t("promoted")}
               </span>
             )}
           </div>
@@ -259,6 +259,7 @@ export default function ObjectsPage() {
   const { createSearch } = useSavedSearches(user?.id);
   const t = useTranslations("objects");
   const tc = useTranslations("common");
+  const tCat = useTranslations("categories");
   const tss = useTranslations("savedSearches");
 
   const initialTypeFromUrl = searchParams.get("type");
@@ -530,20 +531,12 @@ export default function ObjectsPage() {
 
       {/* ── Category SEO nav ── */}
       <nav className="mb-5 flex flex-wrap gap-2">
-        {[
-          { slug: "electronics", label: "Electronică" },
-          { slug: "sport", label: "Sport" },
-          { slug: "arts", label: "Artă & Hobby" },
-          { slug: "books", label: "Cărți" },
-          { slug: "home", label: "Casă" },
-          { slug: "fashion", label: "Modă" },
-          { slug: "automotive", label: "Auto" },
-          { slug: "music", label: "Muzică" },
-          { slug: "garden", label: "Grădină" },
-          { slug: "toys", label: "Jucării" },
-          { slug: "tools", label: "Unelte" },
-          { slug: "other", label: "Altele" },
-        ].map((cat) => (
+        {([
+          "electronics", "sport", "arts", "books", "home", "fashion",
+          "automotive", "music", "garden", "toys", "tools", "other",
+        ] as const).map((slug) => (
+          { slug, label: tCat(slug) }
+        )).map((cat) => (
           <Link
             key={cat.slug}
             href={`/objects/category/${cat.slug}`}
@@ -639,8 +632,8 @@ export default function ObjectsPage() {
               <option value="newest">{t("sortNewest")}</option>
               <option value="category">{t("sortCategory")}</option>
               <option value="condition">{t("sortCondition")}</option>
-              <option value="popular">Popular</option>
-              <option value="trusted">Trust ridicat</option>
+              <option value="popular">{t("sortPopular")}</option>
+              <option value="trusted">{t("sortTrusted")}</option>
             </select>
 
             {/* Save search alert button */}

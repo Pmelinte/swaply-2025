@@ -44,6 +44,7 @@ export default function InfoPage() {
   const { items } = useAppState();
   const infoStats = useInfoStats();
   const t = useTranslations("info");
+  const tc = useTranslations("common");
 
   const activeItems = items.filter((i) => i.status === "active").length;
   const totalUsers = infoStats.activeUsers;
@@ -401,6 +402,7 @@ export default function InfoPage() {
       </div>
 
       <NextStepRecommendation
+        title={tc("nextStepRecommended")}
         steps={[
           { label: t("startWithObjects"), href: "/objects", description: t("startWithObjectsDescription") },
           { label: t("discoverMatches"), href: "/match", description: t("discoverMatchesDescription") },

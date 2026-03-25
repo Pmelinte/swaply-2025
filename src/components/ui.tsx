@@ -124,14 +124,16 @@ type PageStateDefinition = {
 
 export function NextStepRecommendation({
   steps,
+  title,
 }: {
   steps: Array<{ label: string; href: string; description: string }>;
+  title?: string;
 }) {
   if (!steps.length) return null;
   return (
     <div className="rounded-2xl border border-blue-200 bg-blue-50/80 p-4 shadow-sm dark:border-blue-900 dark:bg-blue-950/40">
       <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">
-        Următorul pas recomandat
+        {title ?? "Recommended next step"}
       </p>
       <div className="space-y-2">
         {steps.map((step) => (
