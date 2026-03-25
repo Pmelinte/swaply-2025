@@ -7,6 +7,8 @@ import { Item } from "@/lib/types";
 import { NO_IMAGE_URL } from "@/lib/storage";
 import { Pill } from "@/components/ui";
 import { MapPin, Tag } from "lucide-react";
+import { useItemTranslation } from "@/hooks/useItemTranslation";
+import { TranslationIndicator } from "@/components/TranslationIndicator";
 
 /** Tiny label→value row used for semantic fields */
 function Field({ label, value }: { label: string; value?: string | null }) {
@@ -32,6 +34,8 @@ export function SwipeCard({
 }) {
   const t = useTranslations("swipeCard");
   const td = useTranslations("objectDetail");
+  const { title, description, isTranslated, isLoading, showingOriginal, toggleOriginal } =
+    useItemTranslation(item.id, item.title, item.description);
   const [offset, setOffset] = useState(0);
   const [swiping, setSwiping] = useState(false);
   const startX = useRef(0);
@@ -113,9 +117,17 @@ export function SwipeCard({
         </div>
 
         <div className="mt-3 space-y-1.5">
-          <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-50">
-            {item.title}
-          </h3>
+          <div>
+            <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-50">
+              {title}
+            </h3>
+            <TranslationIndicator
+              isTranslated={isTranslated}
+              isLoading={isLoading}
+              showingOriginal={showingOriginal}
+              onToggle={toggleOriginal}
+            />
+          </div>
 
           {/* Primary pills: category, condition, location */}
           <div className="flex flex-wrap gap-1">
@@ -131,7 +143,7 @@ export function SwipeCard({
 
           {/* Description */}
           <p className="line-clamp-2 text-sm text-zinc-600 dark:text-zinc-300">
-            {item.description}
+            {description}
           </p>
 
           {/* Wishlist */}

@@ -65,7 +65,7 @@ const CONDITION_MAP: Record<string, string> = {
   used_good: "conditionGood",
 };
 
-function CardTranslateButton({ text, itemId }: { text: string; itemId: string }) {
+function CardTranslateButton({ itemId }: { itemId: string }) {
   const locale = useLocale();
   const tl = useTranslations("translate");
   const [translated, setTranslated] = useState<string | null>(null);
@@ -82,15 +82,18 @@ function CardTranslateButton({ text, itemId }: { text: string; itemId: string })
       }
       setLoading(true);
       try {
-        const res = await fetch("/api/translate", {
+        // Use item-level translation API with DB caching
+        const res = await fetch("/api/translate/item", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text, from: "auto", to: locale }),
+          body: JSON.stringify({ itemId, targetLocale: locale }),
         });
-        const data = await res.json();
-        if (data.translated && data.status !== "fallback") {
-          setTranslated(data.translated);
-          setShow(true);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.title) {
+            setTranslated(data.title);
+            setShow(true);
+          }
         }
       } catch {
         // Silently fail
@@ -98,7 +101,7 @@ function CardTranslateButton({ text, itemId }: { text: string; itemId: string })
         setLoading(false);
       }
     },
-    [text, locale, translated],
+    [itemId, locale, translated],
   );
 
   return (
@@ -230,7 +233,7 @@ export function RecentItems() {
                 </p>
 
                 {/* Inline translate */}
-                <CardTranslateButton text={item.title} itemId={item.id} />
+                <CardTranslateButton itemId={item.id} />
 
                 {/* Category badge */}
                 <span
