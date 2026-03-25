@@ -28,6 +28,8 @@ export function LegalFooter() {
     { href: "/privacy", label: t("privacyTitle") },
     { href: "/cookies", label: t("cookiesTitle") },
     { href: "/safety", label: t("safetyTitle") },
+    { href: "/dmca", label: t("dmcaTitle") },
+    { href: "/copyright", label: t("copyrightTitle") },
   ];
 
   return (
