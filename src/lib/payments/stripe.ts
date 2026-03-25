@@ -3,7 +3,8 @@
  * Handles: Token purchases (Checkout), Subscriptions (Billing),
  * Boosts/Featured (Payment Intents), Insurance (Payment Intents).
  *
- * Accepts: Visa, Mastercard, Apple Pay, Google Pay via Stripe.
+ * Accepts: Visa, Mastercard, American Express, Apple Pay, Google Pay,
+ * SEPA Direct Debit, iDEAL (NL), Bancontact (BE) via Stripe.
  *
  * Env vars required:
  *   STRIPE_SECRET_KEY
@@ -56,7 +57,7 @@ export async function createTokenCheckout(params: TokenCheckoutParams): Promise<
 
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
-    payment_method_types: ["card"],
+    payment_method_types: ["card", "ideal", "bancontact", "sepa_debit"],
     customer_email: params.userEmail,
     metadata: {
       type: "token_purchase",
@@ -138,7 +139,7 @@ export async function createSubscriptionCheckout(params: SubscriptionCheckoutPar
 
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",
-    payment_method_types: ["card"],
+    payment_method_types: ["card", "sepa_debit"],
     customer_email: params.userEmail,
     metadata: {
       type: "subscription",
@@ -183,7 +184,7 @@ export async function createOneTimePayment(params: OneTimePaymentParams): Promis
   const intent = await stripe.paymentIntents.create({
     amount: product.amount,
     currency: "eur",
-    payment_method_types: ["card"],
+    payment_method_types: ["card", "ideal", "bancontact"],
     metadata: {
       type: params.type,
       userId: params.userId,

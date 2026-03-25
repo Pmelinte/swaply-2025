@@ -2839,5 +2839,14 @@
     "securePayment": "Secure payment via Stripe. Visa, Mastercard, Apple Pay, Google Pay.",
     "boost7days": "Boost 7 days",
     "alreadyPurchased": "Already purchased"
+  },
+  "payments": {
+    "paymentMethod": "Payment method",
+    "cardStripe": "Card (Stripe)",
+    "paypalError": "PayPal payment failed. Please try again.",
+    "paypalCaptureFailed": "Payment could not be processed. Please try again.",
+    "orPaypal": "or pay with PayPal",
+    "processing": "Processing payment…",
+    "secureCheckout": "Secure checkout powered by Stripe & PayPal"
   }
 }

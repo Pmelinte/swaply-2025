@@ -5,6 +5,8 @@ import { loadStripe, type Stripe as StripeJs } from "@stripe/stripe-js";
 import { Zap, CheckCircle, Loader2, AlertCircle, Clock } from "lucide-react";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { useTranslations } from "next-intl";
+import { PaymentMethodSelector, type PaymentMethod } from "@/components/payments/PaymentMethodSelector";
+import { PayPalBoostButton } from "@/components/payments/PayPalBoostButton";
 
 const BOOST_OPTIONS = [
   { duration: "24h", label: "Boost 24h", price: "5 RON", durationHours: 24 },
@@ -53,6 +55,7 @@ export function BoostPanel({ itemId, userId, userEmail }: BoostPanelProps) {
   const [error, setError] = useState<string | null>(null);
   const [selectedDuration, setSelectedDuration] = useState<string | null>(null);
   const [activeBoost, setActiveBoost] = useState<ActiveBoost | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card");
 
   // Check for existing active boost
   useEffect(() => {
@@ -198,29 +201,58 @@ export function BoostPanel({ itemId, userId, userEmail }: BoostPanelProps) {
         </div>
       )}
 
+      <div className="mb-3">
+        <PaymentMethodSelector
+          selected={paymentMethod}
+          onChange={setPaymentMethod}
+          disabled={status === "loading" || status === "awaiting_payment"}
+        />
+      </div>
+
       <div className="space-y-2">
-        {BOOST_OPTIONS.map((opt) => (
-          <button
-            key={opt.duration}
-            type="button"
-            disabled={status === "loading" || status === "awaiting_payment"}
-            onClick={() => handleBoost(opt.duration)}
-            className="flex w-full items-center justify-between rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm font-medium text-zinc-800 transition hover:border-amber-300 hover:bg-amber-50 disabled:opacity-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:border-amber-600 dark:hover:bg-amber-900/20"
-          >
-            <span className="flex items-center gap-2">
-              <Zap className="h-3.5 w-3.5 text-amber-500" />
-              {opt.label}
-            </span>
-            <span className="flex items-center gap-1.5">
-              {status === "loading" && selectedDuration === opt.duration && (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              )}
-              <span className="font-bold text-amber-700 dark:text-amber-400">
-                {opt.price}
+        {BOOST_OPTIONS.map((opt) =>
+          paymentMethod === "paypal" ? (
+            <div key={opt.duration} className="rounded-lg border border-zinc-200 bg-white px-3 py-2.5 dark:border-zinc-600 dark:bg-zinc-800">
+              <div className="mb-2 flex items-center justify-between text-sm font-medium text-zinc-800 dark:text-zinc-200">
+                <span className="flex items-center gap-2">
+                  <Zap className="h-3.5 w-3.5 text-amber-500" />
+                  {opt.label}
+                </span>
+                <span className="font-bold text-amber-700 dark:text-amber-400">
+                  {opt.price}
+                </span>
+              </div>
+              <PayPalBoostButton
+                itemId={itemId}
+                userId={userId}
+                duration={opt.duration}
+                onSuccess={() => setStatus("success")}
+                onError={(msg) => { setError(msg); setStatus("error"); }}
+              />
+            </div>
+          ) : (
+            <button
+              key={opt.duration}
+              type="button"
+              disabled={status === "loading" || status === "awaiting_payment"}
+              onClick={() => handleBoost(opt.duration)}
+              className="flex w-full items-center justify-between rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm font-medium text-zinc-800 transition hover:border-amber-300 hover:bg-amber-50 disabled:opacity-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:border-amber-600 dark:hover:bg-amber-900/20"
+            >
+              <span className="flex items-center gap-2">
+                <Zap className="h-3.5 w-3.5 text-amber-500" />
+                {opt.label}
               </span>
-            </span>
-          </button>
-        ))}
+              <span className="flex items-center gap-1.5">
+                {status === "loading" && selectedDuration === opt.duration && (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                )}
+                <span className="font-bold text-amber-700 dark:text-amber-400">
+                  {opt.price}
+                </span>
+              </span>
+            </button>
+          ),
+        )}
       </div>
 
       <p className="mt-2 text-center text-[10px] text-zinc-400 dark:text-zinc-500">

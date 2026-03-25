@@ -2838,5 +2838,14 @@
     "ctaDescription": "Create a free account and list your first object.",
     "ctaButton": "Try Swaply for free →",
     "lookingFor": "Looking for: {wishlist}"
+  },
+  "payments": {
+    "paymentMethod": "Payment method",
+    "cardStripe": "Card (Stripe)",
+    "paypalError": "PayPal payment failed. Please try again.",
+    "paypalCaptureFailed": "Payment could not be processed. Please try again.",
+    "orPaypal": "or pay with PayPal",
+    "processing": "Processing payment…",
+    "secureCheckout": "Secure checkout powered by Stripe & PayPal"
   }
 }
