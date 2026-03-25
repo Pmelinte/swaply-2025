@@ -109,6 +109,8 @@ export function TopBar() {
     setCountry(countryCode);
     setLangOpen(false);
     setLangSearch("");
+    // Persist locale preference in cookie so middleware picks it up
+    document.cookie = `NEXT_LOCALE=${loc};path=/;max-age=${365 * 24 * 60 * 60};SameSite=Lax`;
     // Navigate to the same page in the new locale
     router.replace(pathname, { locale: loc });
   };
