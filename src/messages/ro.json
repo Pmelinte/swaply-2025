@@ -470,7 +470,8 @@
     "matchScoreThresholdDesc": "Only notify me when match score is above:",
     "scoreAbove50": "Above 50% (more alerts)",
     "scoreAbove70": "Above 70% (recommended)",
-    "scoreAbove90": "Above 90% (only best matches)"
+    "scoreAbove90": "Above 90% (only best matches)",
+    "networkError": "Network error"
   },
   "home": {
     "welcome": "Bine ai revenit",
@@ -706,14 +707,17 @@
     "share": "Distribuie",
     "previousPhoto": "Fotografia anterioară",
     "nextPhoto": "Fotografia următoare",
-    "selectPhoto": "Selectează fotografia {number}"
+    "selectPhoto": "Selectează fotografia {number}",
+    "reservedMessage": "This item is reserved and cannot be exchanged right now."
   },
   "objectEdit": {
     "loading": "Se încarcă editorul",
     "notFound": "Obiect negăsit",
     "notFoundDescription": "Nu am găsit acest obiect. Poți reveni la listă sau să adaugi unul nou.",
     "title": "Editează obiect",
-    "editDescription": "Formular cu valori preumplute + statusuri clare."
+    "editDescription": "Formular cu valori preumplute + statusuri clare.",
+    "backToObjects": "Back to objects",
+    "addObject": "Add object"
   },
   "objectNew": {
     "title": "Adaugă obiect",
@@ -836,7 +840,8 @@
     "chainTitle": "Oportunități de lanț",
     "chainDescription": "Schimburi circulare: A dă lui B, B dă lui C, C dă lui A",
     "myChainsTitle": "Lanțurile mele active",
-    "myChainsDescription": "Schimburi în lanț la care participi"
+    "myChainsDescription": "Schimburi în lanț la care participi",
+    "chainDetected": "Chain detected automatically"
   },
   "chains": {
     "participants": "participanți",
@@ -1363,7 +1368,18 @@
     "escrowStatusDisputed": "Disputat — în analiză",
     "escrowBothHeld": "Ambele garanții sunt active. Trimiteți obiectele — depozitul se returnează automat la confirmarea reciprocă.",
     "escrowReleased": "Ambele garanții au fost returnate. Schimb finalizat cu succes!",
-    "escrowNote": "Garanția NU acoperă valoarea obiectelor — doar buna-credință. Dacă nu se confirmă primirea în 14 zile, se trimite reminder. După 21 zile, intervine un admin."
+    "escrowNote": "Garanția NU acoperă valoarea obiectelor — doar buna-credință. Dacă nu se confirmă primirea în 14 zile, se trimite reminder. După 21 zile, intervine un admin.",
+    "transportToMeetup": "Transport to meeting point",
+    "deliveryConfirmation": "Delivery confirmation",
+    "deliveryConfirmationDesc": "Both parties must confirm that the exchange took place.",
+    "requesterLabel": "Requester",
+    "responderLabel": "Partner",
+    "confirmed": "Confirmed",
+    "awaitingConfirmation": "Awaiting confirmation",
+    "handedOver": "I have handed over the item",
+    "received": "I have received the item",
+    "bothConfirmed": "Both parties confirmed! The exchange is finalized.",
+    "chainDetected": "Chain detected automatically"
   },
   "feedback": {
     "title": "Păreri",
@@ -2111,7 +2127,21 @@
     "tokenHistory": "Istoric Tokens",
     "whatsappInvite": "Hei! Alătură-te Swaply și fă schimb de obiecte! Folosește codul meu: {code}",
     "shareTitle": "Swaply — Schimb de obiecte",
-    "shareText": "Alătură-te Swaply! Cod referral: {code}"
+    "shareText": "Alătură-te Swaply! Cod referral: {code}",
+    "guestTitle": "Plans and subscriptions",
+    "guestDescription": "Choose the right plan for you",
+    "guestIntro": "Swaply is free for basic swaps. Premium plans unlock advanced features that help you swap faster and safer.",
+    "planFree": "Free",
+    "planFreeDesc": "Up to 10 listed items, basic AI matching, unlimited chat.",
+    "planPremium": "Premium",
+    "planPremiumDesc": "Unlimited items, advanced AI matching, priority promotion, verified badge.",
+    "planPlatinum": "Platinum",
+    "planPlatinumDesc": "Everything in Premium plus swap insurance, priority support, and detailed analytics.",
+    "priceFree": "0",
+    "pricePremium": "19.99",
+    "pricePlatinum": "39.99",
+    "currency": "EUR",
+    "perMonthShort": "/mo"
   },
   "adBanner": {
     "premiumCta": "Treci la Premium pentru experiență fără reclame, matching prioritar și 50 tokens/lună",
@@ -2517,7 +2547,8 @@
     "showOriginal": "Vezi originalul",
     "retryTranslate": "Reîncearcă",
     "translatedContent": "Conținut tradus",
-    "autoTranslated": "Tradus automat"
+    "autoTranslated": "Tradus automat",
+    "originalLanguage": "Original language"
   },
   "tokenReasons": {
     "welcome_bonus": "Bonus de bun venit",
@@ -2562,7 +2593,21 @@
     "copied": "Copiat!",
     "copyLink": "Copiază link",
     "founderTitle": "Fondator Swaply",
-    "founderBio": "Pasionat de economie circulară, tehnologie și comunități locale."
+    "founderBio": "Pasionat de economie circulară, tehnologie și comunități locale.",
+    "pageTitle": "Blog Swaply — Swap guides, barter and circular economy",
+    "pageDescription": "Articles about barter, swapping objects, circular economy and how to use Swaply.",
+    "subtitle": "Swap guides, barter and circular economy.",
+    "allArticles": "All articles",
+    "articleCount": "{count} article",
+    "articlesCount": "{count} articles",
+    "inCategory": "in this category.",
+    "noArticlesInCategory": "No articles in this category.",
+    "articleNotFound": "Article not found — Swaply",
+    "backToBlog": "Back to blog",
+    "ctaTitle": "Ready to try modern bartering?",
+    "ctaDescription": "List your objects and discover what you can get in exchange.",
+    "ctaButton": "Try Swaply for free →",
+    "metaDescription": "Articles from the \"{category}\" category on the Swaply blog."
   },
   "push": {
     "enableTitle": "Activează notificările",
@@ -2683,7 +2728,16 @@
     "archive": "Arhivează",
     "archiveConfirm": "Ești sigur că vrei să arhivezi acest obiect?",
     "page": "Pagina",
-    "results": "rezultate"
+    "results": "rezultate",
+    "overview": "Overview",
+    "panelTitle": "Admin Panel",
+    "panelSubtitle": "Moderation & platform management",
+    "authRequired": "Authentication required",
+    "authRequiredDesc": "You need to be authenticated to access the admin panel.",
+    "authenticate": "Sign in",
+    "accessRestricted": "Access restricted",
+    "accessRestrictedDesc": "Only administrators can access this page.",
+    "backHome": "Back to home"
   },
   "eventBanner": {
     "participate": "Participă",
@@ -2767,5 +2821,21 @@
     "ctaDescription": "Creează un cont gratuit și listează primul tău obiect.",
     "ctaButton": "Încearcă Swaply gratuit →",
     "lookingFor": "Caută: {wishlist}"
+  },
+  "boost": {
+    "active": "Boost active",
+    "expiresIn": "Expires in {hours}h ({date})",
+    "expired": "Boost has expired",
+    "successTitle": "Boost activated successfully!",
+    "successDescription": "Your item will appear at the top of listings.",
+    "increaseVisibility": "Increase visibility",
+    "promotedDescription": "Your item will appear first in listings and will have the \"Promoted\" badge.",
+    "paymentError": "Error creating payment",
+    "paymentFailed": "Payment failed",
+    "unexpectedError": "Unexpected error. Try again.",
+    "stripeUnavailable": "Stripe is not available",
+    "securePayment": "Secure payment via Stripe. Visa, Mastercard, Apple Pay, Google Pay.",
+    "boost7days": "Boost 7 days",
+    "alreadyPurchased": "Already purchased"
   }
 }

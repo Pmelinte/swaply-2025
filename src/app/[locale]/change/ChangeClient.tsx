@@ -1267,7 +1267,7 @@ export function ChangeClient({ swapFromQuery, serverAuthenticated = true }: { sw
               {/* Transport affiliate links */}
               {(logisticsType === "public_spot" || logisticsType === "pickup") && meetupPoint && (
                 <div className="mt-3 rounded-xl border border-blue-200 bg-blue-50/50 p-3 dark:border-blue-900 dark:bg-blue-950/20">
-                  <p className="mb-2 text-xs font-semibold text-blue-700 dark:text-blue-300">Transport la punctul de întâlnire</p>
+                  <p className="mb-2 text-xs font-semibold text-blue-700 dark:text-blue-300">{t("transportToMeetup")}</p>
                   <div className="flex flex-wrap gap-2">
                     <a
                       href={`https://m.bolt.eu/action/requestRide?destination_name=${encodeURIComponent(meetupPoint)}`}
@@ -1546,7 +1546,7 @@ export function ChangeClient({ swapFromQuery, serverAuthenticated = true }: { sw
 
           {/* Delivery Confirmation + Dispute */}
           {(swap.status === "accepted" || swap.status === "disputed") && (
-            <SectionCard title="Confirmare predare / primire" description="Ambele părți trebuie să confirme că schimbul a avut loc.">
+            <SectionCard title={t("deliveryConfirmation")} description={t("deliveryConfirmationDesc")}>
               {/* Confirmation status indicators */}
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className={`rounded-xl border p-3 ${swap.requesterConfirmed ? "border-emerald-300 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/30" : "border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-800/50"}`}>
@@ -1557,9 +1557,9 @@ export function ChangeClient({ swapFromQuery, serverAuthenticated = true }: { sw
                       <Clock className="h-5 w-5 text-zinc-400" />
                     )}
                     <div>
-                      <p className="text-xs font-semibold uppercase text-zinc-500">Solicitant</p>
+                      <p className="text-xs font-semibold uppercase text-zinc-500">{t("requesterLabel")}</p>
                       <p className={`text-sm font-bold ${swap.requesterConfirmed ? "text-emerald-700 dark:text-emerald-300" : "text-zinc-600 dark:text-zinc-300"}`}>
-                        {swap.requesterConfirmed ? "Confirmat ✓" : "Așteaptă confirmare"}
+                        {swap.requesterConfirmed ? `${t("confirmed")} ✓` : t("awaitingConfirmation")}
                       </p>
                     </div>
                   </div>
@@ -1569,7 +1569,7 @@ export function ChangeClient({ swapFromQuery, serverAuthenticated = true }: { sw
                       onClick={() => void confirmDelivery(swap.id, "requester")}
                       className="mt-2 w-full rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
                     >
-                      Am predat obiectul
+                      {t("handedOver")}
                     </button>
                   )}
                 </div>
@@ -1582,9 +1582,9 @@ export function ChangeClient({ swapFromQuery, serverAuthenticated = true }: { sw
                       <Clock className="h-5 w-5 text-zinc-400" />
                     )}
                     <div>
-                      <p className="text-xs font-semibold uppercase text-zinc-500">Partener</p>
+                      <p className="text-xs font-semibold uppercase text-zinc-500">{t("responderLabel")}</p>
                       <p className={`text-sm font-bold ${swap.responderConfirmed ? "text-emerald-700 dark:text-emerald-300" : "text-zinc-600 dark:text-zinc-300"}`}>
-                        {swap.responderConfirmed ? "Confirmat ✓" : "Așteaptă confirmare"}
+                        {swap.responderConfirmed ? `${t("confirmed")} ✓` : t("awaitingConfirmation")}
                       </p>
                     </div>
                   </div>
@@ -1594,7 +1594,7 @@ export function ChangeClient({ swapFromQuery, serverAuthenticated = true }: { sw
                       onClick={() => void confirmDelivery(swap.id, "responder")}
                       className="mt-2 w-full rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
                     >
-                      Am primit obiectul
+                      {t("received")}
                     </button>
                   )}
                 </div>
@@ -1602,7 +1602,7 @@ export function ChangeClient({ swapFromQuery, serverAuthenticated = true }: { sw
 
               {swap.requesterConfirmed && swap.responderConfirmed && (
                 <div className="mt-3 rounded-lg bg-emerald-50 p-3 text-center text-sm font-semibold text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300">
-                  Ambele părți au confirmat! Schimbul este finalizat.
+                  {t("bothConfirmed")}
                 </div>
               )}
 
@@ -1851,22 +1851,22 @@ export function ChangeClient({ swapFromQuery, serverAuthenticated = true }: { sw
       />
 
       <StateShowcase
-        title="Stări CHANGE / SWAPLY"
+        title="EXCHANGE States"
         states={[
           {
             key: "loading",
-            title: "Timeline în încărcare",
-            description: "Afișăm skeleton pe pași și butoanele sunt disabled până sosesc datele swap.",
+            title: "Loading timeline",
+            description: "Skeleton on steps and buttons are disabled until swap data arrives.",
           },
           {
             key: "empty",
-            title: "Niciun swap activ",
-            description: "Mesaj de empty state (există deja) + CTA spre /match sau /chat pentru inițiere.",
+            title: "No active swaps",
+            description: "Empty state message + CTA to /match or /chat to initiate.",
           },
           {
             key: "error",
-            title: "Blocaje de confirmare",
-            description: "Mesaj clar când statusul nu poate fi actualizat; oferim buton reîncearcă sau contact suport.",
+            title: "Confirmation blockers",
+            description: "Clear message when status cannot be updated; retry button or contact support.",
           },
         ]}
       />

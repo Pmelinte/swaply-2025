@@ -237,11 +237,11 @@ export function ProfileClient() {
       />
 
       <StateShowcase
-        title="Stări PROFIL"
+        title="PROFILE States"
         states={[
-          { key: "loading", title: "Se încarcă profilul", description: "Placeholder skeleton pentru câmpuri + badge vizibil până sosește payload-ul user." },
-          { key: "empty", title: "Profil incomplet", description: "Afișăm avertisment pentru lipsă locație și CTA de salvare. Datele lipsă nu blochează pagina." },
-          { key: "error", title: "Eroare la salvare", description: "Mesaj dedicat + recomandare retry; nu pierdem valorile completate în formular." },
+          { key: "loading", title: "Loading profile", description: "Placeholder skeleton for fields + badge visible until user payload arrives." },
+          { key: "empty", title: "Incomplete profile", description: "Warning for missing location and save CTA. Missing data does not block the page." },
+          { key: "error", title: "Save error", description: "Dedicated message + retry recommendation; form values are not lost." },
         ]}
       />
     </div>

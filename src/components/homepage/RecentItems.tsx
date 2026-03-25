@@ -5,6 +5,7 @@ import { Link } from "@/i18n/navigation";
 import { useEffect, useState, useCallback } from "react";
 import { MapPin, ChevronRight, Plus, Globe, Loader2 } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
+import { SEO_CATEGORIES } from "@/lib/seo-data";
 
 interface RecentItem {
   id: string;
@@ -29,6 +30,11 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 const DEFAULT_BADGE = "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300";
+
+/** Map DB category (Romanian) → slug for i18n lookup */
+const DB_CAT_TO_SLUG: Record<string, string> = Object.fromEntries(
+  SEO_CATEGORIES.map((c) => [c.dbCategory, c.slug]),
+);
 
 function getItemImage(item: RecentItem): string | null {
   // Try images JSONB (could be array of strings or array of objects)
@@ -120,6 +126,7 @@ function CardTranslateButton({ text, itemId }: { text: string; itemId: string })
 export function RecentItems() {
   const t = useTranslations("home");
   const tObj = useTranslations("objects");
+  const tCat = useTranslations("categories");
   const [items, setItems] = useState<RecentItem[]>([]);
   const [loaded, setLoaded] = useState(false);
 
@@ -229,7 +236,7 @@ export function RecentItems() {
                 <span
                   className={`inline-flex w-fit rounded-full px-2 py-0.5 text-[10px] font-medium ${getCategoryBadge(item.category)}`}
                 >
-                  {item.category}
+                  {DB_CAT_TO_SLUG[item.category] ? tCat(DB_CAT_TO_SLUG[item.category]) : item.category}
                 </span>
 
                 {/* Location */}

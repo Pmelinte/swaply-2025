@@ -118,22 +118,22 @@ export function ChatClient({
       />
 
       <StateShowcase
-        title="Stări CHAT"
+        title="CHAT States"
         states={[
           {
             key: "loading",
-            title: "Încărcare conversații",
-            description: "Skeleton list + badge moderare până sosesc conversațiile.",
+            title: "Loading conversations",
+            description: "Skeleton list + moderation badge until conversations arrive.",
           },
           {
             key: "empty",
-            title: "Fără conversații",
-            description: "Empty state în panel + CTA spre /objects sau /match pentru inițiere chat.",
+            title: "No conversations",
+            description: "Empty state in panel + CTA to /objects or /match to start a chat.",
           },
           {
             key: "error",
-            title: "Eroare livrare mesaj",
-            description: "Mesaj clar + buton retry, fără crash și fără a deconecta utilizatorul.",
+            title: "Message delivery error",
+            description: "Clear message + retry button, no crash and no user disconnection.",
           },
         ]}
       />

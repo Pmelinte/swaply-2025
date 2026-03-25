@@ -376,7 +376,7 @@ export default function AccountTab({
                   const data = await res.json();
                   if (!res.ok) setGdprMessage({ type: "error", text: data.error ?? "Eroare" });
                   else { setGdprMessage({ type: "success", text: t("gdprExportSuccess") }); setGdprExportPending(new Date().toISOString()); }
-                } catch { setGdprMessage({ type: "error", text: "Eroare de rețea" }); }
+                } catch { setGdprMessage({ type: "error", text: t("networkError") }); }
                 finally { setGdprLoading(false); }
               }}
               className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-40">
@@ -415,7 +415,7 @@ export default function AccountTab({
                     const data = await res.json();
                     if (!res.ok) setGdprMessage({ type: "error", text: data.error ?? "Eroare" });
                     else { setGdprMessage({ type: "success", text: t("gdprDeleteSuccess") }); setGdprDeletePending(new Date().toISOString()); }
-                  } catch { setGdprMessage({ type: "error", text: "Eroare de rețea" }); }
+                  } catch { setGdprMessage({ type: "error", text: t("networkError") }); }
                   finally { setGdprLoading(false); setShowGdprDeleteConfirm(false); setGdprDeleteConfirmText(""); }
                 }}
                 className="rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-40">

@@ -290,7 +290,7 @@ export function MatchClient({ serverAuthenticated = true }: { serverAuthenticate
       giverName: p.userName,
       receiverName: opp.participants[(idx + 1) % opp.participants.length].userName,
     }));
-    await createChain("Lanț detectat automat", links);
+    await createChain(t("chainDetected"), links);
   };
 
   // Dealbreaker counts

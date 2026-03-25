@@ -155,7 +155,7 @@ function ItemCard({ item, lookingForLabel }: { item: ItemRow; lookingForLabel: s
 }
 
 const COUNTRY_NAMES: Record<string, string> = {
-  ro: "România",
+  ro: "Romania",
   en: "Romania",
 };
 

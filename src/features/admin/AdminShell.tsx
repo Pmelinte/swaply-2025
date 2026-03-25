@@ -8,16 +8,18 @@ import {
   Package,
   Shield,
 } from "lucide-react";
-
-const NAV_ITEMS = [
-  { href: "/admin", label: "Overview", icon: LayoutDashboard },
-  { href: "/admin/reports", label: "Rapoarte", icon: Flag },
-  { href: "/admin/users", label: "Utilizatori", icon: Users },
-  { href: "/admin/items", label: "Obiecte", icon: Package },
-] as const;
+import { useTranslations } from "next-intl";
 
 export function AdminNav() {
   const pathname = usePathname();
+  const t = useTranslations("admin");
+
+  const NAV_ITEMS = [
+    { href: "/admin", label: t("overview"), icon: LayoutDashboard },
+    { href: "/admin/reports", label: t("reports"), icon: Flag },
+    { href: "/admin/users", label: t("users"), icon: Users },
+    { href: "/admin/items", label: t("items"), icon: Package },
+  ] as const;
 
   return (
     <nav className="flex flex-wrap gap-1.5">
@@ -44,16 +46,17 @@ export function AdminNav() {
 }
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
+  const t = useTranslations("admin");
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3 border-b border-zinc-200 pb-4 dark:border-zinc-800">
         <Shield className="h-6 w-6 text-blue-600" />
         <div>
           <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
-            Admin Panel
+            {t("panelTitle")}
           </h1>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            Moderare & management platformă
+            {t("panelSubtitle")}
           </p>
         </div>
       </div>
@@ -70,16 +73,18 @@ export function AdminGuard({
   user: { role?: string } | null;
   children: React.ReactNode;
 }) {
+  const t = useTranslations("admin");
+
   if (!user) {
     return (
       <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-900/40 dark:text-amber-100">
-        <h3 className="text-base font-semibold">Autentificare necesară</h3>
-        <p className="mt-1">Trebuie să fii autentificat pentru a accesa panoul de admin.</p>
+        <h3 className="text-base font-semibold">{t("authRequired")}</h3>
+        <p className="mt-1">{t("authRequiredDesc")}</p>
         <Link
           className="mt-3 inline-flex rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
           href="/login?returnTo=/admin"
         >
-          Autentifică-te
+          {t("authenticate")}
         </Link>
       </div>
     );
@@ -88,13 +93,13 @@ export function AdminGuard({
   if (user.role !== "admin" && user.role !== "moderator") {
     return (
       <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-900 dark:border-red-800 dark:bg-red-900/40 dark:text-red-100">
-        <h3 className="text-base font-semibold">Acces restricționat</h3>
-        <p className="mt-1">Doar administratorii pot accesa această pagină.</p>
+        <h3 className="text-base font-semibold">{t("accessRestricted")}</h3>
+        <p className="mt-1">{t("accessRestrictedDesc")}</p>
         <Link
           className="mt-3 inline-flex rounded-full bg-zinc-600 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-700"
           href="/"
         >
-          Înapoi acasă
+          {t("backHome")}
         </Link>
       </div>
     );
