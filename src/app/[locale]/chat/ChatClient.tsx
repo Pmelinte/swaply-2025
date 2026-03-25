@@ -9,9 +9,11 @@ import { ChatPanel } from "@/features/chat/ChatPanel";
 export function ChatClient({
   to,
   conversationId,
+  serverAuthenticated = true,
 }: {
   to?: string | null;
   conversationId?: string | null;
+  serverAuthenticated?: boolean;
 }) {
   const { user, loading, conversations, ensureConversation } = useAppState();
   const t = useTranslations("chat");
@@ -26,7 +28,8 @@ export function ChatClient({
     void ensureConversation(to);
   }, [ensureConversation, to, user?.id]);
 
-  if (loading.auth) {
+  // Skip auth spinner when server already resolved auth status
+  if (loading.auth && serverAuthenticated) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-12 text-zinc-400 dark:text-zinc-500">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-300 border-t-blue-500 dark:border-zinc-600 dark:border-t-blue-400" />

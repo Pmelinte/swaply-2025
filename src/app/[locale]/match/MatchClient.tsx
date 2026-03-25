@@ -23,7 +23,7 @@ const CATEGORIES = [
   "Toys", "Art", "Music", "Vehicles", "Tools", "Other",
 ];
 
-export function MatchClient() {
+export function MatchClient({ serverAuthenticated = true }: { serverAuthenticated?: boolean }) {
   const router = useRouter();
   const {
     user, loading, matches: rawMatches, featureToggles, proposeSwap, trackEvent,
@@ -170,7 +170,8 @@ export function MatchClient() {
     return result;
   }, [dealbrokenMatches, tierFilter, sortBy, manualMode]);
 
-  if (loading.auth) {
+  // Skip auth spinner when server already resolved auth status
+  if (loading.auth && serverAuthenticated) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-12 text-zinc-400 dark:text-zinc-500">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-300 border-t-blue-500 dark:border-zinc-600 dark:border-t-blue-400" />
