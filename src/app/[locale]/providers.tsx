@@ -1,6 +1,7 @@
 "use client";
 
 import { AppStateProvider } from "@/lib/state";
+import { PayPalProvider } from "@/components/payments/PayPalProvider";
 
 export function Providers({
   children,
@@ -11,7 +12,9 @@ export function Providers({
 }) {
   return (
     <AppStateProvider initialLocale={locale}>
-      {children}
+      <PayPalProvider>
+        {children}
+      </PayPalProvider>
     </AppStateProvider>
   );
 }
