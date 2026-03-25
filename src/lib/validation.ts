@@ -50,6 +50,12 @@ export const moderateSchema = z.object({
   text: z.string().max(5000).optional(),
 });
 
+// ── Object Translation Route ──
+export const translateObjectSchema = z.object({
+  objectId: z.string().min(1).max(100),
+  targetLocale: z.string().min(2).max(5),
+});
+
 // ── Translation Route ──
 export const translateSchema = z.object({
   text: z.string().min(1).max(5000),

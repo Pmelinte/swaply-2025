@@ -35,7 +35,10 @@ import {
   Undo2,
   Bell,
   Zap,
+  Globe,
+  Loader2,
 } from "lucide-react";
+import { useObjectTranslation } from "@/hooks/useObjectTranslation";
 
 const MAX_RIGHT_SWIPES = 3;
 
@@ -142,10 +145,50 @@ function SlotCard({
   );
 }
 
+/* ─── Auto-translate indicator badge ─── */
+function TranslatedBadge({
+  isTranslated,
+  isLoading,
+  onToggle,
+}: {
+  isTranslated: boolean;
+  isLoading: boolean;
+  onToggle: () => void;
+}) {
+  const tt = useTranslations("translate");
+  if (!isTranslated && !isLoading) return null;
+
+  if (isLoading) {
+    return (
+      <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-blue-50 px-1.5 py-0.5 text-[10px] text-blue-500 dark:bg-blue-900/30 dark:text-blue-300">
+        <Loader2 className="h-2.5 w-2.5 animate-spin" />
+      </span>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        onToggle();
+      }}
+      title={tt("autoTranslated")}
+      className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-600 transition hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50"
+    >
+      <Globe className="h-2.5 w-2.5" />
+      {tt("autoTranslated")}
+    </button>
+  );
+}
+
 /* ─── Browse card for grid/list secondary view ─── */
 function ObjectCard({ item, mode }: { item: Item; mode: BrowseMode }) {
   const t = useTranslations("objects");
   const router = useRouter();
+  const { title, description, isTranslated, isLoading, toggleOriginal } =
+    useObjectTranslation(item.id, item.title, item.description);
 
   if (mode === "list") {
     return (
@@ -156,7 +199,7 @@ function ObjectCard({ item, mode }: { item: Item; mode: BrowseMode }) {
         <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-700">
           <SafeImage
             src={item.photos?.[0] || NO_IMAGE_URL}
-            alt={item.title}
+            alt={title}
             fill
             className="object-cover"
             sizes="64px"
@@ -165,7 +208,8 @@ function ObjectCard({ item, mode }: { item: Item; mode: BrowseMode }) {
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
-            <h3 className="truncate font-semibold text-zinc-900 dark:text-zinc-50">{item.title}</h3>
+            <h3 className="truncate font-semibold text-zinc-900 dark:text-zinc-50">{title}</h3>
+            <TranslatedBadge isTranslated={isTranslated} isLoading={isLoading} onToggle={toggleOriginal} />
             {item.isBoosted && (
               <span className="flex shrink-0 items-center gap-0.5 rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
                 <Zap className="h-2.5 w-2.5" />
@@ -201,7 +245,7 @@ function ObjectCard({ item, mode }: { item: Item; mode: BrowseMode }) {
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-zinc-100 dark:bg-zinc-700">
         <SafeImage
           src={item.photos?.[0] || NO_IMAGE_URL}
-          alt={item.title}
+          alt={title}
           fill
           className="object-cover transition group-hover:scale-105"
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
@@ -228,7 +272,10 @@ function ObjectCard({ item, mode }: { item: Item; mode: BrowseMode }) {
         )}
       </div>
       <div className="flex flex-1 flex-col p-3">
-        <h3 className="truncate text-sm font-semibold text-zinc-900 dark:text-zinc-50">{item.title}</h3>
+        <div className="flex items-center gap-1.5">
+          <h3 className="truncate text-sm font-semibold text-zinc-900 dark:text-zinc-50">{title}</h3>
+          <TranslatedBadge isTranslated={isTranslated} isLoading={isLoading} onToggle={toggleOriginal} />
+        </div>
         <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">{item.category}</p>
         {item.location && (
           <p className="mt-1 flex items-center gap-0.5 text-xs text-zinc-400">
