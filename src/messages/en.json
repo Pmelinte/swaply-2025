@@ -1327,6 +1327,8 @@
     "courierSameday": "Sameday",
     "courierCargus": "Cargus",
     "courierDHL": "DHL",
+    "courierDomestic": "Local couriers",
+    "courierInternational": "International couriers",
     "courierOther": "Other",
     "awbNumber": "AWB number",
     "awbPlaceholder": "e.g. 1234567890",
