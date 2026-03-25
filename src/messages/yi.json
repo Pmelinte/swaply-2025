@@ -644,7 +644,10 @@
     "loadMoreItems": "Load more",
     "remainingItems": "remaining",
     "metaTitle": "Swap objects without money",
-    "metaDescription": "Browse and swap objects without money. AI matching, local exchange, secure chat."
+    "metaDescription": "Browse and swap objects without money. AI matching, local exchange, secure chat.",
+    "promoted": "Promoted",
+    "sortPopular": "Popular",
+    "sortTrusted": "High trust"
   },
   "objectDetail": {
     "loading": "Loading object",
