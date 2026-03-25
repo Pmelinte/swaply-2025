@@ -65,7 +65,7 @@ const CONDITION_MAP: Record<string, string> = {
   used_good: "conditionGood",
 };
 
-function CardTranslateButton({ text, itemId }: { text: string; itemId: string }) {
+function CardTranslateButton({ itemId }: { itemId: string }) {
   const locale = useLocale();
   const tl = useTranslations("translate");
   const [translated, setTranslated] = useState<string | null>(null);
@@ -233,7 +233,7 @@ export function RecentItems() {
                 </p>
 
                 {/* Inline translate */}
-                <CardTranslateButton text={item.title} itemId={item.id} />
+                <CardTranslateButton itemId={item.id} />
 
                 {/* Category badge */}
                 <span

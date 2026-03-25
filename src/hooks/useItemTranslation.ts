@@ -33,16 +33,16 @@ export function useItemTranslation(
   originalDescription: string,
 ): UseItemTranslationResult {
   const locale = useLocale();
+  const needsTranslation = locale !== "ro" && !!itemId;
   const [translation, setTranslation] = useState<ItemTranslation | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(needsTranslation);
   const [showingOriginal, setShowingOriginal] = useState(false);
 
   useEffect(() => {
     // Don't translate if already Romanian or no itemId
-    if (locale === "ro" || !itemId) return;
+    if (!needsTranslation) return;
 
     let cancelled = false;
-    setIsLoading(true);
 
     fetch("/api/translate/item", {
       method: "POST",
@@ -65,7 +65,7 @@ export function useItemTranslation(
     return () => {
       cancelled = true;
     };
-  }, [itemId, locale]);
+  }, [itemId, locale, needsTranslation]);
 
   const toggleOriginal = useCallback(() => {
     setShowingOriginal((prev) => !prev);
