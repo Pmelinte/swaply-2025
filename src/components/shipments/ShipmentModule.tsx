@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import type { SwapIntent, SwapShipment, DeliveryType, ShipmentDirection, ShipmentPaidBy, ShipmentStatus } from "@/lib/types";
 import { SectionCard, Pill } from "@/components/ui";
+import { useCouriers, type CourierOption } from "@/hooks/useCouriers";
 
 /* ── Constants ── */
 
@@ -19,17 +20,11 @@ const DELIVERY_TYPES: { key: DeliveryType; icon: typeof MapPin; titleKey: string
   { key: "locker_pickup", icon: LocateFixed, titleKey: "deliveryLockerPickup" },
 ];
 
-/**
- * Courier options are now dynamic based on user's country.
- * Falls back to international couriers + "Other" when country is unknown.
- * The country registry (src/lib/payments/country-registry.ts) provides
- * per-country courier lists; this static list is the UI fallback.
- */
-const COURIERS = [
-  { key: "DHL", labelKey: "courierDHL" },
-  { key: "FedEx", labelKey: "courierFedEx" },
-  { key: "UPS", labelKey: "courierUPS" },
-  { key: "Other", labelKey: "courierOther" },
+/** Fallback couriers when API is unavailable */
+const FALLBACK_COURIERS: CourierOption[] = [
+  { name: "DHL", websiteUrl: "https://dhl.com", logoUrl: null, countryCode: null, type: "international" },
+  { name: "FedEx", websiteUrl: "https://fedex.com", logoUrl: null, countryCode: null, type: "international" },
+  { name: "UPS", websiteUrl: "https://ups.com", logoUrl: null, countryCode: null, type: "international" },
 ];
 
 const PAID_BY_OPTIONS: { key: ShipmentPaidBy; labelKey: string }[] = [
@@ -73,9 +68,10 @@ interface ShipmentFormProps {
   onSave: (data: Omit<SwapShipment, "id" | "createdAt">) => void;
   swapId: string;
   existing?: SwapShipment;
+  courierOptions: CourierOption[];
 }
 
-function ShipmentForm({ direction, directionLabel, onSave, swapId, existing }: ShipmentFormProps) {
+function ShipmentForm({ direction, directionLabel, onSave, swapId, existing, courierOptions }: ShipmentFormProps) {
   const t = useTranslations("change");
   const [courier, setCourier] = useState(existing?.courier ?? "");
   const [awb, setAwb] = useState(existing?.awb ?? "");
@@ -115,11 +111,41 @@ function ShipmentForm({ direction, directionLabel, onSave, swapId, existing }: S
           className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
         >
           <option value="">{t("selectCourier")}...</option>
-          {COURIERS.map((c) => (
-            <option key={c.key} value={c.key}>{t(c.labelKey as Parameters<typeof t>[0])}</option>
-          ))}
+          {courierOptions.filter((c) => c.type === "domestic").length > 0 && (
+            <optgroup label={t("courierDomestic")}>
+              {courierOptions.filter((c) => c.type === "domestic").map((c) => (
+                <option key={`d-${c.name}`} value={c.name}>{c.name}</option>
+              ))}
+            </optgroup>
+          )}
+          <optgroup label={t("courierInternational")}>
+            {courierOptions.filter((c) => c.type === "international").map((c) => (
+              <option key={`i-${c.name}`} value={c.name}>{c.name}</option>
+            ))}
+          </optgroup>
+          <option value="Other">{t("courierOther")}</option>
         </select>
       </label>
+      {/* Selected courier website link */}
+      {courier && courier !== "Other" && (() => {
+        const selected = courierOptions.find((c) => c.name === courier);
+        if (!selected) return null;
+        return (
+          <a
+            href={selected.websiteUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:underline dark:text-blue-400"
+          >
+            {selected.logoUrl && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={selected.logoUrl} alt="" className="h-4 w-4 rounded object-contain" />
+            )}
+            <ExternalLink className="h-3 w-3" />
+            {selected.name} — {selected.websiteUrl.replace(/^https?:\/\//, "")}
+          </a>
+        );
+      })()}
 
       {/* AWB */}
       <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">
@@ -255,13 +281,21 @@ export interface ShipmentModuleProps {
   swap: SwapIntent;
   currentUserId: string;
   isRequester: boolean;
+  /** ISO country code of the current user (e.g. "RO") */
+  userCountry?: string;
+  /** ISO country code of the swap partner */
+  partnerCountry?: string;
 }
 
-export function ShipmentModule({ swap, currentUserId, isRequester }: ShipmentModuleProps) {
+export function ShipmentModule({ swap, isRequester, userCountry, partnerCountry }: ShipmentModuleProps) {
   const t = useTranslations("change");
   const [deliveryType, setDeliveryType] = useState<DeliveryType>("face_to_face");
   const [shipments, setShipments] = useState<SwapShipment[]>([]);
   const [confirmingDirection, setConfirmingDirection] = useState<ShipmentDirection | null>(null);
+
+  // Fetch dynamic courier list from DB based on user + partner countries
+  const { couriers: fetchedCouriers } = useCouriers(userCountry, partnerCountry);
+  const courierOptions = fetchedCouriers.length > 0 ? fetchedCouriers : FALLBACK_COURIERS;
 
   const isCourierType = deliveryType !== "face_to_face";
 
@@ -336,6 +370,7 @@ export function ShipmentModule({ swap, currentUserId, isRequester }: ShipmentMod
             swapId={swap.id}
             onSave={handleSaveShipment}
             existing={shipmentAtoB}
+            courierOptions={courierOptions}
           />
           <ShipmentForm
             direction="b_to_a"
@@ -343,6 +378,7 @@ export function ShipmentModule({ swap, currentUserId, isRequester }: ShipmentMod
             swapId={swap.id}
             onSave={handleSaveShipment}
             existing={shipmentBtoA}
+            courierOptions={courierOptions}
           />
         </div>
       )}

@@ -1316,7 +1316,9 @@
     "handedOver": "I have handed over the item",
     "received": "I have received the item",
     "bothConfirmed": "Both parties confirmed! The exchange is finalized.",
-    "chainDetected": "Chain detected automatically"
+    "chainDetected": "Chain detected automatically",
+    "courierDomestic": "Domestic couriers",
+    "courierInternational": "International couriers"
   },
   "feedback": {
     "title": "Feedback",
@@ -2210,7 +2212,14 @@
     "faqA3": "Yes, anytime before the other person confirms.",
     "ctaButton": "Start for free",
     "metaTitle": "Pricing — Free, Premium, Platinum",
-    "metaDescription": "Compare Swaply plans: Free, Premium and Platinum. Swapping is always free, no commissions."
+    "metaDescription": "Compare Swaply plans: Free, Premium and Platinum. Swapping is always free, no commissions.",
+    "paymentSuccess": "Congratulations! Your subscription has been activated. You received +100 bonus tokens!",
+    "paymentCanceled": "Payment was canceled. You can try again anytime.",
+    "currentPlanBadge": "Current plan",
+    "manageSubscription": "Manage subscription",
+    "includedInPlatinum": "Included in Platinum",
+    "freePrice": "$0",
+    "premiumPrice": "$3.99"
   },
   "contact": {
     "title": "Contact",

@@ -1380,7 +1380,9 @@
     "handedOver": "I have handed over the item",
     "received": "I have received the item",
     "bothConfirmed": "Both parties confirmed! The exchange is finalized.",
-    "chainDetected": "Chain detected automatically"
+    "chainDetected": "Chain detected automatically",
+    "courierDomestic": "Curieri locali",
+    "courierInternational": "Curieri internaționali"
   },
   "feedback": {
     "title": "Păreri",
