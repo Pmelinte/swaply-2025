@@ -159,6 +159,7 @@ const CHECKLIST_KEYS = [
 export function ChangeClient({ swapFromQuery, serverAuthenticated = true }: { swapFromQuery?: string | null; serverAuthenticated?: boolean }) {
   const { user, loading, swaps, updateSwapStatus, addSwapFeedback, updateSwapLogistics, items, trackEvent, confirmDelivery, fileDispute } = useAppState();
   const t = useTranslations("change");
+  const tc = useTranslations("common");
   const locale = useLocale();
   const [feedback, setFeedback] = useState({ rating: 5, comment: "" });
   const [statusError, setStatusError] = useState<string | null>(null);
@@ -1841,6 +1842,7 @@ export function ChangeClient({ swapFromQuery, serverAuthenticated = true }: { sw
       </SectionCard>
 
       <NextStepRecommendation
+        title={tc("nextStepRecommended")}
         steps={[
           { label: t("leaveFeedback"), href: "/change", description: t("leaveFeedbackDescription") },
           { label: t("findAnotherMatch"), href: "/match", description: t("findAnotherMatchDescription") },

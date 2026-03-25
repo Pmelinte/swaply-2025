@@ -1,7 +1,6 @@
 "use client";
 
-import { Link } from "@/i18n/navigation";
-import { usePathname } from "next/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
 import { useAppState } from "@/lib/state";
 import { useTranslations } from "next-intl";
 

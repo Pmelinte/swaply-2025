@@ -41,7 +41,8 @@
     "tokenEarnReview": "Leave a review",
     "tokenEarnDaily": "Daily login streak",
     "tokenHistory": "Recent transactions",
-    "tokenNoHistory": "No transactions yet"
+    "tokenNoHistory": "No transactions yet",
+    "nextStepRecommended": "Recommended next step"
   },
   "nav": {
     "home": "হোম",
@@ -614,7 +615,10 @@
     "emptyLoggedSubFilters": "Try changing your filters or be the first to add an item in this category.",
     "emptyLoggedCta": "Add new item",
     "metaTitle": "Swap objects without money",
-    "metaDescription": "Browse and swap objects without money. AI matching, local exchange, secure chat."
+    "metaDescription": "Browse and swap objects without money. AI matching, local exchange, secure chat.",
+    "promoted": "Promoted",
+    "sortPopular": "Popular",
+    "sortTrusted": "High trust"
   },
   "objectDetail": {
     "loading": "বস্তু লোড হচ্ছে",
@@ -2553,6 +2557,20 @@
     "metaTitle": "Swap {category} for free | Swaply.world",
     "metaDescription": "Find {category} to swap. Items available now. Free barter, no fees.",
     "byCity": "{category} by city"
+  },
+  "categories": {
+    "electronics": "Electronics",
+    "sport": "Sports",
+    "arts": "Art & Hobby",
+    "books": "Books",
+    "home": "Home",
+    "fashion": "Fashion",
+    "automotive": "Auto",
+    "music": "Music",
+    "garden": "Garden",
+    "toys": "Toys",
+    "tools": "Tools",
+    "other": "Other"
   },
   "trustScore": {
     "trustScoreTitle": "Trust score",

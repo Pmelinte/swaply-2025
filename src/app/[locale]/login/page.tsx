@@ -27,6 +27,7 @@ function LoginContent() {
   const params = useSearchParams();
   const router = useRouter();
   const t = useTranslations("login");
+  const tc = useTranslations("common");
   const returnTo = params.get("returnTo") || "/profile";
   const initialTab = params.get("tab");
   const [activeTab, setActiveTab] = useState<string>(
@@ -261,6 +262,7 @@ function LoginContent() {
         </div>
       </SectionCard>
       <NextStepRecommendation
+        title={tc("nextStepRecommended")}
         steps={[
           { label: t("exploreObjects"), href: "/objects", description: t("exploreObjectsDescription") },
           { label: t("platformInfo"), href: "/info", description: t("platformInfoDescription") },

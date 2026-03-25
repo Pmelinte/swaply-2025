@@ -17,6 +17,7 @@ export function ChatClient({
 }) {
   const { user, loading, conversations, ensureConversation } = useAppState();
   const t = useTranslations("chat");
+  const tc = useTranslations("common");
   const dmConversationId =
     to && user?.id ? `dm:${[user.id, to].sort().join(":")}` : undefined;
   const initialConversationId = (conversationId ?? dmConversationId) ?? undefined;
@@ -109,6 +110,7 @@ export function ChatClient({
       </SectionCard>
 
       <NextStepRecommendation
+        title={tc("nextStepRecommended")}
         steps={[
           { label: t("confirmASwap"), href: "/change", description: t("confirmDescription") },
           { label: t("viewMatches"), href: "/match", description: t("viewMatchesDescription") },
