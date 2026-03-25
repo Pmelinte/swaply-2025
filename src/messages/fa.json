@@ -42,7 +42,9 @@
     "tokenEarnDaily": "Daily login streak",
     "tokenHistory": "Recent transactions",
     "tokenNoHistory": "No transactions yet",
-    "nextStepRecommended": "Recommended next step"
+    "nextStepRecommended": "Recommended next step",
+    "myDesk": "My Swap Desk",
+    "myDeskDescription": "Track active swaps, pending actions, and deadlines"
   },
   "nav": {
     "home": "خانه",

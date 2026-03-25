@@ -231,6 +231,7 @@ export function ProfileClient() {
         steps={[
           { label: t("addObjects"), href: "/objects/new", description: t("addObjectsDescription") },
           { label: t("findMatches"), href: "/match", description: t("findMatchesDescription") },
+          { label: tc("myDesk"), href: "/desk", description: tc("myDeskDescription") },
           { label: t("badgeBenefits"), href: "/info#monetizare", description: t("badgeBenefitsDescription") },
         ]}
       />

@@ -42,7 +42,9 @@
     "tokenEarnDaily": "Login zilnic (streak)",
     "tokenHistory": "Tranzacții recente",
     "tokenNoHistory": "Nicio tranzacție încă",
-    "nextStepRecommended": "Următorul pas recomandat"
+    "nextStepRecommended": "Următorul pas recomandat",
+    "myDesk": "Desk-ul meu",
+    "myDeskDescription": "Urmărește swap-urile active, acțiunile în așteptare și termenele"
   },
   "nav": {
     "home": "Acasă",
