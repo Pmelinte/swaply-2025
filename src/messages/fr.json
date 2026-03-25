@@ -1289,7 +1289,18 @@
     "bothConfirmed": "Both parties confirmed! The exchange is finalized.",
     "chainDetected": "Chain detected automatically",
     "courierDomestic": "Domestic couriers",
-    "courierInternational": "International couriers"
+    "courierInternational": "International couriers",
+    "packagingTitle": "Packaging materials",
+    "packagingElectronics": "For Electronics we recommend double-wall cardboard box + anti-static wrap",
+    "packagingBooks": "For Books we recommend rigid cardboard envelope or bubble mailer",
+    "packagingFashion": "For Fashion items we recommend bubble mailer or small cardboard box",
+    "packagingArt": "For Art we recommend rigid cardboard tube or custom frame box",
+    "packagingSports": "For Sports equipment we recommend large cardboard box + bubble wrap",
+    "packagingMusic": "For Musical instruments we recommend specialized instrument case or reinforced box",
+    "travelTitle": "Need to travel for the swap?",
+    "travelDesc": "Your swap partner is in a different country. Here are transport and accommodation options.",
+    "transportLabel": "Transport",
+    "accommodationLabel": "Accommodation"
   },
   "info": {
     "title": "Statistiques Swaply",
