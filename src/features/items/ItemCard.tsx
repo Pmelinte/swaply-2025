@@ -9,6 +9,7 @@ import { NO_IMAGE_URL } from "@/lib/storage";
 import { VerificationBadgeTag } from "@/features/verification/VerificationBadgeTag";
 import { useItemTranslation } from "@/hooks/useItemTranslation";
 import { TranslationIndicator } from "@/components/TranslationIndicator";
+import { ExperienceBadge } from "@/components/ExperienceBadge";
 
 export const ItemCard = memo(function ItemCard({
   item,
@@ -61,6 +62,7 @@ export const ItemCard = memo(function ItemCard({
               showingOriginal={showingOriginal}
               onToggle={toggleOriginal}
             />
+            <ExperienceBadge item={item} />
           </div>
           <div className="flex items-center gap-1.5">
             {ownerVerification && (

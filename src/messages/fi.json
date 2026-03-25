@@ -1305,7 +1305,14 @@
     "travelTitle": "Need to travel for the swap?",
     "travelDesc": "Your swap partner is in a different country. Here are transport and accommodation options.",
     "transportLabel": "Transport",
-    "accommodationLabel": "Accommodation"
+    "accommodationLabel": "Accommodation",
+    "digitalTransferTitle": "Digital Transfer",
+    "digitalTransferDesc": "Experiences are transferred digitally — no physical shipping needed.",
+    "digitalTransferHow": "How to transfer your experience",
+    "digitalTransferSteps": "Share your confirmation email, PDF ticket, or booking reference directly in the Swaply chat. Your swap partner will confirm receipt.",
+    "digitalEmail": "Confirmation email",
+    "digitalPdf": "PDF / QR code",
+    "digitalBookingRef": "Booking reference"
   },
   "info": {
     "title": "Swaply-tilastot",
@@ -2898,6 +2905,32 @@
     "fieldLocation": "Location",
     "fieldPlatform": "Platform (e.g. Booking.com)",
     "fieldCheckin": "Check-in date",
-    "fieldCheckout": "Check-out date"
+    "fieldCheckout": "Check-out date",
+    "experienceDisclaimer": "Important: Verify that your reservation/ticket is transferable before listing. Swaply is not responsible for non-transferable reservations.",
+    "fieldFlightDate": "Flight date",
+    "fieldAirline": "Airline",
+    "fieldFlightNumber": "Flight number",
+    "fieldFlightClass": "Class",
+    "classEconomy": "Economy",
+    "classBusiness": "Business",
+    "classFirst": "First",
+    "fieldEstimatedValue": "Estimated value",
+    "nights": "nights",
+    "platformDirect": "Direct booking",
+    "platformOther": "Other",
+    "fieldAccommodationType": "Accommodation type",
+    "typeRoom": "Room",
+    "typeApartment": "Apartment",
+    "typeVilla": "Villa",
+    "fieldEventName": "Event name",
+    "fieldVenue": "Venue / Location",
+    "fieldEventDate": "Event date",
+    "fieldTicketCount": "Number of tickets",
+    "fieldSector": "Sector / Seat"
+  },
+  "experiences": {
+    "badge": "Experience",
+    "expired": "Expired",
+    "expiresIn": "Expires in {days} days"
   }
 }

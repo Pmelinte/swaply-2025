@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import {
   Truck, Package, MapPin, Globe, LocateFixed,
   Check, ExternalLink, Clock, AlertTriangle, CheckCircle2,
+  Mail, FileText,
 } from "lucide-react";
 import type { SwapIntent, SwapShipment, DeliveryType, ShipmentDirection, ShipmentPaidBy, ShipmentStatus } from "@/lib/types";
 import { SectionCard, Pill } from "@/components/ui";
@@ -300,7 +301,8 @@ export function ShipmentModule({ swap, isRequester, userCountry, partnerCountry,
   const { couriers: fetchedCouriers } = useCouriers(userCountry, partnerCountry);
   const courierOptions = fetchedCouriers.length > 0 ? fetchedCouriers : FALLBACK_COURIERS;
 
-  const isCourierType = deliveryType !== "face_to_face";
+  const isExperience = objectCategory === "Experiențe" || objectCategory === "Experiences" || objectCategory === "experiences";
+  const isCourierType = !isExperience && deliveryType !== "face_to_face";
 
   const handleSaveShipment = useCallback((data: Omit<SwapShipment, "id" | "createdAt">) => {
     setShipments((prev) => {
@@ -337,9 +339,40 @@ export function ShipmentModule({ swap, isRequester, userCountry, partnerCountry,
   const bothDelivered = shipmentAtoB?.status === "delivered" && shipmentBtoA?.status === "delivered";
 
   return (
-    <SectionCard title={t("shipmentSection")} description={t("shipmentSectionDesc")}>
-      {/* Delivery type selector */}
-      <div className="space-y-2">
+    <SectionCard title={isExperience ? t("digitalTransferTitle") : t("shipmentSection")} description={isExperience ? t("digitalTransferDesc") : t("shipmentSectionDesc")}>
+      {/* Digital transfer for experiences — replaces entire courier flow */}
+      {isExperience ? (
+        <div className="space-y-4">
+          <div className="flex gap-3 rounded-xl border border-purple-200 bg-purple-50 p-4 dark:border-purple-800 dark:bg-purple-950/30">
+            <Mail className="mt-0.5 h-5 w-5 shrink-0 text-purple-500" />
+            <div className="space-y-1">
+              <p className="text-sm font-semibold text-purple-800 dark:text-purple-200">
+                {t("digitalTransferHow")}
+              </p>
+              <p className="text-xs text-purple-600 dark:text-purple-300">
+                {t("digitalTransferSteps")}
+              </p>
+            </div>
+          </div>
+          <div className="grid gap-2 sm:grid-cols-3">
+            <div className="flex items-center gap-2 rounded-lg border border-zinc-200 bg-white p-3 text-sm dark:border-zinc-700 dark:bg-zinc-800">
+              <Mail className="h-4 w-4 text-blue-500" />
+              <span className="text-zinc-700 dark:text-zinc-300">{t("digitalEmail")}</span>
+            </div>
+            <div className="flex items-center gap-2 rounded-lg border border-zinc-200 bg-white p-3 text-sm dark:border-zinc-700 dark:bg-zinc-800">
+              <FileText className="h-4 w-4 text-blue-500" />
+              <span className="text-zinc-700 dark:text-zinc-300">{t("digitalPdf")}</span>
+            </div>
+            <div className="flex items-center gap-2 rounded-lg border border-zinc-200 bg-white p-3 text-sm dark:border-zinc-700 dark:bg-zinc-800">
+              <ExternalLink className="h-4 w-4 text-blue-500" />
+              <span className="text-zinc-700 dark:text-zinc-300">{t("digitalBookingRef")}</span>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {/* Delivery type selector — hidden for experiences */}
+      {!isExperience ? <div className="space-y-2">
         <p className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">{t("deliveryTypeLabel")}</p>
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {DELIVERY_TYPES.map((dt) => {
@@ -362,7 +395,7 @@ export function ShipmentModule({ swap, isRequester, userCountry, partnerCountry,
             );
           })}
         </div>
-      </div>
+      </div> : null}
 
       {/* Courier forms — shown when courier type selected */}
       {isCourierType && (

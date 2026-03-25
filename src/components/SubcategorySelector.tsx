@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Info } from "lucide-react";
 
 export interface Subcategory {
   slug: string;
@@ -94,6 +94,8 @@ export function SubcategorySelector({
   const selected = subcategories.find((s) => s.slug === value);
   const extraFields = (selected?.extra_fields ?? {}) as Record<string, unknown>;
   const hasExtraFields = !!(selected && Object.keys(extraFields).length > 0);
+  const isExperience = slug === "experiences";
+  const inputCls = "rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800";
 
   const handleExtraChange = (key: string, val: string) => {
     const updated = { ...extraValues, [key]: val };
@@ -191,75 +193,89 @@ export function SubcategorySelector({
         </div>
       )}
 
-      {/* Extra fields for experiences (flights) */}
-      {hasExtraFields && !!extraFields.from && (
+      {/* Experience disclaimer — shown for ALL experience subcategories */}
+      {isExperience ? (
+        <div className="flex gap-2 rounded-xl border border-blue-300 bg-blue-50 p-3 text-xs text-blue-800 dark:border-blue-700 dark:bg-blue-950/30 dark:text-blue-200">
+          <Info className="mt-0.5 h-4 w-4 shrink-0" />
+          <p>{t("experienceDisclaimer")}</p>
+        </div>
+      ) : null}
+
+      {/* ── Flights fields ── */}
+      {isExperience && value === "flights" ? (
         <div className="grid gap-2 sm:grid-cols-2">
-          <input
-            type="text"
-            placeholder={t("fieldFrom")}
-            value={extraValues.from ?? ""}
-            onChange={(e) => handleExtraChange("from", e.target.value)}
-            className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
-          />
-          <input
-            type="text"
-            placeholder={t("fieldTo")}
-            value={extraValues.to ?? ""}
-            onChange={(e) => handleExtraChange("to", e.target.value)}
-            className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
-          />
-          <input
-            type="date"
-            placeholder={t("fieldDate")}
-            value={extraValues.date ?? ""}
-            onChange={(e) => handleExtraChange("date", e.target.value)}
-            className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
-          />
+          <input type="text" placeholder={t("fieldFrom")} value={extraValues.from ?? ""} onChange={(e) => handleExtraChange("from", e.target.value)} className={inputCls} />
+          <input type="text" placeholder={t("fieldTo")} value={extraValues.to ?? ""} onChange={(e) => handleExtraChange("to", e.target.value)} className={inputCls} />
+          <input type="date" placeholder={t("fieldFlightDate")} value={extraValues.date ?? ""} onChange={(e) => handleExtraChange("date", e.target.value)} className={inputCls} />
+          <input type="text" placeholder={t("fieldAirline")} value={extraValues.airline ?? ""} onChange={(e) => handleExtraChange("airline", e.target.value)} className={inputCls} />
+          <input type="text" placeholder={t("fieldFlightNumber")} value={extraValues.flightNumber ?? ""} onChange={(e) => handleExtraChange("flightNumber", e.target.value)} className={inputCls} />
+          <select value={extraValues.flightClass ?? ""} onChange={(e) => handleExtraChange("flightClass", e.target.value)} className={inputCls}>
+            <option value="">{t("fieldFlightClass")}</option>
+            <option value="economy">{t("classEconomy")}</option>
+            <option value="business">{t("classBusiness")}</option>
+            <option value="first">{t("classFirst")}</option>
+          </select>
           <label className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
-            <input
-              type="checkbox"
-              checked={extraValues.transferable === "true"}
-              onChange={(e) => handleExtraChange("transferable", String(e.target.checked))}
-              className="rounded"
-            />
+            <input type="checkbox" checked={extraValues.transferable === "true"} onChange={(e) => handleExtraChange("transferable", String(e.target.checked))} className="rounded" />
+            {t("fieldTransferable")}
+          </label>
+          <input type="number" placeholder={t("fieldEstimatedValue")} value={extraValues.estimatedValue ?? ""} onChange={(e) => handleExtraChange("estimatedValue", e.target.value)} className={inputCls} />
+        </div>
+      ) : null}
+
+      {/* ── Accommodation fields ── */}
+      {isExperience && value === "accommodation" ? (
+        <div className="grid gap-2 sm:grid-cols-2">
+          <input type="text" placeholder={t("fieldLocation")} value={extraValues.location ?? ""} onChange={(e) => handleExtraChange("location", e.target.value)} className={inputCls} />
+          <input type="date" placeholder={t("fieldCheckin")} value={extraValues.checkin ?? ""} onChange={(e) => handleExtraChange("checkin", e.target.value)} className={inputCls} />
+          <input type="date" placeholder={t("fieldCheckout")} value={extraValues.checkout ?? ""} onChange={(e) => handleExtraChange("checkout", e.target.value)} className={inputCls} />
+          {extraValues.checkin && extraValues.checkout ? (
+            <p className="flex items-center text-xs text-zinc-500">
+              {Math.max(0, Math.ceil((new Date(extraValues.checkout).getTime() - new Date(extraValues.checkin).getTime()) / 86400000))} {t("nights")}
+            </p>
+          ) : null}
+          <select value={extraValues.platform ?? ""} onChange={(e) => handleExtraChange("platform", e.target.value)} className={inputCls}>
+            <option value="">{t("fieldPlatform")}</option>
+            <option value="airbnb">Airbnb</option>
+            <option value="booking">Booking.com</option>
+            <option value="direct">{t("platformDirect")}</option>
+            <option value="other">{t("platformOther")}</option>
+          </select>
+          <select value={extraValues.accommodationType ?? ""} onChange={(e) => handleExtraChange("accommodationType", e.target.value)} className={inputCls}>
+            <option value="">{t("fieldAccommodationType")}</option>
+            <option value="room">{t("typeRoom")}</option>
+            <option value="apartment">{t("typeApartment")}</option>
+            <option value="villa">{t("typeVilla")}</option>
+          </select>
+          <label className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
+            <input type="checkbox" checked={extraValues.transferable === "true"} onChange={(e) => handleExtraChange("transferable", String(e.target.checked))} className="rounded" />
             {t("fieldTransferable")}
           </label>
         </div>
-      )}
+      ) : null}
 
-      {/* Extra fields for experiences (accommodation) */}
-      {hasExtraFields && !!extraFields.checkin && (
+      {/* ── Events / Concerts fields ── */}
+      {isExperience && (value === "events-concerts" || value === "sports-events") ? (
         <div className="grid gap-2 sm:grid-cols-2">
-          <input
-            type="text"
-            placeholder={t("fieldLocation")}
-            value={extraValues.location ?? ""}
-            onChange={(e) => handleExtraChange("location", e.target.value)}
-            className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
-          />
-          <input
-            type="text"
-            placeholder={t("fieldPlatform")}
-            value={extraValues.platform ?? ""}
-            onChange={(e) => handleExtraChange("platform", e.target.value)}
-            className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
-          />
-          <input
-            type="date"
-            placeholder={t("fieldCheckin")}
-            value={extraValues.checkin ?? ""}
-            onChange={(e) => handleExtraChange("checkin", e.target.value)}
-            className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
-          />
-          <input
-            type="date"
-            placeholder={t("fieldCheckout")}
-            value={extraValues.checkout ?? ""}
-            onChange={(e) => handleExtraChange("checkout", e.target.value)}
-            className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
-          />
+          <input type="text" placeholder={t("fieldEventName")} value={extraValues.eventName ?? ""} onChange={(e) => handleExtraChange("eventName", e.target.value)} className={inputCls} />
+          <input type="text" placeholder={t("fieldVenue")} value={extraValues.venue ?? ""} onChange={(e) => handleExtraChange("venue", e.target.value)} className={inputCls} />
+          <input type="date" placeholder={t("fieldEventDate")} value={extraValues.eventDate ?? ""} onChange={(e) => handleExtraChange("eventDate", e.target.value)} className={inputCls} />
+          <input type="number" min="1" placeholder={t("fieldTicketCount")} value={extraValues.ticketCount ?? ""} onChange={(e) => handleExtraChange("ticketCount", e.target.value)} className={inputCls} />
+          <input type="text" placeholder={t("fieldSector")} value={extraValues.sector ?? ""} onChange={(e) => handleExtraChange("sector", e.target.value)} className={inputCls} />
+          <label className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
+            <input type="checkbox" checked={extraValues.transferable === "true"} onChange={(e) => handleExtraChange("transferable", String(e.target.checked))} className="rounded" />
+            {t("fieldTransferable")}
+          </label>
         </div>
-      )}
+      ) : null}
+
+      {/* ── Generic extra fields (non-experience, non-vehicle) ── */}
+      {hasExtraFields && !isExperience && !extraFields.make && !!extraFields.from ? (
+        <div className="grid gap-2 sm:grid-cols-2">
+          <input type="text" placeholder={t("fieldFrom")} value={extraValues.from ?? ""} onChange={(e) => handleExtraChange("from", e.target.value)} className={inputCls} />
+          <input type="text" placeholder={t("fieldTo")} value={extraValues.to ?? ""} onChange={(e) => handleExtraChange("to", e.target.value)} className={inputCls} />
+        </div>
+      ) : null}
     </div>
   );
 }
