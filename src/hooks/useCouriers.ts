@@ -19,7 +19,7 @@ export function useCouriers(
   partnerCountry?: string,
 ): { couriers: CourierOption[]; loading: boolean } {
   const [couriers, setCouriers] = useState<CourierOption[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -31,7 +31,6 @@ export function useCouriers(
     const url = `/api/services/couriers${params.toString() ? `?${params}` : ""}`;
 
     let cancelled = false;
-    setLoading(true);
 
     fetch(url)
       .then((res) => (res.ok ? res.json() : null))

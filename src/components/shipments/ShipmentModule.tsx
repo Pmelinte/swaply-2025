@@ -138,6 +138,7 @@ function ShipmentForm({ direction, directionLabel, onSave, swapId, existing, cou
             className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:underline dark:text-blue-400"
           >
             {selected.logoUrl && (
+              // eslint-disable-next-line @next/next/no-img-element
               <img src={selected.logoUrl} alt="" className="h-4 w-4 rounded object-contain" />
             )}
             <ExternalLink className="h-3 w-3" />
@@ -286,14 +287,14 @@ export interface ShipmentModuleProps {
   partnerCountry?: string;
 }
 
-export function ShipmentModule({ swap, currentUserId, isRequester, userCountry, partnerCountry }: ShipmentModuleProps) {
+export function ShipmentModule({ swap, isRequester, userCountry, partnerCountry }: ShipmentModuleProps) {
   const t = useTranslations("change");
   const [deliveryType, setDeliveryType] = useState<DeliveryType>("face_to_face");
   const [shipments, setShipments] = useState<SwapShipment[]>([]);
   const [confirmingDirection, setConfirmingDirection] = useState<ShipmentDirection | null>(null);
 
   // Fetch dynamic courier list from DB based on user + partner countries
-  const { couriers: fetchedCouriers, loading: couriersLoading } = useCouriers(userCountry, partnerCountry);
+  const { couriers: fetchedCouriers } = useCouriers(userCountry, partnerCountry);
   const courierOptions = fetchedCouriers.length > 0 ? fetchedCouriers : FALLBACK_COURIERS;
 
   const isCourierType = deliveryType !== "face_to_face";
