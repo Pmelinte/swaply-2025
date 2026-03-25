@@ -16,18 +16,9 @@ interface Props {
   params: Promise<{ city: string; category: string }>;
 }
 
-// ── Static params: all city × category combinations ──
-
-export async function generateStaticParams() {
-  const params: { city: string; category: string }[] = [];
-  for (const city of SEO_CITIES) {
-    for (const cat of SEO_CATEGORIES) {
-      if (cat.slug === "other") continue;
-      params.push({ city: city.slug, category: cat.slug });
-    }
-  }
-  return params;
-}
+// ── ISR: regenerate every hour instead of static generation ──
+// Avoids generating 43 locales × 90+ cities × 11 categories = 45k+ pages at build time
+export const revalidate = 3600;
 
 // ── Metadata from seo_content table or fallback ──
 
