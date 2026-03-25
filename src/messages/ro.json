@@ -651,7 +651,12 @@
     "metaDescription": "Răsfoiește și schimbă obiecte fără bani. Potrivire AI, schimb local, chat securizat.",
     "promoted": "Promovat",
     "sortPopular": "Popular",
-    "sortTrusted": "Trust ridicat"
+    "sortTrusted": "Trust ridicat",
+    "browseAll": "Toate obiectele",
+    "itemsAvailable": "obiecte disponibile",
+    "noItemsInCategory": "Nu există obiecte încă în această subcategorie. Fii primul care adaugă!",
+    "addFirstItem": "Adaugă primul obiect",
+    "backToCategory": "Înapoi la categorie"
   },
   "objectDetail": {
     "loading": "Se încarcă obiectul",
@@ -2563,6 +2568,30 @@
     "translatedContent": "Conținut tradus",
     "autoTranslated": "Tradus automat",
     "originalLanguage": "Original language"
+  },
+  "subcategories": {
+    "medicalDisclaimer": "Acest articol este echipament medical. Asigurați-vă că a fost curățat corespunzător și este sigur pentru reutilizare. Nu listați dispozitive implantabile sau articole care au avut contact direct cu fluide corporale.",
+    "fieldMake": "Marcă (ex. Toyota)",
+    "fieldModel": "Model (ex. Corolla)",
+    "fieldYear": "An fabricație",
+    "fieldMileage": "Kilometraj (km)",
+    "fieldTransmission": "Transmisie",
+    "transmissionManual": "Manuală",
+    "transmissionAutomatic": "Automată",
+    "transmissionSemiAuto": "Semi-automată",
+    "fieldFuel": "Combustibil",
+    "fuelPetrol": "Benzină",
+    "fuelDiesel": "Diesel",
+    "fuelElectric": "Electric",
+    "fuelHybrid": "Hibrid",
+    "fieldFrom": "De la (oraș/aeroport)",
+    "fieldTo": "Până la (oraș/aeroport)",
+    "fieldDate": "Data",
+    "fieldTransferable": "Bilet transferabil",
+    "fieldLocation": "Locație",
+    "fieldPlatform": "Platformă (ex. Booking.com)",
+    "fieldCheckin": "Data check-in",
+    "fieldCheckout": "Data check-out"
   },
   "tokenReasons": {
     "welcome_bonus": "Bonus de bun venit",

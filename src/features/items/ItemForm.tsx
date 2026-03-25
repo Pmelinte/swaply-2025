@@ -7,6 +7,7 @@ import { z } from "zod";
 import type { Item, ItemIntent, ItemFlexibility, ItemPerceivedValue, ItemClarity, ItemContext } from "@/lib/types";
 import { uploadItemPhoto } from "@/lib/storage";
 import { TOP_CATEGORIES, getSubcategories, CATEGORY_NAMES, findCategoryByName } from "@/lib/categories";
+import { SubcategorySelector } from "@/components/SubcategorySelector";
 
 export const ITEM_CATEGORIES = CATEGORY_NAMES;
 
@@ -142,6 +143,7 @@ export function ItemForm({
     return node.parentId ?? node.id;
   }, [item.category]);
   const [selectedParent, setSelectedParent] = useState(initParent);
+  const [selectedSubcategorySlug, setSelectedSubcategorySlug] = useState("");
   const subcategories = useMemo(
     () => (selectedParent ? getSubcategories(selectedParent) : []),
     [selectedParent],
@@ -634,6 +636,14 @@ export function ItemForm({
           ) : null}
           <FieldError message={errors.category} />
         </div>
+        {/* DB-driven subcategory selector with icons, disclaimers, extra fields */}
+        {selectedParent && (
+          <SubcategorySelector
+            categorySlug={TOP_CATEGORIES.find((c) => c.id === selectedParent)?.name ?? ""}
+            value={selectedSubcategorySlug}
+            onChange={setSelectedSubcategorySlug}
+          />
+        )}
       </div>
 
       {/* AI Suggestions */}

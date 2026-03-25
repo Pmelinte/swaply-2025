@@ -622,7 +622,12 @@
     "metaDescription": "Browse and swap objects without money. AI matching, local exchange, secure chat.",
     "promoted": "Promoted",
     "sortPopular": "Popular",
-    "sortTrusted": "High trust"
+    "sortTrusted": "High trust",
+    "browseAll": "Browse all",
+    "itemsAvailable": "items available",
+    "noItemsInCategory": "No items yet in this subcategory. Be the first to add one!",
+    "addFirstItem": "Add first item",
+    "backToCategory": "Back to category"
   },
   "objectDetail": {
     "loading": "Chargement de l'objet",
@@ -2870,5 +2875,29 @@
     "orPaypal": "or pay with PayPal",
     "processing": "Processing payment…",
     "secureCheckout": "Secure checkout powered by Stripe & PayPal"
+  },
+  "subcategories": {
+    "medicalDisclaimer": "This item is medical equipment. Please ensure it has been properly cleaned and is safe for reuse. Do not list implantable devices or items that have had direct contact with bodily fluids.",
+    "fieldMake": "Make (e.g. Toyota)",
+    "fieldModel": "Model (e.g. Corolla)",
+    "fieldYear": "Year",
+    "fieldMileage": "Mileage (km)",
+    "fieldTransmission": "Transmission",
+    "transmissionManual": "Manual",
+    "transmissionAutomatic": "Automatic",
+    "transmissionSemiAuto": "Semi-automatic",
+    "fieldFuel": "Fuel type",
+    "fuelPetrol": "Petrol",
+    "fuelDiesel": "Diesel",
+    "fuelElectric": "Electric",
+    "fuelHybrid": "Hybrid",
+    "fieldFrom": "From (city/airport)",
+    "fieldTo": "To (city/airport)",
+    "fieldDate": "Date",
+    "fieldTransferable": "Transferable ticket",
+    "fieldLocation": "Location",
+    "fieldPlatform": "Platform (e.g. Booking.com)",
+    "fieldCheckin": "Check-in date",
+    "fieldCheckout": "Check-out date"
   }
 }
