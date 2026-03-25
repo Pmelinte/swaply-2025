@@ -85,6 +85,24 @@ export const CATEGORIES_TAXONOMY: CategoryNode[] = [
   { id: "cat-m-genti", name: "Genți & Rucsacuri", nameEn: "Bags & Backpacks", parentId: "cat-moda", level: 1, keywords: ["geanta","bag","rucsac","backpack","poseta","troler","valiza"], icon: "briefcase", sortOrder: 65 },
   { id: "cat-m-ceasuri", name: "Ceasuri & Bijuterii", nameEn: "Watches & Jewelry", parentId: "cat-moda", level: 1, keywords: ["ceas","watch","bijuterii","jewelry","inel","bratara","lantisor"], icon: "watch", sortOrder: 66 },
   { id: "cat-m-ochelari", name: "Ochelari & Accesorii", nameEn: "Glasses & Accessories", parentId: "cat-moda", level: 1, keywords: ["ochelari","sunglasses","glasses","esarfa","palarie","curea","belt"], icon: "glasses", sortOrder: 67 },
+
+  // ── Vehicule ──
+  { id: "cat-vehicule", name: "Vehicule", nameEn: "Vehicles", parentId: null, level: 0, keywords: ["vehicul","masina","auto","car","vehicle","moto"], icon: "car", sortOrder: 70 },
+  { id: "cat-v-auto", name: "Autoturisme", nameEn: "Cars", parentId: "cat-vehicule", level: 1, keywords: ["masina","car","autoturism","sedan","suv","hatchback"], icon: "car", sortOrder: 71 },
+  { id: "cat-v-moto", name: "Motociclete & Scutere", nameEn: "Motorcycles & Scooters", parentId: "cat-vehicule", level: 1, keywords: ["motocicleta","scuter","motorcycle","scooter","moped"], icon: "bike", sortOrder: 72 },
+  { id: "cat-v-barci", name: "Bărci & Watercraft", nameEn: "Boats & Watercraft", parentId: "cat-vehicule", level: 1, keywords: ["barca","boat","yacht","watercraft","jet-ski"], icon: "anchor", sortOrder: 73 },
+  { id: "cat-v-rulote", name: "Rulote & Camping", nameEn: "RVs & Camping", parentId: "cat-vehicule", level: 1, keywords: ["rulota","rv","camper","camping","autorulota"], icon: "caravan", sortOrder: 74 },
+  { id: "cat-v-biciclete", name: "Biciclete", nameEn: "Bicycles", parentId: "cat-vehicule", level: 1, keywords: ["bicicleta","bicycle","bike","ebike","electric"], icon: "bike", sortOrder: 75 },
+  { id: "cat-v-alte", name: "Alte vehicule", nameEn: "Other Vehicles", parentId: "cat-vehicule", level: 1, keywords: ["atv","utilaj","tractor","camion","truck"], icon: "truck", sortOrder: 76 },
+
+  // ── Experiențe ──
+  { id: "cat-experiente", name: "Experiențe", nameEn: "Experiences", parentId: null, level: 0, keywords: ["experienta","bilet","ticket","voucher","eveniment","event"], icon: "ticket", sortOrder: 80 },
+  { id: "cat-x-bilete", name: "Bilete avion", nameEn: "Flight Tickets", parentId: "cat-experiente", level: 1, keywords: ["avion","flight","bilet","zbor","airline"], icon: "plane", sortOrder: 81 },
+  { id: "cat-x-cazare", name: "Hotel & Cazare", nameEn: "Hotel & Accommodation", parentId: "cat-experiente", level: 1, keywords: ["hotel","cazare","airbnb","booking","accommodation"], icon: "hotel", sortOrder: 82 },
+  { id: "cat-x-concerte", name: "Evenimente & Concerte", nameEn: "Events & Concerts", parentId: "cat-experiente", level: 1, keywords: ["concert","festival","eveniment","event","spectacol"], icon: "music", sortOrder: 83 },
+  { id: "cat-x-sport", name: "Evenimente sportive", nameEn: "Sports Events", parentId: "cat-experiente", level: 1, keywords: ["meci","match","stadion","sport","bilet"], icon: "trophy", sortOrder: 84 },
+  { id: "cat-x-voucher", name: "Vouchere & Gift Cards", nameEn: "Vouchers & Gift Cards", parentId: "cat-experiente", level: 1, keywords: ["voucher","gift","card","cadou","giftcard"], icon: "gift", sortOrder: 85 },
+  { id: "cat-x-abonamente", name: "Abonamente & Membership", nameEn: "Subscriptions & Memberships", parentId: "cat-experiente", level: 1, keywords: ["abonament","subscription","membership","pass"], icon: "credit-card", sortOrder: 86 },
 ];
 
 /** Top-level categories only */

@@ -134,6 +134,36 @@ export const SEO_CATEGORIES: SEOCategory[] = [
     icon: "hammer",
   },
   {
+    slug: "vehicles",
+    name: "Vehicles",
+    dbCategory: "Vehicule",
+    nameLocal: "Vehicles",
+    intro:
+      "Cars, motorcycles, boats, RVs, bicycles, and all types of vehicles. Vehicle swapping is one of the most exciting categories on Swaply — trade your sedan for an SUV, swap a motorcycle for a boat, or exchange your camper for a city car. The platform handles high-value swaps with escrow protection and in-person verification. Every vehicle listing includes make, model, year, mileage, and condition details verified by our AI. Vehicle swaps are in-person only for safety.",
+    related: ["automotive", "sport", "tools"],
+    icon: "car",
+  },
+  {
+    slug: "experiences",
+    name: "Experiences",
+    dbCategory: "Experiențe",
+    nameLocal: "Experiences",
+    intro:
+      "Flight tickets, hotel reservations, concert tickets, sports events, gift cards, vouchers, and subscriptions. Not all swaps involve physical objects — experiences are equally valuable. Swap a hotel booking you can't use for concert tickets, trade a gym membership for a streaming subscription, or exchange flight credits for event passes. Swaply verifies transferability of each listing and ensures both parties receive valid, usable experiences.",
+    related: ["books", "electronics", "fashion"],
+    icon: "ticket",
+  },
+  {
+    slug: "medical",
+    name: "Medical",
+    dbCategory: "Medical",
+    nameLocal: "Medical Equipment",
+    intro:
+      "Medical diagnostic equipment, mobility aids, rehabilitation devices, optical equipment, and home care supplies. Swaply provides a safe platform for exchanging medical equipment that has been properly cleaned and certified. All medical listings require a safety disclaimer and are reviewed for compliance. This category helps make expensive medical equipment accessible through direct peer-to-peer exchange.",
+    related: ["home", "sport", "tools"],
+    icon: "heart-pulse",
+  },
+  {
     slug: "other",
     name: "Other",
     dbCategory: "Altele",

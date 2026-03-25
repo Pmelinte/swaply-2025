@@ -109,6 +109,14 @@ export interface Item {
   clarity?: ItemClarity;
   context?: ItemContext;
   aiNote?: string;
+  /* --- Subcategory & Experience --- */
+  subcategorySlug?: string;
+  experienceData?: {
+    eventDate?: string;
+    transferable?: boolean;
+    flightClass?: string;
+    ticketCount?: number;
+  };
   /* --- Boost / promotion --- */
   isBoosted?: boolean;
   boostExpiresAt?: string;
