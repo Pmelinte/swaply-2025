@@ -11,6 +11,7 @@ const SECTIONS = [
   { id: "prohibited", titleKey: "termsProhibited", textKey: "termsProhibitedText" },
   { id: "moderation", titleKey: "termsModeration", textKey: "termsModerationText" },
   { id: "liability", titleKey: "termsLiability", textKey: "termsLiabilityText" },
+  { id: "intellectual-property", titleKey: "termsIP", textKey: "termsIPText" },
   { id: "changes", titleKey: "termsChanges", textKey: "termsChangesText" },
   { id: "contact", titleKey: "termsContact", textKey: "termsContactText" },
 ] as const;
