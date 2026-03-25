@@ -11,9 +11,9 @@ interface Props {
   params: Promise<{ locale: string; city: string }>;
 }
 
-export async function generateStaticParams() {
-  return SEO_CITIES.map((c) => ({ city: c.slug }));
-}
+// ── ISR: regenerate every hour instead of static generation ──
+// Avoids generating 43 locales × 90+ cities = 3.8k+ pages at build time
+export const revalidate = 3600;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, city: citySlug } = await params;
