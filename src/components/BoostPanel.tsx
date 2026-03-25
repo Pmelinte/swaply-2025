@@ -130,7 +130,7 @@ export function BoostPanel({ itemId, userId, userEmail }: BoostPanelProps) {
       setError(t("unexpectedError"));
       setStatus("error");
     }
-  }, [itemId, userId, userEmail]);
+  }, [itemId, userId, userEmail, t]);
 
   // Compute hours left from active boost (avoid Date.now() in render)
   const [now] = useState(() => Date.now());
