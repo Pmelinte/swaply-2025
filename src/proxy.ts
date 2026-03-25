@@ -192,11 +192,10 @@ export const config = {
   matcher: [
     /*
      * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico, icon.svg, manifest.json, sw.js, etc.
-     * - Public assets in /images, /icons, /flags, etc.
+     * - _next (static files, image optimization)
+     * - Any path ending with a file extension (public assets like .svg, .png, .ico, .json, .js, .xml, .txt)
+     * - Static asset directories: /images, /icons, /flags
      */
-    "/((?!_next/static|_next/image|favicon\\.ico|icon\\.svg|manifest\\.json|sw\\.js|workbox-.*\\.js|og-image\\.png|robots\\.txt|sitemap\\.xml|logo-swaply\\.svg|images/|icons/|flags/).*)",
+    "/((?!_next|images/|icons/|flags/)(?!.*\\.[\\w]+$).*)",
   ],
 };
