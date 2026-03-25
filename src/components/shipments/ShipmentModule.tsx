@@ -9,6 +9,7 @@ import {
 import type { SwapIntent, SwapShipment, DeliveryType, ShipmentDirection, ShipmentPaidBy, ShipmentStatus } from "@/lib/types";
 import { SectionCard, Pill } from "@/components/ui";
 import { useCouriers, type CourierOption } from "@/hooks/useCouriers";
+import { PackagingSection, TravelSection } from "@/components/shipments/AffiliateServiceLinks";
 
 /* ── Constants ── */
 
@@ -285,9 +286,11 @@ export interface ShipmentModuleProps {
   userCountry?: string;
   /** ISO country code of the swap partner */
   partnerCountry?: string;
+  /** Category of the swapped object (e.g. "electronics") for packaging tips */
+  objectCategory?: string;
 }
 
-export function ShipmentModule({ swap, isRequester, userCountry, partnerCountry }: ShipmentModuleProps) {
+export function ShipmentModule({ swap, isRequester, userCountry, partnerCountry, objectCategory }: ShipmentModuleProps) {
   const t = useTranslations("change");
   const [deliveryType, setDeliveryType] = useState<DeliveryType>("face_to_face");
   const [shipments, setShipments] = useState<SwapShipment[]>([]);
@@ -381,6 +384,16 @@ export function ShipmentModule({ swap, isRequester, userCountry, partnerCountry 
             courierOptions={courierOptions}
           />
         </div>
+      )}
+
+      {/* Packaging materials — shown when courier type selected */}
+      {isCourierType && (
+        <PackagingSection userCountry={userCountry} objectCategory={objectCategory} />
+      )}
+
+      {/* Travel + Accommodation — shown when different countries */}
+      {isCourierType && userCountry !== partnerCountry && (
+        <TravelSection userCountry={userCountry} partnerCountry={partnerCountry} />
       )}
 
       {/* Delivery Timeline */}
