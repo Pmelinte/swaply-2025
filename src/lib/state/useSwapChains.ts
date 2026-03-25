@@ -64,7 +64,9 @@ export function useSwapChains({ userId, trackEvent }: UseSwapChainsParams) {
         const supabase = getSupabaseClient();
         const session = supabase ? await supabase.auth.getSession() : null;
         const token = session?.data?.session?.access_token;
-        if (!token) return;
+        const expiresAt = session?.data?.session?.expires_at;
+        // Skip fetch if no token or session is expired
+        if (!token || (expiresAt && expiresAt * 1000 < Date.now())) return;
 
         const res = await fetch("/api/chains", {
           headers: { Authorization: `Bearer ${token}` },
@@ -73,6 +75,7 @@ export function useSwapChains({ userId, trackEvent }: UseSwapChainsParams) {
           const data = await res.json();
           setChains((data.chains ?? []).map(mapChainFromDb));
         }
+        // Silently ignore 401 — session may have expired between check and request
       } catch {
         // Silent fallback to empty
       }
@@ -89,7 +92,8 @@ export function useSwapChains({ userId, trackEvent }: UseSwapChainsParams) {
       const supabase = getSupabaseClient();
       const session = supabase ? await supabase.auth.getSession() : null;
       const token = session?.data?.session?.access_token;
-      if (!token) return;
+      const expiresAt = session?.data?.session?.expires_at;
+      if (!token || (expiresAt && expiresAt * 1000 < Date.now())) return;
 
       const res = await fetch("/api/chains/detect", {
         headers: { Authorization: `Bearer ${token}` },

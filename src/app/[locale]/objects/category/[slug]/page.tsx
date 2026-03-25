@@ -10,9 +10,16 @@ import {
   getCategoryBySlug,
   type SEOCategory,
 } from "@/lib/seo-data";
+import { getTranslations } from "next-intl/server";
 
 interface Props {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
+}
+
+/** Return locale-aware category display name */
+function getCategoryDisplayName(cat: SEOCategory, locale: string): string {
+  // dbCategory has the Romanian name from DB; nameLocal is English
+  return locale === "ro" ? cat.dbCategory : cat.nameLocal;
 }
 
 export async function generateStaticParams() {
@@ -20,20 +27,23 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
+  const { locale, slug } = await params;
   const cat = getCategoryBySlug(slug);
-  if (!cat) return { title: "Categorie negăsită — Swaply" };
+  const t = await getTranslations({ locale, namespace: "categoryPage" });
 
-  const title = `Schimb ${cat.nameLocal} fără bani | Swaply.world`;
-  const description = `Găsește ${cat.nameLocal} de schimbat în România. Obiecte disponibile acum. Barter fără bani, fără comisioane.`;
+  if (!cat) return { title: t("notFound") };
+
+  const categoryName = getCategoryDisplayName(cat, locale);
+  const title = t("metaTitle", { category: categoryName });
+  const description = t("metaDescription", { category: categoryName });
 
   return {
     title,
     description,
     keywords: [
-      `schimb ${cat.nameLocal.toLowerCase()}`,
-      `barter ${cat.nameLocal.toLowerCase()}`,
-      `${cat.nameLocal.toLowerCase()} second hand Romania`,
+      `swap ${categoryName.toLowerCase()}`,
+      `barter ${categoryName.toLowerCase()}`,
+      `${categoryName.toLowerCase()} second hand`,
     ],
     openGraph: { title, description, type: "website" },
     twitter: { card: "summary", title, description },
@@ -74,10 +84,12 @@ async function getItems(categoryName: string): Promise<ItemRow[]> {
 }
 
 export default async function CategoryPage({ params }: Props) {
-  const { slug } = await params;
+  const { locale, slug } = await params;
   const cat = getCategoryBySlug(slug);
   if (!cat) notFound();
 
+  const t = await getTranslations({ locale, namespace: "categoryPage" });
+  const categoryName = getCategoryDisplayName(cat, locale);
   const items = await getItems(cat.dbCategory);
   const relatedCategories = cat.related
     .map((r) => getCategoryBySlug(r))
@@ -91,16 +103,16 @@ export default async function CategoryPage({ params }: Props) {
         className="inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
       >
         <ArrowLeft className="h-4 w-4" />
-        Toate obiectele
+        {t("allObjects")}
       </Link>
 
       {/* Header */}
       <header>
         <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50">
-          Schimb de {cat.nameLocal} în România
+          {t("exchangeTitle", { category: categoryName })}
         </h1>
         <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          {items.length} obiecte disponibile pentru schimb
+          {t("itemsAvailable", { count: items.length })}
         </p>
       </header>
 
@@ -113,7 +125,7 @@ export default async function CategoryPage({ params }: Props) {
       {items.length > 0 ? (
         <section>
           <h2 className="mb-4 text-lg font-bold text-zinc-900 dark:text-zinc-50">
-            Obiecte disponibile
+            {t("availableObjects")}
           </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {items.map((item) => (
@@ -150,7 +162,7 @@ export default async function CategoryPage({ params }: Props) {
                   )}
                   {item.wishlist && (
                     <p className="mt-1 truncate text-xs text-blue-500">
-                      Caută: {item.wishlist}
+                      {t("lookingFor")} {item.wishlist}
                     </p>
                   )}
                 </div>
@@ -161,13 +173,13 @@ export default async function CategoryPage({ params }: Props) {
       ) : (
         <div className="rounded-2xl border border-dashed border-zinc-200 py-16 text-center dark:border-zinc-700">
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            Niciun obiect disponibil momentan în această categorie.
+            {t("noItems")}
           </p>
           <Link
             href="/objects/new"
             className="mt-4 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
           >
-            Listează primul obiect
+            {t("listFirst")}
           </Link>
         </div>
       )}
@@ -178,7 +190,7 @@ export default async function CategoryPage({ params }: Props) {
           href="/objects"
           className="inline-flex items-center gap-2 rounded-xl border border-zinc-300 px-5 py-2.5 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-50 dark:border-zinc-600 dark:text-zinc-200 dark:hover:bg-zinc-800"
         >
-          Vezi toate obiectele disponibile
+          {t("viewAll")}
           <ChevronRight className="h-4 w-4" />
         </Link>
       </div>
@@ -187,7 +199,7 @@ export default async function CategoryPage({ params }: Props) {
       {relatedCategories.length > 0 && (
         <section>
           <h2 className="mb-4 text-lg font-bold text-zinc-900 dark:text-zinc-50">
-            Categorii înrudite
+            {t("relatedCategories")}
           </h2>
           <div className="flex flex-wrap gap-3">
             {relatedCategories.map((rc) => (
@@ -207,7 +219,7 @@ export default async function CategoryPage({ params }: Props) {
       {/* Browse this category by city */}
       <section>
         <h2 className="mb-4 text-lg font-bold text-zinc-900 dark:text-zinc-50">
-          {cat.nameLocal} by city
+          {t("byCity", { category: categoryName })}
         </h2>
         <div className="flex flex-wrap gap-2">
           {SEO_CITIES.map((c) => (
@@ -226,16 +238,16 @@ export default async function CategoryPage({ params }: Props) {
       {/* CTA */}
       <div className="rounded-2xl border border-green-200 bg-green-50/50 p-6 text-center dark:border-green-800 dark:bg-green-950/30">
         <p className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
-          Ai {cat.nameLocal.toLowerCase()} de schimbat?
+          {t("ctaTitle", { category: categoryName.toLowerCase() })}
         </p>
         <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-          Listează gratuit și găsește un schimb în câteva minute.
+          {t("ctaDescription")}
         </p>
         <Link
           href="/register"
           className="mt-4 inline-flex items-center gap-2 rounded-xl bg-green-600 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700"
         >
-          Încearcă Swaply gratuit →
+          {t("ctaButton")}
         </Link>
       </div>
     </div>
