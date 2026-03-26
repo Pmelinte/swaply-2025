@@ -19,13 +19,13 @@ export interface BlogPost {
   content: string;
 }
 
-function parsePost(file: string): BlogPost {
-  const raw = fs.readFileSync(path.join(BLOG_DIR, file), "utf-8");
+function parsePostFromPath(filePath: string, slug: string): BlogPost {
+  const raw = fs.readFileSync(filePath, "utf-8");
   const { data, content } = matter(raw);
   const stats = readingTime(content);
 
   return {
-    slug: file.replace(/\.mdx$/, ""),
+    slug,
     title: data.title ?? "",
     description: data.description ?? "",
     date: data.date ?? "",
@@ -39,25 +39,56 @@ function parsePost(file: string): BlogPost {
   };
 }
 
-export function getAllPosts(): BlogPost[] {
+function parsePost(file: string): BlogPost {
+  return parsePostFromPath(path.join(BLOG_DIR, file), file.replace(/\.mdx$/, ""));
+}
+
+/**
+ * Get all posts, preferring locale-specific versions when available.
+ * Falls back to English (root) if no localized version exists.
+ */
+export function getAllPosts(locale?: string): BlogPost[] {
   if (!fs.existsSync(BLOG_DIR)) return [];
 
-  return fs
-    .readdirSync(BLOG_DIR)
-    .filter((f) => f.endsWith(".mdx"))
-    .map(parsePost)
+  const enFiles = fs.readdirSync(BLOG_DIR).filter((f) => f.endsWith(".mdx"));
+  const localeDir = locale && locale !== "en" ? path.join(BLOG_DIR, locale) : null;
+  const hasLocaleDir = localeDir && fs.existsSync(localeDir);
+
+  return enFiles
+    .map((file) => {
+      const slug = file.replace(/\.mdx$/, "");
+      // Try locale-specific file first
+      if (hasLocaleDir) {
+        const localePath = path.join(localeDir, file);
+        if (fs.existsSync(localePath)) {
+          return parsePostFromPath(localePath, slug);
+        }
+      }
+      // Fallback to English
+      return parsePost(file);
+    })
     .sort((a, b) => (a.date > b.date ? -1 : 1));
 }
 
-export function getPostBySlug(slug: string): BlogPost | null {
-  const file = `${slug}.mdx`;
-  const filePath = path.join(BLOG_DIR, file);
-  if (!fs.existsSync(filePath)) return null;
-  return parsePost(file);
+/**
+ * Get a single post by slug, with locale fallback.
+ */
+export function getPostBySlug(slug: string, locale?: string): BlogPost | null {
+  // Try locale-specific version first
+  if (locale && locale !== "en") {
+    const localePath = path.join(BLOG_DIR, locale, `${slug}.mdx`);
+    if (fs.existsSync(localePath)) {
+      return parsePostFromPath(localePath, slug);
+    }
+  }
+  // Fallback to English
+  const enPath = path.join(BLOG_DIR, `${slug}.mdx`);
+  if (!fs.existsSync(enPath)) return null;
+  return parsePost(`${slug}.mdx`);
 }
 
-export function getPostsByCategory(category: string): BlogPost[] {
-  return getAllPosts().filter(
+export function getPostsByCategory(category: string, locale?: string): BlogPost[] {
+  return getAllPosts(locale).filter(
     (p) => p.category.toLowerCase() === category.toLowerCase(),
   );
 }
