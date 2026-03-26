@@ -3,7 +3,7 @@ import path from "path";
 import matter from "gray-matter";
 import readingTime from "reading-time";
 
-const BLOG_DIR = path.join(process.cwd(), "content", "blog");
+const BLOG_DIR = path.join(process.cwd(), "src", "content", "blog");
 
 export interface BlogPost {
   slug: string;
@@ -32,7 +32,7 @@ function parsePost(file: string): BlogPost {
     author: data.author ?? "Petru Melinte",
     category: data.category ?? "",
     tags: data.tags ?? [],
-    coverImage: data.coverImage,
+    coverImage: data.coverImage ?? data.image,
     seoKeyword: data.seoKeyword ?? "",
     readingTime: stats.text,
     content,
