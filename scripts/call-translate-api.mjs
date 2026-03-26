@@ -1,12 +1,13 @@
 /**
  * Calls the admin translate-ui endpoint repeatedly for each locale
- * until all strings are translated.
+ * and applies returned translations to local JSON files.
  *
  * Usage: node scripts/call-translate-api.mjs [baseUrl] [secret]
- * Default: https://www.swaply.world swaply-translate-2026
+ * Default: https://swaply-2025-git-claude-fix-issue-z2ymi-petrus-projects-d4a0946c.vercel.app swaply-translate-2026
  */
+import fs from "fs";
 
-const BASE_URL = process.argv[2] || "https://www.swaply.world";
+const BASE_URL = process.argv[2] || "https://swaply-2025-git-claude-fix-issue-z2ymi-petrus-projects-d4a0946c.vercel.app";
 const SECRET = process.argv[3] || "swaply-translate-2026";
 
 const LOCALES = [
@@ -17,10 +18,22 @@ const LOCALES = [
   "fa", "ro",
 ];
 
+function setNested(obj, path, value) {
+  const parts = path.split(".");
+  let cur = obj;
+  for (let i = 0; i < parts.length - 1; i++) {
+    if (!(parts[i] in cur) || typeof cur[parts[i]] !== "object") cur[parts[i]] = {};
+    cur = cur[parts[i]];
+  }
+  cur[parts[parts.length - 1]] = value;
+}
+
 async function translateLocale(locale) {
   let remaining = 1;
   let totalTranslated = 0;
   let round = 0;
+  const locFile = `src/messages/${locale}.json`;
+  let locData = JSON.parse(fs.readFileSync(locFile, "utf8"));
 
   while (remaining > 0) {
     round++;
@@ -40,11 +53,20 @@ async function translateLocale(locale) {
       const data = await res.json();
       remaining = data.remaining;
       totalTranslated += data.translated;
+
+      // Apply translations to local file
+      if (data.translations && Object.keys(data.translations).length > 0) {
+        for (const [key, value] of Object.entries(data.translations)) {
+          setNested(locData, key, value);
+        }
+        fs.writeFileSync(locFile, JSON.stringify(locData, null, 2) + "\n");
+        // Re-read for next round (so the API sees updated data)
+        // Actually the API reads its own bundled copy, so we just accumulate locally
+      }
+
       console.log(`  ${locale} round ${round}: +${data.translated} translated, ${remaining} remaining`);
 
-      if (data.translated === 0) break; // No progress, stop
-
-      // Small delay between rounds
+      if (data.translated === 0) break;
       await new Promise((r) => setTimeout(r, 1000));
     } catch (e) {
       console.error(`  ${locale} round ${round}: Error —`, e.message);
@@ -52,27 +74,24 @@ async function translateLocale(locale) {
     }
   }
 
+  // Final write
+  fs.writeFileSync(locFile, JSON.stringify(locData, null, 2) + "\n");
   return totalTranslated;
 }
 
 async function main() {
-  console.log(`Translating all locales via ${BASE_URL}/api/admin/translate-ui`);
-  console.log(`Secret: ${SECRET.slice(0, 5)}...`);
+  console.log(`Translating via ${BASE_URL}/api/admin/translate-ui`);
   console.log("---");
 
   let grandTotal = 0;
-
   for (const locale of LOCALES) {
     console.log(`\n[${locale}] Starting...`);
     const count = await translateLocale(locale);
     grandTotal += count;
-    console.log(`[${locale}] Done — ${count} translations applied`);
+    console.log(`[${locale}] Done — ${count} translations`);
   }
 
-  console.log(`\n===\nGrand total: ${grandTotal} translations across ${LOCALES.length} locales`);
+  console.log(`\n=== Grand total: ${grandTotal} translations ===`);
 }
 
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+main().catch((e) => { console.error(e); process.exit(1); });

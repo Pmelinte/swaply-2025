@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readFileSync, writeFileSync } from "fs";
+import { readFileSync } from "fs";
 import { join } from "path";
 
 const LOCALE_NAMES: Record<string, string> = {
@@ -152,16 +152,17 @@ export async function POST(req: NextRequest) {
   const toProcess = untranslated.slice(0, MAX_PER_REQUEST);
   let translated = 0;
   const langName = LOCALE_NAMES[locale];
+  const results: Record<string, string> = {};
 
   for (let i = 0; i < toProcess.length; i += BATCH_SIZE) {
     const batch = toProcess.slice(i, i + BATCH_SIZE);
     const texts = batch.map((b) => b.value);
 
     try {
-      const results = await translateBatch(texts, langName, apiKey);
+      const batchResults = await translateBatch(texts, langName, apiKey);
       for (let j = 0; j < batch.length; j++) {
-        if (results[j]) {
-          setNestedValue(localeData, batch[j].key, results[j]);
+        if (batchResults[j]) {
+          results[batch[j].key] = batchResults[j];
           translated++;
         }
       }
@@ -170,11 +171,11 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  writeFileSync(localePath, JSON.stringify(localeData, null, 2) + "\n");
-
+  // Return translations as data (Vercel filesystem is read-only)
   return NextResponse.json({
     translated,
     remaining: totalRemaining - translated,
     locale,
+    translations: results,
   });
 }
