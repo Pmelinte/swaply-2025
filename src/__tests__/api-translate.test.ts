@@ -15,7 +15,7 @@ function makeRequest(body: object, ip: string = "test-ip") {
 describe("POST /api/translate", () => {
   beforeEach(() => {
     vi.unstubAllEnvs();
-    vi.stubEnv("HUGGINGFACE_API_KEY", "");
+    vi.stubEnv("ANTHROPIC_API_KEY", "");
     vi.resetModules();
   });
 
@@ -48,12 +48,11 @@ describe("POST /api/translate", () => {
     expect(data.status).toBe("same_language");
   });
 
-  it("returns fallback when no HF key", async () => {
+  it("returns fallback when no API key", async () => {
     const res = await POST(makeRequest({ text: "Hello", from: "en", to: "ro" }));
     const data = await res.json();
     expect(data.translated).toBe("Hello");
     expect(data.status).toBe("fallback");
-    expect(data.message).toContain("API key");
   });
 
   it("returns fallback for unsupported language pair without key", async () => {
@@ -62,11 +61,11 @@ describe("POST /api/translate", () => {
     expect(data.status).toBe("fallback");
   });
 
-  it("rate limits at 10 requests per minute", async () => {
+  it("rate limits at 30 requests per minute", async () => {
     vi.resetModules();
     const mod = await import("@/app/api/translate/route");
     let lastRes;
-    for (let i = 0; i < 11; i++) {
+    for (let i = 0; i < 31; i++) {
       lastRes = await mod.POST(makeRequest({ text: "test", from: "ro", to: "en" }, "rl-translate"));
     }
     expect(lastRes!.status).toBe(429);
