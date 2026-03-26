@@ -213,17 +213,17 @@ function ObjectCard({ item, mode }: { item: Item; mode: BrowseMode }) {
         {item.isBoosted && (
           <span className="absolute left-2 top-8 flex items-center gap-0.5 rounded-full bg-amber-500/90 px-2 py-0.5 text-[10px] font-bold text-white backdrop-blur">
             <Zap className="h-2.5 w-2.5" />
-            Promovat
+            {t("promoted")}
           </span>
         )}
         {item.listingType === "property" && (
           <span className="absolute right-2 top-2 rounded-full bg-purple-600/90 px-2 py-0.5 text-[10px] font-semibold text-white backdrop-blur">
-            <Home className="inline h-2.5 w-2.5 mr-0.5" />Property
+            <Home className="inline h-2.5 w-2.5 mr-0.5" />{t("badgeProperty")}
           </span>
         )}
         {item.listingType === "service" && (
           <span className="absolute right-2 top-2 rounded-full bg-green-600/90 px-2 py-0.5 text-[10px] font-semibold text-white backdrop-blur">
-            <Wrench className="inline h-2.5 w-2.5 mr-0.5" />Service
+            <Wrench className="inline h-2.5 w-2.5 mr-0.5" />{t("badgeService")}
           </span>
         )}
       </div>
