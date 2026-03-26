@@ -685,7 +685,8 @@
     "previousPhoto": "Previous photo",
     "nextPhoto": "Next photo",
     "selectPhoto": "Select photo {number}",
-    "reservedMessage": "This item is reserved and cannot be exchanged right now."
+    "reservedMessage": "This item is reserved and cannot be exchanged right now.",
+    "requestBetterTranslation": "Request better translation"
   },
   "objectEdit": {
     "loading": "Зареждане на редактора",

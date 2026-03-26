@@ -714,7 +714,8 @@
     "previousPhoto": "Fotografia anterioară",
     "nextPhoto": "Fotografia următoare",
     "selectPhoto": "Selectează fotografia {number}",
-    "reservedMessage": "This item is reserved and cannot be exchanged right now."
+    "reservedMessage": "This item is reserved and cannot be exchanged right now.",
+    "requestBetterTranslation": "Request better translation"
   },
   "objectEdit": {
     "loading": "Se încarcă editorul",

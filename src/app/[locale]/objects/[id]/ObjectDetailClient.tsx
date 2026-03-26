@@ -39,6 +39,7 @@ import {
   Heart,
   Share2,
   Lock,
+  RefreshCw,
 } from "lucide-react";
 
 const INTENT_LABELS: Record<string, string> = {
@@ -170,6 +171,29 @@ export default function ObjectDetailClient() {
       .catch(() => {});
     return () => { cancelled = true; };
   }, [item?.id, locale]);
+
+  // Request a fresh translation (bypasses cache)
+  const [retranslating, setRetranslating] = useState(false);
+  const handleRetranslate = useCallback(async () => {
+    if (!item?.id || locale === "ro") return;
+    setRetranslating(true);
+    try {
+      const res = await fetch("/api/translate/item", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ itemId: item.id, targetLocale: locale, force: true }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.title) {
+          setTranslatedTitle(data.title);
+          setTranslatedDesc(data.description ?? null);
+          setShowTranslation(true);
+        }
+      }
+    } catch { /* ignore */ }
+    setRetranslating(false);
+  }, [item, locale]);
 
   // Simple language detection: check for non-ASCII patterns
   const detectLang = useCallback((text: string): string => {
@@ -443,9 +467,23 @@ export default function ObjectDetailClient() {
               </div>
             )}
             <div className="flex items-start justify-between gap-2">
-              <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
-                {showTranslation && translatedTitle ? translatedTitle : item.title}
-              </h1>
+              <div>
+                <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
+                  {showTranslation && translatedTitle ? translatedTitle : item.title}
+                </h1>
+                {showTranslation && translatedTitle && (
+                  <button
+                    type="button"
+                    onClick={() => void handleRetranslate()}
+                    disabled={retranslating}
+                    className="mt-1 inline-flex items-center gap-1 text-[11px] text-zinc-400 transition hover:text-blue-600 disabled:opacity-50 dark:text-zinc-500 dark:hover:text-blue-400"
+                    title={t("requestBetterTranslation")}
+                  >
+                    <RefreshCw className={`h-3 w-3 ${retranslating ? "animate-spin" : ""}`} />
+                    {t("requestBetterTranslation")}
+                  </button>
+                )}
+              </div>
               <div className="flex shrink-0 items-center gap-1">
                 {/* WhatsApp share */}
                 <a

@@ -1,29 +1,82 @@
 /**
- * DeepL + Google Translate service for auto-translating user-generated content.
- * DeepL handles 29 high-quality languages; Google Translate covers the remaining 14.
+ * Claude API translation service for user-generated content.
+ * Uses claude-haiku-4-5-20251001 for fast, accurate translations.
+ * Results are cached in DB — Claude is called once per text per language.
  */
 
-// Languages supported by DeepL API (free tier)
-const DEEPL_LANGUAGES = new Set([
-  "en", "de", "fr", "es", "it", "pt", "nl", "pl", "cs", "sk",
-  "hu", "bg", "hr", "sl", "et", "lv", "lt", "fi", "sv", "da",
-  "nb", "uk", "ru", "ja", "zh", "ko", "tr", "id", "ro",
-]);
+import { locales } from "@/i18n/config";
 
-// Map Swaply locale codes to DeepL target language codes (where they differ)
-const DEEPL_CODE_MAP: Record<string, string> = {
-  no: "NB",    // Norwegian → Norwegian Bokmål
-  pt: "PT-PT", // Portuguese (Portugal)
-  zh: "ZH-HANS", // Chinese Simplified (DeepL v2 supports ZH-HANS)
+const LOCALE_NAMES: Record<string, string> = {
+  en: "English", ro: "Romanian", fr: "French", de: "German",
+  es: "Spanish", it: "Italian", pt: "Portuguese", nl: "Dutch",
+  pl: "Polish", el: "Greek", hu: "Hungarian", bg: "Bulgarian",
+  cs: "Czech", sk: "Slovak", hr: "Croatian", sl: "Slovenian",
+  sr: "Serbian", sv: "Swedish", da: "Danish", fi: "Finnish",
+  no: "Norwegian", lt: "Lithuanian", lv: "Latvian", et: "Estonian",
+  ga: "Irish", mt: "Maltese", ru: "Russian", tr: "Turkish",
+  ar: "Arabic", zh: "Chinese (Simplified)", hi: "Hindi", bn: "Bengali",
+  ja: "Japanese", ko: "Korean", vi: "Vietnamese", th: "Thai",
+  id: "Indonesian", ms: "Malay", fil: "Filipino", fa: "Persian",
+  mn: "Mongolian", uk: "Ukrainian", yi: "Yiddish",
 };
 
-function deeplCode(locale: string): string {
-  return DEEPL_CODE_MAP[locale] ?? locale.toUpperCase();
+function getLocaleName(code: string): string {
+  return LOCALE_NAMES[code] ?? code;
 }
 
 /**
- * Translate a single text string to the target language.
- * Uses DeepL for supported languages, Google Translate for the rest.
+ * Translate text using Claude Haiku API.
+ */
+async function translateWithClaude(
+  text: string,
+  targetLocale: string,
+  sourceLang = "ro",
+): Promise<string | null> {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) return null;
+
+  const targetName = getLocaleName(targetLocale);
+  const sourceName = getLocaleName(sourceLang);
+
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 1024,
+        system:
+          "You are a professional translator for Swaply, a global barter/swap marketplace. " +
+          "Translate naturally and accurately into the target language. " +
+          "Preserve the meaning in the context of object exchange and bartering. " +
+          "Return ONLY the translated text, nothing else. " +
+          "Do not add explanations, quotes, or prefixes.",
+        messages: [
+          {
+            role: "user",
+            content: `Translate the following from ${sourceName} to ${targetName}:\n\n${text}`,
+          },
+        ],
+      }),
+    });
+
+    if (!res.ok) return null;
+
+    const data = (await res.json()) as {
+      content?: Array<{ type: string; text: string }>;
+    };
+    return data.content?.[0]?.text?.trim() ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Translate a single text string to the target language using Claude.
  */
 export async function translateText(
   text: string,
@@ -31,16 +84,9 @@ export async function translateText(
   sourceLang = "ro",
 ): Promise<string | null> {
   if (!text.trim()) return null;
+  if (targetLang === sourceLang) return text;
 
-  // Try DeepL first for supported languages
-  if (DEEPL_LANGUAGES.has(targetLang)) {
-    const result = await translateWithDeepL(text, targetLang, sourceLang);
-    if (result) return result;
-    // Fall through to Google if DeepL fails
-  }
-
-  // Google Translate for unsupported DeepL languages or DeepL failures
-  return translateWithGoogle(text, targetLang, sourceLang);
+  return translateWithClaude(text, targetLang, sourceLang);
 }
 
 /**
@@ -60,88 +106,7 @@ export async function translateItemContent(
   return { title: translatedTitle, description: translatedDescription };
 }
 
-// ── DeepL API ─────────────────────────────────────────────────────────
-async function translateWithDeepL(
-  text: string,
-  targetLang: string,
-  sourceLang: string,
-): Promise<string | null> {
-  const apiKey = process.env.DEEPL_API_KEY;
-  if (!apiKey) return null;
-
-  // Determine API URL (free vs pro key)
-  const baseUrl = apiKey.endsWith(":fx")
-    ? "https://api-free.deepl.com"
-    : "https://api.deepl.com";
-
-  try {
-    const res = await fetch(`${baseUrl}/v2/translate`, {
-      method: "POST",
-      headers: {
-        Authorization: `DeepL-Auth-Key ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        text: [text],
-        source_lang: deeplCode(sourceLang),
-        target_lang: deeplCode(targetLang),
-      }),
-    });
-
-    if (!res.ok) return null;
-
-    const data = (await res.json()) as {
-      translations?: Array<{ text: string }>;
-    };
-    return data.translations?.[0]?.text ?? null;
-  } catch {
-    return null;
-  }
-}
-
-// ── Google Translate API ──────────────────────────────────────────────
-async function translateWithGoogle(
-  text: string,
-  targetLang: string,
-  sourceLang: string,
-): Promise<string | null> {
-  const apiKey = process.env.GOOGLE_TRANSLATE_API_KEY;
-  if (!apiKey) return null;
-
-  // Map locale codes to Google Translate codes where they differ
-  const googleLangMap: Record<string, string> = {
-    no: "no",   // Norwegian
-    fil: "tl",  // Filipino → Tagalog
-    yi: "yi",   // Yiddish
-    mn: "mn",   // Mongolian
-    zh: "zh-CN", // Chinese Simplified
-  };
-
-  const target = googleLangMap[targetLang] ?? targetLang;
-  const source = googleLangMap[sourceLang] ?? sourceLang;
-
-  try {
-    const res = await fetch(
-      `https://translation.googleapis.com/language/translate/v2?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          q: text,
-          source,
-          target,
-          format: "text",
-        }),
-      },
-    );
-
-    if (!res.ok) return null;
-
-    const data = (await res.json()) as {
-      data?: { translations?: Array<{ translatedText: string }> };
-    };
-    return data.data?.translations?.[0]?.translatedText ?? null;
-  } catch {
-    return null;
-  }
+/** Check if a locale code is valid */
+export function isValidLocale(code: string): boolean {
+  return (locales as readonly string[]).includes(code);
 }
