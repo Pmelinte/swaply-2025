@@ -9,7 +9,7 @@ const VALID_LOCALES = new Set<string>(locales);
 /**
  * POST /api/translate/item
  * Translate an item's title and description to a target locale.
- * Uses DB-cached translations when available, otherwise translates via DeepL/Google.
+ * Uses DB-cached translations when available, otherwise translates via Claude Haiku.
  *
  * Body: { itemId: string, targetLocale: string }
  * Response: { title: string, description: string, source: "cache" | "translated" }
@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json().catch(() => ({}));
-  const { itemId, targetLocale } = body as { itemId?: string; targetLocale?: string };
+  const { itemId, targetLocale, force } = body as { itemId?: string; targetLocale?: string; force?: boolean };
 
   if (!itemId || typeof itemId !== "string") {
     return NextResponse.json({ error: "Missing itemId" }, { status: 400 });
@@ -52,9 +52,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Item not found" }, { status: 404 });
   }
 
-  // 2. Check if translation is already cached
+  // 2. Check if translation is already cached (skip if force retranslate)
   const translations = (item.translations as Record<string, { title: string; description: string }>) ?? {};
-  if (translations[targetLocale]?.title) {
+  if (!force && translations[targetLocale]?.title) {
     return NextResponse.json({
       title: translations[targetLocale].title,
       description: translations[targetLocale].description ?? "",
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  // 3. Translate via DeepL/Google
+  // 3. Translate via Claude Haiku
   const result = await translateItemContent(
     item.title,
     item.description ?? "",
