@@ -1,19 +1,33 @@
 name: Translate UI
+
 on:
   workflow_dispatch:
     inputs:
-      locale:
-        description: "Single locale to translate (e.g. it, de, fr)"
+      batch:
+        description: "Which batch to run (1=it-th, 2=ar-uk, 3=cs-da, 4=no-yi, 5=fa-ro)"
         required: true
-        default: "it"
+        default: "1"
+        type: choice
+        options: ["1", "2", "3", "4", "5"]
+
+env:
+  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
 
 jobs:
-  translate:
+  # ── Batch 1: it, de, fr, es, pt, nl, pl, id, vi, th ──
+  batch-1:
+    if: inputs.batch == '1'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        locale: [it, de, fr, es, pt, nl, pl, id, vi, th]
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/setup-node@v4
         with:
@@ -22,13 +36,145 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-      - name: Translate locale
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: node scripts/translate-direct.mjs ${{ inputs.locale }}
+      - name: Pull latest
+        run: git pull --rebase origin ${{ github.ref_name }} || true
+      - name: Translate ${{ matrix.locale }}
+        run: node scripts/translate-direct.mjs ${{ matrix.locale }}
       - name: Commit and push
         run: |
-          git add src/messages/${{ inputs.locale }}.json
-          git commit -m "feat: translate ${{ inputs.locale }} via Claude API" || echo "Nothing to commit"
-          git pull --rebase
+          git add src/messages/${{ matrix.locale }}.json
+          git commit -m "feat: translate ${{ matrix.locale }} via Claude Haiku [skip ci]" || echo "No changes"
+          git pull --rebase origin ${{ github.ref_name }} || true
+          git push
+
+  # ── Batch 2: ar, ja, ko, zh, tr, ru, uk ──
+  batch-2:
+    if: inputs.batch == '2'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        locale: [ar, ja, ko, zh, tr, ru, uk]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+      - name: Pull latest
+        run: git pull --rebase origin ${{ github.ref_name }} || true
+      - name: Translate ${{ matrix.locale }}
+        run: node scripts/translate-direct.mjs ${{ matrix.locale }}
+      - name: Commit and push
+        run: |
+          git add src/messages/${{ matrix.locale }}.json
+          git commit -m "feat: translate ${{ matrix.locale }} via Claude Haiku [skip ci]" || echo "No changes"
+          git pull --rebase origin ${{ github.ref_name }} || true
+          git push
+
+  # ── Batch 3: cs, sk, hu, bg, hr, sr, sl, et, lv, lt ──
+  batch-3:
+    if: inputs.batch == '3'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        locale: [cs, sk, hu, bg, hr, sr, sl, et, lv, lt]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+      - name: Pull latest
+        run: git pull --rebase origin ${{ github.ref_name }} || true
+      - name: Translate ${{ matrix.locale }}
+        run: node scripts/translate-direct.mjs ${{ matrix.locale }}
+      - name: Commit and push
+        run: |
+          git add src/messages/${{ matrix.locale }}.json
+          git commit -m "feat: translate ${{ matrix.locale }} via Claude Haiku [skip ci]" || echo "No changes"
+          git pull --rebase origin ${{ github.ref_name }} || true
+          git push
+
+  # ── Batch 4: fi, sv, da, no, el, bn, hi, ms, fil, mn ──
+  batch-4:
+    if: inputs.batch == '4'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        locale: [fi, sv, da, no, el, bn, hi, ms, fil, mn]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+      - name: Pull latest
+        run: git pull --rebase origin ${{ github.ref_name }} || true
+      - name: Translate ${{ matrix.locale }}
+        run: node scripts/translate-direct.mjs ${{ matrix.locale }}
+      - name: Commit and push
+        run: |
+          git add src/messages/${{ matrix.locale }}.json
+          git commit -m "feat: translate ${{ matrix.locale }} via Claude Haiku [skip ci]" || echo "No changes"
+          git pull --rebase origin ${{ github.ref_name }} || true
+          git push
+
+  # ── Batch 5: ga, mt, yi, fa, ro ──
+  batch-5:
+    if: inputs.batch == '5'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        locale: [ga, mt, yi, fa, ro]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+      - name: Pull latest
+        run: git pull --rebase origin ${{ github.ref_name }} || true
+      - name: Translate ${{ matrix.locale }}
+        run: node scripts/translate-direct.mjs ${{ matrix.locale }}
+      - name: Commit and push
+        run: |
+          git add src/messages/${{ matrix.locale }}.json
+          git commit -m "feat: translate ${{ matrix.locale }} via Claude Haiku [skip ci]" || echo "No changes"
+          git pull --rebase origin ${{ github.ref_name }} || true
           git push
