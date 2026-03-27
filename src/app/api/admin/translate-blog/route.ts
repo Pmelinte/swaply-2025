@@ -6,6 +6,15 @@ import matter from "gray-matter";
 const LOCALE_NAMES: Record<string, string> = {
   it: "Italian", de: "German", fr: "French", es: "Spanish",
   pt: "Portuguese", nl: "Dutch", pl: "Polish", id: "Indonesian",
+  ro: "Romanian", vi: "Vietnamese", th: "Thai", ar: "Arabic",
+  ja: "Japanese", ko: "Korean", zh: "Chinese Simplified", tr: "Turkish",
+  ru: "Russian", uk: "Ukrainian", hu: "Hungarian", cs: "Czech",
+  sv: "Swedish", da: "Danish", fi: "Finnish", no: "Norwegian",
+  el: "Greek", bg: "Bulgarian", hr: "Croatian", sr: "Serbian",
+  sk: "Slovak", sl: "Slovenian", lt: "Lithuanian", lv: "Latvian",
+  et: "Estonian", hi: "Hindi", bn: "Bengali", ms: "Malay",
+  fil: "Filipino", mn: "Mongolian", ga: "Irish", mt: "Maltese",
+  yi: "Yiddish", fa: "Persian",
 };
 
 async function translateWithClaude(text: string, targetLang: string, apiKey: string): Promise<string> {
