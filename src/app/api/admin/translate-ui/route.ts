@@ -24,18 +24,6 @@ function getNestedValue(obj: Record<string, unknown>, path: string): unknown {
   return cur;
 }
 
-function setNestedValue(obj: Record<string, unknown>, path: string, value: string): void {
-  const parts = path.split(".");
-  let cur: Record<string, unknown> = obj;
-  for (let i = 0; i < parts.length - 1; i++) {
-    if (!(parts[i] in cur) || typeof cur[parts[i]] !== "object") {
-      cur[parts[i]] = {};
-    }
-    cur = cur[parts[i]] as Record<string, unknown>;
-  }
-  cur[parts[parts.length - 1]] = value;
-}
-
 function flattenKeys(
   obj: Record<string, unknown>,
   localeData: Record<string, unknown>,
@@ -62,48 +50,67 @@ async function translateBatch(
   apiKey: string,
 ): Promise<string[]> {
   const numbered = texts.map((t, i) => `[${i + 1}] ${t}`).join("\n");
-
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-    },
-    body: JSON.stringify({
-      model: "claude-haiku-4-5-20251001",
-      max_tokens: 4096,
-      system:
-        `You are a professional UI translator for Swaply, a global barter/swap marketplace. ` +
-        `Translate each numbered line to ${targetLang}. Keep the same numbered format [1] [2] etc. ` +
-        `Return ONLY the numbered translations. Preserve {variables} and HTML tags as-is.`,
-      messages: [
-        { role: "user", content: `Translate to ${targetLang}:\n${numbered}` },
-      ],
-    }),
+  const body = JSON.stringify({
+    model: "claude-haiku-4-5-20251001",
+    max_tokens: 4096,
+    system:
+      `You are a professional UI translator for Swaply, a global barter/swap marketplace. ` +
+      `Translate each numbered line to ${targetLang}. Keep the same numbered format [1] [2] etc. ` +
+      `Return ONLY the numbered translations. Preserve {variables} and HTML tags as-is.`,
+    messages: [
+      { role: "user", content: `Translate to ${targetLang}:\n${numbered}` },
+    ],
   });
-
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`Claude API error ${res.status}: ${err.slice(0, 200)}`);
-  }
-
-  const data = (await res.json()) as {
-    content?: Array<{ text: string }>;
+  const headers = {
+    "Content-Type": "application/json",
+    "x-api-key": apiKey,
+    "anthropic-version": "2023-06-01",
   };
-  const output = data.content?.[0]?.text ?? "";
 
-  const results: string[] = new Array(texts.length).fill("");
-  for (const line of output.split("\n")) {
-    const m = line.match(/^\[(\d+)\]\s*(.+)$/);
-    if (m) {
-      const idx = parseInt(m[1]) - 1;
-      if (idx >= 0 && idx < texts.length) {
-        results[idx] = m[2].trim();
+  // Retry with exponential backoff for 529 (overloaded)
+  const delays = [5000, 15000];
+  let lastError = "";
+
+  for (let attempt = 0; attempt <= delays.length; attempt++) {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers,
+      body,
+    });
+
+    if (res.status === 529) {
+      lastError = "Claude API overloaded (529)";
+      if (attempt < delays.length) {
+        await new Promise((r) => setTimeout(r, delays[attempt]));
+        continue;
+      }
+      throw new Error(lastError);
+    }
+
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(`Claude API error ${res.status}: ${err.slice(0, 200)}`);
+    }
+
+    const data = (await res.json()) as {
+      content?: Array<{ text: string }>;
+    };
+    const output = data.content?.[0]?.text ?? "";
+
+    const results: string[] = new Array(texts.length).fill("");
+    for (const line of output.split("\n")) {
+      const m = line.match(/^\[(\d+)\]\s*(.+)$/);
+      if (m) {
+        const idx = parseInt(m[1]) - 1;
+        if (idx >= 0 && idx < texts.length) {
+          results[idx] = m[2].trim();
+        }
       }
     }
+    return results;
   }
-  return results;
+
+  throw new Error(lastError || "Max retries exceeded");
 }
 
 /**

@@ -37,22 +37,49 @@ async function translateLocale(locale) {
 
   while (remaining > 0) {
     round++;
-    try {
-      const res = await fetch(`${BASE_URL}/api/admin/translate-ui`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ secret: SECRET, locale }),
-      });
+    let data = null;
+    let retries = 0;
+    const MAX_RETRIES = 3;
 
-      if (!res.ok) {
-        const errText = await res.text();
-        console.error(`  ${locale} round ${round}: HTTP ${res.status} — ${errText.slice(0, 100)}`);
+    while (retries <= MAX_RETRIES) {
+      try {
+        const res = await fetch(`${BASE_URL}/api/admin/translate-ui`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ secret: SECRET, locale }),
+        });
+
+        if (!res.ok) {
+          const errText = await res.text();
+          if (retries < MAX_RETRIES) {
+            const delay = (retries + 1) * 10;
+            console.log(`  ${locale} round ${round}: HTTP ${res.status}, retrying in ${delay}s...`);
+            await new Promise((r) => setTimeout(r, delay * 1000));
+            retries++;
+            continue;
+          }
+          console.error(`  ${locale} round ${round}: HTTP ${res.status} after ${MAX_RETRIES} retries — ${errText.slice(0, 100)}`);
+          break;
+        }
+
+        data = await res.json();
+        break; // success
+      } catch (e) {
+        if (retries < MAX_RETRIES) {
+          const delay = (retries + 1) * 10;
+          console.log(`  ${locale} round ${round}: ${e.message}, retrying in ${delay}s...`);
+          await new Promise((r) => setTimeout(r, delay * 1000));
+          retries++;
+          continue;
+        }
+        console.error(`  ${locale} round ${round}: ${e.message} after ${MAX_RETRIES} retries`);
         break;
       }
+    }
 
-      const data = await res.json();
-      remaining = data.remaining;
-      totalTranslated += data.translated;
+    if (!data) break;
+    remaining = data.remaining;
+    totalTranslated += data.translated;
 
       // Apply translations to local file
       if (data.translations && Object.keys(data.translations).length > 0) {
