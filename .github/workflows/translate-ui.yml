@@ -3,15 +3,15 @@ name: Translate UI
 on:
   workflow_dispatch:
     inputs:
-      target_url:
-        description: "Vercel deployment URL (with /api/admin/translate-ui endpoint)"
-        required: true
-        default: "https://www.swaply.world"
+      locales:
+        description: "Comma-separated locales (or 'all' for all 42)"
+        required: false
+        default: "all"
 
 jobs:
   translate:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
         with:
@@ -27,18 +27,10 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Run translation script
+      - name: Run direct translation via Claude API
         env:
-          ADMIN_SECRET: ${{ secrets.ADMIN_SECRET }}
-        run: |
-          node scripts/call-translate-api.mjs \
-            "${{ github.event.inputs.target_url }}" \
-            "$ADMIN_SECRET"
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node scripts/translate-direct.mjs
 
-      - name: Push any remaining changes
-        run: |
-          git diff --quiet src/messages/ || {
-            git add src/messages/*.json
-            git commit -m "feat: auto-translate UI strings via Claude Haiku [skip ci]"
-            git push
-          }
+      - name: Push all translation commits
+        run: git push || echo "Nothing to push"
