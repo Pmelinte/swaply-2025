@@ -7,10 +7,6 @@ on:
         description: "Vercel deployment URL (with /api/admin/translate-ui endpoint)"
         required: true
         default: "https://www.swaply.world"
-      locales:
-        description: "Comma-separated locales to translate (or 'all')"
-        required: false
-        default: "all"
 
 jobs:
   translate:
@@ -26,30 +22,23 @@ jobs:
         with:
           node-version: "20"
 
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
       - name: Run translation script
         env:
           ADMIN_SECRET: ${{ secrets.ADMIN_SECRET }}
         run: |
-          # The script uses fetch which needs Node 18+
           node scripts/call-translate-api.mjs \
             "${{ github.event.inputs.target_url }}" \
             "$ADMIN_SECRET"
 
-      - name: Check for changes
-        id: changes
+      - name: Push any remaining changes
         run: |
-          git diff --stat
-          if git diff --quiet src/messages/; then
-            echo "changed=false" >> $GITHUB_OUTPUT
-          else
-            echo "changed=true" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Commit and push translations
-        if: steps.changes.outputs.changed == 'true'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add src/messages/*.json
-          git commit -m "feat: auto-translate UI strings via Claude Haiku [skip ci]"
-          git push
+          git diff --quiet src/messages/ || {
+            git add src/messages/*.json
+            git commit -m "feat: auto-translate UI strings via Claude Haiku [skip ci]"
+            git push
+          }
