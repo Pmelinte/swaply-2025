@@ -1,36 +1,34 @@
 name: Translate UI
-
 on:
   workflow_dispatch:
     inputs:
-      locales:
-        description: "Comma-separated locales (or 'all' for all 42)"
-        required: false
-        default: "all"
+      locale:
+        description: "Single locale to translate (e.g. it, de, fr)"
+        required: true
+        default: "it"
 
 jobs:
   translate:
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
-
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-
       - name: Configure git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Run direct translation via Claude API
+      - name: Translate locale
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: node scripts/translate-direct.mjs
-
-      - name: Push all translation commits
-        run: git push || echo "Nothing to push"
+        run: node scripts/translate-direct.mjs ${{ inputs.locale }}
+      - name: Commit and push
+        run: |
+          git add src/messages/${{ inputs.locale }}.json
+          git commit -m "feat: translate ${{ inputs.locale }} via Claude API" || echo "Nothing to commit"
+          git pull --rebase
+          git push
