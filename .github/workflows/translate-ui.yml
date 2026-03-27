@@ -28,13 +28,14 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
       - name: Configure git
         run: |
-          git config user.name "Claude"
-          git config user.email "claude@anthropic.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
       - name: Pull latest
         run: git pull --rebase origin ${{ github.ref_name }} || true
       - name: Translate ${{ matrix.locale }}
@@ -43,7 +44,8 @@ jobs:
         run: |
           git add src/messages/${{ matrix.locale }}.json
           git commit -m "feat: translate ${{ matrix.locale }} via Claude Haiku [skip ci]" || echo "No changes"
-          git push || (git pull --rebase && git push)
+          git pull --rebase origin ${{ github.ref_name }} || true
+          git push
 
   # ── Batch 2: ar, ja, ko, zh, tr, ru, uk ──
   batch-2:
@@ -59,13 +61,14 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
       - name: Configure git
         run: |
-          git config user.name "Claude"
-          git config user.email "claude@anthropic.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
       - name: Pull latest
         run: git pull --rebase origin ${{ github.ref_name }} || true
       - name: Translate ${{ matrix.locale }}
@@ -74,7 +77,8 @@ jobs:
         run: |
           git add src/messages/${{ matrix.locale }}.json
           git commit -m "feat: translate ${{ matrix.locale }} via Claude Haiku [skip ci]" || echo "No changes"
-          git push || (git pull --rebase && git push)
+          git pull --rebase origin ${{ github.ref_name }} || true
+          git push
 
   # ── Batch 3: cs, sk, hu, bg, hr, sr, sl, et, lv, lt ──
   batch-3:
@@ -90,13 +94,14 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
       - name: Configure git
         run: |
-          git config user.name "Claude"
-          git config user.email "claude@anthropic.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
       - name: Pull latest
         run: git pull --rebase origin ${{ github.ref_name }} || true
       - name: Translate ${{ matrix.locale }}
@@ -105,7 +110,8 @@ jobs:
         run: |
           git add src/messages/${{ matrix.locale }}.json
           git commit -m "feat: translate ${{ matrix.locale }} via Claude Haiku [skip ci]" || echo "No changes"
-          git push || (git pull --rebase && git push)
+          git pull --rebase origin ${{ github.ref_name }} || true
+          git push
 
   # ── Batch 4: fi, sv, da, no, el, bn, hi, ms, fil, mn ──
   batch-4:
@@ -121,13 +127,14 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
       - name: Configure git
         run: |
-          git config user.name "Claude"
-          git config user.email "claude@anthropic.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
       - name: Pull latest
         run: git pull --rebase origin ${{ github.ref_name }} || true
       - name: Translate ${{ matrix.locale }}
@@ -136,7 +143,8 @@ jobs:
         run: |
           git add src/messages/${{ matrix.locale }}.json
           git commit -m "feat: translate ${{ matrix.locale }} via Claude Haiku [skip ci]" || echo "No changes"
-          git push || (git pull --rebase && git push)
+          git pull --rebase origin ${{ github.ref_name }} || true
+          git push
 
   # ── Batch 5: ga, mt, yi, fa, ro ──
   batch-5:
@@ -152,13 +160,14 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
       - name: Configure git
         run: |
-          git config user.name "Claude"
-          git config user.email "claude@anthropic.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
       - name: Pull latest
         run: git pull --rebase origin ${{ github.ref_name }} || true
       - name: Translate ${{ matrix.locale }}
@@ -167,4 +176,5 @@ jobs:
         run: |
           git add src/messages/${{ matrix.locale }}.json
           git commit -m "feat: translate ${{ matrix.locale }} via Claude Haiku [skip ci]" || echo "No changes"
-          git push || (git pull --rebase && git push)
+          git pull --rebase origin ${{ github.ref_name }} || true
+          git push
