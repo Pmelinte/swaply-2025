@@ -6,30 +6,27 @@ on:
         description: "Locale to translate (e.g. it, de, fr, es, pt, nl, pl, id)"
         required: true
         default: "it"
-
 jobs:
   translate:
     runs-on: ubuntu-latest
     timeout-minutes: 180
+    permissions:
+      contents: write
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
-
       - name: Configure git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
       - name: Translate
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: node scripts/translate-direct.mjs ${{ inputs.locale }}
-
       - name: Commit and push
         run: |
           git add src/messages/${{ inputs.locale }}.json
