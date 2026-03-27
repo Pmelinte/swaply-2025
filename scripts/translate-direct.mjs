@@ -6,7 +6,6 @@
  * Or in GitHub Actions with the secret set.
  */
 import fs from "fs";
-import { execSync } from "child_process";
 
 const API_KEY = process.env.ANTHROPIC_API_KEY;
 if (!API_KEY) {
@@ -184,22 +183,19 @@ async function translateLocale(locale, enFlat) {
   return applied;
 }
 
-function gitCommit(locale, count) {
-  try {
-    execSync(`git add src/messages/${locale}.json`, { stdio: "pipe" });
-    execSync(
-      `git commit -m "feat: translate ${locale} — ${count} strings via Claude Haiku"`,
-      { stdio: "pipe" },
-    );
-    console.log(`  [git] committed ${locale}`);
-  } catch {
-    console.log(`  [git] no changes for ${locale}`);
-  }
-}
-
 async function main() {
+  // Accept optional locale argument: node translate-direct.mjs it
+  const targetLocale = process.argv[2];
+  const localesToProcess = targetLocale ? [targetLocale] : LOCALES;
+
+  if (targetLocale && !LOCALE_NAMES[targetLocale]) {
+    console.error(`Unknown locale: ${targetLocale}`);
+    console.error(`Valid: ${Object.keys(LOCALE_NAMES).join(", ")}`);
+    process.exit(1);
+  }
+
   console.log("Direct translation via Claude API");
-  console.log("=================================\n");
+  console.log(`Locales: ${localesToProcess.join(", ")}\n`);
 
   const en = JSON.parse(fs.readFileSync("src/messages/en.json", "utf8"));
   const enFlat = flatten(en);
@@ -207,24 +203,10 @@ async function main() {
 
   let grandTotal = 0;
 
-  for (const locale of LOCALES) {
+  for (const locale of localesToProcess) {
     console.log(`\n[${locale}] ${LOCALE_NAMES[locale]}`);
     const count = await translateLocale(locale, enFlat);
     grandTotal += count;
-
-    if (count > 0) {
-      gitCommit(locale, count);
-    }
-  }
-
-  // Push all commits at once
-  if (grandTotal > 0) {
-    try {
-      execSync("git push", { stdio: "pipe" });
-      console.log("\n[git] pushed all commits");
-    } catch (e) {
-      console.error("\n[git] push failed:", e.message);
-    }
   }
 
   console.log(`\n=== Done: ${grandTotal} total translations ===`);
