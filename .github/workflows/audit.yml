@@ -1,0 +1,46 @@
+name: Public Route Audit
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: "Override BASE_URL (leave empty to use secret)"
+        required: false
+        default: ""
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Validate BASE_URL
+        run: |
+          URL="${{ github.event.inputs.base_url || secrets.BASE_URL }}"
+          if [ -z "$URL" ]; then
+            echo "::error::BASE_URL is not set. Add it as a GitHub secret or pass it as workflow input."
+            exit 1
+          fi
+          echo "BASE_URL=$URL" >> $GITHUB_ENV
+          echo "Auditing: $URL"
+
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Run audit
+        run: npx playwright test --config playwright.audit.config.ts
+        env:
+          BASE_URL: ${{ env.BASE_URL }}
+
+      - name: Upload audit results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-results
+          path: audit-results/
+          retention-days: 30
