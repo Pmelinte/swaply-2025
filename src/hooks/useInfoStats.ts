@@ -28,15 +28,26 @@ export function useInfoStats(): InfoStats {
       const sb = getSupabaseClient();
       if (!sb) return;
 
-      const [
-        { count: swapCount },
-        { count: userCount },
-        { count: premiumCount },
-      ] = await Promise.all([
-        sb.from("swaps").select("*", { count: "exact", head: true }).eq("status", "completed"),
-        sb.from("profiles").select("*", { count: "exact", head: true }),
-        sb.from("profiles").select("*", { count: "exact", head: true }).neq("badge", "free"),
-      ]);
+      const [swapResult, { count: userCount }, { count: premiumCount }] =
+        await Promise.all([
+          Promise.resolve(
+            sb
+              .from("swaps")
+              .select("*", { count: "exact", head: true })
+              .eq("status", "completed"),
+          )
+            .then((res) => {
+              if (res.error) return { count: 0, data: null, error: res.error };
+              return res;
+            })
+            .catch(() => ({ count: 0, data: null, error: null })),
+          sb.from("profiles").select("*", { count: "exact", head: true }),
+          sb
+            .from("profiles")
+            .select("*", { count: "exact", head: true })
+            .neq("badge", "free"),
+        ]);
+      const swapCount = swapResult.count;
 
       if (cancelled) return;
 
