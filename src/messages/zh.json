@@ -2991,5 +2991,11 @@
     "badge": "体验",
     "expired": "已过期",
     "expiresIn": "在 {days} 天后过期"
+  },
+  "cookieConsent": {
+    "message": "我们使用Cookie来改善您的体验。必要Cookie始终处于活动状态。非必要Cookie帮助我们分析流量和个性化内容。",
+    "accept": "全部接受",
+    "reject": "拒绝非必要",
+    "settings": "Cookie设置"
   }
 }

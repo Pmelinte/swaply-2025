@@ -2991,5 +2991,11 @@
     "badge": "Erlebnis",
     "expired": "Abgelaufen",
     "expiresIn": "Verfällt in {days} Tagen"
+  },
+  "cookieConsent": {
+    "message": "Wir verwenden Cookies, um Ihre Erfahrung zu verbessern. Essentielle Cookies sind immer aktiv. Nicht-essentielle Cookies helfen uns, den Datenverkehr zu analysieren und Inhalte zu personalisieren.",
+    "accept": "Alle akzeptieren",
+    "reject": "Nicht-essentielle ablehnen",
+    "settings": "Cookie-Einstellungen"
   }
 }

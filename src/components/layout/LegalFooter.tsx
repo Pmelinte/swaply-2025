@@ -2,6 +2,7 @@
 
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
+import { CookieSettingsLink } from "@/components/CookieConsent";
 
 const FOOTER_CITIES = [
   { slug: "london", name: "London" },
@@ -55,6 +56,13 @@ export function LegalFooter() {
               </Link>
             </span>
           ))}
+          <span
+            aria-hidden="true"
+            className="text-zinc-300 dark:text-zinc-600"
+          >
+            ·
+          </span>
+          <CookieSettingsLink />
           <span
             aria-hidden="true"
             className="text-zinc-300 dark:text-zinc-600"

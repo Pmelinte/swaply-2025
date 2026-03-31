@@ -2991,5 +2991,11 @@
     "badge": "Izkušnja",
     "expired": "Poteklo",
     "expiresIn": "Poteče čez {days} dni"
+  },
+  "cookieConsent": {
+    "message": "Uporabljamo piškotke za izboljšanje vaše izkušnje. Nujni piškotki so vedno aktivni. Nebistveni piškotki nam pomagajo analizirati promet in prilagajati vsebino.",
+    "accept": "Sprejmi vse",
+    "reject": "Zavrni nebistvene",
+    "settings": "Nastavitve piškotkov"
   }
 }

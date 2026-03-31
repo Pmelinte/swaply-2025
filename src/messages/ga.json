@@ -2991,5 +2991,11 @@
     "badge": "Taithí",
     "expired": "Éachtach",
     "expiresIn": "Fágann sé in {days} lá"
+  },
+  "cookieConsent": {
+    "message": "We use cookies to improve your experience. Essential cookies are always active. Non-essential cookies help us analyze traffic and personalize content.",
+    "accept": "Accept all",
+    "reject": "Reject non-essential",
+    "settings": "Cookie settings"
   }
 }

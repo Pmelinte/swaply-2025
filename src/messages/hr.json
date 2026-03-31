@@ -2991,5 +2991,11 @@
     "badge": "Doživljaj",
     "expired": "Isteklo",
     "expiresIn": "Ističe za {days} dana"
+  },
+  "cookieConsent": {
+    "message": "Koristimo kolačiće za poboljšanje vašeg iskustva. Osnovni kolačići su uvijek aktivni. Nebitni kolačići pomažu nam analizirati promet i personalizirati sadržaj.",
+    "accept": "Prihvati sve",
+    "reject": "Odbij nebitne",
+    "settings": "Postavke kolačića"
   }
 }

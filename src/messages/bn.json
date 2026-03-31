@@ -2991,5 +2991,11 @@
     "badge": "অভিজ্ঞতা",
     "expired": "মেয়াদ উত্তীর্ণ",
     "expiresIn": "{days} দিনে মেয়াদ উত্তীর্ণ হয়"
+  },
+  "cookieConsent": {
+    "message": "We use cookies to improve your experience. Essential cookies are always active. Non-essential cookies help us analyze traffic and personalize content.",
+    "accept": "Accept all",
+    "reject": "Reject non-essential",
+    "settings": "Cookie settings"
   }
 }

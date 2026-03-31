@@ -2991,5 +2991,11 @@
     "badge": "Karanasan",
     "expired": "Nag-expire",
     "expiresIn": "Nag-expire sa loob ng {days} araw"
+  },
+  "cookieConsent": {
+    "message": "We use cookies to improve your experience. Essential cookies are always active. Non-essential cookies help us analyze traffic and personalize content.",
+    "accept": "Accept all",
+    "reject": "Reject non-essential",
+    "settings": "Cookie settings"
   }
 }
