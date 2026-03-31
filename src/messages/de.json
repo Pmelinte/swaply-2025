@@ -2997,5 +2997,17 @@
     "accept": "Alle akzeptieren",
     "reject": "Nicht-essentielle ablehnen",
     "settings": "Cookie-Einstellungen"
+  },
+  "branches": {
+    "tagline": "Tausche was du hast gegen was du brauchst — Objekte, Immobilien, Dienstleistungen und Events.",
+    "objects": "Objekte",
+    "objectsDesc": "Tausche Elektronik, Bücher, Kleidung und mehr",
+    "properties": "Immobilien",
+    "propertiesDesc": "Tausche Häuser, Wohnungen und Räume",
+    "services": "Dienstleistungen",
+    "servicesDesc": "Tausche Fähigkeiten, Arbeit und professionelle Hilfe",
+    "events": "Veranstaltungen",
+    "eventsDesc": "Tausche Tickets, Reservierungen und Erlebnisse",
+    "comingSoon": "Dieser Bereich kommt bald. Bleib dran!"
   }
 }

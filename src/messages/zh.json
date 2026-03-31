@@ -2997,5 +2997,17 @@
     "accept": "全部接受",
     "reject": "拒绝非必要",
     "settings": "Cookie设置"
+  },
+  "branches": {
+    "tagline": "用你拥有的换你需要的——物品、房产、服务和活动。",
+    "objects": "物品",
+    "objectsDesc": "交换电子产品、书籍、衣物等",
+    "properties": "房产",
+    "propertiesDesc": "交换房屋、公寓和空间",
+    "services": "服务",
+    "servicesDesc": "交换技能、劳动和专业帮助",
+    "events": "活动",
+    "eventsDesc": "交换门票、预订和体验",
+    "comingSoon": "此板块即将上线，敬请期待！"
   }
 }

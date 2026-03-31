@@ -4,26 +4,29 @@ import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import {
   ArrowRightLeft,
+  Bell,
   Box,
+  Building2,
+  CalendarDays,
+  ChevronRight,
+  Heart,
+  Home,
+  Leaf,
+  MapPin,
+  Megaphone,
   MessageCircle,
+  MessageSquare,
+  Package,
   Plus,
   Search,
   Sparkles,
+  Tag,
+  Ticket,
   TrendingUp,
   Trophy,
-  Zap,
-  MapPin,
-  ChevronRight,
-  Bell,
-  Home,
   Wrench,
-  MessageSquare,
-  Megaphone,
-  Heart,
-  Leaf,
+  Zap,
   Clock,
-  CalendarDays,
-  Tag,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
@@ -44,6 +47,7 @@ export default function HomePage() {
   } = useAppState();
   const t = useTranslations("home");
   const tCat = useTranslations("categories");
+  const tBranch = useTranslations("branches");
 
   const hasLocation = Boolean(user?.location?.city);
   const myItems = items.filter((item) => item.ownerId === user?.id);
@@ -104,7 +108,7 @@ export default function HomePage() {
               {t("guestHeadline")}
             </h1>
             <p className="mt-3 text-base text-blue-100">
-              {t("guestSubtitle")}
+              {tBranch("tagline")}
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
@@ -120,17 +124,44 @@ export default function HomePage() {
               >
                 {t("loginCta")}
               </Link>
-              <Link
-                href="/objects"
-                className="inline-flex items-center gap-2 rounded-full border border-white/30 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
-              >
-                <Search className="h-4 w-4" />
-                {t("browseObjects")}
-              </Link>
             </div>
           </div>
         </section>
       )}
+
+      {/* ── Four Entry Branch Cards ── */}
+      <section>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <BranchCard
+            href="/objects"
+            icon={<Package className="h-8 w-8" />}
+            title={tBranch("objects")}
+            description={tBranch("objectsDesc")}
+            gradient="from-blue-500 to-cyan-600"
+          />
+          <BranchCard
+            href="/properties"
+            icon={<Building2 className="h-8 w-8" />}
+            title={tBranch("properties")}
+            description={tBranch("propertiesDesc")}
+            gradient="from-purple-500 to-fuchsia-600"
+          />
+          <BranchCard
+            href="/services"
+            icon={<Wrench className="h-8 w-8" />}
+            title={tBranch("services")}
+            description={tBranch("servicesDesc")}
+            gradient="from-teal-500 to-green-600"
+          />
+          <BranchCard
+            href="/events"
+            icon={<Ticket className="h-8 w-8" />}
+            title={tBranch("events")}
+            description={tBranch("eventsDesc")}
+            gradient="from-amber-500 to-orange-600"
+          />
+        </div>
+      </section>
 
       {/* ── Social Proof Stats ── */}
       <StatsBar />
@@ -243,14 +274,14 @@ export default function HomePage() {
       {user && (
         <div className="grid gap-3 sm:grid-cols-3">
           <ActionCard
-            href="/objects?type=property"
+            href="/properties"
             icon={<Home className="h-5 w-5" />}
             title={t("actionProperties")}
             description={t("actionPropertiesDesc")}
             gradient="from-purple-500 to-fuchsia-600"
           />
           <ActionCard
-            href="/objects?type=service"
+            href="/services"
             icon={<Wrench className="h-5 w-5" />}
             title={t("actionServices")}
             description={t("actionServicesDesc")}
@@ -462,39 +493,6 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ── Personalized Recommendations ── */}
-      {user && (() => {
-        const myCategories = new Set(myItems.map((i) => i.category));
-        const recommended = items
-          .filter((i) => i.ownerId !== user.id && i.isActive && i.status === "active" && myCategories.has(i.category))
-          .slice(0, 4);
-        if (recommended.length === 0) return null;
-        return (
-          <section>
-            <h2 className="mb-3 text-lg font-bold text-zinc-900 dark:text-zinc-50">{t("recommendedForYou")}</h2>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {recommended.map((item) => (
-                <Link
-                  key={item.id}
-                  href={`/objects/${item.id}`}
-                  className="group rounded-2xl border border-zinc-200 bg-white/80 p-3 shadow-sm backdrop-blur transition hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900/80"
-                >
-                  {item.photos?.[0] ? (
-                    <div className="relative mb-2 aspect-square overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
-                      <Image src={item.photos[0]} alt={item.title} fill className="object-cover transition group-hover:scale-105" sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 160px" loading="lazy" />
-                    </div>
-                  ) : (
-                    <div className="mb-2 flex aspect-square items-center justify-center rounded-xl bg-zinc-100 text-2xl font-bold text-zinc-300 dark:bg-zinc-800">{item.title.charAt(0).toUpperCase()}</div>
-                  )}
-                  <p className="truncate text-sm font-semibold text-zinc-900 dark:text-zinc-50">{item.title}</p>
-                  <p className="truncate text-xs text-zinc-500">{item.category}{item.location ? ` · ${item.location}` : ""}</p>
-                </Link>
-              ))}
-            </div>
-          </section>
-        );
-      })()}
-
       {/* ── Active Swaps Banner ── */}
       {user && pendingSwaps > 0 && (
         <Link
@@ -600,7 +598,6 @@ export default function HomePage() {
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold text-zinc-900 dark:text-zinc-50">{item.title}</p>
                     <p className="truncate text-xs text-zinc-500">{item.category}{item.location ? ` · ${item.location}` : ""}</p>
-                    {item.wishlist && <p className="mt-0.5 truncate text-[10px] text-blue-500">{item.wishlist}</p>}
                   </div>
                   <ChevronRight className="h-4 w-4 shrink-0 text-zinc-300 group-hover:text-zinc-500 dark:text-zinc-600" />
                 </Link>
@@ -659,6 +656,40 @@ export default function HomePage() {
 }
 
 /* ── Sub-components ── */
+
+function BranchCard({
+  href,
+  icon,
+  title,
+  description,
+  gradient,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  gradient: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="group relative flex min-h-40 flex-col justify-between overflow-hidden rounded-2xl border border-zinc-200 bg-white/80 p-6 shadow-sm backdrop-blur transition hover:shadow-lg hover:border-blue-300 dark:border-zinc-800 dark:bg-zinc-900/80 dark:hover:border-blue-600"
+    >
+      <div className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${gradient} text-white shadow-md`}>
+        {icon}
+      </div>
+      <div className="mt-4">
+        <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
+          {title}
+        </h3>
+        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+          {description}
+        </p>
+      </div>
+      <ChevronRight className="absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-300 transition group-hover:translate-x-1 group-hover:text-zinc-500 dark:text-zinc-600 dark:group-hover:text-zinc-400" />
+    </Link>
+  );
+}
 
 function StatChip({
   icon,

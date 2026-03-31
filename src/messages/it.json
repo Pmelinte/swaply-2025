@@ -2997,5 +2997,17 @@
     "accept": "Accetta tutti",
     "reject": "Rifiuta non essenziali",
     "settings": "Impostazioni cookie"
+  },
+  "branches": {
+    "tagline": "Scambia ciò che hai con ciò di cui hai bisogno — oggetti, proprietà, servizi ed eventi.",
+    "objects": "Oggetti",
+    "objectsDesc": "Scambia elettronica, libri, vestiti e altro",
+    "properties": "Proprietà",
+    "propertiesDesc": "Scambia case, appartamenti e spazi",
+    "services": "Servizi",
+    "servicesDesc": "Scambia competenze, lavoro e aiuto professionale",
+    "events": "Eventi",
+    "eventsDesc": "Scambia biglietti, prenotazioni ed esperienze",
+    "comingSoon": "Questa sezione arriverà presto. Resta sintonizzato!"
   }
 }

@@ -2997,5 +2997,17 @@
     "accept": "すべて承認",
     "reject": "非必須を拒否",
     "settings": "Cookie設定"
+  },
+  "branches": {
+    "tagline": "持っているものを必要なものと交換 — 物品、不動産、サービス、イベント。",
+    "objects": "物品",
+    "objectsDesc": "電子機器、本、衣類などを交換",
+    "properties": "不動産",
+    "propertiesDesc": "家、アパート、スペースを交換",
+    "services": "サービス",
+    "servicesDesc": "スキル、労働、専門的な支援を交換",
+    "events": "イベント",
+    "eventsDesc": "チケット、予約、体験を交換",
+    "comingSoon": "このセクションは近日公開予定です。お楽しみに！"
   }
 }
