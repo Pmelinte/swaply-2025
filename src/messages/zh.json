@@ -2705,7 +2705,20 @@
     "garden": "花园",
     "toys": "玩具",
     "tools": "工具",
-    "other": "其他"
+    "other": "其他",
+    "sports_outdoor": "运动与户外",
+    "hobby_games": "兴趣与游戏",
+    "books_media": "图书与媒体",
+    "home_garden": "家居与园艺",
+    "fashion_accessories": "时尚与配饰",
+    "auto_moto": "汽车与摩托",
+    "music_audio": "音乐与音频",
+    "gardening_outdoor": "园艺与户外",
+    "toys_kids": "玩具与儿童",
+    "tools_diy": "工具与DIY",
+    "vehicles": "车辆",
+    "experiences": "体验",
+    "medical": "医疗设备"
   },
   "trustScore": {
     "trustScoreTitle": "信任分数",

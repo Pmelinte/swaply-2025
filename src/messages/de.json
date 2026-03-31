@@ -2705,7 +2705,20 @@
     "garden": "Garten",
     "toys": "Spielzeug",
     "tools": "Werkzeuge",
-    "other": "Sonstiges"
+    "other": "Sonstiges",
+    "sports_outdoor": "Sport & Outdoor",
+    "hobby_games": "Hobbys & Spiele",
+    "books_media": "Bücher & Medien",
+    "home_garden": "Haus & Garten",
+    "fashion_accessories": "Mode & Accessoires",
+    "auto_moto": "Auto & Motorrad",
+    "music_audio": "Musik & Audio",
+    "gardening_outdoor": "Garten & Außen",
+    "toys_kids": "Spielzeug & Kinder",
+    "tools_diy": "Werkzeug & Heimwerken",
+    "vehicles": "Fahrzeuge",
+    "experiences": "Erlebnisse",
+    "medical": "Medizinische Geräte"
   },
   "trustScore": {
     "trustScoreTitle": "Vertrauenswürdigkeit",

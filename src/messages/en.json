@@ -2026,7 +2026,6 @@
     "safetyReportingText": "Use the Report button on any user profile or item listing to flag suspicious content. Our moderation team reviews all reports within 24 hours. You can also block users to prevent further contact. For urgent safety concerns, contact your local authorities first, then notify us at safety@swaply.app.",
     "safetyContact": "6. Contact",
     "safetyContactText": "For safety questions or to report an incident, contact safety@swaply.app. For urgent situations, always contact your local emergency services first.",
-
     "dmcaTitle": "DMCA Policy",
     "dmcaSubtitle": "Digital Millennium Copyright Act compliance and takedown procedures",
     "dmcaWhatIs": "1. What is DMCA",
@@ -2058,7 +2057,6 @@
     "dmcaFormSent": "DMCA notice submitted successfully",
     "dmcaFormSentDesc": "We will review your report within 2-3 business days and take appropriate action.",
     "dmcaFormError": "Failed to submit. Please try again or email dmca@swaply.world directly.",
-
     "copyrightTitle": "Copyright Policy",
     "copyrightSubtitle": "Content ownership, intellectual property rights, and trademark policy",
     "copyrightOwnership": "1. Content Ownership",
@@ -2071,7 +2069,6 @@
     "copyrightPlatformRightsText": "The Swaply platform, including its name, logo, design, source code, algorithms, and all associated materials, is the intellectual property of Swaply and its creators. Users may not copy, modify, distribute, or create derivative works based on Swaply's platform without express written permission. The Swaply brand, including the name and logo, are protected marks.",
     "copyrightTrademark": "5. Trademark Policy",
     "copyrightTrademarkText": "The Swaply name, logo, and associated branding are protected trademarks. Use of the Swaply trademark is only permitted in accordance with our brand guidelines. To report unauthorized use of the Swaply trademark, or if you believe your trademark is being misused on our platform, contact us at legal@swaply.world.",
-
     "termsIP": "9. Intellectual Property & Copyright",
     "termsIPText": "Swaply respects intellectual property rights and expects users to do the same. Users must not upload content that infringes the copyrights or trademarks of others. Swaply complies with the Digital Millennium Copyright Act (DMCA) and will remove infringing content upon receiving valid takedown notices. For full details, see our DMCA Policy (/dmca) and Copyright Policy (/copyright). Repeat infringers will have their accounts terminated."
   },
@@ -2914,7 +2911,20 @@
     "garden": "Garden",
     "toys": "Toys",
     "tools": "Tools",
-    "other": "Other"
+    "other": "Other",
+    "sports_outdoor": "Sports & Outdoor",
+    "hobby_games": "Hobbies & Games",
+    "books_media": "Books & Media",
+    "home_garden": "Home & Garden",
+    "fashion_accessories": "Fashion & Accessories",
+    "auto_moto": "Auto & Moto",
+    "music_audio": "Music & Audio",
+    "gardening_outdoor": "Gardening & Outdoor",
+    "toys_kids": "Toys & Kids",
+    "tools_diy": "Tools & DIY",
+    "vehicles": "Vehicles",
+    "experiences": "Experiences",
+    "medical": "Medical Equipment"
   },
   "trustScore": {
     "trustScoreTitle": "Trust score",

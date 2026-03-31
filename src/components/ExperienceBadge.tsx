@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import type { Item } from "@/lib/types";
 
 const EXPERIENCE_CATEGORIES = new Set([
-  "Experiențe", "Experiences",
+  "experiences",
 ]);
 
 /** Check if an item is an experience */

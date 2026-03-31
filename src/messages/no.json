@@ -2705,7 +2705,20 @@
     "garden": "Hage",
     "toys": "Leker",
     "tools": "Verktøy",
-    "other": "Annet"
+    "other": "Annet",
+    "sports_outdoor": "Sport & Friluftsliv",
+    "hobby_games": "Hobby & Spill",
+    "books_media": "Bøker & Media",
+    "home_garden": "Hjem & Hage",
+    "fashion_accessories": "Mote & Tilbehør",
+    "auto_moto": "Bil & Motorsykkel",
+    "music_audio": "Musikk & Lyd",
+    "gardening_outdoor": "Hagearbeid & Utendørs",
+    "toys_kids": "Leker & Barn",
+    "tools_diy": "Verktøy & Gjør-det-selv",
+    "vehicles": "Kjøretøy",
+    "experiences": "Opplevelser",
+    "medical": "Medisinsk utstyr"
   },
   "trustScore": {
     "trustScoreTitle": "Tillitsscore",

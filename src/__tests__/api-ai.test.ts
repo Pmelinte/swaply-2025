@@ -57,14 +57,14 @@ describe("POST /api/ai", () => {
   it("returns default category for unrecognized text", async () => {
     const res = await POST(makeRequest({ title: "xyz abc", description: "nothing special" }));
     const data = await res.json();
-    expect(data.category).toBeTruthy(); // "Hobby & Jocuri" fallback
+    expect(data.category).toBeTruthy(); // "hobby_games" fallback
   });
 
   it("generates description when action=generate_description", async () => {
     const res = await POST(makeRequest({
       prompt: "generate_description",
       title: "Laptop Dell",
-      category: "Electronică",
+      category: "electronics",
       condition: "new",
     }));
     const data = await res.json();

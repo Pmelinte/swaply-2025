@@ -2705,7 +2705,20 @@
     "garden": "Κήπος",
     "toys": "Παιχνίδια",
     "tools": "Εργαλεία",
-    "other": "Άλλο"
+    "other": "Άλλα",
+    "sports_outdoor": "Αθλήματα & Υπαίθρια",
+    "hobby_games": "Χόμπι & Παιχνίδια",
+    "books_media": "Βιβλία & Μέσα",
+    "home_garden": "Σπίτι & Κήπος",
+    "fashion_accessories": "Μόδα & Αξεσουάρ",
+    "auto_moto": "Αυτοκίνητα & Μοτοσυκλέτες",
+    "music_audio": "Μουσική & Ήχος",
+    "gardening_outdoor": "Κηπουρική & Εξωτερικός",
+    "toys_kids": "Παιχνίδια & Παιδιά",
+    "tools_diy": "Εργαλεία & DIY",
+    "vehicles": "Οχήματα",
+    "experiences": "Εμπειρίες",
+    "medical": "Ιατρικός εξοπλισμός"
   },
   "trustScore": {
     "trustScoreTitle": "Βαθμολογία εμπιστοσύνης",

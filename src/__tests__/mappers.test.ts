@@ -80,7 +80,7 @@ describe("createMapItem", () => {
       id: "item-1",
       owner_id: "user-1",
       title: "Chitară Yamaha",
-      category: "Hobby & Jocuri",
+      category: "hobby_games",
       condition: "good",
       description: "Chitară acustică",
       wishlist: "laptop",

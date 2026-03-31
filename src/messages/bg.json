@@ -2705,7 +2705,20 @@
     "garden": "Градина",
     "toys": "Играчки",
     "tools": "Инструменти",
-    "other": "Други"
+    "other": "Други",
+    "sports_outdoor": "Спорт & Аутдор",
+    "hobby_games": "Хобита & Игри",
+    "books_media": "Книги & Медии",
+    "home_garden": "Дом & Градина",
+    "fashion_accessories": "Мода & Аксесоари",
+    "auto_moto": "Авто & Мото",
+    "music_audio": "Музика & Аудио",
+    "gardening_outdoor": "Градинарство & Екстериор",
+    "toys_kids": "Играчки & Деца",
+    "tools_diy": "Инструменти & Направи си сам",
+    "vehicles": "Превозни средства",
+    "experiences": "Преживявания",
+    "medical": "Медицинско оборудване"
   },
   "trustScore": {
     "trustScoreTitle": "Оценка на доверието",

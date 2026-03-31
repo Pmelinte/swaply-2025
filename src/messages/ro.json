@@ -2895,7 +2895,20 @@
     "garden": "Grădină",
     "toys": "Jucării",
     "tools": "Unelte",
-    "other": "Altele"
+    "other": "Altele",
+    "sports_outdoor": "Sport & Outdoor",
+    "hobby_games": "Hobby & Jocuri",
+    "books_media": "Cărți & Media",
+    "home_garden": "Casă & Grădină",
+    "fashion_accessories": "Modă & Accesorii",
+    "auto_moto": "Auto & Moto",
+    "music_audio": "Muzică & Audio",
+    "gardening_outdoor": "Grădinărit & Exterior",
+    "toys_kids": "Jucării & Copii",
+    "tools_diy": "Unelte & Bricolaj",
+    "vehicles": "Vehicule",
+    "experiences": "Experiențe",
+    "medical": "Echipament medical"
   },
   "trustScore": {
     "trustScoreTitle": "Scor de încredere",

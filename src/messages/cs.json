@@ -2705,7 +2705,20 @@
     "garden": "Zahrada",
     "toys": "Hračky",
     "tools": "Nástroje",
-    "other": "Jiné"
+    "other": "Ostatní",
+    "sports_outdoor": "Sport & Outdoor",
+    "hobby_games": "Hobby & Hry",
+    "books_media": "Knihy & Média",
+    "home_garden": "Dům & Zahrada",
+    "fashion_accessories": "Móda & Doplňky",
+    "auto_moto": "Auto & Moto",
+    "music_audio": "Hudba & Audio",
+    "gardening_outdoor": "Zahradničení & Venkovní",
+    "toys_kids": "Hračky & Děti",
+    "tools_diy": "Nářadí & Kutilství",
+    "vehicles": "Vozidla",
+    "experiences": "Zážitky",
+    "medical": "Zdravotnické vybavení"
   },
   "trustScore": {
     "trustScoreTitle": "Skóre důvěry",

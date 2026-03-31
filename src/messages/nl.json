@@ -2705,7 +2705,20 @@
     "garden": "Tuin",
     "toys": "Speelgoed",
     "tools": "Gereedschap",
-    "other": "Overig"
+    "other": "Overig",
+    "sports_outdoor": "Sport & Outdoor",
+    "hobby_games": "Hobby's & Spellen",
+    "books_media": "Boeken & Media",
+    "home_garden": "Huis & Tuin",
+    "fashion_accessories": "Mode & Accessoires",
+    "auto_moto": "Auto & Motor",
+    "music_audio": "Muziek & Audio",
+    "gardening_outdoor": "Tuinieren & Buiten",
+    "toys_kids": "Speelgoed & Kinderen",
+    "tools_diy": "Gereedschap & Doe-het-zelf",
+    "vehicles": "Voertuigen",
+    "experiences": "Ervaringen",
+    "medical": "Medische apparatuur"
   },
   "trustScore": {
     "trustScoreTitle": "Vertrouwensscore",

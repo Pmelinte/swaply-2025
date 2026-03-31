@@ -26,6 +26,10 @@ function normalizeText(s: string): string {
   return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 }
 
+function escapeLike(s: string): string {
+  return s.replace(/[%_\\]/g, "\\$&");
+}
+
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get("authorization") ?? "";
   const token = authHeader.replace("Bearer ", "");
@@ -152,7 +156,7 @@ export async function POST(request: NextRequest) {
       .limit(50);
 
     if (normalizedCategory) {
-      matchQuery = matchQuery.ilike("category", `%${body.category}%`);
+      matchQuery = matchQuery.ilike("category", `%${escapeLike(body.category!)}%`);
     }
 
     const { data: matchingItems } = await matchQuery;

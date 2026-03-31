@@ -55,7 +55,7 @@ export const mockItems: Item[] = [
     id: "item-1",
     ownerId: mockUser.id,
     title: "Urban Hybrid Bicycle",
-    category: "Sport & Outdoor",
+    category: "sports_outdoor",
     condition: "good",
     description: "Lightweight frame, needs brake adjustment. Ideal for city use.",
     wishlist: "Camping accessories or a 24\u201D monitor",

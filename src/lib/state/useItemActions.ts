@@ -99,7 +99,7 @@ export function useItemActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
               .select("id, user_id, title")
               .eq("status", "active")
               .neq("user_id", user.id)
-              .ilike("category", `%${item.category ?? ""}%`)
+              .ilike("category", `%${(item.category ?? "").replace(/[%_\\]/g, "\\$&")}%`)
               .limit(10)
               .then(({ data: wantedMatches }) => {
                 if (wantedMatches && wantedMatches.length > 0) {

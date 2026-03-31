@@ -75,6 +75,7 @@ export function ItemForm({
 }) {
   const t = useTranslations("itemForm");
   const tc = useTranslations("common");
+  const tCat = useTranslations("categories");
 
   const CONDITIONS = useMemo(() => [
     { value: "new", label: t("conditionNew") },
@@ -613,7 +614,7 @@ export function ItemForm({
             <option value="">{t("chooseCategory")}</option>
             {TOP_CATEGORIES.map((cat) => (
               <option key={cat.id} value={cat.id}>
-                {cat.name}
+                {tCat(cat.name)}
               </option>
             ))}
           </select>
@@ -625,11 +626,11 @@ export function ItemForm({
               className={`${inputNormal} mt-1`}
             >
               <option value={TOP_CATEGORIES.find((c) => c.id === selectedParent)?.name ?? ""}>
-                {t("allFromCategory", { category: TOP_CATEGORIES.find((c) => c.id === selectedParent)?.name ?? "" })}
+                {t("allFromCategory", { category: tCat(TOP_CATEGORIES.find((c) => c.id === selectedParent)?.name ?? "other") })}
               </option>
               {subcategories.map((sub) => (
                 <option key={sub.id} value={sub.name}>
-                  {sub.name}
+                  {sub.nameEn ?? sub.name}
                 </option>
               ))}
             </select>

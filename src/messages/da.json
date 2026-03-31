@@ -2705,7 +2705,20 @@
     "garden": "Have",
     "toys": "Legetøj",
     "tools": "Værktøjer",
-    "other": "Øvrige"
+    "other": "Andet",
+    "sports_outdoor": "Sport & Outdoor",
+    "hobby_games": "Hobby & Spil",
+    "books_media": "Bøger & Medier",
+    "home_garden": "Hjem & Have",
+    "fashion_accessories": "Mode & Tilbehør",
+    "auto_moto": "Bil & Motorcykel",
+    "music_audio": "Musik & Lyd",
+    "gardening_outdoor": "Havearbejde & Udendørs",
+    "toys_kids": "Legetøj & Børn",
+    "tools_diy": "Værktøj & Gør-det-selv",
+    "vehicles": "Køretøjer",
+    "experiences": "Oplevelser",
+    "medical": "Medicinsk udstyr"
   },
   "trustScore": {
     "trustScoreTitle": "Tillidscore",

@@ -2694,7 +2694,7 @@
     "byCity": "{category} حسب المدينة"
   },
   "categories": {
-    "electronics": "الإلكترونيات",
+    "electronics": "إلكترونيات",
     "sport": "الرياضة",
     "arts": "الفن والهوايات",
     "books": "الكتب",
@@ -2705,7 +2705,20 @@
     "garden": "حديقة",
     "toys": "الألعاب",
     "tools": "الأدوات",
-    "other": "أخرى"
+    "other": "أخرى",
+    "sports_outdoor": "رياضة وأنشطة خارجية",
+    "hobby_games": "هوايات وألعاب",
+    "books_media": "كتب ووسائط",
+    "home_garden": "منزل وحديقة",
+    "fashion_accessories": "أزياء وإكسسوارات",
+    "auto_moto": "سيارات ودراجات نارية",
+    "music_audio": "موسيقى وصوتيات",
+    "gardening_outdoor": "بستنة وخارجي",
+    "toys_kids": "ألعاب وأطفال",
+    "tools_diy": "أدوات وأعمال يدوية",
+    "vehicles": "مركبات",
+    "experiences": "تجارب",
+    "medical": "معدات طبية"
   },
   "trustScore": {
     "trustScoreTitle": "درجة الثقة",

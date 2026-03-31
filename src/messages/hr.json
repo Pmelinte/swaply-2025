@@ -2705,7 +2705,20 @@
     "garden": "Vrt",
     "toys": "Igračke",
     "tools": "Alati",
-    "other": "Ostalo"
+    "other": "Ostalo",
+    "sports_outdoor": "Sport & Outdoor",
+    "hobby_games": "Hobiji & Igre",
+    "books_media": "Knjige & Mediji",
+    "home_garden": "Dom & Vrt",
+    "fashion_accessories": "Moda & Dodaci",
+    "auto_moto": "Auto & Moto",
+    "music_audio": "Glazba & Audio",
+    "gardening_outdoor": "Vrtlarstvo & Vanjski",
+    "toys_kids": "Igračke & Djeca",
+    "tools_diy": "Alati & Uradi sam",
+    "vehicles": "Vozila",
+    "experiences": "Iskustva",
+    "medical": "Medicinska oprema"
   },
   "trustScore": {
     "trustScoreTitle": "Rezultat pouzdanosti",

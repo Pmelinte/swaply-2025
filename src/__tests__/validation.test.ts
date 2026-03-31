@@ -76,7 +76,7 @@ describe("aiImageSchema", () => {
 describe("aiMatchSchema", () => {
   const validItem = {
     title: "Laptop",
-    category: "Electronică",
+    category: "electronics",
     condition: "good",
   };
 
@@ -112,7 +112,7 @@ describe("aiMatchSchema", () => {
 
   it("rejects item without title", () => {
     const result = aiMatchSchema.safeParse({
-      offeredItem: { category: "Electronică", condition: "good" },
+      offeredItem: { category: "electronics", condition: "good" },
       requestedItem: validItem,
       baseScore: 50,
       reasons: [],
@@ -159,7 +159,7 @@ describe("itemSchema", () => {
   it("accepts valid item", () => {
     const result = itemSchema.safeParse({
       title: "Chitară Yamaha",
-      category: "Hobby & Jocuri",
+      category: "hobby_games",
       condition: "good",
     });
     expect(result.success).toBe(true);

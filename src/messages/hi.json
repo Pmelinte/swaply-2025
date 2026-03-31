@@ -2705,7 +2705,20 @@
     "garden": "बगीचा",
     "toys": "खिलौने",
     "tools": "उपकरण",
-    "other": "अन्य"
+    "other": "अन्य",
+    "sports_outdoor": "खेल और आउटडोर",
+    "hobby_games": "शौक और खेल",
+    "books_media": "किताबें और मीडिया",
+    "home_garden": "घर और बगीचा",
+    "fashion_accessories": "फैशन और एक्सेसरीज़",
+    "auto_moto": "ऑटो और मोटो",
+    "music_audio": "संगीत और ऑडियो",
+    "gardening_outdoor": "बागवानी और बाहरी",
+    "toys_kids": "खिलौने और बच्चे",
+    "tools_diy": "उपकरण और DIY",
+    "vehicles": "वाहन",
+    "experiences": "अनुभव",
+    "medical": "चिकित्सा उपकरण"
   },
   "trustScore": {
     "trustScoreTitle": "विश्वास स्कोर",

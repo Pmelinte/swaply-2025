@@ -25,8 +25,8 @@ export interface CategoryNode {
 
 /** Full taxonomy as flat array (easily filterable) */
 export const CATEGORIES_TAXONOMY: CategoryNode[] = [
-  // ── Electronică ──
-  { id: "cat-electronica", name: "Electronică", nameEn: "Electronics", parentId: null, level: 0, keywords: ["electronica","electronic","tech","gadget","digital"], icon: "monitor", sortOrder: 10 },
+  // ── Electronics ──
+  { id: "cat-electronica", name: "electronics", nameEn: "Electronics", parentId: null, level: 0, keywords: ["electronica","electronic","tech","gadget","digital"], icon: "monitor", sortOrder: 10 },
   { id: "cat-e-telefoane", name: "Telefoane & Tablete", nameEn: "Phones & Tablets", parentId: "cat-electronica", level: 1, keywords: ["telefon","phone","tablet","smartphone","iphone","samsung","huawei"], icon: "smartphone", sortOrder: 11 },
   { id: "cat-e-laptopuri", name: "Laptopuri & PC", nameEn: "Laptops & PC", parentId: "cat-electronica", level: 1, keywords: ["laptop","pc","calculator","computer","macbook","desktop"], icon: "laptop", sortOrder: 12 },
   { id: "cat-e-monitoare", name: "Monitoare & TV", nameEn: "Monitors & TV", parentId: "cat-electronica", level: 1, keywords: ["monitor","tv","televizor","ecran","display"], icon: "monitor", sortOrder: 13 },
@@ -36,8 +36,8 @@ export const CATEGORIES_TAXONOMY: CategoryNode[] = [
   { id: "cat-e-componente", name: "Componente & Periferice", nameEn: "Components & Peripherals", parentId: "cat-electronica", level: 1, keywords: ["ssd","hdd","ram","tastatura","keyboard","mouse","placa","gpu"], icon: "cpu", sortOrder: 17 },
   { id: "cat-e-wearables", name: "Wearables & Smart", nameEn: "Wearables & Smart", parentId: "cat-electronica", level: 1, keywords: ["smartwatch","ceas","smart","wearable","fitness","tracker"], icon: "watch", sortOrder: 18 },
 
-  // ── Sport & Outdoor ──
-  { id: "cat-sport", name: "Sport & Outdoor", nameEn: "Sport & Outdoor", parentId: null, level: 0, keywords: ["sport","outdoor","fitness","activ"], icon: "bike", sortOrder: 20 },
+  // ── Sports & Outdoor ──
+  { id: "cat-sport", name: "sports_outdoor", nameEn: "Sports & Outdoor", parentId: null, level: 0, keywords: ["sport","outdoor","fitness","activ"], icon: "bike", sortOrder: 20 },
   { id: "cat-s-biciclete", name: "Biciclete & Trotinete", nameEn: "Bikes & Scooters", parentId: "cat-sport", level: 1, keywords: ["bicicleta","bike","trotineta","scooter","ciclism"], icon: "bike", sortOrder: 21 },
   { id: "cat-s-camping", name: "Camping & Drumeții", nameEn: "Camping & Hiking", parentId: "cat-sport", level: 1, keywords: ["camping","cort","tent","hiking","drumetie","rucsac","sac"], icon: "tent", sortOrder: 22 },
   { id: "cat-s-fitness", name: "Fitness & Sală", nameEn: "Fitness & Gym", parentId: "cat-sport", level: 1, keywords: ["fitness","sala","gym","greutati","gantere","yoga","benzi"], icon: "dumbbell", sortOrder: 23 },
@@ -46,8 +46,8 @@ export const CATEGORIES_TAXONOMY: CategoryNode[] = [
   { id: "cat-s-apa", name: "Sporturi nautice", nameEn: "Water Sports", parentId: "cat-sport", level: 1, keywords: ["inot","kayak","surf","snorkel","scuba","nautic","barca"], icon: "anchor", sortOrder: 26 },
   { id: "cat-s-running", name: "Alergare & Atletism", nameEn: "Running & Athletics", parentId: "cat-sport", level: 1, keywords: ["running","alergare","pantofi","shoes","atletism","maraton"], icon: "footprints", sortOrder: 27 },
 
-  // ── Hobby & Jocuri ──
-  { id: "cat-hobby", name: "Hobby & Jocuri", nameEn: "Hobby & Games", parentId: null, level: 0, keywords: ["hobby","jocuri","joc","divertisment","creativ"], icon: "gamepad", sortOrder: 30 },
+  // ── Hobby & Games ──
+  { id: "cat-hobby", name: "hobby_games", nameEn: "Hobbies & Games", parentId: null, level: 0, keywords: ["hobby","jocuri","joc","divertisment","creativ"], icon: "gamepad", sortOrder: 30 },
   { id: "cat-h-boardgames", name: "Jocuri de societate", nameEn: "Board Games", parentId: "cat-hobby", level: 1, keywords: ["boardgame","board game","puzzle","sah","chess","table","joc"], icon: "dice", sortOrder: 31 },
   { id: "cat-h-muzica", name: "Instrumente muzicale", nameEn: "Musical Instruments", parentId: "cat-hobby", level: 1, keywords: ["chitara","guitar","pian","piano","vioara","tobe","drums","muzica"], icon: "music", sortOrder: 32 },
   { id: "cat-h-arta", name: "Artă & Pictură", nameEn: "Art & Painting", parentId: "cat-hobby", level: 1, keywords: ["pictura","painting","arta","art","desen","canvas","acuarela"], icon: "palette", sortOrder: 33 },
@@ -56,8 +56,8 @@ export const CATEGORIES_TAXONOMY: CategoryNode[] = [
   { id: "cat-h-foto", name: "Fotografie & Video", nameEn: "Photography & Video", parentId: "cat-hobby", level: 1, keywords: ["fotografie","photography","video","editing","trepied","tripod"], icon: "camera", sortOrder: 36 },
   { id: "cat-h-gradinarit", name: "Grădinărit & Plante", nameEn: "Gardening & Plants", parentId: "cat-hobby", level: 1, keywords: ["plante","gradinarit","gardening","seminte","seeds","ghiveci","bonsai"], icon: "sprout", sortOrder: 37 },
 
-  // ── Cărți & Media ──
-  { id: "cat-carti", name: "Cărți & Media", nameEn: "Books & Media", parentId: null, level: 0, keywords: ["carti","carte","media","muzica","film"], icon: "book", sortOrder: 40 },
+  // ── Books & Media ──
+  { id: "cat-carti", name: "books_media", nameEn: "Books & Media", parentId: null, level: 0, keywords: ["carti","carte","media","muzica","film"], icon: "book", sortOrder: 40 },
   { id: "cat-c-ficiune", name: "Ficțiune & Romane", nameEn: "Fiction & Novels", parentId: "cat-carti", level: 1, keywords: ["roman","ficiune","fiction","novel","povesti","literatura"], icon: "book-open", sortOrder: 41 },
   { id: "cat-c-nonfic", name: "Non-ficțiune & Știință", nameEn: "Non-fiction & Science", parentId: "cat-carti", level: 1, keywords: ["nonfictiune","stiinta","science","istorie","history","biografie"], icon: "graduation-cap", sortOrder: 42 },
   { id: "cat-c-comics", name: "Benzi desenate & Manga", nameEn: "Comics & Manga", parentId: "cat-carti", level: 1, keywords: ["comics","manga","bd","benzi","graphic","novel"], icon: "comic", sortOrder: 43 },
@@ -66,8 +66,8 @@ export const CATEGORIES_TAXONOMY: CategoryNode[] = [
   { id: "cat-c-manuale", name: "Manuale & Cursuri", nameEn: "Textbooks & Courses", parentId: "cat-carti", level: 1, keywords: ["manual","curs","textbook","scoala","universitate","studiu"], icon: "notebook", sortOrder: 46 },
   { id: "cat-c-copii", name: "Cărți pentru copii", nameEn: "Children's Books", parentId: "cat-carti", level: 1, keywords: ["copii","children","kids","povesti","colorat","educativ"], icon: "baby", sortOrder: 47 },
 
-  // ── Casă & Grădină ──
-  { id: "cat-casa", name: "Casă & Grădină", nameEn: "Home & Garden", parentId: null, level: 0, keywords: ["casa","home","gradina","garden","mobilier"], icon: "home", sortOrder: 50 },
+  // ── Home & Garden ──
+  { id: "cat-casa", name: "home_garden", nameEn: "Home & Garden", parentId: null, level: 0, keywords: ["casa","home","gradina","garden","mobilier"], icon: "home", sortOrder: 50 },
   { id: "cat-g-mobilier", name: "Mobilier", nameEn: "Furniture", parentId: "cat-casa", level: 1, keywords: ["mobilier","scaun","masa","birou","dulap","canapea","pat"], icon: "armchair", sortOrder: 51 },
   { id: "cat-g-bucatarie", name: "Bucătărie", nameEn: "Kitchen", parentId: "cat-casa", level: 1, keywords: ["bucatarie","kitchen","oala","tigaie","blender","mixer","cafetiera"], icon: "utensils", sortOrder: 52 },
   { id: "cat-g-unelte", name: "Unelte & Bricolaj", nameEn: "Tools & DIY", parentId: "cat-casa", level: 1, keywords: ["unelte","tools","bormasina","ciocan","surubelnita","bricolaj"], icon: "hammer", sortOrder: 53 },
@@ -76,8 +76,8 @@ export const CATEGORIES_TAXONOMY: CategoryNode[] = [
   { id: "cat-g-gradina", name: "Grădină & Exterior", nameEn: "Garden & Outdoor", parentId: "cat-casa", level: 1, keywords: ["gradina","garden","gazon","furtun","gratar","umbrela","terasa"], icon: "tree", sortOrder: 56 },
   { id: "cat-g-baie", name: "Baie & Sanitare", nameEn: "Bathroom & Fixtures", parentId: "cat-casa", level: 1, keywords: ["baie","bathroom","dus","robinet","prosop","raft","oglinda"], icon: "droplet", sortOrder: 57 },
 
-  // ── Modă & Accesorii ──
-  { id: "cat-moda", name: "Modă & Accesorii", nameEn: "Fashion & Accessories", parentId: null, level: 0, keywords: ["moda","fashion","accesorii","imbracaminte"], icon: "shirt", sortOrder: 60 },
+  // ── Fashion & Accessories ──
+  { id: "cat-moda", name: "fashion_accessories", nameEn: "Fashion & Accessories", parentId: null, level: 0, keywords: ["moda","fashion","accesorii","imbracaminte"], icon: "shirt", sortOrder: 60 },
   { id: "cat-m-barbati", name: "Îmbrăcăminte bărbați", nameEn: "Men's Clothing", parentId: "cat-moda", level: 1, keywords: ["barbati","men","camasa","pantaloni","costum","jeans","tricou"], icon: "shirt", sortOrder: 61 },
   { id: "cat-m-femei", name: "Îmbrăcăminte femei", nameEn: "Women's Clothing", parentId: "cat-moda", level: 1, keywords: ["femei","women","rochie","fusta","bluza","dress","top"], icon: "shirt", sortOrder: 62 },
   { id: "cat-m-copii", name: "Îmbrăcăminte copii", nameEn: "Children's Clothing", parentId: "cat-moda", level: 1, keywords: ["copii","kids","children","body","salopeta","caciula"], icon: "baby", sortOrder: 63 },
@@ -86,8 +86,8 @@ export const CATEGORIES_TAXONOMY: CategoryNode[] = [
   { id: "cat-m-ceasuri", name: "Ceasuri & Bijuterii", nameEn: "Watches & Jewelry", parentId: "cat-moda", level: 1, keywords: ["ceas","watch","bijuterii","jewelry","inel","bratara","lantisor"], icon: "watch", sortOrder: 66 },
   { id: "cat-m-ochelari", name: "Ochelari & Accesorii", nameEn: "Glasses & Accessories", parentId: "cat-moda", level: 1, keywords: ["ochelari","sunglasses","glasses","esarfa","palarie","curea","belt"], icon: "glasses", sortOrder: 67 },
 
-  // ── Vehicule ──
-  { id: "cat-vehicule", name: "Vehicule", nameEn: "Vehicles", parentId: null, level: 0, keywords: ["vehicul","masina","auto","car","vehicle","moto"], icon: "car", sortOrder: 70 },
+  // ── Vehicles ──
+  { id: "cat-vehicule", name: "vehicles", nameEn: "Vehicles", parentId: null, level: 0, keywords: ["vehicul","masina","auto","car","vehicle","moto"], icon: "car", sortOrder: 70 },
   { id: "cat-v-auto", name: "Autoturisme", nameEn: "Cars", parentId: "cat-vehicule", level: 1, keywords: ["masina","car","autoturism","sedan","suv","hatchback"], icon: "car", sortOrder: 71 },
   { id: "cat-v-moto", name: "Motociclete & Scutere", nameEn: "Motorcycles & Scooters", parentId: "cat-vehicule", level: 1, keywords: ["motocicleta","scuter","motorcycle","scooter","moped"], icon: "bike", sortOrder: 72 },
   { id: "cat-v-barci", name: "Bărci & Watercraft", nameEn: "Boats & Watercraft", parentId: "cat-vehicule", level: 1, keywords: ["barca","boat","yacht","watercraft","jet-ski"], icon: "anchor", sortOrder: 73 },
@@ -95,8 +95,8 @@ export const CATEGORIES_TAXONOMY: CategoryNode[] = [
   { id: "cat-v-biciclete", name: "Biciclete", nameEn: "Bicycles", parentId: "cat-vehicule", level: 1, keywords: ["bicicleta","bicycle","bike","ebike","electric"], icon: "bike", sortOrder: 75 },
   { id: "cat-v-alte", name: "Alte vehicule", nameEn: "Other Vehicles", parentId: "cat-vehicule", level: 1, keywords: ["atv","utilaj","tractor","camion","truck"], icon: "truck", sortOrder: 76 },
 
-  // ── Experiențe ──
-  { id: "cat-experiente", name: "Experiențe", nameEn: "Experiences", parentId: null, level: 0, keywords: ["experienta","bilet","ticket","voucher","eveniment","event"], icon: "ticket", sortOrder: 80 },
+  // ── Experiences ──
+  { id: "cat-experiente", name: "experiences", nameEn: "Experiences", parentId: null, level: 0, keywords: ["experienta","bilet","ticket","voucher","eveniment","event"], icon: "ticket", sortOrder: 80 },
   { id: "cat-x-bilete", name: "Bilete avion", nameEn: "Flight Tickets", parentId: "cat-experiente", level: 1, keywords: ["avion","flight","bilet","zbor","airline"], icon: "plane", sortOrder: 81 },
   { id: "cat-x-cazare", name: "Hotel & Cazare", nameEn: "Hotel & Accommodation", parentId: "cat-experiente", level: 1, keywords: ["hotel","cazare","airbnb","booking","accommodation"], icon: "hotel", sortOrder: 82 },
   { id: "cat-x-concerte", name: "Evenimente & Concerte", nameEn: "Events & Concerts", parentId: "cat-experiente", level: 1, keywords: ["concert","festival","eveniment","event","spectacol"], icon: "music", sortOrder: 83 },

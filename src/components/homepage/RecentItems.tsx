@@ -5,7 +5,6 @@ import { Link } from "@/i18n/navigation";
 import { useEffect, useState, useCallback } from "react";
 import { MapPin, ChevronRight, Plus, Globe, Loader2 } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
-import { SEO_CATEGORIES } from "@/lib/seo-data";
 
 interface RecentItem {
   id: string;
@@ -21,20 +20,15 @@ interface RecentItem {
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
-  "Electronică": "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
-  "Sport & Outdoor": "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300",
-  "Hobby & Jocuri": "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300",
-  "Cărți & Media": "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
-  "Casă & Grădină": "bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300",
-  "Modă & Accesorii": "bg-pink-100 text-pink-700 dark:bg-pink-900/40 dark:text-pink-300",
+  electronics: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
+  sports_outdoor: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300",
+  hobby_games: "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300",
+  books_media: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
+  home_garden: "bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300",
+  fashion_accessories: "bg-pink-100 text-pink-700 dark:bg-pink-900/40 dark:text-pink-300",
 };
 
 const DEFAULT_BADGE = "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300";
-
-/** Map DB category (Romanian) → slug for i18n lookup */
-const DB_CAT_TO_SLUG: Record<string, string> = Object.fromEntries(
-  SEO_CATEGORIES.map((c) => [c.dbCategory, c.slug]),
-);
 
 function getItemImage(item: RecentItem): string | null {
   // Try images JSONB (could be array of strings or array of objects)
@@ -239,7 +233,7 @@ export function RecentItems() {
                 <span
                   className={`inline-flex w-fit rounded-full px-2 py-0.5 text-[10px] font-medium ${getCategoryBadge(item.category)}`}
                 >
-                  {DB_CAT_TO_SLUG[item.category] ? tCat(DB_CAT_TO_SLUG[item.category]) : item.category}
+                  {tCat(item.category)}
                 </span>
 
                 {/* Location */}
