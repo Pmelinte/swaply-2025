@@ -60,17 +60,17 @@ interface SEOCity {
 }
 
 const SEO_CATEGORIES: SEOCategory[] = [
-  { slug: "electronics", nameLocal: "Electronics", dbCategory: "Electronică" },
-  { slug: "sport", nameLocal: "Sport & Outdoor", dbCategory: "Sport & Outdoor" },
-  { slug: "arts", nameLocal: "Art & Hobby", dbCategory: "Hobby & Jocuri" },
-  { slug: "books", nameLocal: "Books & Media", dbCategory: "Cărți & Media" },
-  { slug: "home", nameLocal: "Home & Garden", dbCategory: "Casă & Grădină" },
-  { slug: "fashion", nameLocal: "Fashion & Accessories", dbCategory: "Modă & Accesorii" },
-  { slug: "automotive", nameLocal: "Auto & Moto", dbCategory: "Auto & Moto" },
-  { slug: "music", nameLocal: "Music & Audio", dbCategory: "Muzică & Audio" },
-  { slug: "garden", nameLocal: "Gardening & Outdoor", dbCategory: "Grădinărit & Exterior" },
-  { slug: "toys", nameLocal: "Toys & Kids", dbCategory: "Jucării & Copii" },
-  { slug: "tools", nameLocal: "Tools & DIY", dbCategory: "Unelte & Bricolaj" },
+  { slug: "electronics", nameLocal: "Electronics", dbCategory: "electronics" },
+  { slug: "sport", nameLocal: "Sport & Outdoor", dbCategory: "sports_outdoor" },
+  { slug: "arts", nameLocal: "Art & Hobby", dbCategory: "hobby_games" },
+  { slug: "books", nameLocal: "Books & Media", dbCategory: "books_media" },
+  { slug: "home", nameLocal: "Home & Garden", dbCategory: "home_garden" },
+  { slug: "fashion", nameLocal: "Fashion & Accessories", dbCategory: "fashion_accessories" },
+  { slug: "automotive", nameLocal: "Auto & Moto", dbCategory: "auto_moto" },
+  { slug: "music", nameLocal: "Music & Audio", dbCategory: "music_audio" },
+  { slug: "garden", nameLocal: "Gardening & Outdoor", dbCategory: "gardening_outdoor" },
+  { slug: "toys", nameLocal: "Toys & Kids", dbCategory: "toys_kids" },
+  { slug: "tools", nameLocal: "Tools & DIY", dbCategory: "tools_diy" },
 ];
 
 const SEO_CITIES: SEOCity[] = [

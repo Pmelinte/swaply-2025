@@ -2705,7 +2705,20 @@
     "garden": "Сад",
     "toys": "Игрушки",
     "tools": "Инструменты",
-    "other": "Другое"
+    "other": "Прочее",
+    "sports_outdoor": "Спорт и активный отдых",
+    "hobby_games": "Хобби и игры",
+    "books_media": "Книги и медиа",
+    "home_garden": "Дом и сад",
+    "fashion_accessories": "Мода и аксессуары",
+    "auto_moto": "Авто и мото",
+    "music_audio": "Музыка и аудио",
+    "gardening_outdoor": "Садоводство и улица",
+    "toys_kids": "Игрушки и дети",
+    "tools_diy": "Инструменты и DIY",
+    "vehicles": "Транспорт",
+    "experiences": "Впечатления",
+    "medical": "Медицинское оборудование"
   },
   "trustScore": {
     "trustScoreTitle": "Оценка надежности",

@@ -71,15 +71,15 @@ describe("CATEGORY_NAMES", () => {
   });
 
   it("includes known categories", () => {
-    expect(CATEGORY_NAMES).toContain("Electronică");
-    expect(CATEGORY_NAMES).toContain("Sport & Outdoor");
-    expect(CATEGORY_NAMES).toContain("Casă & Grădină");
-    expect(CATEGORY_NAMES).toContain("Modă & Accesorii");
+    expect(CATEGORY_NAMES).toContain("electronics");
+    expect(CATEGORY_NAMES).toContain("sports_outdoor");
+    expect(CATEGORY_NAMES).toContain("home_garden");
+    expect(CATEGORY_NAMES).toContain("fashion_accessories");
   });
 });
 
 describe("getSubcategories", () => {
-  it("returns correct subcategories for Electronică", () => {
+  it("returns correct subcategories for electronics", () => {
     const subs = getSubcategories("cat-electronica");
     expect(subs.length).toBe(8);
     expect(subs[0].name).toBe("Telefoane & Tablete");
@@ -106,19 +106,13 @@ describe("getSubcategories", () => {
 
 describe("findCategoryByName", () => {
   it("finds exact name match", () => {
-    const result = findCategoryByName("Electronică");
+    const result = findCategoryByName("electronics");
     expect(result).toBeDefined();
     expect(result!.id).toBe("cat-electronica");
   });
 
   it("is case-insensitive", () => {
-    const result = findCategoryByName("electronică");
-    expect(result).toBeDefined();
-    expect(result!.id).toBe("cat-electronica");
-  });
-
-  it("is accent-tolerant", () => {
-    const result = findCategoryByName("Electronica");
+    const result = findCategoryByName("Electronics");
     expect(result).toBeDefined();
     expect(result!.id).toBe("cat-electronica");
   });
@@ -136,11 +130,11 @@ describe("findCategoryByName", () => {
 
 describe("getParentName", () => {
   it("returns parent name for subcategory", () => {
-    expect(getParentName("Telefoane & Tablete")).toBe("Electronică");
+    expect(getParentName("Telefoane & Tablete")).toBe("electronics");
   });
 
   it("returns null for top-level category", () => {
-    expect(getParentName("Electronică")).toBeNull();
+    expect(getParentName("electronics")).toBeNull();
   });
 
   it("returns null for non-existent category", () => {
@@ -154,7 +148,7 @@ describe("areSiblingCategories", () => {
   });
 
   it("returns true for parent-child relationship", () => {
-    expect(areSiblingCategories("Electronică", "Telefoane & Tablete")).toBe(true);
+    expect(areSiblingCategories("electronics", "Telefoane & Tablete")).toBe(true);
   });
 
   it("returns false for different parent categories", () => {
@@ -168,7 +162,7 @@ describe("areSiblingCategories", () => {
 
 describe("getAllKeywords", () => {
   it("returns keywords for top-level category", () => {
-    const kws = getAllKeywords("Electronică");
+    const kws = getAllKeywords("electronics");
     expect(kws).toContain("electronic");
     expect(kws).toContain("tech");
   });

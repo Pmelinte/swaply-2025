@@ -2918,7 +2918,20 @@
     "garden": "Trädgård",
     "toys": "Leksaker",
     "tools": "Verktyg",
-    "other": "Övrigt"
+    "other": "Övrigt",
+    "sports_outdoor": "Sport & Friluftsliv",
+    "hobby_games": "Hobby & Spel",
+    "books_media": "Böcker & Media",
+    "home_garden": "Hem & Trädgård",
+    "fashion_accessories": "Mode & Accessoarer",
+    "auto_moto": "Bil & Motor",
+    "music_audio": "Musik & Ljud",
+    "gardening_outdoor": "Trädgård & Utomhus",
+    "toys_kids": "Leksaker & Barn",
+    "tools_diy": "Verktyg & Gör-det-själv",
+    "vehicles": "Fordon",
+    "experiences": "Upplevelser",
+    "medical": "Medicinsk utrustning"
   },
   "trustScore": {
     "trustScoreTitle": "Förtroendepoäng",

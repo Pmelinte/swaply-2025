@@ -2694,7 +2694,7 @@
     "byCity": "{category} por cidade"
   },
   "categories": {
-    "electronics": "Eletrônicos",
+    "electronics": "Eletrônica",
     "sport": "Esportes",
     "arts": "Arte e Hobby",
     "books": "Livros",
@@ -2705,7 +2705,20 @@
     "garden": "Jardim",
     "toys": "Brinquedos",
     "tools": "Ferramentas",
-    "other": "Outro"
+    "other": "Outros",
+    "sports_outdoor": "Esportes & Outdoor",
+    "hobby_games": "Hobbies & Jogos",
+    "books_media": "Livros & Mídia",
+    "home_garden": "Casa & Jardim",
+    "fashion_accessories": "Moda & Acessórios",
+    "auto_moto": "Auto & Moto",
+    "music_audio": "Música & Áudio",
+    "gardening_outdoor": "Jardinagem & Exterior",
+    "toys_kids": "Brinquedos & Crianças",
+    "tools_diy": "Ferramentas & Bricolagem",
+    "vehicles": "Veículos",
+    "experiences": "Experiências",
+    "medical": "Equipamento médico"
   },
   "trustScore": {
     "trustScoreTitle": "Pontuação de confiança",

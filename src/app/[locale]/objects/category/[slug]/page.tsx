@@ -16,12 +16,6 @@ interface Props {
   params: Promise<{ locale: string; slug: string }>;
 }
 
-/** Return locale-aware category display name */
-function getCategoryDisplayName(cat: SEOCategory, locale: string): string {
-  // dbCategory has the Romanian name from DB; nameLocal is English
-  return locale === "ro" ? cat.dbCategory : cat.nameLocal;
-}
-
 export async function generateStaticParams() {
   return SEO_CATEGORIES.map((cat) => ({ slug: cat.slug }));
 }
@@ -33,7 +27,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!cat) return { title: t("notFound") };
 
-  const categoryName = getCategoryDisplayName(cat, locale);
+  const tCat = await getTranslations({ locale, namespace: "categories" });
+  const categoryName = tCat(cat.dbCategory);
   const title = t("metaTitle", { category: categoryName });
   const description = t("metaDescription", { category: categoryName });
 
@@ -89,7 +84,8 @@ export default async function CategoryPage({ params }: Props) {
   if (!cat) notFound();
 
   const t = await getTranslations({ locale, namespace: "categoryPage" });
-  const categoryName = getCategoryDisplayName(cat, locale);
+  const tCat = await getTranslations({ locale, namespace: "categories" });
+  const categoryName = tCat(cat.dbCategory);
   const items = await getItems(cat.dbCategory);
   const relatedCategories = cat.related
     .map((r) => getCategoryBySlug(r))

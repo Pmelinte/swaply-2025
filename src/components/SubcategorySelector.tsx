@@ -26,39 +26,25 @@ interface SubcategorySelectorProps {
   onExtraFieldsChange?: (fields: Record<string, string>) => void;
 }
 
-/** Map category names to slugs for the API */
+/** Map DB category slugs to subcategory API slugs */
 const CATEGORY_SLUG_MAP: Record<string, string> = {
-  "Electronică": "electronics",
-  "Sport & Outdoor": "sport",
-  "Modă & Accesorii": "fashion",
-  "Cărți & Media": "books",
-  "Casă & Grădină": "home",
-  "Hobby & Jocuri": "art",
-  "Vehicule": "vehicles",
-  "Experiențe": "experiences",
-  "Medical": "medical",
-  "Auto": "auto",
-  "Muzică": "music",
-  "Jucării": "toys",
-  "Grădină": "garden",
-  "Unelte": "tools",
-  "Servicii": "services",
-  "Proprietăți": "properties",
-  // English fallbacks (skip duplicates: Medical, Auto already above)
-  Electronics: "electronics",
-  Sport: "sport",
-  Fashion: "fashion",
-  Books: "books",
-  Home: "home",
-  Art: "art",
-  Vehicles: "vehicles",
-  Experiences: "experiences",
-  Music: "music",
-  Toys: "toys",
-  Garden: "garden",
-  Tools: "tools",
-  Services: "services",
-  Properties: "properties",
+  // DB slugs → subcategory API slugs
+  electronics: "electronics",
+  sports_outdoor: "sport",
+  fashion_accessories: "fashion",
+  books_media: "books",
+  home_garden: "home",
+  hobby_games: "art",
+  vehicles: "vehicles",
+  experiences: "experiences",
+  medical: "medical",
+  auto_moto: "auto",
+  music_audio: "music",
+  toys_kids: "toys",
+  gardening_outdoor: "garden",
+  tools_diy: "tools",
+  services: "services",
+  properties: "properties",
 };
 
 export function getCategorySlug(categoryName: string): string {

@@ -2705,7 +2705,20 @@
     "garden": "Kert",
     "toys": "Játékok",
     "tools": "Szerszámok",
-    "other": "Egyéb"
+    "other": "Egyéb",
+    "sports_outdoor": "Sport & Szabadtér",
+    "hobby_games": "Hobbi & Játékok",
+    "books_media": "Könyvek & Média",
+    "home_garden": "Otthon & Kert",
+    "fashion_accessories": "Divat & Kiegészítők",
+    "auto_moto": "Autó & Motor",
+    "music_audio": "Zene & Audió",
+    "gardening_outdoor": "Kertészkedés & Kültér",
+    "toys_kids": "Játékok & Gyerekek",
+    "tools_diy": "Szerszámok & Barkácsolás",
+    "vehicles": "Járművek",
+    "experiences": "Élmények",
+    "medical": "Orvosi eszközök"
   },
   "trustScore": {
     "trustScoreTitle": "Megbízhatósági pontszám",

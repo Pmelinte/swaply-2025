@@ -80,90 +80,90 @@ const EU_CITIES = [
 const ALL_CITIES = [...MAJOR_CITIES, ...EU_CITIES];
 
 const OBJECT_CATEGORIES = [
-  "Electronics", "Books", "Clothing", "Sport & Outdoor", "Home & Garden",
-  "Toys", "Art", "Music", "Vehicles", "Tools", "Hobby & Games",
-  "Furniture", "Small Electronics", "Jewelry", "Photography",
+  "electronics", "books_media", "fashion_accessories", "sports_outdoor", "home_garden",
+  "toys_kids", "hobby_games", "music_audio", "vehicles", "tools_diy",
+  "electronics", "home_garden", "electronics", "fashion_accessories", "hobby_games",
 ];
 
 const OBJECT_TITLES: Record<string, string[]> = {
-  "Electronics": [
+  "electronics": [
     "Dell Inspiron Laptop", "27'' 4K Monitor", "RGB Mechanical Keyboard", "Wireless Gaming Mouse",
     "Samsung Galaxy Tablet", "Garmin Smartwatch", "JBL Bluetooth Speaker", "PlayStation 4 Console",
     "Logitech Webcam", "1TB External SSD", "Wireless Charger", "Noise-cancelling Headphones",
     "WiFi 6 Router", "Color Printer", "Kindle E-reader", "Mini LED Projector",
     "USB-C Docking Station", "20000mAh Powerbank", "Alexa Smart Speaker", "Universal Remote",
   ],
-  "Books": [
+  "books_media": [
     "Harry Potter Collection", "Sapiens – Yuval Noah Harari", "Anatomy Atlas", "Vegan Cookbook",
     "Children's Encyclopedia", "Lord of the Rings Trilogy", "Python Programming Guide",
     "Paulo Coelho Novel", "Photography Manual", "Graphic Design Book",
     "Oxford Dictionary", "Bible (Luxury Edition)", "National Geographic Collection",
     "Meditation Book", "Europe Travel Guide",
   ],
-  "Clothing": [
+  "fashion_accessories": [
     "North Face Winter Jacket", "Nike Air Max Sneakers", "Casio G-Shock Watch", "Osprey 40L Backpack",
     "Salomon Ski Pants", "Evening Dress", "Men's Suit M", "Zara Wool Coat",
     "Hiking Boots", "Ray-Ban Sunglasses", "Silk Tie", "Genuine Leather Belt",
     "Cashmere Sweater", "New Era Cap", "Touchscreen Gloves",
   ],
-  "Sport & Outdoor": [
+  "sports_outdoor": [
     "Urban Bicycle", "20kg Dumbbell Set", "Treadmill", "4-Person Camping Tent",
     "Electric Skateboard", "Badminton Rackets", "Adidas Football", "-10°C Sleeping Bag",
     "Inflatable Kayak", "Electric Scooter", "Multi-function Fitness Machine", "Complete Yoga Set",
     "Inline Skates", "Golf Clubs", "Tennis Balls (Set)",
   ],
-  "Home & Garden": [
+  "home_garden": [
     "Robot Vacuum", "Dishwasher", "Professional Knife Set", "Weber Gas Grill",
     "Gardening Tool Set", "Blackout Curtains", "Crystal Chandelier", "Persian Rug 2x3m",
     "Memory Foam Pillow", "Clothes Dryer", "Food Processor", "Bread Maker",
     "Bamboo Towel Set", "LED Bathroom Mirror", "Foldable Wood Table",
   ],
-  "Toys": [
+  "toys_kids": [
     "Lego Technic Set", "Barbie Doll", "3D Puzzle", "Electric Train",
     "Programmable Robot", "Kids Chemistry Set", "Monopoly Board Game", "Nerf Blaster",
     "Mini Drone for Kids", "K'NEX Construction Kit",
   ],
-  "Art": [
+  "hobby_games_art": [
     "Acrylic Paint Set", "Professional Easel", "Modern Art Painting", "Handmade Ceramics Set",
     "Traditional Wood Sculpture", "Calligraphy Kit", "Artisan Photo Albums",
     "Pastel Drawing Set", "Wood Engraving", "Vintage Poster Collection",
   ],
-  "Music": [
+  "music_audio": [
     "Yamaha Acoustic Guitar", "Casio Digital Piano", "Marshall Amplifier", "4-Channel Audio Mixer",
     "Electronic Drum Set", "4/4 Violin", "Concert Ukulele", "USB Studio Microphone",
     "Vinyl Turntable", "Irish Flute",
   ],
-  "Vehicles": [
+  "vehicles": [
     "Mountain Bike", "Xiaomi Electric Scooter", "LED Car Accessories",
     "Roof Rack", "Winter Tire Set", "Car Bike Rack",
     "Tire Repair Kit", "Car Seat Cover", "Bluetooth FM Transmitter",
   ],
-  "Tools": [
+  "tools_diy": [
     "Bosch Cordless Drill", "Socket Wrench Set", "Circular Saw",
     "Angle Grinder", "Welding Kit", "Workbench", "Precision Screwdriver Set",
     "Laser Level", "Air Compressor", "Leatherman Multi-tool",
   ],
-  "Hobby & Games": [
+  "hobby_games": [
     "1000 Piece Puzzle", "Professional Poker Set", "4K Camera Drone", "Astronomical Telescope",
     "Embroidery Kit", "Premium Origami Set", "Speedcube Rubik's Cube", "Vintage Pinball Set",
     "Nikon Binoculars", "Model Aircraft Kit",
   ],
-  "Furniture": [
+  "home_garden_furniture": [
     "Adjustable Ergonomic Desk", "Gaming Chair", "Solid Wood Bookshelf",
     "Sofa Bed", "Hallway Cabinet", "Kids Bunk Bed",
     "Extendable Dining Table", "Vintage Dresser", "Minimalist Nightstand",
   ],
-  "Small Electronics": [
+  "electronics_small": [
     "Xiaomi Fitness Watch", "AirPods Replica", "Sony In-ear Headphones",
     "128GB USB Stick", "256GB SD Card", "Power Bank", "Fast USB-C Cable",
     "Universal Travel Adapter", "Digital Thermometer",
   ],
-  "Jewelry": [
+  "fashion_accessories_jewelry": [
     "Handmade Silver Bracelet", "Natural Pearl Necklace", "Gold-plated Engagement Ring",
     "Swarovski Crystal Earrings", "Fossil Women's Watch", "925 Silver Chain",
     "Vintage Brooch", "Stainless Steel Jewelry Set",
   ],
-  "Photography": [
+  "hobby_games_photo": [
     "Canon DSLR Camera", "50mm f/1.8 Lens", "Carbon Tripod", "Godox External Flash",
     "ND Filter Set", "Lowepro Camera Bag", "Gimbal Stabilizer", "Photo Studio Kit",
     "DJI Mini Drone", "CFexpress Card",

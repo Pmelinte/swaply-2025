@@ -2705,7 +2705,20 @@
     "garden": "정원",
     "toys": "장난감",
     "tools": "도구",
-    "other": "기타"
+    "other": "기타",
+    "sports_outdoor": "스포츠 & 아웃도어",
+    "hobby_games": "취미 & 게임",
+    "books_media": "도서 & 미디어",
+    "home_garden": "홈 & 가든",
+    "fashion_accessories": "패션 & 액세서리",
+    "auto_moto": "자동차 & 오토바이",
+    "music_audio": "음악 & 오디오",
+    "gardening_outdoor": "원예 & 야외",
+    "toys_kids": "장난감 & 아동",
+    "tools_diy": "도구 & DIY",
+    "vehicles": "차량",
+    "experiences": "체험",
+    "medical": "의료 장비"
   },
   "trustScore": {
     "trustScoreTitle": "신뢰 점수",

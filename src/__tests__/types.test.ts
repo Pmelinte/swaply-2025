@@ -102,7 +102,7 @@ describe("Type system validation", () => {
       id: "item-1",
       ownerId: "user-1",
       title: "Test Item",
-      category: "Electronică",
+      category: "electronics",
       condition: "good",
       description: "A test item",
       wishlist: "Something nice",

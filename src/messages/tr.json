@@ -2705,7 +2705,20 @@
     "garden": "Bahçe",
     "toys": "Oyuncaklar",
     "tools": "Aletler",
-    "other": "Diğer"
+    "other": "Diğer",
+    "sports_outdoor": "Spor & Outdoor",
+    "hobby_games": "Hobi & Oyunlar",
+    "books_media": "Kitaplar & Medya",
+    "home_garden": "Ev & Bahçe",
+    "fashion_accessories": "Moda & Aksesuarlar",
+    "auto_moto": "Otomobil & Motosiklet",
+    "music_audio": "Müzik & Ses",
+    "gardening_outdoor": "Bahçecilik & Dış Mekan",
+    "toys_kids": "Oyuncaklar & Çocuklar",
+    "tools_diy": "Aletler & Kendin Yap",
+    "vehicles": "Araçlar",
+    "experiences": "Deneyimler",
+    "medical": "Tıbbi ekipman"
   },
   "trustScore": {
     "trustScoreTitle": "Güven puanı",

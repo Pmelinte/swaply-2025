@@ -15,14 +15,14 @@ function makeRequest(body: object, ip: string = "test-ip") {
 const validBody = {
   offeredItem: {
     title: "Laptop Dell",
-    category: "Electronică",
+    category: "electronics",
     condition: "good",
     description: "Laptop bun",
     wishlist: "Telefon sau tabletă",
   },
   requestedItem: {
     title: "iPhone 13",
-    category: "Electronică",
+    category: "electronics",
     condition: "good",
     description: "Telefon in stare buna",
     wishlist: "Laptop",

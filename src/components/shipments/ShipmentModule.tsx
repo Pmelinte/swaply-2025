@@ -301,7 +301,7 @@ export function ShipmentModule({ swap, isRequester, userCountry, partnerCountry,
   const { couriers: fetchedCouriers } = useCouriers(userCountry, partnerCountry);
   const courierOptions = fetchedCouriers.length > 0 ? fetchedCouriers : FALLBACK_COURIERS;
 
-  const isExperience = objectCategory === "Experiențe" || objectCategory === "Experiences" || objectCategory === "experiences";
+  const isExperience = objectCategory === "experiences";
   const isCourierType = !isExperience && deliveryType !== "face_to_face";
 
   const handleSaveShipment = useCallback((data: Omit<SwapShipment, "id" | "createdAt">) => {

@@ -2694,7 +2694,7 @@
     "byCity": "{category} po gradu"
   },
   "categories": {
-    "electronics": "Elektronika",
+    "electronics": "Електроника",
     "sport": "Sport",
     "arts": "Umetnost i hobi",
     "books": "Knjige",
@@ -2705,7 +2705,20 @@
     "garden": "Баштa",
     "toys": "Igračke",
     "tools": "Alati",
-    "other": "Ostalo"
+    "other": "Остало",
+    "sports_outdoor": "Спорт и активности",
+    "hobby_games": "Хоби и игре",
+    "books_media": "Књиге и медији",
+    "home_garden": "Дом и башта",
+    "fashion_accessories": "Мода и додаци",
+    "auto_moto": "Ауто и мото",
+    "music_audio": "Музика и аудио",
+    "gardening_outdoor": "Баштованство и спољашњост",
+    "toys_kids": "Играчке и деца",
+    "tools_diy": "Алати и уради сам",
+    "vehicles": "Возила",
+    "experiences": "Искуства",
+    "medical": "Медицинска опрема"
   },
   "trustScore": {
     "trustScoreTitle": "Skor poverenja",

@@ -2705,7 +2705,20 @@
     "garden": "Vrt",
     "toys": "Igrače",
     "tools": "Orodja",
-    "other": "Drugo"
+    "other": "Drugo",
+    "sports_outdoor": "Šport & Outdoor",
+    "hobby_games": "Hobiji & Igre",
+    "books_media": "Knjige & Mediji",
+    "home_garden": "Dom & Vrt",
+    "fashion_accessories": "Moda & Dodatki",
+    "auto_moto": "Avto & Moto",
+    "music_audio": "Glasba & Avdio",
+    "gardening_outdoor": "Vrtnarjenje & Zunanjost",
+    "toys_kids": "Igrače & Otroci",
+    "tools_diy": "Orodje & Naredi sam",
+    "vehicles": "Vozila",
+    "experiences": "Doživetja",
+    "medical": "Medicinska oprema"
   },
   "trustScore": {
     "trustScoreTitle": "Ocena zaupanja",

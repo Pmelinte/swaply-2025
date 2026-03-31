@@ -16,7 +16,7 @@ function makeItem(overrides: Partial<Item> = {}): Item {
     id: "item-1",
     ownerId: "user-1",
     title: "Test Item",
-    category: "Electronică",
+    category: "electronics",
     condition: "good",
     description: "",
     wishlist: "",
@@ -108,7 +108,7 @@ describe("computeMatchesForUser", () => {
   it("does not match user with own items", () => {
     const items = [
       makeItem({ id: "a", ownerId: "user-1", wishlist: "electronica" }),
-      makeItem({ id: "b", ownerId: "user-1", category: "Electronică" }),
+      makeItem({ id: "b", ownerId: "user-1", category: "electronics" }),
     ];
     const matches = computeMatchesForUser("user-1", items);
     expect(matches).toHaveLength(0);
@@ -119,13 +119,13 @@ describe("computeMatchesForUser", () => {
       makeItem({
         id: "my-item",
         ownerId: "user-1",
-        category: "Sport & Outdoor",
+        category: "sports_outdoor",
         wishlist: "laptop, electronica, tech",
       }),
       makeItem({
         id: "their-item",
         ownerId: "user-2",
-        category: "Electronică",
+        category: "electronics",
         wishlist: "bicicleta, sport",
       }),
     ];
@@ -140,19 +140,19 @@ describe("computeMatchesForUser", () => {
       makeItem({
         id: "my-item",
         ownerId: "user-1",
-        category: "Sport & Outdoor",
+        category: "sports_outdoor",
         wishlist: "electronica, laptop",
       }),
       makeItem({
         id: "reciprocal",
         ownerId: "user-2",
-        category: "Electronică",
+        category: "electronics",
         wishlist: "sport, bicicleta",
       }),
       makeItem({
         id: "one-way",
         ownerId: "user-3",
-        category: "Electronică",
+        category: "electronics",
         wishlist: "carti",
       }),
     ];
@@ -186,7 +186,7 @@ describe("computeMatchesForUser", () => {
   it("excludes blocked users", () => {
     const items = [
       makeItem({ id: "my", ownerId: "user-1", wishlist: "electronica" }),
-      makeItem({ id: "blocked-item", ownerId: "blocked-user", category: "Electronică", wishlist: "sport" }),
+      makeItem({ id: "blocked-item", ownerId: "blocked-user", category: "electronics", wishlist: "sport" }),
     ];
     const ctx: MatchingUserContext = {
       travelRadiusKm: 50,
@@ -200,8 +200,8 @@ describe("computeMatchesForUser", () => {
   it("boosts score for same location", () => {
     const items = [
       makeItem({ id: "my", ownerId: "user-1", location: "bucurești", wishlist: "electronica" }),
-      makeItem({ id: "same-city", ownerId: "user-2", location: "bucurești", category: "Electronică", wishlist: "sport" }),
-      makeItem({ id: "diff-city", ownerId: "user-3", location: "timișoara", category: "Electronică", wishlist: "sport" }),
+      makeItem({ id: "same-city", ownerId: "user-2", location: "bucurești", category: "electronics", wishlist: "sport" }),
+      makeItem({ id: "diff-city", ownerId: "user-3", location: "timișoara", category: "electronics", wishlist: "sport" }),
     ];
     const matches = computeMatchesForUser("user-1", items);
     const sameCity = matches.find((m) => m.itemRequested.id === "same-city");
@@ -213,9 +213,9 @@ describe("computeMatchesForUser", () => {
 
   it("sorts results by score descending", () => {
     const items = [
-      makeItem({ id: "my", ownerId: "user-1", category: "Sport & Outdoor", wishlist: "electronica, laptop" }),
-      makeItem({ id: "low", ownerId: "user-2", category: "Electronică", wishlist: "", flexibility: "broad" }),
-      makeItem({ id: "high", ownerId: "user-3", category: "Electronică", wishlist: "sport, bicicleta" }),
+      makeItem({ id: "my", ownerId: "user-1", category: "sports_outdoor", wishlist: "electronica, laptop" }),
+      makeItem({ id: "low", ownerId: "user-2", category: "electronics", wishlist: "", flexibility: "broad" }),
+      makeItem({ id: "high", ownerId: "user-3", category: "electronics", wishlist: "sport, bicicleta" }),
     ];
     const matches = computeMatchesForUser("user-1", items);
     if (matches.length >= 2) {
@@ -228,7 +228,7 @@ describe("computeMatchesForUser", () => {
       makeItem({
         id: "my",
         ownerId: "user-1",
-        category: "Sport & Outdoor",
+        category: "sports_outdoor",
         wishlist: "electronica, laptop, tech",
         intent: "committed",
         flexibility: "broad",
@@ -240,7 +240,7 @@ describe("computeMatchesForUser", () => {
       makeItem({
         id: "theirs",
         ownerId: "user-2",
-        category: "Electronică",
+        category: "electronics",
         wishlist: "sport, bicicleta, fitness",
         location: "bucurești",
         intent: "committed",
@@ -258,7 +258,7 @@ describe("computeMatchesForUser", () => {
   it("generates match ID from both item IDs", () => {
     const items = [
       makeItem({ id: "item-a", ownerId: "user-1", wishlist: "electronica" }),
-      makeItem({ id: "item-b", ownerId: "user-2", category: "Electronică", wishlist: "sport" }),
+      makeItem({ id: "item-b", ownerId: "user-2", category: "electronics", wishlist: "sport" }),
     ];
     const matches = computeMatchesForUser("user-1", items);
     if (matches.length > 0) {
@@ -269,7 +269,7 @@ describe("computeMatchesForUser", () => {
   it("uses GPS distance when coordinates available", () => {
     const items = [
       makeItem({ id: "my", ownerId: "user-1", wishlist: "electronica" }),
-      makeItem({ id: "near", ownerId: "user-2", category: "Electronică", wishlist: "sport" }),
+      makeItem({ id: "near", ownerId: "user-2", category: "electronics", wishlist: "sport" }),
     ];
     const ctx: MatchingUserContext = {
       coordinates: { lat: 44.4268, lng: 26.1025 },
@@ -290,7 +290,7 @@ describe("computeMatchesForUser", () => {
   it("rejects items beyond 3x travel radius", () => {
     const items = [
       makeItem({ id: "my", ownerId: "user-1", wishlist: "electronica" }),
-      makeItem({ id: "far", ownerId: "user-far", category: "Electronică", wishlist: "sport" }),
+      makeItem({ id: "far", ownerId: "user-far", category: "electronics", wishlist: "sport" }),
     ];
     const ctx: MatchingUserContext = {
       coordinates: { lat: 44.4268, lng: 26.1025 }, // Bucharest

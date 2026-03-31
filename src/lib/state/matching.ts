@@ -15,31 +15,31 @@ export type SemanticScoresMap = Map<string, number>;
 // ── Category keyword map for wishlist matching ──
 
 const CATEGORY_KEYWORDS: Record<string, string[]> = {
-  "Electronică": [
+  electronics: [
     "electronica", "electronic", "tech", "laptop", "pc", "calculator",
     "monitor", "tastatura", "keyboard", "casti", "headphones", "telefon",
     "phone", "tablet", "console", "gaming", "ssd",
   ],
-  "Sport & Outdoor": [
+  sports_outdoor: [
     "sport", "outdoor", "bicicleta", "bike", "scooter", "camping",
     "cort", "tent", "hiking", "rucsac", "backpack", "yoga",
     "fitness", "running", "pantofi", "shoes",
   ],
-  "Hobby & Jocuri": [
+  hobby_games: [
     "hobby", "joc", "jocuri", "boardgame", "board game", "puzzle",
     "lego", "sah", "chess", "chitara", "guitar", "pictura",
     "painting", "drone", "telescope",
   ],
-  "Cărți & Media": [
+  books_media: [
     "carti", "carte", "books", "book", "manga", "comics",
     "vinyl", "dvd", "media", "colectie", "collection",
   ],
-  "Casă & Grădină": [
+  home_garden: [
     "casa", "home", "gradina", "garden", "unelte", "tools",
     "bucatarie", "kitchen", "lampa", "lamp", "aspirator",
     "vacuum", "planta", "plant", "decor",
   ],
-  "Modă & Accesorii": [
+  fashion_accessories: [
     "moda", "fashion", "accesorii", "accessories", "rucsac",
     "backpack", "ceas", "watch", "geaca", "jacket", "ochelari",
     "sunglasses", "geanta", "bag", "piele", "leather",

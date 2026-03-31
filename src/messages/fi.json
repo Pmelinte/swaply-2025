@@ -2705,7 +2705,20 @@
     "garden": "Puutarha",
     "toys": "Lelu",
     "tools": "Työkalut",
-    "other": "Muu"
+    "other": "Muut",
+    "sports_outdoor": "Urheilu & Ulkoilu",
+    "hobby_games": "Harrastukset & Pelit",
+    "books_media": "Kirjat & Media",
+    "home_garden": "Koti & Puutarha",
+    "fashion_accessories": "Muoti & Asusteet",
+    "auto_moto": "Auto & Moto",
+    "music_audio": "Musiikki & Audio",
+    "gardening_outdoor": "Puutarhanhoito & Ulkotila",
+    "toys_kids": "Lelut & Lapset",
+    "tools_diy": "Työkalut & Tee-se-itse",
+    "vehicles": "Ajoneuvot",
+    "experiences": "Elämykset",
+    "medical": "Lääkintälaitteet"
   },
   "trustScore": {
     "trustScoreTitle": "Luottamuspisteet",

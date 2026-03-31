@@ -150,7 +150,7 @@ function keywordCategory(text: string): string {
     }
   }
 
-  return "Hobby & Jocuri"; // default fallback
+  return "hobby_games"; // default fallback
 }
 
 /** Simple keyword-based tag extraction */
