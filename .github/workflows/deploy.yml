@@ -94,6 +94,6 @@ jobs:
           echo "Deploying image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
           echo "Target environment: production"
           # Add your production deployment commands here, e.g.:
-          # - SSH into production server and docker pull + restart
+          # - SSH into staging server and docker pull + restart
           # - Trigger a webhook to your hosting platform
           # - Update a Kubernetes deployment
