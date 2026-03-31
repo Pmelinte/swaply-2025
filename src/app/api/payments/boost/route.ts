@@ -71,14 +71,16 @@ export async function POST(request: NextRequest) {
     // Pre-create the boost record as pending
     const plan = BOOST_PRICES[duration as BoostDuration];
     if (sb && result.paymentIntentId) {
-      await sb.from("item_boosts").insert({
-        item_id: itemId,
-        user_id: userId,
-        duration_hours: plan.durationHours,
-        price_ron: plan.priceRon,
-        stripe_payment_intent_id: result.paymentIntentId,
-        stripe_payment_status: "pending",
-      });
+      try {
+        await sb.from("item_boosts").insert({
+          item_id: itemId,
+          user_id: userId,
+          duration_hours: plan.durationHours,
+          price_ron: plan.priceRon,
+          stripe_payment_intent_id: result.paymentIntentId,
+          stripe_payment_status: "pending",
+        });
+      } catch { /* item_boosts table may not exist yet */ }
     }
 
     return NextResponse.json({
