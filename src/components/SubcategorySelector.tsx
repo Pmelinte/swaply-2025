@@ -82,7 +82,7 @@ export function SubcategorySelector({
   useEffect(() => {
     if (!slug) return;
 
-    fetch(`/api/subcategories?category=${slug}`)
+    fetch(`/api/subcategories?category=${encodeURIComponent(slug)}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (data?.subcategories) setSubcategories(data.subcategories);

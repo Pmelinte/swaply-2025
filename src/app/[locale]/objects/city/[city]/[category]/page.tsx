@@ -111,7 +111,7 @@ async function getCityCategoryItems(
     .from("items")
     .select("id, title, category, condition, photos, location, wishlist, created_at")
     .eq("category", dbCategory)
-    .ilike("location", `%${cityName}%`)
+    .ilike("location", `%${cityName.replace(/[%_\\]/g, "\\$&")}%`)
     .eq("status", "active")
     .order("created_at", { ascending: false })
     .limit(24);
@@ -126,7 +126,7 @@ async function getCityCategoryItems(
       .from("items")
       .select("id, title, category, condition, photos, location, wishlist, created_at")
       .eq("category", dbCategory)
-      .ilike("location", `%${countyName}%`)
+      .ilike("location", `%${countyName.replace(/[%_\\]/g, "\\$&")}%`)
       .eq("status", "active")
       .order("created_at", { ascending: false })
       .limit(12);
