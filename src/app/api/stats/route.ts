@@ -23,10 +23,15 @@ export async function GET() {
       .from("items")
       .select("id", { count: "exact", head: true })
       .eq("status", "active"),
-    supabase
-      .from("swaps")
-      .select("id", { count: "exact", head: true })
-      .eq("status", "completed"),
+    Promise.resolve(
+      supabase
+        .from("swaps")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "completed"),
+    ).then((res) => {
+      if (res.error) return { count: 0, data: null, error: res.error };
+      return res;
+    }).catch(() => ({ count: 0, data: null, error: null })),
     // Use items location_city for cities (profiles RLS blocks anon)
     supabase
       .from("items")
