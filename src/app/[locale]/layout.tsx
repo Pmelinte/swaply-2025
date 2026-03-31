@@ -137,6 +137,23 @@ export default async function LocaleLayout({ children, params }: Props) {
             }),
           }}
         />
+        <script
+          type="speculationrules"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              prerender: [
+                {
+                  urls: [
+                    `/${locale}/objects`,
+                    `/${locale}/login`,
+                    `/${locale}/register`,
+                  ],
+                  eagerness: "moderate",
+                },
+              ],
+            }),
+          }}
+        />
       </head>
       <body
         suppressHydrationWarning
