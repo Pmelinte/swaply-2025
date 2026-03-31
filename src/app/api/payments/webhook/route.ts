@@ -267,14 +267,16 @@ export async function POST(request: NextRequest) {
             const expiresAt = new Date(now.getTime() + durationHours * 3600000);
 
             // Update the pending record created by /api/payments/boost
-            await sb
-              .from("item_boosts")
-              .update({
-                stripe_payment_status: "succeeded",
-                starts_at: now.toISOString(),
-                expires_at: expiresAt.toISOString(),
-              })
-              .eq("stripe_payment_intent_id", intent.id);
+            try {
+              await sb
+                .from("item_boosts")
+                .update({
+                  stripe_payment_status: "succeeded",
+                  starts_at: now.toISOString(),
+                  expires_at: expiresAt.toISOString(),
+                })
+                .eq("stripe_payment_intent_id", intent.id);
+            } catch { /* item_boosts table may not exist yet */ }
 
             // Also insert into featured_listings for backward compatibility
             await sb.from("featured_listings").insert({

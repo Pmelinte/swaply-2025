@@ -63,20 +63,23 @@ export function BoostPanel({ itemId, userId, userEmail }: BoostPanelProps) {
     if (!supabase) return;
     let cancelled = false;
 
-    supabase
-      .from("item_boosts")
-      .select("expires_at, duration_hours")
-      .eq("item_id", itemId)
-      .eq("stripe_payment_status", "succeeded")
-      .gt("expires_at", new Date().toISOString())
-      .order("expires_at", { ascending: false })
-      .limit(1)
-      .maybeSingle()
+    Promise.resolve(
+      supabase
+        .from("item_boosts")
+        .select("expires_at, duration_hours")
+        .eq("item_id", itemId)
+        .eq("stripe_payment_status", "succeeded")
+        .gt("expires_at", new Date().toISOString())
+        .order("expires_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+    )
       .then(({ data }) => {
         if (!cancelled && data) {
           setActiveBoost(data as ActiveBoost);
         }
-      });
+      })
+      .catch(() => { /* item_boosts table may not exist yet */ });
 
     return () => { cancelled = true; };
   }, [itemId]);
