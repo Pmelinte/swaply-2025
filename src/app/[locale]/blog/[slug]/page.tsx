@@ -3,6 +3,8 @@ import { Link } from "@/i18n/navigation";
 import { locales } from "@/i18n/config";
 import Script from "next/script";
 import { notFound } from "next/navigation";
+
+export const revalidate = 3600;
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { ArrowLeft, Calendar, Clock, Tag, User } from "lucide-react";
 import {

@@ -3,6 +3,8 @@ import { Link } from "@/i18n/navigation";
 import { locales } from "@/i18n/config";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Tag, MapPin, ChevronRight } from "lucide-react";
+
+export const revalidate = 300;
 import { getServerSupabase } from "@/lib/supabase/server";
 import {
   SEO_CATEGORIES,
