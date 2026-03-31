@@ -2997,5 +2997,17 @@
     "accept": "Αποδοχή όλων",
     "reject": "Απόρριψη μη απαραίτητων",
     "settings": "Ρυθμίσεις cookies"
+  },
+  "branches": {
+    "tagline": "Swap what you have for what you need — objects, properties, services, and events.",
+    "objects": "Objects",
+    "objectsDesc": "Swap electronics, books, clothes, and more",
+    "properties": "Properties",
+    "propertiesDesc": "Exchange homes, apartments, and spaces",
+    "services": "Services",
+    "servicesDesc": "Trade skills, labor, and professional help",
+    "events": "Events",
+    "eventsDesc": "Swap tickets, reservations, and experiences",
+    "comingSoon": "This section is coming soon. Stay tuned!"
   }
 }

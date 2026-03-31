@@ -2997,5 +2997,17 @@
     "accept": "Tout accepter",
     "reject": "Refuser les non essentiels",
     "settings": "Paramètres des cookies"
+  },
+  "branches": {
+    "tagline": "Échangez ce que vous avez contre ce dont vous avez besoin — objets, propriétés, services et événements.",
+    "objects": "Objets",
+    "objectsDesc": "Échangez électronique, livres, vêtements et plus",
+    "properties": "Propriétés",
+    "propertiesDesc": "Échangez maisons, appartements et espaces",
+    "services": "Services",
+    "servicesDesc": "Échangez compétences, travail et aide professionnelle",
+    "events": "Événements",
+    "eventsDesc": "Échangez billets, réservations et expériences",
+    "comingSoon": "Cette section arrive bientôt. Restez à l'écoute !"
   }
 }

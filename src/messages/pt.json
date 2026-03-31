@@ -2997,5 +2997,17 @@
     "accept": "Aceitar todos",
     "reject": "Rejeitar não essenciais",
     "settings": "Configurações de cookies"
+  },
+  "branches": {
+    "tagline": "Troque o que você tem pelo que precisa — objetos, propriedades, serviços e eventos.",
+    "objects": "Objetos",
+    "objectsDesc": "Troque eletrônicos, livros, roupas e mais",
+    "properties": "Propriedades",
+    "propertiesDesc": "Troque casas, apartamentos e espaços",
+    "services": "Serviços",
+    "servicesDesc": "Troque habilidades, trabalho e ajuda profissional",
+    "events": "Eventos",
+    "eventsDesc": "Troque ingressos, reservas e experiências",
+    "comingSoon": "Esta seção está chegando em breve. Fique ligado!"
   }
 }

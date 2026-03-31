@@ -2987,5 +2987,17 @@
     "accept": "Acceptă toate",
     "reject": "Refuză neesențialele",
     "settings": "Setări cookie"
+  },
+  "branches": {
+    "tagline": "Schimbă ce ai pe ce ai nevoie — obiecte, proprietăți, servicii și evenimente.",
+    "objects": "Obiecte",
+    "objectsDesc": "Schimbă electronice, cărți, haine și altele",
+    "properties": "Proprietăți",
+    "propertiesDesc": "Schimbă case, apartamente și spații",
+    "services": "Servicii",
+    "servicesDesc": "Schimbă abilități, muncă și ajutor profesional",
+    "events": "Evenimente",
+    "eventsDesc": "Schimbă bilete, rezervări și experiențe",
+    "comingSoon": "Această secțiune vine în curând. Rămâi pe fază!"
   }
 }

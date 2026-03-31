@@ -2997,5 +2997,17 @@
     "accept": "Aceptar todas",
     "reject": "Rechazar no esenciales",
     "settings": "Ajustes de cookies"
+  },
+  "branches": {
+    "tagline": "Intercambia lo que tienes por lo que necesitas — objetos, propiedades, servicios y eventos.",
+    "objects": "Objetos",
+    "objectsDesc": "Intercambia electrónica, libros, ropa y más",
+    "properties": "Propiedades",
+    "propertiesDesc": "Intercambia casas, apartamentos y espacios",
+    "services": "Servicios",
+    "servicesDesc": "Intercambia habilidades, trabajo y ayuda profesional",
+    "events": "Eventos",
+    "eventsDesc": "Intercambia entradas, reservas y experiencias",
+    "comingSoon": "Esta sección llegará pronto. ¡Mantente atento!"
   }
 }
