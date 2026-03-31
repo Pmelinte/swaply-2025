@@ -67,7 +67,7 @@ export default async function SubcategoryPage({ params }: Props) {
   const items = supabase
     ? await supabase
         .from("items")
-        .select("id, title, category, condition, photos, location, wishlist, created_at, subcategory_slug")
+        .select("id, title, category, condition, images, location, created_at, subcategory_slug")
         .eq("subcategory_slug", subcat)
         .eq("status", "active")
         .order("created_at", { ascending: false })
@@ -79,7 +79,7 @@ export default async function SubcategoryPage({ params }: Props) {
   const parentItems = items.length < 6 && supabase
     ? await supabase
         .from("items")
-        .select("id, title, category, condition, photos, location, wishlist, created_at")
+        .select("id, title, category, condition, images, location, created_at")
         .eq("category", cat.dbCategory)
         .eq("status", "active")
         .order("created_at", { ascending: false })
@@ -138,12 +138,12 @@ export default async function SubcategoryPage({ params }: Props) {
             >
               <div className="relative aspect-[4/3] w-full overflow-hidden bg-zinc-100 dark:bg-zinc-700">
                 <SafeImage
-                  src={(item.photos as string[])?.[0] || NO_IMAGE_URL}
+                  src={(item.images as string[])?.[0] || NO_IMAGE_URL}
                   alt={item.title as string}
                   fill
                   className="object-cover transition group-hover:scale-105"
                   sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                  unoptimized={!(item.photos as string[])?.[0]}
+                  unoptimized={!(item.images as string[])?.[0]}
                 />
               </div>
               <div className="p-3">

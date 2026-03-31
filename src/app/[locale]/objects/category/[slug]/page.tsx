@@ -57,9 +57,8 @@ interface ItemRow {
   title: string;
   category: string;
   condition: string;
-  photos: string[] | null;
+  images: string[] | null;
   location: string | null;
-  wishlist: string | null;
   created_at: string;
 }
 
@@ -69,7 +68,7 @@ async function getItems(categoryName: string): Promise<ItemRow[]> {
 
   const { data } = await supabase
     .from("items")
-    .select("id, title, category, condition, photos, location, wishlist, created_at")
+    .select("id, title, category, condition, images, location, created_at")
     .eq("category", categoryName)
     .eq("status", "active")
     .order("created_at", { ascending: false })
@@ -131,9 +130,9 @@ export default async function CategoryPage({ params }: Props) {
                 className="group flex flex-col rounded-2xl border border-zinc-200 bg-white shadow-sm transition hover:border-blue-300 hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-blue-600"
               >
                 <div className="relative h-40 w-full overflow-hidden rounded-t-2xl bg-zinc-100 dark:bg-zinc-700">
-                  {item.photos?.[0] ? (
+                  {item.images?.[0] ? (
                     <img
-                      src={item.photos[0]}
+                      src={item.images[0]}
                       alt={item.title}
                       className="h-full w-full object-cover transition group-hover:scale-105"
                     />
@@ -154,11 +153,6 @@ export default async function CategoryPage({ params }: Props) {
                     <p className="mt-1 flex items-center gap-1 text-xs text-zinc-400">
                       <MapPin className="h-3 w-3" />
                       {item.location}
-                    </p>
-                  )}
-                  {item.wishlist && (
-                    <p className="mt-1 truncate text-xs text-blue-500">
-                      {t("lookingFor")} {item.wishlist}
                     </p>
                   )}
                 </div>

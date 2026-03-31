@@ -80,7 +80,7 @@ export async function fetchUserAnalytics(userId: string): Promise<UserAnalyticsS
   // Get all user's item IDs
   const { data: userItems, error: itemsErr } = await supabase
     .from("items")
-    .select("id, title, photos")
+    .select("id, title, images")
     .eq("owner_id", userId);
 
   if (itemsErr || !userItems || userItems.length === 0) return null;
@@ -173,8 +173,8 @@ export async function fetchUserAnalytics(userId: string): Promise<UserAnalyticsS
     .slice(0, 5)
     .map(([iid, counts]) => {
       const item = userItems.find((i: { id: string }) => i.id === iid);
-      const photos = Array.isArray(item?.photos) ? item.photos : [];
-      const firstPhoto = typeof photos[0] === "string" ? photos[0] : (photos[0] as { url?: string })?.url ?? null;
+      const imgs = Array.isArray(item?.images) ? item.images : [];
+      const firstPhoto = typeof imgs[0] === "string" ? imgs[0] : (imgs[0] as { url?: string })?.url ?? null;
       return {
         itemId: iid,
         title: String(item?.title ?? "Unknown"),

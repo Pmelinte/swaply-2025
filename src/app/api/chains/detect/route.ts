@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
   // Fetch all active items with owner info
   const { data: items, error: itemsError } = await db
     .from("objects")
-    .select("id, owner_id, title, category, wishlist, status, photos")
+    .select("id, owner_id, title, category, status, images")
     .eq("status", "active")
     .limit(500);
 
@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
   }
 
   // Build item-by-owner map
-  type SimpleItem = { id: string; owner_id: string; title: string; category: string; wishlist: string; photos: string[] };
+  type SimpleItem = { id: string; owner_id: string; title: string; category: string; images: string[]; wishlist?: string };
   const itemsByOwner = new Map<string, SimpleItem[]>();
   for (const item of items as SimpleItem[]) {
     const list = itemsByOwner.get(item.owner_id) ?? [];
@@ -80,7 +80,7 @@ export async function GET(request: NextRequest) {
   }
 
   // Check wishlist match
-  function wishlistMatchesCategory(wishlist: string, category: string): boolean {
+  function wishlistMatchesCategory(wishlist: string | undefined, category: string): boolean {
     if (!wishlist || !category) return false;
     const w = wishlist.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     const c = category.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
