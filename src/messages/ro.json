@@ -2981,5 +2981,11 @@
     "orPaypal": "sau plătește cu PayPal",
     "processing": "Se procesează plata…",
     "secureCheckout": "Checkout securizat alimentat de Stripe & PayPal"
+  },
+  "cookieConsent": {
+    "message": "Folosim cookie-uri pentru a îmbunătăți experiența ta. Cookie-urile esențiale sunt mereu active. Cookie-urile neesențiale ne ajută să analizăm traficul și să personalizăm conținutul.",
+    "accept": "Acceptă toate",
+    "reject": "Refuză neesențialele",
+    "settings": "Setări cookie"
   }
 }

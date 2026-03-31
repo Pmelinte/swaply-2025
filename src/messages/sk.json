@@ -2991,5 +2991,11 @@
     "badge": "Zážitok",
     "expired": "Expirovaná",
     "expiresIn": "Platnosť vypršie za {days} dní"
+  },
+  "cookieConsent": {
+    "message": "Používame súbory cookie na zlepšenie vášho zážitku. Nevyhnutné súbory cookie sú vždy aktívne. Nepodstatné súbory cookie nám pomáhajú analyzovať premávku a prispôsobiť obsah.",
+    "accept": "Prijať všetky",
+    "reject": "Odmietnuť nepodstatné",
+    "settings": "Nastavenia cookies"
   }
 }

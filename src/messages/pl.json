@@ -2991,5 +2991,11 @@
     "badge": "Doświadczenie",
     "expired": "Wygasła",
     "expiresIn": "Wygasa za {days} dni"
+  },
+  "cookieConsent": {
+    "message": "Używamy plików cookie, aby poprawić Twoje doświadczenie. Niezbędne pliki cookie są zawsze aktywne. Nieistotne pliki cookie pomagają nam analizować ruch i personalizować treści.",
+    "accept": "Zaakceptuj wszystkie",
+    "reject": "Odrzuć nieistotne",
+    "settings": "Ustawienia plików cookie"
   }
 }

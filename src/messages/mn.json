@@ -2991,5 +2991,11 @@
     "badge": "Туршлага",
     "expired": "Хугацаа дууссан",
     "expiresIn": "{days} өдрийн дараа дуусна"
+  },
+  "cookieConsent": {
+    "message": "We use cookies to improve your experience. Essential cookies are always active. Non-essential cookies help us analyze traffic and personalize content.",
+    "accept": "Accept all",
+    "reject": "Reject non-essential",
+    "settings": "Cookie settings"
   }
 }

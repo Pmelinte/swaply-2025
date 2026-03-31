@@ -2991,5 +2991,11 @@
     "badge": "Opplevelse",
     "expired": "Utløpt",
     "expiresIn": "Utløper om {days} dager"
+  },
+  "cookieConsent": {
+    "message": "Vi bruker informasjonskapsler for å forbedre opplevelsen din. Nødvendige informasjonskapsler er alltid aktive. Ikke-nødvendige informasjonskapsler hjelper oss med å analysere trafikk og tilpasse innhold.",
+    "accept": "Godta alle",
+    "reject": "Avvis ikke-nødvendige",
+    "settings": "Innstillinger for informasjonskapsler"
   }
 }

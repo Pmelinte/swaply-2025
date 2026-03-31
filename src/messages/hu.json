@@ -2991,5 +2991,11 @@
     "badge": "Élmény",
     "expired": "Lejárt",
     "expiresIn": "{days} nap múlva lejár"
+  },
+  "cookieConsent": {
+    "message": "Cookie-kat használunk az élmény javításához. Az alapvető cookie-k mindig aktívak. A nem alapvető cookie-k segítenek a forgalom elemzésében és a tartalom személyre szabásában.",
+    "accept": "Összes elfogadása",
+    "reject": "Nem lényegesek elutasítása",
+    "settings": "Cookie beállítások"
   }
 }

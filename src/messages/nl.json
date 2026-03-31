@@ -2991,5 +2991,11 @@
     "badge": "Ervaring",
     "expired": "Verlopen",
     "expiresIn": "Verloopt over {days} dagen"
+  },
+  "cookieConsent": {
+    "message": "We gebruiken cookies om uw ervaring te verbeteren. Essentiële cookies zijn altijd actief. Niet-essentiële cookies helpen ons het verkeer te analyseren en inhoud te personaliseren.",
+    "accept": "Alles accepteren",
+    "reject": "Niet-essentiële weigeren",
+    "settings": "Cookie-instellingen"
   }
 }

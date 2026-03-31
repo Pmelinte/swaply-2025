@@ -3204,5 +3204,11 @@
     "badge": "Upplevelse",
     "expired": "Utgången",
     "expiresIn": "Upphör om {days} dagar"
+  },
+  "cookieConsent": {
+    "message": "Vi använder cookies för att förbättra din upplevelse. Nödvändiga cookies är alltid aktiva. Icke-nödvändiga cookies hjälper oss att analysera trafik och anpassa innehåll.",
+    "accept": "Acceptera alla",
+    "reject": "Avvisa icke-nödvändiga",
+    "settings": "Cookieinställningar"
   }
 }

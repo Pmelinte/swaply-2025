@@ -2991,5 +2991,11 @@
     "badge": "Kokemus",
     "expired": "Vanhentunut",
     "expiresIn": "Vanhenee {days} päivässä"
+  },
+  "cookieConsent": {
+    "message": "Käytämme evästeitä parantaaksemme kokemustasi. Välttämättömät evästeet ovat aina aktiivisia. Ei-välttämättömät evästeet auttavat meitä analysoimaan liikennettä ja mukauttamaan sisältöä.",
+    "accept": "Hyväksy kaikki",
+    "reject": "Hylkää ei-välttämättömät",
+    "settings": "Evästeasetukset"
   }
 }

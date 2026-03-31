@@ -2991,5 +2991,11 @@
     "badge": "Oplevelse",
     "expired": "Udløbet",
     "expiresIn": "Udløber om {days} dage"
+  },
+  "cookieConsent": {
+    "message": "Vi bruger cookies til at forbedre din oplevelse. Nødvendige cookies er altid aktive. Ikke-nødvendige cookies hjælper os med at analysere trafik og tilpasse indhold.",
+    "accept": "Acceptér alle",
+    "reject": "Afvis ikke-nødvendige",
+    "settings": "Cookieindstillinger"
   }
 }

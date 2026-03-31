@@ -2991,5 +2991,11 @@
     "badge": "体験",
     "expired": "期限切れ",
     "expiresIn": "{days}日で期限切れ"
+  },
+  "cookieConsent": {
+    "message": "私たちはお客様の体験を向上させるためにCookieを使用しています。必須Cookieは常に有効です。非必須Cookieはトラフィックの分析とコンテンツのパーソナライズに役立ちます。",
+    "accept": "すべて承認",
+    "reject": "非必須を拒否",
+    "settings": "Cookie設定"
   }
 }

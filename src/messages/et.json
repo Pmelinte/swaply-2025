@@ -2991,5 +2991,11 @@
     "badge": "Kogemus",
     "expired": "Aegunud",
     "expiresIn": "Aegub {days} päevaga"
+  },
+  "cookieConsent": {
+    "message": "We use cookies to improve your experience. Essential cookies are always active. Non-essential cookies help us analyze traffic and personalize content.",
+    "accept": "Accept all",
+    "reject": "Reject non-essential",
+    "settings": "Cookie settings"
   }
 }

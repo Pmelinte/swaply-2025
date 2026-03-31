@@ -2991,5 +2991,11 @@
     "badge": "Deneyim",
     "expired": "Süresi doldu",
     "expiresIn": "{days} gün içinde sona eriyor"
+  },
+  "cookieConsent": {
+    "message": "Deneyiminizi iyileştirmek için çerezler kullanıyoruz. Temel çerezler her zaman aktiftir. Temel olmayan çerezler trafiği analiz etmemize ve içeriği kişiselleştirmemize yardımcı olur.",
+    "accept": "Tümünü kabul et",
+    "reject": "Gereksizleri reddet",
+    "settings": "Çerez ayarları"
   }
 }
