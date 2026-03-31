@@ -12,7 +12,8 @@
     "test:watch": "vitest",
     "update:images": "npx tsx scripts/update-demo-images.ts",
     "generate:embeddings": "npx tsx scripts/generate-embeddings.ts",
-    "generate:seo": "npx tsx scripts/generate-seo-content.ts"
+    "generate:seo": "npx tsx scripts/generate-seo-content.ts",
+    "translate:cache": "npx tsx src/scripts/populate-translation-cache.ts"
   },
   "dependencies": {
     "@next/third-parties": "^16.1.6",
