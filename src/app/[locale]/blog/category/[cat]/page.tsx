@@ -3,6 +3,8 @@ import { Link } from "@/i18n/navigation";
 import { locales } from "@/i18n/config";
 import { ArrowLeft, Calendar, Clock, Tag, User } from "lucide-react";
 import { getAllCategories, getPostsByCategory } from "@/lib/blog";
+
+export const revalidate = 3600;
 import { getTranslations } from "next-intl/server";
 
 interface Props {

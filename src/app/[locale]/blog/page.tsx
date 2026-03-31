@@ -3,6 +3,8 @@ import { Link } from "@/i18n/navigation";
 import { Rss } from "lucide-react";
 import { getAllPosts, getAllCategories } from "@/lib/blog";
 import { BlogSearch } from "@/components/blog/BlogSearch";
+
+export const revalidate = 3600;
 import { getTranslations } from "next-intl/server";
 
 interface Props {

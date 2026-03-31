@@ -4,6 +4,8 @@ import Script from "next/script";
 import { getServerSupabase } from "@/lib/supabase/server";
 import ObjectDetailClient from "./ObjectDetailClient";
 
+export const revalidate = 300;
+
 interface Props {
   params: Promise<{ id: string }>;
 }
