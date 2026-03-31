@@ -14,7 +14,7 @@ async function getItem(id: string) {
 
   const { data } = await supabase
     .from("items")
-    .select("title, description, category, condition, location, photos")
+    .select("title, description, category, condition, location, images")
     .eq("id", id)
     .maybeSingle();
   return data;
@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const description =
     (item.description as string)?.slice(0, 160) ||
     `${item.category} · ${item.condition}${item.location ? ` · ${item.location}` : ""}`;
-  const photos = item.photos as string[] | null;
+  const photos = item.images as string[] | null;
   const image = photos?.[0] || undefined;
 
   return {
@@ -72,7 +72,7 @@ export default async function ObjectDetailPage({ params }: Props) {
         name: item.title as string,
         description: (item.description as string)?.slice(0, 500) || "",
         category: item.category as string,
-        image: (item.photos as string[] | null)?.[0] || undefined,
+        image: (item.images as string[] | null)?.[0] || undefined,
         offers: {
           "@type": "Offer",
           availability: "https://schema.org/InStock",
