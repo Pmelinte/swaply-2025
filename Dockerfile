@@ -31,9 +31,11 @@ ARG NEXT_PUBLIC_MAPS_TOKEN
 
 # Set NODE_ENV for the build
 ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 
 # Build the Next.js application (standalone output)
-RUN npm run build
+# Mount .next/cache as a Docker cache to speed up repeated builds
+RUN --mount=type=cache,target=/app/.next/cache npm run build
 
 # ---- Stage 3: Runner ----
 FROM node:22-alpine AS runner

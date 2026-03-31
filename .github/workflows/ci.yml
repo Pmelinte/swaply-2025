@@ -18,8 +18,9 @@ env:
   NODE_VERSION: "22"
 
 jobs:
-  lint:
-    name: Lint
+  # ── Lint + TypeCheck in a single job (saves one full npm ci) ──
+  checks:
+    name: Lint & Type Check
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -35,28 +36,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run ESLint
-        run: npm run lint
-
-  typecheck:
-    name: Type Check
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run TypeScript type check
-        run: npm run typecheck
+      - name: Run ESLint & TypeScript in parallel
+        run: npm run lint & npm run typecheck & wait
 
   test:
     name: Test
@@ -82,7 +63,7 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    needs: [lint, typecheck, test]
+    needs: [checks, test]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -95,6 +76,15 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Restore Next.js build cache
+        uses: actions/cache@v4
+        with:
+          path: .next/cache
+          key: nextjs-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**', 'public/**') }}
+          restore-keys: |
+            nextjs-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
+            nextjs-cache-${{ runner.os }}-
 
       - name: Build Next.js application
         run: npm run build
