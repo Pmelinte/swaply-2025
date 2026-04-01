@@ -26,6 +26,8 @@
     "@supabase/ssr": "^0.9.0",
     "@supabase/supabase-js": "^2.49.0",
     "@tailwindcss/typography": "^0.5.19",
+    "@tanstack/react-query": "^5.96.1",
+    "@tanstack/react-query-devtools": "^5.96.1",
     "@vercel/analytics": "^1.6.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

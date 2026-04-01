@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, useCallback, lazy, Suspense } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "@/i18n/navigation";
 import { useParams } from "next/navigation";
 import Image from "next/image";
@@ -98,62 +99,54 @@ export default function ObjectDetailClient() {
   const stateItem = items.find((i) => i.id === params.id);
 
   // Direct Supabase fetch for guests or when item isn't in state (e.g. direct link)
-  const [directItem, setDirectItem] = useState<import("@/lib/types").Item | null>(null);
-  const [directFetchDone, setDirectFetchDone] = useState(false);
-  const directLoading = !stateItem && !loading.items && !directFetchDone;
+  const { data: directItem, isLoading: directLoading } = useQuery({
+    queryKey: ["item", params.id],
+    queryFn: async (): Promise<import("@/lib/types").Item | null> => {
+      const supabase = getSupabaseClient();
+      if (!supabase) return null;
+      const { data } = await supabase
+        .from("items")
+        .select("*")
+        .eq("id", params.id)
+        .eq("is_active", true)
+        .maybeSingle();
+      if (!data) return null;
+      const photos = Array.isArray(data.photos)
+        ? (data.photos as (string | { url?: string })[]).map((img) =>
+            typeof img === "string" ? img : String((img as Record<string, unknown>)?.url ?? ""),
+          ).filter(Boolean)
+        : [];
+      const aiMeta = (typeof data.ai_metadata === "object" && data.ai_metadata ? data.ai_metadata : {}) as Record<string, unknown>;
+      return {
+        id: String(data.id),
+        ownerId: String(data.owner_id),
+        title: String(data.title ?? ""),
+        category: String(data.category ?? ""),
+        condition: (String(data.condition ?? "good") as import("@/lib/types").Item["condition"]),
+        description: String(data.description ?? ""),
+        wishlist: String(data.wishlist ?? ""),
+        status: (String(data.status ?? "active") as import("@/lib/types").Item["status"]),
+        isDemo: Boolean(data.is_demo),
+        isActive: Boolean(data.is_active),
+        createdAt: String(data.created_at ?? ""),
+        location: String(data.location ?? ""),
+        aiSuggestedTags: Array.isArray(data.ai_suggested_tags) ? data.ai_suggested_tags as string[] : [],
+        userFinalTags: Array.isArray(data.user_final_tags) ? data.user_final_tags as string[] : [],
+        photos,
+        intent: (String(aiMeta.intent ?? "") || undefined) as import("@/lib/types").Item["intent"],
+        flexibility: (String(aiMeta.flexibility ?? "") || undefined) as import("@/lib/types").Item["flexibility"],
+        perceivedValue: (String(aiMeta.perceivedValue ?? "") || undefined) as import("@/lib/types").Item["perceivedValue"],
+        clarity: (String(aiMeta.clarity ?? "") || undefined) as import("@/lib/types").Item["clarity"],
+        context: (String(aiMeta.context ?? "") || undefined) as import("@/lib/types").Item["context"],
+        acceptsBundle: typeof aiMeta.acceptsBundle === "boolean" ? aiMeta.acceptsBundle : undefined,
+        recipientMatters: typeof aiMeta.recipientMatters === "boolean" ? aiMeta.recipientMatters : undefined,
+        aiNote: String(aiMeta.aiNote ?? "") || undefined,
+      };
+    },
+    enabled: !stateItem && !loading.items,
+  });
 
-  useEffect(() => {
-    if (stateItem || loading.items) return;
-    const supabase = getSupabaseClient();
-    if (!supabase) return;
-    let cancelled = false;
-    supabase
-      .from("items")
-      .select("*")
-      .eq("id", params.id)
-      .eq("is_active", true)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (cancelled) return;
-        if (data) {
-          const photos = Array.isArray(data.photos)
-            ? (data.photos as (string | { url?: string })[]).map((img) =>
-                typeof img === "string" ? img : String((img as Record<string, unknown>)?.url ?? ""),
-              ).filter(Boolean)
-            : [];
-          const aiMeta = (typeof data.ai_metadata === "object" && data.ai_metadata ? data.ai_metadata : {}) as Record<string, unknown>;
-          setDirectItem({
-            id: String(data.id),
-            ownerId: String(data.owner_id),
-            title: String(data.title ?? ""),
-            category: String(data.category ?? ""),
-            condition: (String(data.condition ?? "good") as import("@/lib/types").Item["condition"]),
-            description: String(data.description ?? ""),
-            wishlist: String(data.wishlist ?? ""),
-            status: (String(data.status ?? "active") as import("@/lib/types").Item["status"]),
-            isDemo: Boolean(data.is_demo),
-            isActive: Boolean(data.is_active),
-            createdAt: String(data.created_at ?? ""),
-            location: String(data.location ?? ""),
-            aiSuggestedTags: Array.isArray(data.ai_suggested_tags) ? data.ai_suggested_tags as string[] : [],
-            userFinalTags: Array.isArray(data.user_final_tags) ? data.user_final_tags as string[] : [],
-            photos,
-            intent: (String(aiMeta.intent ?? "") || undefined) as import("@/lib/types").Item["intent"],
-            flexibility: (String(aiMeta.flexibility ?? "") || undefined) as import("@/lib/types").Item["flexibility"],
-            perceivedValue: (String(aiMeta.perceivedValue ?? "") || undefined) as import("@/lib/types").Item["perceivedValue"],
-            clarity: (String(aiMeta.clarity ?? "") || undefined) as import("@/lib/types").Item["clarity"],
-            context: (String(aiMeta.context ?? "") || undefined) as import("@/lib/types").Item["context"],
-            acceptsBundle: typeof aiMeta.acceptsBundle === "boolean" ? aiMeta.acceptsBundle : undefined,
-            recipientMatters: typeof aiMeta.recipientMatters === "boolean" ? aiMeta.recipientMatters : undefined,
-            aiNote: String(aiMeta.aiNote ?? "") || undefined,
-          });
-        }
-        setDirectFetchDone(true);
-      });
-    return () => { cancelled = true; };
-  }, [stateItem, loading.items, params.id]);
-
-  const item = stateItem ?? directItem;
+  const item = stateItem ?? directItem ?? null;
   const [shareToast, setShareToast] = useState(false);
 
   // ── Translation state ─────────────────────────────────────────────

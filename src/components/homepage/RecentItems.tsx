@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
-import { useEffect, useState, useCallback } from "react";
+import { useState, useCallback } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { MapPin, ChevronRight, Plus, Globe, Loader2 } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 
@@ -124,30 +125,18 @@ export function RecentItems() {
   const t = useTranslations("home");
   const tObj = useTranslations("objects");
   const tCat = useTranslations("categories");
-  const [items, setItems] = useState<RecentItem[]>([]);
-  const [loaded, setLoaded] = useState(false);
 
-  useEffect(() => {
-    let cancelled = false;
-    async function load() {
-      try {
-        const res = await fetch("/api/items/recent");
-        if (res.ok && !cancelled) {
-          const data = await res.json();
-          setItems(data);
-        }
-      } catch {
-        // silently fail
-      } finally {
-        if (!cancelled) setLoaded(true);
-      }
-    }
-    load();
-    return () => { cancelled = true; };
-  }, []);
+  const { data: items = [], isLoading } = useQuery<RecentItem[]>({
+    queryKey: ["items", "recent"],
+    queryFn: async () => {
+      const res = await fetch("/api/items/recent");
+      if (!res.ok) return [];
+      return res.json();
+    },
+  });
 
   // Don't render until loaded
-  if (!loaded) return null;
+  if (isLoading) return null;
 
   // Empty state CTA
   if (items.length === 0) {
