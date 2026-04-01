@@ -1007,11 +1007,16 @@ export default function ObjectsPage() {
           {loading.items && filtered.length === 0 && (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
               {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="animate-pulse rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-800">
-                  <div className="aspect-[4/3] w-full rounded-t-xl bg-zinc-200 dark:bg-zinc-700" />
-                  <div className="p-3 space-y-2">
-                    <div className="h-4 w-3/4 rounded bg-zinc-200 dark:bg-zinc-700" />
-                    <div className="h-3 w-1/2 rounded bg-zinc-200 dark:bg-zinc-700" />
+                <div key={i} className="animate-pulse overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-800">
+                  <div className="aspect-[4/3] w-full bg-zinc-200 dark:bg-zinc-700" />
+                  <div className="space-y-2.5 p-3">
+                    <div className="h-4 w-4/5 rounded bg-zinc-200 dark:bg-zinc-700" />
+                    <div className="h-3 w-1/2 rounded bg-zinc-100 dark:bg-zinc-700/60" />
+                    <div className="flex items-center gap-1.5">
+                      <div className="h-3 w-3 rounded-full bg-zinc-200 dark:bg-zinc-700" />
+                      <div className="h-3 w-2/5 rounded bg-zinc-100 dark:bg-zinc-700/60" />
+                    </div>
+                    <div className="h-5 w-1/3 rounded-full bg-zinc-100 dark:bg-zinc-700/60" />
                   </div>
                 </div>
               ))}
