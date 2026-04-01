@@ -3,6 +3,7 @@ import { Link } from "@/i18n/navigation";
 import { locales } from "@/i18n/config";
 import { notFound } from "next/navigation";
 import { MapPin, Tag, ChevronRight, Home } from "lucide-react";
+import { getCachedSeoContent } from "@/lib/cache/categories";
 import { getServerSupabase } from "@/lib/supabase/server";
 import {
   SEO_CITIES,
@@ -33,19 +34,7 @@ async function getSeoContent(
   citySlug: string,
   categorySlug: string,
 ): Promise<SeoContentRow | null> {
-  const supabase = await getServerSupabase();
-  if (!supabase) return null;
-
-  const { data } = await supabase
-    .from("seo_content")
-    .select("h1, intro_paragraph, meta_title, meta_description")
-    .eq("page_type", "category_city")
-    .eq("category_slug", categorySlug)
-    .eq("city_slug", citySlug)
-    .eq("lang", "en")
-    .maybeSingle();
-
-  return data as SeoContentRow | null;
+  return getCachedSeoContent(citySlug, categorySlug) as Promise<SeoContentRow | null>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

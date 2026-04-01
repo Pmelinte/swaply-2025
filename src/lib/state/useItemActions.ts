@@ -63,6 +63,15 @@ export function useItemActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
             if (idx >= 0) { const next = [...prev]; next[idx] = mapped; return next; }
             return [mapped, ...prev];
           });
+          // Fire-and-forget: revalidate category caches if new item
+          if (isNew) {
+            fetch("/api/revalidate", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ tags: ["categories", "subcategories"] }),
+            }).catch(() => {});
+          }
+
           // Fire-and-forget: generate semantic embedding for this item
           fetch("/api/embeddings", {
             method: "POST",
