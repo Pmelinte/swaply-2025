@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 
 interface Stats {
@@ -77,29 +78,16 @@ function StatCard({
 
 export function StatsBar() {
   const t = useTranslations("home");
-  const [stats, setStats] = useState<Stats | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function load() {
-      try {
-        const res = await fetch("/api/stats");
-        if (res.ok && !cancelled) {
-          setStats(await res.json());
-        }
-      } catch {
-        // silently fail — section just won't render
-      }
-    }
-
-    load();
-    const interval = setInterval(load, 60_000);
-    return () => {
-      cancelled = true;
-      clearInterval(interval);
-    };
-  }, []);
+  const { data: stats } = useQuery<Stats>({
+    queryKey: ["stats"],
+    queryFn: async () => {
+      const res = await fetch("/api/stats");
+      if (!res.ok) throw new Error("Failed to fetch stats");
+      return res.json();
+    },
+    refetchInterval: 60_000,
+  });
 
   // Show skeleton placeholder while loading to prevent CLS
   if (!stats) {
