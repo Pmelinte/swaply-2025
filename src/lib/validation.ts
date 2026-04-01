@@ -58,23 +58,12 @@ export const translateSchema = z.object({
 });
 
 // ── Item CRUD Validation ──
-export const itemSchema = z.object({
+// Extends the shared form schema with server-only fields (id, photos)
+import { itemFormSchema } from "@/lib/schemas/item.schema";
+
+export const itemSchema = itemFormSchema.extend({
   id: z.string().max(100).optional(),
-  title: z.string().min(1).max(200),
-  category: z.string().min(1).max(100),
-  condition: z.enum(["new", "good", "used", "used_good"]),
-  description: z.string().max(5000).default(""),
-  wishlist: z.string().max(2000).default(""),
-  status: z.enum(["active", "reserved", "traded", "paused", "archived"]).default("active"),
-  location: z.string().max(200).default(""),
   photos: z.array(z.string().url().max(500)).max(10).default([]),
-  intent: z.enum(["explore", "open", "committed", "high_commitment"]).optional(),
-  flexibility: z.enum(["strict", "moderate", "broad"]).optional(),
-  perceivedValue: z.enum(["small", "medium", "large", "sentimental"]).optional(),
-  clarity: z.enum(["exploring", "have_idea", "know_exactly"]).optional(),
-  context: z.enum(["permanent", "vacation", "temporary", "urgent"]).optional(),
-  acceptsBundle: z.boolean().optional(),
-  recipientMatters: z.boolean().optional(),
 });
 
 // ── Profile Update Validation ──

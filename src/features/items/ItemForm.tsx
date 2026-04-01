@@ -3,6 +3,9 @@
 import Image from "next/image";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { itemFormSchema, type ItemFormValues } from "@/lib/schemas/item.schema";
 import {
   Select,
   SelectContent,
@@ -10,15 +13,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { z } from "zod";
 import type { Item, ItemIntent, ItemFlexibility, ItemPerceivedValue, ItemClarity, ItemContext } from "@/lib/types";
 import { uploadItemPhoto } from "@/lib/storage";
 import { TOP_CATEGORIES, getSubcategories, CATEGORY_NAMES, findCategoryByName } from "@/lib/categories";
 import { SubcategorySelector } from "@/components/SubcategorySelector";
 
 export const ITEM_CATEGORIES = CATEGORY_NAMES;
-
-type FieldErrors = Partial<Record<string, string>>;
 
 const inputClass =
   "mt-1 w-full rounded-lg border px-3 py-2 text-sm dark:bg-zinc-800";
@@ -96,29 +96,52 @@ export function ItemForm({
     { value: "traded", label: t("statusSwapped") },
   ] as const, [t]);
 
-  const itemSchema = useMemo(() => z.object({
-    title: z
-      .string()
-      .min(3, t("titleMinLength"))
-      .max(120, t("titleMaxLength")),
-    category: z.string().min(1, t("invalidCategory")),
-    condition: z.enum(["new", "good", "used"]),
-    description: z
-      .string()
-      .max(2000, t("descriptionMaxLength"))
-      .optional()
-      .default(""),
-    wishlist: z.string().max(500, t("wishlistMaxLength")).optional().default(""),
-    location: z.string().min(2, t("locationRequired")),
-    userFinalTags: z.array(z.string()).max(10, t("maxTags")).optional().default([]),
-  }), [t]);
+  const {
+    register,
+    handleSubmit: rhfHandleSubmit,
+    watch,
+    setValue,
+    getValues,
+    formState: { errors, isSubmitting },
+  } = useForm<ItemFormValues>({
+    resolver: zodResolver(itemFormSchema),
+    defaultValues: {
+      title: item.title || "",
+      description: item.description || "",
+      category: item.category || "",
+      condition: (item.condition || "good") as ItemFormValues["condition"],
+      location: item.location || "",
+      wishlist: item.wishlist || "",
+      status: (item.status || "active") as ItemFormValues["status"],
+      userFinalTags: item.userFinalTags ?? [],
+      intent: item.intent as ItemFormValues["intent"],
+      flexibility: item.flexibility as ItemFormValues["flexibility"],
+      perceivedValue: item.perceivedValue as ItemFormValues["perceivedValue"],
+      clarity: item.clarity as ItemFormValues["clarity"],
+      context: item.context as ItemFormValues["context"],
+      acceptsBundle: item.acceptsBundle,
+      recipientMatters: item.recipientMatters,
+    },
+    mode: "onBlur",
+  });
 
+  // Keep a mutable draft mirror for non-schema fields (photos, AI tags, etc.)
   const [draft, setDraft] = useState<Item>(item);
+  // Sync RHF values back to draft for onSave
+  const syncDraftFromForm = useCallback(
+    (values: ItemFormValues): Item => ({
+      ...draft,
+      ...values,
+      condition: values.condition as Item["condition"],
+      status: values.status as Item["status"],
+    }),
+    [draft],
+  );
+
   const [preview, setPreview] = useState<string | null>(
     item.photos[0] ?? null,
   );
-  const [errors, setErrors] = useState<FieldErrors>({});
-  const [saving, setSaving] = useState(false);
+  const saving = isSubmitting;
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [tagInput, setTagInput] = useState("");
@@ -136,12 +159,12 @@ export function ItemForm({
 
   const triggerAiOnBlur = useCallback(() => {
     if (aiTriggered.current || aiLoading) return;
-    if (draft.title.length >= 3) {
+    if ((getValues("title") ?? "").length >= 3) {
       aiTriggered.current = true;
       void fetchAiSuggestionsInternal();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [draft.title, aiLoading]);
+  }, [aiLoading, getValues]);
 
   // Cascading category state
   const initParent = useMemo(() => {
@@ -157,60 +180,27 @@ export function ItemForm({
     [selectedParent],
   );
 
-  const validate = (): boolean => {
-    const result = itemSchema.safeParse({
-      title: draft.title,
-      category: draft.category,
-      condition: draft.condition,
-      description: draft.description,
-      wishlist: draft.wishlist,
-      location: draft.location,
-      userFinalTags: draft.userFinalTags,
-    });
-    if (result.success) {
-      setErrors({});
-      return true;
-    }
-    const fieldErrors: FieldErrors = {};
-    for (const issue of result.error.issues) {
-      const field = issue.path[0] as string;
-      if (!fieldErrors[field]) {
-        fieldErrors[field] = issue.message;
-      }
-    }
-    setErrors(fieldErrors);
-    return false;
-  };
-
-  const handleSubmit = async () => {
-    if (!validate()) return;
-    setSaving(true);
-    try {
-      await onSave(draft);
-    } finally {
-      setSaving(false);
-    }
+  const onSubmit = async (values: ItemFormValues) => {
+    await onSave(syncDraftFromForm(values));
   };
 
   const addTag = () => {
     const tag = tagInput.trim().toLowerCase();
-    if (!tag || (draft.userFinalTags ?? []).includes(tag)) return;
-    setDraft({
-      ...draft,
-      userFinalTags: [...(draft.userFinalTags ?? []), tag],
-    });
+    const current = getValues("userFinalTags") ?? [];
+    if (!tag || current.includes(tag)) return;
+    setValue("userFinalTags", [...current, tag]);
     setTagInput("");
   };
 
   const removeTag = (tag: string) => {
-    setDraft({
-      ...draft,
-      userFinalTags: (draft.userFinalTags ?? []).filter((t) => t !== tag),
-    });
+    const current = getValues("userFinalTags") ?? [];
+    setValue("userFinalTags", current.filter((t) => t !== tag));
   };
 
   const fetchAiSuggestionsInternal = async () => {
-    if (!draft.title && !draft.description) {
+    const draftTitle = getValues("title");
+    const draftDescription = getValues("description");
+    if (!draftTitle && !draftDescription) {
       setAiStatus(t("aiSuggestsFromTitle"));
       return;
     }
@@ -221,23 +211,21 @@ export function ItemForm({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          title: draft.title,
-          description: draft.description,
+          title: draftTitle,
+          description: draftDescription,
           action: "both",
         }),
       });
       const data = await res.json();
-      const updates: Partial<Item> = {};
       if (data.category && ITEM_CATEGORIES.includes(data.category)) {
-        updates.category = data.category;
+        setValue("category", data.category);
       }
       if (data.tags?.length) {
-        updates.aiSuggestedTags = data.tags;
+        setDraft((prev) => ({ ...prev, aiSuggestedTags: data.tags }));
       }
-      setDraft((prev) => ({ ...prev, ...updates }));
       // Compute confidence: ok=high, fallback=medium, with category & tags presence
-      const hasCategory = !!updates.category;
-      const hasTags = (updates.aiSuggestedTags ?? []).length > 0;
+      const hasCategory = !!data.category;
+      const hasTags = (data.tags ?? []).length > 0;
       const baseScore = data.status === "ok" ? 80 : data.status === "fallback" ? 40 : 10;
       const bonus = (hasCategory ? 10 : 0) + (hasTags ? 10 : 0);
       setAiConfidence(Math.min(100, baseScore + bonus));
@@ -283,8 +271,8 @@ export function ItemForm({
         used: 0.4,
         used_good: 0.55,
       };
-      const baseRange = categoryValues[draft.category] ?? [10, 200];
-      const mult = conditionMultiplier[draft.condition] ?? 0.6;
+      const baseRange = categoryValues[getValues("category")] ?? [10, 200];
+      const mult = conditionMultiplier[getValues("condition")] ?? 0.6;
       const min = Math.round(baseRange[0] * mult);
       const max = Math.round(baseRange[1] * mult);
 
@@ -296,12 +284,12 @@ export function ItemForm({
         "Sports": ["Bicycle", "Tennis racket", "Camping gear"],
         "Home & Garden": ["Kitchen appliance", "Garden tools", "Lamp set"],
       };
-      const examples = swapExamples[draft.category] ?? ["Similar condition item", "Item from same category", "Bundle of smaller items"];
+      const examples = swapExamples[getValues("category")] ?? ["Similar condition item", "Item from same category", "Bundle of smaller items"];
 
       setValueEstimate({ min, max, currency: "EUR", fairSwapExamples: examples });
       setValueLoading(false);
     }, 800);
-  }, [draft.category, draft.condition]);
+  }, [getValues]);
 
   const analyzeImageWithAi = async (imageUrl: string, file?: File) => {
     setImageAiLoading(true);
@@ -330,12 +318,11 @@ export function ItemForm({
       const data = await res.json();
 
       if (data.status === "ok" || data.status === "fallback") {
-        const updates: Partial<Item> = {};
         if (data.title) {
-          updates.title = data.title;
+          setValue("title", data.title);
         }
         if (data.category && ITEM_CATEGORIES.includes(data.category)) {
-          updates.category = data.category;
+          setValue("category", data.category);
         }
         // If AI returned a subcategory, also set the parent dropdown
         if (data.category) {
@@ -343,7 +330,7 @@ export function ItemForm({
           if (node) {
             const parentId = node.parentId ?? node.id;
             setSelectedParent(parentId);
-            updates.category = node.name;
+            setValue("category", node.name);
           } else if (!ITEM_CATEGORIES.includes(data.category)) {
             // Try partial match on top-level category
             const topMatch = ITEM_CATEGORIES.find((c) =>
@@ -351,17 +338,16 @@ export function ItemForm({
               c.toLowerCase().includes(data.category.toLowerCase())
             );
             if (topMatch) {
-              updates.category = topMatch;
+              setValue("category", topMatch);
               const topNode = findCategoryByName(topMatch);
               if (topNode) setSelectedParent(topNode.id);
             }
           }
         }
-        setDraft((prev) => ({ ...prev, ...updates }));
 
         // Compute confidence for image AI
-        const hasTitle = !!updates.title;
-        const hasCategory = !!updates.category;
+        const hasTitle = !!data.title;
+        const hasCategory = !!data.category;
         const imgBase = data.status === "ok" ? 75 : 35;
         const imgBonus = (hasTitle ? 15 : 0) + (hasCategory ? 10 : 0);
         setAiConfidence(Math.min(100, imgBase + imgBonus));
@@ -397,10 +383,7 @@ export function ItemForm({
   return (
     <form
       className="space-y-4 rounded-2xl border border-zinc-200 bg-white/90 p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/80"
-      onSubmit={(e) => {
-        e.preventDefault();
-        void handleSubmit();
-      }}
+      onSubmit={rhfHandleSubmit(onSubmit)}
       noValidate
     >
       {/* Image upload / URL */}
@@ -597,14 +580,12 @@ export function ItemForm({
         <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
           {t("titleLabel")}
           <input
-            value={draft.title}
-            onChange={(e) => setDraft({ ...draft, title: e.target.value })}
-            onBlur={triggerAiOnBlur}
+            {...register("title", { onBlur: triggerAiOnBlur })}
             placeholder={t("titlePlaceholder")}
-            maxLength={120}
+            maxLength={100}
             className={errors.title ? inputError : inputNormal}
           />
-          <FieldError message={errors.title} />
+          <FieldError message={errors.title?.message} />
         </label>
         <div className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
           <p>{t("categoryLabel")}</p>
@@ -613,12 +594,13 @@ export function ItemForm({
             onValueChange={(value) => {
               setSelectedParent(value);
               const parent = TOP_CATEGORIES.find((c) => c.id === value);
-              setDraft({ ...draft, category: parent?.name ?? "" });
+              setValue("category", parent?.name ?? "", { shouldValidate: true });
             }}
           >
             <SelectTrigger className={errors.category ? "mt-1 border-red-400 bg-red-50 dark:border-red-700 dark:bg-red-950/30" : "mt-1"}>
               <SelectValue placeholder={t("chooseCategory")} />
             </SelectTrigger>
+            <input type="hidden" {...register("category")} />
             <SelectContent>
               {TOP_CATEGORIES.map((cat) => (
                 <SelectItem key={cat.id} value={cat.id}>
@@ -630,8 +612,8 @@ export function ItemForm({
           {/* Subcategory (appears when parent is selected) */}
           {subcategories.length > 0 ? (
             <Select
-              value={draft.category || undefined}
-              onValueChange={(value) => setDraft({ ...draft, category: value })}
+              value={watch("category") || undefined}
+              onValueChange={(value) => setValue("category", value, { shouldValidate: true })}
             >
               <SelectTrigger className="mt-1">
                 <SelectValue placeholder={t("allFromCategory", { category: tCat(TOP_CATEGORIES.find((c) => c.id === selectedParent)?.name ?? "other") })} />
@@ -648,7 +630,7 @@ export function ItemForm({
               </SelectContent>
             </Select>
           ) : null}
-          <FieldError message={errors.category} />
+          <FieldError message={errors.category?.message} />
         </div>
         {/* DB-driven subcategory selector with icons, disclaimers, extra fields */}
         {selectedParent && (
@@ -704,7 +686,7 @@ export function ItemForm({
           <button
             type="button"
             onClick={estimateValue}
-            disabled={valueLoading || !draft.category}
+            disabled={valueLoading || !watch("category")}
             className="rounded-full bg-emerald-600 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
           >
             {valueLoading ? t("analyzing") : t("estimateValue")}
@@ -738,8 +720,7 @@ export function ItemForm({
       <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-200">
         {t("descriptionLabel")}
         <textarea
-          value={draft.description}
-          onChange={(e) => setDraft({ ...draft, description: e.target.value })}
+          {...register("description")}
           placeholder={t("descriptionPlaceholder")}
           maxLength={2000}
           className={errors.description ? inputError : inputNormal}
@@ -747,28 +728,28 @@ export function ItemForm({
         />
         <div className="mt-1 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <FieldError message={errors.description} />
+            <FieldError message={errors.description?.message} />
             <button
               type="button"
-              disabled={!draft.title || aiLoading}
+              disabled={!watch("title") || aiLoading}
               onClick={async () => {
-                if (!draft.title) return;
+                if (!getValues("title")) return;
                 setAiLoading(true);
                 try {
                   const res = await fetch("/api/ai", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                      title: draft.title,
-                      category: draft.category,
-                      condition: draft.condition,
+                      title: getValues("title"),
+                      category: getValues("category"),
+                      condition: getValues("condition"),
                       prompt: "generate_description",
                     }),
                   });
                   if (res.ok) {
                     const data = await res.json();
                     if (data.description) {
-                      setDraft((prev) => ({ ...prev, description: data.description }));
+                      setValue("description", data.description);
                     }
                   }
                 } finally {
@@ -781,7 +762,7 @@ export function ItemForm({
             </button>
           </div>
           <span className="text-xs text-zinc-400">
-            {draft.description.length}/2000
+            {(watch("description") ?? "").length}/2000
           </span>
         </div>
       </label>
@@ -790,13 +771,12 @@ export function ItemForm({
       <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-200">
         {t("wishlistLabel")}
         <input
-          value={draft.wishlist}
-          onChange={(e) => setDraft({ ...draft, wishlist: e.target.value })}
+          {...register("wishlist")}
           placeholder={t("wishlistPlaceholder")}
           maxLength={500}
           className={errors.wishlist ? inputError : inputNormal}
         />
-        <FieldError message={errors.wishlist} />
+        <FieldError message={errors.wishlist?.message} />
       </label>
 
       {/* Semantic contract fields (optional) */}
@@ -813,8 +793,8 @@ export function ItemForm({
           <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">
             {t("intentQuestion")}
             <select
-              value={draft.intent ?? ""}
-              onChange={(e) => setDraft({ ...draft, intent: (e.target.value || undefined) as ItemIntent | undefined })}
+              value={watch("intent") ?? ""}
+              onChange={(e) => setValue("intent", (e.target.value || undefined) as ItemIntent | undefined)}
               className={inputNormal}
             >
               <option value="">— Nealeas —</option>
@@ -829,8 +809,8 @@ export function ItemForm({
           <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">
             {t("flexibilityQuestion")}
             <select
-              value={draft.flexibility ?? ""}
-              onChange={(e) => setDraft({ ...draft, flexibility: (e.target.value || undefined) as ItemFlexibility | undefined })}
+              value={watch("flexibility") ?? ""}
+              onChange={(e) => setValue("flexibility", (e.target.value || undefined) as ItemFlexibility | undefined)}
               className={inputNormal}
             >
               <option value="">— Nealeas —</option>
@@ -844,8 +824,8 @@ export function ItemForm({
           <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">
             {t("perceivedValueQuestion")}
             <select
-              value={draft.perceivedValue ?? ""}
-              onChange={(e) => setDraft({ ...draft, perceivedValue: (e.target.value || undefined) as ItemPerceivedValue | undefined })}
+              value={watch("perceivedValue") ?? ""}
+              onChange={(e) => setValue("perceivedValue", (e.target.value || undefined) as ItemPerceivedValue | undefined)}
               className={inputNormal}
             >
               <option value="">— Nealeas —</option>
@@ -860,8 +840,8 @@ export function ItemForm({
           <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">
             {t("clarityQuestion")}
             <select
-              value={draft.clarity ?? ""}
-              onChange={(e) => setDraft({ ...draft, clarity: (e.target.value || undefined) as ItemClarity | undefined })}
+              value={watch("clarity") ?? ""}
+              onChange={(e) => setValue("clarity", (e.target.value || undefined) as ItemClarity | undefined)}
               className={inputNormal}
             >
               <option value="">— Nealeas —</option>
@@ -875,8 +855,8 @@ export function ItemForm({
           <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">
             {t("contextQuestion")}
             <select
-              value={draft.context ?? ""}
-              onChange={(e) => setDraft({ ...draft, context: (e.target.value || undefined) as ItemContext | undefined })}
+              value={watch("context") ?? ""}
+              onChange={(e) => setValue("context", (e.target.value || undefined) as ItemContext | undefined)}
               className={inputNormal}
             >
               <option value="">— Nealeas —</option>
@@ -893,8 +873,8 @@ export function ItemForm({
           <label className="flex items-center gap-2 text-xs text-zinc-700 dark:text-zinc-200">
             <input
               type="checkbox"
-              checked={draft.acceptsBundle ?? false}
-              onChange={(e) => setDraft({ ...draft, acceptsBundle: e.target.checked || undefined })}
+              checked={watch("acceptsBundle") ?? false}
+              onChange={(e) => setValue("acceptsBundle", e.target.checked || undefined)}
               className="rounded border-zinc-300"
             />
             {t("acceptsBundle")}
@@ -902,8 +882,8 @@ export function ItemForm({
           <label className="flex items-center gap-2 text-xs text-zinc-700 dark:text-zinc-200">
             <input
               type="checkbox"
-              checked={draft.recipientMatters ?? false}
-              onChange={(e) => setDraft({ ...draft, recipientMatters: e.target.checked || undefined })}
+              checked={watch("recipientMatters") ?? false}
+              onChange={(e) => setValue("recipientMatters", e.target.checked || undefined)}
               className="rounded border-zinc-300"
             />
             {t("recipientMatters")}
@@ -948,7 +928,7 @@ export function ItemForm({
           {t("aiMessageLabel")}
           <input
             value={draft.aiNote ?? ""}
-            onChange={(e) => setDraft({ ...draft, aiNote: e.target.value || undefined })}
+            onChange={(e) => setDraft((prev) => ({ ...prev, aiNote: e.target.value || undefined }))}
             placeholder={t("aiMessagePlaceholder")}
             maxLength={300}
             className={inputNormal}
@@ -962,13 +942,7 @@ export function ItemForm({
         <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
           {t("conditionLabel")}
           <select
-            value={draft.condition}
-            onChange={(e) =>
-              setDraft({
-                ...draft,
-                condition: e.target.value as Item["condition"],
-              })
-            }
+            {...register("condition")}
             className={inputNormal}
           >
             {CONDITIONS.map((c) => (
@@ -981,13 +955,7 @@ export function ItemForm({
         <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
           {t("statusLabel")}
           <select
-            value={draft.status}
-            onChange={(e) =>
-              setDraft({
-                ...draft,
-                status: e.target.value as Item["status"],
-              })
-            }
+            {...register("status")}
             className={inputNormal}
           >
             {STATUSES.map((s) => (
@@ -1000,12 +968,11 @@ export function ItemForm({
         <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
           {t("locationLabel")}
           <input
-            value={draft.location}
-            onChange={(e) => setDraft({ ...draft, location: e.target.value })}
+            {...register("location")}
             placeholder={t("locationPlaceholder")}
             className={errors.location ? inputError : inputNormal}
           />
-          <FieldError message={errors.location} />
+          <FieldError message={errors.location?.message} />
         </label>
       </div>
 
@@ -1036,9 +1003,9 @@ export function ItemForm({
             +
           </button>
         </div>
-        {(draft.userFinalTags ?? []).length > 0 ? (
+        {(watch("userFinalTags") ?? []).length > 0 ? (
           <div className="mt-2 flex flex-wrap gap-1">
-            {(draft.userFinalTags ?? []).map((tag) => (
+            {(watch("userFinalTags") ?? []).map((tag) => (
               <span
                 key={tag}
                 className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/40 dark:text-blue-200"
@@ -1055,7 +1022,7 @@ export function ItemForm({
             ))}
           </div>
         ) : null}
-        <FieldError message={errors.userFinalTags} />
+        <FieldError message={errors.userFinalTags?.message} />
       </div>
 
       {/* AI tags (read-only) */}
