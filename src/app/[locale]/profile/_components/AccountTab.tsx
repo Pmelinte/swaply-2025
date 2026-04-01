@@ -7,6 +7,7 @@ import {
   Download, Pause, Play, Shield, AlertTriangle, Trash2,
 } from "lucide-react";
 import { Pill, SectionCard } from "@/components/ui-custom";
+import { subscribeToPush, unsubscribeFromPush, isPushSubscribed } from "@/lib/push";
 import type { UserProfile, AccountStatus } from "@/lib/types";
 import { getSupabaseClient } from "@/lib/supabase/client";
 
@@ -128,7 +129,16 @@ export default function AccountTab({
             </label>
             <label className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
               <input type="checkbox" checked={draft.notifications.push}
-                onChange={(e) => update({ notifications: { ...draft.notifications, push: e.target.checked } })} />
+                onChange={async (e) => {
+                  const enabled = e.target.checked;
+                  if (enabled) {
+                    const ok = await subscribeToPush(user.id);
+                    if (!ok) return; // permission denied or error
+                  } else {
+                    await unsubscribeFromPush(user.id);
+                  }
+                  update({ notifications: { ...draft.notifications, push: enabled } });
+                }} />
               {t("pushNotifications")}
             </label>
             <label className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
