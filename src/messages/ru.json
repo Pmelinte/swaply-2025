@@ -1313,7 +1313,10 @@
     "digitalTransferSteps": "Поделитесь письмом подтверждения, PDF-билетом или номером бронирования прямо в чате Swaply. Ваш партнёр по обмену подтвердит получение.",
     "digitalEmail": "Письмо подтверждения",
     "digitalPdf": "PDF / QR-код",
-    "digitalBookingRef": "Номер бронирования"
+    "digitalBookingRef": "Номер бронирования",
+    "swapChat": "Swap Chat",
+    "chatEmpty": "No messages yet. Start the conversation!",
+    "chatPlaceholder": "Type a message..."
   },
   "info": {
     "title": "Статистика Swaply",

@@ -1406,7 +1406,10 @@
     "bothConfirmed": "Ambele părți au confirmat! Schimbul este finalizat.",
     "chainDetected": "Lanț detectat automat",
     "courierDomestic": "Curieri locali",
-    "courierInternational": "Curieri internaționali"
+    "courierInternational": "Curieri internaționali",
+    "swapChat": "Chat schimb",
+    "chatEmpty": "Niciun mesaj încă. Începe conversația!",
+    "chatPlaceholder": "Scrie un mesaj..."
   },
   "feedback": {
     "title": "Păreri",

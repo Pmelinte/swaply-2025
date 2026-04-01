@@ -1313,7 +1313,10 @@
     "digitalTransferSteps": "Pasidalinkite savo patvirtinimo el. laišku, PDF bilietu arba užsakymo nuoroda tiesiai „Swaply\" pokalbyje. Jūsų mainų partneris patvirtins gavimą.",
     "digitalEmail": "Patvirtinimo el. laiškas",
     "digitalPdf": "PDF / QR kodas",
-    "digitalBookingRef": "Užsakymo nuoroda"
+    "digitalBookingRef": "Užsakymo nuoroda",
+    "swapChat": "Swap Chat",
+    "chatEmpty": "No messages yet. Start the conversation!",
+    "chatPlaceholder": "Type a message..."
   },
   "info": {
     "title": "Swaply statistika",

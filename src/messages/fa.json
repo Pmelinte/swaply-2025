@@ -1313,7 +1313,10 @@
     "digitalTransferSteps": "ایمیل تأیید، بلیط PDF یا مرجع رزرو خود را مستقیماً در چت Swaply به‌اشتراک بگذارید. شریک معامله شما دریافت را تایید خواهد کرد.",
     "digitalEmail": "ایمیل تأیید",
     "digitalPdf": "PDF / کد QR",
-    "digitalBookingRef": "مرجع رزرو"
+    "digitalBookingRef": "مرجع رزرو",
+    "swapChat": "Swap Chat",
+    "chatEmpty": "No messages yet. Start the conversation!",
+    "chatPlaceholder": "Type a message..."
   },
   "info": {
     "title": "آمار سواپلی",

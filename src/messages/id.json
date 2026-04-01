@@ -1313,7 +1313,10 @@
     "digitalTransferSteps": "Bagikan email konfirmasi, tiket PDF, atau referensi pemesanan Anda langsung di chat Swaply. Mitra swap Anda akan mengonfirmasi penerimaan.",
     "digitalEmail": "Email konfirmasi",
     "digitalPdf": "PDF / kode QR",
-    "digitalBookingRef": "Referensi pemesanan"
+    "digitalBookingRef": "Referensi pemesanan",
+    "swapChat": "Swap Chat",
+    "chatEmpty": "No messages yet. Start the conversation!",
+    "chatPlaceholder": "Type a message..."
   },
   "info": {
     "title": "Statistik Swaply",

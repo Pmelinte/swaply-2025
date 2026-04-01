@@ -1313,7 +1313,10 @@
     "digitalTransferSteps": "Aqsam l-email tal-konfermazzjoni tiegħek, il-kartuna PDF, jew ir-referenza tal-prenotazzjoni direttament fil-chat tal-Swaply. Il-partner tal-iskambju tiegħek se jikkonfirma l-irtsal.",
     "digitalEmail": "Email tal-konfermazzjoni",
     "digitalPdf": "PDF / Kodiċi QR",
-    "digitalBookingRef": "Referenza tal-prenotazzjoni"
+    "digitalBookingRef": "Referenza tal-prenotazzjoni",
+    "swapChat": "Swap Chat",
+    "chatEmpty": "No messages yet. Start the conversation!",
+    "chatPlaceholder": "Type a message..."
   },
   "info": {
     "title": "Statistika ta' Swaply",

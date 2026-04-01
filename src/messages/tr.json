@@ -1313,7 +1313,10 @@
     "digitalTransferSteps": "Onay e-postanız, PDF biletiniz veya rezervasyon referansınızı doğrudan Swaply sohbetinde paylaşın. Takas ortağınız teslim alınmayı onaylayacaktır.",
     "digitalEmail": "Onay e-postası",
     "digitalPdf": "PDF / QR kodu",
-    "digitalBookingRef": "Rezervasyon referansı"
+    "digitalBookingRef": "Rezervasyon referansı",
+    "swapChat": "Swap Chat",
+    "chatEmpty": "No messages yet. Start the conversation!",
+    "chatPlaceholder": "Type a message..."
   },
   "info": {
     "title": "Swaply İstatistikleri",

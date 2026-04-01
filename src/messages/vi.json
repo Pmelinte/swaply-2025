@@ -1313,7 +1313,10 @@
     "digitalTransferSteps": "Chia sẻ email xác nhận, vé PDF hoặc tham chiếu đặt phòng của bạn trực tiếp trong cuộc trò chuyện Swaply. Đối tác swap của bạn sẽ xác nhận nhận được.",
     "digitalEmail": "Email xác nhận",
     "digitalPdf": "PDF / Mã QR",
-    "digitalBookingRef": "Mã tham chiếu đặt chỗ"
+    "digitalBookingRef": "Mã tham chiếu đặt chỗ",
+    "swapChat": "Swap Chat",
+    "chatEmpty": "No messages yet. Start the conversation!",
+    "chatPlaceholder": "Type a message..."
   },
   "info": {
     "title": "Thống kê Swaply",

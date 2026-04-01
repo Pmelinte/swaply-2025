@@ -1313,7 +1313,10 @@
     "digitalTransferSteps": "確認メール、PDFチケット、または予約リファレンスをSwapyチャットで直接共有してください。スワップパートナーが受け取りを確認します。",
     "digitalEmail": "確認メール",
     "digitalPdf": "PDF / QRコード",
-    "digitalBookingRef": "予約リファレンス"
+    "digitalBookingRef": "予約リファレンス",
+    "swapChat": "Swap Chat",
+    "chatEmpty": "No messages yet. Start the conversation!",
+    "chatPlaceholder": "Type a message..."
   },
   "info": {
     "title": "Swaply統計",

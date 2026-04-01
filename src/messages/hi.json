@@ -1313,7 +1313,10 @@
     "digitalTransferSteps": "अपना पुष्टि ईमेल, PDF टिकट, या बुकिंग संदर्भ सीधे Swaply चैट में साझा करें। आपके स्वैप पार्टनर प्राप्ति की पुष्टि करेंगे।",
     "digitalEmail": "पुष्टि ईमेल",
     "digitalPdf": "PDF / QR कोड",
-    "digitalBookingRef": "बुकिंग संदर्भ"
+    "digitalBookingRef": "बुकिंग संदर्भ",
+    "swapChat": "Swap Chat",
+    "chatEmpty": "No messages yet. Start the conversation!",
+    "chatPlaceholder": "Type a message..."
   },
   "info": {
     "title": "Swaply आंकड़े",

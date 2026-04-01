@@ -1313,7 +1313,10 @@
     "digitalTransferSteps": "شارك رسالة التأكيد الخاصة بك أو ملف PDF أو مرجع الحجز مباشرة في دردشة Swaply. سيؤكد شريك المبادلة الخاص بك الاستلام.",
     "digitalEmail": "رسالة تأكيد البريد الإلكتروني",
     "digitalPdf": "PDF / رمز QR",
-    "digitalBookingRef": "مرجع الحجز"
+    "digitalBookingRef": "مرجع الحجز",
+    "swapChat": "Swap Chat",
+    "chatEmpty": "No messages yet. Start the conversation!",
+    "chatPlaceholder": "Type a message..."
   },
   "info": {
     "title": "إحصائيات Swaply",

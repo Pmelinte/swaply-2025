@@ -1313,7 +1313,10 @@
     "digitalTransferSteps": "แชร์อีเมลยืนยัน ตั๋ว PDF หรือรหัสการจอง ได้โดยตรงในแชท Swaply ของคุณ คู่แลกเปลี่ยนจะยืนยันการรับสินค้า",
     "digitalEmail": "อีเมลยืนยัน",
     "digitalPdf": "PDF / รหัส QR",
-    "digitalBookingRef": "รหัสการจอง"
+    "digitalBookingRef": "รหัสการจอง",
+    "swapChat": "Swap Chat",
+    "chatEmpty": "No messages yet. Start the conversation!",
+    "chatPlaceholder": "Type a message..."
   },
   "info": {
     "title": "สถิติ Swaply",

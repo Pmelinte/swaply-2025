@@ -1313,7 +1313,10 @@
     "digitalTransferSteps": "Delite svojega potrditvenega e-poštnega sporočila, PDF vstopnice ali referenčno številko rezervacije neposredno v Swaply klepetalnik. Vaš partner pri menjavi bo potrdil prejemko.",
     "digitalEmail": "Potrdilno e-poštno sporočilo",
     "digitalPdf": "PDF / QR koda",
-    "digitalBookingRef": "Referenčna številka rezervacije"
+    "digitalBookingRef": "Referenčna številka rezervacije",
+    "swapChat": "Swap Chat",
+    "chatEmpty": "No messages yet. Start the conversation!",
+    "chatPlaceholder": "Type a message..."
   },
   "info": {
     "title": "Swaply statistika",

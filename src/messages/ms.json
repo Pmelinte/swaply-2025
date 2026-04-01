@@ -1313,7 +1313,10 @@
     "digitalTransferSteps": "Kongsi e-mel pengesahan, tiket PDF, atau rujukan tempahan anda terus dalam sembang Swaply. Rakan pertukaran anda akan mengesahkan penerimaan.",
     "digitalEmail": "E-mel pengesahan",
     "digitalPdf": "PDF / Kod QR",
-    "digitalBookingRef": "Rujukan tempahan"
+    "digitalBookingRef": "Rujukan tempahan",
+    "swapChat": "Swap Chat",
+    "chatEmpty": "No messages yet. Start the conversation!",
+    "chatPlaceholder": "Type a message..."
   },
   "info": {
     "title": "Statistik Swaply",

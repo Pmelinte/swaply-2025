@@ -1313,7 +1313,10 @@
     "digitalTransferSteps": "Jagage oma kinnituse meili, PDF-piletit või broneerimise viidet otse Swaply jututoas. Teie vahetus-partner kinnitab vastuvõtmise.",
     "digitalEmail": "Kinnituse e-mail",
     "digitalPdf": "PDF / QR-kood",
-    "digitalBookingRef": "Broneerimise viide"
+    "digitalBookingRef": "Broneerimise viide",
+    "swapChat": "Swap Chat",
+    "chatEmpty": "No messages yet. Start the conversation!",
+    "chatPlaceholder": "Type a message..."
   },
   "info": {
     "title": "Swaply statistika",

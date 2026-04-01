@@ -1313,7 +1313,10 @@
     "digitalTransferSteps": "확인 이메일, PDF 티켓 또는 예약 번호를 Swaply 채팅에서 직접 공유하세요. 스왑 파트너가 수령을 확인합니다.",
     "digitalEmail": "확인 이메일",
     "digitalPdf": "PDF / QR 코드",
-    "digitalBookingRef": "예약 번호"
+    "digitalBookingRef": "예약 번호",
+    "swapChat": "Swap Chat",
+    "chatEmpty": "No messages yet. Start the conversation!",
+    "chatPlaceholder": "Type a message..."
   },
   "info": {
     "title": "Swaply 통계",
