@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Tag } from "lucide-react";
 import { getServerSupabase } from "@/lib/supabase/server";
 import { getCategoryBySlug } from "@/lib/seo-data";
+import { getCachedSubcategoryMeta } from "@/lib/cache/categories";
 import { getTranslations } from "next-intl/server";
 import { SafeImage } from "@/components/SafeImage";
 import { NO_IMAGE_URL } from "@/lib/storage";
@@ -19,16 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const cat = getCategoryBySlug(slug);
   if (!cat) return { title: "Not Found" };
 
-  const supabase = await getServerSupabase();
-  const subcatData = supabase
-    ? await supabase
-        .from("subcategories")
-        .select("name_en, name_ro")
-        .eq("category_slug", slug)
-        .eq("slug", subcat)
-        .maybeSingle()
-        .then((r) => r.data)
-    : null;
+  const subcatData = await getCachedSubcategoryMeta(slug, subcat);
 
   const subcatName = subcatData
     ? locale === "ro" ? subcatData.name_ro : subcatData.name_en
@@ -48,16 +40,8 @@ export default async function SubcategoryPage({ params }: Props) {
   const t = await getTranslations({ locale, namespace: "objects" });
   const supabase = await getServerSupabase();
 
-  // Fetch subcategory metadata
-  const subcatData = supabase
-    ? await supabase
-        .from("subcategories")
-        .select("name_en, name_ro, icon")
-        .eq("category_slug", slug)
-        .eq("slug", subcat)
-        .maybeSingle()
-        .then((r) => r.data)
-    : null;
+  // Fetch subcategory metadata (cached for hours)
+  const subcatData = await getCachedSubcategoryMeta(slug, subcat);
 
   if (!subcatData) notFound();
 
