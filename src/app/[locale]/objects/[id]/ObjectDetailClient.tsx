@@ -10,7 +10,14 @@ import { Link } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { useFavorites } from "@/hooks/useFavorites";
-import { Pill, SectionCard } from "@/components/ui";
+import { Pill, SectionCard } from "@/components/ui-custom";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { AuthGateModal } from "@/components/AuthGateModal";
 import { GuestBanner } from "@/components/GuestBanner";
 const ReportBlockButtons = lazy(() =>
@@ -84,6 +91,7 @@ export default function ObjectDetailClient() {
   const t = useTranslations("objectDetail");
   const [activePhoto, setActivePhoto] = useState(0);
   const [offerItemId, setOfferItemId] = useState<string>("");
+  const [swapDialogOpen, setSwapDialogOpen] = useState(false);
 
   const stateItem = items.find((i) => i.id === params.id);
 
@@ -796,44 +804,66 @@ export default function ObjectDetailClient() {
                   {lastError}
                 </div>
               )}
-              {!isOwner && !isReserved && (
-                <label className="mb-3 block text-xs font-semibold text-zinc-600 dark:text-zinc-300">
-                  {t("yourOfferedObject")}
-                  <select
-                    value={effectiveOfferItemId}
-                    onChange={(e) => setOfferItemId(e.target.value)}
-                    className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
-                  >
-                    {myActiveItems.length ? (
-                      myActiveItems.map((i) => (
-                        <option key={i.id} value={i.id}>{i.title}</option>
-                      ))
-                    ) : (
-                      <option value="">{t("noActiveObjects")}</option>
-                    )}
-                  </select>
-                </label>
-              )}
               <div className="space-y-2">
                 {!isOwner && !isReserved && (
-                  <button
-                    type="button"
-                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
-                    disabled={!effectiveOfferItemId}
-                    onClick={() => {
-                      void (async () => {
-                        const swap = await proposeSwap({
-                          requesterItemId: effectiveOfferItemId,
-                          responderItemId: item.id,
-                          responderId: item.ownerId,
-                        });
-                        router.push(swap ? `/change?swap=${swap.id}` : "/change");
-                      })();
-                    }}
-                  >
-                    <Repeat2 className="h-4 w-4" />
-                    {t("proposeExchange")}
-                  </button>
+                  <Dialog>
+                    <button
+                      type="button"
+                      className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700"
+                      onClick={() => setSwapDialogOpen(true)}
+                    >
+                      <Repeat2 className="h-4 w-4" />
+                      {t("proposeExchange")}
+                    </button>
+                    <Dialog open={swapDialogOpen} onOpenChange={setSwapDialogOpen}>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>{t("proposeExchange")}</DialogTitle>
+                          <DialogDescription>{t("yourOfferedObject")}</DialogDescription>
+                        </DialogHeader>
+                        {lastError && (
+                          <div className="rounded-lg border border-red-200 bg-red-50 p-2.5 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-300">
+                            {lastError}
+                          </div>
+                        )}
+                        <label className="block text-xs font-semibold text-zinc-600 dark:text-zinc-300">
+                          {t("yourOfferedObject")}
+                          <select
+                            value={effectiveOfferItemId}
+                            onChange={(e) => setOfferItemId(e.target.value)}
+                            className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+                          >
+                            {myActiveItems.length ? (
+                              myActiveItems.map((i) => (
+                                <option key={i.id} value={i.id}>{i.title}</option>
+                              ))
+                            ) : (
+                              <option value="">{t("noActiveObjects")}</option>
+                            )}
+                          </select>
+                        </label>
+                        <button
+                          type="button"
+                          className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+                          disabled={!effectiveOfferItemId}
+                          onClick={() => {
+                            void (async () => {
+                              const swap = await proposeSwap({
+                                requesterItemId: effectiveOfferItemId,
+                                responderItemId: item.id,
+                                responderId: item.ownerId,
+                              });
+                              setSwapDialogOpen(false);
+                              router.push(swap ? `/change?swap=${swap.id}` : "/change");
+                            })();
+                          }}
+                        >
+                          <Repeat2 className="h-4 w-4" />
+                          {t("proposeExchange")}
+                        </button>
+                      </DialogContent>
+                    </Dialog>
+                  </Dialog>
                 )}
                 <button
                   type="button"

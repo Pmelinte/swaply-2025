@@ -9,7 +9,7 @@ import { useAppState } from "@/lib/state";
 import { Item } from "@/lib/types";
 import { ItemForm } from "@/features/items/ItemForm";
 import { LoggedOutGate } from "@/components/gated";
-import { SectionCard, StateShowcase } from "@/components/ui";
+import { SectionCard, StateShowcase } from "@/components/ui-custom";
 
 export default function EditObjectPage() {
   const params = useParams<{ id: string }>();

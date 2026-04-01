@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { SafeImage } from "@/components/SafeImage";
 import { formatScore } from "@/lib/utils";
 import type { MatchCandidate, MatchTier } from "@/lib/types";
-import { Pill } from "@/components/ui";
+import { Pill } from "@/components/ui-custom";
 import { TrustBadge } from "@/components/trust/TrustBadge";
 import { calculateTrustScore } from "@/lib/utils/trustScore";
 import type { UserProfile } from "@/lib/types";

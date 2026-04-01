@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { X, Plus } from "lucide-react";
-import { Badge, SectionCard } from "@/components/ui";
+import { Badge, SectionCard } from "@/components/ui-custom";
 import { MissingDataCallout } from "@/components/gated";
 import type { UserProfile, LanguageCode } from "@/lib/types";
 import { languageNames, localeFlagUrl, type Locale, locales } from "@/i18n/config";

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { SectionCard, Pill } from "@/components/ui";
+import { SectionCard, Pill } from "@/components/ui-custom";
 import {
   Package, Plane, Car, Train, Shield, Box, HandCoins, Hotel,
   Truck, Globe, ExternalLink, CheckCircle, AlertCircle, Clock,

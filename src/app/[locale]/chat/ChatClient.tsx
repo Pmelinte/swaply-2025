@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
-import { CTAButton, NextStepRecommendation, SectionCard, StateShowcase } from "@/components/ui";
+import { CTAButton, NextStepRecommendation, SectionCard, StateShowcase } from "@/components/ui-custom";
 import { ChatPanel } from "@/features/chat/ChatPanel";
 
 export function ChatClient({

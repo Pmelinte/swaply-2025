@@ -10,7 +10,7 @@ import { useFavorites } from "@/hooks/useFavorites";
 import { useSavedSearches } from "@/hooks/useSavedSearches";
 import { NO_IMAGE_URL } from "@/lib/storage";
 import { SafeImage } from "@/components/SafeImage";
-import { CTAButton, Pill } from "@/components/ui";
+import { CTAButton, Pill } from "@/components/ui-custom";
 import { AdBanner } from "@/components/AdBanner";
 import { GuestBanner } from "@/components/GuestBanner";
 import { AuthGateModal } from "@/components/AuthGateModal";

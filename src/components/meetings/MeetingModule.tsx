@@ -6,7 +6,7 @@ import {
   MapPin, Calendar, Clock, Check, Copy, AlertTriangle, Shield, UserCheck, XCircle,
 } from "lucide-react";
 import type { MeetingSession, MeetingNoShowReport, SwapIntent } from "@/lib/types";
-import { SectionCard } from "@/components/ui";
+import { SectionCard } from "@/components/ui-custom";
 
 /* ── Suggested safe locations ── */
 const SAFE_LOCATIONS = [

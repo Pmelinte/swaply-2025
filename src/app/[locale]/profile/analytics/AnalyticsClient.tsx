@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { useAppState } from "@/lib/state";
-import { SectionCard } from "@/components/ui";
+import { SectionCard } from "@/components/ui-custom";
 import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import {

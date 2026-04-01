@@ -2,7 +2,7 @@
 
 import { useAppState } from "@/lib/state";
 import { LoggedOutGate } from "@/components/gated";
-import { SectionCard } from "@/components/ui";
+import { SectionCard } from "@/components/ui-custom";
 import { MonetizationHub } from "@/features/monetization/MonetizationHub";
 import { Crown, Zap, Star } from "lucide-react";
 import { useTranslations } from "next-intl";

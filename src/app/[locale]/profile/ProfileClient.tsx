@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
-import { CTAButton, NextStepRecommendation, SectionCard, StateShowcase } from "@/components/ui";
+import { CTAButton, NextStepRecommendation, SectionCard, StateShowcase } from "@/components/ui-custom";
 import type { UserProfile } from "@/lib/types";
 import ProfileTab from "./_components/ProfileTab";
 import PropertiesTab from "./_components/PropertiesTab";

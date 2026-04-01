@@ -5,7 +5,7 @@ import { useRouter } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
-import { NextStepRecommendation, SectionCard, StateShowcase } from "@/components/ui";
+import { NextStepRecommendation, SectionCard, StateShowcase } from "@/components/ui-custom";
 import { Eye, EyeOff } from "lucide-react";
 import SocialAuth from "@/components/SocialAuth";
 

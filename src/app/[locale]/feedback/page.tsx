@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
-import { SectionCard } from "@/components/ui";
+import { SectionCard } from "@/components/ui-custom";
 import { MessageSquare, Bug, Lightbulb, Star, Send, CheckCircle2, Camera, ThumbsUp, Clock, ChevronUp } from "lucide-react";
 
 type FeedbackType = "bug" | "suggestion" | "general" | "rating";

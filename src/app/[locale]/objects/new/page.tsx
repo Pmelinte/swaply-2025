@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { ItemForm } from "@/features/items/ItemForm";
 import { LoggedOutGate } from "@/components/gated";
-import { SectionCard, StateShowcase } from "@/components/ui";
+import { SectionCard, StateShowcase } from "@/components/ui-custom";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import {
   Package,

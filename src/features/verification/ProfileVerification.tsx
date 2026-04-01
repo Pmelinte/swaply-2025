@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import type { UserProfile, VerificationBadges } from "@/lib/types";
-import { SectionCard } from "@/components/ui";
+import { SectionCard } from "@/components/ui-custom";
 import { PhoneVerificationFlow } from "./PhoneVerificationFlow";
 import {
   Mail, Phone, CreditCard, Camera, CheckCircle2, XCircle,

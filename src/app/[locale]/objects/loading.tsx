@@ -1,4 +1,4 @@
-import { SkeletonGrid } from "@/components/ui";
+import { SkeletonGrid } from "@/components/ui-custom";
 
 export default function ObjectsLoading() {
   return (

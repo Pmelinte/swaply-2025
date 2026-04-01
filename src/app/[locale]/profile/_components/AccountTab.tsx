@@ -6,7 +6,7 @@ import { useTranslations, useLocale } from "next-intl";
 import {
   Download, Pause, Play, Shield, AlertTriangle, Trash2,
 } from "lucide-react";
-import { Pill, SectionCard } from "@/components/ui";
+import { Pill, SectionCard } from "@/components/ui-custom";
 import type { UserProfile, AccountStatus } from "@/lib/types";
 import { getSupabaseClient } from "@/lib/supabase/client";
 

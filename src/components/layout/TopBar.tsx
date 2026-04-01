@@ -3,7 +3,14 @@
 import { useRouter, usePathname, Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { useState, useRef, useEffect, useCallback } from "react";
-import { ChevronDown, LogOut, Globe, Search } from "lucide-react";
+import { ChevronDown, LogOut, Globe, Search, User, Settings } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { locales, languageNames, flagUrl, localeFlagUrl, type Locale } from "@/i18n/config";
@@ -223,39 +230,53 @@ export function TopBar() {
               {/* Bell / Notifications */}
               <NotificationBell userId={user.id} />
 
-              {/* Profile avatar */}
-              <Link
-                href="/profile"
-                className="inline-flex items-center justify-center rounded-full p-2 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
-                title={t("nav.profile")}
-                aria-label={t("nav.profile")}
-              >
-                {user.avatarUrl ? (
-                  <Image
-                    src={user.avatarUrl}
-                    alt={user.displayName}
-                    width={20}
-                    height={20}
-                    className="h-5 w-5 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
-                    {(user.displayName || user.email || "?")[0].toUpperCase()}
-                  </div>
-                )}
-              </Link>
-
-              {/* Logout */}
-              <button
-                type="button"
-                onClick={() => void handleLogout()}
-                disabled={loggingOut}
-                className="inline-flex items-center justify-center rounded-full p-2 text-zinc-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-50 dark:hover:bg-red-900/30 dark:hover:text-red-400"
-                title={t("nav.logout")}
-                aria-label={t("nav.logout")}
-              >
-                <LogOut className="h-4 w-4" />
-              </button>
+              {/* Profile dropdown menu */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    type="button"
+                    className="inline-flex items-center justify-center rounded-full p-2 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                    aria-label={t("nav.profile")}
+                  >
+                    {user.avatarUrl ? (
+                      <Image
+                        src={user.avatarUrl}
+                        alt={user.displayName}
+                        width={20}
+                        height={20}
+                        className="h-5 w-5 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
+                        {(user.displayName || user.email || "?")[0].toUpperCase()}
+                      </div>
+                    )}
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile" className="flex items-center gap-2">
+                      <User className="h-4 w-4" />
+                      {t("nav.profile")}
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile?tab=account" className="flex items-center gap-2">
+                      <Settings className="h-4 w-4" />
+                      {t("nav.settings") ?? "Settings"}
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => void handleLogout()}
+                    disabled={loggingOut}
+                    className="text-red-600 focus:text-red-700 dark:text-red-400 dark:focus:text-red-300"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    {t("nav.logout")}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </>
           ) : (
             <Link

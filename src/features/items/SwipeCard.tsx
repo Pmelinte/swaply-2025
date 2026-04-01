@@ -5,7 +5,7 @@ import { SafeImage } from "@/components/SafeImage";
 import { useTranslations } from "next-intl";
 import { Item } from "@/lib/types";
 import { NO_IMAGE_URL } from "@/lib/storage";
-import { Pill } from "@/components/ui";
+import { Pill } from "@/components/ui-custom";
 import { MapPin, Tag } from "lucide-react";
 import { useItemTranslation } from "@/hooks/useItemTranslation";
 import { TranslationIndicator } from "@/components/TranslationIndicator";

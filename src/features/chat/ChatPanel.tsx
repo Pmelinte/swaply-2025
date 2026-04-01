@@ -6,7 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { Conversation, ChatMessage } from "@/lib/types";
 import { useAppState } from "@/lib/state";
 import { formatDate } from "@/lib/utils";
-import { Badge, Pill } from "@/components/ui";
+import { Badge, Pill } from "@/components/ui-custom";
 import {
   AlertTriangle,
   Check,

@@ -4,7 +4,7 @@ import { memo } from "react";
 import { SafeImage } from "@/components/SafeImage";
 import { useTranslations } from "next-intl";
 import { Item } from "@/lib/types";
-import { Pill } from "@/components/ui";
+import { Pill } from "@/components/ui-custom";
 import { NO_IMAGE_URL } from "@/lib/storage";
 import { VerificationBadgeTag } from "@/features/verification/VerificationBadgeTag";
 import { useItemTranslation } from "@/hooks/useItemTranslation";

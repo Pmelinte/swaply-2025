@@ -3,7 +3,7 @@
 import { useTranslations, useLocale } from "next-intl";
 import { formatDate } from "@/lib/utils";
 import { SwapIntent } from "@/lib/types";
-import { Pill } from "@/components/ui";
+import { Pill } from "@/components/ui-custom";
 
 export function SwapTimeline({
   swap,

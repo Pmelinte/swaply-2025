@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { MatchList } from "@/features/match/MatchList";
 import type { RejectReason } from "@/features/match/MatchList";
-import { CTAButton, NextStepRecommendation, SectionCard, StateShowcase } from "@/components/ui";
+import { CTAButton, NextStepRecommendation, SectionCard, StateShowcase } from "@/components/ui-custom";
 import { MapEmbed } from "@/components/maps/MapEmbed";
 import type { MatchCandidate, MatchTier } from "@/lib/types";
 import { SlidersHorizontal, Sparkles, Hand, X } from "lucide-react";

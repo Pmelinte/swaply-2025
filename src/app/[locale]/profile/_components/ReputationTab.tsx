@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { Trophy, Lock, ShoppingCart } from "lucide-react";
-import { Badge, Pill, SectionCard } from "@/components/ui";
+import { Badge, Pill, SectionCard } from "@/components/ui-custom";
 import type { UserProfile, Achievement, ShopItem, TokenLedgerEntry, TokenShopItem } from "@/lib/types";
 
 interface ReputationTabProps {
