@@ -37,3 +37,75 @@ body {
   from { opacity: 1; }
   to { opacity: 0; }
 }
+
+/* ── View Transitions API ── */
+@keyframes vt-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes vt-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+::view-transition-old(root) {
+  animation: vt-fade-out 150ms ease-out;
+}
+
+::view-transition-new(root) {
+  animation: vt-fade-in 150ms ease-in;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}
+
+/* ── Item Card Container Queries ─────────────────────────────────
+   Cards reflow based on their container width, not the viewport.
+   Works correctly in 1, 2, 3, or 4 column grids.              */
+
+/* Wide container (≥280px): show larger text and more detail */
+@container (min-width: 280px) {
+  .item-card__title {
+    font-size: 0.9375rem;
+    line-height: 1.4;
+  }
+  .item-card__body {
+    padding: 0.875rem;
+  }
+  .item-card__badge {
+    font-size: 0.6875rem;
+    padding-inline: 0.625rem;
+  }
+}
+
+/* Large container (≥360px): even more breathing room */
+@container (min-width: 360px) {
+  .item-card__title {
+    font-size: 1rem;
+  }
+  .item-card__image {
+    aspect-ratio: 3 / 2;
+  }
+  .item-card__body {
+    padding: 1rem;
+  }
+}
+
+/* Narrow container (<180px): compact mode */
+@container (max-width: 179px) {
+  .item-card__location,
+  .item-card__wishlist {
+    display: none;
+  }
+  .item-card__body {
+    padding: 0.375rem 0.5rem;
+  }
+  .item-card__title {
+    font-size: 0.75rem;
+  }
+}
