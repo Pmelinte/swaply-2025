@@ -196,18 +196,18 @@ function ObjectCard({ item, mode }: { item: Item; mode: BrowseMode }) {
   return (
     <button
       onClick={() => router.push(`/objects/${item.id}`)}
-      className="group flex w-full flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm transition hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800"
+      className="item-card group flex w-full flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm transition hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800"
     >
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-zinc-100 dark:bg-zinc-700">
+      <div className="item-card__image relative aspect-[4/3] w-full overflow-hidden bg-zinc-100 dark:bg-zinc-700">
         <SafeImage
           src={item.photos?.[0] || NO_IMAGE_URL}
           alt={item.title}
           fill
           className="object-cover transition group-hover:scale-105"
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          sizes="100cqi"
           unoptimized={!item.photos?.[0]}
         />
-        <span className="absolute left-2 top-2 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-zinc-700 backdrop-blur dark:bg-zinc-900/80 dark:text-zinc-200">
+        <span className="item-card__badge absolute left-2 top-2 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-zinc-700 backdrop-blur dark:bg-zinc-900/80 dark:text-zinc-200">
           {item.condition}
         </span>
         {item.isBoosted && (
@@ -227,17 +227,17 @@ function ObjectCard({ item, mode }: { item: Item; mode: BrowseMode }) {
           </span>
         )}
       </div>
-      <div className="flex flex-1 flex-col p-3">
-        <h3 className="truncate text-sm font-semibold text-zinc-900 dark:text-zinc-50">{item.title}</h3>
+      <div className="item-card__body flex flex-1 flex-col p-3">
+        <h3 className="item-card__title truncate text-sm font-semibold text-zinc-900 dark:text-zinc-50">{item.title}</h3>
         <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">{item.category}</p>
         {item.location && (
-          <p className="mt-1 flex items-center gap-0.5 text-xs text-zinc-400">
+          <p className="item-card__location mt-1 flex items-center gap-0.5 text-xs text-zinc-400">
             <MapPin className="h-3 w-3" />
             {item.location}
           </p>
         )}
         {item.wishlist && (
-          <p className="mt-1.5 line-clamp-2 text-xs text-blue-600 dark:text-blue-400">
+          <p className="item-card__wishlist mt-1.5 line-clamp-2 text-xs text-blue-600 dark:text-blue-400">
             {t("lookingFor")} {item.wishlist}
           </p>
         )}
@@ -1095,7 +1095,7 @@ export default function ObjectsPage() {
             <>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                 {filtered.slice(0, visibleCount).map((item) => (
-                  <div key={item.id} className="relative">
+                  <div key={item.id} className="item-card-container relative" style={{ containerType: "inline-size" }}>
                     <ObjectCard item={item} mode="grid" />
                     {user ? (
                       <button
