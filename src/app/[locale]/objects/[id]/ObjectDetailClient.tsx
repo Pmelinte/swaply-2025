@@ -9,6 +9,7 @@ import { ShareButtons } from "@/components/ShareButtons";
 import { Link } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useAppState } from "@/lib/state";
+import { useFavorites } from "@/hooks/useFavorites";
 import { Pill, SectionCard } from "@/components/ui";
 import { AuthGateModal } from "@/components/AuthGateModal";
 import { GuestBanner } from "@/components/GuestBanner";
@@ -79,6 +80,7 @@ export default function ObjectDetailClient() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const { items, user, loading, proposeSwap, lastError } = useAppState();
+  const { isFavorite, toggleFavorite } = useFavorites(user?.id);
   const t = useTranslations("objectDetail");
   const [activePhoto, setActivePhoto] = useState(0);
   const [offerItemId, setOfferItemId] = useState<string>("");
@@ -342,9 +344,32 @@ export default function ObjectDetailClient() {
   if (loading.items || directLoading) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-6">
-        <SectionCard title={t("loading")} description={t("loadingDescription")}>
-          <div className="h-64 animate-pulse rounded-xl bg-zinc-100 dark:bg-zinc-800" />
-        </SectionCard>
+        <div className="animate-pulse space-y-6">
+          {/* Image skeleton */}
+          <div className="aspect-[4/3] w-full rounded-2xl bg-zinc-200 dark:bg-zinc-800" />
+          {/* Title + category */}
+          <div className="space-y-3">
+            <div className="h-7 w-3/4 rounded bg-zinc-200 dark:bg-zinc-700" />
+            <div className="flex gap-2">
+              <div className="h-5 w-20 rounded-full bg-zinc-200 dark:bg-zinc-700" />
+              <div className="h-5 w-16 rounded-full bg-zinc-100 dark:bg-zinc-700/60" />
+            </div>
+          </div>
+          {/* Description */}
+          <div className="space-y-2 rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-700 dark:bg-zinc-800">
+            <div className="h-4 w-full rounded bg-zinc-200 dark:bg-zinc-700" />
+            <div className="h-4 w-5/6 rounded bg-zinc-100 dark:bg-zinc-700/60" />
+            <div className="h-4 w-2/3 rounded bg-zinc-100 dark:bg-zinc-700/60" />
+          </div>
+          {/* Owner card */}
+          <div className="flex items-center gap-3 rounded-2xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800">
+            <div className="h-12 w-12 rounded-full bg-zinc-200 dark:bg-zinc-700" />
+            <div className="flex-1 space-y-2">
+              <div className="h-4 w-1/3 rounded bg-zinc-200 dark:bg-zinc-700" />
+              <div className="h-3 w-1/4 rounded bg-zinc-100 dark:bg-zinc-700/60" />
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -526,6 +551,16 @@ export default function ObjectDetailClient() {
                 >
                   <Share2 className="h-4 w-4" />
                 </button>
+                {user && item && (
+                  <button
+                    type="button"
+                    onClick={() => toggleFavorite(item.id)}
+                    className="rounded-full bg-zinc-100 p-2 text-zinc-500 transition hover:bg-red-50 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-red-900/30"
+                    aria-label="Favorite"
+                  >
+                    <Heart className={`h-4 w-4 transition ${isFavorite(item.id) ? "fill-red-500 text-red-500" : ""}`} />
+                  </button>
+                )}
                 {shareToast && (
                   <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
                     Link copiat!
