@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { Link } from "@/i18n/navigation";
-import { SectionCard, Pill } from "@/components/ui";
+import { SectionCard, Pill } from "@/components/ui-custom";
 import type { SwapIntent, Conversation } from "@/lib/types";
 import {
   ClipboardList,

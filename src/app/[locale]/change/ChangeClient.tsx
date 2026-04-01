@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useAppState } from "@/lib/state";
-import { CTAButton, NextStepRecommendation, Pill, SectionCard, StateShowcase } from "@/components/ui";
+import { CTAButton, NextStepRecommendation, Pill, SectionCard, StateShowcase } from "@/components/ui-custom";
 import { SwapTimeline } from "@/features/change/SwapTimeline";
 import type { SwapIntent, HouseAmenity, HouseRule, HouseSwapMode, PropertyType, ServiceCategory, SkillLevel, ServiceDelivery, ServiceMilestone, CancelReason } from "@/lib/types";
 import { TrustCard } from "@/components/trust/TrustCard";

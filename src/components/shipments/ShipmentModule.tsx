@@ -8,7 +8,7 @@ import {
   Mail, FileText,
 } from "lucide-react";
 import type { SwapIntent, SwapShipment, DeliveryType, ShipmentDirection, ShipmentPaidBy, ShipmentStatus } from "@/lib/types";
-import { SectionCard, Pill } from "@/components/ui";
+import { SectionCard, Pill } from "@/components/ui-custom";
 import { useCouriers, type CourierOption } from "@/hooks/useCouriers";
 import { PackagingSection, TravelSection } from "@/components/shipments/AffiliateServiceLinks";
 

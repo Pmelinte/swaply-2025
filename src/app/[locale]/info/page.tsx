@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl";
 import { StatsGrid } from "@/features/info/StatsGrid";
 import { useAppState } from "@/lib/state";
 import { useInfoStats } from "@/hooks/useInfoStats";
-import { NextStepRecommendation, Pill, SectionCard } from "@/components/ui";
+import { NextStepRecommendation, Pill, SectionCard } from "@/components/ui-custom";
 import {
   Check, ChevronDown, Minus, Package, Search, MessageCircle, Repeat2, Leaf,
   Trophy, Calculator, UserPlus, Camera, Sparkles, ArrowRight,

@@ -3,6 +3,13 @@
 import Image from "next/image";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { z } from "zod";
 import type { Item, ItemIntent, ItemFlexibility, ItemPerceivedValue, ItemClarity, ItemContext } from "@/lib/types";
 import { uploadItemPhoto } from "@/lib/storage";
@@ -601,39 +608,45 @@ export function ItemForm({
         </label>
         <div className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
           <p>{t("categoryLabel")}</p>
-          <select
-            value={selectedParent}
-            onChange={(e) => {
-              setSelectedParent(e.target.value);
-              // Reset to parent category name when changing
-              const parent = TOP_CATEGORIES.find((c) => c.id === e.target.value);
+          <Select
+            value={selectedParent || undefined}
+            onValueChange={(value) => {
+              setSelectedParent(value);
+              const parent = TOP_CATEGORIES.find((c) => c.id === value);
               setDraft({ ...draft, category: parent?.name ?? "" });
             }}
-            className={errors.category ? inputError : inputNormal}
           >
-            <option value="">{t("chooseCategory")}</option>
-            {TOP_CATEGORIES.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {tCat(cat.name)}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className={errors.category ? "mt-1 border-red-400 bg-red-50 dark:border-red-700 dark:bg-red-950/30" : "mt-1"}>
+              <SelectValue placeholder={t("chooseCategory")} />
+            </SelectTrigger>
+            <SelectContent>
+              {TOP_CATEGORIES.map((cat) => (
+                <SelectItem key={cat.id} value={cat.id}>
+                  {tCat(cat.name)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           {/* Subcategory (appears when parent is selected) */}
           {subcategories.length > 0 ? (
-            <select
-              value={draft.category}
-              onChange={(e) => setDraft({ ...draft, category: e.target.value })}
-              className={`${inputNormal} mt-1`}
+            <Select
+              value={draft.category || undefined}
+              onValueChange={(value) => setDraft({ ...draft, category: value })}
             >
-              <option value={TOP_CATEGORIES.find((c) => c.id === selectedParent)?.name ?? ""}>
-                {t("allFromCategory", { category: tCat(TOP_CATEGORIES.find((c) => c.id === selectedParent)?.name ?? "other") })}
-              </option>
-              {subcategories.map((sub) => (
-                <option key={sub.id} value={sub.name}>
-                  {sub.nameEn ?? sub.name}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger className="mt-1">
+                <SelectValue placeholder={t("allFromCategory", { category: tCat(TOP_CATEGORIES.find((c) => c.id === selectedParent)?.name ?? "other") })} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={TOP_CATEGORIES.find((c) => c.id === selectedParent)?.name ?? ""}>
+                  {t("allFromCategory", { category: tCat(TOP_CATEGORIES.find((c) => c.id === selectedParent)?.name ?? "other") })}
+                </SelectItem>
+                {subcategories.map((sub) => (
+                  <SelectItem key={sub.id} value={sub.name}>
+                    {sub.nameEn ?? sub.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           ) : null}
           <FieldError message={errors.category} />
         </div>

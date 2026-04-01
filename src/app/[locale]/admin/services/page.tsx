@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { SectionCard, Pill } from "@/components/ui";
+import { SectionCard, Pill } from "@/components/ui-custom";
 import {
   Trash2, Star, Globe, Search,
   Truck, Plane, Train, Car, Hotel, CreditCard,

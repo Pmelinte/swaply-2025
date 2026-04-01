@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { SectionCard } from "@/components/ui";
+import { SectionCard } from "@/components/ui-custom";
 import {
   Handshake, Star, Zap, Globe, CheckCircle, ArrowRight, Mail,
 } from "lucide-react";

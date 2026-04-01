@@ -6,7 +6,7 @@ import {
   Home, Trash2, Package, Briefcase, Plus,
   Palette, Code, GraduationCap, Hammer,
 } from "lucide-react";
-import { Pill, SectionCard } from "@/components/ui";
+import { Pill, SectionCard } from "@/components/ui-custom";
 import type {
   UserProfile, HouseProfile, ServiceProfile,
   HouseAmenity, HouseRule, PropertyType, HouseSwapMode,

@@ -2,7 +2,7 @@
 
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
-import { SectionCard } from "@/components/ui";
+import { SectionCard } from "@/components/ui-custom";
 import { Camera, Search, MessageCircle, ArrowRight, Code2 } from "lucide-react";
 
 const STEPS_ICONS = [Camera, Search, MessageCircle] as const;

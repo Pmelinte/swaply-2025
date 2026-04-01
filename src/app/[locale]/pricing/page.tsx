@@ -4,7 +4,7 @@ import { Suspense, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { SectionCard } from "@/components/ui";
+import { SectionCard } from "@/components/ui-custom";
 import { Check, X, ChevronDown, ArrowRight, Crown, Building2, Star, Loader2, ExternalLink } from "lucide-react";
 import { useAppState } from "@/lib/state";
 

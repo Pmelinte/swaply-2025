@@ -1,4 +1,4 @@
-import { SkeletonList } from "@/components/ui";
+import { SkeletonList } from "@/components/ui-custom";
 
 export default function ChangeLoading() {
   return (

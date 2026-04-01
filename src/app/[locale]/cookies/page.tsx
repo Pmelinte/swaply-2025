@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { SectionCard } from "@/components/ui";
+import { SectionCard } from "@/components/ui-custom";
 
 const SECTIONS = [
   { id: "what-are-cookies", titleKey: "cookiesWhat", textKey: "cookiesWhatText" },

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { SectionCard } from "@/components/ui";
+import { SectionCard } from "@/components/ui-custom";
 import { Send, CheckCircle2, AlertTriangle, Building2, Mail } from "lucide-react";
 
 type Subject = "technical" | "suggestion" | "partnership" | "other";
