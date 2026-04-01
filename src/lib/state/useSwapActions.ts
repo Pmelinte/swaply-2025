@@ -50,6 +50,19 @@ export function useSwapActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
         // Track analytics for both items
         trackItemEvent(responderItemId, "swap_proposed", user.id);
         trackItemEvent(requesterItemId, "swap_proposed", user.id);
+
+        // Send push notification to the item owner (fire-and-forget)
+        const reqItem = items.find((i) => i.id === requesterItemId);
+        fetch("/api/push/notify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: responderId,
+            title: "New swap proposal!",
+            body: `${user.displayName || "Someone"} wants to swap "${reqItem?.title || "an item"}" with you`,
+            url: `/change?swap=${mapped.id}`,
+          }),
+        }).catch(() => { /* push is best-effort */ });
         // Mark onboarding step_first_swap
         supabase.from("onboarding_progress").upsert(
           { user_id: user.id, step_first_swap: true },
