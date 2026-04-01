@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
-import { ViewTransitionLink } from "@/components/ViewTransitionLink";
 import {
   ArrowRightLeft,
   Bell,
@@ -672,7 +671,7 @@ function BranchCard({
   gradient: string;
 }) {
   return (
-    <ViewTransitionLink
+    <Link
       href={href}
       className="group relative flex min-h-40 flex-col justify-between overflow-hidden rounded-2xl border border-zinc-200 bg-white/80 p-6 shadow-sm backdrop-blur transition hover:shadow-lg hover:border-blue-300 dark:border-zinc-800 dark:bg-zinc-900/80 dark:hover:border-blue-600"
     >
@@ -688,7 +687,7 @@ function BranchCard({
         </p>
       </div>
       <ChevronRight className="absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-300 transition group-hover:translate-x-1 group-hover:text-zinc-500 dark:text-zinc-600 dark:group-hover:text-zinc-400" />
-    </ViewTransitionLink>
+    </Link>
   );
 }
 
