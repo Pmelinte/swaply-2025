@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useCallback, lazy, Suspense } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback, lazy, Suspense } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useParams } from "next/navigation";
 import Image from "next/image";
@@ -48,6 +48,7 @@ import {
   Share2,
   Lock,
   RefreshCw,
+  X,
 } from "lucide-react";
 
 const INTENT_LABELS: Record<string, string> = {
@@ -90,6 +91,7 @@ export default function ObjectDetailClient() {
   const { isFavorite, toggleFavorite } = useFavorites(user?.id);
   const t = useTranslations("objectDetail");
   const [activePhoto, setActivePhoto] = useState(0);
+  const lightboxRef = useRef<HTMLDialogElement>(null);
   const [offerItemId, setOfferItemId] = useState<string>("");
   const [swapDialogOpen, setSwapDialogOpen] = useState(false);
 
@@ -421,7 +423,12 @@ export default function ObjectDetailClient() {
         <div className="space-y-4">
           {/* Photo gallery */}
           <div className="relative overflow-hidden rounded-2xl bg-zinc-100 dark:bg-zinc-800">
-            <div className="relative aspect-[4/3]">
+            <button
+              type="button"
+              className="relative block w-full aspect-[4/3] cursor-zoom-in"
+              onClick={() => lightboxRef.current?.showModal()}
+              aria-label={t("openLightbox") ?? "View full size"}
+            >
               <SafeImage
                 src={photos[activePhoto] || NO_IMAGE_URL}
                 alt={`${item.title} — photo ${activePhoto + 1}`}
@@ -431,7 +438,7 @@ export default function ObjectDetailClient() {
                 priority={activePhoto === 0}
                 unoptimized={!item.photos?.[activePhoto]}
               />
-            </div>
+            </button>
             {/* Photo nav arrows */}
             {hasMultiplePhotos && (
               <>
@@ -484,6 +491,51 @@ export default function ObjectDetailClient() {
               ))}
             </div>
           )}
+
+          {/* Lightbox dialog */}
+          <dialog
+            ref={lightboxRef}
+            aria-modal="true"
+            aria-label={item.title}
+            className="m-0 h-full w-full max-h-screen max-w-screen bg-transparent p-0 backdrop:bg-black/90"
+            onClick={(e) => { if (e.target === e.currentTarget) lightboxRef.current?.close(); }}
+          >
+            <div className="flex h-full w-full items-center justify-center p-4">
+              <button
+                type="button"
+                onClick={() => lightboxRef.current?.close()}
+                className="absolute right-4 top-4 z-10 rounded-full bg-black/50 p-2 text-white hover:bg-black/70"
+                aria-label="Close"
+              >
+                <X className="h-5 w-5" />
+              </button>
+              {hasMultiplePhotos && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setActivePhoto((p) => (p === 0 ? photos.length - 1 : p - 1))}
+                    className="absolute left-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white hover:bg-black/70"
+                    aria-label={t("previousPhoto")}
+                  >
+                    <ChevronLeft className="h-6 w-6" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActivePhoto((p) => (p === photos.length - 1 ? 0 : p + 1))}
+                    className="absolute right-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white hover:bg-black/70"
+                    aria-label={t("nextPhoto")}
+                  >
+                    <ChevronRight className="h-6 w-6" />
+                  </button>
+                </>
+              )}
+              <img
+                src={photos[activePhoto] || NO_IMAGE_URL}
+                alt={`${item.title} — photo ${activePhoto + 1}`}
+                className="max-h-[90vh] max-w-[90vw] rounded-lg object-contain"
+              />
+            </div>
+          </dialog>
 
           {/* Title + metadata + share */}
           <div>
