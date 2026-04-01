@@ -63,6 +63,10 @@ import { itemFormSchema } from "@/lib/schemas/item.schema";
 
 export const itemSchema = itemFormSchema.extend({
   id: z.string().max(100).optional(),
+  // Server-side: accept legacy condition values + apply defaults
+  condition: z.enum(["new", "like_new", "good", "fair", "poor", "used", "used_good"]),
+  description: z.string().max(5000).default(""),
+  status: z.enum(["active", "reserved", "traded", "paused", "archived"]).default("active"),
   photos: z.array(z.string().url().max(500)).max(10).default([]),
 });
 
