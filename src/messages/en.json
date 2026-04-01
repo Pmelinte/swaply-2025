@@ -1406,7 +1406,10 @@
     "handedOver": "I have handed over the item",
     "received": "I have received the item",
     "bothConfirmed": "Both parties confirmed! The exchange is finalized.",
-    "chainDetected": "Chain detected automatically"
+    "chainDetected": "Chain detected automatically",
+    "swapChat": "Swap Chat",
+    "chatEmpty": "No messages yet. Start the conversation!",
+    "chatPlaceholder": "Type a message..."
   },
   "feedback": {
     "title": "Feedback",

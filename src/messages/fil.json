@@ -1313,7 +1313,10 @@
     "digitalTransferSteps": "Ibahagi ang iyong confirmation email, PDF ticket, o booking reference direkta sa Swaply chat. Ang iyong swap partner ay makakakumpirma ng receipt.",
     "digitalEmail": "Confirmation email",
     "digitalPdf": "PDF / QR code",
-    "digitalBookingRef": "Booking reference"
+    "digitalBookingRef": "Booking reference",
+    "swapChat": "Swap Chat",
+    "chatEmpty": "No messages yet. Start the conversation!",
+    "chatPlaceholder": "Type a message..."
   },
   "info": {
     "title": "Mga Istatistika ng Swaply",

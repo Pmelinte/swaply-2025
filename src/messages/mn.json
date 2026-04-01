@@ -1313,7 +1313,10 @@
     "digitalTransferSteps": "Баталгаажуулалтын имэйл, PDF билет эсвэл захиалгын эшийг Swaply чатанд шууд хуваалцана уу. Таны сольцуулагч хүлээн авсан гэдгийг баталгаажуулах болно.",
     "digitalEmail": "Баталгааны имэйл",
     "digitalPdf": "PDF / QR код",
-    "digitalBookingRef": "Захиалгын эш"
+    "digitalBookingRef": "Захиалгын эш",
+    "swapChat": "Swap Chat",
+    "chatEmpty": "No messages yet. Start the conversation!",
+    "chatPlaceholder": "Type a message..."
   },
   "info": {
     "title": "Swaply Статистик",

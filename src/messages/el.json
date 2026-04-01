@@ -1313,7 +1313,10 @@
     "digitalTransferSteps": "Μοιραστείτε το email επιβεβαίωσης, το PDF εισιτήριο ή τη αναφορά κράτησης απευθείας στη συνομιλία Swaply. Ο συνεταίρος ανταλλαγής σας θα επιβεβαιώσει την παραλαβή.",
     "digitalEmail": "Email επιβεβαίωσης",
     "digitalPdf": "PDF / κώδικας QR",
-    "digitalBookingRef": "Αναφορά κράτησης"
+    "digitalBookingRef": "Αναφορά κράτησης",
+    "swapChat": "Swap Chat",
+    "chatEmpty": "No messages yet. Start the conversation!",
+    "chatPlaceholder": "Type a message..."
   },
   "info": {
     "title": "Στατιστικά Swaply",

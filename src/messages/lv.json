@@ -1313,7 +1313,10 @@
     "digitalTransferSteps": "Kopīgojiet savu apstiprināšanas e-pastu, PDF biļeti vai rezervācijas atsauci tieši Swaply tērzēšanā. Jūsu apmaiņas partneris apstiprinās saņemšanu.",
     "digitalEmail": "Apstiprināšanas e-pasts",
     "digitalPdf": "PDF / QR kods",
-    "digitalBookingRef": "Rezervācijas atsauce"
+    "digitalBookingRef": "Rezervācijas atsauce",
+    "swapChat": "Swap Chat",
+    "chatEmpty": "No messages yet. Start the conversation!",
+    "chatPlaceholder": "Type a message..."
   },
   "info": {
     "title": "Swaply statistika",

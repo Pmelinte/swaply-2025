@@ -1313,7 +1313,10 @@
     "digitalTransferSteps": "Jaa vahvistussähköpostisi, PDF-lippusi tai varausnumerosi suoraan Swaply-chatissa. Vaihtokauppakumppanisi vahvistaa vastaanoton.",
     "digitalEmail": "Vahvistussähköposti",
     "digitalPdf": "PDF / QR-koodi",
-    "digitalBookingRef": "Varausnumero"
+    "digitalBookingRef": "Varausnumero",
+    "swapChat": "Swap Chat",
+    "chatEmpty": "No messages yet. Start the conversation!",
+    "chatPlaceholder": "Type a message..."
   },
   "info": {
     "title": "Swaply-tilastot",

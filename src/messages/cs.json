@@ -1313,7 +1313,10 @@
     "digitalTransferSteps": "Sdílejte svůj potvrzovací e-mail, PDF letenku nebo referenční číslo rezervace přímo v chatu Swaply. Váš swap partner potvrdí přijetí.",
     "digitalEmail": "Potvrzovací e-mail",
     "digitalPdf": "PDF / QR kód",
-    "digitalBookingRef": "Referenční číslo rezervace"
+    "digitalBookingRef": "Referenční číslo rezervace",
+    "swapChat": "Swap Chat",
+    "chatEmpty": "No messages yet. Start the conversation!",
+    "chatPlaceholder": "Type a message..."
   },
   "info": {
     "title": "Swaply statistiky",

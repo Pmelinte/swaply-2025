@@ -1313,7 +1313,10 @@
     "digitalTransferSteps": "আপনার নিশ্চিতকরণ ইমেল, পিডিএফ টিকিট, বা বুকিং রেফারেন্স সরাসরি Swaply চ্যাটে শেয়ার করুন। আপনার স্ওয়াপ পার্টনার রসিদ নিশ্চিত করবে।",
     "digitalEmail": "নিশ্চিতকরণ ইমেল",
     "digitalPdf": "পিডিএফ / কিউআর কোড",
-    "digitalBookingRef": "বুকিং রেফারেন্স"
+    "digitalBookingRef": "বুকিং রেফারেন্স",
+    "swapChat": "Swap Chat",
+    "chatEmpty": "No messages yet. Start the conversation!",
+    "chatPlaceholder": "Type a message..."
   },
   "info": {
     "title": "Swaply পরিসংখ্যান",

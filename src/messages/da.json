@@ -1313,7 +1313,10 @@
     "digitalTransferSteps": "Del din bekræftelsesmail, PDF-billet eller bookingsreference direkte i Swaply-chatten. Din byttepart bekræfter modtagelsen.",
     "digitalEmail": "Bekræftelsesmail",
     "digitalPdf": "PDF / QR-kode",
-    "digitalBookingRef": "Bookingsreference"
+    "digitalBookingRef": "Bookingsreference",
+    "swapChat": "Swap Chat",
+    "chatEmpty": "No messages yet. Start the conversation!",
+    "chatPlaceholder": "Type a message..."
   },
   "info": {
     "title": "Swaply Statistikker",

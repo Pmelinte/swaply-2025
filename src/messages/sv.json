@@ -2234,7 +2234,10 @@
     "digitalTransferSteps": "Dela ditt bekräftelsemail, PDF-biljett eller bokningsreferens direkt i Swaply-chatten. Din bytespartner bekräftar mottagandet.",
     "digitalEmail": "Bekräftelsemail",
     "digitalPdf": "PDF / QR-kod",
-    "digitalBookingRef": "Bokningsreferens"
+    "digitalBookingRef": "Bokningsreferens",
+    "swapChat": "Swap Chat",
+    "chatEmpty": "No messages yet. Start the conversation!",
+    "chatPlaceholder": "Type a message..."
   },
   "info": {
     "title": "Swaply-statistik",

@@ -1313,7 +1313,10 @@
     "digitalTransferSteps": "Ossza meg a megerősítő e-mailt, PDF jegyet vagy foglalási referenciát közvetlenül a Swaply csevegésben. Az átadási partner megerősíti a beérkezést.",
     "digitalEmail": "Megerősítő e-mail",
     "digitalPdf": "PDF / QR kód",
-    "digitalBookingRef": "Foglalási referencia"
+    "digitalBookingRef": "Foglalási referencia",
+    "swapChat": "Swap Chat",
+    "chatEmpty": "No messages yet. Start the conversation!",
+    "chatPlaceholder": "Type a message..."
   },
   "info": {
     "title": "Swaply statisztikák",

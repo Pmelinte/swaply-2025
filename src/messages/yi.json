@@ -1342,7 +1342,10 @@
     "digitalTransferSteps": "שטיל דיין באַשטעטיקונג ס״מ, פּדף בילעט, אָדער בוקינג רעפערענץ גלײַך אין דער סוואַפּלי טשאַט. דיין סוואַפּ פּאַרטנער וועט באַשטעטיקן אָנפּנאָמ.",
     "digitalEmail": "באַשטעטיקונג ס״מ",
     "digitalPdf": "פּדף / קיו אַר קאָד",
-    "digitalBookingRef": "בוקינג רעפערענץ"
+    "digitalBookingRef": "בוקינג רעפערענץ",
+    "swapChat": "Swap Chat",
+    "chatEmpty": "No messages yet. Start the conversation!",
+    "chatPlaceholder": "Type a message..."
   },
   "feedback": {
     "title": "פידבעק",

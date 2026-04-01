@@ -1313,7 +1313,10 @@
     "digitalTransferSteps": "Roinn do ríomhphost deimhnithe, PDF thicéad, nó iomrá an bhogearraí go díreach i gcomhrá Swaply. Deimhneoidh do chomhpháirtí babhtála an glacadh.",
     "digitalEmail": "Ríomhphost deimhnithe",
     "digitalPdf": "PDF / Cód QR",
-    "digitalBookingRef": "Iomrá an bhogearraí"
+    "digitalBookingRef": "Iomrá an bhogearraí",
+    "swapChat": "Swap Chat",
+    "chatEmpty": "No messages yet. Start the conversation!",
+    "chatPlaceholder": "Type a message..."
   },
   "info": {
     "title": "Staitistici Swaply",

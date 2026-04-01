@@ -1313,7 +1313,10 @@
     "digitalTransferSteps": "在 Swaply 聊天中直接分享您的确认邮件、PDF 门票或预订参考号。您的交换伙伴将确认收到。",
     "digitalEmail": "确认邮件",
     "digitalPdf": "PDF / 二维码",
-    "digitalBookingRef": "预订参考号"
+    "digitalBookingRef": "预订参考号",
+    "swapChat": "Swap Chat",
+    "chatEmpty": "No messages yet. Start the conversation!",
+    "chatPlaceholder": "Type a message..."
   },
   "info": {
     "title": "Swaply 统计",

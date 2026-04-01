@@ -5,6 +5,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { CTAButton, NextStepRecommendation, Pill, SectionCard, StateShowcase } from "@/components/ui-custom";
 import { SwapTimeline } from "@/features/change/SwapTimeline";
+import { SwapChat } from "@/components/SwapChat";
 import type { SwapIntent, HouseAmenity, HouseRule, HouseSwapMode, PropertyType, ServiceCategory, SkillLevel, ServiceDelivery, ServiceMilestone, CancelReason } from "@/lib/types";
 import { TrustCard } from "@/components/trust/TrustCard";
 import { calculateTrustScore } from "@/lib/utils/trustScore";
@@ -446,6 +447,14 @@ export function ChangeClient({ swapFromQuery, serverAuthenticated = true }: { sw
           </p>
         )}
       </SectionCard>
+
+      {swap && user ? (
+        <SwapChat
+          swapId={swap.id}
+          currentUserId={user.id}
+          partnerId={isRequester ? swap.responderId : swap.requesterId}
+        />
+      ) : null}
 
       {swap ? (
         <>

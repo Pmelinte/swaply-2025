@@ -1313,7 +1313,10 @@
     "digitalTransferSteps": "Partagez votre email de confirmation, votre billet PDF ou votre référence de réservation directement dans le chat Swaply. Votre partenaire d'échange confirmera la réception.",
     "digitalEmail": "Email de confirmation",
     "digitalPdf": "PDF / Code QR",
-    "digitalBookingRef": "Référence de réservation"
+    "digitalBookingRef": "Référence de réservation",
+    "swapChat": "Chat d'échange",
+    "chatEmpty": "Aucun message. Commencez la conversation !",
+    "chatPlaceholder": "Écrire un message..."
   },
   "info": {
     "title": "Statistiques Swaply",

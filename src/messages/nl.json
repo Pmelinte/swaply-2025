@@ -1313,7 +1313,10 @@
     "digitalTransferSteps": "Deel uw bevestigingsemail, PDF-kaartje of boekingreferentie rechtstreeks in de Swaply-chat. Uw ruilpartner bevestigt de ontvangst.",
     "digitalEmail": "Bevestigingsemail",
     "digitalPdf": "PDF / QR-code",
-    "digitalBookingRef": "Boekingreferentie"
+    "digitalBookingRef": "Boekingreferentie",
+    "swapChat": "Swap Chat",
+    "chatEmpty": "No messages yet. Start the conversation!",
+    "chatPlaceholder": "Type a message..."
   },
   "info": {
     "title": "Swaply Statistieken",
