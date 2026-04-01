@@ -107,7 +107,7 @@ export default async function LocaleLayout({ children, params }: Props) {
   const messages = await getMessages();
 
   return (
-    <html lang={locale} suppressHydrationWarning>
+    <html lang={locale} className="view-transition" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://maps.googleapis.com" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
