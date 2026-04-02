@@ -18,9 +18,7 @@ interface Props {
   params: Promise<{ locale: string; slug: string }>;
 }
 
-export async function generateStaticParams() {
-  return SEO_CATEGORIES.map((cat) => ({ slug: cat.slug }));
-}
+export const dynamicParams = true;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;

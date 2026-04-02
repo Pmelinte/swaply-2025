@@ -1,3 +1,4 @@
+export const revalidate = 0;
 import dynamic from "next/dynamic";
 
 const DeskClient = dynamic(() => import("./DeskClient").then((m) => m.DeskClient));

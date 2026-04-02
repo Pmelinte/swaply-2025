@@ -11,8 +11,10 @@ interface Props {
   params: Promise<{ locale: string; cat: string }>;
 }
 
+export const dynamicParams = true;
+
 export async function generateStaticParams() {
-  return getAllCategories().map((cat) => ({ cat }));
+  return getAllCategories().slice(0, 5).map((cat) => ({ cat }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
