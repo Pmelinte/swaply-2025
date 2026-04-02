@@ -4,7 +4,7 @@ import { locales } from "@/i18n/config";
 import { notFound } from "next/navigation";
 import { MapPin, Tag, ChevronRight, Home } from "lucide-react";
 import { getCachedSeoContent } from "@/lib/cache/categories";
-import { translateFields } from "@/lib/translate-on-demand";
+import { translateFields, translateOnDemand } from "@/lib/translate-on-demand";
 import { getServerSupabase } from "@/lib/supabase/server";
 import {
   SEO_CITIES,
@@ -195,21 +195,36 @@ function ItemCard({ item }: { item: ItemRow }) {
 // ── Page component ──
 
 export default async function CategoryCityPage({ params }: Props) {
-  const { city: citySlug, category: catSlug } = await params;
+  const { locale, city: citySlug, category: catSlug } = await params;
   const city = getCityBySlug(citySlug);
   const cat = getCategoryBySlug(catSlug);
   if (!city || !cat) notFound();
 
-  const [{ local, nearby }, seo] = await Promise.all([
+  const [{ local: rawLocal, nearby: rawNearby }, seo] = await Promise.all([
     getCityCategoryItems(city.name, city.county, cat.dbCategory),
     getSeoContent(citySlug, catSlug),
   ]);
 
+  // Translate item titles + h1 + intro server-side
+  const translateItem = async (item: ItemRow) => ({
+    ...item,
+    title: await translateOnDemand(item.title, locale, "ro"),
+  });
+  const [local, nearby, h1, intro] = await Promise.all([
+    Promise.all(rawLocal.map(translateItem)),
+    Promise.all(rawNearby.map(translateItem)),
+    translateOnDemand(
+      seo?.h1 ?? `Swap ${cat.nameLocal} in ${city.name}`,
+      locale, "en",
+    ),
+    translateOnDemand(
+      seo?.intro_paragraph ??
+        `Browse ${cat.nameLocal.toLowerCase()} available for swapping in ${city.name}. Swaply is a free barter platform where you can exchange items directly with other users — no money involved. Find what you need, offer what you no longer use, and make a fair swap today.`,
+      locale, "en",
+    ),
+  ]);
+
   const totalCount = local.length + nearby.length;
-  const h1 = seo?.h1 ?? `Swap ${cat.nameLocal} in ${city.name}`;
-  const intro =
-    seo?.intro_paragraph ??
-    `Browse ${cat.nameLocal.toLowerCase()} available for swapping in ${city.name}. Swaply is a free barter platform where you can exchange items directly with other users — no money involved. Find what you need, offer what you no longer use, and make a fair swap today.`;
 
   // Related categories in this city (exclude current)
   const relatedCategories = cat.related

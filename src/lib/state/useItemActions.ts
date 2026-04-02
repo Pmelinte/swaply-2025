@@ -2,6 +2,7 @@
 
 import { useCallback } from "react";
 import type { Item } from "../types";
+import { locales } from "@/i18n/config";
 import { createEmptyItem } from "../mock-data";
 import type { SharedDeps } from "./shared-deps";
 import { showTokenToast } from "@/components/tokens/TokenToast";
@@ -79,20 +80,20 @@ export function useItemActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
             body: JSON.stringify({ itemId: mapped.id }),
           }).catch(() => { /* embedding generation is non-critical */ });
 
-          // Fire-and-forget: pre-translate to priority languages, then all others
-          const priorityLangs = ["en", "de", "fr", "es", "it"];
-          const allLangs = ["en","de","fr","es","it","pt","nl","pl","el","hu","bg","cs","sk","hr","sl","sr","sv","da","fi","no","lt","lv","et","ga","mt","ru","tr","ar","zh","hi","bn","ja","ko","vi","th","id","ms","fil","fa","mn","uk","yi"];
-          // Translate priority languages first (immediate)
-          for (const lang of priorityLangs) {
+          // Fire-and-forget: pre-translate to all locales from i18n config
+          const targetLocales = (locales as readonly string[]).filter((l) => l !== "ro");
+          const priorityLangs = new Set(["en", "de", "fr", "es", "it"]);
+          // Priority languages first (immediate)
+          for (const lang of targetLocales.filter((l) => priorityLangs.has(l))) {
             fetch("/api/translate/item", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ itemId: mapped.id, targetLocale: lang }),
             }).catch(() => {});
           }
-          // Translate remaining languages after a delay (avoid rate limits)
+          // Remaining languages after a delay (avoid rate limits)
           setTimeout(() => {
-            for (const lang of allLangs.filter((l) => !priorityLangs.includes(l))) {
+            for (const lang of targetLocales.filter((l) => !priorityLangs.has(l))) {
               fetch("/api/translate/item", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },

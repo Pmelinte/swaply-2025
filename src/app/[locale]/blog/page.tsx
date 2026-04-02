@@ -3,6 +3,7 @@ import { Link } from "@/i18n/navigation";
 import { Rss } from "lucide-react";
 import { getAllPosts, getAllCategories } from "@/lib/blog";
 import { BlogSearch } from "@/components/blog/BlogSearch";
+import { translateOnDemand } from "@/lib/translate-on-demand";
 
 export const revalidate = 3600;
 import { getTranslations } from "next-intl/server";
@@ -33,8 +34,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function BlogPage({ params }: Props) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "blog" });
-  const posts = getAllPosts(locale);
+  const rawPosts = getAllPosts(locale);
   const categories = getAllCategories();
+
+  // Translate post titles and descriptions server-side for non-ro locales
+  const posts = await Promise.all(
+    rawPosts.map(async (post) => ({
+      ...post,
+      title: await translateOnDemand(post.title, locale, "ro"),
+      description: await translateOnDemand(post.description, locale, "ro"),
+    })),
+  );
 
   return (
     <div className="space-y-6">
