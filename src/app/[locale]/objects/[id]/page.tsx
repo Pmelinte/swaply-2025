@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { locales } from "@/i18n/config";
 import Script from "next/script";
 import { getServerSupabase } from "@/lib/supabase/server";
-import { translateFields } from "@/lib/translate-on-demand";
+import { translateFields, translateOnDemand } from "@/lib/translate-on-demand";
 import ObjectDetailClient from "./ObjectDetailClient";
 
 export const revalidate = 300;
@@ -73,16 +73,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ObjectDetailPage({ params }: Props) {
-  const { id } = await params;
+  const { locale, id } = await params;
   const item = await getItem(id);
+
+  // Translate title + description for JSON-LD
+  const tName = item ? await translateOnDemand(String(item.title ?? ""), locale, "ro") : "";
+  const tDescription = item ? await translateOnDemand(String(item.description ?? "").slice(0, 500), locale, "ro") : "";
 
   // JSON-LD structured data for SEO
   const jsonLd = item
     ? {
         "@context": "https://schema.org",
         "@type": "Product",
-        name: item.title as string,
-        description: (item.description as string)?.slice(0, 500) || "",
+        name: tName,
+        description: tDescription,
         category: item.category as string,
         image: (item.images as string[] | null)?.[0] || undefined,
         offers: {

@@ -3,6 +3,7 @@ import { Link } from "@/i18n/navigation";
 import { locales } from "@/i18n/config";
 import { ArrowLeft, Calendar, Clock, Tag, User } from "lucide-react";
 import { getAllCategories, getPostsByCategory } from "@/lib/blog";
+import { translateOnDemand } from "@/lib/translate-on-demand";
 
 export const revalidate = 3600;
 import { getTranslations } from "next-intl/server";
@@ -38,7 +39,16 @@ export default async function CategoryPage({ params }: Props) {
   const { locale, cat } = await params;
   const t = await getTranslations({ locale, namespace: "blog" });
   const category = decodeURIComponent(cat);
-  const posts = getPostsByCategory(category);
+  const rawPosts = getPostsByCategory(category);
+
+  // Translate post titles and descriptions server-side
+  const posts = await Promise.all(
+    rawPosts.map(async (post) => ({
+      ...post,
+      title: await translateOnDemand(post.title, locale, "ro"),
+      description: await translateOnDemand(post.description, locale, "ro"),
+    })),
+  );
 
   return (
     <div className="space-y-6">

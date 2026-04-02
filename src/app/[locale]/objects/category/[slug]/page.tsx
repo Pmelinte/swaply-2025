@@ -86,7 +86,15 @@ export default async function CategoryPage({ params }: Props) {
   const t = await getTranslations({ locale, namespace: "categoryPage" });
   const tCat = await getTranslations({ locale, namespace: "categories" });
   const categoryName = tCat(cat.dbCategory);
-  const items = await getItems(cat.dbCategory);
+  const rawItems = await getItems(cat.dbCategory);
+
+  // Translate item titles server-side for non-ro locales
+  const items = await Promise.all(
+    rawItems.map(async (item) => ({
+      ...item,
+      title: await translateOnDemand(item.title, locale, "ro"),
+    })),
+  );
   const relatedCategories = cat.related
     .map((r) => getCategoryBySlug(r))
     .filter(Boolean) as SEOCategory[];
