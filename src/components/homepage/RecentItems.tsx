@@ -6,6 +6,7 @@ import { useState, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { MapPin, ChevronRight, Plus, Globe, Loader2 } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
+import { useTranslatedTexts } from "@/hooks/useTranslation";
 
 interface RecentItem {
   id: string;
@@ -135,6 +136,10 @@ export function RecentItems() {
     },
   });
 
+  // Batch-translate all item titles for current locale
+  const titleTexts = items.map((i) => i.title);
+  const titleTranslations = useTranslatedTexts(titleTexts);
+
   // Don't render until loaded
   if (isLoading) return null;
 
@@ -210,9 +215,10 @@ export function RecentItems() {
               <div className="flex flex-1 flex-col gap-1.5 p-3">
                 {/* Title */}
                 <p className="line-clamp-2 text-sm font-semibold text-zinc-900 dark:text-zinc-50">
-                  {item.title.length > 50
-                    ? item.title.slice(0, 50) + "…"
-                    : item.title}
+                  {(() => {
+                    const t = titleTranslations.get(item.title) ?? item.title;
+                    return t.length > 50 ? t.slice(0, 50) + "…" : t;
+                  })()}
                 </p>
 
                 {/* Inline translate */}
