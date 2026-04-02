@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { ChangeClient } from "./ChangeClient";
 import { getServerSupabase } from "@/lib/supabase/server";
 

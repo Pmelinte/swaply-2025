@@ -24,8 +24,11 @@ interface Props {
   params: Promise<{ locale: string; slug: string }>;
 }
 
+export const dynamicParams = true;
+
 export async function generateStaticParams() {
-  return getAllPosts().map((post) => ({ slug: post.slug }));
+  // Only pre-render posts for ro + en; other locales generated on demand
+  return getAllPosts().slice(0, 10).map((post) => ({ slug: post.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

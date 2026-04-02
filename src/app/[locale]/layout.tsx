@@ -16,10 +16,15 @@ import Script from "next/script";
 import { CookieConsent } from "@/components/CookieConsent";
 import { ConditionalAnalytics } from "@/components/ConditionalAnalytics";
 
-// ── Generate static params for all 43 locales ───────────────────────
+// ── Generate static params for top 5 locales only ──────────────────
+// Remaining locales are generated on-demand and cached via ISR.
+const PRIORITY_LOCALES = ["ro", "en"] as const;
+
 export function generateStaticParams() {
-  return routing.locales.map((locale) => ({ locale }));
+  return PRIORITY_LOCALES.map((locale) => ({ locale }));
 }
+
+export const dynamicParams = true;
 
 // ── Build hreflang alternates for every locale ──────────────────────
 function buildHreflangAlternates(locale: string, path: string) {
