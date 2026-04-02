@@ -4,6 +4,7 @@ import { locales } from "@/i18n/config";
 import { notFound } from "next/navigation";
 import { MapPin, Tag, ChevronRight, Home } from "lucide-react";
 import { getCachedSeoContent } from "@/lib/cache/categories";
+import { translateFields } from "@/lib/translate-on-demand";
 import { getServerSupabase } from "@/lib/supabase/server";
 import {
   SEO_CITIES,
@@ -14,7 +15,7 @@ import {
 } from "@/lib/seo-data";
 
 interface Props {
-  params: Promise<{ city: string; category: string }>;
+  params: Promise<{ locale: string; city: string; category: string }>;
 }
 
 // ── ISR: regenerate every hour instead of static generation ──
@@ -38,7 +39,7 @@ async function getSeoContent(
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { city: citySlug, category: catSlug } = await params;
+  const { locale, city: citySlug, category: catSlug } = await params;
   const city = getCityBySlug(citySlug);
   const cat = getCategoryBySlug(catSlug);
   if (!city || !cat) return { title: "Page Not Found — Swaply" };
@@ -46,10 +47,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // Try DB-stored SEO content first
   const seo = await getSeoContent(citySlug, catSlug);
 
-  const title = seo?.meta_title ?? `Swap ${cat.nameLocal} in ${city.name} | Swaply.world`;
-  const description =
+  const rawTitle = seo?.meta_title ?? `Swap ${cat.nameLocal} in ${city.name} | Swaply.world`;
+  const rawDesc =
     seo?.meta_description ??
     `Find ${cat.nameLocal.toLowerCase()} to swap in ${city.name}. Free barter platform, no money needed. Browse available items now.`;
+
+  // On-demand translation for non-ro/en locales
+  const { title, description } = await translateFields(
+    { title: rawTitle, description: rawDesc },
+    locale ?? "en",
+    "en",
+  );
 
   const path = `/objects/city/${citySlug}/${catSlug}`;
 

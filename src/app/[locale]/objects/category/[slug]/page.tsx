@@ -6,6 +6,7 @@ import { ArrowLeft, Tag, MapPin, ChevronRight } from "lucide-react";
 
 export const revalidate = 300;
 import { getServerSupabase } from "@/lib/supabase/server";
+import { translateOnDemand } from "@/lib/translate-on-demand";
 import {
   SEO_CATEGORIES,
   SEO_CITIES,
@@ -111,9 +112,9 @@ export default async function CategoryPage({ params }: Props) {
         </p>
       </header>
 
-      {/* Intro paragraph */}
+      {/* Intro paragraph — translated on demand for non-ro/en locales */}
       <div className="rounded-2xl border border-zinc-200 bg-white/80 p-5 text-sm leading-relaxed text-zinc-700 shadow-sm dark:border-zinc-700 dark:bg-zinc-800/80 dark:text-zinc-300">
-        {cat.intro}
+        {await translateOnDemand(cat.intro, locale, "en")}
       </div>
 
       {/* Items grid */}

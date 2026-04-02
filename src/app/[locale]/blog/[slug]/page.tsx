@@ -3,6 +3,7 @@ import { Link } from "@/i18n/navigation";
 import { locales } from "@/i18n/config";
 import Script from "next/script";
 import { notFound } from "next/navigation";
+import { translateFields } from "@/lib/translate-on-demand";
 
 export const revalidate = 3600;
 import { MDXRemote } from "next-mdx-remote/rsc";
@@ -93,8 +94,16 @@ const mdxComponents = {
 export default async function BlogPostPage({ params }: Props) {
   const { locale, slug } = await params;
   const t = await getTranslations({ locale, namespace: "blog" });
-  const post = getPostBySlug(slug, locale);
-  if (!post) notFound();
+  const rawPost = getPostBySlug(slug, locale);
+  if (!rawPost) notFound();
+
+  // On-demand translation for non-ro/en locales
+  const { title: translatedTitle, description: translatedDesc } = await translateFields(
+    { title: rawPost.title, description: rawPost.description },
+    locale,
+    "ro",
+  );
+  const post = { ...rawPost, title: translatedTitle, description: translatedDesc };
 
   const headings = extractHeadings(post.content);
 
