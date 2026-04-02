@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { Pill, SectionCard } from "@/components/ui-custom";
 import { subscribeToPush, unsubscribeFromPush, isPushSubscribed } from "@/lib/push";
+import { isWebAuthnSupported, registerPasskey } from "@/lib/webauthn";
 import type { UserProfile, AccountStatus } from "@/lib/types";
 import { getSupabaseClient } from "@/lib/supabase/client";
 
@@ -271,7 +272,21 @@ export default function AccountTab({
           </label>
           <label className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
             <input type="checkbox" checked={draft.security.passkeysEnabled}
-              onChange={(e) => update({ security: { ...draft.security, passkeysEnabled: e.target.checked } })} />
+              onChange={async (e) => {
+                const enabling = e.target.checked;
+                if (enabling) {
+                  if (!isWebAuthnSupported()) {
+                    alert(t("passkeyNotSupported") ?? "Passkeys are not supported by this browser.");
+                    return;
+                  }
+                  const result = await registerPasskey(user.id, user.email, user.displayName || "");
+                  if (!result.success) {
+                    alert(result.error || "Passkey registration failed");
+                    return;
+                  }
+                }
+                update({ security: { ...draft.security, passkeysEnabled: enabling } });
+              }} />
             {t("enablePasskeys")}
           </label>
         </div>
