@@ -3,9 +3,49 @@ import { Link } from "@/i18n/navigation";
 import { locales } from "@/i18n/config";
 import Script from "next/script";
 import { notFound } from "next/navigation";
-import { translateFields } from "@/lib/translate-on-demand";
+import { translateFields, translateOnDemand } from "@/lib/translate-on-demand";
 
 export const revalidate = 3600;
+
+/**
+ * Translate full article body by splitting into paragraphs,
+ * translating each individually (cached by hash), then rejoining.
+ */
+async function translateContent(
+  content: string,
+  targetLang: string,
+  sourceLang = "ro",
+): Promise<string> {
+  if (targetLang === sourceLang) return content;
+
+  const paragraphs = content.split(/\n\n+/);
+  const translated = await Promise.all(
+    paragraphs.map((p) => {
+      const trimmed = p.trim();
+      if (!trimmed) return Promise.resolve("");
+      // Skip code blocks and HTML — only translate text
+      if (trimmed.startsWith("```") || trimmed.startsWith("<")) return Promise.resolve(trimmed);
+      return translateOnDemand(trimmed, targetLang, sourceLang);
+    }),
+  );
+  return translated.join("\n\n");
+}
+
+/**
+ * Translate table-of-contents heading texts.
+ */
+async function translateHeadings(
+  headings: Array<{ level: 2 | 3; text: string; id: string }>,
+  targetLang: string,
+  sourceLang = "ro",
+): Promise<Array<{ level: 2 | 3; text: string; id: string }>> {
+  if (targetLang === sourceLang || headings.length === 0) return headings;
+
+  const texts = await Promise.all(
+    headings.map((h) => translateOnDemand(h.text, targetLang, sourceLang)),
+  );
+  return headings.map((h, i) => ({ ...h, text: texts[i] }));
+}
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { ArrowLeft, Calendar, Clock, Tag, User } from "lucide-react";
 import {
@@ -97,15 +137,30 @@ export default async function BlogPostPage({ params }: Props) {
   const rawPost = getPostBySlug(slug, locale);
   if (!rawPost) notFound();
 
-  // On-demand translation for non-ro/en locales
-  const { title: translatedTitle, description: translatedDesc } = await translateFields(
-    { title: rawPost.title, description: rawPost.description },
-    locale,
-    "ro",
-  );
-  const post = { ...rawPost, title: translatedTitle, description: translatedDesc };
+  // On-demand translation for non-ro locales (title, description, content, category)
+  const [
+    { title: translatedTitle, description: translatedDesc, category: translatedCategory },
+    translatedContent,
+  ] = await Promise.all([
+    translateFields(
+      { title: rawPost.title, description: rawPost.description, category: rawPost.category },
+      locale,
+      "ro",
+    ),
+    translateContent(rawPost.content, locale, "ro"),
+  ]);
 
-  const headings = extractHeadings(post.content);
+  const post = {
+    ...rawPost,
+    title: translatedTitle,
+    description: translatedDesc,
+    category: translatedCategory,
+    content: translatedContent,
+  };
+
+  // Extract headings from translated content and translate TOC
+  const rawHeadings = extractHeadings(post.content);
+  const headings = await translateHeadings(rawHeadings, locale, "ro");
 
   const related = getPostsByCategory(post.category)
     .filter((p) => p.slug !== slug)
