@@ -186,7 +186,7 @@ export function RecentItems() {
             <Link
               key={item.id}
               href={`/objects/${item.id}`}
-              className="group flex flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white/80 shadow-sm backdrop-blur transition hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900/80"
+              className="recent-item group flex flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white/80 shadow-sm backdrop-blur transition hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900/80"
             >
               {/* Image */}
               {imageUrl ? (

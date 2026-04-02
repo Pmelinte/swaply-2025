@@ -676,7 +676,7 @@ function BranchCard({
   return (
     <Link
       href={href}
-      className="group relative flex min-h-40 flex-col justify-between overflow-hidden rounded-2xl border border-zinc-200 bg-white/80 p-6 shadow-sm backdrop-blur transition hover:shadow-lg hover:border-blue-300 dark:border-zinc-800 dark:bg-zinc-900/80 dark:hover:border-blue-600"
+      className="branch-card group relative flex min-h-40 flex-col justify-between overflow-hidden rounded-2xl border border-zinc-200 bg-white/80 p-6 shadow-sm backdrop-blur transition hover:shadow-lg hover:border-blue-300 dark:border-zinc-800 dark:bg-zinc-900/80 dark:hover:border-blue-600"
     >
       <div className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${gradient} text-white shadow-md`}>
         {icon}
