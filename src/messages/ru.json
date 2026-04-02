@@ -1728,7 +1728,10 @@
     "unknownLocation": "Неизвестное местоположение",
     "mapTitle": "Карта местоположений",
     "noPins": "Нет меток для отображения",
-    "loading": "Загрузка карты…"
+    "loading": "Загрузка карты…",
+    "title": "Active users near you",
+    "liveBadge": "Live",
+    "guestTooltip": "Sign up to see who swaps in your area"
   },
   "location": {
     "country": "Страна",
@@ -3012,5 +3015,22 @@
     "events": "Мероприятия",
     "eventsDesc": "Обменивайте билеты, бронирования и впечатления",
     "comingSoon": "Этот раздел скоро появится. Следите за обновлениями!"
+  },
+  "hero": {
+    "tagline": "Swap what you have for what you want"
+  },
+  "benefits": {
+    "label": "Why Swaply?",
+    "directSwap": "Direct swap between people",
+    "globalCommunity": "Global community",
+    "aiMatching": "Automatic AI matching",
+    "escrow": "Escrow for safety",
+    "logistics": "Integrated logistics",
+    "negotiation": "In-platform negotiation",
+    "localPartners": "Find partners nearby"
+  },
+  "premium": {
+    "title": "Swaply Premium",
+    "subtitle": "Global visibility · Priority matching"
   }
 }

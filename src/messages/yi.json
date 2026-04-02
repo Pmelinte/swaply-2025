@@ -1795,7 +1795,10 @@
     "unknownLocation": "אומבאקאנטע אָרט",
     "mapTitle": "אָרט קאַרטע",
     "noPins": "קיין פּינס צו ווייזן",
-    "loading": "קאַרטע לאָדט…"
+    "loading": "קאַרטע לאָדט…",
+    "title": "Active users near you",
+    "liveBadge": "Live",
+    "guestTooltip": "Sign up to see who swaps in your area"
   },
   "location": {
     "country": "לאַנד",
@@ -3010,5 +3013,22 @@
     "events": "Events",
     "eventsDesc": "Swap tickets, reservations, and experiences",
     "comingSoon": "This section is coming soon. Stay tuned!"
+  },
+  "hero": {
+    "tagline": "Swap what you have for what you want"
+  },
+  "benefits": {
+    "label": "Why Swaply?",
+    "directSwap": "Direct swap between people",
+    "globalCommunity": "Global community",
+    "aiMatching": "Automatic AI matching",
+    "escrow": "Escrow for safety",
+    "logistics": "Integrated logistics",
+    "negotiation": "In-platform negotiation",
+    "localPartners": "Find partners nearby"
+  },
+  "premium": {
+    "title": "Swaply Premium",
+    "subtitle": "Global visibility · Priority matching"
   }
 }

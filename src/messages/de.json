@@ -1728,7 +1728,10 @@
     "unknownLocation": "Unbekannter Standort",
     "mapTitle": "Standortkarte",
     "noPins": "Keine Pins anzuzeigen",
-    "loading": "Laden map…"
+    "loading": "Laden map…",
+    "title": "Aktive Nutzer in deiner Nähe",
+    "liveBadge": "Live",
+    "guestTooltip": "Registriere dich, um zu sehen, wer in deiner Nähe tauscht"
   },
   "location": {
     "country": "Land",
@@ -3012,5 +3015,22 @@
     "events": "Veranstaltungen",
     "eventsDesc": "Tausche Tickets, Reservierungen und Erlebnisse",
     "comingSoon": "Dieser Bereich kommt bald. Bleib dran!"
+  },
+  "hero": {
+    "tagline": "Tausche was du hast gegen was du willst"
+  },
+  "benefits": {
+    "label": "Warum Swaply?",
+    "directSwap": "Direkter Tausch zwischen Menschen",
+    "globalCommunity": "Globale Gemeinschaft",
+    "aiMatching": "Automatisches KI-Matching",
+    "escrow": "Escrow für Sicherheit",
+    "logistics": "Integrierte Logistik",
+    "negotiation": "Verhandlung in der Plattform",
+    "localPartners": "Partner in der Nähe finden"
+  },
+  "premium": {
+    "title": "Swaply Premium",
+    "subtitle": "Globale Sichtbarkeit · Prioritäts-Matching"
   }
 }

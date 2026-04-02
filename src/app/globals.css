@@ -171,3 +171,97 @@ dialog[open] {
     animation: none;
   }
 }
+
+/* ── Homepage Sequential Fade-In ─────────────────────────────────
+   Sections fade in on page load with staggered delays.
+   Pure CSS, no JavaScript.                                     */
+
+@keyframes home-fade-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes bounce-arrow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(8px); }
+}
+
+/* Explosion from center — cards translate from offset to position */
+@keyframes card-explode-tl {
+  from { opacity: 0; transform: translate(24px, 24px) scale(0.92); }
+  to { opacity: 1; transform: translate(0, 0) scale(1); }
+}
+@keyframes card-explode-tr {
+  from { opacity: 0; transform: translate(-24px, 24px) scale(0.92); }
+  to { opacity: 1; transform: translate(0, 0) scale(1); }
+}
+@keyframes card-explode-bl {
+  from { opacity: 0; transform: translate(24px, -24px) scale(0.92); }
+  to { opacity: 1; transform: translate(0, 0) scale(1); }
+}
+@keyframes card-explode-br {
+  from { opacity: 0; transform: translate(-24px, -24px) scale(0.92); }
+  to { opacity: 1; transform: translate(0, 0) scale(1); }
+}
+
+/* Infinite scroll for benefits banner */
+@keyframes scroll-marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.home-hero {
+  opacity: 0;
+  animation: home-fade-in 500ms ease-out 300ms forwards;
+}
+
+.home-bounce-arrow {
+  animation: bounce-arrow 1.5s ease-in-out infinite;
+}
+
+.home-card-tl { opacity: 0; animation: card-explode-tl 500ms ease-out 700ms forwards; }
+.home-card-tr { opacity: 0; animation: card-explode-tr 500ms ease-out 700ms forwards; }
+.home-card-bl { opacity: 0; animation: card-explode-bl 500ms ease-out 700ms forwards; }
+.home-card-br { opacity: 0; animation: card-explode-br 500ms ease-out 700ms forwards; }
+
+.home-banner {
+  opacity: 0;
+  animation: home-fade-in 500ms ease-out 1200ms forwards;
+}
+
+.home-auth-buttons {
+  opacity: 0;
+  animation: home-fade-in 500ms ease-out 1400ms forwards;
+}
+
+.home-map {
+  opacity: 0;
+  animation: home-fade-in 500ms ease-out 1800ms forwards;
+}
+
+.home-premium {
+  opacity: 0;
+  animation: home-fade-in 500ms ease-out 2000ms forwards;
+}
+
+.benefits-track {
+  display: flex;
+  gap: 0.75rem;
+  animation: scroll-marquee 30s linear infinite;
+  width: max-content;
+}
+
+.benefits-track:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-hero, .home-card-tl, .home-card-tr, .home-card-bl, .home-card-br,
+  .home-banner, .home-auth-buttons, .home-map, .home-premium {
+    opacity: 1;
+    animation: none;
+    transform: none;
+  }
+  .home-bounce-arrow { animation: none; }
+  .benefits-track { animation: none; }
+}
