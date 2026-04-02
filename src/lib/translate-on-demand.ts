@@ -25,8 +25,6 @@ export async function translateOnDemand(
 ): Promise<string> {
   if (!text.trim()) return text;
   if (targetLang === sourceLang) return text;
-  // ro and en content is always available — no translation needed
-  if (targetLang === "ro" || targetLang === "en") return text;
 
   const hash = hashText(text, targetLang);
   const supabase = getServiceSupabase();
@@ -81,9 +79,7 @@ export async function translateFields<T extends Record<string, string>>(
   targetLang: string,
   sourceLang = "ro",
 ): Promise<T> {
-  if (targetLang === sourceLang || targetLang === "ro" || targetLang === "en") {
-    return fields;
-  }
+  if (targetLang === sourceLang) return fields;
 
   const keys = Object.keys(fields) as (keyof T)[];
   const values = await Promise.all(

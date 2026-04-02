@@ -7,6 +7,7 @@ import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { useFavorites } from "@/hooks/useFavorites";
+import { useTranslatedText } from "@/hooks/useTranslation";
 import { useSavedSearches } from "@/hooks/useSavedSearches";
 import { NO_IMAGE_URL } from "@/lib/storage";
 import { SafeImage } from "@/components/SafeImage";
@@ -146,6 +147,8 @@ function SlotCard({
 function ObjectCard({ item, mode }: { item: Item; mode: BrowseMode }) {
   const t = useTranslations("objects");
   const router = useRouter();
+  const translatedTitle = useTranslatedText(item.title);
+  const translatedDescription = useTranslatedText(item.description ?? "");
 
   if (mode === "list") {
     return (
@@ -165,7 +168,7 @@ function ObjectCard({ item, mode }: { item: Item; mode: BrowseMode }) {
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
-            <h3 className="truncate font-semibold text-zinc-900 dark:text-zinc-50">{item.title}</h3>
+            <h3 className="truncate font-semibold text-zinc-900 dark:text-zinc-50">{translatedTitle}</h3>
             {item.isBoosted && (
               <span className="flex shrink-0 items-center gap-0.5 rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
                 <Zap className="h-2.5 w-2.5" />
@@ -228,7 +231,7 @@ function ObjectCard({ item, mode }: { item: Item; mode: BrowseMode }) {
         )}
       </div>
       <div className="item-card__body flex flex-1 flex-col p-3">
-        <h3 className="item-card__title truncate text-sm font-semibold text-zinc-900 dark:text-zinc-50">{item.title}</h3>
+        <h3 className="item-card__title truncate text-sm font-semibold text-zinc-900 dark:text-zinc-50">{translatedTitle}</h3>
         <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">{item.category}</p>
         {item.location && (
           <p className="item-card__location mt-1 flex items-center gap-0.5 text-xs text-zinc-400">

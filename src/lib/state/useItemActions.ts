@@ -79,14 +79,27 @@ export function useItemActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
             body: JSON.stringify({ itemId: mapped.id }),
           }).catch(() => { /* embedding generation is non-critical */ });
 
-          // Fire-and-forget: pre-translate to EN and DE (most common languages)
-          for (const lang of ["en", "de"]) {
+          // Fire-and-forget: pre-translate to priority languages, then all others
+          const priorityLangs = ["en", "de", "fr", "es", "it"];
+          const allLangs = ["en","de","fr","es","it","pt","nl","pl","el","hu","bg","cs","sk","hr","sl","sr","sv","da","fi","no","lt","lv","et","ga","mt","ru","tr","ar","zh","hi","bn","ja","ko","vi","th","id","ms","fil","fa","mn","uk","yi"];
+          // Translate priority languages first (immediate)
+          for (const lang of priorityLangs) {
             fetch("/api/translate/item", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ itemId: mapped.id, targetLocale: lang }),
-            }).catch(() => { /* translation is non-critical */ });
+            }).catch(() => {});
           }
+          // Translate remaining languages after a delay (avoid rate limits)
+          setTimeout(() => {
+            for (const lang of allLangs.filter((l) => !priorityLangs.includes(l))) {
+              fetch("/api/translate/item", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ itemId: mapped.id, targetLocale: lang }),
+              }).catch(() => {});
+            }
+          }, 5000);
           return mapped;
         }
       }
