@@ -5,6 +5,7 @@ import { ArrowLeft, Tag } from "lucide-react";
 import { getServerSupabase } from "@/lib/supabase/server";
 import { getCategoryBySlug } from "@/lib/seo-data";
 import { getCachedSubcategoryMeta } from "@/lib/cache/categories";
+import { translateOnDemand } from "@/lib/translate-on-demand";
 import { getTranslations } from "next-intl/server";
 import { SafeImage } from "@/components/SafeImage";
 import { NO_IMAGE_URL } from "@/lib/storage";
@@ -71,7 +72,14 @@ export default async function SubcategoryPage({ params }: Props) {
         .then((r) => r.data ?? [])
     : [];
 
-  const allItems = [...items, ...parentItems.filter((pi) => !items.some((i) => i.id === pi.id))];
+  // Translate all item titles server-side
+  const rawAll = [...items, ...parentItems.filter((pi) => !items.some((i) => i.id === pi.id))];
+  const allItems = await Promise.all(
+    rawAll.map(async (item) => ({
+      ...item,
+      title: await translateOnDemand(String(item.title ?? ""), locale, "ro"),
+    })),
+  );
 
   // Fetch sibling subcategories for navigation
   const siblings = supabase

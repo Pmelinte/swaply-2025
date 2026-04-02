@@ -94,7 +94,7 @@ export default async function ObjectDetailPage({ params }: Props) {
           availability: "https://schema.org/InStock",
           priceCurrency: "RON",
           price: "0",
-          description: "Disponibil pentru schimb (barter)",
+          description: await translateOnDemand("Disponibil pentru schimb (barter)", locale, "ro"),
         },
         ...(item.condition ? { itemCondition: `https://schema.org/${item.condition === "new" ? "NewCondition" : "UsedCondition"}` } : {}),
         ...(item.location ? { availableAtOrFrom: { "@type": "Place", name: item.location as string } } : {}),
