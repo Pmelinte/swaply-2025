@@ -2,12 +2,13 @@ import type { Metadata } from "next";
 import { locales } from "@/i18n/config";
 import Script from "next/script";
 import { getServerSupabase } from "@/lib/supabase/server";
+import { translateFields } from "@/lib/translate-on-demand";
 import ObjectDetailClient from "./ObjectDetailClient";
 
 export const revalidate = 300;
 
 interface Props {
-  params: Promise<{ id: string }>;
+  params: Promise<{ locale: string; id: string }>;
 }
 
 async function getItem(id: string) {
@@ -23,17 +24,26 @@ async function getItem(id: string) {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { id } = await params;
+  const { locale, id } = await params;
   const item = await getItem(id);
 
   if (!item) {
     return { title: "Object not found — Swaply" };
   }
 
-  const title = `${item.title} — Swaply`;
-  const description =
-    (item.description as string)?.slice(0, 160) ||
-    `${item.category} · ${item.condition}${item.location ? ` · ${item.location}` : ""}`;
+  // On-demand translation for non-ro/en locales
+  const { title: tTitle, description: tDesc } = await translateFields(
+    {
+      title: String(item.title ?? ""),
+      description: String(item.description ?? "").slice(0, 160) ||
+        `${item.category} · ${item.condition}${item.location ? ` · ${item.location}` : ""}`,
+    },
+    locale,
+    "ro",
+  );
+
+  const title = `${tTitle} — Swaply`;
+  const description = tDesc;
   const photos = item.images as string[] | null;
   const image = photos?.[0] || undefined;
 
