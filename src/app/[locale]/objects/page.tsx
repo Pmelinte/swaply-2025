@@ -93,9 +93,7 @@ function SlotCard({
           unoptimized={!item.photos?.[0]}
         />
       </div>
-      <p className="mt-1 truncate text-xs font-semibold text-zinc-800 dark:text-zinc-100">
-        {item.title}
-      </p>
+      <SlotTitle title={item.title} />
       <p className="truncate text-[10px] text-zinc-500">
         {item.category} &middot; {item.condition}
       </p>
@@ -140,6 +138,15 @@ function SlotCard({
         )}
       </div>
     </div>
+  );
+}
+
+function SlotTitle({ title }: { title: string }) {
+  const translated = useTranslatedText(title);
+  return (
+    <p className="mt-1 truncate text-xs font-semibold text-zinc-800 dark:text-zinc-100">
+      {translated}
+    </p>
   );
 }
 
@@ -264,6 +271,7 @@ export default function ObjectsPage() {
   const tc = useTranslations("common");
   const tCat = useTranslations("categories");
   const tss = useTranslations("savedSearches");
+
 
   const initialTypeFromUrl = searchParams.get("type");
   const initialListingType: ListingType | "all" =

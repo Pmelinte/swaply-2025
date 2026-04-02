@@ -4,6 +4,7 @@ import { locales } from "@/i18n/config";
 import { notFound } from "next/navigation";
 import { ArrowLeft, MapPin, Tag } from "lucide-react";
 import { getServerSupabase } from "@/lib/supabase/server";
+import { translateOnDemand } from "@/lib/translate-on-demand";
 import { SEO_CITIES, SEO_CATEGORIES, getCityBySlug } from "@/lib/seo-data";
 import { getTranslations } from "next-intl/server";
 
@@ -167,7 +168,17 @@ export default async function CityPage({ params }: Props) {
   const countryName = COUNTRY_NAMES[locale] ?? "Romania";
   const countryCode = COUNTRY_CODES[locale] ?? "RO";
 
-  const { local, nearby } = await getCityItems(city.name, city.county);
+  const { local: rawLocal, nearby: rawNearby } = await getCityItems(city.name, city.county);
+
+  // Translate item titles server-side
+  const translateItem = async (item: ItemRow) => ({
+    ...item,
+    title: await translateOnDemand(item.title, locale, "ro"),
+  });
+  const [local, nearby] = await Promise.all([
+    Promise.all(rawLocal.map(translateItem)),
+    Promise.all(rawNearby.map(translateItem)),
+  ]);
   const totalCount = local.length + nearby.length;
 
   // Schema.org JSON-LD

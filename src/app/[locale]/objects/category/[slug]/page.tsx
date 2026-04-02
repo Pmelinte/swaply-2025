@@ -156,7 +156,7 @@ export default async function CategoryPage({ params }: Props) {
                     {item.title}
                   </p>
                   <p className="mt-1 text-xs text-zinc-500">
-                    {item.category} · {item.condition}
+                    {tCat(item.category)} · {t("condition_" + item.condition)}
                   </p>
                   {item.location && (
                     <p className="mt-1 flex items-center gap-1 text-xs text-zinc-400">

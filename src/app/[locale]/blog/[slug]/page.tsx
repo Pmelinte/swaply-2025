@@ -162,9 +162,18 @@ export default async function BlogPostPage({ params }: Props) {
   const rawHeadings = extractHeadings(post.content);
   const headings = await translateHeadings(rawHeadings, locale, "ro");
 
-  const related = getPostsByCategory(post.category)
+  const rawRelated = getPostsByCategory(post.category)
     .filter((p) => p.slug !== slug)
     .slice(0, 3);
+
+  // Translate related post titles server-side
+  const related = await Promise.all(
+    rawRelated.map(async (p) => ({
+      ...p,
+      title: await translateOnDemand(p.title, locale, "en"),
+      description: await translateOnDemand(p.description, locale, "en"),
+    })),
+  );
 
   const articleJsonLd = {
     "@context": "https://schema.org",
