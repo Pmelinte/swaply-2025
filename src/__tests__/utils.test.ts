@@ -1,5 +1,27 @@
 import { describe, it, expect } from "vitest";
-import { formatDate, formatScore } from "@/lib/utils";
+import { cn, formatDate, formatScore } from "@/lib/utils";
+
+describe("cn (class merge utility)", () => {
+  it("merges simple class strings", () => {
+    expect(cn("px-2", "py-1")).toBe("px-2 py-1");
+  });
+
+  it("handles conflicting Tailwind classes", () => {
+    expect(cn("px-2", "px-4")).toBe("px-4");
+  });
+
+  it("handles conditional classes", () => {
+    expect(cn("base", false && "hidden", "extra")).toBe("base extra");
+  });
+
+  it("handles undefined and null", () => {
+    expect(cn("base", undefined, null, "end")).toBe("base end");
+  });
+
+  it("handles empty string", () => {
+    expect(cn("", "px-2")).toBe("px-2");
+  });
+});
 
 describe("formatDate", () => {
   it("formats ISO date to short format", () => {
