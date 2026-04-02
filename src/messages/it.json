@@ -1728,7 +1728,10 @@
     "unknownLocation": "Posizione sconosciuta",
     "mapTitle": "Mappa di posizione",
     "noPins": "Nessun pin da visualizzare",
-    "loading": "Caricamento map…"
+    "loading": "Caricamento map…",
+    "title": "Utenti attivi vicino a te",
+    "liveBadge": "Live",
+    "guestTooltip": "Registrati per vedere chi scambia nella tua zona"
   },
   "location": {
     "country": "Paese",
@@ -3012,5 +3015,22 @@
     "events": "Eventi",
     "eventsDesc": "Scambia biglietti, prenotazioni ed esperienze",
     "comingSoon": "Questa sezione arriverà presto. Resta sintonizzato!"
+  },
+  "hero": {
+    "tagline": "Scambia ciò che hai con ciò che vuoi"
+  },
+  "benefits": {
+    "label": "Perché Swaply?",
+    "directSwap": "Scambio diretto tra persone",
+    "globalCommunity": "Comunità globale",
+    "aiMatching": "Corrispondenze automatiche tramite IA",
+    "escrow": "Escrow per sicurezza",
+    "logistics": "Logistica integrata",
+    "negotiation": "Negoziazione nella piattaforma",
+    "localPartners": "Trova partner vicino a te"
+  },
+  "premium": {
+    "title": "Swaply Premium",
+    "subtitle": "Visibilità globale · Corrispondenze prioritarie"
   }
 }

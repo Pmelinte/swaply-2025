@@ -1728,7 +1728,10 @@
     "unknownLocation": "未知位置",
     "mapTitle": "位置地图",
     "noPins": "没有标记可显示",
-    "loading": "加载地图中…"
+    "loading": "加载地图中…",
+    "title": "Active users near you",
+    "liveBadge": "Live",
+    "guestTooltip": "Sign up to see who swaps in your area"
   },
   "location": {
     "country": "国家",
@@ -3012,5 +3015,22 @@
     "events": "活动",
     "eventsDesc": "交换门票、预订和体验",
     "comingSoon": "此板块即将上线，敬请期待！"
+  },
+  "hero": {
+    "tagline": "Swap what you have for what you want"
+  },
+  "benefits": {
+    "label": "Why Swaply?",
+    "directSwap": "Direct swap between people",
+    "globalCommunity": "Global community",
+    "aiMatching": "Automatic AI matching",
+    "escrow": "Escrow for safety",
+    "logistics": "Integrated logistics",
+    "negotiation": "In-platform negotiation",
+    "localPartners": "Find partners nearby"
+  },
+  "premium": {
+    "title": "Swaply Premium",
+    "subtitle": "Global visibility · Priority matching"
   }
 }

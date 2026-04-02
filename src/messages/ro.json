@@ -1859,7 +1859,10 @@
     "unknownLocation": "Locație necunoscută",
     "mapTitle": "Hartă locație",
     "noPins": "Niciun pin de afișat",
-    "loading": "Se încarcă harta…"
+    "loading": "Se încarcă harta…",
+    "title": "Utilizatori activi în apropierea ta",
+    "liveBadge": "Live",
+    "guestTooltip": "Înregistrează-te ca să vezi cine schimbă în zona ta"
   },
   "location": {
     "country": "Țară",
@@ -3002,5 +3005,22 @@
     "events": "Evenimente",
     "eventsDesc": "Schimbă bilete, rezervări și experiențe",
     "comingSoon": "Această secțiune vine în curând. Rămâi pe fază!"
+  },
+  "hero": {
+    "tagline": "Schimbă ce ai cu ce vrei"
+  },
+  "benefits": {
+    "label": "De ce Swaply?",
+    "directSwap": "Schimb direct între oameni",
+    "globalCommunity": "Comunitate globală",
+    "aiMatching": "Potriviri automate prin AI",
+    "escrow": "Escrow pentru siguranță",
+    "logistics": "Logistică integrată",
+    "negotiation": "Negociere în platformă",
+    "localPartners": "Găsești parteneri în zonă"
+  },
+  "premium": {
+    "title": "Swaply Premium",
+    "subtitle": "Vizibilitate globală · Potriviri prioritare"
   }
 }
