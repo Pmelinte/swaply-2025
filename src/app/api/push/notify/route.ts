@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSupabase } from "@/lib/supabase/server";
 import { getServiceSupabase } from "@/lib/supabase/service";
 import { sendPushNotification } from "@/lib/webpush";
+import { kvRateLimit, tooManyRequests } from "@/lib/kv-rate-limit";
 
 export async function POST(req: NextRequest) {
   const supabase = await getServerSupabase();
@@ -22,6 +23,10 @@ export async function POST(req: NextRequest) {
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  // Rate limit: 20 requests per minute per user
+  const { success } = await kvRateLimit(`push-notify:${user.id}`, { limit: 20, windowSeconds: 60 });
+  if (!success) return tooManyRequests();
 
   let body: { userId?: string; title?: string; body?: string; url?: string };
   try {

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { rateLimit } from "@/lib/rate-limit";
 import { getServiceSupabase } from "@/lib/supabase/service";
 import { translateItemContent } from "@/lib/translate";
 import { locales } from "@/i18n/config";
+import { kvRateLimit, getClientIp, tooManyRequests } from "@/lib/kv-rate-limit";
 
 const VALID_LOCALES = new Set<string>(locales);
 
@@ -15,11 +15,9 @@ const VALID_LOCALES = new Set<string>(locales);
  * Response: { title: string, description: string, source: "cache" | "translated" }
  */
 export async function POST(request: NextRequest) {
-  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
-  const { allowed } = rateLimit(`translate-item:${ip}`, { limit: 30, windowMs: 60_000 });
-  if (!allowed) {
-    return NextResponse.json({ error: "Rate limited" }, { status: 429 });
-  }
+  const ip = getClientIp(request);
+  const { success } = await kvRateLimit(`translate-item:${ip}`, { limit: 5, windowSeconds: 60 });
+  if (!success) return tooManyRequests();
 
   const body = await request.json().catch(() => ({}));
   const { itemId, targetLocale, force } = body as { itemId?: string; targetLocale?: string; force?: boolean };

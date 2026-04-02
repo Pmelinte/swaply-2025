@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { rateLimit } from "@/lib/rate-limit";
+import { kvRateLimit, getClientIp, tooManyRequests } from "@/lib/kv-rate-limit";
 import { translateSchema, validateBody } from "@/lib/validation";
 import { requestLogger } from "@/lib/logger";
 import { getServiceSupabase } from "@/lib/supabase/service";
@@ -55,18 +55,9 @@ async function cacheTranslation(
 }
 
 export async function POST(request: Request) {
-  const ip =
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-  const { allowed } = rateLimit(`translate:${ip}`, {
-    limit: 30,
-    windowMs: 60_000,
-  });
-  if (!allowed) {
-    return NextResponse.json(
-      { translated: "", status: "error", message: "Rate limited" },
-      { status: 429 },
-    );
-  }
+  const ip = getClientIp(request);
+  const { success } = await kvRateLimit(`translate:${ip}`, { limit: 30, windowSeconds: 60 });
+  if (!success) return tooManyRequests();
 
   const log = requestLogger(request);
   const body = await request.json().catch(() => ({}));
