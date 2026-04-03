@@ -2174,7 +2174,8 @@
     "modalTitle": "無料アカウントを作成",
     "modalDescription": "無料アカウントを作成して、交換を提案し、メッセージを送信し、交換を始めましょう。",
     "modalCta": "無料アカウントを作成",
-    "modalDismiss": "後で"
+    "modalDismiss": "後で",
+    "haveAccount": "すでにアカウントを持っています"
   },
   "about": {
     "title": "Swapylyについて",

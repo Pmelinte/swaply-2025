@@ -2174,7 +2174,8 @@
     "modalTitle": "Luo ilmainen tili",
     "modalDescription": "Luo ilmainen tili ehdottaaksesi vaihtoja, lähettääksesi viestejä ja aloittaaksesi vaihtamisen.",
     "modalCta": "Luo ilmainen tili",
-    "modalDismiss": "Ehkä myöhemmin"
+    "modalDismiss": "Ehkä myöhemmin",
+    "haveAccount": "I already have an account"
   },
   "about": {
     "title": "Tietoa Swaplystä",

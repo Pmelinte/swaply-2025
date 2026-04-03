@@ -2174,7 +2174,8 @@
     "modalTitle": "Buat akaun percuma",
     "modalDescription": "Buat akaun percuma untuk mencadangkan pertukaran, menghantar mesej, dan mula bertukar.",
     "modalCta": "Buat akaun percuma",
-    "modalDismiss": "Mungkin nanti"
+    "modalDismiss": "Mungkin nanti",
+    "haveAccount": "I already have an account"
   },
   "about": {
     "title": "Tentang Swaply",

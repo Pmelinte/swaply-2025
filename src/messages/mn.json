@@ -2174,7 +2174,8 @@
     "modalTitle": "Үнэгүй бүртгэл үүсгэх",
     "modalDescription": "Солилцоо санал болгох, мессеж илгээх, солилцоо эхлүүлэхийн тулд үнэгүй бүртгэл үүсгэнэ үү.",
     "modalCta": "Үнэгүй бүртгэл үүсгэх",
-    "modalDismiss": "Магадгүй дараа"
+    "modalDismiss": "Магадгүй дараа",
+    "haveAccount": "I already have an account"
   },
   "about": {
     "title": "Swaply-ийн тухай",

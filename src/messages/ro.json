@@ -2086,7 +2086,8 @@
     "modalTitle": "Creează un cont gratuit",
     "modalDescription": "Creează un cont gratuit pentru a propune schimburi, trimite mesaje și începe să faci schimburi.",
     "modalCta": "Creează cont gratuit",
-    "modalDismiss": "Poate mai târziu"
+    "modalDismiss": "Poate mai târziu",
+    "haveAccount": "Am deja cont"
   },
   "onboarding": {
     "step1Title": "Listează obiectele",

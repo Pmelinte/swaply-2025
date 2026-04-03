@@ -2387,7 +2387,8 @@
     "modalTitle": "Skapa ett gratis konto",
     "modalDescription": "Skapa ett gratis konto för att föreslå byten, skicka meddelanden och börja byta.",
     "modalCta": "Skapa gratis konto",
-    "modalDismiss": "Kanske senare"
+    "modalDismiss": "Kanske senare",
+    "haveAccount": "Jag har redan ett konto"
   },
   "about": {
     "title": "Om Swaply",

@@ -2174,7 +2174,8 @@
     "modalTitle": "Cruthaigh cuntas saor in aisce",
     "modalDescription": "Cruthaigh cuntas saor in aisce chun babhtálacha a mholadh, teachtaireachtaí a sheoladh agus tosú ag babhtáil.",
     "modalCta": "Cruthaigh cuntas saor in aisce",
-    "modalDismiss": "B'fhéidir níos déanaí"
+    "modalDismiss": "B'fhéidir níos déanaí",
+    "haveAccount": "I already have an account"
   },
   "about": {
     "title": "Maidir le Swaply",

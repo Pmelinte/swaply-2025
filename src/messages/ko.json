@@ -2174,7 +2174,8 @@
     "modalTitle": "무료 계정 만들기",
     "modalDescription": "무료 계정을 만들어 교환을 제안하고, 메시지를 보내고, 교환을 시작하세요.",
     "modalCta": "무료 계정 만들기",
-    "modalDismiss": "나중에"
+    "modalDismiss": "나중에",
+    "haveAccount": "이미 계정이 있습니다"
   },
   "about": {
     "title": "Swaply 소개",

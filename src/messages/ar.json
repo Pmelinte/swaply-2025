@@ -2174,7 +2174,8 @@
     "modalTitle": "أنشئ حسابًا مجانيًا",
     "modalDescription": "أنشئ حسابًا مجانيًا لاقتراح التبادلات وإرسال الرسائل وبدء التبادل.",
     "modalCta": "أنشئ حسابًا مجانيًا",
-    "modalDismiss": "ربما لاحقًا"
+    "modalDismiss": "ربما لاحقًا",
+    "haveAccount": "لدي حساب بالفعل"
   },
   "about": {
     "title": "حول Swaply",

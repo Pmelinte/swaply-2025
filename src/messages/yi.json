@@ -2022,7 +2022,8 @@
     "modalTitle": "שאַפן אַ פריי קאָנטאָ",
     "modalDescription": "שאַפן אַ פריי קאָנטאָ צו פּראָפּאָז סוואַפּס, שיקן מעססידזשס, און סטאַרט עקסטשיינדזשינג.",
     "modalCta": "שאַפן פריי קאָנטאָ",
-    "modalDismiss": "עפשר שפּעטער"
+    "modalDismiss": "עפשר שפּעטער",
+    "haveAccount": "I already have an account"
   },
   "onboarding": {
     "step1Title": "אַרײַנשטעלן דײַנע זאַכן",

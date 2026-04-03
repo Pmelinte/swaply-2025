@@ -2174,7 +2174,8 @@
     "modalTitle": "สร้างบัญชีฟรี",
     "modalDescription": "สร้างบัญชีฟรีเพื่อเสนอการแลกเปลี่ยน ส่งข้อความ และเริ่มแลกเปลี่ยน",
     "modalCta": "สร้างบัญชีฟรี",
-    "modalDismiss": "ไว้ทีหลัง"
+    "modalDismiss": "ไว้ทีหลัง",
+    "haveAccount": "I already have an account"
   },
   "about": {
     "title": "เกี่ยวกับ Swaply",

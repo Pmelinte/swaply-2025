@@ -2174,7 +2174,8 @@
     "modalTitle": "Ustvarite brezplačen račun",
     "modalDescription": "Ustvarite brezplačen račun za predlaganje zamenjav, pošiljanje sporočil in začetek menjave.",
     "modalCta": "Ustvari brezplačen račun",
-    "modalDismiss": "Morda kasneje"
+    "modalDismiss": "Morda kasneje",
+    "haveAccount": "I already have an account"
   },
   "about": {
     "title": "O platformi Swaply",

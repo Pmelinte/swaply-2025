@@ -2174,7 +2174,8 @@
     "modalTitle": "创建免费帐户",
     "modalDescription": "创建免费帐户以提议交换、发送消息并开始交换。",
     "modalCta": "创建免费帐户",
-    "modalDismiss": "以后再说"
+    "modalDismiss": "以后再说",
+    "haveAccount": "我已有账户"
   },
   "about": {
     "title": "关于Swaply",

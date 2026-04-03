@@ -2174,7 +2174,8 @@
     "modalTitle": "একটি বিনামূল্যে অ্যাকাউন্ট তৈরি করুন",
     "modalDescription": "বিনিময় প্রস্তাব, বার্তা পাঠাতে এবং বিনিময় শুরু করতে একটি বিনামূল্যে অ্যাকাউন্ট তৈরি করুন।",
     "modalCta": "বিনামূল্যে অ্যাকাউন্ট তৈরি করুন",
-    "modalDismiss": "পরে হয়তো"
+    "modalDismiss": "পরে হয়তো",
+    "haveAccount": "I already have an account"
   },
   "about": {
     "title": "Swaply সম্পর্কে",

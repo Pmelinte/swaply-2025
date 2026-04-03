@@ -2174,7 +2174,8 @@
     "modalTitle": "Ücretsiz hesap oluştur",
     "modalDescription": "Takas önermek, mesaj göndermek ve takas yapmaya başlamak için ücretsiz hesap oluşturun.",
     "modalCta": "Ücretsiz hesap oluştur",
-    "modalDismiss": "Belki daha sonra"
+    "modalDismiss": "Belki daha sonra",
+    "haveAccount": "Zaten hesabım var"
   },
   "about": {
     "title": "Swaply Hakkında",

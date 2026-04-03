@@ -2174,7 +2174,8 @@
     "modalTitle": "Tạo tài khoản miễn phí",
     "modalDescription": "Tạo tài khoản miễn phí để đề xuất trao đổi, gửi tin nhắn và bắt đầu trao đổi.",
     "modalCta": "Tạo tài khoản miễn phí",
-    "modalDismiss": "Có lẽ sau"
+    "modalDismiss": "Có lẽ sau",
+    "haveAccount": "I already have an account"
   },
   "about": {
     "title": "Về Swaply",

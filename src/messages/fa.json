@@ -2174,7 +2174,8 @@
     "modalTitle": "یک حساب رایگان بسازید",
     "modalDescription": "یک حساب رایگان بسازید تا مبادله پیشنهاد دهید، پیام بفرستید و شروع به مبادله کنید.",
     "modalCta": "ساخت حساب رایگان",
-    "modalDismiss": "شاید بعداً"
+    "modalDismiss": "شاید بعداً",
+    "haveAccount": "I already have an account"
   },
   "about": {
     "title": "درباره Swaply",

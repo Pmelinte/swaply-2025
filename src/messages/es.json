@@ -2174,7 +2174,8 @@
     "modalTitle": "Crea una cuenta gratuita",
     "modalDescription": "Crea una cuenta gratuita para proponer intercambios, enviar mensajes y empezar a intercambiar.",
     "modalCta": "Crear cuenta gratuita",
-    "modalDismiss": "Quizás más tarde"
+    "modalDismiss": "Quizás más tarde",
+    "haveAccount": "Ya tengo una cuenta"
   },
   "about": {
     "title": "Acerca de Swaply",

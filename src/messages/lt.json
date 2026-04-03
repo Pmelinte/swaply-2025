@@ -2174,7 +2174,8 @@
     "modalTitle": "Sukurkite nemokamą paskyrą",
     "modalDescription": "Sukurkite nemokamą paskyrą, kad galėtumėte siūlyti mainus, siųsti žinutes ir pradėti keistis.",
     "modalCta": "Sukurti nemokamą paskyrą",
-    "modalDismiss": "Gal vėliau"
+    "modalDismiss": "Gal vėliau",
+    "haveAccount": "I already have an account"
   },
   "about": {
     "title": "Apie „Swaply\"",

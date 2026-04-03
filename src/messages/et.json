@@ -2174,7 +2174,8 @@
     "modalTitle": "Loo tasuta konto",
     "modalDescription": "Loo tasuta konto, et pakkuda vahetusi, saata sõnumeid ja alustada vahetamist.",
     "modalCta": "Loo tasuta konto",
-    "modalDismiss": "Võib-olla hiljem"
+    "modalDismiss": "Võib-olla hiljem",
+    "haveAccount": "I already have an account"
   },
   "about": {
     "title": "Swaply'st",

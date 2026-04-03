@@ -2174,7 +2174,8 @@
     "modalTitle": "Utwórz darmowe konto",
     "modalDescription": "Utwórz darmowe konto, aby proponować wymiany, wysyłać wiadomości i rozpocząć wymianę.",
     "modalCta": "Utwórz darmowe konto",
-    "modalDismiss": "Może później"
+    "modalDismiss": "Może później",
+    "haveAccount": "Mam już konto"
   },
   "about": {
     "title": "O Swaply",

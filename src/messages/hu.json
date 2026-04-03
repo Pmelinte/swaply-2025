@@ -2174,7 +2174,8 @@
     "modalTitle": "Ingyenes fiók létrehozása",
     "modalDescription": "Hozz létre ingyenes fiókot cserék javaslásához, üzenetek küldéséhez és a csere megkezdéséhez.",
     "modalCta": "Ingyenes fiók létrehozása",
-    "modalDismiss": "Talán később"
+    "modalDismiss": "Talán később",
+    "haveAccount": "Már van fiókom"
   },
   "about": {
     "title": "A Swaply-ról",

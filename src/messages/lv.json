@@ -2174,7 +2174,8 @@
     "modalTitle": "Izveidojiet bezmaksas kontu",
     "modalDescription": "Izveidojiet bezmaksas kontu, lai piedāvātu apmaiņas, sūtītu ziņojumus un sāktu apmainīties.",
     "modalCta": "Izveidot bezmaksas kontu",
-    "modalDismiss": "Varbūt vēlāk"
+    "modalDismiss": "Varbūt vēlāk",
+    "haveAccount": "I already have an account"
   },
   "about": {
     "title": "Par Swaply",

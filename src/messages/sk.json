@@ -2174,7 +2174,8 @@
     "modalTitle": "Vytvorte si bezplatný účet",
     "modalDescription": "Vytvorte si bezplatný účet na navrhovanie výmen, posielanie správ a začatie výmeny.",
     "modalCta": "Vytvoriť bezplatný účet",
-    "modalDismiss": "Možno neskôr"
+    "modalDismiss": "Možno neskôr",
+    "haveAccount": "I already have an account"
   },
   "about": {
     "title": "O Swaply",

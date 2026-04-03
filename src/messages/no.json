@@ -2174,7 +2174,8 @@
     "modalTitle": "Opprett en gratis konto",
     "modalDescription": "Opprett en gratis konto for å foreslå bytter, sende meldinger og begynne å bytte.",
     "modalCta": "Opprett gratis konto",
-    "modalDismiss": "Kanskje senere"
+    "modalDismiss": "Kanskje senere",
+    "haveAccount": "I already have an account"
   },
   "about": {
     "title": "Om Swaply",

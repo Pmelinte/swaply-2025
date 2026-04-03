@@ -2174,7 +2174,8 @@
     "modalTitle": "Oħloq kont b'xejn",
     "modalDescription": "Oħloq kont b'xejn biex tipproponi skambji, tibgħat messaġġi, u tibda tiskambja.",
     "modalCta": "Oħloq kont b'xejn",
-    "modalDismiss": "Forsi aktar tard"
+    "modalDismiss": "Forsi aktar tard",
+    "haveAccount": "I already have an account"
   },
   "about": {
     "title": "Dwar Swaply",

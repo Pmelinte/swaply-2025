@@ -2174,7 +2174,8 @@
     "modalTitle": "Kostenloses Konto erstellen",
     "modalDescription": "Erstellen Sie ein kostenloses Konto, um Tausche vorzuschlagen, Nachrichten zu senden und mit dem Tauschen zu beginnen.",
     "modalCta": "Kostenloses Konto erstellen",
-    "modalDismiss": "Vielleicht später"
+    "modalDismiss": "Vielleicht später",
+    "haveAccount": "Ich habe bereits ein Konto"
   },
   "about": {
     "title": "Über Swaply",

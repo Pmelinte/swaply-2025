@@ -2086,7 +2086,8 @@
     "modalTitle": "Create a free account",
     "modalDescription": "Create a free account to propose swaps, send messages, and start exchanging.",
     "modalCta": "Create free account",
-    "modalDismiss": "Maybe later"
+    "modalDismiss": "Maybe later",
+    "haveAccount": "I already have an account"
   },
   "onboarding": {
     "step1Title": "List your items",

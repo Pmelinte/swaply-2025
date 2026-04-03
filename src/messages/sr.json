@@ -2174,7 +2174,8 @@
     "modalTitle": "Направите бесплатан налог",
     "modalDescription": "Направите бесплатан налог да предлажете размене, шаљете поруке и почнете да размењујете.",
     "modalCta": "Направи бесплатан налог",
-    "modalDismiss": "Можда касније"
+    "modalDismiss": "Можда касније",
+    "haveAccount": "I already have an account"
   },
   "about": {
     "title": "O Swaply",

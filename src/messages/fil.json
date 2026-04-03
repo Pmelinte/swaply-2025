@@ -2174,7 +2174,8 @@
     "modalTitle": "Gumawa ng libreng account",
     "modalDescription": "Gumawa ng libreng account para magmungkahi ng mga palitan, magpadala ng mga mensahe, at magsimulang magpalitan.",
     "modalCta": "Gumawa ng libreng account",
-    "modalDismiss": "Siguro mamaya"
+    "modalDismiss": "Siguro mamaya",
+    "haveAccount": "I already have an account"
   },
   "about": {
     "title": "Tungkol sa Swaply",
