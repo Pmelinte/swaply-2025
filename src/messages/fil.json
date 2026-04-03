@@ -45,7 +45,9 @@
     "nextStepRecommended": "Inirerekomendang susunod na hakbang",
     "myDesk": "Aking Swap Desk",
     "myDeskDescription": "Subaybayan ang aktibong mga swap, mga naghihintay na aksyon, at mga deadline",
-    "romania": "Romania"
+    "romania": "Romania",
+    "user": "User",
+    "recommendedNextStep": "Recommended next step"
   },
   "nav": {
     "home": "Tahanan",
@@ -73,7 +75,8 @@
     "termsAndGdpr": "Mga Tuntunin at GDPR",
     "badgeBenefits": "Mga benepisyo ng badge",
     "completeProfile": "Kumpletuhin ang iyong profile",
-    "desk": "Aking Desk"
+    "desk": "Aking Desk",
+    "settings": "Settings"
   },
   "notifications": {
     "title": "Mga Notipikasyon (like/interes/chat/swaply)",
@@ -2948,7 +2951,9 @@
     "stripeUnavailable": "Stripe ay hindi available",
     "securePayment": "Secure payment via Stripe. Visa, Mastercard, Apple Pay, Google Pay.",
     "boost7days": "Boost 7 days",
-    "alreadyPurchased": "Nang biling na"
+    "alreadyPurchased": "Nang biling na",
+    "boost24h": "Boost 24h",
+    "boost72h": "Boost 72h"
   },
   "payments": {
     "paymentMethod": "Paraan ng pagbabayad",
@@ -3063,5 +3068,14 @@
     "byViews": "By number of views",
     "insights": "Automated insights",
     "insightsDesc": "Recommendations based on your data"
+  },
+  "share": {
+    "copied": "Copied!",
+    "copyLink": "Copy link"
+  },
+  "badge": {
+    "free": "Free",
+    "premium": "Premium",
+    "platinum": "Platinum"
   }
 }

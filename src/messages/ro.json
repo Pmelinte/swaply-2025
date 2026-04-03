@@ -45,7 +45,9 @@
     "nextStepRecommended": "Următorul pas recomandat",
     "myDesk": "Desk-ul meu",
     "myDeskDescription": "Urmărește swap-urile active, acțiunile în așteptare și termenele",
-    "romania": "România"
+    "romania": "România",
+    "user": "Utilizator",
+    "recommendedNextStep": "Pasul următor recomandat"
   },
   "nav": {
     "home": "Acasă",
@@ -73,7 +75,8 @@
     "viewObject": "Vezi obiect",
     "termsAndGdpr": "Termeni & GDPR",
     "badgeBenefits": "Beneficii badge",
-    "completeProfile": "Completează profilul"
+    "completeProfile": "Completează profilul",
+    "settings": "Setări"
   },
   "notifications": {
     "title": "Notificări",
@@ -2988,7 +2991,9 @@
     "stripeUnavailable": "Stripe nu este disponibil",
     "securePayment": "Plată securizată prin Stripe. Visa, Mastercard, Apple Pay, Google Pay.",
     "boost7days": "Boost 7 zile",
-    "alreadyPurchased": "Deja cumpărat"
+    "alreadyPurchased": "Deja cumpărat",
+    "boost24h": "Boost 24h",
+    "boost72h": "Boost 72h"
   },
   "payments": {
     "paymentMethod": "Metodă de plată",
@@ -3053,5 +3058,14 @@
     "byViews": "După numărul de views",
     "insights": "Insights automate",
     "insightsDesc": "Recomandări bazate pe datele tale"
+  },
+  "share": {
+    "copied": "Copiat!",
+    "copyLink": "Copiază link"
+  },
+  "badge": {
+    "free": "Gratuit",
+    "premium": "Premium",
+    "platinum": "Platinum"
   }
 }

@@ -45,7 +45,9 @@
     "nextStepRecommended": "Дараагийн санал болгож буй алхам",
     "myDesk": "Миний Солилцоо Ширээ",
     "myDeskDescription": "Идэвхтэй солилцоо, хүлээлтийн үйлдэл болон хугацаа хянах",
-    "romania": "Румын"
+    "romania": "Румын",
+    "user": "User",
+    "recommendedNextStep": "Recommended next step"
   },
   "nav": {
     "home": "Нүүр",
@@ -73,7 +75,8 @@
     "termsAndGdpr": "Нөхцөл ба GDPR",
     "badgeBenefits": "Тэмдэгний давуу тал",
     "completeProfile": "Профайлаа бөглөх",
-    "desk": "Миний Ширээ"
+    "desk": "Миний Ширээ",
+    "settings": "Settings"
   },
   "notifications": {
     "title": "Мэдэгдлүүд (таалагдсан/сонирхол/чат/swaply)",
@@ -2947,8 +2950,10 @@
     "unexpectedError": "Хүлээлцэхүй алдаа. Дахин оролдоорой.",
     "stripeUnavailable": "Stripe боломжгүй",
     "securePayment": "Stripe-р аюулгүй төлөлт. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "7 хоног сайжруулалт",
-    "alreadyPurchased": "Аль хэдийн худалдаж авсан"
+    "boost7days": "Boost 7 days",
+    "alreadyPurchased": "Аль хэдийн худалдаж авсан",
+    "boost24h": "Boost 24h",
+    "boost72h": "Boost 72h"
   },
   "payments": {
     "paymentMethod": "Төлбөрийн арга",
@@ -3063,5 +3068,14 @@
     "byViews": "By number of views",
     "insights": "Automated insights",
     "insightsDesc": "Recommendations based on your data"
+  },
+  "share": {
+    "copied": "Copied!",
+    "copyLink": "Copy link"
+  },
+  "badge": {
+    "free": "Free",
+    "premium": "Premium",
+    "platinum": "Platinum"
   }
 }

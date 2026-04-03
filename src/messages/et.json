@@ -45,7 +45,9 @@
     "nextStepRecommended": "Soovitatud järgmine samm",
     "myDesk": "Minu vahetuslaud",
     "myDeskDescription": "Jälgi aktiivseid vahetusi, ootel olevaid tegevusi ja tähtaegu",
-    "romania": "Rumeenia"
+    "romania": "Rumeenia",
+    "user": "User",
+    "recommendedNextStep": "Recommended next step"
   },
   "nav": {
     "home": "Avaleht",
@@ -73,7 +75,8 @@
     "termsAndGdpr": "Tingimused ja GDPR",
     "badgeBenefits": "Märgi eelised",
     "completeProfile": "Täida oma profiil",
-    "desk": "Minu laud"
+    "desk": "Minu laud",
+    "settings": "Settings"
   },
   "notifications": {
     "title": "Teavitused (meeldimine/huvi/vestlus/swaply)",
@@ -2947,8 +2950,10 @@
     "unexpectedError": "Ootamatu viga. Proovige uuesti.",
     "stripeUnavailable": "Stripe ei ole saadaval",
     "securePayment": "Turvaline makse Stripe'i kaudu. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "Edenda 7 päevaks",
-    "alreadyPurchased": "Juba ostetud"
+    "boost7days": "Boost 7 days",
+    "alreadyPurchased": "Juba ostetud",
+    "boost24h": "Boost 24h",
+    "boost72h": "Boost 72h"
   },
   "payments": {
     "paymentMethod": "Makseviis",
@@ -3063,5 +3068,14 @@
     "byViews": "By number of views",
     "insights": "Automated insights",
     "insightsDesc": "Recommendations based on your data"
+  },
+  "share": {
+    "copied": "Copied!",
+    "copyLink": "Copy link"
+  },
+  "badge": {
+    "free": "Free",
+    "premium": "Premium",
+    "platinum": "Platinum"
   }
 }

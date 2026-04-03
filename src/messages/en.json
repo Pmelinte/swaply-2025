@@ -45,7 +45,9 @@
     "nextStepRecommended": "Recommended next step",
     "myDesk": "My Swap Desk",
     "myDeskDescription": "Track active swaps, pending actions, and deadlines",
-    "romania": "Romania"
+    "romania": "Romania",
+    "user": "User",
+    "recommendedNextStep": "Recommended next step"
   },
   "nav": {
     "home": "Home",
@@ -73,7 +75,8 @@
     "viewObject": "View object",
     "termsAndGdpr": "Terms & GDPR",
     "badgeBenefits": "Badge benefits",
-    "completeProfile": "Complete your profile"
+    "completeProfile": "Complete your profile",
+    "settings": "Settings"
   },
   "notifications": {
     "title": "Notifications",
@@ -2762,7 +2765,9 @@
     "stripeUnavailable": "Stripe is not available",
     "securePayment": "Secure payment via Stripe. Visa, Mastercard, Apple Pay, Google Pay.",
     "boost7days": "Boost 7 days",
-    "alreadyPurchased": "Already purchased"
+    "alreadyPurchased": "Already purchased",
+    "boost24h": "Boost 24h",
+    "boost72h": "Boost 72h"
   },
   "push": {
     "enableTitle": "Enable notifications",
@@ -3053,5 +3058,14 @@
     "byViews": "By number of views",
     "insights": "Automated insights",
     "insightsDesc": "Recommendations based on your data"
+  },
+  "share": {
+    "copied": "Copied!",
+    "copyLink": "Copy link"
+  },
+  "badge": {
+    "free": "Free",
+    "premium": "Premium",
+    "platinum": "Platinum"
   }
 }

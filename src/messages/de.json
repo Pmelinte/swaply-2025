@@ -45,7 +45,9 @@
     "nextStepRecommended": "Empfohlener nächster Schritt",
     "myDesk": "Mein Tausch-Desk",
     "myDeskDescription": "Verfolgen Sie aktive Tausche, ausstehende Maßnahmen und Fristen",
-    "romania": "Rumänien"
+    "romania": "Rumänien",
+    "user": "Benutzer",
+    "recommendedNextStep": "Empfohlener nächster Schritt"
   },
   "nav": {
     "home": "Startseite",
@@ -73,7 +75,8 @@
     "termsAndGdpr": "AGB & DSGVO",
     "badgeBenefits": "Badge-Vorteile",
     "completeProfile": "Profil vervollständigen",
-    "desk": "Mein Desk"
+    "desk": "Mein Desk",
+    "settings": "Einstellungen"
   },
   "notifications": {
     "title": "Benachrichtigungen",
@@ -2948,7 +2951,9 @@
     "stripeUnavailable": "Stripe ist nicht verfügbar",
     "securePayment": "Sichere Zahlung über Stripe. Visa, Mastercard, Apple Pay, Google Pay.",
     "boost7days": "Boost 7 Tage",
-    "alreadyPurchased": "Bereits gekauft"
+    "alreadyPurchased": "Bereits gekauft",
+    "boost24h": "Boost 24h",
+    "boost72h": "Boost 72h"
   },
   "payments": {
     "paymentMethod": "Zahlungsart",
@@ -3063,5 +3068,14 @@
     "byViews": "Nach Anzahl der Aufrufe",
     "insights": "Automatische Insights",
     "insightsDesc": "Empfehlungen basierend auf deinen Daten"
+  },
+  "share": {
+    "copied": "Kopiert!",
+    "copyLink": "Link kopieren"
+  },
+  "badge": {
+    "free": "Kostenlos",
+    "premium": "Premium",
+    "platinum": "Platin"
   }
 }

@@ -45,7 +45,9 @@
     "nextStepRecommended": "Ieteiktais nākamais solis",
     "myDesk": "Mans Apmaiņas Galds",
     "myDeskDescription": "Sekojiet aktīvām apmaiņām, gaidu darbībām un termiņiem",
-    "romania": "Rumānija"
+    "romania": "Rumānija",
+    "user": "User",
+    "recommendedNextStep": "Recommended next step"
   },
   "nav": {
     "home": "Sakums",
@@ -73,7 +75,8 @@
     "termsAndGdpr": "Noteikumi un VDAR",
     "badgeBenefits": "Zimes prieksrocibas",
     "completeProfile": "Aizpildiet savu profilu",
-    "desk": "Mans Galds"
+    "desk": "Mans Galds",
+    "settings": "Settings"
   },
   "notifications": {
     "title": "Pazinojumi (patik/interese/terzesana/swaply)",
@@ -2947,8 +2950,10 @@
     "unexpectedError": "Neparedzēta kļūda. Mēģiniet vēlreiz.",
     "stripeUnavailable": "Stripe nav pieejams",
     "securePayment": "Draudzīga maksājuma metode caur Stripe. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "Paaugstinājums 7 dienas",
-    "alreadyPurchased": "Jau iegādāts"
+    "boost7days": "Boost 7 days",
+    "alreadyPurchased": "Jau iegādāts",
+    "boost24h": "Boost 24h",
+    "boost72h": "Boost 72h"
   },
   "payments": {
     "paymentMethod": "Maksāšanas metode",
@@ -3063,5 +3068,14 @@
     "byViews": "By number of views",
     "insights": "Automated insights",
     "insightsDesc": "Recommendations based on your data"
+  },
+  "share": {
+    "copied": "Copied!",
+    "copyLink": "Copy link"
+  },
+  "badge": {
+    "free": "Free",
+    "premium": "Premium",
+    "platinum": "Platinum"
   }
 }

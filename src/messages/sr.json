@@ -45,7 +45,9 @@
     "nextStepRecommended": "Preporučeni sledeći korak",
     "myDesk": "Moj radni sto za razmenu",
     "myDeskDescription": "Prati aktivne razmene, akcije na čekanju i rokove",
-    "romania": "Rumunija"
+    "romania": "Rumunija",
+    "user": "User",
+    "recommendedNextStep": "Recommended next step"
   },
   "nav": {
     "home": "Početna",
@@ -73,7 +75,8 @@
     "termsAndGdpr": "Uslovi i GDPR",
     "badgeBenefits": "Pogodnosti značke",
     "completeProfile": "Dopunite svoj profil",
-    "desk": "Moj radni sto"
+    "desk": "Moj radni sto",
+    "settings": "Settings"
   },
   "notifications": {
     "title": "Obaveštenja (lajk/interes/ćaskanje/swaply)",
@@ -2947,8 +2950,10 @@
     "unexpectedError": "Neočekivana greška. Pokušajte ponovo.",
     "stripeUnavailable": "Stripe nije dostupan",
     "securePayment": "Sigurna uplata preko Stripe-a. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "Boost 7 dana",
-    "alreadyPurchased": "Već kupljeno"
+    "boost7days": "Boost 7 days",
+    "alreadyPurchased": "Već kupljeno",
+    "boost24h": "Boost 24h",
+    "boost72h": "Boost 72h"
   },
   "payments": {
     "paymentMethod": "Način plaćanja",
@@ -3063,5 +3068,14 @@
     "byViews": "By number of views",
     "insights": "Automated insights",
     "insightsDesc": "Recommendations based on your data"
+  },
+  "share": {
+    "copied": "Copied!",
+    "copyLink": "Copy link"
+  },
+  "badge": {
+    "free": "Free",
+    "premium": "Premium",
+    "platinum": "Platinum"
   }
 }

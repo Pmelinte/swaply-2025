@@ -24,7 +24,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const subcatData = await getCachedSubcategoryMeta(slug, subcat);
 
   const subcatName = subcatData
-    ? locale === "ro" ? subcatData.name_ro : subcatData.name_en
+    ? locale === "ro"
+      ? subcatData.name_ro
+      : await translateOnDemand(subcatData.name_en, locale, "en")
     : subcat.replace(/-/g, " ");
 
   return {
@@ -46,7 +48,9 @@ export default async function SubcategoryPage({ params }: Props) {
 
   if (!subcatData) notFound();
 
-  const subcatName = locale === "ro" ? subcatData.name_ro : subcatData.name_en;
+  const subcatName = locale === "ro"
+    ? subcatData.name_ro
+    : await translateOnDemand(subcatData.name_en, locale, "en");
 
   // Fetch items with this subcategory
   const items = supabase
@@ -92,6 +96,16 @@ export default async function SubcategoryPage({ params }: Props) {
         .then((r) => r.data ?? [])
     : [];
 
+  // Pre-translate sibling names for non-ro locales
+  const translatedSiblings = await Promise.all(
+    siblings.map(async (sib) => ({
+      ...sib,
+      displayName: locale === "ro"
+        ? (sib as { name_ro: string }).name_ro
+        : await translateOnDemand((sib as { name_en: string }).name_en, locale, "en"),
+    })),
+  );
+
   return (
     <main className="mx-auto max-w-6xl px-4 py-8">
       {/* Breadcrumb */}
@@ -101,7 +115,7 @@ export default async function SubcategoryPage({ params }: Props) {
         </Link>
         <span>/</span>
         <Link href={`/objects/category/${slug}`} className="hover:text-blue-600">
-          {locale === "ro" ? cat.dbCategory : cat.nameLocal}
+          {await translateOnDemand(cat.nameLocal, locale, "en")}
         </Link>
         <span>/</span>
         <span className="font-medium text-zinc-900 dark:text-zinc-100">
@@ -164,20 +178,20 @@ export default async function SubcategoryPage({ params }: Props) {
       )}
 
       {/* Sibling subcategories */}
-      {siblings.length > 0 && (
+      {translatedSiblings.length > 0 && (
         <div className="mt-10">
           <h2 className="mb-4 text-lg font-semibold text-zinc-800 dark:text-zinc-100">
             {t("relatedCategories")}
           </h2>
           <div className="flex flex-wrap gap-2">
-            {siblings.map((sib) => (
+            {translatedSiblings.map((sib) => (
               <Link
                 key={sib.slug}
                 href={`/objects/category/${slug}/${sib.slug}`}
                 className="flex items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700 transition hover:border-blue-300 hover:bg-blue-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
               >
                 <span>{sib.icon}</span>
-                {locale === "ro" ? sib.name_ro : sib.name_en}
+                {sib.displayName}
               </Link>
             ))}
           </div>

@@ -45,7 +45,9 @@
     "nextStepRecommended": "পরবর্তী সুপারিশকৃত পদক্ষেপ",
     "myDesk": "আমার স্বপ ডেস্ক",
     "myDeskDescription": "সক্রিয় স্বপ, অপেক্ষমাণ ক্রিয়া এবং সময়সীমা ট্র্যাক করুন",
-    "romania": "রোমানিয়া"
+    "romania": "রোমানিয়া",
+    "user": "User",
+    "recommendedNextStep": "Recommended next step"
   },
   "nav": {
     "home": "হোম",
@@ -73,7 +75,8 @@
     "termsAndGdpr": "শর্তাবলী ও GDPR",
     "badgeBenefits": "ব্যাজের সুবিধা",
     "completeProfile": "আপনার প্রোফাইল সম্পূর্ণ করুন",
-    "desk": "আমার ডেস্ক"
+    "desk": "আমার ডেস্ক",
+    "settings": "Settings"
   },
   "notifications": {
     "title": "বিজ্ঞপ্তি (লাইক/আগ্রহ/চ্যাট/স্বাপলি)",
@@ -2947,8 +2950,10 @@
     "unexpectedError": "অপ্রত্যাশিত ত্রুটি। আবার চেষ্টা করুন।",
     "stripeUnavailable": "Stripe উপলব্ধ নয়",
     "securePayment": "Stripe এর মাধ্যমে নিরাপদ পেমেন্ট। Visa, Mastercard, Apple Pay, Google Pay।",
-    "boost7days": "৭ দিনের জন্য বুস্ট করুন",
-    "alreadyPurchased": "ইতিমধ্যে ক্রয় করা হয়েছে"
+    "boost7days": "Boost 7 days",
+    "alreadyPurchased": "ইতিমধ্যে ক্রয় করা হয়েছে",
+    "boost24h": "Boost 24h",
+    "boost72h": "Boost 72h"
   },
   "payments": {
     "paymentMethod": "পেমেন্ট পদ্ধতি",
@@ -3063,5 +3068,14 @@
     "byViews": "By number of views",
     "insights": "Automated insights",
     "insightsDesc": "Recommendations based on your data"
+  },
+  "share": {
+    "copied": "Copied!",
+    "copyLink": "Copy link"
+  },
+  "badge": {
+    "free": "Free",
+    "premium": "Premium",
+    "platinum": "Platinum"
   }
 }

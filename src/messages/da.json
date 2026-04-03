@@ -45,7 +45,9 @@
     "nextStepRecommended": "Anbefalet næste trin",
     "myDesk": "Mit bytteskrivebordet",
     "myDeskDescription": "Spor aktive bytter, ventende handlinger og deadlines",
-    "romania": "Rumænien"
+    "romania": "Rumænien",
+    "user": "User",
+    "recommendedNextStep": "Recommended next step"
   },
   "nav": {
     "home": "Hjem",
@@ -73,7 +75,8 @@
     "termsAndGdpr": "Vilkår & GDPR",
     "badgeBenefits": "Badge-fordele",
     "completeProfile": "Udfyld din profil",
-    "desk": "Mit skrivebord"
+    "desk": "Mit skrivebord",
+    "settings": "Settings"
   },
   "notifications": {
     "title": "Notifikationer",
@@ -2947,8 +2950,10 @@
     "unexpectedError": "Uventet fejl. Prøv igen.",
     "stripeUnavailable": "Stripe er ikke tilgængelig",
     "securePayment": "Sikker betaling via Stripe. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "Boost 7 dage",
-    "alreadyPurchased": "Allerede købt"
+    "boost7days": "Boost 7 days",
+    "alreadyPurchased": "Allerede købt",
+    "boost24h": "Boost 24h",
+    "boost72h": "Boost 72h"
   },
   "payments": {
     "paymentMethod": "Betalingsmetode",
@@ -3063,5 +3068,14 @@
     "byViews": "By number of views",
     "insights": "Automated insights",
     "insightsDesc": "Recommendations based on your data"
+  },
+  "share": {
+    "copied": "Copied!",
+    "copyLink": "Copy link"
+  },
+  "badge": {
+    "free": "Free",
+    "premium": "Premium",
+    "platinum": "Platinum"
   }
 }

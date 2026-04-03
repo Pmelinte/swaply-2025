@@ -45,7 +45,9 @@
     "nextStepRecommended": "Próximo passo recomendado",
     "myDesk": "Minha Central de Swaps",
     "myDeskDescription": "Acompanhe swaps ativos, ações pendentes e prazos",
-    "romania": "Romênia"
+    "romania": "Romênia",
+    "user": "User",
+    "recommendedNextStep": "Recommended next step"
   },
   "nav": {
     "home": "Início",
@@ -73,7 +75,8 @@
     "termsAndGdpr": "Termos e RGPD",
     "badgeBenefits": "Benefícios dos emblemas",
     "completeProfile": "Complete o seu perfil",
-    "desk": "Minha Central"
+    "desk": "Minha Central",
+    "settings": "Configurações"
   },
   "notifications": {
     "title": "Notificações (gosto/interesse/chat/swaply)",
@@ -2947,8 +2950,10 @@
     "unexpectedError": "Erro inesperado. Tente novamente.",
     "stripeUnavailable": "Stripe não está disponível",
     "securePayment": "Pagamento seguro via Stripe. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "Impulsionar 7 dias",
-    "alreadyPurchased": "Já comprado"
+    "boost7days": "Boost 7 days",
+    "alreadyPurchased": "Já comprado",
+    "boost24h": "Boost 24h",
+    "boost72h": "Boost 72h"
   },
   "payments": {
     "paymentMethod": "Método de pagamento",
@@ -3063,5 +3068,14 @@
     "byViews": "Por número de visualizações",
     "insights": "Insights automáticos",
     "insightsDesc": "Recomendações baseadas nos seus dados"
+  },
+  "share": {
+    "copied": "Copied!",
+    "copyLink": "Copy link"
+  },
+  "badge": {
+    "free": "Free",
+    "premium": "Premium",
+    "platinum": "Platinum"
   }
 }

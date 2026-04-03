@@ -45,7 +45,9 @@
     "nextStepRecommended": "अनुशंसित अगला कदम",
     "myDesk": "मेरा स्वैप डेस्क",
     "myDeskDescription": "सक्रिय स्वैप, लंबित कार्यों और समय सीमा को ट्रैक करें",
-    "romania": "रोमानिया"
+    "romania": "रोमानिया",
+    "user": "User",
+    "recommendedNextStep": "Recommended next step"
   },
   "nav": {
     "home": "होम",
@@ -73,7 +75,8 @@
     "termsAndGdpr": "शर्तें और GDPR",
     "badgeBenefits": "बैज के लाभ",
     "completeProfile": "अपनी प्रोफ़ाइल पूरी करें",
-    "desk": "मेरा डेस्क"
+    "desk": "मेरा डेस्क",
+    "settings": "सेटिंग्स"
   },
   "notifications": {
     "title": "सूचनाएँ (लाइक/रुचि/चैट/स्वैपली)",
@@ -2947,8 +2950,10 @@
     "unexpectedError": "अप्रत्याशित त्रुटि। फिर से कोशिश करें।",
     "stripeUnavailable": "Stripe उपलब्ध नहीं है",
     "securePayment": "Stripe के माध्यम से सुरक्षित भुगतान। Visa, Mastercard, Apple Pay, Google Pay।",
-    "boost7days": "7 दिन के लिए बूस्ट करें",
-    "alreadyPurchased": "पहले से खरीदा गया"
+    "boost7days": "Boost 7 days",
+    "alreadyPurchased": "पहले से खरीदा गया",
+    "boost24h": "Boost 24h",
+    "boost72h": "Boost 72h"
   },
   "payments": {
     "paymentMethod": "भुगतान विधि",
@@ -3063,5 +3068,14 @@
     "byViews": "दृश्यों की संख्या के अनुसार",
     "insights": "स्वचालित अंतर्दृष्टि",
     "insightsDesc": "आपके डेटा पर आधारित अनुशंसाएं"
+  },
+  "share": {
+    "copied": "Copied!",
+    "copyLink": "Copy link"
+  },
+  "badge": {
+    "free": "Free",
+    "premium": "Premium",
+    "platinum": "Platinum"
   }
 }

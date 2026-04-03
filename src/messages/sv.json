@@ -45,7 +45,9 @@
     "nextStepRecommended": "Rekommenderat nästa steg",
     "myDesk": "Min bytesdisk",
     "myDeskDescription": "Spåra aktiva byten, väntande åtgärder och deadlines",
-    "romania": "Rumänien"
+    "romania": "Rumänien",
+    "user": "User",
+    "recommendedNextStep": "Recommended next step"
   },
   "notifications": {
     "title": "Aviseringar (gilla/intresse/chatt/swaply)",
@@ -167,7 +169,8 @@
     "termsAndGdpr": "Villkor och GDPR",
     "badgeBenefits": "Märkesfördelar",
     "completeProfile": "Fyll i din profil",
-    "desk": "Min skrivbord"
+    "desk": "Min skrivbord",
+    "settings": "Settings"
   },
   "auth": {
     "loginTitle": "Logga in",
@@ -3160,8 +3163,10 @@
     "unexpectedError": "Oväntat fel. Försök igen.",
     "stripeUnavailable": "Stripe är inte tillgängligt",
     "securePayment": "Säker betalning via Stripe. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "Boost 7 dagar",
-    "alreadyPurchased": "Redan köpt"
+    "boost7days": "Boost 7 days",
+    "alreadyPurchased": "Redan köpt",
+    "boost24h": "Boost 24h",
+    "boost72h": "Boost 72h"
   },
   "payments": {
     "paymentMethod": "Betalningsmetod",
@@ -3276,5 +3281,14 @@
     "byViews": "Efter antal visningar",
     "insights": "Automatiska insikter",
     "insightsDesc": "Rekommendationer baserade på dina data"
+  },
+  "share": {
+    "copied": "Copied!",
+    "copyLink": "Copy link"
+  },
+  "badge": {
+    "free": "Free",
+    "premium": "Premium",
+    "platinum": "Platinum"
   }
 }

@@ -45,7 +45,9 @@
     "nextStepRecommended": "Рекомендуемый следующий шаг",
     "myDesk": "Мой стол обменов",
     "myDeskDescription": "Отслеживайте активные обмены, ожидающие действия и сроки",
-    "romania": "Румыния"
+    "romania": "Румыния",
+    "user": "User",
+    "recommendedNextStep": "Recommended next step"
   },
   "nav": {
     "home": "Главная",
@@ -73,7 +75,8 @@
     "termsAndGdpr": "Условия и GDPR",
     "badgeBenefits": "Преимущества значков",
     "completeProfile": "Заполните свой профиль",
-    "desk": "Мой стол"
+    "desk": "Мой стол",
+    "settings": "Настройки"
   },
   "notifications": {
     "title": "Уведомления (лайк/интерес/чат/swaply)",
@@ -2947,8 +2950,10 @@
     "unexpectedError": "Непредвиденная ошибка. Попробуйте еще раз.",
     "stripeUnavailable": "Stripe недоступен",
     "securePayment": "Безопасный платеж через Stripe. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "Бустер на 7 дней",
-    "alreadyPurchased": "Уже куплено"
+    "boost7days": "Boost 7 days",
+    "alreadyPurchased": "Уже куплено",
+    "boost24h": "Boost 24h",
+    "boost72h": "Boost 72h"
   },
   "payments": {
     "paymentMethod": "Способ оплаты",
@@ -3063,5 +3068,14 @@
     "byViews": "По количеству просмотров",
     "insights": "Автоматические инсайты",
     "insightsDesc": "Рекомендации на основе ваших данных"
+  },
+  "share": {
+    "copied": "Copied!",
+    "copyLink": "Copy link"
+  },
+  "badge": {
+    "free": "Free",
+    "premium": "Premium",
+    "platinum": "Platinum"
   }
 }

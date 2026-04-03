@@ -14,7 +14,7 @@ export const revalidate = 3600;
 async function translateContent(
   content: string,
   targetLang: string,
-  sourceLang = "ro",
+  sourceLang = "en",
 ): Promise<string> {
   if (targetLang === sourceLang) return content;
 
@@ -37,7 +37,7 @@ async function translateContent(
 async function translateHeadings(
   headings: Array<{ level: 2 | 3; text: string; id: string }>,
   targetLang: string,
-  sourceLang = "ro",
+  sourceLang = "en",
 ): Promise<Array<{ level: 2 | 3; text: string; id: string }>> {
   if (targetLang === sourceLang || headings.length === 0) return headings;
 
@@ -145,9 +145,9 @@ export default async function BlogPostPage({ params }: Props) {
     translateFields(
       { title: rawPost.title, description: rawPost.description, category: rawPost.category },
       locale,
-      "ro",
+      "en",
     ),
-    translateContent(rawPost.content, locale, "ro"),
+    translateContent(rawPost.content, locale, "en"),
   ]);
 
   const post = {
@@ -160,7 +160,7 @@ export default async function BlogPostPage({ params }: Props) {
 
   // Extract headings from translated content and translate TOC
   const rawHeadings = extractHeadings(post.content);
-  const headings = await translateHeadings(rawHeadings, locale, "ro");
+  const headings = await translateHeadings(rawHeadings, locale, "en");
 
   const rawRelated = getPostsByCategory(post.category)
     .filter((p) => p.slug !== slug)

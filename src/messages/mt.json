@@ -45,7 +45,9 @@
     "nextStepRecommended": "Il-pass sussegwenti rrakkomandati",
     "myDesk": "My Swap Desk",
     "myDeskDescription": "Segwi l-swaps attivi, azzjonijiet pendenti, u deadline",
-    "romania": "Rumanija"
+    "romania": "Rumanija",
+    "user": "User",
+    "recommendedNextStep": "Recommended next step"
   },
   "nav": {
     "home": "Paġna Ewlenija",
@@ -73,7 +75,8 @@
     "termsAndGdpr": "Termini u GDPR",
     "badgeBenefits": "Benefiċċji tal-badge",
     "completeProfile": "Ikkompleta l-profil tiegħek",
-    "desk": "Id-Desk Tiegħi"
+    "desk": "Id-Desk Tiegħi",
+    "settings": "Settings"
   },
   "notifications": {
     "title": "Notifiki (like/interess/chat/swaply)",
@@ -2947,8 +2950,10 @@
     "unexpectedError": "Żball mhux mistenni. Prova mill-ġdid.",
     "stripeUnavailable": "Stripe mhux disponibbli",
     "securePayment": "Ħlas sigur permezz ta' Stripe. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "Boost 7 ijiem",
-    "alreadyPurchased": "Diġà mixtri"
+    "boost7days": "Boost 7 days",
+    "alreadyPurchased": "Diġà mixtri",
+    "boost24h": "Boost 24h",
+    "boost72h": "Boost 72h"
   },
   "payments": {
     "paymentMethod": "Metodu ta' pagament",
@@ -3063,5 +3068,14 @@
     "byViews": "By number of views",
     "insights": "Automated insights",
     "insightsDesc": "Recommendations based on your data"
+  },
+  "share": {
+    "copied": "Copied!",
+    "copyLink": "Copy link"
+  },
+  "badge": {
+    "free": "Free",
+    "premium": "Premium",
+    "platinum": "Platinum"
   }
 }

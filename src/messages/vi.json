@@ -45,7 +45,9 @@
     "nextStepRecommended": "Bước tiếp theo được đề xuất",
     "myDesk": "Bàn hoán đổi của tôi",
     "myDeskDescription": "Theo dõi các hoán đổi đang hoạt động, các hành động đang chờ và thời hạn",
-    "romania": "Rumani"
+    "romania": "Rumani",
+    "user": "User",
+    "recommendedNextStep": "Recommended next step"
   },
   "nav": {
     "home": "Trang chủ",
@@ -73,7 +75,8 @@
     "termsAndGdpr": "Điều khoản & GDPR",
     "badgeBenefits": "Quyền lợi huy hiệu",
     "completeProfile": "Hoàn thiện hồ sơ của bạn",
-    "desk": "Bàn của tôi"
+    "desk": "Bàn của tôi",
+    "settings": "Settings"
   },
   "notifications": {
     "title": "Thông báo (thích/quan tâm/trò chuyện/swaply)",
@@ -2947,8 +2950,10 @@
     "unexpectedError": "Lỗi không mong muốn. Vui lòng thử lại.",
     "stripeUnavailable": "Stripe không khả dụng",
     "securePayment": "Thanh toán an toàn qua Stripe. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "Boost 7 ngày",
-    "alreadyPurchased": "Đã mua rồi"
+    "boost7days": "Boost 7 days",
+    "alreadyPurchased": "Đã mua rồi",
+    "boost24h": "Boost 24h",
+    "boost72h": "Boost 72h"
   },
   "payments": {
     "paymentMethod": "Phương thức thanh toán",
@@ -3063,5 +3068,14 @@
     "byViews": "By number of views",
     "insights": "Automated insights",
     "insightsDesc": "Recommendations based on your data"
+  },
+  "share": {
+    "copied": "Copied!",
+    "copyLink": "Copy link"
+  },
+  "badge": {
+    "free": "Free",
+    "premium": "Premium",
+    "platinum": "Platinum"
   }
 }
