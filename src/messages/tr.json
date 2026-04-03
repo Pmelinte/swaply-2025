@@ -442,8 +442,8 @@
     "guestFeatureVerifyDesc": "E-posta, telefon ve kimlik — doğrulanmış kullanıcı rozeti için.",
     "guestCta": "Ücretsiz profilinizi oluşturun →",
     "networkError": "Ağ hatası",
-    "passkeyRegFailed": "Passkey registration failed",
-    "genericError": "Error"
+    "passkeyRegFailed": "Geçiş anahtarı kaydı başarısız",
+    "genericError": "Hata"
   },
   "home": {
     "welcome": "Tekrar hoş geldiniz",
@@ -2329,9 +2329,9 @@
     "responsesCount": "{count} yanıt",
     "searchPrefix": "Aradığım:",
     "daysRemaining": "{days} gün kaldı",
-    "you": "You",
-    "userPrefix": "User",
-    "lookingFor": "Looking for"
+    "you": "Sen",
+    "userPrefix": "Kullanıcı",
+    "lookingFor": "Arıyor"
   },
   "history": {
     "title": "Takas Geçmişi",
@@ -3039,23 +3039,23 @@
     "subtitle": "Global visibility · Priority matching"
   },
   "analytics": {
-    "title": "Analytics",
-    "loginRequired": "You must be logged in to view analytics.",
-    "dashboard": "Analytics Dashboard",
-    "upgradeToPremium": "Upgrade to Premium for full analytics access",
-    "noData": "No data",
-    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
-    "totalViews": "Total views",
-    "favoritesReceived": "Favorites received",
-    "proposalsReceived": "Proposals received",
-    "conversionRate": "Conversion rate",
-    "completedSwaps": "Completed swaps",
-    "avgTimeToProposal": "Avg time to proposal",
-    "viewsPerDay": "Views per day",
-    "last30Days": "Last 30 days",
-    "topItems": "Top items",
-    "byViews": "By number of views",
-    "insights": "Automated insights",
-    "insightsDesc": "Recommendations based on your data"
+    "title": "Analiz",
+    "loginRequired": "Analizi görmek için giriş yapmalısınız.",
+    "dashboard": "Analiz Paneli",
+    "upgradeToPremium": "Tam erişim için Premium'a yükseltin",
+    "noData": "Veri yok",
+    "noDataDesc": "Henüz analiz verisi yok. Takibi başlatmak için öğelerinizi ziyaret edin.",
+    "totalViews": "Toplam görüntüleme",
+    "favoritesReceived": "Alınan favoriler",
+    "proposalsReceived": "Alınan teklifler",
+    "conversionRate": "Dönüşüm oranı",
+    "completedSwaps": "Tamamlanan takaslar",
+    "avgTimeToProposal": "Ortalama teklif süresi",
+    "viewsPerDay": "Günlük görüntüleme",
+    "last30Days": "Son 30 gün",
+    "topItems": "En iyi öğeler",
+    "byViews": "Görüntüleme sayısına göre",
+    "insights": "Otomatik içgörüler",
+    "insightsDesc": "Verilerinize dayalı öneriler"
   }
 }

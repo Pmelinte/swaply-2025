@@ -442,8 +442,8 @@
     "guestFeatureVerifyDesc": "Имейл, телефон и самоличност — за значката на верифициран потребител.",
     "guestCta": "Създайте вашия безплатен профил →",
     "networkError": "Грешка в мрежата",
-    "passkeyRegFailed": "Passkey registration failed",
-    "genericError": "Error"
+    "passkeyRegFailed": "Неуспешна регистрация на passkey",
+    "genericError": "Грешка"
   },
   "home": {
     "welcome": "Добре дошли отново",
@@ -2329,9 +2329,9 @@
     "responsesCount": "{count} отговора",
     "searchPrefix": "Търсене на:",
     "daysRemaining": "{days} дни остават",
-    "you": "You",
-    "userPrefix": "User",
-    "lookingFor": "Looking for"
+    "you": "Ти",
+    "userPrefix": "Потребител",
+    "lookingFor": "Търси"
   },
   "history": {
     "title": "История на размени",
@@ -3039,23 +3039,23 @@
     "subtitle": "Global visibility · Priority matching"
   },
   "analytics": {
-    "title": "Analytics",
-    "loginRequired": "You must be logged in to view analytics.",
-    "dashboard": "Analytics Dashboard",
-    "upgradeToPremium": "Upgrade to Premium for full analytics access",
-    "noData": "No data",
-    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
-    "totalViews": "Total views",
-    "favoritesReceived": "Favorites received",
-    "proposalsReceived": "Proposals received",
-    "conversionRate": "Conversion rate",
-    "completedSwaps": "Completed swaps",
-    "avgTimeToProposal": "Avg time to proposal",
-    "viewsPerDay": "Views per day",
-    "last30Days": "Last 30 days",
-    "topItems": "Top items",
-    "byViews": "By number of views",
-    "insights": "Automated insights",
-    "insightsDesc": "Recommendations based on your data"
+    "title": "Анализ",
+    "loginRequired": "Трябва да влезете, за да видите анализа.",
+    "dashboard": "Табло за анализ",
+    "upgradeToPremium": "Надградете до Premium за пълен достъп",
+    "noData": "Няма данни",
+    "noDataDesc": "Все още няма данни за анализ. Посетете обектите си, за да започнете проследяване.",
+    "totalViews": "Общо прегледи",
+    "favoritesReceived": "Получени любими",
+    "proposalsReceived": "Получени предложения",
+    "conversionRate": "Процент на конверсия",
+    "completedSwaps": "Завършени размени",
+    "avgTimeToProposal": "Средно време до предложение",
+    "viewsPerDay": "Прегледи на ден",
+    "last30Days": "Последните 30 дни",
+    "topItems": "Топ обекти",
+    "byViews": "По брой прегледи",
+    "insights": "Автоматични прозрения",
+    "insightsDesc": "Препоръки въз основа на вашите данни"
   }
 }

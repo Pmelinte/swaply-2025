@@ -442,8 +442,8 @@
     "guestFeatureVerifyDesc": "ईमेल, फोन और पहचान — सत्यापित उपयोगकर्ता बैज के लिए।",
     "guestCta": "अपनी मुफ्त प्रोफाइल बनाएं →",
     "networkError": "नेटवर्क त्रुटि",
-    "passkeyRegFailed": "Passkey registration failed",
-    "genericError": "Error"
+    "passkeyRegFailed": "पासकी पंजीकरण विफल",
+    "genericError": "त्रुटि"
   },
   "home": {
     "welcome": "आपका स्वागत है",
@@ -2329,9 +2329,9 @@
     "responsesCount": "{count} प्रतिक्रियाएं",
     "searchPrefix": "खोज रहे हैं:",
     "daysRemaining": "{days} दिन बाकी हैं",
-    "you": "You",
-    "userPrefix": "User",
-    "lookingFor": "Looking for"
+    "you": "आप",
+    "userPrefix": "उपयोगकर्ता",
+    "lookingFor": "खोज रहा है"
   },
   "history": {
     "title": "स्वैप इतिहास",
@@ -3039,23 +3039,23 @@
     "subtitle": "Global visibility · Priority matching"
   },
   "analytics": {
-    "title": "Analytics",
-    "loginRequired": "You must be logged in to view analytics.",
-    "dashboard": "Analytics Dashboard",
-    "upgradeToPremium": "Upgrade to Premium for full analytics access",
-    "noData": "No data",
-    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
-    "totalViews": "Total views",
-    "favoritesReceived": "Favorites received",
-    "proposalsReceived": "Proposals received",
-    "conversionRate": "Conversion rate",
-    "completedSwaps": "Completed swaps",
-    "avgTimeToProposal": "Avg time to proposal",
-    "viewsPerDay": "Views per day",
-    "last30Days": "Last 30 days",
-    "topItems": "Top items",
-    "byViews": "By number of views",
-    "insights": "Automated insights",
-    "insightsDesc": "Recommendations based on your data"
+    "title": "विश्लेषण",
+    "loginRequired": "विश्लेषण देखने के लिए लॉगिन करें।",
+    "dashboard": "विश्लेषण डैशबोर्ड",
+    "upgradeToPremium": "पूर्ण पहुंच के लिए प्रीमियम में अपग्रेड करें",
+    "noData": "कोई डेटा नहीं",
+    "noDataDesc": "अभी तक कोई विश्लेषण डेटा नहीं। ट्रैकिंग शुरू करने के लिए अपने आइटम पर जाएं।",
+    "totalViews": "कुल दृश्य",
+    "favoritesReceived": "प्राप्त पसंदीदा",
+    "proposalsReceived": "प्राप्त प्रस्ताव",
+    "conversionRate": "रूपांतरण दर",
+    "completedSwaps": "पूर्ण स्वैप",
+    "avgTimeToProposal": "प्रस्ताव तक औसत समय",
+    "viewsPerDay": "प्रतिदिन दृश्य",
+    "last30Days": "पिछले 30 दिन",
+    "topItems": "शीर्ष आइटम",
+    "byViews": "दृश्यों की संख्या के अनुसार",
+    "insights": "स्वचालित अंतर्दृष्टि",
+    "insightsDesc": "आपके डेटा पर आधारित अनुशंसाएं"
   }
 }

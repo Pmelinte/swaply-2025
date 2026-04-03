@@ -442,8 +442,8 @@
     "guestFeatureVerifyDesc": "Email, telefon i tożsamość — dla odznaki zweryfikowanego użytkownika.",
     "guestCta": "Utwórz bezpłatny profil →",
     "networkError": "Błąd sieci",
-    "passkeyRegFailed": "Passkey registration failed",
-    "genericError": "Error"
+    "passkeyRegFailed": "Rejestracja passkey nie powiodła się",
+    "genericError": "Błąd"
   },
   "home": {
     "welcome": "Witaj ponownie",
@@ -2329,9 +2329,9 @@
     "responsesCount": "{count} odpowiedzi",
     "searchPrefix": "Szukam:",
     "daysRemaining": "{days} dni pozostało",
-    "you": "You",
-    "userPrefix": "User",
-    "lookingFor": "Looking for"
+    "you": "Ty",
+    "userPrefix": "Użytkownik",
+    "lookingFor": "Szuka"
   },
   "history": {
     "title": "Historia wymian",
@@ -3039,23 +3039,23 @@
     "subtitle": "Global visibility · Priority matching"
   },
   "analytics": {
-    "title": "Analytics",
-    "loginRequired": "You must be logged in to view analytics.",
-    "dashboard": "Analytics Dashboard",
-    "upgradeToPremium": "Upgrade to Premium for full analytics access",
-    "noData": "No data",
-    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
-    "totalViews": "Total views",
-    "favoritesReceived": "Favorites received",
-    "proposalsReceived": "Proposals received",
-    "conversionRate": "Conversion rate",
-    "completedSwaps": "Completed swaps",
-    "avgTimeToProposal": "Avg time to proposal",
-    "viewsPerDay": "Views per day",
-    "last30Days": "Last 30 days",
-    "topItems": "Top items",
-    "byViews": "By number of views",
-    "insights": "Automated insights",
-    "insightsDesc": "Recommendations based on your data"
+    "title": "Analityka",
+    "loginRequired": "Musisz być zalogowany, aby zobaczyć analitykę.",
+    "dashboard": "Panel Analityki",
+    "upgradeToPremium": "Przejdź na Premium dla pełnego dostępu",
+    "noData": "Brak danych",
+    "noDataDesc": "Brak danych analitycznych. Odwiedź swoje przedmioty, aby rozpocząć śledzenie.",
+    "totalViews": "Łączne wyświetlenia",
+    "favoritesReceived": "Otrzymane ulubione",
+    "proposalsReceived": "Otrzymane propozycje",
+    "conversionRate": "Współczynnik konwersji",
+    "completedSwaps": "Ukończone wymiany",
+    "avgTimeToProposal": "Śr. czas do propozycji",
+    "viewsPerDay": "Wyświetlenia dziennie",
+    "last30Days": "Ostatnie 30 dni",
+    "topItems": "Top przedmioty",
+    "byViews": "Wg liczby wyświetleń",
+    "insights": "Automatyczne wnioski",
+    "insightsDesc": "Rekomendacje na podstawie Twoich danych"
   }
 }

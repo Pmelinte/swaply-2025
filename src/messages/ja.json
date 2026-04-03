@@ -442,8 +442,8 @@
     "guestFeatureVerifyDesc": "メール、電話、身分証明 — 認証済みユーザーバッジ用。",
     "guestCta": "無料プロフィールを作成する →",
     "networkError": "ネットワークエラー",
-    "passkeyRegFailed": "Passkey registration failed",
-    "genericError": "Error"
+    "passkeyRegFailed": "パスキー登録に失敗しました",
+    "genericError": "エラー"
   },
   "home": {
     "welcome": "おかえりなさい",
@@ -2329,9 +2329,9 @@
     "responsesCount": "{count}件の返信",
     "searchPrefix": "探しているもの:",
     "daysRemaining": "残り{days}日",
-    "you": "You",
-    "userPrefix": "User",
-    "lookingFor": "Looking for"
+    "you": "あなた",
+    "userPrefix": "ユーザー",
+    "lookingFor": "探しています"
   },
   "history": {
     "title": "スワップ履歴",
@@ -3039,23 +3039,23 @@
     "subtitle": "Global visibility · Priority matching"
   },
   "analytics": {
-    "title": "Analytics",
-    "loginRequired": "You must be logged in to view analytics.",
-    "dashboard": "Analytics Dashboard",
-    "upgradeToPremium": "Upgrade to Premium for full analytics access",
-    "noData": "No data",
-    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
-    "totalViews": "Total views",
-    "favoritesReceived": "Favorites received",
-    "proposalsReceived": "Proposals received",
-    "conversionRate": "Conversion rate",
-    "completedSwaps": "Completed swaps",
-    "avgTimeToProposal": "Avg time to proposal",
-    "viewsPerDay": "Views per day",
-    "last30Days": "Last 30 days",
-    "topItems": "Top items",
-    "byViews": "By number of views",
-    "insights": "Automated insights",
-    "insightsDesc": "Recommendations based on your data"
+    "title": "アナリティクス",
+    "loginRequired": "アナリティクスを表示するにはログインが必要です。",
+    "dashboard": "アナリティクスダッシュボード",
+    "upgradeToPremium": "プレミアムにアップグレードして完全アクセス",
+    "noData": "データなし",
+    "noDataDesc": "まだアナリティクスデータがありません。アイテムにアクセスしてトラッキングを開始してください。",
+    "totalViews": "総閲覧数",
+    "favoritesReceived": "受け取ったお気に入り",
+    "proposalsReceived": "受け取った提案",
+    "conversionRate": "コンバージョン率",
+    "completedSwaps": "完了したスワップ",
+    "avgTimeToProposal": "提案までの平均時間",
+    "viewsPerDay": "1日あたりの閲覧数",
+    "last30Days": "過去30日間",
+    "topItems": "トップアイテム",
+    "byViews": "閲覧数順",
+    "insights": "自動インサイト",
+    "insightsDesc": "データに基づくおすすめ"
   }
 }

@@ -442,8 +442,8 @@
     "guestFeatureVerifyDesc": "E-mail, telefoonnummer en identiteit — voor de geverifieerde gebruiker badge.",
     "guestCta": "Maak je gratis profiel →",
     "networkError": "Netwerkfout",
-    "passkeyRegFailed": "Passkey registration failed",
-    "genericError": "Error"
+    "passkeyRegFailed": "Passkey-registratie mislukt",
+    "genericError": "Fout"
   },
   "home": {
     "welcome": "Welkom terug",
@@ -2329,9 +2329,9 @@
     "responsesCount": "{count} reacties",
     "searchPrefix": "Op zoek naar:",
     "daysRemaining": "{days} dagen resterend",
-    "you": "You",
-    "userPrefix": "User",
-    "lookingFor": "Looking for"
+    "you": "Jij",
+    "userPrefix": "Gebruiker",
+    "lookingFor": "Zoekt"
   },
   "history": {
     "title": "Ruilgeschiedenis",
@@ -3039,23 +3039,23 @@
     "subtitle": "Global visibility · Priority matching"
   },
   "analytics": {
-    "title": "Analytics",
-    "loginRequired": "You must be logged in to view analytics.",
-    "dashboard": "Analytics Dashboard",
-    "upgradeToPremium": "Upgrade to Premium for full analytics access",
-    "noData": "No data",
-    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
-    "totalViews": "Total views",
-    "favoritesReceived": "Favorites received",
-    "proposalsReceived": "Proposals received",
-    "conversionRate": "Conversion rate",
-    "completedSwaps": "Completed swaps",
-    "avgTimeToProposal": "Avg time to proposal",
-    "viewsPerDay": "Views per day",
-    "last30Days": "Last 30 days",
-    "topItems": "Top items",
-    "byViews": "By number of views",
-    "insights": "Automated insights",
-    "insightsDesc": "Recommendations based on your data"
+    "title": "Analyse",
+    "loginRequired": "Je moet ingelogd zijn om de analyse te zien.",
+    "dashboard": "Analyse Dashboard",
+    "upgradeToPremium": "Upgrade naar Premium voor volledige toegang",
+    "noData": "Geen gegevens",
+    "noDataDesc": "Nog geen analysegegevens. Bezoek je objecten om tracking te starten.",
+    "totalViews": "Totale weergaven",
+    "favoritesReceived": "Ontvangen favorieten",
+    "proposalsReceived": "Ontvangen voorstellen",
+    "conversionRate": "Conversieratio",
+    "completedSwaps": "Voltooide ruilen",
+    "avgTimeToProposal": "Gem. tijd tot voorstel",
+    "viewsPerDay": "Weergaven per dag",
+    "last30Days": "Laatste 30 dagen",
+    "topItems": "Top objecten",
+    "byViews": "Op aantal weergaven",
+    "insights": "Automatische inzichten",
+    "insightsDesc": "Aanbevelingen op basis van jouw gegevens"
   }
 }

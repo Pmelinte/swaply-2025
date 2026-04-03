@@ -442,8 +442,8 @@
     "guestFeatureVerifyDesc": "E-mail, telefon a identita — pro ověřený odznak uživatele.",
     "guestCta": "Vytvořit bezplatný profil →",
     "networkError": "Chyba sítě",
-    "passkeyRegFailed": "Passkey registration failed",
-    "genericError": "Error"
+    "passkeyRegFailed": "Registrace passkey selhala",
+    "genericError": "Chyba"
   },
   "home": {
     "welcome": "Vítejte zpět",
@@ -2329,9 +2329,9 @@
     "responsesCount": "{count} odpovědí",
     "searchPrefix": "Hledám:",
     "daysRemaining": "Zbývá {days} dní",
-    "you": "You",
-    "userPrefix": "User",
-    "lookingFor": "Looking for"
+    "you": "Ty",
+    "userPrefix": "Uživatel",
+    "lookingFor": "Hledá"
   },
   "history": {
     "title": "Historie výměn",
@@ -3039,23 +3039,23 @@
     "subtitle": "Global visibility · Priority matching"
   },
   "analytics": {
-    "title": "Analytics",
-    "loginRequired": "You must be logged in to view analytics.",
-    "dashboard": "Analytics Dashboard",
-    "upgradeToPremium": "Upgrade to Premium for full analytics access",
-    "noData": "No data",
-    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
-    "totalViews": "Total views",
-    "favoritesReceived": "Favorites received",
-    "proposalsReceived": "Proposals received",
-    "conversionRate": "Conversion rate",
-    "completedSwaps": "Completed swaps",
-    "avgTimeToProposal": "Avg time to proposal",
-    "viewsPerDay": "Views per day",
-    "last30Days": "Last 30 days",
-    "topItems": "Top items",
-    "byViews": "By number of views",
-    "insights": "Automated insights",
-    "insightsDesc": "Recommendations based on your data"
+    "title": "Analytika",
+    "loginRequired": "Pro zobrazení analytiky se musíte přihlásit.",
+    "dashboard": "Panel analytiky",
+    "upgradeToPremium": "Upgradujte na Premium pro plný přístup",
+    "noData": "Žádná data",
+    "noDataDesc": "Zatím žádná analytická data. Navštivte své předměty pro zahájení sledování.",
+    "totalViews": "Celkové zobrazení",
+    "favoritesReceived": "Přijaté oblíbené",
+    "proposalsReceived": "Přijaté návrhy",
+    "conversionRate": "Konverzní poměr",
+    "completedSwaps": "Dokončené výměny",
+    "avgTimeToProposal": "Prům. čas do návrhu",
+    "viewsPerDay": "Zobrazení za den",
+    "last30Days": "Posledních 30 dní",
+    "topItems": "Top předměty",
+    "byViews": "Podle počtu zobrazení",
+    "insights": "Automatické postřehy",
+    "insightsDesc": "Doporučení na základě vašich dat"
   }
 }

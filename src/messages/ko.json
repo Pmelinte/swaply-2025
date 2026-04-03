@@ -442,8 +442,8 @@
     "guestFeatureVerifyDesc": "이메일, 전화, 신원 — 검증된 사용자 배지를 위해.",
     "guestCta": "무료 프로필 만들기 →",
     "networkError": "네트워크 오류",
-    "passkeyRegFailed": "Passkey registration failed",
-    "genericError": "Error"
+    "passkeyRegFailed": "패스키 등록 실패",
+    "genericError": "오류"
   },
   "home": {
     "welcome": "다시 오셨군요",
@@ -2329,9 +2329,9 @@
     "responsesCount": "{count}개의 응답",
     "searchPrefix": "찾는 것:",
     "daysRemaining": "{days}일 남음",
-    "you": "You",
-    "userPrefix": "User",
-    "lookingFor": "Looking for"
+    "you": "나",
+    "userPrefix": "사용자",
+    "lookingFor": "찾고 있음"
   },
   "history": {
     "title": "스왑 기록",
@@ -3039,23 +3039,23 @@
     "subtitle": "Global visibility · Priority matching"
   },
   "analytics": {
-    "title": "Analytics",
-    "loginRequired": "You must be logged in to view analytics.",
-    "dashboard": "Analytics Dashboard",
-    "upgradeToPremium": "Upgrade to Premium for full analytics access",
-    "noData": "No data",
-    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
-    "totalViews": "Total views",
-    "favoritesReceived": "Favorites received",
-    "proposalsReceived": "Proposals received",
-    "conversionRate": "Conversion rate",
-    "completedSwaps": "Completed swaps",
-    "avgTimeToProposal": "Avg time to proposal",
-    "viewsPerDay": "Views per day",
-    "last30Days": "Last 30 days",
-    "topItems": "Top items",
-    "byViews": "By number of views",
-    "insights": "Automated insights",
-    "insightsDesc": "Recommendations based on your data"
+    "title": "분석",
+    "loginRequired": "분석을 보려면 로그인해야 합니다.",
+    "dashboard": "분석 대시보드",
+    "upgradeToPremium": "전체 접근을 위해 프리미엄으로 업그레이드",
+    "noData": "데이터 없음",
+    "noDataDesc": "아직 분석 데이터가 없습니다. 아이템을 방문하여 추적을 시작하세요.",
+    "totalViews": "총 조회수",
+    "favoritesReceived": "받은 즐겨찾기",
+    "proposalsReceived": "받은 제안",
+    "conversionRate": "전환율",
+    "completedSwaps": "완료된 교환",
+    "avgTimeToProposal": "제안까지 평균 시간",
+    "viewsPerDay": "일일 조회수",
+    "last30Days": "최근 30일",
+    "topItems": "인기 아이템",
+    "byViews": "조회수 순",
+    "insights": "자동 인사이트",
+    "insightsDesc": "데이터 기반 추천"
   }
 }

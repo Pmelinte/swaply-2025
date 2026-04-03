@@ -442,8 +442,8 @@
     "guestFeatureVerifyDesc": "Email, телефон та особисті дані — для значка перевіреного користувача.",
     "guestCta": "Створіть свій безплатний профіль →",
     "networkError": "Помилка мережі",
-    "passkeyRegFailed": "Passkey registration failed",
-    "genericError": "Error"
+    "passkeyRegFailed": "Помилка реєстрації passkey",
+    "genericError": "Помилка"
   },
   "home": {
     "welcome": "З поверненням",
@@ -2329,9 +2329,9 @@
     "responsesCount": "{count} відповідей",
     "searchPrefix": "Шукаю:",
     "daysRemaining": "{days} днів залишилось",
-    "you": "You",
-    "userPrefix": "User",
-    "lookingFor": "Looking for"
+    "you": "Ви",
+    "userPrefix": "Користувач",
+    "lookingFor": "Шукає"
   },
   "history": {
     "title": "Історія обмінів",
@@ -3039,23 +3039,23 @@
     "subtitle": "Global visibility · Priority matching"
   },
   "analytics": {
-    "title": "Analytics",
-    "loginRequired": "You must be logged in to view analytics.",
-    "dashboard": "Analytics Dashboard",
-    "upgradeToPremium": "Upgrade to Premium for full analytics access",
-    "noData": "No data",
-    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
-    "totalViews": "Total views",
-    "favoritesReceived": "Favorites received",
-    "proposalsReceived": "Proposals received",
-    "conversionRate": "Conversion rate",
-    "completedSwaps": "Completed swaps",
-    "avgTimeToProposal": "Avg time to proposal",
-    "viewsPerDay": "Views per day",
-    "last30Days": "Last 30 days",
-    "topItems": "Top items",
-    "byViews": "By number of views",
-    "insights": "Automated insights",
-    "insightsDesc": "Recommendations based on your data"
+    "title": "Аналітика",
+    "loginRequired": "Увійдіть, щоб переглянути аналітику.",
+    "dashboard": "Панель аналітики",
+    "upgradeToPremium": "Оновіть до Premium для повного доступу",
+    "noData": "Немає даних",
+    "noDataDesc": "Поки що немає аналітичних даних. Відвідайте свої предмети для початку відстеження.",
+    "totalViews": "Всього переглядів",
+    "favoritesReceived": "Отримані улюблені",
+    "proposalsReceived": "Отримані пропозиції",
+    "conversionRate": "Конверсія",
+    "completedSwaps": "Завершені обміни",
+    "avgTimeToProposal": "Сер. час до пропозиції",
+    "viewsPerDay": "Переглядів на день",
+    "last30Days": "Останні 30 днів",
+    "topItems": "Топ предметів",
+    "byViews": "За кількістю переглядів",
+    "insights": "Автоматичні інсайти",
+    "insightsDesc": "Рекомендації на основі ваших даних"
   }
 }

@@ -442,8 +442,8 @@
     "guestFeatureVerifyDesc": "Email, телефон и личные данные — для значка верифицированного пользователя.",
     "guestCta": "Создайте свой бесплатный профиль →",
     "networkError": "Ошибка сети",
-    "passkeyRegFailed": "Passkey registration failed",
-    "genericError": "Error"
+    "passkeyRegFailed": "Ошибка регистрации passkey",
+    "genericError": "Ошибка"
   },
   "home": {
     "welcome": "С возвращением",
@@ -2329,9 +2329,9 @@
     "responsesCount": "{count} ответов",
     "searchPrefix": "Ищу:",
     "daysRemaining": "Осталось {days} дней",
-    "you": "You",
-    "userPrefix": "User",
-    "lookingFor": "Looking for"
+    "you": "Вы",
+    "userPrefix": "Пользователь",
+    "lookingFor": "Ищет"
   },
   "history": {
     "title": "История обменов",
@@ -3039,23 +3039,23 @@
     "subtitle": "Global visibility · Priority matching"
   },
   "analytics": {
-    "title": "Analytics",
-    "loginRequired": "You must be logged in to view analytics.",
-    "dashboard": "Analytics Dashboard",
-    "upgradeToPremium": "Upgrade to Premium for full analytics access",
-    "noData": "No data",
-    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
-    "totalViews": "Total views",
-    "favoritesReceived": "Favorites received",
-    "proposalsReceived": "Proposals received",
-    "conversionRate": "Conversion rate",
-    "completedSwaps": "Completed swaps",
-    "avgTimeToProposal": "Avg time to proposal",
-    "viewsPerDay": "Views per day",
-    "last30Days": "Last 30 days",
-    "topItems": "Top items",
-    "byViews": "By number of views",
-    "insights": "Automated insights",
-    "insightsDesc": "Recommendations based on your data"
+    "title": "Аналитика",
+    "loginRequired": "Войдите, чтобы просмотреть аналитику.",
+    "dashboard": "Панель аналитики",
+    "upgradeToPremium": "Обновите до Premium для полного доступа",
+    "noData": "Нет данных",
+    "noDataDesc": "Пока нет данных аналитики. Посетите свои предметы для начала отслеживания.",
+    "totalViews": "Всего просмотров",
+    "favoritesReceived": "Полученные избранные",
+    "proposalsReceived": "Полученные предложения",
+    "conversionRate": "Конверсия",
+    "completedSwaps": "Завершённые обмены",
+    "avgTimeToProposal": "Ср. время до предложения",
+    "viewsPerDay": "Просмотров в день",
+    "last30Days": "Последние 30 дней",
+    "topItems": "Топ предметов",
+    "byViews": "По количеству просмотров",
+    "insights": "Автоматические инсайты",
+    "insightsDesc": "Рекомендации на основе ваших данных"
   }
 }

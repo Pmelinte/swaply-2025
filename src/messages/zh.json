@@ -442,8 +442,8 @@
     "guestFeatureVerifyDesc": "邮箱、电话和身份——获得已验证用户徽章。",
     "guestCta": "创建您的免费档案 →",
     "networkError": "网络错误",
-    "passkeyRegFailed": "Passkey registration failed",
-    "genericError": "Error"
+    "passkeyRegFailed": "密钥注册失败",
+    "genericError": "错误"
   },
   "home": {
     "welcome": "欢迎回来",
@@ -2329,9 +2329,9 @@
     "responsesCount": "{count} 个回复",
     "searchPrefix": "寻找：",
     "daysRemaining": "还剩 {days} 天",
-    "you": "You",
-    "userPrefix": "User",
-    "lookingFor": "Looking for"
+    "you": "你",
+    "userPrefix": "用户",
+    "lookingFor": "寻找"
   },
   "history": {
     "title": "交换历史",
@@ -3039,23 +3039,23 @@
     "subtitle": "Global visibility · Priority matching"
   },
   "analytics": {
-    "title": "Analytics",
-    "loginRequired": "You must be logged in to view analytics.",
-    "dashboard": "Analytics Dashboard",
-    "upgradeToPremium": "Upgrade to Premium for full analytics access",
-    "noData": "No data",
-    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
-    "totalViews": "Total views",
-    "favoritesReceived": "Favorites received",
-    "proposalsReceived": "Proposals received",
-    "conversionRate": "Conversion rate",
-    "completedSwaps": "Completed swaps",
-    "avgTimeToProposal": "Avg time to proposal",
-    "viewsPerDay": "Views per day",
-    "last30Days": "Last 30 days",
-    "topItems": "Top items",
-    "byViews": "By number of views",
-    "insights": "Automated insights",
-    "insightsDesc": "Recommendations based on your data"
+    "title": "分析",
+    "loginRequired": "您需要登录才能查看分析。",
+    "dashboard": "分析仪表板",
+    "upgradeToPremium": "升级到高级版以获得完整访问权限",
+    "noData": "无数据",
+    "noDataDesc": "暂无分析数据。访问您的物品开始跟踪。",
+    "totalViews": "总浏览量",
+    "favoritesReceived": "收到的收藏",
+    "proposalsReceived": "收到的提议",
+    "conversionRate": "转化率",
+    "completedSwaps": "已完成的交换",
+    "avgTimeToProposal": "平均提议时间",
+    "viewsPerDay": "每日浏览量",
+    "last30Days": "最近30天",
+    "topItems": "热门物品",
+    "byViews": "按浏览量",
+    "insights": "自动洞察",
+    "insightsDesc": "基于您数据的建议"
   }
 }

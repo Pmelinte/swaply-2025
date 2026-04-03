@@ -442,8 +442,8 @@
     "guestFeatureVerifyDesc": "E-mail, telefonszám és személyazonossággal kapcsolatos ellenőrzés — a hitelesített felhasználó jelvényéhez.",
     "guestCta": "Hozza létre ingyenes profilját →",
     "networkError": "Hálózati hiba",
-    "passkeyRegFailed": "Passkey registration failed",
-    "genericError": "Error"
+    "passkeyRegFailed": "Passkey regisztráció sikertelen",
+    "genericError": "Hiba"
   },
   "home": {
     "welcome": "Üdvözöljük vissza",
@@ -2329,9 +2329,9 @@
     "responsesCount": "{count} válasz",
     "searchPrefix": "Keresés:",
     "daysRemaining": "{days} nap van hátra",
-    "you": "You",
-    "userPrefix": "User",
-    "lookingFor": "Looking for"
+    "you": "Te",
+    "userPrefix": "Felhasználó",
+    "lookingFor": "Keres"
   },
   "history": {
     "title": "Csereelőzmények",
@@ -3039,23 +3039,23 @@
     "subtitle": "Global visibility · Priority matching"
   },
   "analytics": {
-    "title": "Analytics",
-    "loginRequired": "You must be logged in to view analytics.",
-    "dashboard": "Analytics Dashboard",
-    "upgradeToPremium": "Upgrade to Premium for full analytics access",
-    "noData": "No data",
-    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
-    "totalViews": "Total views",
-    "favoritesReceived": "Favorites received",
-    "proposalsReceived": "Proposals received",
-    "conversionRate": "Conversion rate",
-    "completedSwaps": "Completed swaps",
-    "avgTimeToProposal": "Avg time to proposal",
-    "viewsPerDay": "Views per day",
-    "last30Days": "Last 30 days",
-    "topItems": "Top items",
-    "byViews": "By number of views",
-    "insights": "Automated insights",
-    "insightsDesc": "Recommendations based on your data"
+    "title": "Elemzés",
+    "loginRequired": "Be kell jelentkezned az elemzés megtekintéséhez.",
+    "dashboard": "Elemzés panel",
+    "upgradeToPremium": "Frissíts Premiumra a teljes hozzáféréshez",
+    "noData": "Nincs adat",
+    "noDataDesc": "Még nincs elemzési adat. Látogasd meg tárgyaidat a követés indításához.",
+    "totalViews": "Összes megtekintés",
+    "favoritesReceived": "Kapott kedvencek",
+    "proposalsReceived": "Kapott javaslatok",
+    "conversionRate": "Konverziós ráta",
+    "completedSwaps": "Befejezett cserék",
+    "avgTimeToProposal": "Átl. idő javaslatig",
+    "viewsPerDay": "Napi megtekintések",
+    "last30Days": "Utolsó 30 nap",
+    "topItems": "Top tárgyak",
+    "byViews": "Megtekintések szerint",
+    "insights": "Automatikus betekintések",
+    "insightsDesc": "Javaslatok az adataid alapján"
   }
 }
