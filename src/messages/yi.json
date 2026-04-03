@@ -45,7 +45,9 @@
     "nextStepRecommended": "רעקאָמענדעד נעקסט שטעפּ",
     "myDesk": "מיין שוודל דעסק",
     "myDeskDescription": "טראַק אַקטיווע שוודלס, פּענדינג אַקשנס, און דעדלינס",
-    "romania": "רומעניע"
+    "romania": "רומעניע",
+    "user": "User",
+    "recommendedNextStep": "Recommended next step"
   },
   "nav": {
     "home": "הוים",
@@ -73,7 +75,8 @@
     "termsAndGdpr": "טערמינען און GDPR",
     "badgeBenefits": "באַדזש ווע הנאות",
     "completeProfile": "פאַלמאָלן דיין פּראָפיל",
-    "desk": "מיין דעסק"
+    "desk": "מיין דעסק",
+    "settings": "Settings"
   },
   "notifications": {
     "title": "מודעות",
@@ -2945,8 +2948,10 @@
     "unexpectedError": "אומצוערוואָרטע טעות. פּרובירט אָפּן מאָל.",
     "stripeUnavailable": "סטריפּ איז נישט פאַראַוועילעך",
     "securePayment": "זיכער פּיימענט דורך סטריפּ. וויזע, מאַסטערקאַרד, אַפּל פּיי, גוגל פּיי.",
-    "boost7days": "באָסט 7 טאָג",
-    "alreadyPurchased": "שוין קויפט"
+    "boost7days": "Boost 7 days",
+    "alreadyPurchased": "שוין קויפט",
+    "boost24h": "Boost 24h",
+    "boost72h": "Boost 72h"
   },
   "payments": {
     "paymentMethod": "צאָלונגס מעטאָדע",
@@ -3061,5 +3066,14 @@
     "byViews": "By number of views",
     "insights": "Automated insights",
     "insightsDesc": "Recommendations based on your data"
+  },
+  "share": {
+    "copied": "Copied!",
+    "copyLink": "Copy link"
+  },
+  "badge": {
+    "free": "Free",
+    "premium": "Premium",
+    "platinum": "Platinum"
   }
 }

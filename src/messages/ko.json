@@ -45,7 +45,9 @@
     "nextStepRecommended": "권장 다음 단계",
     "myDesk": "내 스왑 데스크",
     "myDeskDescription": "활성 스왑, 대기 중인 작업 및 마감일 추적",
-    "romania": "루마니아"
+    "romania": "루마니아",
+    "user": "User",
+    "recommendedNextStep": "Recommended next step"
   },
   "nav": {
     "home": "홈",
@@ -73,7 +75,8 @@
     "termsAndGdpr": "이용약관 및 GDPR",
     "badgeBenefits": "배지 혜택",
     "completeProfile": "프로필 완성하기",
-    "desk": "내 데스크"
+    "desk": "내 데스크",
+    "settings": "설정"
   },
   "notifications": {
     "title": "알림 (좋아요/관심/채팅/교환)",
@@ -2947,8 +2950,10 @@
     "unexpectedError": "예상치 못한 오류입니다. 다시 시도하세요.",
     "stripeUnavailable": "Stripe을 사용할 수 없습니다.",
     "securePayment": "Stripe을 통한 안전한 결제. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "7일 부스트",
-    "alreadyPurchased": "이미 구매됨"
+    "boost7days": "Boost 7 days",
+    "alreadyPurchased": "이미 구매됨",
+    "boost24h": "Boost 24h",
+    "boost72h": "Boost 72h"
   },
   "payments": {
     "paymentMethod": "결제 방법",
@@ -3063,5 +3068,14 @@
     "byViews": "조회수 순",
     "insights": "자동 인사이트",
     "insightsDesc": "데이터 기반 추천"
+  },
+  "share": {
+    "copied": "Copied!",
+    "copyLink": "Copy link"
+  },
+  "badge": {
+    "free": "Free",
+    "premium": "Premium",
+    "platinum": "Platinum"
   }
 }

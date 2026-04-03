@@ -63,23 +63,25 @@ export function Pill({
   );
 }
 
-export function Badge({ tier }: { tier: BadgeTier }) {
-  const config = {
-    free: { label: "Free", color: "bg-zinc-100 text-zinc-800" },
-    premium: { label: "Premium", color: "bg-amber-100 text-amber-800" },
-    platinum: { label: "Platinum", color: "bg-blue-100 text-blue-800" },
+export function Badge({ tier, label }: { tier: BadgeTier; label?: string }) {
+  const colors = {
+    free: "bg-zinc-100 text-zinc-800",
+    premium: "bg-amber-100 text-amber-800",
+    platinum: "bg-blue-100 text-blue-800",
   } as const;
-  const resolved = config[tier] ?? config.free;
+  const color = colors[tier] ?? colors.free;
+  // Capitalize tier name as fallback if no label provided
+  const displayLabel = label ?? tier.charAt(0).toUpperCase() + tier.slice(1);
 
   return (
     <span
       className={clsx(
         "inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold",
-        resolved.color,
+        color,
       )}
     >
       <span className="h-2 w-2 rounded-full bg-current" aria-hidden />
-      {resolved.label}
+      {displayLabel}
     </span>
   );
 }
@@ -133,7 +135,7 @@ export function NextStepRecommendation({
   return (
     <div className="rounded-2xl border border-blue-200 bg-blue-50/80 p-4 shadow-sm dark:border-blue-900 dark:bg-blue-950/40">
       <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">
-        {title ?? "Recommended next step"}
+        {title}
       </p>
       <div className="space-y-2">
         {steps.map((step) => (

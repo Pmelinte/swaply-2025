@@ -45,7 +45,9 @@
     "nextStepRecommended": "Rekomendowany następny krok",
     "myDesk": "Moje Biuro Wymiany",
     "myDeskDescription": "Śledź aktywne wymiany, oczekujące działania i terminy",
-    "romania": "Rumunia"
+    "romania": "Rumunia",
+    "user": "User",
+    "recommendedNextStep": "Recommended next step"
   },
   "nav": {
     "home": "Strona główna",
@@ -73,7 +75,8 @@
     "termsAndGdpr": "Regulamin i RODO",
     "badgeBenefits": "Korzyści z odznak",
     "completeProfile": "Uzupełnij swój profil",
-    "desk": "Moje Biuro"
+    "desk": "Moje Biuro",
+    "settings": "Settings"
   },
   "notifications": {
     "title": "Powiadomienia (polubienie/zainteresowanie/czat/swaply)",
@@ -2947,8 +2950,10 @@
     "unexpectedError": "Nieoczekiwany błąd. Spróbuj ponownie.",
     "stripeUnavailable": "Stripe jest niedostępny",
     "securePayment": "Bezpieczna płatność przez Stripe. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "Boost 7 dni",
-    "alreadyPurchased": "Już zakupiono"
+    "boost7days": "Boost 7 days",
+    "alreadyPurchased": "Już zakupiono",
+    "boost24h": "Boost 24h",
+    "boost72h": "Boost 72h"
   },
   "payments": {
     "paymentMethod": "Metoda płatności",
@@ -3063,5 +3068,14 @@
     "byViews": "Wg liczby wyświetleń",
     "insights": "Automatyczne wnioski",
     "insightsDesc": "Rekomendacje na podstawie Twoich danych"
+  },
+  "share": {
+    "copied": "Copied!",
+    "copyLink": "Copy link"
+  },
+  "badge": {
+    "free": "Free",
+    "premium": "Premium",
+    "platinum": "Platinum"
   }
 }

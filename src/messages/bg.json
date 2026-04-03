@@ -45,7 +45,9 @@
     "nextStepRecommended": "Препоръчана следваща стъпка",
     "myDesk": "Моят работен плот за размяна",
     "myDeskDescription": "Проследяване на активни размяни, очаквани действия и краични срокове",
-    "romania": "Румъния"
+    "romania": "Румъния",
+    "user": "User",
+    "recommendedNextStep": "Recommended next step"
   },
   "nav": {
     "home": "Начало",
@@ -73,7 +75,8 @@
     "termsAndGdpr": "Условия и GDPR",
     "badgeBenefits": "Предимства на значката",
     "completeProfile": "Попълнете профила си",
-    "desk": "Моят работен плот"
+    "desk": "Моят работен плот",
+    "settings": "Settings"
   },
   "notifications": {
     "title": "Известия (харесване/интерес/чат/swaply)",
@@ -2947,8 +2950,10 @@
     "unexpectedError": "Неочаквана грешка. Опитайте отново.",
     "stripeUnavailable": "Stripe не е достъпен",
     "securePayment": "Безопасно плащане чрез Stripe. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "Boost 7 дни",
-    "alreadyPurchased": "Вече закупено"
+    "boost7days": "Boost 7 days",
+    "alreadyPurchased": "Вече закупено",
+    "boost24h": "Boost 24h",
+    "boost72h": "Boost 72h"
   },
   "payments": {
     "paymentMethod": "Метод на плащане",
@@ -3063,5 +3068,14 @@
     "byViews": "По брой прегледи",
     "insights": "Автоматични прозрения",
     "insightsDesc": "Препоръки въз основа на вашите данни"
+  },
+  "share": {
+    "copied": "Copied!",
+    "copyLink": "Copy link"
+  },
+  "badge": {
+    "free": "Free",
+    "premium": "Premium",
+    "platinum": "Platinum"
   }
 }

@@ -45,7 +45,9 @@
     "nextStepRecommended": "Suositeltu seuraava askel",
     "myDesk": "Oma Swap Desk",
     "myDeskDescription": "Seuraa aktiivisia vaihtoja, odottavia toimintoja ja määräaikoja",
-    "romania": "Romania"
+    "romania": "Romania",
+    "user": "User",
+    "recommendedNextStep": "Recommended next step"
   },
   "nav": {
     "home": "Etusivu",
@@ -73,7 +75,8 @@
     "termsAndGdpr": "Ehdot & GDPR",
     "badgeBenefits": "Merkkien edut",
     "completeProfile": "Täydennä profiilisi",
-    "desk": "Oma työpöytä"
+    "desk": "Oma työpöytä",
+    "settings": "Settings"
   },
   "notifications": {
     "title": "Ilmoitukset",
@@ -2947,8 +2950,10 @@
     "unexpectedError": "Odottamaton virhe. Yritä uudelleen.",
     "stripeUnavailable": "Stripe ei ole saatavilla",
     "securePayment": "Turvallinen maksu Stripen kautta. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "Tehosta 7 päivää",
-    "alreadyPurchased": "Jo ostettu"
+    "boost7days": "Boost 7 days",
+    "alreadyPurchased": "Jo ostettu",
+    "boost24h": "Boost 24h",
+    "boost72h": "Boost 72h"
   },
   "payments": {
     "paymentMethod": "Maksutapa",
@@ -3063,5 +3068,14 @@
     "byViews": "By number of views",
     "insights": "Automated insights",
     "insightsDesc": "Recommendations based on your data"
+  },
+  "share": {
+    "copied": "Copied!",
+    "copyLink": "Copy link"
+  },
+  "badge": {
+    "free": "Free",
+    "premium": "Premium",
+    "platinum": "Platinum"
   }
 }

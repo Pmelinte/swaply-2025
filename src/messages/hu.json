@@ -45,7 +45,9 @@
     "nextStepRecommended": "Javasolt következő lépés",
     "myDesk": "Saját Cserepult",
     "myDeskDescription": "Nyomon követheted az aktív cseréket, függőben lévő műveleteket és határidőket",
-    "romania": "Románia"
+    "romania": "Románia",
+    "user": "User",
+    "recommendedNextStep": "Recommended next step"
   },
   "nav": {
     "home": "Kezdőlap",
@@ -73,7 +75,8 @@
     "termsAndGdpr": "Feltételek és GDPR",
     "badgeBenefits": "Jelvény előnyök",
     "completeProfile": "Profil kiegészítése",
-    "desk": "Saját Pult"
+    "desk": "Saját Pult",
+    "settings": "Settings"
   },
   "notifications": {
     "title": "Értesítések (kedvelés/érdeklődés/csevegés/swaply)",
@@ -2947,8 +2950,10 @@
     "unexpectedError": "Váratlan hiba. Próbálkozzon újra.",
     "stripeUnavailable": "A Stripe nem elérhető",
     "securePayment": "Biztonságos fizetés a Stripe-en keresztül. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "Boost 7 napra",
-    "alreadyPurchased": "Már megvásárolt"
+    "boost7days": "Boost 7 days",
+    "alreadyPurchased": "Már megvásárolt",
+    "boost24h": "Boost 24h",
+    "boost72h": "Boost 72h"
   },
   "payments": {
     "paymentMethod": "Fizetési mód",
@@ -3063,5 +3068,14 @@
     "byViews": "Megtekintések szerint",
     "insights": "Automatikus betekintések",
     "insightsDesc": "Javaslatok az adataid alapján"
+  },
+  "share": {
+    "copied": "Copied!",
+    "copyLink": "Copy link"
+  },
+  "badge": {
+    "free": "Free",
+    "premium": "Premium",
+    "platinum": "Platinum"
   }
 }

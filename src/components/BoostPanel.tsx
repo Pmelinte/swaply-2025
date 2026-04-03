@@ -9,9 +9,9 @@ import { PaymentMethodSelector, type PaymentMethod } from "@/components/payments
 import { PayPalBoostButton } from "@/components/payments/PayPalBoostButton";
 
 const BOOST_OPTIONS = [
-  { duration: "24h", label: "Boost 24h", price: "5 RON", durationHours: 24 },
-  { duration: "72h", label: "Boost 72h", price: "12 RON", durationHours: 72 },
-  { duration: "7d", label: "Boost 7 days", price: "25 RON", durationHours: 168 },
+  { duration: "24h", labelKey: "boost24h" as const, price: "5 RON", durationHours: 24 },
+  { duration: "72h", labelKey: "boost72h" as const, price: "12 RON", durationHours: 72 },
+  { duration: "7d", labelKey: "boost7days" as const, price: "25 RON", durationHours: 168 },
 ] as const;
 
 interface BoostPanelProps {
@@ -219,7 +219,7 @@ export function BoostPanel({ itemId, userId, userEmail }: BoostPanelProps) {
               <div className="mb-2 flex items-center justify-between text-sm font-medium text-zinc-800 dark:text-zinc-200">
                 <span className="flex items-center gap-2">
                   <Zap className="h-3.5 w-3.5 text-amber-500" />
-                  {opt.label}
+                  {t(opt.labelKey)}
                 </span>
                 <span className="font-bold text-amber-700 dark:text-amber-400">
                   {opt.price}
@@ -243,7 +243,7 @@ export function BoostPanel({ itemId, userId, userEmail }: BoostPanelProps) {
             >
               <span className="flex items-center gap-2">
                 <Zap className="h-3.5 w-3.5 text-amber-500" />
-                {opt.label}
+                {t(opt.labelKey)}
               </span>
               <span className="flex items-center gap-1.5">
                 {status === "loading" && selectedDuration === opt.duration && (

@@ -26,6 +26,7 @@ interface SwapChatProps {
 
 export function SwapChat({ swapId, currentUserId, partnerId }: SwapChatProps) {
   const t = useTranslations("change");
+  const tc = useTranslations("common");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
@@ -47,7 +48,7 @@ export function SwapChat({ swapId, currentUserId, partnerId }: SwapChatProps) {
         const map: Record<string, SenderInfo> = {};
         for (const p of data) {
           map[p.user_id] = {
-            display_name: p.display_name || "User",
+            display_name: p.display_name || tc("user"),
             avatar_url: p.avatar_url,
           };
         }
@@ -162,7 +163,7 @@ export function SwapChat({ swapId, currentUserId, partnerId }: SwapChatProps) {
       {/* Header */}
       <div className="border-b border-zinc-100 px-4 py-3 dark:border-zinc-800">
         <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
-          {t("swapChat") ?? "Swap Chat"}
+          {t("swapChat")}
         </h3>
       </div>
 

@@ -45,7 +45,9 @@
     "nextStepRecommended": "An chéad chéim dhéanta a bhíonn i gceist",
     "myDesk": "Mo Dheasc Babhtála",
     "myDeskDescription": "Lean spéis ar bhabhtálacha gníomhach, gníomhartha ar feitheamh, agus spriocdhátaí",
-    "romania": "An Rómáin"
+    "romania": "An Rómáin",
+    "user": "User",
+    "recommendedNextStep": "Recommended next step"
   },
   "nav": {
     "home": "Baile",
@@ -73,7 +75,8 @@
     "termsAndGdpr": "Tearmai agus RGCS",
     "badgeBenefits": "Buntaisti suaitheantais",
     "completeProfile": "Comhlanaigh do phroifil",
-    "desk": "Mo Dheasc"
+    "desk": "Mo Dheasc",
+    "settings": "Settings"
   },
   "notifications": {
     "title": "Fograí (maith liom/speis/comhrá/swaply)",
@@ -2947,8 +2950,10 @@
     "unexpectedError": "Earráid bhreise. Triail arís.",
     "stripeUnavailable": "Níl Stripe ar fáil",
     "securePayment": "Íocaíocht dhíonraitheSripe. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "Boost 7 lá",
-    "alreadyPurchased": "Cheannach cheana féin"
+    "boost7days": "Boost 7 days",
+    "alreadyPurchased": "Cheannach cheana féin",
+    "boost24h": "Boost 24h",
+    "boost72h": "Boost 72h"
   },
   "payments": {
     "paymentMethod": "Modh íocaíochta",
@@ -3063,5 +3068,14 @@
     "byViews": "By number of views",
     "insights": "Automated insights",
     "insightsDesc": "Recommendations based on your data"
+  },
+  "share": {
+    "copied": "Copied!",
+    "copyLink": "Copy link"
+  },
+  "badge": {
+    "free": "Free",
+    "premium": "Premium",
+    "platinum": "Platinum"
   }
 }

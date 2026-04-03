@@ -45,7 +45,9 @@
     "nextStepRecommended": "推荐下一步",
     "myDesk": "我的交换桌面",
     "myDeskDescription": "跟踪活跃交换、待处理操作和截止日期",
-    "romania": "罗马尼亚"
+    "romania": "罗马尼亚",
+    "user": "用户",
+    "recommendedNextStep": "推荐下一步"
   },
   "nav": {
     "home": "首页",
@@ -73,7 +75,8 @@
     "termsAndGdpr": "条款与隐私政策",
     "badgeBenefits": "徽章权益",
     "completeProfile": "完善您的个人资料",
-    "desk": "我的桌面"
+    "desk": "我的桌面",
+    "settings": "设置"
   },
   "notifications": {
     "title": "通知（点赞/关注/聊天/swaply）",
@@ -2947,8 +2950,10 @@
     "unexpectedError": "意外错误。请重试。",
     "stripeUnavailable": "Stripe 不可用",
     "securePayment": "通过 Stripe 安全支付。Visa、Mastercard、Apple Pay、Google Pay。",
-    "boost7days": "提升 7 天",
-    "alreadyPurchased": "已购买"
+    "boost7days": "加速7天",
+    "alreadyPurchased": "已购买",
+    "boost24h": "加速24小时",
+    "boost72h": "加速72小时"
   },
   "payments": {
     "paymentMethod": "支付方式",
@@ -3063,5 +3068,14 @@
     "byViews": "按浏览量",
     "insights": "自动洞察",
     "insightsDesc": "基于您数据的建议"
+  },
+  "share": {
+    "copied": "已复制！",
+    "copyLink": "复制链接"
+  },
+  "badge": {
+    "free": "免费",
+    "premium": "高级",
+    "platinum": "白金"
   }
 }

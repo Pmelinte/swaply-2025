@@ -45,7 +45,9 @@
     "nextStepRecommended": "Рекомендований наступний крок",
     "myDesk": "Мій стіл обмінів",
     "myDeskDescription": "Відстежуйте активні обміни, очікувані дії та терміни",
-    "romania": "Румунія"
+    "romania": "Румунія",
+    "user": "User",
+    "recommendedNextStep": "Recommended next step"
   },
   "nav": {
     "home": "Головна",
@@ -73,7 +75,8 @@
     "termsAndGdpr": "Умови та GDPR",
     "badgeBenefits": "Переваги значків",
     "completeProfile": "Заповнити профіль",
-    "desk": "Мій стіл"
+    "desk": "Мій стіл",
+    "settings": "Налаштування"
   },
   "notifications": {
     "title": "Сповіщення",
@@ -2947,8 +2950,10 @@
     "unexpectedError": "Неочікувана помилка. Спробуйте ще раз.",
     "stripeUnavailable": "Stripe недоступна",
     "securePayment": "Безпечний платіж через Stripe. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "Boost на 7 днів",
-    "alreadyPurchased": "Вже куплено"
+    "boost7days": "Boost 7 days",
+    "alreadyPurchased": "Вже куплено",
+    "boost24h": "Boost 24h",
+    "boost72h": "Boost 72h"
   },
   "payments": {
     "paymentMethod": "Спосіб оплати",
@@ -3063,5 +3068,14 @@
     "byViews": "За кількістю переглядів",
     "insights": "Автоматичні інсайти",
     "insightsDesc": "Рекомендації на основі ваших даних"
+  },
+  "share": {
+    "copied": "Copied!",
+    "copyLink": "Copy link"
+  },
+  "badge": {
+    "free": "Free",
+    "premium": "Premium",
+    "platinum": "Platinum"
   }
 }

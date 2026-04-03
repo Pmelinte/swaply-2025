@@ -263,7 +263,7 @@ export function TopBar() {
                   <DropdownMenuItem asChild>
                     <Link href="/profile?tab=account" className="flex items-center gap-2">
                       <Settings className="h-4 w-4" />
-                      {t("nav.settings") ?? "Settings"}
+                      {t("nav.settings")}
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />

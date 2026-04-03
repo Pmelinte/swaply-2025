@@ -45,7 +45,9 @@
     "nextStepRecommended": "推奨される次のステップ",
     "myDesk": "マイスワップデスク",
     "myDeskDescription": "アクティブなスワップ、保留中のアクション、期限を追跡します",
-    "romania": "ルーマニア"
+    "romania": "ルーマニア",
+    "user": "ユーザー",
+    "recommendedNextStep": "おすすめの次のステップ"
   },
   "nav": {
     "home": "ホーム",
@@ -73,7 +75,8 @@
     "termsAndGdpr": "利用規約とGDPR",
     "badgeBenefits": "バッジの特典",
     "completeProfile": "プロフィールを完成させる",
-    "desk": "マイデスク"
+    "desk": "マイデスク",
+    "settings": "設定"
   },
   "notifications": {
     "title": "通知（いいね/関心/チャット/スワプリー）",
@@ -2947,8 +2950,10 @@
     "unexpectedError": "予期しないエラー。もう一度お試しください。",
     "stripeUnavailable": "Stripeは利用できません",
     "securePayment": "Stripeを経由した安全な支払い。Visa、Mastercard、Apple Pay、Google Pay対応。",
-    "boost7days": "7日間ブースト",
-    "alreadyPurchased": "既に購入済み"
+    "boost7days": "ブースト7日間",
+    "alreadyPurchased": "既に購入済み",
+    "boost24h": "ブースト24時間",
+    "boost72h": "ブースト72時間"
   },
   "payments": {
     "paymentMethod": "支払い方法",
@@ -3063,5 +3068,14 @@
     "byViews": "閲覧数順",
     "insights": "自動インサイト",
     "insightsDesc": "データに基づくおすすめ"
+  },
+  "share": {
+    "copied": "コピーしました！",
+    "copyLink": "リンクをコピー"
+  },
+  "badge": {
+    "free": "無料",
+    "premium": "プレミアム",
+    "platinum": "プラチナ"
   }
 }

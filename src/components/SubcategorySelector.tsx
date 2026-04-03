@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
+import { useTranslatedTexts } from "@/hooks/useTranslation";
 import { AlertTriangle, Info } from "lucide-react";
 
 export interface Subcategory {
@@ -77,6 +78,10 @@ export function SubcategorySelector({
       .finally(() => setLoading(false));
   }, [slug]);
 
+  // Translate subcategory names for non-ro/en locales
+  const enNames = subcategories.map((s) => s.name_en);
+  const translatedNames = useTranslatedTexts(enNames, "en");
+
   const selected = subcategories.find((s) => s.slug === value);
   const extraFields = (selected?.extra_fields ?? {}) as Record<string, unknown>;
   const hasExtraFields = !!(selected && Object.keys(extraFields).length > 0);
@@ -97,7 +102,7 @@ export function SubcategorySelector({
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
         {subcategories.map((sub) => {
           const isSelected = value === sub.slug;
-          const label = locale === "ro" ? sub.name_ro : sub.name_en;
+          const label = locale === "ro" ? sub.name_ro : (translatedNames.get(sub.name_en) ?? sub.name_en);
           return (
             <button
               key={sub.slug}

@@ -45,7 +45,9 @@
     "nextStepRecommended": "الخطوة التالية الموصى بها",
     "myDesk": "مكتبي للتبادل",
     "myDeskDescription": "تتبع عمليات التبادل النشطة والإجراءات المعلقة والمواعيد النهائية",
-    "romania": "رومانيا"
+    "romania": "رومانيا",
+    "user": "User",
+    "recommendedNextStep": "Recommended next step"
   },
   "nav": {
     "home": "الرئيسية",
@@ -73,7 +75,8 @@
     "termsAndGdpr": "الشروط وسياسة الخصوصية",
     "badgeBenefits": "مزايا الشارات",
     "completeProfile": "أكمل ملفك الشخصي",
-    "desk": "مكتبي"
+    "desk": "مكتبي",
+    "settings": "الإعدادات"
   },
   "notifications": {
     "title": "الإشعارات (إعجاب/اهتمام/محادثة/swaply)",
@@ -2947,8 +2950,10 @@
     "unexpectedError": "خطأ غير متوقع. حاول مرة أخرى.",
     "stripeUnavailable": "Stripe غير متاح",
     "securePayment": "دفع آمن عبر Stripe. Visa و Mastercard و Apple Pay و Google Pay.",
-    "boost7days": "تعزيز لمدة 7 أيام",
-    "alreadyPurchased": "تم الشراء بالفعل"
+    "boost7days": "Boost 7 days",
+    "alreadyPurchased": "تم الشراء بالفعل",
+    "boost24h": "Boost 24h",
+    "boost72h": "Boost 72h"
   },
   "payments": {
     "paymentMethod": "طريقة الدفع",
@@ -3063,5 +3068,14 @@
     "byViews": "حسب عدد المشاهدات",
     "insights": "رؤى تلقائية",
     "insightsDesc": "توصيات بناءً على بياناتك"
+  },
+  "share": {
+    "copied": "Copied!",
+    "copyLink": "Copy link"
+  },
+  "badge": {
+    "free": "Free",
+    "premium": "Premium",
+    "platinum": "Platinum"
   }
 }

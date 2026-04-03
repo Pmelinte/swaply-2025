@@ -45,7 +45,9 @@
     "nextStepRecommended": "Odporúčaný ďalší krok",
     "myDesk": "Môj obchodný stôl",
     "myDeskDescription": "Sledujte aktívne výmeny, čakajúce akcie a termíny",
-    "romania": "Rumunsko"
+    "romania": "Rumunsko",
+    "user": "User",
+    "recommendedNextStep": "Recommended next step"
   },
   "nav": {
     "home": "Domov",
@@ -73,7 +75,8 @@
     "termsAndGdpr": "Podmienky a GDPR",
     "badgeBenefits": "Výhody odznaku",
     "completeProfile": "Doplňte svoj profil",
-    "desk": "Môj stôl"
+    "desk": "Môj stôl",
+    "settings": "Settings"
   },
   "notifications": {
     "title": "Oznámenia (like/záujem/chat/swaply)",
@@ -2947,8 +2950,10 @@
     "unexpectedError": "Neočakávaná chyba. Skúste znova.",
     "stripeUnavailable": "Stripe nie je dostupný",
     "securePayment": "Bezpečná platba cez Stripe. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "Boost na 7 dní",
-    "alreadyPurchased": "Už zakúpené"
+    "boost7days": "Boost 7 days",
+    "alreadyPurchased": "Už zakúpené",
+    "boost24h": "Boost 24h",
+    "boost72h": "Boost 72h"
   },
   "payments": {
     "paymentMethod": "Spôsob platby",
@@ -3063,5 +3068,14 @@
     "byViews": "By number of views",
     "insights": "Automated insights",
     "insightsDesc": "Recommendations based on your data"
+  },
+  "share": {
+    "copied": "Copied!",
+    "copyLink": "Copy link"
+  },
+  "badge": {
+    "free": "Free",
+    "premium": "Premium",
+    "platinum": "Platinum"
   }
 }

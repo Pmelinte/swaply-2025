@@ -45,8 +45,8 @@ export default async function CategoryPage({ params }: Props) {
   const posts = await Promise.all(
     rawPosts.map(async (post) => ({
       ...post,
-      title: await translateOnDemand(post.title, locale, "ro"),
-      description: await translateOnDemand(post.description, locale, "ro"),
+      title: await translateOnDemand(post.title, locale, "en"),
+      description: await translateOnDemand(post.description, locale, "en"),
     })),
   );
 

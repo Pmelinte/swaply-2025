@@ -45,7 +45,9 @@
     "nextStepRecommended": "Aanbevolen volgende stap",
     "myDesk": "Mijn Swap Desk",
     "myDeskDescription": "Volg actieve ruilmogelijkheden, hangende acties en deadlines",
-    "romania": "Roemenië"
+    "romania": "Roemenië",
+    "user": "User",
+    "recommendedNextStep": "Recommended next step"
   },
   "nav": {
     "home": "Start",
@@ -73,7 +75,8 @@
     "termsAndGdpr": "Voorwaarden & AVG",
     "badgeBenefits": "Badge-voordelen",
     "completeProfile": "Maak je profiel compleet",
-    "desk": "Mijn Desk"
+    "desk": "Mijn Desk",
+    "settings": "Settings"
   },
   "notifications": {
     "title": "Meldingen (like/interesse/chat/swaply)",
@@ -2947,8 +2950,10 @@
     "unexpectedError": "Onverwachte fout. Probeer opnieuw.",
     "stripeUnavailable": "Stripe is niet beschikbaar",
     "securePayment": "Veilige betaling via Stripe. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "Boost 7 dagen",
-    "alreadyPurchased": "Al gekocht"
+    "boost7days": "Boost 7 days",
+    "alreadyPurchased": "Al gekocht",
+    "boost24h": "Boost 24h",
+    "boost72h": "Boost 72h"
   },
   "payments": {
     "paymentMethod": "Betaalmethode",
@@ -3063,5 +3068,14 @@
     "byViews": "Op aantal weergaven",
     "insights": "Automatische inzichten",
     "insightsDesc": "Aanbevelingen op basis van jouw gegevens"
+  },
+  "share": {
+    "copied": "Copied!",
+    "copyLink": "Copy link"
+  },
+  "badge": {
+    "free": "Free",
+    "premium": "Premium",
+    "platinum": "Platinum"
   }
 }

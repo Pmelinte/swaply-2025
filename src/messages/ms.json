@@ -45,7 +45,9 @@
     "nextStepRecommended": "Langkah seterusnya yang disyorkan",
     "myDesk": "Meja Pertukaran Saya",
     "myDeskDescription": "Jejaki pertukaran aktif, tindakan yang tertunda, dan tarikh akhir",
-    "romania": "Romania"
+    "romania": "Romania",
+    "user": "User",
+    "recommendedNextStep": "Recommended next step"
   },
   "nav": {
     "home": "Laman utama",
@@ -73,7 +75,8 @@
     "termsAndGdpr": "Syarat & GDPR",
     "badgeBenefits": "Manfaat lencana",
     "completeProfile": "Lengkapkan profil anda",
-    "desk": "Meja Saya"
+    "desk": "Meja Saya",
+    "settings": "Settings"
   },
   "notifications": {
     "title": "Pemberitahuan (suka/minat/sembang/swaply)",
@@ -2947,8 +2950,10 @@
     "unexpectedError": "Ralat yang tidak dijangka. Cuba lagi.",
     "stripeUnavailable": "Stripe tidak tersedia",
     "securePayment": "Pembayaran selamat melalui Stripe. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "Boost 7 hari",
-    "alreadyPurchased": "Sudah dibeli"
+    "boost7days": "Boost 7 days",
+    "alreadyPurchased": "Sudah dibeli",
+    "boost24h": "Boost 24h",
+    "boost72h": "Boost 72h"
   },
   "payments": {
     "paymentMethod": "Kaedah pembayaran",
@@ -3063,5 +3068,14 @@
     "byViews": "By number of views",
     "insights": "Automated insights",
     "insightsDesc": "Recommendations based on your data"
+  },
+  "share": {
+    "copied": "Copied!",
+    "copyLink": "Copy link"
+  },
+  "badge": {
+    "free": "Free",
+    "premium": "Premium",
+    "platinum": "Platinum"
   }
 }
