@@ -166,9 +166,8 @@ export default async function BlogPostPage({ params }: Props) {
     content: translatedContent,
   };
 
-  // Extract headings from translated content and translate TOC
-  const rawHeadings = extractHeadings(post.content);
-  const headings = await translateHeadings(rawHeadings, locale, "en");
+  // Extract headings from the already-translated content — no separate translation needed
+  const headings = extractHeadings(post.content);
 
   const rawRelated = getPostsByCategory(post.category)
     .filter((p) => p.slug !== slug)
