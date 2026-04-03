@@ -661,7 +661,14 @@
     "addFirstItem": "Adaugă primul obiect",
     "backToCategory": "Înapoi la categorie",
     "badgeProperty": "Proprietate",
-    "badgeService": "Serviciu"
+    "badgeService": "Serviciu",
+    "condition_new": "Nou",
+    "condition_good": "Bun",
+    "condition_like_new": "Ca nou",
+    "condition_fair": "Acceptabil",
+    "condition_poor": "Uzat",
+    "condition_used": "Folosit",
+    "condition_used_good": "Stare bună"
   },
   "objectDetail": {
     "loading": "Se încarcă obiectul",
@@ -2749,7 +2756,8 @@
     "ctaTitle": "Gata să încerci troc modern?",
     "ctaDescription": "Listează obiectele tale și descoperă ce poți obține în schimb.",
     "ctaButton": "Încearcă Swaply gratuit →",
-    "metaDescription": "Articole din categoria \"{category}\" pe blogul Swaply."
+    "metaDescription": "Articole din categoria \"{category}\" pe blogul Swaply.",
+    "tableOfContents": "Cuprins"
   },
   "push": {
     "enableTitle": "Activează notificările",

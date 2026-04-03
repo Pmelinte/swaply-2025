@@ -632,7 +632,14 @@
     "addFirstItem": "Cuir an chéad iomláine leis",
     "backToCategory": "Ar ais go catagóir",
     "badgeProperty": "Maoin",
-    "badgeService": "Seirbhís"
+    "badgeService": "Seirbhís",
+    "condition_new": "New",
+    "condition_good": "Good",
+    "condition_like_new": "Like new",
+    "condition_fair": "Fair",
+    "condition_poor": "Poor",
+    "condition_used": "Used",
+    "condition_used_good": "Good condition"
   },
   "objectDetail": {
     "loading": "Ag luchtú ruda",
@@ -2559,7 +2566,8 @@
     "ctaTitle": "Réidh chun babhtáil nua-aimseartha a thriail?",
     "ctaDescription": "Liostáil do réada agus faigh amach cad a bhféadfá a fháil i gcomhréir.",
     "ctaButton": "Déan iarracht ar Swaply saor in aisce →",
-    "metaDescription": "Ailt ó chatagóir \"{category}\" ar bhlag Swaply."
+    "metaDescription": "Ailt ó chatagóir \"{category}\" ar bhlag Swaply.",
+    "tableOfContents": "Table of Contents"
   },
   "push": {
     "enableTitle": "Cumasaigh fógraí",

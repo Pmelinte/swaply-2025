@@ -632,7 +632,14 @@
     "addFirstItem": "Első elem hozzáadása",
     "backToCategory": "Vissza a kategóriához",
     "badgeProperty": "Tulajdonság",
-    "badgeService": "Szolgáltatás"
+    "badgeService": "Szolgáltatás",
+    "condition_new": "New",
+    "condition_good": "Good",
+    "condition_like_new": "Like new",
+    "condition_fair": "Fair",
+    "condition_poor": "Poor",
+    "condition_used": "Used",
+    "condition_used_good": "Good condition"
   },
   "objectDetail": {
     "loading": "Tárgy betöltése",
@@ -2559,7 +2566,8 @@
     "ctaTitle": "Készen állsz a modern cserére?",
     "ctaDescription": "Sorold fel tárgyaidat, és fedezd fel, mit kaphatsz cserébe.",
     "ctaButton": "Próbáld ki ingyenesen a Swaplyt →",
-    "metaDescription": "Cikkek a „{category}\" kategóriából a Swaply blogon."
+    "metaDescription": "Cikkek a „{category}\" kategóriából a Swaply blogon.",
+    "tableOfContents": "Tartalomjegyzék"
   },
   "push": {
     "enableTitle": "Értesítések engedélyezése",

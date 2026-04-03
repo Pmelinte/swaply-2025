@@ -632,7 +632,14 @@
     "addFirstItem": "اضافه کردن اولین آیتم",
     "backToCategory": "بازگشت به دسته‌بندی",
     "badgeProperty": "ویژگی",
-    "badgeService": "خدمت"
+    "badgeService": "خدمت",
+    "condition_new": "New",
+    "condition_good": "Good",
+    "condition_like_new": "Like new",
+    "condition_fair": "Fair",
+    "condition_poor": "Poor",
+    "condition_used": "Used",
+    "condition_used_good": "Good condition"
   },
   "objectDetail": {
     "loading": "در حال بارگذاری شیء",
@@ -2559,7 +2566,8 @@
     "ctaTitle": "آماده‌اید تا معاملات مدرن را امتحان کنید؟",
     "ctaDescription": "اشیاء خود را فهرست کنید و بفهمید چه چیزی می‌توانید در ازای آن دریافت کنید.",
     "ctaButton": "Swaply را به صورت رایگان امتحان کنید →",
-    "metaDescription": "مقالات از دسته‌بندی \"{category}\" در وبلاگ Swaply."
+    "metaDescription": "مقالات از دسته‌بندی \"{category}\" در وبلاگ Swaply.",
+    "tableOfContents": "Table of Contents"
   },
   "push": {
     "enableTitle": "فعال‌سازی اطلاع‌رسانی",

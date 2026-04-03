@@ -632,7 +632,14 @@
     "addFirstItem": "Magdagdag ng unang item",
     "backToCategory": "Bumalik sa kategorya",
     "badgeProperty": "Ari-arian",
-    "badgeService": "Serbisyo"
+    "badgeService": "Serbisyo",
+    "condition_new": "New",
+    "condition_good": "Good",
+    "condition_like_new": "Like new",
+    "condition_fair": "Fair",
+    "condition_poor": "Poor",
+    "condition_used": "Used",
+    "condition_used_good": "Good condition"
   },
   "objectDetail": {
     "loading": "Naglo-load ng bagay",
@@ -2559,7 +2566,8 @@
     "ctaTitle": "Handa nang subukan ang modernong barter?",
     "ctaDescription": "Ilista ang iyong mga bagay at tuklasin kung ano ang maaari mong makuha bilang kapalit.",
     "ctaButton": "Subukan ang Swaply nang libre →",
-    "metaDescription": "Mga artikulo mula sa \"{category}\" na kategorya sa Swaply blog."
+    "metaDescription": "Mga artikulo mula sa \"{category}\" na kategorya sa Swaply blog.",
+    "tableOfContents": "Table of Contents"
   },
   "push": {
     "enableTitle": "I-enable ang notifications",

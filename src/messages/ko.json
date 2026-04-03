@@ -632,7 +632,14 @@
     "addFirstItem": "첫 항목 추가",
     "backToCategory": "카테고리로 돌아가기",
     "badgeProperty": "속성",
-    "badgeService": "서비스"
+    "badgeService": "서비스",
+    "condition_new": "새것",
+    "condition_good": "양호",
+    "condition_like_new": "새것 같음",
+    "condition_fair": "보통",
+    "condition_poor": "낡음",
+    "condition_used": "중고",
+    "condition_used_good": "좋은 상태"
   },
   "objectDetail": {
     "loading": "물건 로딩 중",
@@ -2559,7 +2566,8 @@
     "ctaTitle": "현대적 물물교환을 시도할 준비가 되셨나요?",
     "ctaDescription": "물품을 등록하고 교환할 수 있는 것을 발견하세요.",
     "ctaButton": "무료로 Swaply 시도해보기 →",
-    "metaDescription": "Swaply 블로그의 \"{category}\" 카테고리의 기사."
+    "metaDescription": "Swaply 블로그의 \"{category}\" 카테고리의 기사.",
+    "tableOfContents": "목차"
   },
   "push": {
     "enableTitle": "알림 활성화",

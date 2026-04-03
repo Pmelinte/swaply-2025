@@ -632,7 +632,14 @@
     "addFirstItem": "Tilføj første vare",
     "backToCategory": "Tilbage til kategori",
     "badgeProperty": "Ejendom",
-    "badgeService": "Service"
+    "badgeService": "Service",
+    "condition_new": "New",
+    "condition_good": "Good",
+    "condition_like_new": "Like new",
+    "condition_fair": "Fair",
+    "condition_poor": "Poor",
+    "condition_used": "Used",
+    "condition_used_good": "Good condition"
   },
   "objectDetail": {
     "loading": "Indlæser genstand",
@@ -2559,7 +2566,8 @@
     "ctaTitle": "Klar til at prøve moderne byttehandel?",
     "ctaDescription": "Oplist dine objekter og find ud af hvad du kan få til gengæld.",
     "ctaButton": "Prøv Swaply gratis →",
-    "metaDescription": "Artikler fra kategorien \"{category}\" på Swaply-bloggen."
+    "metaDescription": "Artikler fra kategorien \"{category}\" på Swaply-bloggen.",
+    "tableOfContents": "Table of Contents"
   },
   "push": {
     "enableTitle": "Aktivér notifikationer",

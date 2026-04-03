@@ -632,7 +632,14 @@
     "addFirstItem": "Lisa esimene ese",
     "backToCategory": "Tagasi kategooriasse",
     "badgeProperty": "Vara",
-    "badgeService": "Teenus"
+    "badgeService": "Teenus",
+    "condition_new": "New",
+    "condition_good": "Good",
+    "condition_like_new": "Like new",
+    "condition_fair": "Fair",
+    "condition_poor": "Poor",
+    "condition_used": "Used",
+    "condition_used_good": "Good condition"
   },
   "objectDetail": {
     "loading": "Objekti laadimine",
@@ -2559,7 +2566,8 @@
     "ctaTitle": "Oled valmis modernset barterit proovima?",
     "ctaDescription": "Kuuluta oma objektid ja avasta, mida sa vastu saad.",
     "ctaButton": "Proovi Swaplyit tasuta →",
-    "metaDescription": "Artiklid \"{category}\" kategooriast Swaply blogist."
+    "metaDescription": "Artiklid \"{category}\" kategooriast Swaply blogist.",
+    "tableOfContents": "Table of Contents"
   },
   "push": {
     "enableTitle": "Luba teatised",

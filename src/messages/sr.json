@@ -632,7 +632,14 @@
     "addFirstItem": "Dodaj prvu stavku",
     "backToCategory": "Nazad na kategoriju",
     "badgeProperty": "Svojina",
-    "badgeService": "Usluga"
+    "badgeService": "Usluga",
+    "condition_new": "New",
+    "condition_good": "Good",
+    "condition_like_new": "Like new",
+    "condition_fair": "Fair",
+    "condition_poor": "Poor",
+    "condition_used": "Used",
+    "condition_used_good": "Good condition"
   },
   "objectDetail": {
     "loading": "Učitavanje predmeta",
@@ -2559,7 +2566,8 @@
     "ctaTitle": "Спреман да покушаш модеран барtering?",
     "ctaDescription": "Наведи своје предмете и открри шта можеш добити за замену.",
     "ctaButton": "Слободно испробај Swaply →",
-    "metaDescription": "Чланци из категорије \"{category}\" на Swaply блогу."
+    "metaDescription": "Чланци из категорије \"{category}\" на Swaply блогу.",
+    "tableOfContents": "Table of Contents"
   },
   "push": {
     "enableTitle": "Uključi obaveštenja",

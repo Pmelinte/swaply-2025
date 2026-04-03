@@ -632,7 +632,14 @@
     "addFirstItem": "Přidat první položku",
     "backToCategory": "Zpět na kategorii",
     "badgeProperty": "Vlastnost",
-    "badgeService": "Služba"
+    "badgeService": "Služba",
+    "condition_new": "New",
+    "condition_good": "Good",
+    "condition_like_new": "Like new",
+    "condition_fair": "Fair",
+    "condition_poor": "Poor",
+    "condition_used": "Used",
+    "condition_used_good": "Good condition"
   },
   "objectDetail": {
     "loading": "Načítání objektu",
@@ -2559,7 +2566,8 @@
     "ctaTitle": "Připraven vyzkoušet moderní bartering?",
     "ctaDescription": "Vypište své předměty a zjistěte, co můžete získat výměnou.",
     "ctaButton": "Vyzkoušej Swaply zdarma →",
-    "metaDescription": "Články z kategorie \"{category}\" na blogu Swaply."
+    "metaDescription": "Články z kategorie \"{category}\" na blogu Swaply.",
+    "tableOfContents": "Obsah"
   },
   "push": {
     "enableTitle": "Povolit oznámení",

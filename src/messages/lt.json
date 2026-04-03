@@ -632,7 +632,14 @@
     "addFirstItem": "Pridėti pirmą prekę",
     "backToCategory": "Grįžti į kategoriją",
     "badgeProperty": "Nuosavybė",
-    "badgeService": "Paslauga"
+    "badgeService": "Paslauga",
+    "condition_new": "New",
+    "condition_good": "Good",
+    "condition_like_new": "Like new",
+    "condition_fair": "Fair",
+    "condition_poor": "Poor",
+    "condition_used": "Used",
+    "condition_used_good": "Good condition"
   },
   "objectDetail": {
     "loading": "Kraunamas daiktas",
@@ -2559,7 +2566,8 @@
     "ctaTitle": "Pasiruošę išbandyti šiuolaikinį barterį?",
     "ctaDescription": "Išvardinkite savo daiktus ir sužinokite, ką galite gauti mainais.",
     "ctaButton": "Išbandykite Swaply nemokamai →",
-    "metaDescription": "Straipsniai iš „{category}\" kategorijos Swaply bloge."
+    "metaDescription": "Straipsniai iš „{category}\" kategorijos Swaply bloge.",
+    "tableOfContents": "Table of Contents"
   },
   "push": {
     "enableTitle": "Įgalinti pranešimus",

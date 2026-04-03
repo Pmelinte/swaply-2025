@@ -632,7 +632,14 @@
     "addFirstItem": "Dodaj pierwszy przedmiot",
     "backToCategory": "Powrót do kategorii",
     "badgeProperty": "Nieruchomość",
-    "badgeService": "Usługa"
+    "badgeService": "Usługa",
+    "condition_new": "New",
+    "condition_good": "Good",
+    "condition_like_new": "Like new",
+    "condition_fair": "Fair",
+    "condition_poor": "Poor",
+    "condition_used": "Used",
+    "condition_used_good": "Good condition"
   },
   "objectDetail": {
     "loading": "Ładowanie obiektu",
@@ -2559,7 +2566,8 @@
     "ctaTitle": "Gotowy spróbować nowoczesnego barteringu?",
     "ctaDescription": "Wypisz swoje przedmioty i odkryj, co możesz otrzymać w zamian.",
     "ctaButton": "Spróbuj Swaply za darmo →",
-    "metaDescription": "Artykuły z kategorii \"{category}\" na blogu Swaply."
+    "metaDescription": "Artykuły z kategorii \"{category}\" na blogu Swaply.",
+    "tableOfContents": "Spis treści"
   },
   "push": {
     "enableTitle": "Włącz powiadomienia",

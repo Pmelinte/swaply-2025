@@ -632,7 +632,14 @@
     "addFirstItem": "Adicionar primeiro item",
     "backToCategory": "Voltar to category",
     "badgeProperty": "Propriedade",
-    "badgeService": "Serviço"
+    "badgeService": "Serviço",
+    "condition_new": "New",
+    "condition_good": "Good",
+    "condition_like_new": "Like new",
+    "condition_fair": "Fair",
+    "condition_poor": "Poor",
+    "condition_used": "Used",
+    "condition_used_good": "Good condition"
   },
   "objectDetail": {
     "loading": "A carregar objeto",
@@ -2559,7 +2566,8 @@
     "ctaTitle": "Pronto para experimentar o escambo moderno?",
     "ctaDescription": "Liste seus objetos e descubra o que pode conseguir em troca.",
     "ctaButton": "Experimente o Swaply gratuitamente →",
-    "metaDescription": "Artigos da categoria \"{category}\" no blog do Swaply."
+    "metaDescription": "Artigos da categoria \"{category}\" no blog do Swaply.",
+    "tableOfContents": "Índice"
   },
   "push": {
     "enableTitle": "Ativar notificações",

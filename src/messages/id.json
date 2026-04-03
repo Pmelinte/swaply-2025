@@ -632,7 +632,14 @@
     "addFirstItem": "Tambahkan item pertama",
     "backToCategory": "Kembali ke kategori",
     "badgeProperty": "Properti",
-    "badgeService": "Layanan"
+    "badgeService": "Layanan",
+    "condition_new": "New",
+    "condition_good": "Good",
+    "condition_like_new": "Like new",
+    "condition_fair": "Fair",
+    "condition_poor": "Poor",
+    "condition_used": "Used",
+    "condition_used_good": "Good condition"
   },
   "objectDetail": {
     "loading": "Memuat objek",
@@ -2559,7 +2566,8 @@
     "ctaTitle": "Siap untuk mencoba barter modern?",
     "ctaDescription": "Daftarkan objek Anda dan temukan apa yang bisa Anda dapatkan sebagai tukarannya.",
     "ctaButton": "Coba Swaply gratis →",
-    "metaDescription": "Artikel dari kategori \"{category}\" di blog Swaply."
+    "metaDescription": "Artikel dari kategori \"{category}\" di blog Swaply.",
+    "tableOfContents": "Table of Contents"
   },
   "push": {
     "enableTitle": "Aktifkan notifikasi",

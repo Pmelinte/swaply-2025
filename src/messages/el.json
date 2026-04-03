@@ -632,7 +632,14 @@
     "addFirstItem": "Προσθέστε πρώτο αντικείμενο",
     "backToCategory": "Επιστροφή στην κατηγορία",
     "badgeProperty": "Ιδιότητα",
-    "badgeService": "Υπηρεσία"
+    "badgeService": "Υπηρεσία",
+    "condition_new": "Καινούργιο",
+    "condition_good": "Καλό",
+    "condition_like_new": "Σαν καινούργιο",
+    "condition_fair": "Αποδεκτό",
+    "condition_poor": "Φθαρμένο",
+    "condition_used": "Μεταχειρισμένο",
+    "condition_used_good": "Καλή κατάσταση"
   },
   "objectDetail": {
     "loading": "Φόρτωση αντικειμένου",
@@ -2559,7 +2566,8 @@
     "ctaTitle": "Έτοιμοι να δοκιμάσετε τη σύγχρονη ανταλλαγή;",
     "ctaDescription": "Καταχωρίστε τα αντικείμενά σας και ανακαλύψτε τι μπορείτε να λάβετε ως αντάλλαγμα.",
     "ctaButton": "Δοκιμάστε το Swaply δωρεάν →",
-    "metaDescription": "Άρθρα από την κατηγορία \"{category}\" στο blog του Swaply."
+    "metaDescription": "Άρθρα από την κατηγορία \"{category}\" στο blog του Swaply.",
+    "tableOfContents": "Πίνακας Περιεχομένων"
   },
   "push": {
     "enableTitle": "Ενεργοποίηση ειδοποιήσεων",

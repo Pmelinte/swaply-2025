@@ -632,7 +632,14 @@
     "addFirstItem": "Eerste item toevoegen",
     "backToCategory": "Terug naar categorie",
     "badgeProperty": "Eigendom",
-    "badgeService": "Service"
+    "badgeService": "Service",
+    "condition_new": "New",
+    "condition_good": "Good",
+    "condition_like_new": "Like new",
+    "condition_fair": "Fair",
+    "condition_poor": "Poor",
+    "condition_used": "Used",
+    "condition_used_good": "Good condition"
   },
   "objectDetail": {
     "loading": "Object laden",
@@ -2559,7 +2566,8 @@
     "ctaTitle": "Klaar om modern ruilhandel te proberen?",
     "ctaDescription": "Plaats je spullen en ontdek wat je ervoor kunt krijgen.",
     "ctaButton": "Probeer Swaply gratis →",
-    "metaDescription": "Artikelen uit de categorie \"{category}\" op de Swaply blog."
+    "metaDescription": "Artikelen uit de categorie \"{category}\" op de Swaply blog.",
+    "tableOfContents": "Inhoudsopgave"
   },
   "push": {
     "enableTitle": "Meldingen inschakelen",

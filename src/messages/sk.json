@@ -632,7 +632,14 @@
     "addFirstItem": "Pridať prvú položku",
     "backToCategory": "Späť na kategóriu",
     "badgeProperty": "Nehnuteľnosť",
-    "badgeService": "Služba"
+    "badgeService": "Služba",
+    "condition_new": "New",
+    "condition_good": "Good",
+    "condition_like_new": "Like new",
+    "condition_fair": "Fair",
+    "condition_poor": "Poor",
+    "condition_used": "Used",
+    "condition_used_good": "Good condition"
   },
   "objectDetail": {
     "loading": "Načítavanie objektu",
@@ -2559,7 +2566,8 @@
     "ctaTitle": "Ste pripravení vyskúšať moderný bartring?",
     "ctaDescription": "Zoznamte svoje objekty a objavte, čo môžete získať výmenou.",
     "ctaButton": "Vyskúšajte Swaply zadarmo →",
-    "metaDescription": "Články z kategórie \"{category}\" na blogu Swaply."
+    "metaDescription": "Články z kategórie \"{category}\" na blogu Swaply.",
+    "tableOfContents": "Table of Contents"
   },
   "push": {
     "enableTitle": "Aktivujte notifikácie",

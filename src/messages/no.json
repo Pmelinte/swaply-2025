@@ -632,7 +632,14 @@
     "addFirstItem": "Legg til første gjenstand",
     "backToCategory": "Tilbake til kategori",
     "badgeProperty": "Eiendom",
-    "badgeService": "Tjeneste"
+    "badgeService": "Tjeneste",
+    "condition_new": "New",
+    "condition_good": "Good",
+    "condition_like_new": "Like new",
+    "condition_fair": "Fair",
+    "condition_poor": "Poor",
+    "condition_used": "Used",
+    "condition_used_good": "Good condition"
   },
   "objectDetail": {
     "loading": "Laster gjenstand",
@@ -2559,7 +2566,8 @@
     "ctaTitle": "Klar til å prøve moderne bytte?",
     "ctaDescription": "List opp objektene dine og oppdag hva du kan få i bytte.",
     "ctaButton": "Prøv Swaply gratis →",
-    "metaDescription": "Artikler fra \"{category}\" kategorien på Swaply-bloggen."
+    "metaDescription": "Artikler fra \"{category}\" kategorien på Swaply-bloggen.",
+    "tableOfContents": "Table of Contents"
   },
   "push": {
     "enableTitle": "Aktiver varsler",

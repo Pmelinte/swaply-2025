@@ -632,7 +632,14 @@
     "addFirstItem": "Dodaj prvu stavku",
     "backToCategory": "Natrag na kategoriju",
     "badgeProperty": "Nekretnina",
-    "badgeService": "Usluga"
+    "badgeService": "Usluga",
+    "condition_new": "New",
+    "condition_good": "Good",
+    "condition_like_new": "Like new",
+    "condition_fair": "Fair",
+    "condition_poor": "Poor",
+    "condition_used": "Used",
+    "condition_used_good": "Good condition"
   },
   "objectDetail": {
     "loading": "Učitavanje predmeta",
@@ -2559,7 +2566,8 @@
     "ctaTitle": "Spreman/na za modernu razmjenu?",
     "ctaDescription": "Navedite svoje predmete i otkrije što možete dobiti u zamjenu.",
     "ctaButton": "Isprobaj Swaply besplatno →",
-    "metaDescription": "Članci iz kategorije \"{category}\" na Swaply blogu."
+    "metaDescription": "Članci iz kategorije \"{category}\" na Swaply blogu.",
+    "tableOfContents": "Table of Contents"
   },
   "push": {
     "enableTitle": "Omogući obavijesti",

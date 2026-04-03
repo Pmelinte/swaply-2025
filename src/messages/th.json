@@ -632,7 +632,14 @@
     "addFirstItem": "เพิ่มรายการแรก",
     "backToCategory": "กลับไปยังหมวดหมู่",
     "badgeProperty": "ทรัพย์สิน",
-    "badgeService": "บริการ"
+    "badgeService": "บริการ",
+    "condition_new": "New",
+    "condition_good": "Good",
+    "condition_like_new": "Like new",
+    "condition_fair": "Fair",
+    "condition_poor": "Poor",
+    "condition_used": "Used",
+    "condition_used_good": "Good condition"
   },
   "objectDetail": {
     "loading": "กำลังโหลดสิ่งของ",
@@ -2559,7 +2566,8 @@
     "ctaTitle": "พร้อมที่จะลองการแลกเปลี่ยนสมัยใหม่หรือไม่?",
     "ctaDescription": "แสดงรายการวัตถุของคุณและค้นพบสิ่งที่คุณสามารถแลกเปลี่ยนได้",
     "ctaButton": "ลองใช้ Swaply ฟรี →",
-    "metaDescription": "บทความจากหมวดหมู่ \"{category}\" บนบล็อก Swaply"
+    "metaDescription": "บทความจากหมวดหมู่ \"{category}\" บนบล็อก Swaply",
+    "tableOfContents": "Table of Contents"
   },
   "push": {
     "enableTitle": "เปิดใช้งานการแจ้งเตือน",

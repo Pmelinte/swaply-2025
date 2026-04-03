@@ -1556,7 +1556,14 @@
     "addFirstItem": "Lägg till första objekt",
     "backToCategory": "Tillbaka till kategori",
     "badgeProperty": "Egendom",
-    "badgeService": "Tjänst"
+    "badgeService": "Tjänst",
+    "condition_new": "New",
+    "condition_good": "Good",
+    "condition_like_new": "Like new",
+    "condition_fair": "Fair",
+    "condition_poor": "Poor",
+    "condition_used": "Used",
+    "condition_used_good": "Good condition"
   },
   "objectDetail": {
     "loading": "Laddar objekt",
@@ -2772,7 +2779,8 @@
     "ctaTitle": "Redo att prova modern byteshandel?",
     "ctaDescription": "Lista dina objekt och upptäck vad du kan få i utbyte.",
     "ctaButton": "Prova Swaply kostnadsfritt →",
-    "metaDescription": "Artiklar från kategorin \"{category}\" på Swaply-bloggen."
+    "metaDescription": "Artiklar från kategorin \"{category}\" på Swaply-bloggen.",
+    "tableOfContents": "Innehåll"
   },
   "push": {
     "enableTitle": "Aktivera aviseringar",

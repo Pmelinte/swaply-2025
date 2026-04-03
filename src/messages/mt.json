@@ -632,7 +632,14 @@
     "addFirstItem": "Żżid l-ewwel oġġett",
     "backToCategory": "Lura għal kategorija",
     "badgeProperty": "Proprjetà",
-    "badgeService": "Servizz"
+    "badgeService": "Servizz",
+    "condition_new": "New",
+    "condition_good": "Good",
+    "condition_like_new": "Like new",
+    "condition_fair": "Fair",
+    "condition_poor": "Poor",
+    "condition_used": "Used",
+    "condition_used_good": "Good condition"
   },
   "objectDetail": {
     "loading": "Qed jillowdja l-oġġett",
@@ -2559,7 +2566,8 @@
     "ctaTitle": "Lest li tipprova l-barter modern?",
     "ctaDescription": "Elenca l-oġġetti tiegħek u skopri x'tista' tikseb bħala skambju.",
     "ctaButton": "Prova Swaply b'xejn →",
-    "metaDescription": "Artikoli mill-kategorija \"{category}\" fuq il-blog Swaply."
+    "metaDescription": "Artikoli mill-kategorija \"{category}\" fuq il-blog Swaply.",
+    "tableOfContents": "Table of Contents"
   },
   "push": {
     "enableTitle": "Abilita notifiki",

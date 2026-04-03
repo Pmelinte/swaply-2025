@@ -632,7 +632,14 @@
     "addFirstItem": "İlk öğeyi ekle",
     "backToCategory": "Kategoriye geri dön",
     "badgeProperty": "Mülk",
-    "badgeService": "Hizmet"
+    "badgeService": "Hizmet",
+    "condition_new": "Yeni",
+    "condition_good": "İyi",
+    "condition_like_new": "Yeni gibi",
+    "condition_fair": "Kabul edilebilir",
+    "condition_poor": "Yıpranmış",
+    "condition_used": "Kullanılmış",
+    "condition_used_good": "İyi durumda"
   },
   "objectDetail": {
     "loading": "Nesne yükleniyor",
@@ -2559,7 +2566,8 @@
     "ctaTitle": "Modern takas denemeye hazır mısın?",
     "ctaDescription": "Nesnelerini listele ve karşılığında ne alabileceğini keşfet.",
     "ctaButton": "Swaply'yi ücretsiz dene →",
-    "metaDescription": "Swaply blogunda \"{category}\" kategorisindeki makaleler."
+    "metaDescription": "Swaply blogunda \"{category}\" kategorisindeki makaleler.",
+    "tableOfContents": "İçindekiler"
   },
   "push": {
     "enableTitle": "Bildirimleri etkinleştir",

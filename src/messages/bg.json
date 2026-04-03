@@ -632,7 +632,14 @@
     "addFirstItem": "Добави първи предмет",
     "backToCategory": "Назад към категория",
     "badgeProperty": "Имущество",
-    "badgeService": "Услуга"
+    "badgeService": "Услуга",
+    "condition_new": "New",
+    "condition_good": "Good",
+    "condition_like_new": "Like new",
+    "condition_fair": "Fair",
+    "condition_poor": "Poor",
+    "condition_used": "Used",
+    "condition_used_good": "Good condition"
   },
   "objectDetail": {
     "loading": "Зареждане на обект",
@@ -2559,7 +2566,8 @@
     "ctaTitle": "Готови ли сте да опитате съвременния барт?",
     "ctaDescription": "Посочете вашите предмети и откройте какво можете да получите в замяна.",
     "ctaButton": "Опитайте Swaply безплатно →",
-    "metaDescription": "Статии от категория \"{category}\" в блога на Swaply."
+    "metaDescription": "Статии от категория \"{category}\" в блога на Swaply.",
+    "tableOfContents": "Съдържание"
   },
   "push": {
     "enableTitle": "Включете известията",

@@ -56,6 +56,7 @@ function SlotCard({
 }) {
   const router = useRouter();
   const t = useTranslations("objects");
+  const tCat = useTranslations("categories");
   const td = useTranslations("objectDetail");
   const borderColor =
     color === "blue"
@@ -95,7 +96,7 @@ function SlotCard({
       </div>
       <SlotTitle title={item.title} />
       <p className="truncate text-[10px] text-zinc-500">
-        {item.category} &middot; {item.condition}
+        {tCat(item.category)} &middot; {t("condition_" + item.condition)}
       </p>
       {item.location && (
         <p className="mt-0.5 flex items-center gap-0.5 truncate text-[10px] text-zinc-400">
@@ -153,6 +154,7 @@ function SlotTitle({ title }: { title: string }) {
 /* ─── Browse card for grid/list secondary view ─── */
 function ObjectCard({ item, mode }: { item: Item; mode: BrowseMode }) {
   const t = useTranslations("objects");
+  const tCat = useTranslations("categories");
   const router = useRouter();
   const translatedTitle = useTranslatedText(item.title);
   const translatedDescription = useTranslatedText(item.description ?? "");
@@ -184,8 +186,8 @@ function ObjectCard({ item, mode }: { item: Item; mode: BrowseMode }) {
             )}
           </div>
           <div className="mt-0.5 flex items-center gap-2 text-xs text-zinc-500">
-            <span className="rounded-full bg-zinc-100 px-2 py-0.5 dark:bg-zinc-700">{item.category}</span>
-            <span>{item.condition}</span>
+            <span className="rounded-full bg-zinc-100 px-2 py-0.5 dark:bg-zinc-700">{tCat(item.category)}</span>
+            <span>{t("condition_" + item.condition)}</span>
             {item.location && (
               <span className="flex items-center gap-0.5">
                 <MapPin className="h-3 w-3" />
@@ -218,7 +220,7 @@ function ObjectCard({ item, mode }: { item: Item; mode: BrowseMode }) {
           unoptimized={!item.photos?.[0]}
         />
         <span className="item-card__badge absolute left-2 top-2 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-zinc-700 backdrop-blur dark:bg-zinc-900/80 dark:text-zinc-200">
-          {item.condition}
+          {t("condition_" + item.condition)}
         </span>
         {item.isBoosted && (
           <span className="absolute left-2 top-8 flex items-center gap-0.5 rounded-full bg-amber-500/90 px-2 py-0.5 text-[10px] font-bold text-white backdrop-blur">
@@ -239,7 +241,7 @@ function ObjectCard({ item, mode }: { item: Item; mode: BrowseMode }) {
       </div>
       <div className="item-card__body flex flex-1 flex-col p-3">
         <h3 className="item-card__title truncate text-sm font-semibold text-zinc-900 dark:text-zinc-50">{translatedTitle}</h3>
-        <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">{item.category}</p>
+        <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">{tCat(item.category)}</p>
         {item.location && (
           <p className="item-card__location mt-1 flex items-center gap-0.5 text-xs text-zinc-400">
             <MapPin className="h-3 w-3" />

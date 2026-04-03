@@ -632,7 +632,14 @@
     "addFirstItem": "Эхний зүйлийг нэмэх",
     "backToCategory": "Ангилалруу буцах",
     "badgeProperty": "Өмч",
-    "badgeService": "Үйлчилгээ"
+    "badgeService": "Үйлчилгээ",
+    "condition_new": "New",
+    "condition_good": "Good",
+    "condition_like_new": "Like new",
+    "condition_fair": "Fair",
+    "condition_poor": "Poor",
+    "condition_used": "Used",
+    "condition_used_good": "Good condition"
   },
   "objectDetail": {
     "loading": "Зүйл ачааллаж байна",
@@ -2559,7 +2566,8 @@
     "ctaTitle": "Орчин үеийн солилцоонд бэлэн үү?",
     "ctaDescription": "Өөрийн зүйлсийг жагсаа сольж авах боломжтойг олоорой.",
     "ctaButton": "Swaply-г үнэгүй туршаарай →",
-    "metaDescription": "Swaply блогийн \"{category}\" ангиллын нийтлэлүүд."
+    "metaDescription": "Swaply блогийн \"{category}\" ангиллын нийтлэлүүд.",
+    "tableOfContents": "Table of Contents"
   },
   "push": {
     "enableTitle": "Мэдэгдлүүлэлтийг идэвхжүүлэх",

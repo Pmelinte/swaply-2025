@@ -632,7 +632,14 @@
     "addFirstItem": "添加第一件物品",
     "backToCategory": "返回分类",
     "badgeProperty": "物品",
-    "badgeService": "服务"
+    "badgeService": "服务",
+    "condition_new": "全新",
+    "condition_good": "良好",
+    "condition_like_new": "几乎全新",
+    "condition_fair": "一般",
+    "condition_poor": "较旧",
+    "condition_used": "二手",
+    "condition_used_good": "状态良好"
   },
   "objectDetail": {
     "loading": "正在加载物品",
@@ -2559,7 +2566,8 @@
     "ctaTitle": "准备好尝试现代物物交换了吗?",
     "ctaDescription": "列出您的物品，发现您可以换取什么。",
     "ctaButton": "免费试用 Swaply →",
-    "metaDescription": "Swaply 博客中\"{category}\"类别的文章。"
+    "metaDescription": "Swaply 博客中\"{category}\"类别的文章。",
+    "tableOfContents": "目录"
   },
   "push": {
     "enableTitle": "启用通知",

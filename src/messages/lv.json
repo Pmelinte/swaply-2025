@@ -632,7 +632,14 @@
     "addFirstItem": "Pievienot pirmo vienumu",
     "backToCategory": "Atpakaļ uz kategoriju",
     "badgeProperty": "Īpašums",
-    "badgeService": "Pakalpojums"
+    "badgeService": "Pakalpojums",
+    "condition_new": "New",
+    "condition_good": "Good",
+    "condition_like_new": "Like new",
+    "condition_fair": "Fair",
+    "condition_poor": "Poor",
+    "condition_used": "Used",
+    "condition_used_good": "Good condition"
   },
   "objectDetail": {
     "loading": "Ielādē objektu",
@@ -2559,7 +2566,8 @@
     "ctaTitle": "Gatavs izmēģināt moderno barteri?",
     "ctaDescription": "Uzskaitiet savus objektus un atklājiet, ko varat saņemt apmaiņā.",
     "ctaButton": "Izmēģiniet Swaply bez maksas →",
-    "metaDescription": "Raksti no \"{category}\" kategorijas Swaply blogā."
+    "metaDescription": "Raksti no \"{category}\" kategorijas Swaply blogā.",
+    "tableOfContents": "Table of Contents"
   },
   "push": {
     "enableTitle": "Iespējot paziņojumus",

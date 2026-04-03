@@ -632,7 +632,14 @@
     "addFirstItem": "Agregar primer artículo",
     "backToCategory": "Atrás to category",
     "badgeProperty": "Propiedad",
-    "badgeService": "Servicio"
+    "badgeService": "Servicio",
+    "condition_new": "Nuevo",
+    "condition_good": "Bueno",
+    "condition_like_new": "Como nuevo",
+    "condition_fair": "Aceptable",
+    "condition_poor": "Desgastado",
+    "condition_used": "Usado",
+    "condition_used_good": "Buen estado"
   },
   "objectDetail": {
     "loading": "Cargando objeto",
@@ -2559,7 +2566,8 @@
     "ctaTitle": "¿Listo para probar el trueque moderno?",
     "ctaDescription": "Lista tus objetos y descubre qué puedes obtener a cambio.",
     "ctaButton": "Prueba Swaply gratis →",
-    "metaDescription": "Artículos de la categoría \"{category}\" en el blog de Swaply."
+    "metaDescription": "Artículos de la categoría \"{category}\" en el blog de Swaply.",
+    "tableOfContents": "Índice"
   },
   "push": {
     "enableTitle": "Habilitar notificaciones",
