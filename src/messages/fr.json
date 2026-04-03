@@ -568,7 +568,7 @@
     "noObjectsDescription": "État vide avec CTA pour ajouter un nouvel objet.",
     "loadError": "Erreur de chargement des objets",
     "loadErrorDescription": "Message clair sans plantage ; permet le rechargement de la page.",
-    "title": "Browse Objets",
+    "title": "Parcourir les objets",
     "subtitle": "Découvrez ce qui est disponible pour l'échange",
     "searchPlaceholder": "Rechercher by title, category, tag…",
     "gridView": "Grille",
@@ -1318,7 +1318,12 @@
     "digitalBookingRef": "Référence de réservation",
     "swapChat": "Chat d'échange",
     "chatEmpty": "Aucun message. Commencez la conversation !",
-    "chatPlaceholder": "Écrire un message..."
+    "chatPlaceholder": "Écrire un message...",
+    "statusAccepted": "Accepté",
+    "statusInProgress": "En cours",
+    "statusDeliveredA": "Livré (1/2)",
+    "statusDeliveredB": "Livré (2/2)",
+    "statusResolved": "Résolu"
   },
   "info": {
     "title": "Statistiques Swaply",

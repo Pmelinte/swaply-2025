@@ -1318,7 +1318,12 @@
     "digitalBookingRef": "Referencia de reserva",
     "swapChat": "Chat de intercambio",
     "chatEmpty": "Sin mensajes aún. ¡Inicia la conversación!",
-    "chatPlaceholder": "Escribe un mensaje..."
+    "chatPlaceholder": "Escribe un mensaje...",
+    "statusAccepted": "Aceptado",
+    "statusInProgress": "En curso",
+    "statusDeliveredA": "Entregado (1/2)",
+    "statusDeliveredB": "Entregado (2/2)",
+    "statusResolved": "Resuelto"
   },
   "info": {
     "title": "Estadísticas de Swaply",

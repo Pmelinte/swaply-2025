@@ -1318,7 +1318,12 @@
     "digitalBookingRef": "予約リファレンス",
     "swapChat": "Swap Chat",
     "chatEmpty": "No messages yet. Start the conversation!",
-    "chatPlaceholder": "Type a message..."
+    "chatPlaceholder": "Type a message...",
+    "statusAccepted": "承認済み",
+    "statusInProgress": "進行中",
+    "statusDeliveredA": "配送済み (1/2)",
+    "statusDeliveredB": "配送済み (2/2)",
+    "statusResolved": "解決済み"
   },
   "info": {
     "title": "Swaply統計",

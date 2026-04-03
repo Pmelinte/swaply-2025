@@ -1318,7 +1318,12 @@
     "digitalBookingRef": "Rezervācijas atsauce",
     "swapChat": "Swap Chat",
     "chatEmpty": "No messages yet. Start the conversation!",
-    "chatPlaceholder": "Type a message..."
+    "chatPlaceholder": "Type a message...",
+    "statusAccepted": "Accepted",
+    "statusInProgress": "In progress",
+    "statusDeliveredA": "Delivered (1/2)",
+    "statusDeliveredB": "Delivered (2/2)",
+    "statusResolved": "Resolved"
   },
   "info": {
     "title": "Swaply statistika",

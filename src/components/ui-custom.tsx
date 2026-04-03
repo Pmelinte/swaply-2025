@@ -161,6 +161,9 @@ export function StateShowcase({
   title: string;
   states: PageStateDefinition[];
 }) {
+  // Only visible in development — never shown to end users
+  if (process.env.NODE_ENV !== "development") return null;
+
   const pillColor: Record<PageStateDefinition["key"], "amber" | "zinc" | "red"> =
     {
       loading: "amber",

@@ -105,16 +105,16 @@ function ConfirmDialog({
 
 const STATUS_LABELS: Record<SwapIntent["status"], string> = {
   pending: "proposed",
-  accepted: "accepted",
-  in_progress: "in progress",
-  delivered_by_a: "delivered (1/2)",
-  delivered_by_b: "delivered (2/2)",
+  accepted: "statusAccepted",
+  in_progress: "statusInProgress",
+  delivered_by_a: "statusDeliveredA",
+  delivered_by_b: "statusDeliveredB",
   rejected: "cancelled",
   completed: "completed",
   cancelled: "cancelled",
   expired: "cancelled",
   disputed: "disputed",
-  resolved: "resolved",
+  resolved: "statusResolved",
 };
 
 const LOCATION_TYPES: SwapIntent["logistics"]["locationType"][] = ["public_spot", "courier", "pickup"];
