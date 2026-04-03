@@ -1411,7 +1411,12 @@
     "courierInternational": "Curieri internaționali",
     "swapChat": "Chat schimb",
     "chatEmpty": "Niciun mesaj încă. Începe conversația!",
-    "chatPlaceholder": "Scrie un mesaj..."
+    "chatPlaceholder": "Scrie un mesaj...",
+    "statusAccepted": "Acceptat",
+    "statusInProgress": "În desfășurare",
+    "statusDeliveredA": "Livrat (1/2)",
+    "statusDeliveredB": "Livrat (2/2)",
+    "statusResolved": "Rezolvat"
   },
   "feedback": {
     "title": "Păreri",
