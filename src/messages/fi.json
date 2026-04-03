@@ -632,7 +632,14 @@
     "addFirstItem": "Lisää ensimmäinen kohde",
     "backToCategory": "Takaisin kategoriaan",
     "badgeProperty": "Omaisuus",
-    "badgeService": "Palvelu"
+    "badgeService": "Palvelu",
+    "condition_new": "New",
+    "condition_good": "Good",
+    "condition_like_new": "Like new",
+    "condition_fair": "Fair",
+    "condition_poor": "Poor",
+    "condition_used": "Used",
+    "condition_used_good": "Good condition"
   },
   "objectDetail": {
     "loading": "Ladataan esinettä",
@@ -2559,7 +2566,8 @@
     "ctaTitle": "Valmiina kokeilla modernia vaihtokauppaa?",
     "ctaDescription": "Listaa objektisi ja löydä mitä voit saada vastineeksi.",
     "ctaButton": "Kokeile Swaplya ilmaiseksi →",
-    "metaDescription": "Artikkelit \"{category}\" -kategoriasta Swaply-blogista."
+    "metaDescription": "Artikkelit \"{category}\" -kategoriasta Swaply-blogista.",
+    "tableOfContents": "Table of Contents"
   },
   "push": {
     "enableTitle": "Ota ilmoitukset käyttöön",

@@ -632,7 +632,14 @@
     "addFirstItem": "Dodaj prvi predmet",
     "backToCategory": "Nazaj na kategorijo",
     "badgeProperty": "Lastnost",
-    "badgeService": "Storitev"
+    "badgeService": "Storitev",
+    "condition_new": "New",
+    "condition_good": "Good",
+    "condition_like_new": "Like new",
+    "condition_fair": "Fair",
+    "condition_poor": "Poor",
+    "condition_used": "Used",
+    "condition_used_good": "Good condition"
   },
   "objectDetail": {
     "loading": "Nalaganje predmeta",
@@ -2559,7 +2566,8 @@
     "ctaTitle": "Pripravljen, da preizkusiš sodobno zamenjavo?",
     "ctaDescription": "Napiši svoje predmete in odkrij, kaj lahko dobiš v zameno.",
     "ctaButton": "Preizkusi Swaply brezplačno →",
-    "metaDescription": "Članki iz kategorije \"{category}\" na Swaply blogu."
+    "metaDescription": "Članki iz kategorije \"{category}\" na Swaply blogu.",
+    "tableOfContents": "Table of Contents"
   },
   "push": {
     "enableTitle": "Omogoči obvestila",

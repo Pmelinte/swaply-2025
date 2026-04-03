@@ -632,7 +632,14 @@
     "addFirstItem": "Erstes Objekt hinzufügen",
     "backToCategory": "Zurück to category",
     "badgeProperty": "Objekt",
-    "badgeService": "Dienstleistung"
+    "badgeService": "Dienstleistung",
+    "condition_new": "Neu",
+    "condition_good": "Gut",
+    "condition_like_new": "Wie neu",
+    "condition_fair": "Akzeptabel",
+    "condition_poor": "Abgenutzt",
+    "condition_used": "Gebraucht",
+    "condition_used_good": "Guter Zustand"
   },
   "objectDetail": {
     "loading": "Objekt wird geladen",
@@ -2559,7 +2566,8 @@
     "ctaTitle": "Bereit, modernes Tauschen auszuprobieren?",
     "ctaDescription": "Listiere deine Objekte auf und entdecke, was du im Austausch erhalten kannst.",
     "ctaButton": "Swaply kostenlos ausprobieren →",
-    "metaDescription": "Artikel aus der Kategorie „{category}\" im Swaply Blog."
+    "metaDescription": "Artikel aus der Kategorie „{category}\" im Swaply Blog.",
+    "tableOfContents": "Inhaltsverzeichnis"
   },
   "push": {
     "enableTitle": "Benachrichtigungen aktivieren",

@@ -632,7 +632,14 @@
     "addFirstItem": "প্রথম আইটেম যোগ করুন",
     "backToCategory": "ক্যাটাগরিতে ফিরুন",
     "badgeProperty": "সম্পত্তি",
-    "badgeService": "সেবা"
+    "badgeService": "সেবা",
+    "condition_new": "New",
+    "condition_good": "Good",
+    "condition_like_new": "Like new",
+    "condition_fair": "Fair",
+    "condition_poor": "Poor",
+    "condition_used": "Used",
+    "condition_used_good": "Good condition"
   },
   "objectDetail": {
     "loading": "বস্তু লোড হচ্ছে",
@@ -2559,7 +2566,8 @@
     "ctaTitle": "আধুনিক বার্টারিং চেষ্টা করতে প্রস্তুত?",
     "ctaDescription": "আপনার বস্তুগুলি তালিকাভুক্ত করুন এবং আবিষ্কার করুন আপনি বিনিময়ে কী পেতে পারেন।",
     "ctaButton": "বিনামূল্যে Swaply চেষ্টা করুন →",
-    "metaDescription": "Swaply ব্লগে \"{category}\" বিভাগ থেকে নিবন্ধ।"
+    "metaDescription": "Swaply ব্লগে \"{category}\" বিভাগ থেকে নিবন্ধ।",
+    "tableOfContents": "Table of Contents"
   },
   "push": {
     "enableTitle": "বিজ্ঞপ্তি সক্ষম করুন",

@@ -632,7 +632,14 @@
     "addFirstItem": "إضافة أول عنصر",
     "backToCategory": "العودة إلى الفئة",
     "badgeProperty": "ملكية",
-    "badgeService": "خدمة"
+    "badgeService": "خدمة",
+    "condition_new": "جديد",
+    "condition_good": "جيد",
+    "condition_like_new": "كالجديد",
+    "condition_fair": "مقبول",
+    "condition_poor": "مستهلك",
+    "condition_used": "مستعمل",
+    "condition_used_good": "حالة جيدة"
   },
   "objectDetail": {
     "loading": "جارٍ تحميل الغرض",
@@ -2559,7 +2566,8 @@
     "ctaTitle": "هل أنت مستعد لتجربة المقايضة الحديثة؟",
     "ctaDescription": "اعرض أشياءك واكتشف ما يمكنك الحصول عليه في المقابل.",
     "ctaButton": "جرب Swaply مجانًا →",
-    "metaDescription": "مقالات من فئة \"{category}\" في مدونة Swaply."
+    "metaDescription": "مقالات من فئة \"{category}\" في مدونة Swaply.",
+    "tableOfContents": "جدول المحتويات"
   },
   "push": {
     "enableTitle": "تفعيل الإخطارات",

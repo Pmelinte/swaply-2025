@@ -632,7 +632,14 @@
     "addFirstItem": "Додати перший предмет",
     "backToCategory": "Назад до категорії",
     "badgeProperty": "Майно",
-    "badgeService": "Послуга"
+    "badgeService": "Послуга",
+    "condition_new": "New",
+    "condition_good": "Good",
+    "condition_like_new": "Like new",
+    "condition_fair": "Fair",
+    "condition_poor": "Poor",
+    "condition_used": "Used",
+    "condition_used_good": "Good condition"
   },
   "objectDetail": {
     "loading": "Завантаження об'єкта",
@@ -2559,7 +2566,8 @@
     "ctaTitle": "Готові спробувати сучасний барtering?",
     "ctaDescription": "Виставте свої предмети та дізнайтеся, що ви можете отримати в обмін.",
     "ctaButton": "Спробуйте Swaply безкоштовно →",
-    "metaDescription": "Статті з категорії \"{category}\" у блозі Swaply."
+    "metaDescription": "Статті з категорії \"{category}\" у блозі Swaply.",
+    "tableOfContents": "Зміст"
   },
   "push": {
     "enableTitle": "Увімкнути сповіщення",

@@ -632,7 +632,14 @@
     "addFirstItem": "पहला आइटम जोड़ें",
     "backToCategory": "श्रेणी पर वापस जाएं",
     "badgeProperty": "संपत्ति",
-    "badgeService": "सेवा"
+    "badgeService": "सेवा",
+    "condition_new": "नया",
+    "condition_good": "अच्छा",
+    "condition_like_new": "नए जैसा",
+    "condition_fair": "ठीक",
+    "condition_poor": "पुराना",
+    "condition_used": "इस्तेमाल किया",
+    "condition_used_good": "अच्छी स्थिति"
   },
   "objectDetail": {
     "loading": "वस्तु लोड हो रही है",
@@ -2559,7 +2566,8 @@
     "ctaTitle": "आधुनिक वस्तु विनिमय आजमाने के लिए तैयार हैं?",
     "ctaDescription": "अपनी वस्तुओं को सूचीबद्ध करें और खोजें कि आप बदले में क्या प्राप्त कर सकते हैं।",
     "ctaButton": "Swaply को मुफ्त आजमाएं →",
-    "metaDescription": "Swaply ब्लॉग पर \"{category}\" श्रेणी से लेख।"
+    "metaDescription": "Swaply ब्लॉग पर \"{category}\" श्रेणी से लेख।",
+    "tableOfContents": "विषय सूची"
   },
   "push": {
     "enableTitle": "सूचनाएं सक्षम करें",

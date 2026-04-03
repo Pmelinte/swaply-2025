@@ -18,17 +18,25 @@ async function translateContent(
 ): Promise<string> {
   if (targetLang === sourceLang) return content;
 
-  const paragraphs = content.split(/\n\n+/);
+  // Split into individual lines to handle lists, blockquotes, etc.
+  const lines = content.split(/\n/);
   const translated = await Promise.all(
-    paragraphs.map((p) => {
-      const trimmed = p.trim();
+    lines.map((line) => {
+      const trimmed = line.trim();
       if (!trimmed) return Promise.resolve("");
-      // Skip code blocks and HTML — only translate text
-      if (trimmed.startsWith("```") || trimmed.startsWith("<")) return Promise.resolve(trimmed);
-      return translateOnDemand(trimmed, targetLang, sourceLang);
+      // Skip code blocks, HTML, markdown images, and horizontal rules
+      if (trimmed.startsWith("```") || trimmed.startsWith("<") || trimmed.startsWith("![") || trimmed === "---") {
+        return Promise.resolve(line);
+      }
+      // Preserve leading whitespace/markdown markers, translate the text part
+      const leadingMatch = line.match(/^(\s*(?:[-*>]+\s*)?)/);
+      const leading = leadingMatch ? leadingMatch[1] : "";
+      const textPart = line.slice(leading.length);
+      if (!textPart.trim()) return Promise.resolve(line);
+      return translateOnDemand(textPart, targetLang, sourceLang).then((t) => leading + t);
     }),
   );
-  return translated.join("\n\n");
+  return translated.join("\n");
 }
 
 /**

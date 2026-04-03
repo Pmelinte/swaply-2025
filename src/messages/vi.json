@@ -632,7 +632,14 @@
     "addFirstItem": "Thêm mục đầu tiên",
     "backToCategory": "Quay lại danh mục",
     "badgeProperty": "Tài sản",
-    "badgeService": "Dịch vụ"
+    "badgeService": "Dịch vụ",
+    "condition_new": "New",
+    "condition_good": "Good",
+    "condition_like_new": "Like new",
+    "condition_fair": "Fair",
+    "condition_poor": "Poor",
+    "condition_used": "Used",
+    "condition_used_good": "Good condition"
   },
   "objectDetail": {
     "loading": "Đang tải đồ vật",
@@ -2559,7 +2566,8 @@
     "ctaTitle": "Sẵn sàng thử trao đổi hiện đại?",
     "ctaDescription": "Liệt kê các vật của bạn và khám phá những gì bạn có thể nhận lấy để trao đổi.",
     "ctaButton": "Thử Swaply miễn phí →",
-    "metaDescription": "Bài viết từ danh mục \"{category}\" trên blog Swaply."
+    "metaDescription": "Bài viết từ danh mục \"{category}\" trên blog Swaply.",
+    "tableOfContents": "Table of Contents"
   },
   "push": {
     "enableTitle": "Bật thông báo",

@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 interface Heading {
   level: 2 | 3;
   text: string;
@@ -7,12 +9,14 @@ interface Heading {
 }
 
 export function TableOfContents({ headings }: { headings: Heading[] }) {
+  const t = useTranslations("blog");
+
   if (headings.length === 0) return null;
 
   return (
     <nav className="rounded-2xl border border-zinc-200 bg-white/80 p-5 shadow-sm backdrop-blur dark:border-zinc-700 dark:bg-zinc-800/80">
       <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-        Cuprins
+        {t("tableOfContents")}
       </p>
       <ul className="space-y-1.5">
         {headings.map((h) => (

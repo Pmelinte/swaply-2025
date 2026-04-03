@@ -632,7 +632,14 @@
     "addFirstItem": "最初のアイテムを追加",
     "backToCategory": "カテゴリに戻る",
     "badgeProperty": "プロパティ",
-    "badgeService": "サービス"
+    "badgeService": "サービス",
+    "condition_new": "新品",
+    "condition_good": "良好",
+    "condition_like_new": "新品同様",
+    "condition_fair": "普通",
+    "condition_poor": "使用感あり",
+    "condition_used": "中古",
+    "condition_used_good": "良い状態"
   },
   "objectDetail": {
     "loading": "オブジェクトを読み込み中",
@@ -2559,7 +2566,8 @@
     "ctaTitle": "現代的なバーターを試してみませんか?",
     "ctaDescription": "あなたのアイテムをリストアップして、交換で何が得られるかを発見してください。",
     "ctaButton": "Swapyを無料で試す →",
-    "metaDescription": "Swapyブログの「{category}」カテゴリーの記事。"
+    "metaDescription": "Swapyブログの「{category}」カテゴリーの記事。",
+    "tableOfContents": "目次"
   },
   "push": {
     "enableTitle": "通知を有効にする",

@@ -661,7 +661,14 @@
     "addFirstItem": "Add first item",
     "backToCategory": "Back to category",
     "badgeProperty": "Property",
-    "badgeService": "Service"
+    "badgeService": "Service",
+    "condition_new": "New",
+    "condition_good": "Good",
+    "condition_like_new": "Like new",
+    "condition_fair": "Fair",
+    "condition_poor": "Poor",
+    "condition_used": "Used",
+    "condition_used_good": "Good condition"
   },
   "objectDetail": {
     "loading": "Loading object",
@@ -2749,7 +2756,8 @@
     "ctaTitle": "Ready to try modern bartering?",
     "ctaDescription": "List your objects and discover what you can get in exchange.",
     "ctaButton": "Try Swaply for free →",
-    "metaDescription": "Articles from the \"{category}\" category on the Swaply blog."
+    "metaDescription": "Articles from the \"{category}\" category on the Swaply blog.",
+    "tableOfContents": "Table of Contents"
   },
   "boost": {
     "active": "Boost active",

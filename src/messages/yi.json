@@ -661,7 +661,14 @@
     "addFirstItem": "לייגן ערשטן פריטן",
     "backToCategory": "צוריק צו קאטעגאריע",
     "badgeProperty": "פּראָפּערטי",
-    "badgeService": "סערוויס"
+    "badgeService": "סערוויס",
+    "condition_new": "New",
+    "condition_good": "Good",
+    "condition_like_new": "Like new",
+    "condition_fair": "Fair",
+    "condition_poor": "Poor",
+    "condition_used": "Used",
+    "condition_used_good": "Good condition"
   },
   "objectDetail": {
     "loading": "לאָדן אָבייעקט",
@@ -2557,7 +2564,8 @@
     "ctaTitle": "גרייט צו פּרוּבירן מאָדערן בארטערינג?",
     "ctaDescription": "ליסט דיינע אָבייעקטן און דיסקאָװער וואָס דו קענסט באַקומען אין אַקסטשेינג.",
     "ctaButton": "פּרוּבירן סווייפּלי פֿריי →",
-    "metaDescription": "אַרטיקלען פֿון דער \"{category}\" קאַטעגאָריע אויף דעם סווייפּלי בלאָג."
+    "metaDescription": "אַרטיקלען פֿון דער \"{category}\" קאַטעגאָריע אויף דעם סווייפּלי בלאָג.",
+    "tableOfContents": "Table of Contents"
   },
   "push": {
     "enableTitle": "אַקטיװירט נאָטיפיקיישנס",
