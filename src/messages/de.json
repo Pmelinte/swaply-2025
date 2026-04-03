@@ -441,7 +441,9 @@
     "guestFeatureVerify": "Identitätsverifikation",
     "guestFeatureVerifyDesc": "E-Mail, Telefon und Identität — für das Verifizierte-Benutzer-Abzeichen.",
     "guestCta": "Erstelle dein kostenloses Profil →",
-    "networkError": "Netzwerkfehler"
+    "networkError": "Netzwerkfehler",
+    "passkeyRegFailed": "Passkey-Registrierung fehlgeschlagen",
+    "genericError": "Fehler"
   },
   "home": {
     "welcome": "Willkommen zurück",
@@ -2326,7 +2328,10 @@
     "proposeSwap": "Propose Tausch",
     "responsesCount": "{count} Antworten",
     "searchPrefix": "Ich suche:",
-    "daysRemaining": "{days} Tage verbleibend"
+    "daysRemaining": "{days} Tage verbleibend",
+    "you": "Du",
+    "userPrefix": "Benutzer",
+    "lookingFor": "Sucht"
   },
   "history": {
     "title": "Tauschverlauf",
@@ -3032,5 +3037,25 @@
   "premium": {
     "title": "Swaply Premium",
     "subtitle": "Globale Sichtbarkeit · Prioritäts-Matching"
+  },
+  "analytics": {
+    "title": "Analyse",
+    "loginRequired": "Du musst eingeloggt sein, um die Analyse zu sehen.",
+    "dashboard": "Analyse-Dashboard",
+    "upgradeToPremium": "Upgrade auf Premium für vollen Analyse-Zugang",
+    "noData": "Keine Daten",
+    "noDataDesc": "Noch keine Analysedaten. Besuche deine Objekte, um das Tracking zu starten.",
+    "totalViews": "Gesamtaufrufe",
+    "favoritesReceived": "Erhaltene Favoriten",
+    "proposalsReceived": "Erhaltene Vorschläge",
+    "conversionRate": "Konversionsrate",
+    "completedSwaps": "Abgeschlossene Tausche",
+    "avgTimeToProposal": "Durchschn. Zeit bis Vorschlag",
+    "viewsPerDay": "Aufrufe pro Tag",
+    "last30Days": "Letzte 30 Tage",
+    "topItems": "Top-Objekte",
+    "byViews": "Nach Anzahl der Aufrufe",
+    "insights": "Automatische Insights",
+    "insightsDesc": "Empfehlungen basierend auf deinen Daten"
   }
 }

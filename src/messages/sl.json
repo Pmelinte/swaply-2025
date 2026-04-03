@@ -441,7 +441,9 @@
     "guestFeatureVerify": "Preverjanje identitete",
     "guestFeatureVerifyDesc": "E-pošta, telefon in identiteta — za značko preverjenih uporabnikov.",
     "guestCta": "Ustvari svoj brezplačni profil →",
-    "networkError": "Napaka v omrežju"
+    "networkError": "Napaka v omrežju",
+    "passkeyRegFailed": "Passkey registration failed",
+    "genericError": "Error"
   },
   "home": {
     "welcome": "Dobrodošel nazaj",
@@ -2326,7 +2328,10 @@
     "proposeSwap": "Predlagaj zamenjavo",
     "responsesCount": "{count} odgovorov",
     "searchPrefix": "Iščem:",
-    "daysRemaining": "{days} dni preostalo"
+    "daysRemaining": "{days} dni preostalo",
+    "you": "You",
+    "userPrefix": "User",
+    "lookingFor": "Looking for"
   },
   "history": {
     "title": "Zgodovina menjav",
@@ -3032,5 +3037,25 @@
   "premium": {
     "title": "Swaply Premium",
     "subtitle": "Global visibility · Priority matching"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "loginRequired": "You must be logged in to view analytics.",
+    "dashboard": "Analytics Dashboard",
+    "upgradeToPremium": "Upgrade to Premium for full analytics access",
+    "noData": "No data",
+    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
+    "totalViews": "Total views",
+    "favoritesReceived": "Favorites received",
+    "proposalsReceived": "Proposals received",
+    "conversionRate": "Conversion rate",
+    "completedSwaps": "Completed swaps",
+    "avgTimeToProposal": "Avg time to proposal",
+    "viewsPerDay": "Views per day",
+    "last30Days": "Last 30 days",
+    "topItems": "Top items",
+    "byViews": "By number of views",
+    "insights": "Automated insights",
+    "insightsDesc": "Recommendations based on your data"
   }
 }

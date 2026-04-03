@@ -441,7 +441,9 @@
     "guestFeatureVerify": "পরিচয় যাচাইকরণ",
     "guestFeatureVerifyDesc": "ইমেল, ফোন এবং পরিচয় — যাচাইকৃত ব্যবহারকারী ব্যাজের জন্য।",
     "guestCta": "আপনার বিনামূল্যে প্রোফাইল তৈরি করুন →",
-    "networkError": "নেটওয়ার্ক ত্রুটি"
+    "networkError": "নেটওয়ার্ক ত্রুটি",
+    "passkeyRegFailed": "Passkey registration failed",
+    "genericError": "Error"
   },
   "home": {
     "welcome": "স্বাগতম ফিরে",
@@ -2326,7 +2328,10 @@
     "proposeSwap": "স্ওয়াপ প্রস্তাব করুন",
     "responsesCount": "{count} টি প্রতিক্রিয়া",
     "searchPrefix": "খুঁজছেন:",
-    "daysRemaining": "{days} দিন বাকি"
+    "daysRemaining": "{days} দিন বাকি",
+    "you": "You",
+    "userPrefix": "User",
+    "lookingFor": "Looking for"
   },
   "history": {
     "title": "স্বপ ইতিহাস",
@@ -3032,5 +3037,25 @@
   "premium": {
     "title": "Swaply Premium",
     "subtitle": "Global visibility · Priority matching"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "loginRequired": "You must be logged in to view analytics.",
+    "dashboard": "Analytics Dashboard",
+    "upgradeToPremium": "Upgrade to Premium for full analytics access",
+    "noData": "No data",
+    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
+    "totalViews": "Total views",
+    "favoritesReceived": "Favorites received",
+    "proposalsReceived": "Proposals received",
+    "conversionRate": "Conversion rate",
+    "completedSwaps": "Completed swaps",
+    "avgTimeToProposal": "Avg time to proposal",
+    "viewsPerDay": "Views per day",
+    "last30Days": "Last 30 days",
+    "topItems": "Top items",
+    "byViews": "By number of views",
+    "insights": "Automated insights",
+    "insightsDesc": "Recommendations based on your data"
   }
 }

@@ -441,7 +441,9 @@
     "guestFeatureVerify": "Verifikazzjoni tal-identità",
     "guestFeatureVerifyDesc": "Email, telefon, u identità — għall-badge ta' user verifikat.",
     "guestCta": "Oħloq il-profil liberu tiegħek →",
-    "networkError": "Żball fin-netwerk"
+    "networkError": "Żball fin-netwerk",
+    "passkeyRegFailed": "Passkey registration failed",
+    "genericError": "Error"
   },
   "home": {
     "welcome": "Mirħba lura",
@@ -2326,7 +2328,10 @@
     "proposeSwap": "Proponi skambjo",
     "responsesCount": "{count} tweġibiet",
     "searchPrefix": "Qegħdin infittxu:",
-    "daysRemaining": "{days} ijiem li jifdal"
+    "daysRemaining": "{days} ijiem li jifdal",
+    "you": "You",
+    "userPrefix": "User",
+    "lookingFor": "Looking for"
   },
   "history": {
     "title": "Storja tal-Swaps",
@@ -3032,5 +3037,25 @@
   "premium": {
     "title": "Swaply Premium",
     "subtitle": "Global visibility · Priority matching"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "loginRequired": "You must be logged in to view analytics.",
+    "dashboard": "Analytics Dashboard",
+    "upgradeToPremium": "Upgrade to Premium for full analytics access",
+    "noData": "No data",
+    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
+    "totalViews": "Total views",
+    "favoritesReceived": "Favorites received",
+    "proposalsReceived": "Proposals received",
+    "conversionRate": "Conversion rate",
+    "completedSwaps": "Completed swaps",
+    "avgTimeToProposal": "Avg time to proposal",
+    "viewsPerDay": "Views per day",
+    "last30Days": "Last 30 days",
+    "topItems": "Top items",
+    "byViews": "By number of views",
+    "insights": "Automated insights",
+    "insightsDesc": "Recommendations based on your data"
   }
 }

@@ -441,7 +441,9 @@
     "guestFeatureVerify": "Kimlik Doğrulama",
     "guestFeatureVerifyDesc": "E-posta, telefon ve kimlik — doğrulanmış kullanıcı rozeti için.",
     "guestCta": "Ücretsiz profilinizi oluşturun →",
-    "networkError": "Ağ hatası"
+    "networkError": "Ağ hatası",
+    "passkeyRegFailed": "Passkey registration failed",
+    "genericError": "Error"
   },
   "home": {
     "welcome": "Tekrar hoş geldiniz",
@@ -2326,7 +2328,10 @@
     "proposeSwap": "Takas teklif et",
     "responsesCount": "{count} yanıt",
     "searchPrefix": "Aradığım:",
-    "daysRemaining": "{days} gün kaldı"
+    "daysRemaining": "{days} gün kaldı",
+    "you": "You",
+    "userPrefix": "User",
+    "lookingFor": "Looking for"
   },
   "history": {
     "title": "Takas Geçmişi",
@@ -3032,5 +3037,25 @@
   "premium": {
     "title": "Swaply Premium",
     "subtitle": "Global visibility · Priority matching"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "loginRequired": "You must be logged in to view analytics.",
+    "dashboard": "Analytics Dashboard",
+    "upgradeToPremium": "Upgrade to Premium for full analytics access",
+    "noData": "No data",
+    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
+    "totalViews": "Total views",
+    "favoritesReceived": "Favorites received",
+    "proposalsReceived": "Proposals received",
+    "conversionRate": "Conversion rate",
+    "completedSwaps": "Completed swaps",
+    "avgTimeToProposal": "Avg time to proposal",
+    "viewsPerDay": "Views per day",
+    "last30Days": "Last 30 days",
+    "topItems": "Top items",
+    "byViews": "By number of views",
+    "insights": "Automated insights",
+    "insightsDesc": "Recommendations based on your data"
   }
 }

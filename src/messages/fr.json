@@ -441,7 +441,9 @@
     "guestFeatureVerify": "Vérification d'identité",
     "guestFeatureVerifyDesc": "Email, téléphone et identité — pour le badge utilisateur vérifié.",
     "guestCta": "Créez votre profil gratuit →",
-    "networkError": "Erreur réseau"
+    "networkError": "Erreur réseau",
+    "passkeyRegFailed": "Échec de l'enregistrement passkey",
+    "genericError": "Erreur"
   },
   "home": {
     "welcome": "Bon retour",
@@ -2326,7 +2328,10 @@
     "proposeSwap": "Propose échange",
     "responsesCount": "{count} réponses",
     "searchPrefix": "À la recherche de :",
-    "daysRemaining": "{days} jours restants"
+    "daysRemaining": "{days} jours restants",
+    "you": "Vous",
+    "userPrefix": "Utilisateur",
+    "lookingFor": "Recherche"
   },
   "history": {
     "title": "Historique des échanges",
@@ -3032,5 +3037,25 @@
   "premium": {
     "title": "Swaply Premium",
     "subtitle": "Visibilité mondiale · Correspondances prioritaires"
+  },
+  "analytics": {
+    "title": "Analyse",
+    "loginRequired": "Vous devez être connecté pour voir les analyses.",
+    "dashboard": "Tableau de bord",
+    "upgradeToPremium": "Passez à Premium pour un accès complet aux analyses",
+    "noData": "Aucune donnée",
+    "noDataDesc": "Pas encore de données. Visitez vos objets pour commencer le suivi.",
+    "totalViews": "Vues totales",
+    "favoritesReceived": "Favoris reçus",
+    "proposalsReceived": "Propositions reçues",
+    "conversionRate": "Taux de conversion",
+    "completedSwaps": "Échanges complétés",
+    "avgTimeToProposal": "Temps moyen avant proposition",
+    "viewsPerDay": "Vues par jour",
+    "last30Days": "30 derniers jours",
+    "topItems": "Top objets",
+    "byViews": "Par nombre de vues",
+    "insights": "Insights automatiques",
+    "insightsDesc": "Recommandations basées sur vos données"
   }
 }

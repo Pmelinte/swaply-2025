@@ -441,7 +441,9 @@
     "guestFeatureVerify": "Pagpapatunay ng pagkakakilanlan",
     "guestFeatureVerifyDesc": "Email, telepono, at pagkakakilanlan — para sa verified user badge.",
     "guestCta": "Lumikha ng iyong libreng profile →",
-    "networkError": "Network error"
+    "networkError": "Network error",
+    "passkeyRegFailed": "Passkey registration failed",
+    "genericError": "Error"
   },
   "home": {
     "welcome": "Maligayang pagbabalik",
@@ -2326,7 +2328,10 @@
     "proposeSwap": "Mag-alok ng swap",
     "responsesCount": "{count} na mga tugon",
     "searchPrefix": "Naghahanap ng:",
-    "daysRemaining": "{days} na araw na natitira"
+    "daysRemaining": "{days} na araw na natitira",
+    "you": "You",
+    "userPrefix": "User",
+    "lookingFor": "Looking for"
   },
   "history": {
     "title": "Kasaysayan ng Swap",
@@ -3032,5 +3037,25 @@
   "premium": {
     "title": "Swaply Premium",
     "subtitle": "Global visibility · Priority matching"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "loginRequired": "You must be logged in to view analytics.",
+    "dashboard": "Analytics Dashboard",
+    "upgradeToPremium": "Upgrade to Premium for full analytics access",
+    "noData": "No data",
+    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
+    "totalViews": "Total views",
+    "favoritesReceived": "Favorites received",
+    "proposalsReceived": "Proposals received",
+    "conversionRate": "Conversion rate",
+    "completedSwaps": "Completed swaps",
+    "avgTimeToProposal": "Avg time to proposal",
+    "viewsPerDay": "Views per day",
+    "last30Days": "Last 30 days",
+    "topItems": "Top items",
+    "byViews": "By number of views",
+    "insights": "Automated insights",
+    "insightsDesc": "Recommendations based on your data"
   }
 }

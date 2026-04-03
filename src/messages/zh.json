@@ -441,7 +441,9 @@
     "guestFeatureVerify": "身份验证",
     "guestFeatureVerifyDesc": "邮箱、电话和身份——获得已验证用户徽章。",
     "guestCta": "创建您的免费档案 →",
-    "networkError": "网络错误"
+    "networkError": "网络错误",
+    "passkeyRegFailed": "Passkey registration failed",
+    "genericError": "Error"
   },
   "home": {
     "welcome": "欢迎回来",
@@ -2326,7 +2328,10 @@
     "proposeSwap": "提议交换",
     "responsesCount": "{count} 个回复",
     "searchPrefix": "寻找：",
-    "daysRemaining": "还剩 {days} 天"
+    "daysRemaining": "还剩 {days} 天",
+    "you": "You",
+    "userPrefix": "User",
+    "lookingFor": "Looking for"
   },
   "history": {
     "title": "交换历史",
@@ -3032,5 +3037,25 @@
   "premium": {
     "title": "Swaply Premium",
     "subtitle": "Global visibility · Priority matching"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "loginRequired": "You must be logged in to view analytics.",
+    "dashboard": "Analytics Dashboard",
+    "upgradeToPremium": "Upgrade to Premium for full analytics access",
+    "noData": "No data",
+    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
+    "totalViews": "Total views",
+    "favoritesReceived": "Favorites received",
+    "proposalsReceived": "Proposals received",
+    "conversionRate": "Conversion rate",
+    "completedSwaps": "Completed swaps",
+    "avgTimeToProposal": "Avg time to proposal",
+    "viewsPerDay": "Views per day",
+    "last30Days": "Last 30 days",
+    "topItems": "Top items",
+    "byViews": "By number of views",
+    "insights": "Automated insights",
+    "insightsDesc": "Recommendations based on your data"
   }
 }

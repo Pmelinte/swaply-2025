@@ -441,7 +441,9 @@
     "guestFeatureVerify": "신원 확인",
     "guestFeatureVerifyDesc": "이메일, 전화, 신원 — 검증된 사용자 배지를 위해.",
     "guestCta": "무료 프로필 만들기 →",
-    "networkError": "네트워크 오류"
+    "networkError": "네트워크 오류",
+    "passkeyRegFailed": "Passkey registration failed",
+    "genericError": "Error"
   },
   "home": {
     "welcome": "다시 오셨군요",
@@ -2326,7 +2328,10 @@
     "proposeSwap": "스왑 제안",
     "responsesCount": "{count}개의 응답",
     "searchPrefix": "찾는 것:",
-    "daysRemaining": "{days}일 남음"
+    "daysRemaining": "{days}일 남음",
+    "you": "You",
+    "userPrefix": "User",
+    "lookingFor": "Looking for"
   },
   "history": {
     "title": "스왑 기록",
@@ -3032,5 +3037,25 @@
   "premium": {
     "title": "Swaply Premium",
     "subtitle": "Global visibility · Priority matching"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "loginRequired": "You must be logged in to view analytics.",
+    "dashboard": "Analytics Dashboard",
+    "upgradeToPremium": "Upgrade to Premium for full analytics access",
+    "noData": "No data",
+    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
+    "totalViews": "Total views",
+    "favoritesReceived": "Favorites received",
+    "proposalsReceived": "Proposals received",
+    "conversionRate": "Conversion rate",
+    "completedSwaps": "Completed swaps",
+    "avgTimeToProposal": "Avg time to proposal",
+    "viewsPerDay": "Views per day",
+    "last30Days": "Last 30 days",
+    "topItems": "Top items",
+    "byViews": "By number of views",
+    "insights": "Automated insights",
+    "insightsDesc": "Recommendations based on your data"
   }
 }

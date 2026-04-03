@@ -470,7 +470,9 @@
     "documentPending": "אונטער ריווויו — דו וועסט זיין בענאטיפיד.",
     "badgeVerifiedUser": "פאראיביקט יוזער",
     "badgeIdentityConfirmed": "אידענטיטעט קאנפערמד",
-    "networkError": "נעטװאָرק גרייַטש"
+    "networkError": "נעטװאָرק גרייַטש",
+    "passkeyRegFailed": "Passkey registration failed",
+    "genericError": "Error"
   },
   "home": {
     "welcome": "װילקום צוריק",
@@ -2353,7 +2355,10 @@
     "proposeSwap": "פֿאָרשלאָגן סוויפּ",
     "responsesCount": "{count} אנטװאָרטן",
     "searchPrefix": "זוכן אחרי:",
-    "daysRemaining": "{days} טעג לינקס"
+    "daysRemaining": "{days} טעג לינקס",
+    "you": "You",
+    "userPrefix": "User",
+    "lookingFor": "Looking for"
   },
   "history": {
     "title": "סוואפ היסטאָריע",
@@ -3030,5 +3035,25 @@
   "premium": {
     "title": "Swaply Premium",
     "subtitle": "Global visibility · Priority matching"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "loginRequired": "You must be logged in to view analytics.",
+    "dashboard": "Analytics Dashboard",
+    "upgradeToPremium": "Upgrade to Premium for full analytics access",
+    "noData": "No data",
+    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
+    "totalViews": "Total views",
+    "favoritesReceived": "Favorites received",
+    "proposalsReceived": "Proposals received",
+    "conversionRate": "Conversion rate",
+    "completedSwaps": "Completed swaps",
+    "avgTimeToProposal": "Avg time to proposal",
+    "viewsPerDay": "Views per day",
+    "last30Days": "Last 30 days",
+    "topItems": "Top items",
+    "byViews": "By number of views",
+    "insights": "Automated insights",
+    "insightsDesc": "Recommendations based on your data"
   }
 }

@@ -441,7 +441,9 @@
     "guestFeatureVerify": "Fíorú céannachta",
     "guestFeatureVerifyDesc": "Ríomhphost, fón, agus céannacht — do bheirthe an fhíorite.",
     "guestCta": "Cruthaigh do phróifíl saor in aisce →",
-    "networkError": "Earráid líonra"
+    "networkError": "Earráid líonra",
+    "passkeyRegFailed": "Passkey registration failed",
+    "genericError": "Error"
   },
   "home": {
     "welcome": "Fáilte ar ais",
@@ -2326,7 +2328,10 @@
     "proposeSwap": "Mol malartú",
     "responsesCount": "{count} fregra",
     "searchPrefix": "Ag lorg:",
-    "daysRemaining": "{days} lá fágtha"
+    "daysRemaining": "{days} lá fágtha",
+    "you": "You",
+    "userPrefix": "User",
+    "lookingFor": "Looking for"
   },
   "history": {
     "title": "Stair Babhtála",
@@ -3032,5 +3037,25 @@
   "premium": {
     "title": "Swaply Premium",
     "subtitle": "Global visibility · Priority matching"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "loginRequired": "You must be logged in to view analytics.",
+    "dashboard": "Analytics Dashboard",
+    "upgradeToPremium": "Upgrade to Premium for full analytics access",
+    "noData": "No data",
+    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
+    "totalViews": "Total views",
+    "favoritesReceived": "Favorites received",
+    "proposalsReceived": "Proposals received",
+    "conversionRate": "Conversion rate",
+    "completedSwaps": "Completed swaps",
+    "avgTimeToProposal": "Avg time to proposal",
+    "viewsPerDay": "Views per day",
+    "last30Days": "Last 30 days",
+    "topItems": "Top items",
+    "byViews": "By number of views",
+    "insights": "Automated insights",
+    "insightsDesc": "Recommendations based on your data"
   }
 }

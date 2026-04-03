@@ -554,7 +554,9 @@
     "guestFeatureVerify": "Identitetsverifikation",
     "guestFeatureVerifyDesc": "E-post, telefon och identitet — för verified user-märket.",
     "guestCta": "Skapa din kostnadsfria profil →",
-    "networkError": "Nätverksfel"
+    "networkError": "Nätverksfel",
+    "passkeyRegFailed": "Passkey registration failed",
+    "genericError": "Error"
   },
   "home": {
     "title": "Byt vad som helst, med vem som helst",
@@ -2539,7 +2541,10 @@
     "proposeSwap": "Föreslå byte",
     "responsesCount": "{count} svar",
     "searchPrefix": "Letar efter:",
-    "daysRemaining": "{days} dagar kvar"
+    "daysRemaining": "{days} dagar kvar",
+    "you": "You",
+    "userPrefix": "User",
+    "lookingFor": "Looking for"
   },
   "history": {
     "title": "Utbyten historik",
@@ -3245,5 +3250,25 @@
   "premium": {
     "title": "Swaply Premium",
     "subtitle": "Global visibility · Priority matching"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "loginRequired": "You must be logged in to view analytics.",
+    "dashboard": "Analytics Dashboard",
+    "upgradeToPremium": "Upgrade to Premium for full analytics access",
+    "noData": "No data",
+    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
+    "totalViews": "Total views",
+    "favoritesReceived": "Favorites received",
+    "proposalsReceived": "Proposals received",
+    "conversionRate": "Conversion rate",
+    "completedSwaps": "Completed swaps",
+    "avgTimeToProposal": "Avg time to proposal",
+    "viewsPerDay": "Views per day",
+    "last30Days": "Last 30 days",
+    "topItems": "Top items",
+    "byViews": "By number of views",
+    "insights": "Automated insights",
+    "insightsDesc": "Recommendations based on your data"
   }
 }

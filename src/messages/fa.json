@@ -441,7 +441,9 @@
     "guestFeatureVerify": "تأیید هویت",
     "guestFeatureVerifyDesc": "ایمیل، تلفن، و شناسایی — برای نشان کاربر تأیید شده.",
     "guestCta": "پروفایل رایگان خود را ایجاد کنید →",
-    "networkError": "خطا در شبکه"
+    "networkError": "خطا در شبکه",
+    "passkeyRegFailed": "Passkey registration failed",
+    "genericError": "Error"
   },
   "home": {
     "welcome": "خوش آمدید",
@@ -2326,7 +2328,10 @@
     "proposeSwap": "پیشنهاد تبدیل",
     "responsesCount": "{count} پاسخ",
     "searchPrefix": "دنبال:",
-    "daysRemaining": "{days} روز باقی‌مانده"
+    "daysRemaining": "{days} روز باقی‌مانده",
+    "you": "You",
+    "userPrefix": "User",
+    "lookingFor": "Looking for"
   },
   "history": {
     "title": "سابقه تبدیل",
@@ -3032,5 +3037,25 @@
   "premium": {
     "title": "Swaply Premium",
     "subtitle": "Global visibility · Priority matching"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "loginRequired": "You must be logged in to view analytics.",
+    "dashboard": "Analytics Dashboard",
+    "upgradeToPremium": "Upgrade to Premium for full analytics access",
+    "noData": "No data",
+    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
+    "totalViews": "Total views",
+    "favoritesReceived": "Favorites received",
+    "proposalsReceived": "Proposals received",
+    "conversionRate": "Conversion rate",
+    "completedSwaps": "Completed swaps",
+    "avgTimeToProposal": "Avg time to proposal",
+    "viewsPerDay": "Views per day",
+    "last30Days": "Last 30 days",
+    "topItems": "Top items",
+    "byViews": "By number of views",
+    "insights": "Automated insights",
+    "insightsDesc": "Recommendations based on your data"
   }
 }

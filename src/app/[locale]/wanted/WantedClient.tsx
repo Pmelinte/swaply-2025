@@ -58,9 +58,9 @@ export default function WantedClient() {
         .map((item) => ({
           id: `wanted-${item.id}`,
           userId: item.ownerId,
-          userName: item.ownerId === user?.id ? (user.displayName || "You") : `User ${item.ownerId.slice(0, 4)}`,
+          userName: item.ownerId === user?.id ? (user.displayName || t("you")) : `${t("userPrefix")} ${item.ownerId.slice(0, 4)}`,
           title: item.wishlist,
-          description: `Looking for: ${item.wishlist}`,
+          description: `${t("lookingFor")}: ${item.wishlist}`,
           category: item.category,
           city: item.location,
           offerDescription: item.title,
@@ -108,7 +108,7 @@ export default function WantedClient() {
         if (res.ok) {
           const data = await res.json();
           setRequests((prev) => [
-            { ...data.request, userName: user?.displayName || "You" },
+            { ...data.request, userName: user?.displayName || t("you") },
             ...prev,
           ]);
           setFormTitle("");

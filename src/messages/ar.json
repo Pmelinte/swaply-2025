@@ -441,7 +441,9 @@
     "guestFeatureVerify": "التحقق من الهوية",
     "guestFeatureVerifyDesc": "البريد الإلكتروني والهاتف والهوية — للحصول على شارة المستخدم المتحقق منه.",
     "guestCta": "أنشئ ملفك الشخصي المجاني →",
-    "networkError": "خطأ في الشبكة"
+    "networkError": "خطأ في الشبكة",
+    "passkeyRegFailed": "Passkey registration failed",
+    "genericError": "Error"
   },
   "home": {
     "welcome": "أهلاً وسهلاً",
@@ -2326,7 +2328,10 @@
     "proposeSwap": "اقترح تبديل",
     "responsesCount": "{count} ردود",
     "searchPrefix": "تبحث عن:",
-    "daysRemaining": "{days} أيام متبقية"
+    "daysRemaining": "{days} أيام متبقية",
+    "you": "You",
+    "userPrefix": "User",
+    "lookingFor": "Looking for"
   },
   "history": {
     "title": "سجل التبديلات",
@@ -3032,5 +3037,25 @@
   "premium": {
     "title": "Swaply Premium",
     "subtitle": "Global visibility · Priority matching"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "loginRequired": "You must be logged in to view analytics.",
+    "dashboard": "Analytics Dashboard",
+    "upgradeToPremium": "Upgrade to Premium for full analytics access",
+    "noData": "No data",
+    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
+    "totalViews": "Total views",
+    "favoritesReceived": "Favorites received",
+    "proposalsReceived": "Proposals received",
+    "conversionRate": "Conversion rate",
+    "completedSwaps": "Completed swaps",
+    "avgTimeToProposal": "Avg time to proposal",
+    "viewsPerDay": "Views per day",
+    "last30Days": "Last 30 days",
+    "topItems": "Top items",
+    "byViews": "By number of views",
+    "insights": "Automated insights",
+    "insightsDesc": "Recommendations based on your data"
   }
 }
