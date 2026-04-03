@@ -441,7 +441,9 @@
     "guestFeatureVerify": "Ověření identity",
     "guestFeatureVerifyDesc": "E-mail, telefon a identita — pro ověřený odznak uživatele.",
     "guestCta": "Vytvořit bezplatný profil →",
-    "networkError": "Chyba sítě"
+    "networkError": "Chyba sítě",
+    "passkeyRegFailed": "Registrace passkey selhala",
+    "genericError": "Chyba"
   },
   "home": {
     "welcome": "Vítejte zpět",
@@ -2172,7 +2174,8 @@
     "modalTitle": "Vytvořte si bezplatný účet",
     "modalDescription": "Vytvořte si bezplatný účet pro navrhování výměn, posílání zpráv a zahájení výměn.",
     "modalCta": "Vytvořit bezplatný účet",
-    "modalDismiss": "Možná později"
+    "modalDismiss": "Možná později",
+    "haveAccount": "Již mám účet"
   },
   "about": {
     "title": "O Swaply",
@@ -2326,7 +2329,10 @@
     "proposeSwap": "Navrhnout výměnu",
     "responsesCount": "{count} odpovědí",
     "searchPrefix": "Hledám:",
-    "daysRemaining": "Zbývá {days} dní"
+    "daysRemaining": "Zbývá {days} dní",
+    "you": "Ty",
+    "userPrefix": "Uživatel",
+    "lookingFor": "Hledá"
   },
   "history": {
     "title": "Historie výměn",
@@ -3032,5 +3038,25 @@
   "premium": {
     "title": "Swaply Premium",
     "subtitle": "Global visibility · Priority matching"
+  },
+  "analytics": {
+    "title": "Analytika",
+    "loginRequired": "Pro zobrazení analytiky se musíte přihlásit.",
+    "dashboard": "Panel analytiky",
+    "upgradeToPremium": "Upgradujte na Premium pro plný přístup",
+    "noData": "Žádná data",
+    "noDataDesc": "Zatím žádná analytická data. Navštivte své předměty pro zahájení sledování.",
+    "totalViews": "Celkové zobrazení",
+    "favoritesReceived": "Přijaté oblíbené",
+    "proposalsReceived": "Přijaté návrhy",
+    "conversionRate": "Konverzní poměr",
+    "completedSwaps": "Dokončené výměny",
+    "avgTimeToProposal": "Prům. čas do návrhu",
+    "viewsPerDay": "Zobrazení za den",
+    "last30Days": "Posledních 30 dní",
+    "topItems": "Top předměty",
+    "byViews": "Podle počtu zobrazení",
+    "insights": "Automatické postřehy",
+    "insightsDesc": "Doporučení na základě vašich dat"
   }
 }

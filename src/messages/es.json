@@ -441,7 +441,9 @@
     "guestFeatureVerify": "Verificación de identidad",
     "guestFeatureVerifyDesc": "Correo electrónico, teléfono e identidad — para la insignia de usuario verificado.",
     "guestCta": "Crea tu perfil gratuito →",
-    "networkError": "Error de red"
+    "networkError": "Error de red",
+    "passkeyRegFailed": "Error al registrar passkey",
+    "genericError": "Error"
   },
   "home": {
     "welcome": "Bienvenido de nuevo",
@@ -2172,7 +2174,8 @@
     "modalTitle": "Crea una cuenta gratuita",
     "modalDescription": "Crea una cuenta gratuita para proponer intercambios, enviar mensajes y empezar a intercambiar.",
     "modalCta": "Crear cuenta gratuita",
-    "modalDismiss": "Quizás más tarde"
+    "modalDismiss": "Quizás más tarde",
+    "haveAccount": "Ya tengo una cuenta"
   },
   "about": {
     "title": "Acerca de Swaply",
@@ -2326,7 +2329,10 @@
     "proposeSwap": "Propose intercambio",
     "responsesCount": "{count} respuestas",
     "searchPrefix": "Buscando:",
-    "daysRemaining": "{days} días restantes"
+    "daysRemaining": "{days} días restantes",
+    "you": "Tú",
+    "userPrefix": "Usuario",
+    "lookingFor": "Busca"
   },
   "history": {
     "title": "Historial de Intercambios",
@@ -3032,5 +3038,25 @@
   "premium": {
     "title": "Swaply Premium",
     "subtitle": "Visibilidad global · Coincidencias prioritarias"
+  },
+  "analytics": {
+    "title": "Análisis",
+    "loginRequired": "Debes iniciar sesión para ver los análisis.",
+    "dashboard": "Panel de análisis",
+    "upgradeToPremium": "Actualiza a Premium para acceso completo a análisis",
+    "noData": "Sin datos",
+    "noDataDesc": "Aún no hay datos de análisis. Visita tus objetos para comenzar el seguimiento.",
+    "totalViews": "Vistas totales",
+    "favoritesReceived": "Favoritos recibidos",
+    "proposalsReceived": "Propuestas recibidas",
+    "conversionRate": "Tasa de conversión",
+    "completedSwaps": "Intercambios completados",
+    "avgTimeToProposal": "Tiempo promedio hasta propuesta",
+    "viewsPerDay": "Vistas por día",
+    "last30Days": "Últimos 30 días",
+    "topItems": "Top objetos",
+    "byViews": "Por número de vistas",
+    "insights": "Insights automáticos",
+    "insightsDesc": "Recomendaciones basadas en tus datos"
   }
 }

@@ -441,7 +441,9 @@
     "guestFeatureVerify": "Kimlik Doğrulama",
     "guestFeatureVerifyDesc": "E-posta, telefon ve kimlik — doğrulanmış kullanıcı rozeti için.",
     "guestCta": "Ücretsiz profilinizi oluşturun →",
-    "networkError": "Ağ hatası"
+    "networkError": "Ağ hatası",
+    "passkeyRegFailed": "Geçiş anahtarı kaydı başarısız",
+    "genericError": "Hata"
   },
   "home": {
     "welcome": "Tekrar hoş geldiniz",
@@ -2172,7 +2174,8 @@
     "modalTitle": "Ücretsiz hesap oluştur",
     "modalDescription": "Takas önermek, mesaj göndermek ve takas yapmaya başlamak için ücretsiz hesap oluşturun.",
     "modalCta": "Ücretsiz hesap oluştur",
-    "modalDismiss": "Belki daha sonra"
+    "modalDismiss": "Belki daha sonra",
+    "haveAccount": "Zaten hesabım var"
   },
   "about": {
     "title": "Swaply Hakkında",
@@ -2326,7 +2329,10 @@
     "proposeSwap": "Takas teklif et",
     "responsesCount": "{count} yanıt",
     "searchPrefix": "Aradığım:",
-    "daysRemaining": "{days} gün kaldı"
+    "daysRemaining": "{days} gün kaldı",
+    "you": "Sen",
+    "userPrefix": "Kullanıcı",
+    "lookingFor": "Arıyor"
   },
   "history": {
     "title": "Takas Geçmişi",
@@ -3032,5 +3038,25 @@
   "premium": {
     "title": "Swaply Premium",
     "subtitle": "Global visibility · Priority matching"
+  },
+  "analytics": {
+    "title": "Analiz",
+    "loginRequired": "Analizi görmek için giriş yapmalısınız.",
+    "dashboard": "Analiz Paneli",
+    "upgradeToPremium": "Tam erişim için Premium'a yükseltin",
+    "noData": "Veri yok",
+    "noDataDesc": "Henüz analiz verisi yok. Takibi başlatmak için öğelerinizi ziyaret edin.",
+    "totalViews": "Toplam görüntüleme",
+    "favoritesReceived": "Alınan favoriler",
+    "proposalsReceived": "Alınan teklifler",
+    "conversionRate": "Dönüşüm oranı",
+    "completedSwaps": "Tamamlanan takaslar",
+    "avgTimeToProposal": "Ortalama teklif süresi",
+    "viewsPerDay": "Günlük görüntüleme",
+    "last30Days": "Son 30 gün",
+    "topItems": "En iyi öğeler",
+    "byViews": "Görüntüleme sayısına göre",
+    "insights": "Otomatik içgörüler",
+    "insightsDesc": "Verilerinize dayalı öneriler"
   }
 }

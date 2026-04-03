@@ -554,7 +554,9 @@
     "guestFeatureVerify": "Identitetsverifikation",
     "guestFeatureVerifyDesc": "E-post, telefon och identitet — för verified user-märket.",
     "guestCta": "Skapa din kostnadsfria profil →",
-    "networkError": "Nätverksfel"
+    "networkError": "Nätverksfel",
+    "passkeyRegFailed": "Passkey-registrering misslyckades",
+    "genericError": "Fel"
   },
   "home": {
     "title": "Byt vad som helst, med vem som helst",
@@ -2385,7 +2387,8 @@
     "modalTitle": "Skapa ett gratis konto",
     "modalDescription": "Skapa ett gratis konto för att föreslå byten, skicka meddelanden och börja byta.",
     "modalCta": "Skapa gratis konto",
-    "modalDismiss": "Kanske senare"
+    "modalDismiss": "Kanske senare",
+    "haveAccount": "Jag har redan ett konto"
   },
   "about": {
     "title": "Om Swaply",
@@ -2539,7 +2542,10 @@
     "proposeSwap": "Föreslå byte",
     "responsesCount": "{count} svar",
     "searchPrefix": "Letar efter:",
-    "daysRemaining": "{days} dagar kvar"
+    "daysRemaining": "{days} dagar kvar",
+    "you": "Du",
+    "userPrefix": "Användare",
+    "lookingFor": "Söker"
   },
   "history": {
     "title": "Utbyten historik",
@@ -3245,5 +3251,25 @@
   "premium": {
     "title": "Swaply Premium",
     "subtitle": "Global visibility · Priority matching"
+  },
+  "analytics": {
+    "title": "Analys",
+    "loginRequired": "Du måste vara inloggad för att se analysen.",
+    "dashboard": "Analyspanel",
+    "upgradeToPremium": "Uppgradera till Premium för full åtkomst",
+    "noData": "Ingen data",
+    "noDataDesc": "Inga analysdata ännu. Besök dina objekt för att börja spårning.",
+    "totalViews": "Totala visningar",
+    "favoritesReceived": "Mottagna favoriter",
+    "proposalsReceived": "Mottagna förslag",
+    "conversionRate": "Konverteringsgrad",
+    "completedSwaps": "Slutförda byten",
+    "avgTimeToProposal": "Snittid till förslag",
+    "viewsPerDay": "Visningar per dag",
+    "last30Days": "Senaste 30 dagarna",
+    "topItems": "Toppobjekt",
+    "byViews": "Efter antal visningar",
+    "insights": "Automatiska insikter",
+    "insightsDesc": "Rekommendationer baserade på dina data"
   }
 }

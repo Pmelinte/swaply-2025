@@ -441,7 +441,9 @@
     "guestFeatureVerify": "Overenie totožnosti",
     "guestFeatureVerifyDesc": "Email, telefón a totožnosť — pre značku overeného používateľa.",
     "guestCta": "Vytvorte svoj bezplatný profil →",
-    "networkError": "Chyba siete"
+    "networkError": "Chyba siete",
+    "passkeyRegFailed": "Passkey registration failed",
+    "genericError": "Error"
   },
   "home": {
     "welcome": "Vítame vás späť",
@@ -2172,7 +2174,8 @@
     "modalTitle": "Vytvorte si bezplatný účet",
     "modalDescription": "Vytvorte si bezplatný účet na navrhovanie výmen, posielanie správ a začatie výmeny.",
     "modalCta": "Vytvoriť bezplatný účet",
-    "modalDismiss": "Možno neskôr"
+    "modalDismiss": "Možno neskôr",
+    "haveAccount": "I already have an account"
   },
   "about": {
     "title": "O Swaply",
@@ -2326,7 +2329,10 @@
     "proposeSwap": "Navrhnúť výmenu",
     "responsesCount": "{count} odpovedí",
     "searchPrefix": "Hľadám:",
-    "daysRemaining": "Zostáva {days} dní"
+    "daysRemaining": "Zostáva {days} dní",
+    "you": "You",
+    "userPrefix": "User",
+    "lookingFor": "Looking for"
   },
   "history": {
     "title": "História výmen",
@@ -3032,5 +3038,25 @@
   "premium": {
     "title": "Swaply Premium",
     "subtitle": "Global visibility · Priority matching"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "loginRequired": "You must be logged in to view analytics.",
+    "dashboard": "Analytics Dashboard",
+    "upgradeToPremium": "Upgrade to Premium for full analytics access",
+    "noData": "No data",
+    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
+    "totalViews": "Total views",
+    "favoritesReceived": "Favorites received",
+    "proposalsReceived": "Proposals received",
+    "conversionRate": "Conversion rate",
+    "completedSwaps": "Completed swaps",
+    "avgTimeToProposal": "Avg time to proposal",
+    "viewsPerDay": "Views per day",
+    "last30Days": "Last 30 days",
+    "topItems": "Top items",
+    "byViews": "By number of views",
+    "insights": "Automated insights",
+    "insightsDesc": "Recommendations based on your data"
   }
 }

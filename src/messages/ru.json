@@ -441,7 +441,9 @@
     "guestFeatureVerify": "Проверка личности",
     "guestFeatureVerifyDesc": "Email, телефон и личные данные — для значка верифицированного пользователя.",
     "guestCta": "Создайте свой бесплатный профиль →",
-    "networkError": "Ошибка сети"
+    "networkError": "Ошибка сети",
+    "passkeyRegFailed": "Ошибка регистрации passkey",
+    "genericError": "Ошибка"
   },
   "home": {
     "welcome": "С возвращением",
@@ -2172,7 +2174,8 @@
     "modalTitle": "Создайте бесплатный аккаунт",
     "modalDescription": "Создайте бесплатный аккаунт, чтобы предлагать обмены, отправлять сообщения и начать обмениваться.",
     "modalCta": "Создать бесплатный аккаунт",
-    "modalDismiss": "Может быть позже"
+    "modalDismiss": "Может быть позже",
+    "haveAccount": "У меня уже есть аккаунт"
   },
   "about": {
     "title": "О Swaply",
@@ -2326,7 +2329,10 @@
     "proposeSwap": "Предложить обмен",
     "responsesCount": "{count} ответов",
     "searchPrefix": "Ищу:",
-    "daysRemaining": "Осталось {days} дней"
+    "daysRemaining": "Осталось {days} дней",
+    "you": "Вы",
+    "userPrefix": "Пользователь",
+    "lookingFor": "Ищет"
   },
   "history": {
     "title": "История обменов",
@@ -3032,5 +3038,25 @@
   "premium": {
     "title": "Swaply Premium",
     "subtitle": "Global visibility · Priority matching"
+  },
+  "analytics": {
+    "title": "Аналитика",
+    "loginRequired": "Войдите, чтобы просмотреть аналитику.",
+    "dashboard": "Панель аналитики",
+    "upgradeToPremium": "Обновите до Premium для полного доступа",
+    "noData": "Нет данных",
+    "noDataDesc": "Пока нет данных аналитики. Посетите свои предметы для начала отслеживания.",
+    "totalViews": "Всего просмотров",
+    "favoritesReceived": "Полученные избранные",
+    "proposalsReceived": "Полученные предложения",
+    "conversionRate": "Конверсия",
+    "completedSwaps": "Завершённые обмены",
+    "avgTimeToProposal": "Ср. время до предложения",
+    "viewsPerDay": "Просмотров в день",
+    "last30Days": "Последние 30 дней",
+    "topItems": "Топ предметов",
+    "byViews": "По количеству просмотров",
+    "insights": "Автоматические инсайты",
+    "insightsDesc": "Рекомендации на основе ваших данных"
   }
 }

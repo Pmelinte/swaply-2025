@@ -441,7 +441,9 @@
     "guestFeatureVerify": "การยืนยันตัวตน",
     "guestFeatureVerifyDesc": "อีเมล โทรศัพท์ และตัวตน — เพื่อได้รับป้ายผู้ใช้ที่ยืนยันแล้ว",
     "guestCta": "สร้างโปรไฟล์ฟรีของคุณ →",
-    "networkError": "ข้อผิดพลาดของเครือข่าย"
+    "networkError": "ข้อผิดพลาดของเครือข่าย",
+    "passkeyRegFailed": "Passkey registration failed",
+    "genericError": "Error"
   },
   "home": {
     "welcome": "ยินดีต้อนรับกลับ",
@@ -2172,7 +2174,8 @@
     "modalTitle": "สร้างบัญชีฟรี",
     "modalDescription": "สร้างบัญชีฟรีเพื่อเสนอการแลกเปลี่ยน ส่งข้อความ และเริ่มแลกเปลี่ยน",
     "modalCta": "สร้างบัญชีฟรี",
-    "modalDismiss": "ไว้ทีหลัง"
+    "modalDismiss": "ไว้ทีหลัง",
+    "haveAccount": "I already have an account"
   },
   "about": {
     "title": "เกี่ยวกับ Swaply",
@@ -2326,7 +2329,10 @@
     "proposeSwap": "เสนอการแลก",
     "responsesCount": "{count} คำตอบ",
     "searchPrefix": "ค้นหา:",
-    "daysRemaining": "เหลือ {days} วัน"
+    "daysRemaining": "เหลือ {days} วัน",
+    "you": "You",
+    "userPrefix": "User",
+    "lookingFor": "Looking for"
   },
   "history": {
     "title": "ประวัติการแลกเปลี่ยน",
@@ -3032,5 +3038,25 @@
   "premium": {
     "title": "Swaply Premium",
     "subtitle": "Global visibility · Priority matching"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "loginRequired": "You must be logged in to view analytics.",
+    "dashboard": "Analytics Dashboard",
+    "upgradeToPremium": "Upgrade to Premium for full analytics access",
+    "noData": "No data",
+    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
+    "totalViews": "Total views",
+    "favoritesReceived": "Favorites received",
+    "proposalsReceived": "Proposals received",
+    "conversionRate": "Conversion rate",
+    "completedSwaps": "Completed swaps",
+    "avgTimeToProposal": "Avg time to proposal",
+    "viewsPerDay": "Views per day",
+    "last30Days": "Last 30 days",
+    "topItems": "Top items",
+    "byViews": "By number of views",
+    "insights": "Automated insights",
+    "insightsDesc": "Recommendations based on your data"
   }
 }

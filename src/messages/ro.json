@@ -470,7 +470,9 @@
     "scoreAbove50": "Peste 50% (mai multe alerte)",
     "scoreAbove70": "Peste 70% (recomandat)",
     "scoreAbove90": "Peste 90% (doar cele mai bune potriviri)",
-    "networkError": "Eroare de rețea"
+    "networkError": "Eroare de rețea",
+    "passkeyRegFailed": "Înregistrarea passkey a eșuat",
+    "genericError": "Eroare"
   },
   "home": {
     "welcome": "Bine ai revenit",
@@ -2084,7 +2086,8 @@
     "modalTitle": "Creează un cont gratuit",
     "modalDescription": "Creează un cont gratuit pentru a propune schimburi, trimite mesaje și începe să faci schimburi.",
     "modalCta": "Creează cont gratuit",
-    "modalDismiss": "Poate mai târziu"
+    "modalDismiss": "Poate mai târziu",
+    "haveAccount": "Am deja cont"
   },
   "onboarding": {
     "step1Title": "Listează obiectele",
@@ -2457,7 +2460,10 @@
     "proposeSwap": "Propune schimb",
     "responsesCount": "{count} răspunsuri",
     "searchPrefix": "Caută:",
-    "daysRemaining": "{days} zile rămase"
+    "daysRemaining": "{days} zile rămase",
+    "you": "Tu",
+    "userPrefix": "Utilizator",
+    "lookingFor": "Caută"
   },
   "desk": {
     "title": "Biroul meu de swap",
@@ -3022,5 +3028,25 @@
   "premium": {
     "title": "Swaply Premium",
     "subtitle": "Vizibilitate globală · Potriviri prioritare"
+  },
+  "analytics": {
+    "title": "Analiză",
+    "loginRequired": "Trebuie să fii autentificat pentru a vedea analytics.",
+    "dashboard": "Panou Analiză",
+    "upgradeToPremium": "Upgrade la Premium pentru a accesa analytics-ul complet",
+    "noData": "Nicio dată",
+    "noDataDesc": "Nu avem încă date de analytics. Vizitează-ți obiectele pentru a începe tracking-ul.",
+    "totalViews": "Views totale",
+    "favoritesReceived": "Favorite primite",
+    "proposalsReceived": "Propuneri primite",
+    "conversionRate": "Rata conversie",
+    "completedSwaps": "Swap-uri completate",
+    "avgTimeToProposal": "Timp mediu până la propunere",
+    "viewsPerDay": "Views pe zi",
+    "last30Days": "Ultimele 30 de zile",
+    "topItems": "Top obiecte",
+    "byViews": "După numărul de views",
+    "insights": "Insights automate",
+    "insightsDesc": "Recomandări bazate pe datele tale"
   }
 }

@@ -441,7 +441,9 @@
     "guestFeatureVerify": "Identitetsverifisering",
     "guestFeatureVerifyDesc": "E-post, telefon og identitet — for merket for verifisert bruker.",
     "guestCta": "Opprett din gratis profil →",
-    "networkError": "Nettverksfeil"
+    "networkError": "Nettverksfeil",
+    "passkeyRegFailed": "Passkey registration failed",
+    "genericError": "Error"
   },
   "home": {
     "welcome": "Velkommen tilbake",
@@ -2172,7 +2174,8 @@
     "modalTitle": "Opprett en gratis konto",
     "modalDescription": "Opprett en gratis konto for å foreslå bytter, sende meldinger og begynne å bytte.",
     "modalCta": "Opprett gratis konto",
-    "modalDismiss": "Kanskje senere"
+    "modalDismiss": "Kanskje senere",
+    "haveAccount": "I already have an account"
   },
   "about": {
     "title": "Om Swaply",
@@ -2326,7 +2329,10 @@
     "proposeSwap": "Foreslå bytte",
     "responsesCount": "{count} svar",
     "searchPrefix": "Søker etter:",
-    "daysRemaining": "{days} dager igjen"
+    "daysRemaining": "{days} dager igjen",
+    "you": "You",
+    "userPrefix": "User",
+    "lookingFor": "Looking for"
   },
   "history": {
     "title": "Byttehistorikk",
@@ -3032,5 +3038,25 @@
   "premium": {
     "title": "Swaply Premium",
     "subtitle": "Global visibility · Priority matching"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "loginRequired": "You must be logged in to view analytics.",
+    "dashboard": "Analytics Dashboard",
+    "upgradeToPremium": "Upgrade to Premium for full analytics access",
+    "noData": "No data",
+    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
+    "totalViews": "Total views",
+    "favoritesReceived": "Favorites received",
+    "proposalsReceived": "Proposals received",
+    "conversionRate": "Conversion rate",
+    "completedSwaps": "Completed swaps",
+    "avgTimeToProposal": "Avg time to proposal",
+    "viewsPerDay": "Views per day",
+    "last30Days": "Last 30 days",
+    "topItems": "Top items",
+    "byViews": "By number of views",
+    "insights": "Automated insights",
+    "insightsDesc": "Recommendations based on your data"
   }
 }

@@ -441,7 +441,9 @@
     "guestFeatureVerify": "Identiteitsverificatie",
     "guestFeatureVerifyDesc": "E-mail, telefoonnummer en identiteit — voor de geverifieerde gebruiker badge.",
     "guestCta": "Maak je gratis profiel →",
-    "networkError": "Netwerkfout"
+    "networkError": "Netwerkfout",
+    "passkeyRegFailed": "Passkey-registratie mislukt",
+    "genericError": "Fout"
   },
   "home": {
     "welcome": "Welkom terug",
@@ -2172,7 +2174,8 @@
     "modalTitle": "Maak een gratis account",
     "modalDescription": "Maak een gratis account om ruilen voor te stellen, berichten te sturen en te beginnen met ruilen.",
     "modalCta": "Gratis account aanmaken",
-    "modalDismiss": "Misschien later"
+    "modalDismiss": "Misschien later",
+    "haveAccount": "Ik heb al een account"
   },
   "about": {
     "title": "Over Swaply",
@@ -2326,7 +2329,10 @@
     "proposeSwap": "Ruil voorstellen",
     "responsesCount": "{count} reacties",
     "searchPrefix": "Op zoek naar:",
-    "daysRemaining": "{days} dagen resterend"
+    "daysRemaining": "{days} dagen resterend",
+    "you": "Jij",
+    "userPrefix": "Gebruiker",
+    "lookingFor": "Zoekt"
   },
   "history": {
     "title": "Ruilgeschiedenis",
@@ -3032,5 +3038,25 @@
   "premium": {
     "title": "Swaply Premium",
     "subtitle": "Global visibility · Priority matching"
+  },
+  "analytics": {
+    "title": "Analyse",
+    "loginRequired": "Je moet ingelogd zijn om de analyse te zien.",
+    "dashboard": "Analyse Dashboard",
+    "upgradeToPremium": "Upgrade naar Premium voor volledige toegang",
+    "noData": "Geen gegevens",
+    "noDataDesc": "Nog geen analysegegevens. Bezoek je objecten om tracking te starten.",
+    "totalViews": "Totale weergaven",
+    "favoritesReceived": "Ontvangen favorieten",
+    "proposalsReceived": "Ontvangen voorstellen",
+    "conversionRate": "Conversieratio",
+    "completedSwaps": "Voltooide ruilen",
+    "avgTimeToProposal": "Gem. tijd tot voorstel",
+    "viewsPerDay": "Weergaven per dag",
+    "last30Days": "Laatste 30 dagen",
+    "topItems": "Top objecten",
+    "byViews": "Op aantal weergaven",
+    "insights": "Automatische inzichten",
+    "insightsDesc": "Aanbevelingen op basis van jouw gegevens"
   }
 }

@@ -108,14 +108,14 @@ export default function HomePageClient() {
             href="/register"
             className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-8 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-blue-700"
           >
-            {tGuest("bannerCta") ?? "Înregistrează-te"}
+            {tGuest("bannerCta")}
             <ChevronRight className="h-4 w-4" />
           </Link>
           <Link
             href="/login"
             className="inline-flex items-center gap-2 rounded-full border border-zinc-300 bg-white px-8 py-3 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
           >
-            {tGuest("modalDismiss") ?? "Am deja cont"}
+            {tGuest("haveAccount")}
           </Link>
         </section>
       )}

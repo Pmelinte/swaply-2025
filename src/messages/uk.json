@@ -441,7 +441,9 @@
     "guestFeatureVerify": "Перевірка особистості",
     "guestFeatureVerifyDesc": "Email, телефон та особисті дані — для значка перевіреного користувача.",
     "guestCta": "Створіть свій безплатний профіль →",
-    "networkError": "Помилка мережі"
+    "networkError": "Помилка мережі",
+    "passkeyRegFailed": "Помилка реєстрації passkey",
+    "genericError": "Помилка"
   },
   "home": {
     "welcome": "З поверненням",
@@ -2172,7 +2174,8 @@
     "modalTitle": "Створіть безкоштовний акаунт",
     "modalDescription": "Створіть безкоштовний акаунт, щоб пропонувати обміни, надсилати повідомлення та почати обмінюватися.",
     "modalCta": "Створити безкоштовний акаунт",
-    "modalDismiss": "Можливо пізніше"
+    "modalDismiss": "Можливо пізніше",
+    "haveAccount": "У мене вже є акаунт"
   },
   "about": {
     "title": "Про Swaply",
@@ -2326,7 +2329,10 @@
     "proposeSwap": "Запропонувати обмін",
     "responsesCount": "{count} відповідей",
     "searchPrefix": "Шукаю:",
-    "daysRemaining": "{days} днів залишилось"
+    "daysRemaining": "{days} днів залишилось",
+    "you": "Ви",
+    "userPrefix": "Користувач",
+    "lookingFor": "Шукає"
   },
   "history": {
     "title": "Історія обмінів",
@@ -3032,5 +3038,25 @@
   "premium": {
     "title": "Swaply Premium",
     "subtitle": "Global visibility · Priority matching"
+  },
+  "analytics": {
+    "title": "Аналітика",
+    "loginRequired": "Увійдіть, щоб переглянути аналітику.",
+    "dashboard": "Панель аналітики",
+    "upgradeToPremium": "Оновіть до Premium для повного доступу",
+    "noData": "Немає даних",
+    "noDataDesc": "Поки що немає аналітичних даних. Відвідайте свої предмети для початку відстеження.",
+    "totalViews": "Всього переглядів",
+    "favoritesReceived": "Отримані улюблені",
+    "proposalsReceived": "Отримані пропозиції",
+    "conversionRate": "Конверсія",
+    "completedSwaps": "Завершені обміни",
+    "avgTimeToProposal": "Сер. час до пропозиції",
+    "viewsPerDay": "Переглядів на день",
+    "last30Days": "Останні 30 днів",
+    "topItems": "Топ предметів",
+    "byViews": "За кількістю переглядів",
+    "insights": "Автоматичні інсайти",
+    "insightsDesc": "Рекомендації на основі ваших даних"
   }
 }

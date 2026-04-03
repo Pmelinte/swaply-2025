@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { SectionCard } from "@/components/ui-custom";
 import { Link } from "@/i18n/navigation";
@@ -98,6 +99,7 @@ function InsightCard({ insight }: { insight: AnalyticsInsight }) {
 
 export default function AnalyticsClient() {
   const { user, items, loading } = useAppState();
+  const t = useTranslations("analytics");
   const [summary, setSummary] = useState<UserAnalyticsSummary | null>(null);
   const isPremium = user?.badge === "premium" || user?.badge === "platinum";
   const [fetchLoading, setFetchLoading] = useState(!!user?.id && isPremium);
@@ -140,7 +142,7 @@ export default function AnalyticsClient() {
   if (!user) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-8">
-        <SectionCard title="Analytics" description="Trebuie sa fii autentificat pentru a vedea analytics.">
+        <SectionCard title={t("title")} description={t("loginRequired")}>
           <Link href="/profile" className="text-sm text-blue-600 hover:underline dark:text-blue-400">
             Mergi la profil
           </Link>
@@ -160,8 +162,8 @@ export default function AnalyticsClient() {
           Inapoi la profil
         </Link>
         <SectionCard
-          title="Analytics Dashboard"
-          description="Upgrade la Premium pentru a accesa analytics-ul complet"
+          title={t("dashboard")}
+          description={t("upgradeToPremium")}
         >
           <div className="flex flex-col items-center gap-4 py-8 text-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-100 dark:bg-amber-900/30">
@@ -217,7 +219,7 @@ export default function AnalyticsClient() {
           ))}
         </div>
       ) : !summary ? (
-        <SectionCard title="Nicio data" description="Nu avem inca date de analytics. Viziteaza-ti obiectele pentru a incepe tracking-ul.">
+        <SectionCard title={t("noData")} description={t("noDataDesc")}>
           <Link href="/my-objects" className="text-sm text-blue-600 hover:underline dark:text-blue-400">
             Obiectele mele
           </Link>
@@ -228,40 +230,40 @@ export default function AnalyticsClient() {
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <StatCard
               icon={<Eye className="h-5 w-5" />}
-              label="Views totale"
+              label={t("totalViews")}
               value={summary.totalViews.toLocaleString()}
               sub="ultimele 30 zile"
             />
             <StatCard
               icon={<Heart className="h-5 w-5" />}
-              label="Favorite primite"
+              label={t("favoritesReceived")}
               value={summary.totalFavorites.toLocaleString()}
             />
             <StatCard
               icon={<ArrowRightLeft className="h-5 w-5" />}
-              label="Propuneri primite"
+              label={t("proposalsReceived")}
               value={summary.totalProposals.toLocaleString()}
             />
             <StatCard
               icon={<TrendingUp className="h-5 w-5" />}
-              label="Rata conversie"
+              label={t("conversionRate")}
               value={`${summary.conversionRate}%`}
               sub="propuneri / views"
             />
             <StatCard
               icon={<CheckCircle2 className="h-5 w-5" />}
-              label="Swap-uri completate"
+              label={t("completedSwaps")}
               value={summary.totalCompleted}
             />
             <StatCard
               icon={<Clock className="h-5 w-5" />}
-              label="Timp mediu pana la propunere"
+              label={t("avgTimeToProposal")}
               value={`${summary.avgDaysToProposal} zile`}
             />
           </div>
 
           {/* Views Chart */}
-          <SectionCard title="Views pe zi" description="Ultimele 30 de zile">
+          <SectionCard title={t("viewsPerDay")} description={t("last30Days")}>
             <MiniBarChart data={summary.viewsByDay} />
             <div className="mt-2 flex justify-between text-[10px] text-zinc-400 dark:text-zinc-500">
               <span>{summary.viewsByDay[0]?.date.slice(5)}</span>
@@ -271,7 +273,7 @@ export default function AnalyticsClient() {
 
           {/* Top Items */}
           {summary.topItems.length > 0 && (
-            <SectionCard title="Top obiecte" description="Dupa numarul de views">
+            <SectionCard title={t("topItems")} description={t("byViews")}>
               <div className="space-y-3">
                 {summary.topItems.map((item, idx) => (
                   <Link
@@ -307,7 +309,7 @@ export default function AnalyticsClient() {
 
           {/* Insights */}
           {insights.length > 0 && (
-            <SectionCard title="Insights automate" description="Recomandari bazate pe datele tale">
+            <SectionCard title={t("insights")} description={t("insightsDesc")}>
               <div className="space-y-2">
                 {insights.map((insight, idx) => (
                   <InsightCard key={idx} insight={insight} />

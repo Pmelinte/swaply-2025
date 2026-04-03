@@ -441,7 +441,9 @@
     "guestFeatureVerify": "Henkilöllisyyden vahvistaminen",
     "guestFeatureVerifyDesc": "Sähköposti, puhelin ja henkilöllisyys — vahvistetulle käyttäjälle.",
     "guestCta": "Luo ilmainen profiilisi →",
-    "networkError": "Verkkovirhe"
+    "networkError": "Verkkovirhe",
+    "passkeyRegFailed": "Passkey registration failed",
+    "genericError": "Error"
   },
   "home": {
     "welcome": "Tervetuloa takaisin",
@@ -2172,7 +2174,8 @@
     "modalTitle": "Luo ilmainen tili",
     "modalDescription": "Luo ilmainen tili ehdottaaksesi vaihtoja, lähettääksesi viestejä ja aloittaaksesi vaihtamisen.",
     "modalCta": "Luo ilmainen tili",
-    "modalDismiss": "Ehkä myöhemmin"
+    "modalDismiss": "Ehkä myöhemmin",
+    "haveAccount": "I already have an account"
   },
   "about": {
     "title": "Tietoa Swaplystä",
@@ -2326,7 +2329,10 @@
     "proposeSwap": "Ehdota vaihtoa",
     "responsesCount": "{count} vastausta",
     "searchPrefix": "Etsitään:",
-    "daysRemaining": "{days} päivää jäljellä"
+    "daysRemaining": "{days} päivää jäljellä",
+    "you": "You",
+    "userPrefix": "User",
+    "lookingFor": "Looking for"
   },
   "history": {
     "title": "Vaihtohistoria",
@@ -3032,5 +3038,25 @@
   "premium": {
     "title": "Swaply Premium",
     "subtitle": "Global visibility · Priority matching"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "loginRequired": "You must be logged in to view analytics.",
+    "dashboard": "Analytics Dashboard",
+    "upgradeToPremium": "Upgrade to Premium for full analytics access",
+    "noData": "No data",
+    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
+    "totalViews": "Total views",
+    "favoritesReceived": "Favorites received",
+    "proposalsReceived": "Proposals received",
+    "conversionRate": "Conversion rate",
+    "completedSwaps": "Completed swaps",
+    "avgTimeToProposal": "Avg time to proposal",
+    "viewsPerDay": "Views per day",
+    "last30Days": "Last 30 days",
+    "topItems": "Top items",
+    "byViews": "By number of views",
+    "insights": "Automated insights",
+    "insightsDesc": "Recommendations based on your data"
   }
 }

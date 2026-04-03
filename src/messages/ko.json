@@ -441,7 +441,9 @@
     "guestFeatureVerify": "신원 확인",
     "guestFeatureVerifyDesc": "이메일, 전화, 신원 — 검증된 사용자 배지를 위해.",
     "guestCta": "무료 프로필 만들기 →",
-    "networkError": "네트워크 오류"
+    "networkError": "네트워크 오류",
+    "passkeyRegFailed": "패스키 등록 실패",
+    "genericError": "오류"
   },
   "home": {
     "welcome": "다시 오셨군요",
@@ -2172,7 +2174,8 @@
     "modalTitle": "무료 계정 만들기",
     "modalDescription": "무료 계정을 만들어 교환을 제안하고, 메시지를 보내고, 교환을 시작하세요.",
     "modalCta": "무료 계정 만들기",
-    "modalDismiss": "나중에"
+    "modalDismiss": "나중에",
+    "haveAccount": "이미 계정이 있습니다"
   },
   "about": {
     "title": "Swaply 소개",
@@ -2326,7 +2329,10 @@
     "proposeSwap": "스왑 제안",
     "responsesCount": "{count}개의 응답",
     "searchPrefix": "찾는 것:",
-    "daysRemaining": "{days}일 남음"
+    "daysRemaining": "{days}일 남음",
+    "you": "나",
+    "userPrefix": "사용자",
+    "lookingFor": "찾고 있음"
   },
   "history": {
     "title": "스왑 기록",
@@ -3032,5 +3038,25 @@
   "premium": {
     "title": "Swaply Premium",
     "subtitle": "Global visibility · Priority matching"
+  },
+  "analytics": {
+    "title": "분석",
+    "loginRequired": "분석을 보려면 로그인해야 합니다.",
+    "dashboard": "분석 대시보드",
+    "upgradeToPremium": "전체 접근을 위해 프리미엄으로 업그레이드",
+    "noData": "데이터 없음",
+    "noDataDesc": "아직 분석 데이터가 없습니다. 아이템을 방문하여 추적을 시작하세요.",
+    "totalViews": "총 조회수",
+    "favoritesReceived": "받은 즐겨찾기",
+    "proposalsReceived": "받은 제안",
+    "conversionRate": "전환율",
+    "completedSwaps": "완료된 교환",
+    "avgTimeToProposal": "제안까지 평균 시간",
+    "viewsPerDay": "일일 조회수",
+    "last30Days": "최근 30일",
+    "topItems": "인기 아이템",
+    "byViews": "조회수 순",
+    "insights": "자동 인사이트",
+    "insightsDesc": "데이터 기반 추천"
   }
 }

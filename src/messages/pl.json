@@ -441,7 +441,9 @@
     "guestFeatureVerify": "Weryfikacja tożsamości",
     "guestFeatureVerifyDesc": "Email, telefon i tożsamość — dla odznaki zweryfikowanego użytkownika.",
     "guestCta": "Utwórz bezpłatny profil →",
-    "networkError": "Błąd sieci"
+    "networkError": "Błąd sieci",
+    "passkeyRegFailed": "Rejestracja passkey nie powiodła się",
+    "genericError": "Błąd"
   },
   "home": {
     "welcome": "Witaj ponownie",
@@ -2172,7 +2174,8 @@
     "modalTitle": "Utwórz darmowe konto",
     "modalDescription": "Utwórz darmowe konto, aby proponować wymiany, wysyłać wiadomości i rozpocząć wymianę.",
     "modalCta": "Utwórz darmowe konto",
-    "modalDismiss": "Może później"
+    "modalDismiss": "Może później",
+    "haveAccount": "Mam już konto"
   },
   "about": {
     "title": "O Swaply",
@@ -2326,7 +2329,10 @@
     "proposeSwap": "Zaproponuj wymianę",
     "responsesCount": "{count} odpowiedzi",
     "searchPrefix": "Szukam:",
-    "daysRemaining": "{days} dni pozostało"
+    "daysRemaining": "{days} dni pozostało",
+    "you": "Ty",
+    "userPrefix": "Użytkownik",
+    "lookingFor": "Szuka"
   },
   "history": {
     "title": "Historia wymian",
@@ -3032,5 +3038,25 @@
   "premium": {
     "title": "Swaply Premium",
     "subtitle": "Global visibility · Priority matching"
+  },
+  "analytics": {
+    "title": "Analityka",
+    "loginRequired": "Musisz być zalogowany, aby zobaczyć analitykę.",
+    "dashboard": "Panel Analityki",
+    "upgradeToPremium": "Przejdź na Premium dla pełnego dostępu",
+    "noData": "Brak danych",
+    "noDataDesc": "Brak danych analitycznych. Odwiedź swoje przedmioty, aby rozpocząć śledzenie.",
+    "totalViews": "Łączne wyświetlenia",
+    "favoritesReceived": "Otrzymane ulubione",
+    "proposalsReceived": "Otrzymane propozycje",
+    "conversionRate": "Współczynnik konwersji",
+    "completedSwaps": "Ukończone wymiany",
+    "avgTimeToProposal": "Śr. czas do propozycji",
+    "viewsPerDay": "Wyświetlenia dziennie",
+    "last30Days": "Ostatnie 30 dni",
+    "topItems": "Top przedmioty",
+    "byViews": "Wg liczby wyświetleń",
+    "insights": "Automatyczne wnioski",
+    "insightsDesc": "Rekomendacje na podstawie Twoich danych"
   }
 }

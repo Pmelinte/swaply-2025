@@ -441,7 +441,9 @@
     "guestFeatureVerify": "身分確認",
     "guestFeatureVerifyDesc": "メール、電話、身分証明 — 認証済みユーザーバッジ用。",
     "guestCta": "無料プロフィールを作成する →",
-    "networkError": "ネットワークエラー"
+    "networkError": "ネットワークエラー",
+    "passkeyRegFailed": "パスキー登録に失敗しました",
+    "genericError": "エラー"
   },
   "home": {
     "welcome": "おかえりなさい",
@@ -2172,7 +2174,8 @@
     "modalTitle": "無料アカウントを作成",
     "modalDescription": "無料アカウントを作成して、交換を提案し、メッセージを送信し、交換を始めましょう。",
     "modalCta": "無料アカウントを作成",
-    "modalDismiss": "後で"
+    "modalDismiss": "後で",
+    "haveAccount": "すでにアカウントを持っています"
   },
   "about": {
     "title": "Swapylyについて",
@@ -2326,7 +2329,10 @@
     "proposeSwap": "スワップを提案",
     "responsesCount": "{count}件の返信",
     "searchPrefix": "探しているもの:",
-    "daysRemaining": "残り{days}日"
+    "daysRemaining": "残り{days}日",
+    "you": "あなた",
+    "userPrefix": "ユーザー",
+    "lookingFor": "探しています"
   },
   "history": {
     "title": "スワップ履歴",
@@ -3032,5 +3038,25 @@
   "premium": {
     "title": "Swaply Premium",
     "subtitle": "Global visibility · Priority matching"
+  },
+  "analytics": {
+    "title": "アナリティクス",
+    "loginRequired": "アナリティクスを表示するにはログインが必要です。",
+    "dashboard": "アナリティクスダッシュボード",
+    "upgradeToPremium": "プレミアムにアップグレードして完全アクセス",
+    "noData": "データなし",
+    "noDataDesc": "まだアナリティクスデータがありません。アイテムにアクセスしてトラッキングを開始してください。",
+    "totalViews": "総閲覧数",
+    "favoritesReceived": "受け取ったお気に入り",
+    "proposalsReceived": "受け取った提案",
+    "conversionRate": "コンバージョン率",
+    "completedSwaps": "完了したスワップ",
+    "avgTimeToProposal": "提案までの平均時間",
+    "viewsPerDay": "1日あたりの閲覧数",
+    "last30Days": "過去30日間",
+    "topItems": "トップアイテム",
+    "byViews": "閲覧数順",
+    "insights": "自動インサイト",
+    "insightsDesc": "データに基づくおすすめ"
   }
 }

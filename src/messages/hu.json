@@ -441,7 +441,9 @@
     "guestFeatureVerify": "Személyazonossággal kapcsolatos ellenőrzés",
     "guestFeatureVerifyDesc": "E-mail, telefonszám és személyazonossággal kapcsolatos ellenőrzés — a hitelesített felhasználó jelvényéhez.",
     "guestCta": "Hozza létre ingyenes profilját →",
-    "networkError": "Hálózati hiba"
+    "networkError": "Hálózati hiba",
+    "passkeyRegFailed": "Passkey regisztráció sikertelen",
+    "genericError": "Hiba"
   },
   "home": {
     "welcome": "Üdvözöljük vissza",
@@ -2172,7 +2174,8 @@
     "modalTitle": "Ingyenes fiók létrehozása",
     "modalDescription": "Hozz létre ingyenes fiókot cserék javaslásához, üzenetek küldéséhez és a csere megkezdéséhez.",
     "modalCta": "Ingyenes fiók létrehozása",
-    "modalDismiss": "Talán később"
+    "modalDismiss": "Talán később",
+    "haveAccount": "Már van fiókom"
   },
   "about": {
     "title": "A Swaply-ról",
@@ -2326,7 +2329,10 @@
     "proposeSwap": "Csere javaslatása",
     "responsesCount": "{count} válasz",
     "searchPrefix": "Keresés:",
-    "daysRemaining": "{days} nap van hátra"
+    "daysRemaining": "{days} nap van hátra",
+    "you": "Te",
+    "userPrefix": "Felhasználó",
+    "lookingFor": "Keres"
   },
   "history": {
     "title": "Csereelőzmények",
@@ -3032,5 +3038,25 @@
   "premium": {
     "title": "Swaply Premium",
     "subtitle": "Global visibility · Priority matching"
+  },
+  "analytics": {
+    "title": "Elemzés",
+    "loginRequired": "Be kell jelentkezned az elemzés megtekintéséhez.",
+    "dashboard": "Elemzés panel",
+    "upgradeToPremium": "Frissíts Premiumra a teljes hozzáféréshez",
+    "noData": "Nincs adat",
+    "noDataDesc": "Még nincs elemzési adat. Látogasd meg tárgyaidat a követés indításához.",
+    "totalViews": "Összes megtekintés",
+    "favoritesReceived": "Kapott kedvencek",
+    "proposalsReceived": "Kapott javaslatok",
+    "conversionRate": "Konverziós ráta",
+    "completedSwaps": "Befejezett cserék",
+    "avgTimeToProposal": "Átl. idő javaslatig",
+    "viewsPerDay": "Napi megtekintések",
+    "last30Days": "Utolsó 30 nap",
+    "topItems": "Top tárgyak",
+    "byViews": "Megtekintések szerint",
+    "insights": "Automatikus betekintések",
+    "insightsDesc": "Javaslatok az adataid alapján"
   }
 }

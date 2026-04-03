@@ -441,7 +441,9 @@
     "guestFeatureVerify": "Isikutuvastamine",
     "guestFeatureVerifyDesc": "E-post, telefon ja isik — kontrollitud kasutaja märgi jaoks.",
     "guestCta": "Loo oma tasuta profiil →",
-    "networkError": "Võrguviga"
+    "networkError": "Võrguviga",
+    "passkeyRegFailed": "Passkey registration failed",
+    "genericError": "Error"
   },
   "home": {
     "welcome": "Tere tulemast tagasi",
@@ -2172,7 +2174,8 @@
     "modalTitle": "Loo tasuta konto",
     "modalDescription": "Loo tasuta konto, et pakkuda vahetusi, saata sõnumeid ja alustada vahetamist.",
     "modalCta": "Loo tasuta konto",
-    "modalDismiss": "Võib-olla hiljem"
+    "modalDismiss": "Võib-olla hiljem",
+    "haveAccount": "I already have an account"
   },
   "about": {
     "title": "Swaply'st",
@@ -2326,7 +2329,10 @@
     "proposeSwap": "Soovita vahetust",
     "responsesCount": "{count} vastus",
     "searchPrefix": "Otsib:",
-    "daysRemaining": "{days} päeva jäänud"
+    "daysRemaining": "{days} päeva jäänud",
+    "you": "You",
+    "userPrefix": "User",
+    "lookingFor": "Looking for"
   },
   "history": {
     "title": "Swap History",
@@ -3032,5 +3038,25 @@
   "premium": {
     "title": "Swaply Premium",
     "subtitle": "Global visibility · Priority matching"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "loginRequired": "You must be logged in to view analytics.",
+    "dashboard": "Analytics Dashboard",
+    "upgradeToPremium": "Upgrade to Premium for full analytics access",
+    "noData": "No data",
+    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
+    "totalViews": "Total views",
+    "favoritesReceived": "Favorites received",
+    "proposalsReceived": "Proposals received",
+    "conversionRate": "Conversion rate",
+    "completedSwaps": "Completed swaps",
+    "avgTimeToProposal": "Avg time to proposal",
+    "viewsPerDay": "Views per day",
+    "last30Days": "Last 30 days",
+    "topItems": "Top items",
+    "byViews": "By number of views",
+    "insights": "Automated insights",
+    "insightsDesc": "Recommendations based on your data"
   }
 }

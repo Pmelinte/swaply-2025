@@ -281,7 +281,7 @@ export default function AccountTab({
                   }
                   const result = await registerPasskey(user.id, user.email, user.displayName || "");
                   if (!result.success) {
-                    alert(result.error || "Passkey registration failed");
+                    alert(result.error || t("passkeyRegFailed"));
                     return;
                   }
                 }
@@ -399,7 +399,7 @@ export default function AccountTab({
                 try {
                   const res = await fetch("/api/gdpr/export", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userId: user.id }) });
                   const data = await res.json();
-                  if (!res.ok) setGdprMessage({ type: "error", text: data.error ?? "Eroare" });
+                  if (!res.ok) setGdprMessage({ type: "error", text: data.error ?? t("genericError") });
                   else { setGdprMessage({ type: "success", text: t("gdprExportSuccess") }); setGdprExportPending(new Date().toISOString()); }
                 } catch { setGdprMessage({ type: "error", text: t("networkError") }); }
                 finally { setGdprLoading(false); }
@@ -438,7 +438,7 @@ export default function AccountTab({
                   try {
                     const res = await fetch("/api/gdpr/delete", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userId: user.id }) });
                     const data = await res.json();
-                    if (!res.ok) setGdprMessage({ type: "error", text: data.error ?? "Eroare" });
+                    if (!res.ok) setGdprMessage({ type: "error", text: data.error ?? t("genericError") });
                     else { setGdprMessage({ type: "success", text: t("gdprDeleteSuccess") }); setGdprDeletePending(new Date().toISOString()); }
                   } catch { setGdprMessage({ type: "error", text: t("networkError") }); }
                   finally { setGdprLoading(false); setShowGdprDeleteConfirm(false); setGdprDeleteConfirmText(""); }

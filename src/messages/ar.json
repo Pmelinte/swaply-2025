@@ -441,7 +441,9 @@
     "guestFeatureVerify": "التحقق من الهوية",
     "guestFeatureVerifyDesc": "البريد الإلكتروني والهاتف والهوية — للحصول على شارة المستخدم المتحقق منه.",
     "guestCta": "أنشئ ملفك الشخصي المجاني →",
-    "networkError": "خطأ في الشبكة"
+    "networkError": "خطأ في الشبكة",
+    "passkeyRegFailed": "فشل تسجيل مفتاح المرور",
+    "genericError": "خطأ"
   },
   "home": {
     "welcome": "أهلاً وسهلاً",
@@ -2172,7 +2174,8 @@
     "modalTitle": "أنشئ حسابًا مجانيًا",
     "modalDescription": "أنشئ حسابًا مجانيًا لاقتراح التبادلات وإرسال الرسائل وبدء التبادل.",
     "modalCta": "أنشئ حسابًا مجانيًا",
-    "modalDismiss": "ربما لاحقًا"
+    "modalDismiss": "ربما لاحقًا",
+    "haveAccount": "لدي حساب بالفعل"
   },
   "about": {
     "title": "حول Swaply",
@@ -2326,7 +2329,10 @@
     "proposeSwap": "اقترح تبديل",
     "responsesCount": "{count} ردود",
     "searchPrefix": "تبحث عن:",
-    "daysRemaining": "{days} أيام متبقية"
+    "daysRemaining": "{days} أيام متبقية",
+    "you": "أنت",
+    "userPrefix": "مستخدم",
+    "lookingFor": "يبحث عن"
   },
   "history": {
     "title": "سجل التبديلات",
@@ -3032,5 +3038,25 @@
   "premium": {
     "title": "Swaply Premium",
     "subtitle": "Global visibility · Priority matching"
+  },
+  "analytics": {
+    "title": "التحليلات",
+    "loginRequired": "يجب تسجيل الدخول لعرض التحليلات.",
+    "dashboard": "لوحة التحليلات",
+    "upgradeToPremium": "الترقية إلى بريميوم للوصول الكامل",
+    "noData": "لا توجد بيانات",
+    "noDataDesc": "لا توجد بيانات تحليلية بعد. قم بزيارة العناصر الخاصة بك لبدء التتبع.",
+    "totalViews": "إجمالي المشاهدات",
+    "favoritesReceived": "المفضلة المستلمة",
+    "proposalsReceived": "العروض المستلمة",
+    "conversionRate": "معدل التحويل",
+    "completedSwaps": "التبادلات المكتملة",
+    "avgTimeToProposal": "متوسط الوقت للعرض",
+    "viewsPerDay": "المشاهدات يومياً",
+    "last30Days": "آخر 30 يوم",
+    "topItems": "أفضل العناصر",
+    "byViews": "حسب عدد المشاهدات",
+    "insights": "رؤى تلقائية",
+    "insightsDesc": "توصيات بناءً على بياناتك"
   }
 }

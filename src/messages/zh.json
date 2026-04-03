@@ -441,7 +441,9 @@
     "guestFeatureVerify": "身份验证",
     "guestFeatureVerifyDesc": "邮箱、电话和身份——获得已验证用户徽章。",
     "guestCta": "创建您的免费档案 →",
-    "networkError": "网络错误"
+    "networkError": "网络错误",
+    "passkeyRegFailed": "密钥注册失败",
+    "genericError": "错误"
   },
   "home": {
     "welcome": "欢迎回来",
@@ -2172,7 +2174,8 @@
     "modalTitle": "创建免费帐户",
     "modalDescription": "创建免费帐户以提议交换、发送消息并开始交换。",
     "modalCta": "创建免费帐户",
-    "modalDismiss": "以后再说"
+    "modalDismiss": "以后再说",
+    "haveAccount": "我已有账户"
   },
   "about": {
     "title": "关于Swaply",
@@ -2326,7 +2329,10 @@
     "proposeSwap": "提议交换",
     "responsesCount": "{count} 个回复",
     "searchPrefix": "寻找：",
-    "daysRemaining": "还剩 {days} 天"
+    "daysRemaining": "还剩 {days} 天",
+    "you": "你",
+    "userPrefix": "用户",
+    "lookingFor": "寻找"
   },
   "history": {
     "title": "交换历史",
@@ -3032,5 +3038,25 @@
   "premium": {
     "title": "Swaply Premium",
     "subtitle": "Global visibility · Priority matching"
+  },
+  "analytics": {
+    "title": "分析",
+    "loginRequired": "您需要登录才能查看分析。",
+    "dashboard": "分析仪表板",
+    "upgradeToPremium": "升级到高级版以获得完整访问权限",
+    "noData": "无数据",
+    "noDataDesc": "暂无分析数据。访问您的物品开始跟踪。",
+    "totalViews": "总浏览量",
+    "favoritesReceived": "收到的收藏",
+    "proposalsReceived": "收到的提议",
+    "conversionRate": "转化率",
+    "completedSwaps": "已完成的交换",
+    "avgTimeToProposal": "平均提议时间",
+    "viewsPerDay": "每日浏览量",
+    "last30Days": "最近30天",
+    "topItems": "热门物品",
+    "byViews": "按浏览量",
+    "insights": "自动洞察",
+    "insightsDesc": "基于您数据的建议"
   }
 }

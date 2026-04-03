@@ -441,7 +441,9 @@
     "guestFeatureVerify": "Verificação de identidade",
     "guestFeatureVerifyDesc": "Email, telefone e identidade — para o badge de usuário verificado.",
     "guestCta": "Crie seu perfil gratuito →",
-    "networkError": "Erro de rede"
+    "networkError": "Erro de rede",
+    "passkeyRegFailed": "Falha no registro de passkey",
+    "genericError": "Erro"
   },
   "home": {
     "welcome": "Bem-vindo de volta",
@@ -2172,7 +2174,8 @@
     "modalTitle": "Crie uma conta gratuita",
     "modalDescription": "Crie uma conta gratuita para propor trocas, enviar mensagens e começar a trocar.",
     "modalCta": "Criar conta gratuita",
-    "modalDismiss": "Talvez mais tarde"
+    "modalDismiss": "Talvez mais tarde",
+    "haveAccount": "Já tenho uma conta"
   },
   "about": {
     "title": "Sobre Swaply",
@@ -2326,7 +2329,10 @@
     "proposeSwap": "Propor troca",
     "responsesCount": "{count} respostas",
     "searchPrefix": "Procurando por:",
-    "daysRemaining": "{days} dias restantes"
+    "daysRemaining": "{days} dias restantes",
+    "you": "Você",
+    "userPrefix": "Usuário",
+    "lookingFor": "Procura"
   },
   "history": {
     "title": "Histórico de trocas",
@@ -3032,5 +3038,25 @@
   "premium": {
     "title": "Swaply Premium",
     "subtitle": "Global visibility · Priority matching"
+  },
+  "analytics": {
+    "title": "Análise",
+    "loginRequired": "Você precisa estar logado para ver as análises.",
+    "dashboard": "Painel de Análise",
+    "upgradeToPremium": "Atualize para Premium para acesso completo",
+    "noData": "Sem dados",
+    "noDataDesc": "Nenhum dado de análise ainda. Visite seus itens para iniciar o rastreamento.",
+    "totalViews": "Visualizações totais",
+    "favoritesReceived": "Favoritos recebidos",
+    "proposalsReceived": "Propostas recebidas",
+    "conversionRate": "Taxa de conversão",
+    "completedSwaps": "Trocas completadas",
+    "avgTimeToProposal": "Tempo médio até proposta",
+    "viewsPerDay": "Visualizações por dia",
+    "last30Days": "Últimos 30 dias",
+    "topItems": "Top itens",
+    "byViews": "Por número de visualizações",
+    "insights": "Insights automáticos",
+    "insightsDesc": "Recomendações baseadas nos seus dados"
   }
 }

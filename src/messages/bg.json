@@ -441,7 +441,9 @@
     "guestFeatureVerify": "Проверка на самоличност",
     "guestFeatureVerifyDesc": "Имейл, телефон и самоличност — за значката на верифициран потребител.",
     "guestCta": "Създайте вашия безплатен профил →",
-    "networkError": "Грешка в мрежата"
+    "networkError": "Грешка в мрежата",
+    "passkeyRegFailed": "Неуспешна регистрация на passkey",
+    "genericError": "Грешка"
   },
   "home": {
     "welcome": "Добре дошли отново",
@@ -2172,7 +2174,8 @@
     "modalTitle": "Създайте безплатен акаунт",
     "modalDescription": "Създайте безплатен акаунт, за да предлагате размени, изпращате съобщения и започнете да разменяте.",
     "modalCta": "Създайте безплатен акаунт",
-    "modalDismiss": "Може би по-късно"
+    "modalDismiss": "Може би по-късно",
+    "haveAccount": "Вече имам акаунт"
   },
   "about": {
     "title": "За Swaply",
@@ -2326,7 +2329,10 @@
     "proposeSwap": "Предложи размяна",
     "responsesCount": "{count} отговора",
     "searchPrefix": "Търсене на:",
-    "daysRemaining": "{days} дни остават"
+    "daysRemaining": "{days} дни остават",
+    "you": "Ти",
+    "userPrefix": "Потребител",
+    "lookingFor": "Търси"
   },
   "history": {
     "title": "История на размени",
@@ -3032,5 +3038,25 @@
   "premium": {
     "title": "Swaply Premium",
     "subtitle": "Global visibility · Priority matching"
+  },
+  "analytics": {
+    "title": "Анализ",
+    "loginRequired": "Трябва да влезете, за да видите анализа.",
+    "dashboard": "Табло за анализ",
+    "upgradeToPremium": "Надградете до Premium за пълен достъп",
+    "noData": "Няма данни",
+    "noDataDesc": "Все още няма данни за анализ. Посетете обектите си, за да започнете проследяване.",
+    "totalViews": "Общо прегледи",
+    "favoritesReceived": "Получени любими",
+    "proposalsReceived": "Получени предложения",
+    "conversionRate": "Процент на конверсия",
+    "completedSwaps": "Завършени размени",
+    "avgTimeToProposal": "Средно време до предложение",
+    "viewsPerDay": "Прегледи на ден",
+    "last30Days": "Последните 30 дни",
+    "topItems": "Топ обекти",
+    "byViews": "По брой прегледи",
+    "insights": "Автоматични прозрения",
+    "insightsDesc": "Препоръки въз основа на вашите данни"
   }
 }
