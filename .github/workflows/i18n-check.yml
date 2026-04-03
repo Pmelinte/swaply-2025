@@ -1,0 +1,45 @@
+name: i18n Quality
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  i18n:
+    name: i18n Checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Key coverage check
+        run: node scripts/check-i18n-keys.mjs
+
+      - name: Key usage check
+        run: node scripts/check-i18n-usage.mjs
+
+      - name: Hardcoded Romanian strings check
+        run: |
+          RESULTS=$(grep -rn "[ĂÂÎȘȚăâîșț]" src --include="*.tsx" --include="*.ts" \
+            | grep -v "src/messages/" \
+            | grep -v "\.test\." \
+            | grep -v "^\s*//" \
+            | grep -v "// " \
+            | grep -v "detectLang\|regex\|\.test(\|RegExp\|replace(" \
+            || true)
+          if [ -n "$RESULTS" ]; then
+            echo "⚠ Found Romanian diacritics in source code (review manually):"
+            echo "$RESULTS" | head -20
+            echo ""
+            echo "These may be legitimate (regex patterns, test data). Review above."
+          else
+            echo "✓ No hardcoded Romanian strings found"
+          fi

@@ -11,6 +11,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "i18n:check": "node scripts/check-i18n-keys.mjs && node scripts/check-i18n-usage.mjs",
     "update:images": "npx tsx scripts/update-demo-images.ts",
     "generate:embeddings": "npx tsx scripts/generate-embeddings.ts",
     "generate:seo": "npx tsx scripts/generate-seo-content.ts",
