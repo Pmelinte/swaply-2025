@@ -2,7 +2,13 @@ import "server-only";
 
 import { createHash } from "crypto";
 import { getServiceSupabase } from "@/lib/supabase/service";
+import { getServerSupabase } from "@/lib/supabase/server";
 import { translateText } from "@/lib/translate";
+
+/** Get a Supabase client — prefer service role, fall back to server (anon) */
+async function getSupabase() {
+  return getServiceSupabase() ?? (await getServerSupabase());
+}
 
 function hashText(text: string, targetLang: string): string {
   return createHash("sha256").update(`${text}::${targetLang}`).digest("hex");
@@ -27,7 +33,7 @@ export async function translateOnDemand(
   if (targetLang === sourceLang) return text;
 
   const hash = hashText(text, targetLang);
-  const supabase = getServiceSupabase();
+  const supabase = await getSupabase();
 
   // 1. Check cache
   if (supabase) {
