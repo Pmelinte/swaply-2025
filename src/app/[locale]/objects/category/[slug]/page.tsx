@@ -7,6 +7,7 @@ import { ArrowLeft, Tag, MapPin, ChevronRight } from "lucide-react";
 export const revalidate = 300;
 import { getServerSupabase } from "@/lib/supabase/server";
 import { translateOnDemand } from "@/lib/translate-on-demand";
+import { normalizeCategory, normalizeCondition } from "@/lib/normalize-i18n";
 import {
   SEO_CATEGORIES,
   SEO_CITIES,
@@ -156,7 +157,7 @@ export default async function CategoryPage({ params }: Props) {
                     {item.title}
                   </p>
                   <p className="mt-1 text-xs text-zinc-500">
-                    {tCat(item.category)} · {t("condition_" + item.condition)}
+                    {tCat(normalizeCategory(item.category))} · {t("condition_" + normalizeCondition(item.condition))}
                   </p>
                   {item.location && (
                     <p className="mt-1 flex items-center gap-1 text-xs text-zinc-400">

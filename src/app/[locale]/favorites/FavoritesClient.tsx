@@ -20,6 +20,7 @@ export default function FavoritesClient() {
   const { items, loading, user } = useAppState();
   const { favoriteIds, toggleFavorite } = useFavorites(user?.id);
   const t = useTranslations("favorites");
+  const tCat = useTranslations("categories");
   const [search, setSearch] = useState("");
 
   const favoriteItems = useMemo(() => {
@@ -125,7 +126,7 @@ export default function FavoritesClient() {
                   <div className="mt-1 flex items-center gap-2 text-xs text-zinc-500">
                     <span className="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-2 py-0.5 dark:bg-zinc-700">
                       <Tag className="h-3 w-3" />
-                      {item.category}
+                      {tCat(item.category)}
                     </span>
                     {item.location && (
                       <span className="inline-flex items-center gap-1">

@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, MapPin, Tag } from "lucide-react";
 import { getServerSupabase } from "@/lib/supabase/server";
 import { translateOnDemand } from "@/lib/translate-on-demand";
+import { normalizeCategory, normalizeCondition } from "@/lib/normalize-i18n";
 import { SEO_CITIES, SEO_CATEGORIES, getCityBySlug } from "@/lib/seo-data";
 import { getTranslations } from "next-intl/server";
 
@@ -112,7 +113,7 @@ async function getCityItems(
   return { local, nearby };
 }
 
-function ItemCard({ item, lookingForLabel }: { item: ItemRow; lookingForLabel: string }) {
+function ItemCard({ item, lookingForLabel, categoryLabel, conditionLabel }: { item: ItemRow; lookingForLabel: string; categoryLabel: string; conditionLabel: string }) {
   return (
     <Link
       href={`/objects/${item.id}`}
@@ -136,7 +137,7 @@ function ItemCard({ item, lookingForLabel }: { item: ItemRow; lookingForLabel: s
           {item.title}
         </p>
         <p className="mt-1 text-xs text-zinc-500">
-          {item.category} · {item.condition}
+          {categoryLabel} · {conditionLabel}
         </p>
         {item.location && (
           <p className="mt-1 flex items-center gap-1 text-xs text-zinc-400">
@@ -165,6 +166,8 @@ export default async function CityPage({ params }: Props) {
   if (!city) notFound();
 
   const t = await getTranslations({ locale, namespace: "cityPage" });
+  const tCat = await getTranslations({ locale, namespace: "categories" });
+  const tObj = await getTranslations({ locale, namespace: "objects" });
   const countryName = COUNTRY_NAMES[locale] ?? "Romania";
   const countryCode = COUNTRY_CODES[locale] ?? "RO";
 
@@ -240,7 +243,7 @@ export default async function CityPage({ params }: Props) {
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {local.map((item) => (
-              <ItemCard key={item.id} item={item} lookingForLabel={t("lookingFor", { wishlist: "" })} />
+              <ItemCard key={item.id} item={item} lookingForLabel={t("lookingFor", { wishlist: "" })} categoryLabel={tCat(normalizeCategory(item.category))} conditionLabel={tObj("condition_" + normalizeCondition(item.condition))} />
             ))}
           </div>
         </section>
@@ -256,7 +259,7 @@ export default async function CityPage({ params }: Props) {
           </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {nearby.map((item) => (
-              <ItemCard key={item.id} item={item} lookingForLabel={t("lookingFor", { wishlist: "" })} />
+              <ItemCard key={item.id} item={item} lookingForLabel={t("lookingFor", { wishlist: "" })} categoryLabel={tCat(normalizeCategory(item.category))} conditionLabel={tObj("condition_" + normalizeCondition(item.condition))} />
             ))}
           </div>
         </section>
