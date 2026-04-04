@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useTranslatedText } from "@/hooks/useTranslation";
+import { normalizeCategory, normalizeCondition } from "@/lib/normalize-i18n";
 import { useSavedSearches } from "@/hooks/useSavedSearches";
 import { NO_IMAGE_URL } from "@/lib/storage";
 import { SafeImage } from "@/components/SafeImage";
@@ -96,7 +97,7 @@ function SlotCard({
       </div>
       <SlotTitle title={item.title} />
       <p className="truncate text-[10px] text-zinc-500">
-        {tCat(item.category)} &middot; {t("condition_" + item.condition)}
+        {tCat(normalizeCategory(item.category))} &middot; {t("condition_" + normalizeCondition(item.condition))}
       </p>
       {item.location && (
         <p className="mt-0.5 flex items-center gap-0.5 truncate text-[10px] text-zinc-400">
@@ -186,8 +187,8 @@ function ObjectCard({ item, mode }: { item: Item; mode: BrowseMode }) {
             )}
           </div>
           <div className="mt-0.5 flex items-center gap-2 text-xs text-zinc-500">
-            <span className="rounded-full bg-zinc-100 px-2 py-0.5 dark:bg-zinc-700">{tCat(item.category)}</span>
-            <span>{t("condition_" + item.condition)}</span>
+            <span className="rounded-full bg-zinc-100 px-2 py-0.5 dark:bg-zinc-700">{tCat(normalizeCategory(item.category))}</span>
+            <span>{t("condition_" + normalizeCondition(item.condition))}</span>
             {item.location && (
               <span className="flex items-center gap-0.5">
                 <MapPin className="h-3 w-3" />
@@ -220,7 +221,7 @@ function ObjectCard({ item, mode }: { item: Item; mode: BrowseMode }) {
           unoptimized={!item.photos?.[0]}
         />
         <span className="item-card__badge absolute left-2 top-2 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-zinc-700 backdrop-blur dark:bg-zinc-900/80 dark:text-zinc-200">
-          {t("condition_" + item.condition)}
+          {t("condition_" + normalizeCondition(item.condition))}
         </span>
         {item.isBoosted && (
           <span className="absolute left-2 top-8 flex items-center gap-0.5 rounded-full bg-amber-500/90 px-2 py-0.5 text-[10px] font-bold text-white backdrop-blur">
@@ -241,7 +242,7 @@ function ObjectCard({ item, mode }: { item: Item; mode: BrowseMode }) {
       </div>
       <div className="item-card__body flex flex-1 flex-col p-3">
         <h3 className="item-card__title truncate text-sm font-semibold text-zinc-900 dark:text-zinc-50">{translatedTitle}</h3>
-        <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">{tCat(item.category)}</p>
+        <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">{tCat(normalizeCategory(item.category))}</p>
         {item.location && (
           <p className="item-card__location mt-1 flex items-center gap-0.5 text-xs text-zinc-400">
             <MapPin className="h-3 w-3" />

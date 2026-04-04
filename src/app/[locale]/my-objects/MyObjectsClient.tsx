@@ -158,6 +158,8 @@ function ItemActions({
 
 export function MyObjectsClient() {
   const t = useTranslations("myObjects");
+  const tCat = useTranslations("categories");
+  const tObj = useTranslations("objects");
   const tc = useTranslations("common");
   const router = useRouter();
   const { user, loading, items, swaps, conversations, deleteItem, duplicateItem, setItemStatus } = useAppState();
@@ -576,8 +578,8 @@ export function MyObjectsClient() {
                     </span>
                   </div>
                   <div className="mt-0.5 flex items-center gap-3 text-xs text-zinc-500 dark:text-zinc-400">
-                    <span>{item.category}</span>
-                    <span>{item.condition}</span>
+                    <span>{tCat(item.category)}</span>
+                    <span>{tObj("condition_" + item.condition)}</span>
                     {item.location && <span>{item.location}</span>}
                   </div>
                   {/* Inline mini stats */}

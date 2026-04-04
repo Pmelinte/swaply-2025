@@ -11,6 +11,7 @@ import { Link } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { useFavorites } from "@/hooks/useFavorites";
+import { normalizeCategory, normalizeCondition } from "@/lib/normalize-i18n";
 import { Pill, SectionCard } from "@/components/ui-custom";
 import {
   Dialog,
@@ -624,8 +625,8 @@ export default function ObjectDetailClient() {
               </div>
             </div>
             <div className="mt-2 flex flex-wrap gap-2">
-              <Pill color="blue">{tCat(item.category)}</Pill>
-              <Pill color="zinc">{tObj("condition_" + item.condition)}</Pill>
+              <Pill color="blue">{tCat(normalizeCategory(item.category))}</Pill>
+              <Pill color="zinc">{tObj("condition_" + normalizeCondition(item.condition))}</Pill>
               {isReserved ? (
                 <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800 dark:bg-amber-900/50 dark:text-amber-200">
                   <Lock className="h-3 w-3" />

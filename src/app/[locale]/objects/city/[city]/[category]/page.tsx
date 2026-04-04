@@ -5,6 +5,8 @@ import { notFound } from "next/navigation";
 import { MapPin, Tag, ChevronRight, Home } from "lucide-react";
 import { getCachedSeoContent } from "@/lib/cache/categories";
 import { translateFields, translateOnDemand } from "@/lib/translate-on-demand";
+import { normalizeCategory, normalizeCondition } from "@/lib/normalize-i18n";
+import { getTranslations } from "next-intl/server";
 import { getServerSupabase } from "@/lib/supabase/server";
 import {
   SEO_CITIES,
@@ -155,7 +157,7 @@ async function getCityCategoryItems(
 
 // ── Item card component ──
 
-function ItemCard({ item }: { item: ItemRow }) {
+function ItemCard({ item, categoryLabel, conditionLabel }: { item: ItemRow; categoryLabel: string; conditionLabel: string }) {
   return (
     <Link
       href={`/objects/${item.id}`}
@@ -179,7 +181,7 @@ function ItemCard({ item }: { item: ItemRow }) {
           {item.title}
         </p>
         <p className="mt-1 text-xs text-zinc-500">
-          {item.category} · {item.condition}
+          {categoryLabel} · {conditionLabel}
         </p>
         {item.location && (
           <p className="mt-1 flex items-center gap-1 text-xs text-zinc-400">
@@ -199,6 +201,9 @@ export default async function CategoryCityPage({ params }: Props) {
   const city = getCityBySlug(citySlug);
   const cat = getCategoryBySlug(catSlug);
   if (!city || !cat) notFound();
+
+  const tCat = await getTranslations({ locale, namespace: "categories" });
+  const tObj = await getTranslations({ locale, namespace: "objects" });
 
   const [{ local: rawLocal, nearby: rawNearby }, seo] = await Promise.all([
     getCityCategoryItems(city.name, city.county, cat.dbCategory),
@@ -318,7 +323,7 @@ export default async function CategoryCityPage({ params }: Props) {
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {local.map((item) => (
-              <ItemCard key={item.id} item={item} />
+              <ItemCard key={item.id} item={item} categoryLabel={tCat(normalizeCategory(item.category))} conditionLabel={tObj("condition_" + normalizeCondition(item.condition))} />
             ))}
           </div>
         </section>
@@ -334,7 +339,7 @@ export default async function CategoryCityPage({ params }: Props) {
           </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {nearby.map((item) => (
-              <ItemCard key={item.id} item={item} />
+              <ItemCard key={item.id} item={item} categoryLabel={tCat(normalizeCategory(item.category))} conditionLabel={tObj("condition_" + normalizeCondition(item.condition))} />
             ))}
           </div>
         </section>
