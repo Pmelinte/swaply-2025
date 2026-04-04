@@ -1,0 +1,55 @@
+name: Populate Translation Cache
+
+on:
+  workflow_dispatch:
+    inputs:
+      batch_size:
+        description: "Items per batch (lower = safer rate limiting)"
+        required: false
+        default: "10"
+
+jobs:
+  translate:
+    name: Translate all items
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify secrets
+        run: |
+          if [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "::error::ANTHROPIC_API_KEY secret is not set"
+            exit 1
+          fi
+          if [ -z "$SUPABASE_URL" ]; then
+            echo "::error::NEXT_PUBLIC_SUPABASE_URL variable is not set"
+            exit 1
+          fi
+          if [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "::error::SUPABASE_SERVICE_ROLE_KEY secret is not set"
+            exit 1
+          fi
+          echo "✓ All secrets configured"
+
+      - name: Run translation cache population
+        run: npx tsx src/scripts/populate-translation-cache.ts
+
+      - name: Report results
+        if: always()
+        run: echo "Translation cache population completed"

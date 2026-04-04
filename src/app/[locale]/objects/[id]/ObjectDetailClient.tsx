@@ -12,6 +12,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { useFavorites } from "@/hooks/useFavorites";
 import { normalizeCategory, normalizeCondition } from "@/lib/normalize-i18n";
+import { useTranslatedText } from "@/hooks/useTranslation";
 import { Pill, SectionCard } from "@/components/ui-custom";
 import {
   Dialog,
@@ -996,8 +997,8 @@ export default function ObjectDetailClient() {
                       />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-zinc-900 dark:text-zinc-50">{si.title}</p>
-                      <p className="text-xs text-zinc-500">{si.condition}{si.location ? ` · ${si.location}` : ""}</p>
+                      <SimilarItemTitle title={si.title} />
+                      <p className="text-xs text-zinc-500">{tObj("condition_" + normalizeCondition(si.condition))}{si.location ? ` · ${si.location}` : ""}</p>
                     </div>
                   </Link>
                 ))}
@@ -1008,5 +1009,12 @@ export default function ObjectDetailClient() {
       </div>
     </div>
     </div>
+  );
+}
+
+function SimilarItemTitle({ title }: { title: string }) {
+  const translated = useTranslatedText(title);
+  return (
+    <p className="truncate text-sm font-medium text-zinc-900 dark:text-zinc-50">{translated}</p>
   );
 }
