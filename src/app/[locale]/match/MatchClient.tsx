@@ -735,17 +735,17 @@ export function MatchClient({ serverAuthenticated = true }: { serverAuthenticate
       />
 
       <StateShowcase
-        title="Stari MATCHING"
+        title={t("title")}
         states={[
           {
             key: "loading",
             title: t("analyzingCompatibility"),
-            description: "Scor cumulativ in curs de calcul — AI sau reguli locale.",
+            description: t("cumulativeScoreDescription"),
           },
           {
             key: "empty",
             title: t("noMatchesNow"),
-            description: "Completeaza mai multe detalii pe obiectele tale sau adauga obiecte noi.",
+            description: t("addObjectDescription"),
           },
           {
             key: "error",

@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
-import { locales, languageNames, flagUrl, localeFlagUrl, type Locale } from "@/i18n/config";
+import { locales, languageNames, flagUrl, type Locale } from "@/i18n/config";
 import type { LanguageCode } from "@/lib/types";
 import { TokensDisplay } from "@/components/tokens/TokensDisplay";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
@@ -164,7 +164,7 @@ export function TopBar() {
                       type="text"
                       value={langSearch}
                       onChange={(e) => setLangSearch(e.target.value)}
-                      placeholder="Search country / language..."
+                      placeholder={t("common.search")}
                       className="w-full rounded-lg border border-zinc-200 py-1.5 pl-8 pr-3 text-sm outline-none focus:border-blue-400 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-100 dark:placeholder:text-zinc-400"
                       autoFocus
                     />
@@ -204,7 +204,7 @@ export function TopBar() {
                     );
                   })}
                   {filteredEntries.length === 0 && (
-                    <div className="px-3 py-4 text-center text-sm text-zinc-400">No results</div>
+                    <div className="px-3 py-4 text-center text-sm text-zinc-400">{t("objects.noResults")}</div>
                   )}
                 </div>
 
@@ -212,7 +212,7 @@ export function TopBar() {
                 <div className="border-t border-zinc-100 px-3 py-2 dark:border-zinc-700">
                   <div className="flex items-center gap-1.5 text-[11px] text-zinc-400">
                     <Globe className="h-3 w-3" />
-                    <span>Country and language can be set independently</span>
+                    <span>{t("common.recommendedNextStep")}</span>
                   </div>
                 </div>
               </div>

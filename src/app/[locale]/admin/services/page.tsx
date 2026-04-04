@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { SectionCard, Pill } from "@/components/ui-custom";
 import {
   Trash2, Star, Globe, Search,
@@ -42,6 +43,8 @@ const TYPE_ICONS: Record<string, React.ReactNode> = {
 };
 
 export default function AdminServicesPage() {
+  const t = useTranslations("admin");
+  const tc = useTranslations("common");
   const [services, setServices] = useState<ServiceRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterCountry, setFilterCountry] = useState("");
@@ -96,9 +99,9 @@ export default function AdminServicesPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
-          Service Management
+          {t("panelTitle")}
         </h1>
-        <span className="text-sm text-zinc-500">{filtered.length} services</span>
+        <span className="text-sm text-zinc-500">{filtered.length}</span>
       </div>
 
       {/* Filters */}
@@ -109,7 +112,7 @@ export default function AdminServicesPage() {
             type="text"
             value={searchQ}
             onChange={(e) => setSearchQ(e.target.value)}
-            placeholder="Search services..."
+            placeholder={tc("search")}
             className="rounded-lg border border-zinc-200 pl-9 pr-3 py-1.5 text-sm dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-100"
           />
         </div>
@@ -117,7 +120,7 @@ export default function AdminServicesPage() {
           type="text"
           value={filterCountry}
           onChange={(e) => setFilterCountry(e.target.value.toUpperCase().slice(0, 2))}
-          placeholder="Country (e.g. DE)"
+          placeholder={t("searchPlaceholder")}
           className="w-28 rounded-lg border border-zinc-200 px-3 py-1.5 text-sm dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-100"
         />
         <select
@@ -125,7 +128,7 @@ export default function AdminServicesPage() {
           onChange={(e) => setFilterType(e.target.value)}
           className="rounded-lg border border-zinc-200 px-3 py-1.5 text-sm dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-100"
         >
-          <option value="">All types</option>
+          <option value="">{t("allFilter")}</option>
           {SERVICE_TYPES.map((t) => (
             <option key={t} value={t}>{t.replace(/_/g, " ")}</option>
           ))}
@@ -133,9 +136,9 @@ export default function AdminServicesPage() {
       </div>
 
       {/* Services table */}
-      <SectionCard title="Services">
+      <SectionCard title={t("reports")}>
         {loading ? (
-          <div className="py-8 text-center text-sm text-zinc-400">Loading services...</div>
+          <div className="py-8 text-center text-sm text-zinc-400">{tc("loading")}</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
@@ -165,7 +168,7 @@ export default function AdminServicesPage() {
                         className="font-medium text-blue-600 hover:underline dark:text-blue-400">
                         {s.name}
                       </a>
-                      {s.affiliate_url && <Pill color="green">affiliate</Pill>}
+                        {s.affiliate_url && <Pill color="green">{t("typeUser")}</Pill>}
                     </td>
                     <td className="py-2 pr-3">
                       <button type="button" onClick={() => void toggleActive(s)}
@@ -174,7 +177,7 @@ export default function AdminServicesPage() {
                             ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300"
                             : "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300"
                         }`}>
-                        {s.is_active ? "Active" : "Inactive"}
+                        {s.is_active ? t("activeItems") : t("archive")}
                       </button>
                     </td>
                     <td className="py-2 pr-3">
@@ -195,7 +198,7 @@ export default function AdminServicesPage() {
             </table>
             {filtered.length === 0 && (
               <div className="py-8 text-center text-sm text-zinc-400">
-                No services found. {filterCountry || filterType ? "Try adjusting filters." : "Run the migration to populate services."}
+                {t("noItems")}
               </div>
             )}
           </div>

@@ -58,8 +58,8 @@ export default getRequestConfig(async ({ requestLocale }) => {
     onError() {
       // Suppress missing message errors
     },
-    getMessageFallback({ key }) {
-      return key;
+    getMessageFallback() {
+      return "";
     },
   };
 });

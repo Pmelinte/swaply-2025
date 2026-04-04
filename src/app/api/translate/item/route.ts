@@ -6,6 +6,21 @@ import { kvRateLimit, getClientIp, tooManyRequests } from "@/lib/kv-rate-limit";
 
 const VALID_LOCALES = new Set<string>(locales);
 
+function detectSourceLanguage(text: string): string {
+  if (/[ăâîșț]/i.test(text)) return "ro";
+  if (/[äöüß]/i.test(text)) return "de";
+  if (/[àâçéèêëîïôùûüÿœæ]/i.test(text)) return "fr";
+  if (/[ñáéíóúü¿¡]/i.test(text)) return "es";
+  if (/[àèéìíîòóùú]/i.test(text)) return "it";
+  if (/[ãõçáéíóú]/i.test(text)) return "pt";
+  if (/[\u0400-\u04FF]/i.test(text)) return "ru";
+  if (/[\u4e00-\u9fff]/i.test(text)) return "zh";
+  if (/[\u3040-\u309F\u30A0-\u30FF]/i.test(text)) return "ja";
+  if (/[\uAC00-\uD7AF]/i.test(text)) return "ko";
+  if (/[\u0600-\u06FF]/i.test(text)) return "ar";
+  return "en";
+}
+
 /**
  * POST /api/translate/item
  * Translate an item's title and description to a target locale.
@@ -65,7 +80,7 @@ export async function POST(request: NextRequest) {
     item.title,
     item.description ?? "",
     targetLocale,
-    "ro",
+    detectSourceLanguage(`${item.title ?? ""} ${item.description ?? ""}`),
   );
 
   if (!result.title) {
