@@ -18,7 +18,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: "24"
 
       # 1. Every key in en.json must exist in all 42 locale files
       - name: Key coverage check
@@ -98,3 +98,30 @@ jobs:
           else
             echo "Cache coverage response: $RESPONSE"
           fi
+
+      # 7. Collect audit report
+      - name: Collect audit report
+        if: always()
+        run: |
+          echo "=== i18n Audit Report ===" > /tmp/i18n-audit-report.txt
+          echo "Date: $(date -u)" >> /tmp/i18n-audit-report.txt
+          echo "" >> /tmp/i18n-audit-report.txt
+          echo "--- Key coverage ---" >> /tmp/i18n-audit-report.txt
+          node scripts/check-i18n-keys.mjs >> /tmp/i18n-audit-report.txt 2>&1 || true
+          echo "" >> /tmp/i18n-audit-report.txt
+          echo "--- Key usage ---" >> /tmp/i18n-audit-report.txt
+          node scripts/check-i18n-usage.mjs >> /tmp/i18n-audit-report.txt 2>&1 || true
+          echo "" >> /tmp/i18n-audit-report.txt
+          echo "--- Condition & category mappings ---" >> /tmp/i18n-audit-report.txt
+          node scripts/check-i18n-mappings.mjs >> /tmp/i18n-audit-report.txt 2>&1 || true
+          echo "" >> /tmp/i18n-audit-report.txt
+          echo "--- Hardcoded strings ---" >> /tmp/i18n-audit-report.txt
+          node scripts/check-hardcoded-strings.mjs >> /tmp/i18n-audit-report.txt 2>&1 || true
+
+      - name: Upload audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: i18n-audit-report
+          path: /tmp/i18n-audit-report.txt
+          retention-days: 30
