@@ -3,6 +3,7 @@ import { kvRateLimit, getClientIp, tooManyRequests } from "@/lib/kv-rate-limit";
 import { translateSchema, validateBody } from "@/lib/validation";
 import { requestLogger } from "@/lib/logger";
 import { getServiceSupabase } from "@/lib/supabase/service";
+import { getServerSupabase } from "@/lib/supabase/server";
 import { createHash } from "crypto";
 import { translateText } from "@/lib/translate";
 
@@ -10,12 +11,17 @@ function hashText(text: string, targetLang: string): string {
   return createHash("sha256").update(`${text}::${targetLang}`).digest("hex");
 }
 
+/** Get a Supabase client — prefer service role, fall back to server (anon) */
+async function getSupabase() {
+  return getServiceSupabase() ?? (await getServerSupabase());
+}
+
 /** Try to get cached translation from Supabase */
 async function getCachedTranslation(
   textHash: string,
   targetLang: string,
 ): Promise<string | null> {
-  const supabase = getServiceSupabase();
+  const supabase = await getSupabase();
   if (!supabase) return null;
   try {
     const { data } = await supabase
@@ -37,7 +43,7 @@ async function cacheTranslation(
   targetLang: string,
   translatedText: string,
 ): Promise<void> {
-  const supabase = getServiceSupabase();
+  const supabase = await getSupabase();
   if (!supabase) return;
   try {
     await supabase.from("translation_cache").upsert(
