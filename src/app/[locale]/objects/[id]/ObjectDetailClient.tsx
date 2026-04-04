@@ -91,6 +91,8 @@ export default function ObjectDetailClient() {
   const { items, user, loading, proposeSwap, lastError } = useAppState();
   const { isFavorite, toggleFavorite } = useFavorites(user?.id);
   const t = useTranslations("objectDetail");
+  const tCat = useTranslations("categories");
+  const tObj = useTranslations("objects");
   const [activePhoto, setActivePhoto] = useState(0);
   const lightboxRef = useRef<HTMLDialogElement>(null);
   const [offerItemId, setOfferItemId] = useState<string>("");
@@ -547,7 +549,7 @@ export default function ObjectDetailClient() {
             <div className="flex items-start justify-between gap-2">
               <div>
                 <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
-                  {showTranslation && translatedTitle ? translatedTitle : item.title}
+                  {translatedTitle || item.title}
                 </h1>
                 {showTranslation && translatedTitle && (
                   <button
@@ -622,8 +624,8 @@ export default function ObjectDetailClient() {
               </div>
             </div>
             <div className="mt-2 flex flex-wrap gap-2">
-              <Pill color="blue">{item.category}</Pill>
-              <Pill color="zinc">{item.condition}</Pill>
+              <Pill color="blue">{tCat(item.category)}</Pill>
+              <Pill color="zinc">{tObj("condition_" + item.condition)}</Pill>
               {isReserved ? (
                 <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800 dark:bg-amber-900/50 dark:text-amber-200">
                   <Lock className="h-3 w-3" />
@@ -647,7 +649,7 @@ export default function ObjectDetailClient() {
           {/* Description */}
           {item.description && (
             <p className="text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
-              {showTranslation && translatedDesc ? translatedDesc : item.description}
+              {translatedDesc || item.description}
             </p>
           )}
 
@@ -656,7 +658,7 @@ export default function ObjectDetailClient() {
             <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-3 dark:border-blue-900 dark:bg-blue-950/30">
               <p className="text-xs font-semibold uppercase text-blue-600 dark:text-blue-400">{t("wishlist")}</p>
               <p className="mt-1 text-sm text-blue-900 dark:text-blue-100">
-                {showTranslation && translatedWishlist ? translatedWishlist : item.wishlist}
+                {translatedWishlist || item.wishlist}
               </p>
             </div>
           )}
