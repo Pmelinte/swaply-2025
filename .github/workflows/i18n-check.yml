@@ -18,28 +18,110 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: "24"
 
+      # 1. Every key in en.json must exist in all 42 locale files
       - name: Key coverage check
         run: node scripts/check-i18n-keys.mjs
 
+      # 2. t() calls in code should reference keys that exist in en.json
       - name: Key usage check
         run: node scripts/check-i18n-usage.mjs
 
+      # 3. Condition values and category slugs must map to i18n keys
+      - name: Condition & category mapping check
+        run: node scripts/check-i18n-mappings.mjs
+
+      # 4. Scan for hardcoded user-visible English strings
+      - name: Hardcoded strings check
+        run: node scripts/check-hardcoded-strings.mjs
+
+      # 5. Romanian diacritics in source code (warn only)
       - name: Hardcoded Romanian strings check
         run: |
           RESULTS=$(grep -rn "[ĂÂÎȘȚăâîșț]" src --include="*.tsx" --include="*.ts" \
             | grep -v "src/messages/" \
             | grep -v "\.test\." \
-            | grep -v "^\s*//" \
             | grep -v "// " \
             | grep -v "detectLang\|regex\|\.test(\|RegExp\|replace(" \
             || true)
           if [ -n "$RESULTS" ]; then
             echo "⚠ Found Romanian diacritics in source code (review manually):"
             echo "$RESULTS" | head -20
-            echo ""
-            echo "These may be legitimate (regex patterns, test data). Review above."
           else
             echo "✓ No hardcoded Romanian strings found"
           fi
+
+      # 6. Translation cache coverage (requires Supabase access)
+      - name: Translation cache coverage
+        if: ${{ vars.NEXT_PUBLIC_SUPABASE_URL != '' }}
+        env:
+          SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "⚠ Supabase credentials not configured — skipping cache coverage check"
+            exit 0
+          fi
+
+          # Query translation_cache coverage
+          RESPONSE=$(curl -s "${SUPABASE_URL}/rest/v1/rpc/translation_coverage" \
+            -H "apikey: ${SUPABASE_ANON_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
+            2>/dev/null || echo "")
+
+          if [ -z "$RESPONSE" ] || echo "$RESPONSE" | grep -q "error"; then
+            # Fallback: count directly
+            TOTAL=$(curl -s "${SUPABASE_URL}/rest/v1/items?select=id&status=eq.active&is_active=eq.true" \
+              -H "apikey: ${SUPABASE_ANON_KEY}" \
+              -H "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
+              -H "Prefer: count=exact" \
+              -I 2>/dev/null | grep -i "content-range" | grep -oP "\d+$" || echo "0")
+
+            CACHED=$(curl -s "${SUPABASE_URL}/rest/v1/translation_cache?select=source_text_hash&target_lang=eq.en" \
+              -H "apikey: ${SUPABASE_ANON_KEY}" \
+              -H "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
+              -H "Prefer: count=exact" \
+              -I 2>/dev/null | grep -i "content-range" | grep -oP "\d+$" || echo "0")
+
+            if [ "$TOTAL" -gt 0 ] && [ "$CACHED" -gt 0 ]; then
+              PCT=$((CACHED * 100 / TOTAL))
+              echo "Translation cache: ${CACHED}/${TOTAL} items cached for EN (${PCT}%)"
+              if [ "$PCT" -lt 80 ]; then
+                echo "⚠ Cache coverage below 80% — run npm run translate:cache to populate"
+              else
+                echo "✓ Cache coverage above 80%"
+              fi
+            else
+              echo "⚠ Could not determine cache coverage (items=${TOTAL}, cached=${CACHED})"
+            fi
+          else
+            echo "Cache coverage response: $RESPONSE"
+          fi
+
+      # 7. Collect audit report
+      - name: Collect audit report
+        if: always()
+        run: |
+          echo "=== i18n Audit Report ===" > /tmp/i18n-audit-report.txt
+          echo "Date: $(date -u)" >> /tmp/i18n-audit-report.txt
+          echo "" >> /tmp/i18n-audit-report.txt
+          echo "--- Key coverage ---" >> /tmp/i18n-audit-report.txt
+          node scripts/check-i18n-keys.mjs >> /tmp/i18n-audit-report.txt 2>&1 || true
+          echo "" >> /tmp/i18n-audit-report.txt
+          echo "--- Key usage ---" >> /tmp/i18n-audit-report.txt
+          node scripts/check-i18n-usage.mjs >> /tmp/i18n-audit-report.txt 2>&1 || true
+          echo "" >> /tmp/i18n-audit-report.txt
+          echo "--- Condition & category mappings ---" >> /tmp/i18n-audit-report.txt
+          node scripts/check-i18n-mappings.mjs >> /tmp/i18n-audit-report.txt 2>&1 || true
+          echo "" >> /tmp/i18n-audit-report.txt
+          echo "--- Hardcoded strings ---" >> /tmp/i18n-audit-report.txt
+          node scripts/check-hardcoded-strings.mjs >> /tmp/i18n-audit-report.txt 2>&1 || true
+
+      - name: Upload audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: i18n-audit-report
+          path: /tmp/i18n-audit-report.txt
+          retention-days: 30
