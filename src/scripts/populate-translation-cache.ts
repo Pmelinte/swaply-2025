@@ -18,14 +18,25 @@ import { createClient } from "@supabase/supabase-js";
 import { createHash } from "crypto";
 
 // ── Config ──────────────────────────────────────────────────────────
-const TARGET_LANGS = ["ro", "en", "de", "fr", "it"] as const;
+// All 42 non-ro locales from the i18n config
+const TARGET_LANGS = [
+  "en","de","fr","es","it","pt","nl","pl","el","hu","bg","cs","sk","hr",
+  "sl","sr","sv","da","fi","no","lt","lv","et","ga","mt","ru","tr","ar",
+  "zh","hi","bn","ja","ko","vi","th","id","ms","fil","fa","mn","uk","yi",
+] as const;
 
 const LOCALE_NAMES: Record<string, string> = {
-  ro: "Romanian",
-  en: "English",
-  de: "German",
-  fr: "French",
-  it: "Italian",
+  en: "English", ro: "Romanian", fr: "French", de: "German",
+  es: "Spanish", it: "Italian", pt: "Portuguese", nl: "Dutch",
+  pl: "Polish", el: "Greek", hu: "Hungarian", bg: "Bulgarian",
+  cs: "Czech", sk: "Slovak", hr: "Croatian", sl: "Slovenian",
+  sr: "Serbian", sv: "Swedish", da: "Danish", fi: "Finnish",
+  no: "Norwegian", lt: "Lithuanian", lv: "Latvian", et: "Estonian",
+  ga: "Irish", mt: "Maltese", ru: "Russian", tr: "Turkish",
+  ar: "Arabic", zh: "Chinese", hi: "Hindi", bn: "Bengali",
+  ja: "Japanese", ko: "Korean", vi: "Vietnamese", th: "Thai",
+  id: "Indonesian", ms: "Malay", fil: "Filipino", fa: "Persian",
+  mn: "Mongolian", uk: "Ukrainian", yi: "Yiddish",
 };
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
