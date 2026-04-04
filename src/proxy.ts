@@ -34,11 +34,10 @@ const AUTH_API_ROUTES = [
   "/api/gdpr",
   "/api/moderate",
   "/api/payments",
-  "/api/translate",
 ];
 
 // ── API routes that are always public ───────────────────────────────
-const PUBLIC_API_ROUTES = ["/api/health"];
+const PUBLIC_API_ROUTES = ["/api/health", "/api/translate"];
 
 // ── Admin-only routes ───────────────────────────────────────────────
 const ADMIN_ROUTES = ["/admin"];
