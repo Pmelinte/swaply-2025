@@ -11,6 +11,21 @@ interface Props {
   params: Promise<{ locale: string; id: string }>;
 }
 
+function detectSourceLanguage(text: string): string {
+  if (/[ăâîșț]/i.test(text)) return "ro";
+  if (/[äöüß]/i.test(text)) return "de";
+  if (/[àâçéèêëîïôùûüÿœæ]/i.test(text)) return "fr";
+  if (/[ñáéíóúü¿¡]/i.test(text)) return "es";
+  if (/[àèéìíîòóùú]/i.test(text)) return "it";
+  if (/[ãõçáéíóú]/i.test(text)) return "pt";
+  if (/[\u0400-\u04FF]/i.test(text)) return "ru";
+  if (/[\u4e00-\u9fff]/i.test(text)) return "zh";
+  if (/[\u3040-\u309F\u30A0-\u30FF]/i.test(text)) return "ja";
+  if (/[\uAC00-\uD7AF]/i.test(text)) return "ko";
+  if (/[\u0600-\u06FF]/i.test(text)) return "ar";
+  return "en";
+}
+
 async function getItem(id: string) {
   const supabase = await getServerSupabase();
   if (!supabase) return null;
@@ -31,6 +46,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return { title: "Object not found — Swaply" };
   }
 
+  const sourceLang = detectSourceLanguage(`${item.title ?? ""} ${item.description ?? ""}`);
+
   // On-demand translation for non-ro/en locales
   const { title: tTitle, description: tDesc } = await translateFields(
     {
@@ -39,7 +56,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         `${item.category} · ${item.condition}${item.location ? ` · ${item.location}` : ""}`,
     },
     locale,
-    "ro",
+    sourceLang,
   );
 
   const title = `${tTitle} — Swaply`;
@@ -75,10 +92,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ObjectDetailPage({ params }: Props) {
   const { locale, id } = await params;
   const item = await getItem(id);
+  const sourceLang = item
+    ? detectSourceLanguage(`${item.title ?? ""} ${item.description ?? ""}`)
+    : "en";
 
   // Translate title + description for JSON-LD
-  const tName = item ? await translateOnDemand(String(item.title ?? ""), locale, "ro") : "";
-  const tDescription = item ? await translateOnDemand(String(item.description ?? "").slice(0, 500), locale, "ro") : "";
+  const tName = item ? await translateOnDemand(String(item.title ?? ""), locale, sourceLang) : "";
+  const tDescription = item ? await translateOnDemand(String(item.description ?? "").slice(0, 500), locale, sourceLang) : "";
 
   // JSON-LD structured data for SEO
   const jsonLd = item
