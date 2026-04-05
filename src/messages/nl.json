@@ -46,8 +46,8 @@
     "myDesk": "Mijn Swap Desk",
     "myDeskDescription": "Volg actieve ruilmogelijkheden, hangende acties en deadlines",
     "romania": "Roemenië",
-    "user": "User",
-    "recommendedNextStep": "Recommended next step"
+    "user": "Gebruiker",
+    "recommendedNextStep": "Aanbevolen volgende stap"
   },
   "nav": {
     "home": "Start",
@@ -76,7 +76,7 @@
     "badgeBenefits": "Badge-voordelen",
     "completeProfile": "Maak je profiel compleet",
     "desk": "Mijn Desk",
-    "settings": "Settings"
+    "settings": "Instellingen"
   },
   "notifications": {
     "title": "Meldingen (like/interesse/chat/swaply)",
@@ -356,7 +356,7 @@
     "crossSwapObjects": "Fysieke items om te ruilen",
     "properties": "Eigendommen",
     "crossSwapProperties": "Huizen of kamers voor verblijf",
-    "services": "Services",
+    "services": "Diensten",
     "crossSwapServices": "Vaardigheden en tijdsuitwisseling",
     "crossSwapExample": "Voorbeeld: Verblijf twee weken in mijn berghut + ik geef je fotografieles → Je elektrische scooter + 10u webontwikkeling",
     "profileCompleteness": "Profielcompleteness",
@@ -505,7 +505,7 @@
     "recommendedForYou": "Aanbevolen voor jou",
     "actionProperties": "Eigendommen",
     "actionPropertiesDesc": "Huiswisseling — bergen, kust, stad",
-    "actionServices": "Services",
+    "actionServices": "Diensten",
     "actionServicesDesc": "Vaardigheden uitwisseling — 1u = 1u",
     "actionFeedback": "Feedback",
     "actionFeedbackDesc": "Meld een fout of stel een functie voor",
@@ -608,7 +608,7 @@
     "allTypes": "All",
     "objectsType": "Objecten",
     "propertiesType": "Eigendommen",
-    "servicesType": "Services",
+    "servicesType": "Diensten",
     "undoSwipe": "Laatste swipe ongedaan maken",
     "loadMoreItems": "Meer laden",
     "remainingItems": "resterend",
@@ -634,17 +634,17 @@
     "badgeProperty": "Eigendom",
     "badgeService": "Service",
     "condition_new": "New",
-    "condition_good": "Good",
-    "condition_like_new": "Like new",
-    "condition_fair": "Fair",
-    "condition_poor": "Poor",
-    "condition_used": "Used",
-    "condition_used_good": "Good condition",
+    "condition_good": "Goed",
+    "condition_like_new": "Bijna nieuw",
+    "condition_fair": "Redelijk",
+    "condition_poor": "Slecht",
+    "condition_used": "Gebruikt",
+    "condition_used_good": "Goede staat",
     "status_active": "Actief",
     "status_reserved": "Gereserveerd",
     "status_traded": "Geruild",
     "status_paused": "Gepauzeerd",
-    "status_archived": "Archived",
+    "status_archived": "Gearchiveerd",
     "shareButton": "Delen"
   },
   "objectDetail": {
@@ -1242,7 +1242,7 @@
     "disputeEvidenceAdd": "Bewijs toevoegen",
     "disputeEvidencePhoto": "Foto",
     "disputeEvidenceChatScreenshot": "Chatschermafbeelding",
-    "disputeEvidenceTracking": "Tracking / AWB",
+    "disputeEvidenceTracking": "Tracering / AWB",
     "disputeEvidenceMeetingCode": "Vergadercode",
     "disputeEvidenceLocationProof": "Locatiebewijs",
     "disputeEvidenceNote": "Opmerking",
@@ -1323,7 +1323,7 @@
     "packagingMusic": "Voor Muziekinstrumenten raden we gespecialiseerde instrumentenkist of versterkte doos aan",
     "travelTitle": "Moet u reizen voor de ruil?",
     "travelDesc": "Uw ruilpartner bevindt zich in een ander land. Hier zijn transport- en accommodatieopties.",
-    "transportLabel": "Transport",
+    "transportLabel": "Vervoer",
     "accommodationLabel": "Accommodatie",
     "digitalTransferTitle": "Digitale Overdracht",
     "digitalTransferDesc": "Ervaringen worden digitaal overgedragen — geen fysieke verzending nodig.",
@@ -1333,13 +1333,13 @@
     "digitalPdf": "PDF / QR-code",
     "digitalBookingRef": "Boekingreferentie",
     "swapChat": "Swap Chat",
-    "chatEmpty": "No messages yet. Start the conversation!",
-    "chatPlaceholder": "Type a message...",
-    "statusAccepted": "Accepted",
-    "statusInProgress": "In progress",
-    "statusDeliveredA": "Delivered (1/2)",
-    "statusDeliveredB": "Delivered (2/2)",
-    "statusResolved": "Resolved"
+    "chatEmpty": "Nog geen berichten. Start het gesprek!",
+    "chatPlaceholder": "Typ een bericht...",
+    "statusAccepted": "Geaccepteerd",
+    "statusInProgress": "In uitvoering",
+    "statusDeliveredA": "Bezorgd (1/2)",
+    "statusDeliveredB": "Bezorgd (2/2)",
+    "statusResolved": "Opgelost"
   },
   "info": {
     "title": "Swaply Statistieken",
@@ -1752,9 +1752,9 @@
     "mapTitle": "Locatiekaart",
     "noPins": "Geen pins om weer te geven",
     "loading": "Kaart laden…",
-    "title": "Active users near you",
+    "title": "Actieve gebruikers in jouw buurt",
     "liveBadge": "Live",
-    "guestTooltip": "Sign up to see who swaps in your area"
+    "guestTooltip": "Meld je aan om te zien wie in jouw gebied ruilmogelijkheden heeft"
   },
   "location": {
     "country": "Land",
@@ -2107,7 +2107,7 @@
     "subtitle": "Beheer uw abonnement, tokens en beloningen",
     "swapMilestones": "Swap Mijlpalen",
     "swapsCompleted": "{count} ruilingen voltooid",
-    "tabMilestones": "Milestone",
+    "tabMilestones": "Mijlpaal",
     "tabReferrals": "Referrals",
     "tabStreak": "Streak",
     "tabSubscriptions": "Abonnementen",
@@ -2574,14 +2574,14 @@
     "ctaButton": "Probeer Swaply gratis →",
     "metaDescription": "Artikelen uit de categorie \"{category}\" op de Swaply blog.",
     "tableOfContents": "Inhoudsopgave",
-    "guide": "Guide",
+    "guide": "Gids",
     "tutorial": "Tutorial",
-    "inspiration": "Inspiration",
-    "sustainability": "Sustainability",
-    "safety": "Safety",
-    "technology": "Technology",
+    "inspiration": "Inspiratie",
+    "sustainability": "Duurzaamheid",
+    "safety": "Veiligheid",
+    "technology": "Technologie",
     "trends": "Trends",
-    "community": "Community",
+    "community": "Gemeenschap",
     "product": "Product",
     "allCategories": "All"
   },
@@ -2653,7 +2653,7 @@
     "banConfirm": "Weet je zeker dat je deze gebruiker permanent wilt bannen?",
     "error": "Fout",
     "suspend7Days": "7 dagen opschorten",
-    "permanentBan": "Permanent ban",
+    "permanentBan": "Permanente ban",
     "unblock": "Deblokkeren",
     "reports": "Meldingen",
     "backToReports": "Terug naar meldingen",
@@ -2974,10 +2974,10 @@
     "unexpectedError": "Onverwachte fout. Probeer opnieuw.",
     "stripeUnavailable": "Stripe is niet beschikbaar",
     "securePayment": "Veilige betaling via Stripe. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "Boost 7 days",
+    "boost7days": "Boost 7 dagen",
     "alreadyPurchased": "Al gekocht",
-    "boost24h": "Boost 24h",
-    "boost72h": "Boost 72h"
+    "boost24h": "Boost 24u",
+    "boost72h": "Boost 72u"
   },
   "payments": {
     "paymentMethod": "Betaalmethode",
@@ -3016,7 +3016,7 @@
     "fieldAirline": "Luchtvaartmaatschappij",
     "fieldFlightNumber": "Vluchtnummer",
     "fieldFlightClass": "Klasse",
-    "classEconomy": "Economy",
+    "classEconomy": "Economie",
     "classBusiness": "Bedrijf",
     "classFirst": "First",
     "fieldEstimatedValue": "Geschatte waarde",
@@ -3045,7 +3045,7 @@
     "settings": "Cookie-instellingen"
   },
   "branches": {
-    "tagline": "Swap what you have for what you need — objects, properties, services, and events.",
+    "tagline": "Ruil wat je hebt voor wat je nodig hebt — voorwerpen, eigendomsrechten, diensten en evenementen.",
     "objects": "Objecten",
     "objectsDesc": "Ruil elektronica, boeken, kleding en meer",
     "properties": "Vastgoed",
@@ -3054,7 +3054,7 @@
     "servicesDesc": "Wissel vaardigheden, arbeid en professionele hulp",
     "events": "Evenementen",
     "eventsDesc": "Ruil tickets, reserveringen en ervaringen",
-    "comingSoon": "This section is coming soon. Stay tuned!"
+    "comingSoon": "Dit gedeelte komt binnenkort. Blijf op de hoogte!"
   },
   "hero": {
     "tagline": "Ruil wat je hebt voor wat je wilt"
@@ -3094,11 +3094,11 @@
     "insightsDesc": "Aanbevelingen op basis van jouw gegevens"
   },
   "share": {
-    "copied": "Copied!",
-    "copyLink": "Copy link"
+    "copied": "Gekopieerd!",
+    "copyLink": "Link kopiëren"
   },
   "badge": {
-    "free": "Free",
+    "free": "Gratis",
     "premium": "Premium",
     "platinum": "Platinum"
   }

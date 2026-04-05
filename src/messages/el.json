@@ -46,8 +46,8 @@
     "myDesk": "Μου Swap Desk",
     "myDeskDescription": "Παρακολουθήστε ενεργές ανταλλαγές, εκκρεμείς ενέργειες και προθεσμίες",
     "romania": "Ρουμανία",
-    "user": "User",
-    "recommendedNextStep": "Recommended next step"
+    "user": "Χρήστης",
+    "recommendedNextStep": "Προτεινόμενο επόμενο βήμα"
   },
   "nav": {
     "home": "Αρχική",
@@ -76,7 +76,7 @@
     "badgeBenefits": "Πλεονεκτήματα σήματος",
     "completeProfile": "Συμπληρώστε το προφίλ σας",
     "desk": "Μου Desk",
-    "settings": "Settings"
+    "settings": "Ρυθμίσεις"
   },
   "notifications": {
     "title": "Ειδοποιήσεις (like/ενδιαφέρον/συνομιλία/swaply)",
@@ -445,8 +445,8 @@
     "guestFeatureVerifyDesc": "Email, τηλέφωνο και ταυτότητα — για το διακριτικό επαληθευμένου χρήστη.",
     "guestCta": "Δημιουργήστε το δωρεάν προφίλ σας →",
     "networkError": "Σφάλμα δικτύου",
-    "passkeyRegFailed": "Passkey registration failed",
-    "genericError": "Error"
+    "passkeyRegFailed": "Η εγγραφή Passkey απέτυχε",
+    "genericError": "Σφάλμα"
   },
   "home": {
     "welcome": "Καλώς ήρθατε πίσω",
@@ -822,7 +822,7 @@
     "guestDemo1Location": "Cluj-Napoca",
     "guestDemo2Title": "Canon EOS 250D",
     "guestDemo2Swap": "DJI Mini 3",
-    "guestDemo2Location": "Bucharest",
+    "guestDemo2Location": "Βουκουρέστι",
     "guestDemo3Title": "Fender Guitar",
     "guestDemo3Swap": "Marshall Speakers",
     "guestDemo3Location": "Timișoara",
@@ -1333,13 +1333,13 @@
     "digitalPdf": "PDF / κώδικας QR",
     "digitalBookingRef": "Αναφορά κράτησης",
     "swapChat": "Swap Chat",
-    "chatEmpty": "No messages yet. Start the conversation!",
-    "chatPlaceholder": "Type a message...",
-    "statusAccepted": "Accepted",
-    "statusInProgress": "In progress",
-    "statusDeliveredA": "Delivered (1/2)",
-    "statusDeliveredB": "Delivered (2/2)",
-    "statusResolved": "Resolved"
+    "chatEmpty": "Κανένα μήνυμα ακόμα. Ξεκινήστε τη συνομιλία!",
+    "chatPlaceholder": "Πληκτρολογήστε ένα μήνυμα...",
+    "statusAccepted": "Αποδεκτό",
+    "statusInProgress": "Σε εξέλιξη",
+    "statusDeliveredA": "Παραδόθηκε (1/2)",
+    "statusDeliveredB": "Παραδόθηκε (2/2)",
+    "statusResolved": "Επιλύθηκε"
   },
   "info": {
     "title": "Στατιστικά Swaply",
@@ -1752,9 +1752,9 @@
     "mapTitle": "Χάρτης τοποθεσίας",
     "noPins": "Δεν υπάρχουν καρφίτσες για εμφάνιση",
     "loading": "Φόρτωση χάρτη…",
-    "title": "Active users near you",
-    "liveBadge": "Live",
-    "guestTooltip": "Sign up to see who swaps in your area"
+    "title": "Ενεργοί χρήστες κοντά σας",
+    "liveBadge": "Ζωντανά",
+    "guestTooltip": "Εγγραφείτε για να δείτε ποιος κάνει ανταλλαγές στην περιοχή σας"
   },
   "location": {
     "country": "Χώρα",
@@ -2196,7 +2196,7 @@
     "modalDescription": "Δημιουργήστε δωρεάν λογαριασμό για να προτείνετε ανταλλαγές, να στείλετε μηνύματα και να ξεκινήσετε να ανταλλάσσετε.",
     "modalCta": "Δημιουργία δωρεάν λογαριασμού",
     "modalDismiss": "Ίσως αργότερα",
-    "haveAccount": "I already have an account"
+    "haveAccount": "Έχω ήδη λογαριασμό"
   },
   "about": {
     "title": "Σχετικά με το Swaply",
@@ -2352,8 +2352,8 @@
     "searchPrefix": "Αναζητώ:",
     "daysRemaining": "{days} ημέρες απομένουν",
     "you": "You",
-    "userPrefix": "User",
-    "lookingFor": "Looking for"
+    "userPrefix": "Χρήστης",
+    "lookingFor": "Αναζήτηση"
   },
   "history": {
     "title": "Ιστορικό ανταλλαγών",
@@ -2974,7 +2974,7 @@
     "unexpectedError": "Απροσδόκητο σφάλμα. Δοκιμάστε ξανά.",
     "stripeUnavailable": "Το Stripe δεν είναι διαθέσιμο",
     "securePayment": "Ασφαλής πληρωμή μέσω Stripe. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "Boost 7 days",
+    "boost7days": "Boost 7 ημέρες",
     "alreadyPurchased": "Ήδη αγοράστηκε",
     "boost24h": "Boost 24h",
     "boost72h": "Boost 72h"
@@ -3045,7 +3045,7 @@
     "settings": "Ρυθμίσεις cookies"
   },
   "branches": {
-    "tagline": "Swap what you have for what you need — objects, properties, services, and events.",
+    "tagline": "Ανταλλάξτε αυτά που έχετε για αυτά που χρειάζεστε — αντικείμενα, ακίνητα, υπηρεσίες και εκδηλώσεις.",
     "objects": "Αντικείμενα",
     "objectsDesc": "Ανταλλάξτε ηλεκτρονικά, βιβλία, ρούχα και άλλα",
     "properties": "Ακίνητα",
@@ -3054,7 +3054,7 @@
     "servicesDesc": "Ανταλλάξτε δεξιότητες, εργασία και επαγγελματική βοήθεια",
     "events": "Εκδηλώσεις",
     "eventsDesc": "Ανταλλάξτε εισιτήρια, κρατήσεις και εμπειρίες",
-    "comingSoon": "This section is coming soon. Stay tuned!"
+    "comingSoon": "Αυτή η ενότητα έρχεται σύντομα. Μείνετε συντονισμένοι!"
   },
   "hero": {
     "tagline": "Ανταλλάξτε αυτό που έχετε με αυτό που θέλετε"
@@ -3075,30 +3075,30 @@
   },
   "analytics": {
     "title": "Analytics",
-    "loginRequired": "You must be logged in to view analytics.",
-    "dashboard": "Analytics Dashboard",
-    "upgradeToPremium": "Upgrade to Premium for full analytics access",
-    "noData": "No data",
-    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
-    "totalViews": "Total views",
-    "favoritesReceived": "Favorites received",
-    "proposalsReceived": "Proposals received",
-    "conversionRate": "Conversion rate",
-    "completedSwaps": "Completed swaps",
-    "avgTimeToProposal": "Avg time to proposal",
-    "viewsPerDay": "Views per day",
-    "last30Days": "Last 30 days",
-    "topItems": "Top items",
-    "byViews": "By number of views",
-    "insights": "Automated insights",
-    "insightsDesc": "Recommendations based on your data"
+    "loginRequired": "Πρέπει να είστε συνδεδεμένοι για να δείτε την ανάλυση.",
+    "dashboard": "Πίνακας Ανάλυσης",
+    "upgradeToPremium": "Αναβαθμίστε σε Premium για πλήρη πρόσβαση στην ανάλυση",
+    "noData": "Χωρίς δεδομένα",
+    "noDataDesc": "Δεν υπάρχουν ακόμη δεδομένα ανάλυσης. Επισκεφθείτε τα αντικείμενά σας για να ξεκινήσετε την παρακολούθηση.",
+    "totalViews": "Συνολικές προβολές",
+    "favoritesReceived": "Αγαπημένα που λήφθησαν",
+    "proposalsReceived": "Προτάσεις που λήφθησαν",
+    "conversionRate": "Ποσοστό μετατροπής",
+    "completedSwaps": "Ολοκληρωμένες ανταλλαγές",
+    "avgTimeToProposal": "Μέσος χρόνος για πρόταση",
+    "viewsPerDay": "Προβολές ανά ημέρα",
+    "last30Days": "Τελευταίες 30 ημέρες",
+    "topItems": "Κορυφαία αντικείμενα",
+    "byViews": "Κατά αριθμό προβολών",
+    "insights": "Αυτοματοποιημένες πληροφορίες",
+    "insightsDesc": "Συστάσεις βάσει των δεδομένων σας"
   },
   "share": {
-    "copied": "Copied!",
-    "copyLink": "Copy link"
+    "copied": "Αντιγράφηκε!",
+    "copyLink": "Αντιγραφή συνδέσμου"
   },
   "badge": {
-    "free": "Free",
+    "free": "Δωρεάν",
     "premium": "Premium",
     "platinum": "Platinum"
   }

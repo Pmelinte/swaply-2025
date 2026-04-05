@@ -46,8 +46,8 @@
     "myDesk": "Minha Central de Swaps",
     "myDeskDescription": "Acompanhe swaps ativos, ações pendentes e prazos",
     "romania": "Romênia",
-    "user": "User",
-    "recommendedNextStep": "Recommended next step"
+    "user": "Usuário",
+    "recommendedNextStep": "Próximo passo recomendado"
   },
   "nav": {
     "home": "Início",
@@ -634,12 +634,12 @@
     "badgeProperty": "Propriedade",
     "badgeService": "Serviço",
     "condition_new": "New",
-    "condition_good": "Good",
-    "condition_like_new": "Like new",
-    "condition_fair": "Fair",
-    "condition_poor": "Poor",
-    "condition_used": "Used",
-    "condition_used_good": "Good condition",
+    "condition_good": "Bom",
+    "condition_like_new": "Como novo",
+    "condition_fair": "Justo",
+    "condition_poor": "Ruim",
+    "condition_used": "Usado",
+    "condition_used_good": "Bom estado",
     "status_active": "Ativo",
     "status_reserved": "Reservado",
     "status_traded": "Trocado",
@@ -1332,14 +1332,14 @@
     "digitalEmail": "Email de confirmação",
     "digitalPdf": "PDF / código QR",
     "digitalBookingRef": "Referência de reserva",
-    "swapChat": "Swap Chat",
-    "chatEmpty": "No messages yet. Start the conversation!",
-    "chatPlaceholder": "Type a message...",
-    "statusAccepted": "Accepted",
-    "statusInProgress": "In progress",
-    "statusDeliveredA": "Delivered (1/2)",
-    "statusDeliveredB": "Delivered (2/2)",
-    "statusResolved": "Resolved"
+    "swapChat": "Chat de Troca",
+    "chatEmpty": "Nenhuma mensagem ainda. Inicie a conversa!",
+    "chatPlaceholder": "Digite uma mensagem...",
+    "statusAccepted": "Aceito",
+    "statusInProgress": "Em progresso",
+    "statusDeliveredA": "Entregue (1/2)",
+    "statusDeliveredB": "Entregue (2/2)",
+    "statusResolved": "Resolvido"
   },
   "info": {
     "title": "Estatísticas Swaply",
@@ -1443,7 +1443,7 @@
     "objectsReused": "Objetos reused",
     "moneySaved": "Dinheiro economizado",
     "sustainabilityNote": "Estimativas baseadas na análise média do ciclo de vida do produto. Cada objeto reutilizado evita ~4,2 kg de CO₂ da fabricação.",
-    "leaderboardTitle": "Top Swappers",
+    "leaderboardTitle": "Melhores Trocadores",
     "leaderboardDescription": "Membros da comunidade mais ativos este mês",
     "leaderboard1": "SwapMaster",
     "leaderboard2": "TradeQueen",
@@ -1752,9 +1752,9 @@
     "mapTitle": "Mapa de localização",
     "noPins": "Sem pins para mostrar",
     "loading": "Carregando mapa…",
-    "title": "Active users near you",
-    "liveBadge": "Live",
-    "guestTooltip": "Sign up to see who swaps in your area"
+    "title": "Utilizadores ativos perto de si",
+    "liveBadge": "Em direto",
+    "guestTooltip": "Inscreva-se para ver quem troca na sua área"
   },
   "location": {
     "country": "País",
@@ -1890,7 +1890,7 @@
     "privacyLegalBasisText": "O processamento baseia-se em: o seu consentimento (criação de conta, aceitação de cookies), execução de contrato (facilitação de trocas) e interesse legítimo (segurança da plataforma, prevenção de fraude).",
     "privacySharing": "4. Partilha de Dados",
     "privacySharingText": "Partilhamos dados com: Supabase (alojamento de base de dados, região UE), Cloudinary (alojamento de imagens), HuggingFace (análise de conteúdo por IA, apenas do lado do servidor). A sua informação de perfil é visível para outros utilizadores com base nas suas definições de visibilidade.",
-    "privacyCookies": "5. Cookies",
+    "privacyCookies": "Cookies",
     "privacyCookiesText": "Utilizamos cookies essenciais para autenticação e gestão de sessão. Os cookies de análise opcionais ajudam-nos a compreender padrões de uso. Pode gerir as preferências de cookies a qualquer momento através do banner de consentimento de cookies.",
     "privacyRights": "6. Os Seus Direitos (RGPD)",
     "privacyRightsText": "Tem o direito de: aceder aos seus dados (disponível no seu perfil), corrigir dados imprecisos, eliminar a sua conta e todos os dados associados, exportar os seus dados, retirar o consentimento e apresentar uma reclamação à sua autoridade nacional de proteção de dados.",
@@ -2744,7 +2744,7 @@
     "books": "Livros",
     "home": "Casa",
     "fashion": "Moda",
-    "automotive": "Auto",
+    "automotive": "Automático",
     "music": "Música",
     "garden": "Jardim",
     "toys": "Brinquedos",
@@ -2974,10 +2974,10 @@
     "unexpectedError": "Erro inesperado. Tente novamente.",
     "stripeUnavailable": "Stripe não está disponível",
     "securePayment": "Pagamento seguro via Stripe. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "Boost 7 days",
+    "boost7days": "Impulsionar 7 dias",
     "alreadyPurchased": "Já comprado",
-    "boost24h": "Boost 24h",
-    "boost72h": "Boost 72h"
+    "boost24h": "Impulsionar 24h",
+    "boost72h": "Impulsionar 72h"
   },
   "payments": {
     "paymentMethod": "Método de pagamento",
@@ -3026,7 +3026,7 @@
     "fieldAccommodationType": "Tipo de hospedagem",
     "typeRoom": "Quarto",
     "typeApartment": "Apartamento",
-    "typeVilla": "Villa",
+    "typeVilla": "Vila",
     "fieldEventName": "Nome do evento",
     "fieldVenue": "Local / Localização",
     "fieldEventDate": "Data do evento",
@@ -3057,21 +3057,21 @@
     "comingSoon": "Esta seção está chegando em breve. Fique ligado!"
   },
   "hero": {
-    "tagline": "Swap what you have for what you want"
+    "tagline": "Troque o que você tem pelo que quer"
   },
   "benefits": {
-    "label": "Why Swaply?",
-    "directSwap": "Direct swap between people",
-    "globalCommunity": "Global community",
-    "aiMatching": "Automatic AI matching",
-    "escrow": "Escrow for safety",
-    "logistics": "Integrated logistics",
-    "negotiation": "In-platform negotiation",
-    "localPartners": "Find partners nearby"
+    "label": "Por que Swaply?",
+    "directSwap": "Troca direta entre pessoas",
+    "globalCommunity": "Comunidade global",
+    "aiMatching": "Correspondência automática por AI",
+    "escrow": "Escrow para segurança",
+    "logistics": "Logística integrada",
+    "negotiation": "Negociação na plataforma",
+    "localPartners": "Encontre parceiros próximos"
   },
   "premium": {
     "title": "Swaply Premium",
-    "subtitle": "Global visibility · Priority matching"
+    "subtitle": "Visibilidade global · Correspondência prioritária"
   },
   "analytics": {
     "title": "Análise",
@@ -3094,11 +3094,11 @@
     "insightsDesc": "Recomendações baseadas nos seus dados"
   },
   "share": {
-    "copied": "Copied!",
-    "copyLink": "Copy link"
+    "copied": "Copiado!",
+    "copyLink": "Copiar link"
   },
   "badge": {
-    "free": "Free",
+    "free": "Gratuito",
     "premium": "Premium",
     "platinum": "Platinum"
   }

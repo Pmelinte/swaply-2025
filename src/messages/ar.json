@@ -46,8 +46,8 @@
     "myDesk": "مكتبي للتبادل",
     "myDeskDescription": "تتبع عمليات التبادل النشطة والإجراءات المعلقة والمواعيد النهائية",
     "romania": "رومانيا",
-    "user": "User",
-    "recommendedNextStep": "Recommended next step"
+    "user": "المستخدم",
+    "recommendedNextStep": "الخطوة التالية الموصى بها"
   },
   "nav": {
     "home": "الرئيسية",
@@ -1333,13 +1333,13 @@
     "digitalPdf": "PDF / رمز QR",
     "digitalBookingRef": "مرجع الحجز",
     "swapChat": "Swap Chat",
-    "chatEmpty": "No messages yet. Start the conversation!",
-    "chatPlaceholder": "Type a message...",
-    "statusAccepted": "Accepted",
-    "statusInProgress": "In progress",
-    "statusDeliveredA": "Delivered (1/2)",
-    "statusDeliveredB": "Delivered (2/2)",
-    "statusResolved": "Resolved"
+    "chatEmpty": "لا توجد رسائل حتى الآن. ابدأ المحادثة!",
+    "chatPlaceholder": "اكتب رسالة...",
+    "statusAccepted": "مقبول",
+    "statusInProgress": "قيد المعالجة",
+    "statusDeliveredA": "تم التسليم (1/2)",
+    "statusDeliveredB": "تم التسليم (2/2)",
+    "statusResolved": "تم الحل"
   },
   "info": {
     "title": "إحصائيات Swaply",
@@ -1752,9 +1752,9 @@
     "mapTitle": "خريطة المواقع",
     "noPins": "لا توجد دبابيس للعرض",
     "loading": "جاري تحميل الخريطة…",
-    "title": "Active users near you",
-    "liveBadge": "Live",
-    "guestTooltip": "Sign up to see who swaps in your area"
+    "title": "المستخدمون النشطون بالقرب منك",
+    "liveBadge": "مباشر",
+    "guestTooltip": "سجل الدخول لمعرفة من يقوم بالمبادلة في منطقتك"
   },
   "location": {
     "country": "البلد",
@@ -2974,10 +2974,10 @@
     "unexpectedError": "خطأ غير متوقع. حاول مرة أخرى.",
     "stripeUnavailable": "Stripe غير متاح",
     "securePayment": "دفع آمن عبر Stripe. Visa و Mastercard و Apple Pay و Google Pay.",
-    "boost7days": "Boost 7 days",
+    "boost7days": "تعزيز 7 أيام",
     "alreadyPurchased": "تم الشراء بالفعل",
-    "boost24h": "Boost 24h",
-    "boost72h": "Boost 72h"
+    "boost24h": "تعزيز 24 ساعة",
+    "boost72h": "تعزيز 72 ساعة"
   },
   "payments": {
     "paymentMethod": "طريقة الدفع",
@@ -3045,7 +3045,7 @@
     "settings": "إعدادات ملفات تعريف الارتباط"
   },
   "branches": {
-    "tagline": "Swap what you have for what you need — objects, properties, services, and events.",
+    "tagline": "استبدل ما لديك بما تحتاجه — أشياء وممتلكات وخدمات وفعاليات.",
     "objects": "أغراض",
     "objectsDesc": "بادل الإلكترونيات والكتب والملابس وأكثر",
     "properties": "عقارات",
@@ -3054,7 +3054,7 @@
     "servicesDesc": "تبادل المهارات والعمل والمساعدة المهنية",
     "events": "فعاليات",
     "eventsDesc": "بادل التذاكر والحجوزات والتجارب",
-    "comingSoon": "This section is coming soon. Stay tuned!"
+    "comingSoon": "هذا القسم قريباً. ابقَ متابعاً!"
   },
   "hero": {
     "tagline": "بادل ما لديك بما تريد"
@@ -3094,11 +3094,11 @@
     "insightsDesc": "توصيات بناءً على بياناتك"
   },
   "share": {
-    "copied": "Copied!",
-    "copyLink": "Copy link"
+    "copied": "تم النسخ!",
+    "copyLink": "انسخ الرابط"
   },
   "badge": {
-    "free": "Free",
+    "free": "مجاني",
     "premium": "Premium",
     "platinum": "Platinum"
   }

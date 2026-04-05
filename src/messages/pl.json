@@ -46,8 +46,8 @@
     "myDesk": "Moje Biuro Wymiany",
     "myDeskDescription": "Śledź aktywne wymiany, oczekujące działania i terminy",
     "romania": "Rumunia",
-    "user": "User",
-    "recommendedNextStep": "Recommended next step"
+    "user": "Użytkownik",
+    "recommendedNextStep": "Rekomendowany następny krok"
   },
   "nav": {
     "home": "Strona główna",
@@ -76,7 +76,7 @@
     "badgeBenefits": "Korzyści z odznak",
     "completeProfile": "Uzupełnij swój profil",
     "desk": "Moje Biuro",
-    "settings": "Settings"
+    "settings": "Ustawienia"
   },
   "notifications": {
     "title": "Powiadomienia (polubienie/zainteresowanie/czat/swaply)",
@@ -634,17 +634,17 @@
     "badgeProperty": "Nieruchomość",
     "badgeService": "Usługa",
     "condition_new": "New",
-    "condition_good": "Good",
-    "condition_like_new": "Like new",
-    "condition_fair": "Fair",
-    "condition_poor": "Poor",
-    "condition_used": "Used",
-    "condition_used_good": "Good condition",
+    "condition_good": "Dobry",
+    "condition_like_new": "Jak nowy",
+    "condition_fair": "Zadowalający",
+    "condition_poor": "Słaby",
+    "condition_used": "Używany",
+    "condition_used_good": "W dobrym stanie",
     "status_active": "Aktywny",
     "status_reserved": "Zarezerwowany",
     "status_traded": "Wymieniony",
     "status_paused": "Wstrzymany",
-    "status_archived": "Archived",
+    "status_archived": "Zarchiwizowane",
     "shareButton": "Udostępnij"
   },
   "objectDetail": {
@@ -1170,7 +1170,7 @@
     "shipmentBtoA": "Przesyłka B → A",
     "selectCourier": "Wybierz kuriera",
     "courierFanCourier": "FanCourier",
-    "courierSameday": "Sameday",
+    "courierSameday": "Tego samego dnia",
     "courierCargus": "Cargus",
     "courierDHL": "DHL",
     "courierOther": "Inny",
@@ -1333,13 +1333,13 @@
     "digitalPdf": "PDF / Kod QR",
     "digitalBookingRef": "Numer rezerwacji",
     "swapChat": "Swap Chat",
-    "chatEmpty": "No messages yet. Start the conversation!",
-    "chatPlaceholder": "Type a message...",
-    "statusAccepted": "Accepted",
-    "statusInProgress": "In progress",
-    "statusDeliveredA": "Delivered (1/2)",
-    "statusDeliveredB": "Delivered (2/2)",
-    "statusResolved": "Resolved"
+    "chatEmpty": "Brak wiadomości. Zacznij rozmowę!",
+    "chatPlaceholder": "Wpisz wiadomość...",
+    "statusAccepted": "Zaakceptowano",
+    "statusInProgress": "W toku",
+    "statusDeliveredA": "Dostarczone (1/2)",
+    "statusDeliveredB": "Dostarczone (2/2)",
+    "statusResolved": "Rozwiązane"
   },
   "info": {
     "title": "Statystyki Swaply",
@@ -1752,9 +1752,9 @@
     "mapTitle": "Mapa lokalizacji",
     "noPins": "Brak pinów do wyświetlenia",
     "loading": "Ładowanie mapy…",
-    "title": "Active users near you",
-    "liveBadge": "Live",
-    "guestTooltip": "Sign up to see who swaps in your area"
+    "title": "Aktywni użytkownicy w pobliżu Ciebie",
+    "liveBadge": "Na żywo",
+    "guestTooltip": "Zarejestruj się, aby zobaczyć, kto wymienia się w Twojej okolicy"
   },
   "location": {
     "country": "Kraj",
@@ -2246,7 +2246,7 @@
     "freeBadge": "Twój obecny plan",
     "freeTitle": "Bezpłatnie",
     "free1": "Do 10 aktywnych przedmiotów",
-    "free2": "Unlimited swap proposals",
+    "free2": "Nieograniczone propozycje wymian",
     "free3": "Czat z każdym użytkownikiem",
     "free4": "Publiczny profil z oceną",
     "free5": "Widoczny w wynikach wyszukiwania",
@@ -2574,15 +2574,15 @@
     "ctaButton": "Spróbuj Swaply za darmo →",
     "metaDescription": "Artykuły z kategorii \"{category}\" na blogu Swaply.",
     "tableOfContents": "Spis treści",
-    "guide": "Guide",
-    "tutorial": "Tutorial",
-    "inspiration": "Inspiration",
-    "sustainability": "Sustainability",
-    "safety": "Safety",
-    "technology": "Technology",
-    "trends": "Trends",
-    "community": "Community",
-    "product": "Product",
+    "guide": "Poradnik",
+    "tutorial": "Samouczek",
+    "inspiration": "Inspiracja",
+    "sustainability": "Zrównoważony rozwój",
+    "safety": "Bezpieczeństwo",
+    "technology": "Technologia",
+    "trends": "Trendy",
+    "community": "Społeczność",
+    "product": "Produkt",
     "allCategories": "All"
   },
   "push": {
@@ -2942,7 +2942,7 @@
     "metaTitle": "Wymiana przedmiotów w {city} | Swaply.world",
     "metaDescription": "Wymiana przedmiotów bez pieniędzy w {city}. Przedmioty dostępne lokalnie. Bezpłatna platforma wymiany.",
     "keyword_swap": "wymiana przedmiotów {city}",
-    "keyword_barter": "barter {city}",
+    "keyword_barter": "wymiana w {city}",
     "keyword_secondhand": "przedmioty używane {city}",
     "jsonLdDescription": "Bezpłatna platforma wymiany przedmiotów w {city}, {country}.",
     "allObjects": "Wszystkie przedmioty",
@@ -2974,7 +2974,7 @@
     "unexpectedError": "Nieoczekiwany błąd. Spróbuj ponownie.",
     "stripeUnavailable": "Stripe jest niedostępny",
     "securePayment": "Bezpieczna płatność przez Stripe. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "Boost 7 days",
+    "boost7days": "Boost 7 dni",
     "alreadyPurchased": "Już zakupiono",
     "boost24h": "Boost 24h",
     "boost72h": "Boost 72h"
@@ -3045,7 +3045,7 @@
     "settings": "Ustawienia plików cookie"
   },
   "branches": {
-    "tagline": "Swap what you have for what you need — objects, properties, services, and events.",
+    "tagline": "Wymieniaj to, co masz, na to, czego potrzebujesz — przedmioty, nieruchomości, usługi i wydarzenia.",
     "objects": "Przedmioty",
     "objectsDesc": "Wymieniaj elektronikę, książki, ubrania i więcej",
     "properties": "Nieruchomości",
@@ -3054,7 +3054,7 @@
     "servicesDesc": "Wymieniaj umiejętności, pracę i pomoc profesjonalną",
     "events": "Wydarzenia",
     "eventsDesc": "Wymieniaj bilety, rezerwacje i doświadczenia",
-    "comingSoon": "This section is coming soon. Stay tuned!"
+    "comingSoon": "Ta sekcja wkrótce się pojawi. Bądź na bieżąco!"
   },
   "hero": {
     "tagline": "Wymień to, co masz, na to, czego chcesz"
@@ -3094,11 +3094,11 @@
     "insightsDesc": "Rekomendacje na podstawie Twoich danych"
   },
   "share": {
-    "copied": "Copied!",
-    "copyLink": "Copy link"
+    "copied": "Skopiowano!",
+    "copyLink": "Skopiuj link"
   },
   "badge": {
-    "free": "Free",
+    "free": "Darmowy",
     "premium": "Premium",
     "platinum": "Platinum"
   }

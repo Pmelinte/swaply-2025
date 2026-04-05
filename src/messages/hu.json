@@ -46,8 +46,8 @@
     "myDesk": "Saját Cserepult",
     "myDeskDescription": "Nyomon követheted az aktív cseréket, függőben lévő műveleteket és határidőket",
     "romania": "Románia",
-    "user": "User",
-    "recommendedNextStep": "Recommended next step"
+    "user": "Felhasználó",
+    "recommendedNextStep": "Ajánlott következő lépés"
   },
   "nav": {
     "home": "Kezdőlap",
@@ -76,7 +76,7 @@
     "badgeBenefits": "Jelvény előnyök",
     "completeProfile": "Profil kiegészítése",
     "desk": "Saját Pult",
-    "settings": "Settings"
+    "settings": "Beállítások"
   },
   "notifications": {
     "title": "Értesítések (kedvelés/érdeklődés/csevegés/swaply)",
@@ -634,17 +634,17 @@
     "badgeProperty": "Tulajdonság",
     "badgeService": "Szolgáltatás",
     "condition_new": "New",
-    "condition_good": "Good",
-    "condition_like_new": "Like new",
-    "condition_fair": "Fair",
-    "condition_poor": "Poor",
-    "condition_used": "Used",
-    "condition_used_good": "Good condition",
+    "condition_good": "Jó",
+    "condition_like_new": "Praktически új",
+    "condition_fair": "Elfogadható",
+    "condition_poor": "Rossz",
+    "condition_used": "Használt",
+    "condition_used_good": "Jó állapotban",
     "status_active": "Aktív",
     "status_reserved": "Foglalt",
     "status_traded": "Elcserélt",
     "status_paused": "Szünetel",
-    "status_archived": "Archived",
+    "status_archived": "Archivált",
     "shareButton": "Megosztás"
   },
   "objectDetail": {
@@ -1333,13 +1333,13 @@
     "digitalPdf": "PDF / QR kód",
     "digitalBookingRef": "Foglalási referencia",
     "swapChat": "Swap Chat",
-    "chatEmpty": "No messages yet. Start the conversation!",
-    "chatPlaceholder": "Type a message...",
-    "statusAccepted": "Accepted",
-    "statusInProgress": "In progress",
-    "statusDeliveredA": "Delivered (1/2)",
-    "statusDeliveredB": "Delivered (2/2)",
-    "statusResolved": "Resolved"
+    "chatEmpty": "Még nincsenek üzenetek. Kezdje meg a beszélgetést!",
+    "chatPlaceholder": "Írjon egy üzenetet...",
+    "statusAccepted": "Elfogadva",
+    "statusInProgress": "Folyamatban",
+    "statusDeliveredA": "Kézbesítve (1/2)",
+    "statusDeliveredB": "Kézbesítve (2/2)",
+    "statusResolved": "Megoldva"
   },
   "info": {
     "title": "Swaply statisztikák",
@@ -1752,9 +1752,9 @@
     "mapTitle": "Helyszín térkép",
     "noPins": "Nincsenek megjelenítendő jelölők",
     "loading": "Térkép betöltése…",
-    "title": "Active users near you",
-    "liveBadge": "Live",
-    "guestTooltip": "Sign up to see who swaps in your area"
+    "title": "Aktív felhasználók közelben",
+    "liveBadge": "Élő",
+    "guestTooltip": "Regisztrálj, hogy lásd, ki cserél a közelledben"
   },
   "location": {
     "country": "Ország",
@@ -2574,15 +2574,15 @@
     "ctaButton": "Próbáld ki ingyenesen a Swaplyt →",
     "metaDescription": "Cikkek a „{category}\" kategóriából a Swaply blogon.",
     "tableOfContents": "Tartalomjegyzék",
-    "guide": "Guide",
-    "tutorial": "Tutorial",
-    "inspiration": "Inspiration",
-    "sustainability": "Sustainability",
-    "safety": "Safety",
-    "technology": "Technology",
-    "trends": "Trends",
-    "community": "Community",
-    "product": "Product",
+    "guide": "Útmutató",
+    "tutorial": "Oktatóanyag",
+    "inspiration": "Inspiráció",
+    "sustainability": "Fenntarthatóság",
+    "safety": "Biztonság",
+    "technology": "Technológia",
+    "trends": "Trendek",
+    "community": "Közösség",
+    "product": "Termék",
     "allCategories": "All"
   },
   "push": {
@@ -2691,11 +2691,11 @@
     "allStatusFilter": "Minden státusz",
     "allFilter": "All",
     "realFilter": "Valós",
-    "demoFilter": "Demo",
+    "demoFilter": "Bemutató",
     "noItems": "Nincsenek elemek ezekkel a szűrőkkel.",
     "tableTitle": "Cím",
     "tableCategory": "Kategória",
-    "tableDemo": "Demo",
+    "tableDemo": "Bemutató",
     "tableActions": "Műveletek",
     "deactivate": "Inaktiválás",
     "activate": "Aktiválás",
@@ -2974,7 +2974,7 @@
     "unexpectedError": "Váratlan hiba. Próbálkozzon újra.",
     "stripeUnavailable": "A Stripe nem elérhető",
     "securePayment": "Biztonságos fizetés a Stripe-en keresztül. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "Boost 7 days",
+    "boost7days": "Boost 7 nap",
     "alreadyPurchased": "Már megvásárolt",
     "boost24h": "Boost 24h",
     "boost72h": "Boost 72h"
@@ -3018,7 +3018,7 @@
     "fieldFlightClass": "Osztály",
     "classEconomy": "Gazdasági",
     "classBusiness": "Üzleti",
-    "classFirst": "First",
+    "classFirst": "Első",
     "fieldEstimatedValue": "Becsült érték",
     "nights": "éjszaka",
     "platformDirect": "Közvetlen foglalás",
@@ -3045,7 +3045,7 @@
     "settings": "Cookie beállítások"
   },
   "branches": {
-    "tagline": "Swap what you have for what you need — objects, properties, services, and events.",
+    "tagline": "Cserélje el azt, ami megvan, azzal, amire szüksége van — tárgyak, ingatlanok, szolgáltatások és események.",
     "objects": "Tárgyak",
     "objectsDesc": "Cserélj elektronikát, könyveket, ruhákat és mást",
     "properties": "Ingatlanok",
@@ -3054,7 +3054,7 @@
     "servicesDesc": "Cserélj készségeket, munkát és szakmai segítséget",
     "events": "Események",
     "eventsDesc": "Cserélj jegyeket, foglalásokat és élményeket",
-    "comingSoon": "This section is coming soon. Stay tuned!"
+    "comingSoon": "Ez a szakasz hamarosan érkezik. Maradjon csatornán!"
   },
   "hero": {
     "tagline": "Cseréld el, amid van, arra, amit szeretnél"
@@ -3094,11 +3094,11 @@
     "insightsDesc": "Javaslatok az adataid alapján"
   },
   "share": {
-    "copied": "Copied!",
-    "copyLink": "Copy link"
+    "copied": "Másolva!",
+    "copyLink": "Link másolása"
   },
   "badge": {
-    "free": "Free",
+    "free": "Ingyenes",
     "premium": "Premium",
     "platinum": "Platinum"
   }

@@ -46,8 +46,8 @@
     "myDesk": "Bàn hoán đổi của tôi",
     "myDeskDescription": "Theo dõi các hoán đổi đang hoạt động, các hành động đang chờ và thời hạn",
     "romania": "Rumani",
-    "user": "User",
-    "recommendedNextStep": "Recommended next step"
+    "user": "Người dùng",
+    "recommendedNextStep": "Bước tiếp theo được đề xuất"
   },
   "nav": {
     "home": "Trang chủ",
@@ -76,7 +76,7 @@
     "badgeBenefits": "Quyền lợi huy hiệu",
     "completeProfile": "Hoàn thiện hồ sơ của bạn",
     "desk": "Bàn của tôi",
-    "settings": "Settings"
+    "settings": "Cài đặt"
   },
   "notifications": {
     "title": "Thông báo (thích/quan tâm/trò chuyện/swaply)",
@@ -445,8 +445,8 @@
     "guestFeatureVerifyDesc": "Email, điện thoại và danh tính — để có huy hiệu người dùng được xác minh.",
     "guestCta": "Tạo hồ sơ miễn phí của bạn →",
     "networkError": "Lỗi kết nối mạng",
-    "passkeyRegFailed": "Passkey registration failed",
-    "genericError": "Error"
+    "passkeyRegFailed": "Đăng ký Passkey thất bại",
+    "genericError": "Lỗi"
   },
   "home": {
     "welcome": "Chào mừng trở lại",
@@ -634,17 +634,17 @@
     "badgeProperty": "Tài sản",
     "badgeService": "Dịch vụ",
     "condition_new": "New",
-    "condition_good": "Good",
-    "condition_like_new": "Like new",
-    "condition_fair": "Fair",
-    "condition_poor": "Poor",
-    "condition_used": "Used",
-    "condition_used_good": "Good condition",
+    "condition_good": "Tốt",
+    "condition_like_new": "Như mới",
+    "condition_fair": "Công bằng",
+    "condition_poor": "Kém",
+    "condition_used": "Đã sử dụng",
+    "condition_used_good": "Tình trạng tốt",
     "status_active": "Hoạt động",
     "status_reserved": "Đã đặt trước",
     "status_traded": "Đã trao đổi",
     "status_paused": "Tạm dừng",
-    "status_archived": "Archived",
+    "status_archived": "Đã lưu trữ",
     "shareButton": "Chia sẻ"
   },
   "objectDetail": {
@@ -806,7 +806,7 @@
     "swapTypeFilter": "Loại trao đổi",
     "swapAll": "Tất cả các loại",
     "swapLocal": "Địa phương",
-    "swapCourier": "Courier",
+    "swapCourier": "Người giao hàng",
     "swapVacation": "Kỳ nghỉ",
     "swapService": "Dịch vụ",
     "guestHeroTitle": "Tìm những gì bạn muốn thông qua hoán đổi",
@@ -1333,13 +1333,13 @@
     "digitalPdf": "PDF / Mã QR",
     "digitalBookingRef": "Mã tham chiếu đặt chỗ",
     "swapChat": "Swap Chat",
-    "chatEmpty": "No messages yet. Start the conversation!",
-    "chatPlaceholder": "Type a message...",
-    "statusAccepted": "Accepted",
-    "statusInProgress": "In progress",
-    "statusDeliveredA": "Delivered (1/2)",
-    "statusDeliveredB": "Delivered (2/2)",
-    "statusResolved": "Resolved"
+    "chatEmpty": "Chưa có tin nhắn. Hãy bắt đầu cuộc trò chuyện!",
+    "chatPlaceholder": "Nhập tin nhắn...",
+    "statusAccepted": "Đã chấp nhận",
+    "statusInProgress": "Đang xử lý",
+    "statusDeliveredA": "Đã giao (1/2)",
+    "statusDeliveredB": "Đã giao (2/2)",
+    "statusResolved": "Đã giải quyết"
   },
   "info": {
     "title": "Thống kê Swaply",
@@ -1752,9 +1752,9 @@
     "mapTitle": "Bản đồ vị trí",
     "noPins": "Không có ghim để hiển thị",
     "loading": "Đang tải bản đồ…",
-    "title": "Active users near you",
-    "liveBadge": "Live",
-    "guestTooltip": "Sign up to see who swaps in your area"
+    "title": "Người dùng hoạt động gần bạn",
+    "liveBadge": "Trực tiếp",
+    "guestTooltip": "Đăng ký để xem ai trao đổi trong khu vực của bạn"
   },
   "location": {
     "country": "Quốc gia",
@@ -2073,7 +2073,7 @@
     "currentPlan": "Gói hiện tại",
     "currentStreak": "Chuỗi hiện tại — Kỷ lục: {record} ngày",
     "daysActive": "{count} ngày hoạt động",
-    "deactivate": "Deactivate",
+    "deactivate": "Vô hiệu hóa",
     "free": "Miễn phí",
     "freePlan": "Gói miễn phí",
     "friendEmail": "Email của bạn bè",
@@ -2196,7 +2196,7 @@
     "modalDescription": "Tạo tài khoản miễn phí để đề xuất trao đổi, gửi tin nhắn và bắt đầu trao đổi.",
     "modalCta": "Tạo tài khoản miễn phí",
     "modalDismiss": "Có lẽ sau",
-    "haveAccount": "I already have an account"
+    "haveAccount": "Tôi đã có tài khoản"
   },
   "about": {
     "title": "Về Swaply",
@@ -2352,8 +2352,8 @@
     "searchPrefix": "Đang tìm kiếm:",
     "daysRemaining": "Còn {days} ngày",
     "you": "You",
-    "userPrefix": "User",
-    "lookingFor": "Looking for"
+    "userPrefix": "Người dùng",
+    "lookingFor": "Tìm kiếm"
   },
   "history": {
     "title": "Lịch sử Trao đổi",
@@ -2573,16 +2573,16 @@
     "ctaDescription": "Liệt kê các vật của bạn và khám phá những gì bạn có thể nhận lấy để trao đổi.",
     "ctaButton": "Thử Swaply miễn phí →",
     "metaDescription": "Bài viết từ danh mục \"{category}\" trên blog Swaply.",
-    "tableOfContents": "Table of Contents",
-    "guide": "Guide",
-    "tutorial": "Tutorial",
-    "inspiration": "Inspiration",
-    "sustainability": "Sustainability",
-    "safety": "Safety",
-    "technology": "Technology",
-    "trends": "Trends",
-    "community": "Community",
-    "product": "Product",
+    "tableOfContents": "Mục lục",
+    "guide": "Hướng dẫn",
+    "tutorial": "Hướng dẫn từng bước",
+    "inspiration": "Cảm hứng",
+    "sustainability": "Tính bền vững",
+    "safety": "An toàn",
+    "technology": "Công nghệ",
+    "trends": "Xu hướng",
+    "community": "Cộng đồng",
+    "product": "Sản phẩm",
     "allCategories": "All"
   },
   "push": {
@@ -2697,7 +2697,7 @@
     "tableCategory": "Danh mục",
     "tableDemo": "Demo",
     "tableActions": "Hành động",
-    "deactivate": "Deactivate",
+    "deactivate": "Vô hiệu hóa",
     "activate": "Kích hoạt",
     "markReal": "Đánh dấu là thật",
     "markDemo": "Đánh dấu là demo",
@@ -2738,31 +2738,31 @@
     "byCity": "{category} theo thành phố"
   },
   "categories": {
-    "electronics": "Electronics",
-    "sport": "Sports",
-    "arts": "Art & Hobby",
-    "books": "Books",
-    "home": "Home",
-    "fashion": "Fashion",
-    "automotive": "Auto",
-    "music": "Music",
-    "garden": "Garden",
-    "toys": "Toys",
-    "tools": "Tools",
-    "other": "Other",
-    "sports_outdoor": "Sports & Outdoor",
-    "hobby_games": "Hobbies & Games",
-    "books_media": "Books & Media",
-    "home_garden": "Home & Garden",
-    "fashion_accessories": "Fashion & Accessories",
-    "auto_moto": "Auto & Moto",
-    "music_audio": "Music & Audio",
-    "gardening_outdoor": "Gardening & Outdoor",
-    "toys_kids": "Toys & Kids",
-    "tools_diy": "Tools & DIY",
-    "vehicles": "Vehicles",
-    "experiences": "Experiences",
-    "medical": "Medical Equipment"
+    "electronics": "Điện tử",
+    "sport": "Thể thao",
+    "arts": "Nghệ thuật & Sở thích",
+    "books": "Sách",
+    "home": "Nhà cửa",
+    "fashion": "Thời trang",
+    "automotive": "Ô tô",
+    "music": "Âm nhạc",
+    "garden": "Vườn",
+    "toys": "Đồ chơi",
+    "tools": "Dụng cụ",
+    "other": "Khác",
+    "sports_outdoor": "Thể thao & Ngoài trời",
+    "hobby_games": "Sở thích & Trò chơi",
+    "books_media": "Sách & Phương tiện",
+    "home_garden": "Nhà cửa & Vườn",
+    "fashion_accessories": "Thời trang & Phụ kiện",
+    "auto_moto": "Ô tô & Xe máy",
+    "music_audio": "Âm nhạc & Âm thanh",
+    "gardening_outdoor": "Làm vườn & Ngoài trời",
+    "toys_kids": "Đồ chơi & Trẻ em",
+    "tools_diy": "Công cụ & Tự làm",
+    "vehicles": "Phương tiện",
+    "experiences": "Trải nghiệm",
+    "medical": "Thiết bị y tế"
   },
   "trustScore": {
     "trustScoreTitle": "Điểm tin cậy",
@@ -2849,7 +2849,7 @@
     "explNegativeSlightlyFar": "Hơi vượt quá bán kính di chuyển của bạn",
     "explNegativeFarAway": "Khoảng cách lớn giữa các vị trí",
     "explNegativeNoLocation": "Thông tin vị trí bị thiếu",
-    "explDistanceDetail": "{km} km away",
+    "explDistanceDetail": "Cách đây {km} km",
     "missingMorePhotos": "Thêm nhiều ảnh hơn (+5 điểm)",
     "missingDescription": "Hoàn thành mô tả (+8 điểm)",
     "missingTags": "Thêm thẻ để khớp tốt hơn (+3 điểm)",
@@ -2914,7 +2914,7 @@
     "noActiveSwaps": "Hiện không có hoán đổi nào đang hoạt động.",
     "viewAll": "Xem tất cả",
     "open": "Mở",
-    "chat": "Chat",
+    "chat": "Trò chuyện",
     "status_pending": "Đang chờ",
     "status_accepted": "Đã chấp nhận",
     "status_in_progress": "Đang tiến hành",
@@ -2974,7 +2974,7 @@
     "unexpectedError": "Lỗi không mong muốn. Vui lòng thử lại.",
     "stripeUnavailable": "Stripe không khả dụng",
     "securePayment": "Thanh toán an toàn qua Stripe. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "Boost 7 days",
+    "boost7days": "Boost 7 ngày",
     "alreadyPurchased": "Đã mua rồi",
     "boost24h": "Boost 24h",
     "boost72h": "Boost 72h"
@@ -3039,63 +3039,63 @@
     "expiresIn": "Hết hạn trong {days} ngày"
   },
   "cookieConsent": {
-    "message": "We use cookies to improve your experience. Essential cookies are always active. Non-essential cookies help us analyze traffic and personalize content.",
-    "accept": "Accept all",
-    "reject": "Reject non-essential",
-    "settings": "Cookie settings"
+    "message": "Chúng tôi sử dụng cookie để cải thiện trải nghiệm của bạn. Cookie thiết yếu luôn hoạt động. Cookie không thiết yếu giúp chúng tôi phân tích lưu lượng truy cập và cá nhân hóa nội dung.",
+    "accept": "Chấp nhận tất cả",
+    "reject": "Từ chối không thiết yếu",
+    "settings": "Cài đặt cookie"
   },
   "branches": {
-    "tagline": "Swap what you have for what you need — objects, properties, services, and events.",
-    "objects": "Objects",
-    "objectsDesc": "Swap electronics, books, clothes, and more",
-    "properties": "Properties",
-    "propertiesDesc": "Exchange homes, apartments, and spaces",
-    "services": "Services",
-    "servicesDesc": "Trade skills, labor, and professional help",
-    "events": "Events",
-    "eventsDesc": "Swap tickets, reservations, and experiences",
-    "comingSoon": "This section is coming soon. Stay tuned!"
+    "tagline": "Trao đổi những gì bạn có để lấy những gì bạn cần — vật dụng, tài sản, dịch vụ và sự kiện.",
+    "objects": "Vật dụng",
+    "objectsDesc": "Trao đổi điện tử, sách, quần áo, và nhiều hơn nữa",
+    "properties": "Tài sản",
+    "propertiesDesc": "Trao đổi nhà, căn hộ và không gian",
+    "services": "Dịch vụ",
+    "servicesDesc": "Trao đổi kỹ năng, lao động và hỗ trợ chuyên nghiệp",
+    "events": "Sự kiện",
+    "eventsDesc": "Hoán đổi vé, đặt chỗ và trải nghiệm",
+    "comingSoon": "Phần này sẽ sớm có. Hãy chờ đón!"
   },
   "hero": {
-    "tagline": "Swap what you have for what you want"
+    "tagline": "Hoán đổi những gì bạn có để có được những gì bạn muốn"
   },
   "benefits": {
-    "label": "Why Swaply?",
-    "directSwap": "Direct swap between people",
-    "globalCommunity": "Global community",
-    "aiMatching": "Automatic AI matching",
-    "escrow": "Escrow for safety",
-    "logistics": "Integrated logistics",
-    "negotiation": "In-platform negotiation",
-    "localPartners": "Find partners nearby"
+    "label": "Tại sao Swaply?",
+    "directSwap": "Hoán đổi trực tiếp giữa các cá nhân",
+    "globalCommunity": "Cộng đồng toàn cầu",
+    "aiMatching": "Khớp AI tự động",
+    "escrow": "Escrow để đảm bảo an toàn",
+    "logistics": "Logistics tích hợp",
+    "negotiation": "Thương lượng trong nền tảng",
+    "localPartners": "Tìm đối tác gần bạn"
   },
   "premium": {
     "title": "Swaply Premium",
-    "subtitle": "Global visibility · Priority matching"
+    "subtitle": "Hiển thị toàn cầu · Khớp ưu tiên"
   },
   "analytics": {
-    "title": "Analytics",
-    "loginRequired": "You must be logged in to view analytics.",
-    "dashboard": "Analytics Dashboard",
-    "upgradeToPremium": "Upgrade to Premium for full analytics access",
-    "noData": "No data",
-    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
-    "totalViews": "Total views",
-    "favoritesReceived": "Favorites received",
-    "proposalsReceived": "Proposals received",
-    "conversionRate": "Conversion rate",
-    "completedSwaps": "Completed swaps",
-    "avgTimeToProposal": "Avg time to proposal",
-    "viewsPerDay": "Views per day",
-    "last30Days": "Last 30 days",
-    "topItems": "Top items",
-    "byViews": "By number of views",
+    "title": "Phân tích",
+    "loginRequired": "Bạn phải đăng nhập để xem phân tích.",
+    "dashboard": "Bảng điều khiển phân tích",
+    "upgradeToPremium": "Nâng cấp lên Premium để có quyền truy cập phân tích đầy đủ",
+    "noData": "Không có dữ liệu",
+    "noDataDesc": "Chưa có dữ liệu phân tích. Truy cập các mục của bạn để bắt đầu theo dõi.",
+    "totalViews": "Tổng số lượt xem",
+    "favoritesReceived": "Yêu thích nhận được",
+    "proposalsReceived": "Đề xuất nhận được",
+    "conversionRate": "Tỷ lệ chuyển đổi",
+    "completedSwaps": "Hoán đổi hoàn thành",
+    "avgTimeToProposal": "Thời gian trung bình đến đề xuất",
+    "viewsPerDay": "Lượt xem mỗi ngày",
+    "last30Days": "30 ngày qua",
+    "topItems": "Mục hàng đầu",
+    "byViews": "Theo số lượt xem",
     "insights": "Automated insights",
-    "insightsDesc": "Recommendations based on your data"
+    "insightsDesc": "Khuyến nghị dựa trên dữ liệu của bạn"
   },
   "share": {
-    "copied": "Copied!",
-    "copyLink": "Copy link"
+    "copied": "Đã sao chép!",
+    "copyLink": "Sao chép liên kết"
   },
   "badge": {
     "free": "Free",

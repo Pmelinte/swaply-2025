@@ -46,8 +46,8 @@
     "myDesk": "আমার স্বপ ডেস্ক",
     "myDeskDescription": "সক্রিয় স্বপ, অপেক্ষমাণ ক্রিয়া এবং সময়সীমা ট্র্যাক করুন",
     "romania": "রোমানিয়া",
-    "user": "User",
-    "recommendedNextStep": "Recommended next step"
+    "user": "ব্যবহারকারী",
+    "recommendedNextStep": "পরবর্তী প্রস্তাবিত পদক্ষেপ"
   },
   "nav": {
     "home": "হোম",
@@ -76,7 +76,7 @@
     "badgeBenefits": "ব্যাজের সুবিধা",
     "completeProfile": "আপনার প্রোফাইল সম্পূর্ণ করুন",
     "desk": "আমার ডেস্ক",
-    "settings": "Settings"
+    "settings": "সেটিংস"
   },
   "notifications": {
     "title": "বিজ্ঞপ্তি (লাইক/আগ্রহ/চ্যাট/স্বাপলি)",
@@ -445,8 +445,8 @@
     "guestFeatureVerifyDesc": "ইমেল, ফোন এবং পরিচয় — যাচাইকৃত ব্যবহারকারী ব্যাজের জন্য।",
     "guestCta": "আপনার বিনামূল্যে প্রোফাইল তৈরি করুন →",
     "networkError": "নেটওয়ার্ক ত্রুটি",
-    "passkeyRegFailed": "Passkey registration failed",
-    "genericError": "Error"
+    "passkeyRegFailed": "Passkey নিবন্ধন ব্যর্থ হয়েছে",
+    "genericError": "ত্রুটি"
   },
   "home": {
     "welcome": "স্বাগতম ফিরে",
@@ -634,17 +634,17 @@
     "badgeProperty": "সম্পত্তি",
     "badgeService": "সেবা",
     "condition_new": "New",
-    "condition_good": "Good",
-    "condition_like_new": "Like new",
-    "condition_fair": "Fair",
-    "condition_poor": "Poor",
-    "condition_used": "Used",
-    "condition_used_good": "Good condition",
+    "condition_good": "ভালো",
+    "condition_like_new": "নতুনের মতো",
+    "condition_fair": "ভালো অবস্থা",
+    "condition_poor": "খারাপ",
+    "condition_used": "ব্যবহৃত",
+    "condition_used_good": "ভালো অবস্থায়",
     "status_active": "সক্রিয়",
     "status_reserved": "সংরক্ষিত",
     "status_traded": "বিনিময়",
     "status_paused": "বিরতি",
-    "status_archived": "Archived",
+    "status_archived": "আর্কাইভ করা",
     "shareButton": "শেয়ার"
   },
   "objectDetail": {
@@ -1056,7 +1056,7 @@
     "houseBathrooms": "বাথরুম",
     "houseMaxGuests": "সর্বোচ্চ অতিথি",
     "houseAmenities": "সুবিধাসমূহ",
-    "amenity_wifi": "WiFi",
+    "amenity_wifi": "ওয়াইফাই",
     "amenity_parking": "পার্কিং",
     "amenity_ac": "AC",
     "amenity_heating": "হিটিং",
@@ -1332,14 +1332,14 @@
     "digitalEmail": "নিশ্চিতকরণ ইমেল",
     "digitalPdf": "পিডিএফ / কিউআর কোড",
     "digitalBookingRef": "বুকিং রেফারেন্স",
-    "swapChat": "Swap Chat",
-    "chatEmpty": "No messages yet. Start the conversation!",
-    "chatPlaceholder": "Type a message...",
-    "statusAccepted": "Accepted",
-    "statusInProgress": "In progress",
-    "statusDeliveredA": "Delivered (1/2)",
-    "statusDeliveredB": "Delivered (2/2)",
-    "statusResolved": "Resolved"
+    "swapChat": "স্ওয়াপ চ্যাট",
+    "chatEmpty": "এখনও কোনও বার্তা নেই। কথোপকথন শুরু করুন!",
+    "chatPlaceholder": "একটি বার্তা লিখুন...",
+    "statusAccepted": "গৃহীত",
+    "statusInProgress": "চলমান",
+    "statusDeliveredA": "বিতরণ করা হয়েছে (1/2)",
+    "statusDeliveredB": "বিতরণ করা হয়েছে (2/2)",
+    "statusResolved": "সমাধান করা হয়েছে"
   },
   "info": {
     "title": "Swaply পরিসংখ্যান",
@@ -1752,9 +1752,9 @@
     "mapTitle": "অবস্থান মানচিত্র",
     "noPins": "প্রদর্শনের জন্য কোনো পিন নেই",
     "loading": "মানচিত্র লোড হচ্ছে…",
-    "title": "Active users near you",
-    "liveBadge": "Live",
-    "guestTooltip": "Sign up to see who swaps in your area"
+    "title": "আপনার কাছাকাছি সক্রিয় ব্যবহারকারী",
+    "liveBadge": "লাইভ",
+    "guestTooltip": "আপনার এলাকায় কে স্ওয়াপ করে তা দেখতে সাইন আপ করুন"
   },
   "location": {
     "country": "দেশ",
@@ -2196,7 +2196,7 @@
     "modalDescription": "বিনিময় প্রস্তাব, বার্তা পাঠাতে এবং বিনিময় শুরু করতে একটি বিনামূল্যে অ্যাকাউন্ট তৈরি করুন।",
     "modalCta": "বিনামূল্যে অ্যাকাউন্ট তৈরি করুন",
     "modalDismiss": "পরে হয়তো",
-    "haveAccount": "I already have an account"
+    "haveAccount": "আমার ইতিমধ্যে একটি অ্যাকাউন্ট আছে"
   },
   "about": {
     "title": "Swaply সম্পর্কে",
@@ -2352,8 +2352,8 @@
     "searchPrefix": "খুঁজছেন:",
     "daysRemaining": "{days} দিন বাকি",
     "you": "You",
-    "userPrefix": "User",
-    "lookingFor": "Looking for"
+    "userPrefix": "ব্যবহারকারী",
+    "lookingFor": "খুঁজছেন"
   },
   "history": {
     "title": "স্বপ ইতিহাস",
@@ -2573,16 +2573,16 @@
     "ctaDescription": "আপনার বস্তুগুলি তালিকাভুক্ত করুন এবং আবিষ্কার করুন আপনি বিনিময়ে কী পেতে পারেন।",
     "ctaButton": "বিনামূল্যে Swaply চেষ্টা করুন →",
     "metaDescription": "Swaply ব্লগে \"{category}\" বিভাগ থেকে নিবন্ধ।",
-    "tableOfContents": "Table of Contents",
-    "guide": "Guide",
-    "tutorial": "Tutorial",
-    "inspiration": "Inspiration",
-    "sustainability": "Sustainability",
-    "safety": "Safety",
-    "technology": "Technology",
-    "trends": "Trends",
-    "community": "Community",
-    "product": "Product",
+    "tableOfContents": "বিষয়বস্তুর সারণী",
+    "guide": "গাইড",
+    "tutorial": "টিউটোরিয়াল",
+    "inspiration": "অনুপ্রেরণা",
+    "sustainability": "স্থায়িত্ব",
+    "safety": "নিরাপত্তা",
+    "technology": "প্রযুক্তি",
+    "trends": "ট্রেন্ড",
+    "community": "কমিউনিটি",
+    "product": "পণ্য",
     "allCategories": "All"
   },
   "push": {
@@ -2738,31 +2738,31 @@
     "byCity": "শহর অনুযায়ী {category}"
   },
   "categories": {
-    "electronics": "Electronics",
-    "sport": "Sports",
-    "arts": "Art & Hobby",
-    "books": "Books",
-    "home": "Home",
-    "fashion": "Fashion",
-    "automotive": "Auto",
-    "music": "Music",
-    "garden": "Garden",
-    "toys": "Toys",
-    "tools": "Tools",
-    "other": "Other",
-    "sports_outdoor": "Sports & Outdoor",
-    "hobby_games": "Hobbies & Games",
-    "books_media": "Books & Media",
-    "home_garden": "Home & Garden",
-    "fashion_accessories": "Fashion & Accessories",
-    "auto_moto": "Auto & Moto",
-    "music_audio": "Music & Audio",
-    "gardening_outdoor": "Gardening & Outdoor",
-    "toys_kids": "Toys & Kids",
-    "tools_diy": "Tools & DIY",
-    "vehicles": "Vehicles",
-    "experiences": "Experiences",
-    "medical": "Medical Equipment"
+    "electronics": "ইলেকট্রনিক্স",
+    "sport": "ক্রীড়া",
+    "arts": "শিল্প ও শখ",
+    "books": "বই",
+    "home": "গৃহ",
+    "fashion": "ফ্যাশন",
+    "automotive": "গাড়ি",
+    "music": "সঙ্গীত",
+    "garden": "বাগান",
+    "toys": "খেলনা",
+    "tools": "সরঞ্জাম",
+    "other": "অন্যান্য",
+    "sports_outdoor": "খেলাধুলা এবং বহিরঙ্গন",
+    "hobby_games": "শখ এবং গেমস",
+    "books_media": "বই এবং মিডিয়া",
+    "home_garden": "বাড়ি এবং বাগান",
+    "fashion_accessories": "ফ্যাশন এবং আনুষাঙ্গিক",
+    "auto_moto": "গাড়ি এবং মোটো",
+    "music_audio": "সঙ্গীত এবং অডিও",
+    "gardening_outdoor": "বাগান করা এবং বহিরঙ্গন",
+    "toys_kids": "খেলনা এবং শিশু",
+    "tools_diy": "সরঞ্জাম এবং DIY",
+    "vehicles": "যানবাহন",
+    "experiences": "অভিজ্ঞতা",
+    "medical": "চিকিৎসা সরঞ্জাম"
   },
   "trustScore": {
     "trustScoreTitle": "বিশ্বাস স্কোর",
@@ -2974,10 +2974,10 @@
     "unexpectedError": "অপ্রত্যাশিত ত্রুটি। আবার চেষ্টা করুন।",
     "stripeUnavailable": "Stripe উপলব্ধ নয়",
     "securePayment": "Stripe এর মাধ্যমে নিরাপদ পেমেন্ট। Visa, Mastercard, Apple Pay, Google Pay।",
-    "boost7days": "Boost 7 days",
+    "boost7days": "৭ দিনের বুস্ট",
     "alreadyPurchased": "ইতিমধ্যে ক্রয় করা হয়েছে",
-    "boost24h": "Boost 24h",
-    "boost72h": "Boost 72h"
+    "boost24h": "২৪ ঘণ্টার বুস্ট",
+    "boost72h": "৭২ ঘণ্টার বুস্ট"
   },
   "payments": {
     "paymentMethod": "পেমেন্ট পদ্ধতি",
@@ -3039,66 +3039,66 @@
     "expiresIn": "{days} দিনে মেয়াদ উত্তীর্ণ হয়"
   },
   "cookieConsent": {
-    "message": "We use cookies to improve your experience. Essential cookies are always active. Non-essential cookies help us analyze traffic and personalize content.",
-    "accept": "Accept all",
-    "reject": "Reject non-essential",
-    "settings": "Cookie settings"
+    "message": "আমরা আপনার অভিজ্ঞতা উন্নত করতে কুকিজ ব্যবহার করি। অপরিহার্য কুকিজ সর্বদা সক্রিয় থাকে। অ-অপরিহার্য কুকিজ আমাদের ট্রাফিক বিশ্লেষণ এবং বিষয়বস্তু ব্যক্তিগতকৃত করতে সহায়তা করে।",
+    "accept": "সব কিছু গ্রহণ করুন",
+    "reject": "অপ্রয়োজনীয় প্রত্যাখ্যান করুন",
+    "settings": "কুকি সেটিংস"
   },
   "branches": {
-    "tagline": "Swap what you have for what you need — objects, properties, services, and events.",
-    "objects": "Objects",
-    "objectsDesc": "Swap electronics, books, clothes, and more",
-    "properties": "Properties",
-    "propertiesDesc": "Exchange homes, apartments, and spaces",
-    "services": "Services",
-    "servicesDesc": "Trade skills, labor, and professional help",
-    "events": "Events",
-    "eventsDesc": "Swap tickets, reservations, and experiences",
-    "comingSoon": "This section is coming soon. Stay tuned!"
+    "tagline": "যা আপনার আছে তা বিনিময় করুন যা আপনার প্রয়োজন — বস্তু, সম্পত্তি, সেবা এবং ইভেন্ট।",
+    "objects": "বস্তু",
+    "objectsDesc": "ইলেকট্রনিক্স, বই, পোশাক এবং আরও অনেক কিছু বিনিময় করুন",
+    "properties": "সম্পত্তি",
+    "propertiesDesc": "বাড়ি, অ্যাপার্টমেন্ট এবং স্থান বিনিময় করুন",
+    "services": "সেবা",
+    "servicesDesc": "দক্ষতা, শ্রম এবং পেশাদার সহায়তা বিনিময় করুন",
+    "events": "ইভেন্ট",
+    "eventsDesc": "টিকিট, রিজার্ভেশন এবং অভিজ্ঞতা বিনিময় করুন",
+    "comingSoon": "এই বিভাগটি শীঘ্রই আসছে। নজর রাখুন!"
   },
   "hero": {
-    "tagline": "Swap what you have for what you want"
+    "tagline": "যা আপনার আছে তা বিনিময় করুন যা আপনি চান"
   },
   "benefits": {
-    "label": "Why Swaply?",
-    "directSwap": "Direct swap between people",
-    "globalCommunity": "Global community",
-    "aiMatching": "Automatic AI matching",
-    "escrow": "Escrow for safety",
-    "logistics": "Integrated logistics",
-    "negotiation": "In-platform negotiation",
-    "localPartners": "Find partners nearby"
+    "label": "Swaply কেন?",
+    "directSwap": "মানুষের মধ্যে সরাসরি বিনিময়",
+    "globalCommunity": "বৈশ্বিক সম্প্রদায়",
+    "aiMatching": "স্বয়ংক্রিয় AI ম্যাচিং",
+    "escrow": "নিরাপত্তার জন্য Escrow",
+    "logistics": "একীভূত লজিস্টিকস",
+    "negotiation": "প্ল্যাটফর্ম-এ আলোচনা",
+    "localPartners": "কাছাকাছি অংশীদার খুঁজুন"
   },
   "premium": {
     "title": "Swaply Premium",
-    "subtitle": "Global visibility · Priority matching"
+    "subtitle": "বৈশ্বিক দৃশ্যমানতা · অগ্রাধিকার ম্যাচিং"
   },
   "analytics": {
-    "title": "Analytics",
-    "loginRequired": "You must be logged in to view analytics.",
-    "dashboard": "Analytics Dashboard",
-    "upgradeToPremium": "Upgrade to Premium for full analytics access",
-    "noData": "No data",
-    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
-    "totalViews": "Total views",
-    "favoritesReceived": "Favorites received",
-    "proposalsReceived": "Proposals received",
-    "conversionRate": "Conversion rate",
-    "completedSwaps": "Completed swaps",
-    "avgTimeToProposal": "Avg time to proposal",
-    "viewsPerDay": "Views per day",
-    "last30Days": "Last 30 days",
-    "topItems": "Top items",
-    "byViews": "By number of views",
-    "insights": "Automated insights",
-    "insightsDesc": "Recommendations based on your data"
+    "title": "বিশ্লেষণ",
+    "loginRequired": "বিশ্লেষণ দেখতে আপনাকে লগ ইন করতে হবে।",
+    "dashboard": "বিশ্লেষণ ড্যাশবোর্ড",
+    "upgradeToPremium": "সম্পূর্ণ বিশ্লেষণ অ্যাক্সেসের জন্য Premium-এ আপগ্রেড করুন",
+    "noData": "কোনো ডেটা নেই",
+    "noDataDesc": "এখনো কোনো বিশ্লেষণ ডেটা নেই। ট্র্যাকিং শুরু করতে আপনার আইটেমগুলি দেখুন।",
+    "totalViews": "মোট ভিউ",
+    "favoritesReceived": "পাওয়া পছন্দগুলি",
+    "proposalsReceived": "পাওয়া প্রস্তাবনা",
+    "conversionRate": "রূপান্তর হার",
+    "completedSwaps": "সম্পন্ন করা বিনিময়",
+    "avgTimeToProposal": "প্রস্তাবনায় গড় সময়",
+    "viewsPerDay": "প্রতিদিন ভিউ",
+    "last30Days": "গত ৩০ দিন",
+    "topItems": "শীর্ষ আইটেম",
+    "byViews": "ভিউর সংখ্যা অনুযায়ী",
+    "insights": "স্বয়ংক্রিয় অন্তর্দৃষ্টি",
+    "insightsDesc": "আপনার ডেটার উপর ভিত্তি করে সুপারিশ"
   },
   "share": {
-    "copied": "Copied!",
-    "copyLink": "Copy link"
+    "copied": "কপি করা হয়েছে!",
+    "copyLink": "লিঙ্ক কপি করুন"
   },
   "badge": {
-    "free": "Free",
+    "free": "বিনামূল্যে",
     "premium": "Premium",
     "platinum": "Platinum"
   }

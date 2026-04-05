@@ -46,8 +46,8 @@
     "myDesk": "Moja Swap Miza",
     "myDeskDescription": "Spremljaj aktivne swape, čakajuče dejanja in roke",
     "romania": "Romunija",
-    "user": "User",
-    "recommendedNextStep": "Recommended next step"
+    "user": "Uporabnik",
+    "recommendedNextStep": "Priporočeni naslednji korak"
   },
   "nav": {
     "home": "Domov",
@@ -76,7 +76,7 @@
     "badgeBenefits": "Ugodnosti značke",
     "completeProfile": "Dopolnite svoj profil",
     "desk": "Moja Miza",
-    "settings": "Settings"
+    "settings": "Nastavitve"
   },
   "notifications": {
     "title": "Obvestila (všeček/interes/klepet/swaply)",
@@ -445,8 +445,8 @@
     "guestFeatureVerifyDesc": "E-pošta, telefon in identiteta — za značko preverjenih uporabnikov.",
     "guestCta": "Ustvari svoj brezplačni profil →",
     "networkError": "Napaka v omrežju",
-    "passkeyRegFailed": "Passkey registration failed",
-    "genericError": "Error"
+    "passkeyRegFailed": "Registracija Passkey je bila neuspešna",
+    "genericError": "Napaka"
   },
   "home": {
     "welcome": "Dobrodošel nazaj",
@@ -634,17 +634,17 @@
     "badgeProperty": "Lastnost",
     "badgeService": "Storitev",
     "condition_new": "New",
-    "condition_good": "Good",
-    "condition_like_new": "Like new",
-    "condition_fair": "Fair",
-    "condition_poor": "Poor",
-    "condition_used": "Used",
-    "condition_used_good": "Good condition",
+    "condition_good": "Odličen",
+    "condition_like_new": "Kot nov",
+    "condition_fair": "Dobar",
+    "condition_poor": "Slab",
+    "condition_used": "Rabljen",
+    "condition_used_good": "V dobrem stanju",
     "status_active": "Aktivno",
     "status_reserved": "Rezervirano",
     "status_traded": "Zamenjano",
     "status_paused": "Zaustavljeno",
-    "status_archived": "Archived",
+    "status_archived": "Arhiviran",
     "shareButton": "Deli"
   },
   "objectDetail": {
@@ -698,7 +698,7 @@
     "similarItemsDesc": "Drugi predmeti v isti kategoriji",
     "viewAll": "Oglejte si vse",
     "loginToInteract": "Prijavi se, da predlagaš menjave in piš sporočila",
-    "photoCount": "{current} / {total}",
+    "photoCount": "{trenutni} / {skupno}",
     "share": "Deli",
     "previousPhoto": "Prejšnja fotografija",
     "nextPhoto": "Naslednja fotografija",
@@ -817,7 +817,7 @@
     "guestFeatureLocationDesc": "Dajemo prednost ujemanjem iz vaše regije za hitro, osebno zamenjavo.",
     "guestFeatureCategory": "Kategorija in vrednost",
     "guestFeatureCategoryDesc": "Algoritem upošteva želeno kategorijo in ocenjeno vrednost predmetov.",
-    "guestDemo1Title": "Lenovo ThinkPad Laptop",
+    "guestDemo1Title": "Lenovo ThinkPad prenosni računalnik",
     "guestDemo1Swap": "iPhone 13 Pro",
     "guestDemo1Location": "Cluj-Napoca",
     "guestDemo2Title": "Canon EOS 250D",
@@ -1205,7 +1205,7 @@
     "shipmentStatusDelivered": "Dostavljeno",
     "shipmentStatusFailed": "Neuspešno",
     "bundleTitle": "Paket",
-    "bundleDesc": "Combine multiple items into a single exchange offer",
+    "bundleDesc": "Kombiniraj več predmetov v eno izmenjalno ponudbo",
     "bundleAddItem": "Dodajte postavko v paket",
     "bundleSelectItem": "Izberite predmet iz svojega inventarja",
     "bundleNoItems": "Ni dostopnih predmetov za dodajanje",
@@ -1332,14 +1332,14 @@
     "digitalEmail": "Potrdilno e-poštno sporočilo",
     "digitalPdf": "PDF / QR koda",
     "digitalBookingRef": "Referenčna številka rezervacije",
-    "swapChat": "Swap Chat",
-    "chatEmpty": "No messages yet. Start the conversation!",
-    "chatPlaceholder": "Type a message...",
-    "statusAccepted": "Accepted",
-    "statusInProgress": "In progress",
-    "statusDeliveredA": "Delivered (1/2)",
-    "statusDeliveredB": "Delivered (2/2)",
-    "statusResolved": "Resolved"
+    "swapChat": "Swap klepet",
+    "chatEmpty": "Še nobenih sporočil. Začni pogovor!",
+    "chatPlaceholder": "Napišite sporočilo...",
+    "statusAccepted": "Sprejeto",
+    "statusInProgress": "V teku",
+    "statusDeliveredA": "Dostavljeno (1/2)",
+    "statusDeliveredB": "Dostavljeno (2/2)",
+    "statusResolved": "Razrešeno"
   },
   "info": {
     "title": "Swaply statistika",
@@ -1558,7 +1558,7 @@
     "aiMessagePlaceholder": "npr.: Ni mi mudno, Preferiram lokalno menjavo, Predmet ima zgodbo…",
     "aiMessageNote": "AI te informacije uporablja samo za analizo, niso prikazane javno.",
     "conditionLabel": "Stanje predmeta *",
-    "statusLabel": "Status",
+    "statusLabel": "状態",
     "locationLabel": "Lokacija *",
     "locationPlaceholder": "npr.: Ljubljana",
     "tagsLabel": "Oznake (neobvezno)",
@@ -1752,9 +1752,9 @@
     "mapTitle": "Zemljevid lokacij",
     "noPins": "Ni žebljičkov za prikaz",
     "loading": "Nalagam karto…",
-    "title": "Active users near you",
-    "liveBadge": "Live",
-    "guestTooltip": "Sign up to see who swaps in your area"
+    "title": "Aktivni uporabniki blizu vas",
+    "liveBadge": "Neposredno",
+    "guestTooltip": "Prijavite se, da vidite, kdo se zamenja v vaši regiji"
   },
   "location": {
     "country": "Država",
@@ -2196,7 +2196,7 @@
     "modalDescription": "Ustvarite brezplačen račun za predlaganje zamenjav, pošiljanje sporočil in začetek menjave.",
     "modalCta": "Ustvari brezplačen račun",
     "modalDismiss": "Morda kasneje",
-    "haveAccount": "I already have an account"
+    "haveAccount": "Že imam račun"
   },
   "about": {
     "title": "O platformi Swaply",
@@ -2352,8 +2352,8 @@
     "searchPrefix": "Iščem:",
     "daysRemaining": "{days} dni preostalo",
     "you": "You",
-    "userPrefix": "User",
-    "lookingFor": "Looking for"
+    "userPrefix": "Uporabnik",
+    "lookingFor": "Iskalec"
   },
   "history": {
     "title": "Zgodovina menjav",
@@ -2573,16 +2573,16 @@
     "ctaDescription": "Napiši svoje predmete in odkrij, kaj lahko dobiš v zameno.",
     "ctaButton": "Preizkusi Swaply brezplačno →",
     "metaDescription": "Članki iz kategorije \"{category}\" na Swaply blogu.",
-    "tableOfContents": "Table of Contents",
-    "guide": "Guide",
-    "tutorial": "Tutorial",
-    "inspiration": "Inspiration",
-    "sustainability": "Sustainability",
-    "safety": "Safety",
-    "technology": "Technology",
-    "trends": "Trends",
-    "community": "Community",
-    "product": "Product",
+    "tableOfContents": "Kazalo vsebine",
+    "guide": "Vodnik",
+    "tutorial": "Priročnik",
+    "inspiration": "Navdih",
+    "sustainability": "Trajnost",
+    "safety": "Varnost",
+    "technology": "Tehnologija",
+    "trends": "Trendi",
+    "community": "Skupnost",
+    "product": "Proizvod",
     "allCategories": "All"
   },
   "push": {
@@ -2686,7 +2686,7 @@
     "tableReason": "Razlog",
     "tableReporter": "Prijavitelj",
     "tableDate": "Datum",
-    "tableStatus": "Status",
+    "tableStatus": "Stanje",
     "searchByTitle": "Iskanje po naslovu...",
     "allStatusFilter": "Vsi statusi",
     "allFilter": "All",
@@ -2974,10 +2974,10 @@
     "unexpectedError": "Nepričakovana napaka. Poskusi znova.",
     "stripeUnavailable": "Stripe ni na voljo",
     "securePayment": "Varno plačilo prek Stripe. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "Boost 7 days",
+    "boost7days": "Povečaj 7 dni",
     "alreadyPurchased": "Že kupljeno",
-    "boost24h": "Boost 24h",
-    "boost72h": "Boost 72h"
+    "boost24h": "Povečava 24h",
+    "boost72h": "Povečava 72h"
   },
   "payments": {
     "paymentMethod": "Način plačila",
@@ -3045,60 +3045,60 @@
     "settings": "Nastavitve piškotkov"
   },
   "branches": {
-    "tagline": "Swap what you have for what you need — objects, properties, services, and events.",
-    "objects": "Objects",
-    "objectsDesc": "Swap electronics, books, clothes, and more",
-    "properties": "Properties",
-    "propertiesDesc": "Exchange homes, apartments, and spaces",
-    "services": "Services",
-    "servicesDesc": "Trade skills, labor, and professional help",
-    "events": "Events",
-    "eventsDesc": "Swap tickets, reservations, and experiences",
-    "comingSoon": "This section is coming soon. Stay tuned!"
+    "tagline": "Zamenjaj kaj imaš za kar potrebuješ — predmete, nepremičnine, storitve in dogodke.",
+    "objects": "Predmeti",
+    "objectsDesc": "Zamenjaj elektroniko, knjige, oblačila in še veliko več",
+    "properties": "Nepremičnine",
+    "propertiesDesc": "Izmenjaj domove, stanovanja in prostore",
+    "services": "Storitve",
+    "servicesDesc": "Izmenjaj spretnosti, delo in strokovno pomoč",
+    "events": "Dogodki",
+    "eventsDesc": "Zamenjaj vstopnice, rezervacije in doživetja",
+    "comingSoon": "Ta razdelek je v pripravi. Ostani v stiku!"
   },
   "hero": {
-    "tagline": "Swap what you have for what you want"
+    "tagline": "Zamenjaj kaj imaš za kar želiš"
   },
   "benefits": {
-    "label": "Why Swaply?",
-    "directSwap": "Direct swap between people",
-    "globalCommunity": "Global community",
-    "aiMatching": "Automatic AI matching",
-    "escrow": "Escrow for safety",
-    "logistics": "Integrated logistics",
-    "negotiation": "In-platform negotiation",
-    "localPartners": "Find partners nearby"
+    "label": "Zakaj Swaply?",
+    "directSwap": "Direktna zamenjava med ljudmi",
+    "globalCommunity": "Globalna skupnost",
+    "aiMatching": "Avtomatsko ujemanje s pomočjo AI",
+    "escrow": "Escrow za varnost",
+    "logistics": "Integrirana logistika",
+    "negotiation": "Pogajanja znotraj platforme",
+    "localPartners": "Poiščite partnerje v bližini"
   },
   "premium": {
     "title": "Swaply Premium",
-    "subtitle": "Global visibility · Priority matching"
+    "subtitle": "Globalna vidljivost · Prednostno ujemanje"
   },
   "analytics": {
-    "title": "Analytics",
-    "loginRequired": "You must be logged in to view analytics.",
-    "dashboard": "Analytics Dashboard",
-    "upgradeToPremium": "Upgrade to Premium for full analytics access",
-    "noData": "No data",
-    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
-    "totalViews": "Total views",
-    "favoritesReceived": "Favorites received",
-    "proposalsReceived": "Proposals received",
-    "conversionRate": "Conversion rate",
-    "completedSwaps": "Completed swaps",
-    "avgTimeToProposal": "Avg time to proposal",
-    "viewsPerDay": "Views per day",
-    "last30Days": "Last 30 days",
-    "topItems": "Top items",
-    "byViews": "By number of views",
-    "insights": "Automated insights",
-    "insightsDesc": "Recommendations based on your data"
+    "title": "Analitika",
+    "loginRequired": "Biti morate prijavljeni, da si ogledate analitiko.",
+    "dashboard": "Nadzorna plošča analitike",
+    "upgradeToPremium": "Nadgradite na Premium za popoln dostop do analitike",
+    "noData": "Ni podatkov",
+    "noDataDesc": "Še ni podatkov analitike. Obiščite svoje predmete, da začnete s sledjenjem.",
+    "totalViews": "Skupni ogledi",
+    "favoritesReceived": "Prejeta priljubljenost",
+    "proposalsReceived": "Prejeti predlogi",
+    "conversionRate": "Stopnja konverzije",
+    "completedSwaps": "Zaključeni zamenjavi",
+    "avgTimeToProposal": "Povprečni čas do predloga",
+    "viewsPerDay": "Ogledi na dan",
+    "last30Days": "Zadnjih 30 dni",
+    "topItems": "Priljubljeni predmeti",
+    "byViews": "Po številu ogledov",
+    "insights": "Avtomatizirani uvidi",
+    "insightsDesc": "Priporočila na podlagi vaših podatkov"
   },
   "share": {
-    "copied": "Copied!",
-    "copyLink": "Copy link"
+    "copied": "Kopirano!",
+    "copyLink": "Kopiraj povezavo"
   },
   "badge": {
-    "free": "Free",
+    "free": "Brezplačno",
     "premium": "Premium",
     "platinum": "Platinum"
   }

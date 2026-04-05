@@ -1333,8 +1333,8 @@
     "digitalPdf": "PDF / QRコード",
     "digitalBookingRef": "予約リファレンス",
     "swapChat": "Swap Chat",
-    "chatEmpty": "No messages yet. Start the conversation!",
-    "chatPlaceholder": "Type a message...",
+    "chatEmpty": "まだメッセージはありません。会話を始めましょう!",
+    "chatPlaceholder": "メッセージを入力...",
     "statusAccepted": "承認済み",
     "statusInProgress": "進行中",
     "statusDeliveredA": "配送済み (1/2)",
@@ -1752,9 +1752,9 @@
     "mapTitle": "位置情報マップ",
     "noPins": "表示するピンがありません",
     "loading": "マップを読み込み中…",
-    "title": "Active users near you",
-    "liveBadge": "Live",
-    "guestTooltip": "Sign up to see who swaps in your area"
+    "title": "あなたの近くのアクティブユーザー",
+    "liveBadge": "ライブ",
+    "guestTooltip": "サインアップして、あなたの地域でスワップする人を確認しましょう"
   },
   "location": {
     "country": "国",

@@ -46,8 +46,8 @@
     "myDesk": "Swap Desk ของฉัน",
     "myDeskDescription": "ติดตามการแลกเปลี่ยนที่ใช้งานอยู่ การดำเนินการที่รอดำเนิน และกำหนดเวลา",
     "romania": "โรมาเนีย",
-    "user": "User",
-    "recommendedNextStep": "Recommended next step"
+    "user": "ผู้ใช้",
+    "recommendedNextStep": "ขั้นตอนที่แนะนำต่อไป"
   },
   "nav": {
     "home": "หน้าแรก",
@@ -76,7 +76,7 @@
     "badgeBenefits": "สิทธิประโยชน์ตรา",
     "completeProfile": "กรอกโปรไฟล์ให้สมบูรณ์",
     "desk": "Desk ของฉัน",
-    "settings": "Settings"
+    "settings": "การตั้งค่า"
   },
   "notifications": {
     "title": "การแจ้งเตือน (ถูกใจ/สนใจ/แชท/swaply)",
@@ -445,8 +445,8 @@
     "guestFeatureVerifyDesc": "อีเมล โทรศัพท์ และตัวตน — เพื่อได้รับป้ายผู้ใช้ที่ยืนยันแล้ว",
     "guestCta": "สร้างโปรไฟล์ฟรีของคุณ →",
     "networkError": "ข้อผิดพลาดของเครือข่าย",
-    "passkeyRegFailed": "Passkey registration failed",
-    "genericError": "Error"
+    "passkeyRegFailed": "การลงทะเบียน Passkey ล้มเหลว",
+    "genericError": "ข้อผิดพลาด"
   },
   "home": {
     "welcome": "ยินดีต้อนรับกลับ",
@@ -634,17 +634,17 @@
     "badgeProperty": "ทรัพย์สิน",
     "badgeService": "บริการ",
     "condition_new": "New",
-    "condition_good": "Good",
-    "condition_like_new": "Like new",
-    "condition_fair": "Fair",
-    "condition_poor": "Poor",
-    "condition_used": "Used",
-    "condition_used_good": "Good condition",
+    "condition_good": "ดี",
+    "condition_like_new": "เหมือนใหม่",
+    "condition_fair": "สภาพยุติธรรม",
+    "condition_poor": "แย่",
+    "condition_used": "ใช้แล้ว",
+    "condition_used_good": "สภาพดี",
     "status_active": "ใช้งานอยู่",
     "status_reserved": "จองแล้ว",
     "status_traded": "แลกเปลี่ยนแล้ว",
     "status_paused": "หยุดชั่วคราว",
-    "status_archived": "Archived",
+    "status_archived": "เก็บถาวร",
     "shareButton": "แชร์"
   },
   "objectDetail": {
@@ -781,7 +781,7 @@
     "openProfile": "เปิดโปรไฟล์",
     "courier": "จัดส่ง",
     "flexible": "ยืดหยุ่น",
-    "dealbreakers": "Dealbreakers",
+    "dealbreakers": "เงื่อนไขที่ไม่ยอมรับ",
     "dealbreakersDescription": "ตั้งค่าตัวกรองที่ยากที่จะแยกการจับคู่โดยอัตโนมัติ",
     "minCondition": "สภาพขั้นต่ำ",
     "anyCondition": "Any",
@@ -1333,13 +1333,13 @@
     "digitalPdf": "PDF / รหัส QR",
     "digitalBookingRef": "รหัสการจอง",
     "swapChat": "Swap Chat",
-    "chatEmpty": "No messages yet. Start the conversation!",
-    "chatPlaceholder": "Type a message...",
-    "statusAccepted": "Accepted",
-    "statusInProgress": "In progress",
-    "statusDeliveredA": "Delivered (1/2)",
-    "statusDeliveredB": "Delivered (2/2)",
-    "statusResolved": "Resolved"
+    "chatEmpty": "ยังไม่มีข้อความ เริ่มการสนทนากันเถอะ!",
+    "chatPlaceholder": "พิมพ์ข้อความ...",
+    "statusAccepted": "ยอมรับแล้ว",
+    "statusInProgress": "กำลังดำเนิน",
+    "statusDeliveredA": "ส่งมอบแล้ว (1/2)",
+    "statusDeliveredB": "ส่งมอบแล้ว (2/2)",
+    "statusResolved": "แก้ไขแล้ว"
   },
   "info": {
     "title": "สถิติ Swaply",
@@ -1752,9 +1752,9 @@
     "mapTitle": "แผนที่ตำแหน่งที่ตั้ง",
     "noPins": "ไม่มีพินที่จะแสดง",
     "loading": "กำลังโหลดแผนที่…",
-    "title": "Active users near you",
-    "liveBadge": "Live",
-    "guestTooltip": "Sign up to see who swaps in your area"
+    "title": "ผู้ใช้งานที่ใช้งานอยู่ใกล้คุณ",
+    "liveBadge": "สด",
+    "guestTooltip": "ลงทะเบียนเพื่อดูว่าใครแลกเปลี่ยนในพื้นที่ของคุณ"
   },
   "location": {
     "country": "ประเทศ",
@@ -2196,7 +2196,7 @@
     "modalDescription": "สร้างบัญชีฟรีเพื่อเสนอการแลกเปลี่ยน ส่งข้อความ และเริ่มแลกเปลี่ยน",
     "modalCta": "สร้างบัญชีฟรี",
     "modalDismiss": "ไว้ทีหลัง",
-    "haveAccount": "I already have an account"
+    "haveAccount": "ฉันมีบัญชีอยู่แล้ว"
   },
   "about": {
     "title": "เกี่ยวกับ Swaply",
@@ -2352,8 +2352,8 @@
     "searchPrefix": "ค้นหา:",
     "daysRemaining": "เหลือ {days} วัน",
     "you": "You",
-    "userPrefix": "User",
-    "lookingFor": "Looking for"
+    "userPrefix": "ผู้ใช้",
+    "lookingFor": "กำลังค้นหา"
   },
   "history": {
     "title": "ประวัติการแลกเปลี่ยน",
@@ -2573,16 +2573,16 @@
     "ctaDescription": "แสดงรายการวัตถุของคุณและค้นพบสิ่งที่คุณสามารถแลกเปลี่ยนได้",
     "ctaButton": "ลองใช้ Swaply ฟรี →",
     "metaDescription": "บทความจากหมวดหมู่ \"{category}\" บนบล็อก Swaply",
-    "tableOfContents": "Table of Contents",
-    "guide": "Guide",
-    "tutorial": "Tutorial",
-    "inspiration": "Inspiration",
-    "sustainability": "Sustainability",
-    "safety": "Safety",
-    "technology": "Technology",
-    "trends": "Trends",
-    "community": "Community",
-    "product": "Product",
+    "tableOfContents": "สารบัญ",
+    "guide": "คู่มือ",
+    "tutorial": "บทเรียน",
+    "inspiration": "แรงบันดาลใจ",
+    "sustainability": "ความยั่งยืน",
+    "safety": "ความปลอดภัย",
+    "technology": "เทคโนโลยี",
+    "trends": "แนวโน้ม",
+    "community": "ชุมชน",
+    "product": "สินค้า",
     "allCategories": "All"
   },
   "push": {
@@ -2738,31 +2738,31 @@
     "byCity": "{category} ตามเมือง"
   },
   "categories": {
-    "electronics": "Electronics",
-    "sport": "Sports",
-    "arts": "Art & Hobby",
-    "books": "Books",
-    "home": "Home",
-    "fashion": "Fashion",
-    "automotive": "Auto",
-    "music": "Music",
-    "garden": "Garden",
-    "toys": "Toys",
-    "tools": "Tools",
-    "other": "Other",
-    "sports_outdoor": "Sports & Outdoor",
-    "hobby_games": "Hobbies & Games",
-    "books_media": "Books & Media",
-    "home_garden": "Home & Garden",
-    "fashion_accessories": "Fashion & Accessories",
-    "auto_moto": "Auto & Moto",
-    "music_audio": "Music & Audio",
-    "gardening_outdoor": "Gardening & Outdoor",
-    "toys_kids": "Toys & Kids",
-    "tools_diy": "Tools & DIY",
-    "vehicles": "Vehicles",
-    "experiences": "Experiences",
-    "medical": "Medical Equipment"
+    "electronics": "อุปกรณ์อิเล็กทรอนิกส์",
+    "sport": "กีฬา",
+    "arts": "ศิลปะและงานอดิเรก",
+    "books": "หนังสือ",
+    "home": "บ้านและครัวเรือน",
+    "fashion": "แฟชั่น",
+    "automotive": "ยานยนต์",
+    "music": "ดนตรี",
+    "garden": "สวนและพืชผัก",
+    "toys": "ของเล่น",
+    "tools": "เครื่องมือ",
+    "other": "อื่นๆ",
+    "sports_outdoor": "กีฬาและกิจกรรมกลางแจ้ง",
+    "hobby_games": "งานอดิเรกและเกม",
+    "books_media": "หนังสือและสื่อ",
+    "home_garden": "บ้านและสวน",
+    "fashion_accessories": "แฟชั่นและอุปกรณ์เสริม",
+    "auto_moto": "รถยนต์ และ รถจักรยานยนต์",
+    "music_audio": "ดนตรี และ เครื่องเสียง",
+    "gardening_outdoor": "การทำสวน และ กิจกรรมกลางแจ้ง",
+    "toys_kids": "ของเล่น และ ของเด็ก",
+    "tools_diy": "เครื่องมือ และ DIY",
+    "vehicles": "ยานพาหนะ",
+    "experiences": "ประสบการณ์",
+    "medical": "อุปกรณ์การแพทย์"
   },
   "trustScore": {
     "trustScoreTitle": "คะแนนความเชื่อถือ",
@@ -2974,10 +2974,10 @@
     "unexpectedError": "เกิดข้อผิดพลาดที่ไม่คาดคิด ลองอีกครั้ง",
     "stripeUnavailable": "Stripe ไม่พร้อมใช้งาน",
     "securePayment": "การชำระเงินที่ปลอดภัยผ่าน Stripe Visa, Mastercard, Apple Pay, Google Pay",
-    "boost7days": "Boost 7 days",
+    "boost7days": "เพิ่มการมองเห็น 7 วัน",
     "alreadyPurchased": "ซื้อแล้ว",
-    "boost24h": "Boost 24h",
-    "boost72h": "Boost 72h"
+    "boost24h": "เพิ่มการมองเห็น 24 ชั่วโมง",
+    "boost72h": "เพิ่มการมองเห็น 72 ชั่วโมง"
   },
   "payments": {
     "paymentMethod": "วิธีการชำระเงิน",
@@ -3039,63 +3039,63 @@
     "expiresIn": "หมดอายุใน {days} วัน"
   },
   "cookieConsent": {
-    "message": "We use cookies to improve your experience. Essential cookies are always active. Non-essential cookies help us analyze traffic and personalize content.",
-    "accept": "Accept all",
-    "reject": "Reject non-essential",
-    "settings": "Cookie settings"
+    "message": "เราใช้คุกกี้เพื่อปรับปรุงประสบการณ์ของคุณ คุกกี้ที่จำเป็นจะเปิดอยู่ตลอดเวลา คุกกี้ที่ไม่จำเป็นช่วยให้เราวิเคราะห์การใช้งานและปรับแต่งเนื้อหา",
+    "accept": "ยอมรับทั้งหมด",
+    "reject": "ปฏิเสธคุกกี้ที่ไม่จำเป็น",
+    "settings": "การตั้งค่าคุกกี้"
   },
   "branches": {
-    "tagline": "Swap what you have for what you need — objects, properties, services, and events.",
-    "objects": "Objects",
-    "objectsDesc": "Swap electronics, books, clothes, and more",
-    "properties": "Properties",
-    "propertiesDesc": "Exchange homes, apartments, and spaces",
-    "services": "Services",
-    "servicesDesc": "Trade skills, labor, and professional help",
-    "events": "Events",
-    "eventsDesc": "Swap tickets, reservations, and experiences",
-    "comingSoon": "This section is coming soon. Stay tuned!"
+    "tagline": "แลกเปลี่ยนสิ่งที่คุณมีกับสิ่งที่คุณต้องการ — สิ่งของ ทรัพย์สิน บริการ และกิจกรรม",
+    "objects": "สิ่งของ",
+    "objectsDesc": "แลกเปลี่ยนอุปกรณ์อิเล็กทรอนิกส์ หนังสือ เสื้อผ้า และอื่นๆ",
+    "properties": "ทรัพย์สิน",
+    "propertiesDesc": "แลกเปลี่ยนบ้าน อพาร์ตเมนต์ และพื้นที่",
+    "services": "บริการ",
+    "servicesDesc": "แลกเปลี่ยนทักษะ แรงงาน และความช่วยเหลือด้านวิชาชีพ",
+    "events": "กิจกรรม",
+    "eventsDesc": "แลกเปลี่ยนตั๋ว การจอง และประสบการณ์",
+    "comingSoon": "ส่วนนี้จะเปิดให้บริการในเร็วๆ นี้ โปรดติดตาม!"
   },
   "hero": {
-    "tagline": "Swap what you have for what you want"
+    "tagline": "แลกเปลี่ยนสิ่งที่คุณมีกับสิ่งที่คุณต้องการ"
   },
   "benefits": {
-    "label": "Why Swaply?",
-    "directSwap": "Direct swap between people",
-    "globalCommunity": "Global community",
-    "aiMatching": "Automatic AI matching",
-    "escrow": "Escrow for safety",
-    "logistics": "Integrated logistics",
-    "negotiation": "In-platform negotiation",
-    "localPartners": "Find partners nearby"
+    "label": "ทำไมต้อง Swaply?",
+    "directSwap": "แลกเปลี่ยนโดยตรงระหว่างคน",
+    "globalCommunity": "ชุมชนทั่วโลก",
+    "aiMatching": "การจับคู่ด้วย AI อัตโนมัติ",
+    "escrow": "Escrow เพื่อความปลอดภัย",
+    "logistics": "บริการโลจิสติกส์แบบเสริม",
+    "negotiation": "การเจรจาภายในแพลตฟอร์ม",
+    "localPartners": "ค้นหาพার์ทเนอร์ใกล้เคียง"
   },
   "premium": {
     "title": "Swaply Premium",
-    "subtitle": "Global visibility · Priority matching"
+    "subtitle": "มองเห็นระดับโลก · การจับคู่ลำดับความสำคัญ"
   },
   "analytics": {
-    "title": "Analytics",
-    "loginRequired": "You must be logged in to view analytics.",
-    "dashboard": "Analytics Dashboard",
-    "upgradeToPremium": "Upgrade to Premium for full analytics access",
-    "noData": "No data",
-    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
-    "totalViews": "Total views",
-    "favoritesReceived": "Favorites received",
-    "proposalsReceived": "Proposals received",
-    "conversionRate": "Conversion rate",
-    "completedSwaps": "Completed swaps",
-    "avgTimeToProposal": "Avg time to proposal",
-    "viewsPerDay": "Views per day",
-    "last30Days": "Last 30 days",
-    "topItems": "Top items",
-    "byViews": "By number of views",
-    "insights": "Automated insights",
-    "insightsDesc": "Recommendations based on your data"
+    "title": "การวิเคราะห์",
+    "loginRequired": "คุณต้องเข้าสู่ระบบเพื่อดูการวิเคราะห์",
+    "dashboard": "แดชบอร์ดการวิเคราะห์",
+    "upgradeToPremium": "อัปเกรดเป็น Premium เพื่อเข้าถึงการวิเคราะห์แบบเต็ม",
+    "noData": "ไม่มีข้อมูล",
+    "noDataDesc": "ยังไม่มีข้อมูลการวิเคราะห์ ไปที่รายการของคุณเพื่อเริ่มติดตาม",
+    "totalViews": "ยอดการดู",
+    "favoritesReceived": "รายการที่ชอบที่ได้รับ",
+    "proposalsReceived": "ข้อเสนอที่ได้รับ",
+    "conversionRate": "อัตราการแปลง",
+    "completedSwaps": "การแลกเปลี่ยนที่เสร็จสิ้น",
+    "avgTimeToProposal": "เวลาเฉลี่ยต่อข้อเสนอ",
+    "viewsPerDay": "ผู้เข้าชมต่อวัน",
+    "last30Days": "30 วันที่ผ่านมา",
+    "topItems": "รายการยอดนิยม",
+    "byViews": "ตามจำนวนผู้เข้าชม",
+    "insights": "ข้อมูลเชิงลึกอัตโนมัติ",
+    "insightsDesc": "คำแนะนำตามข้อมูลของคุณ"
   },
   "share": {
-    "copied": "Copied!",
-    "copyLink": "Copy link"
+    "copied": "คัดลอกแล้ว!",
+    "copyLink": "คัดลอกลิงก์"
   },
   "badge": {
     "free": "Free",

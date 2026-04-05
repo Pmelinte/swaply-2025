@@ -46,8 +46,8 @@
     "myDesk": "Mano keitimosi stalas",
     "myDeskDescription": "Sekite aktyvius keistimąsis, laukiančius veiksmų ir terminus",
     "romania": "Rumunija",
-    "user": "User",
-    "recommendedNextStep": "Recommended next step"
+    "user": "Vartotojas",
+    "recommendedNextStep": "Rekomenduojamas kitas žingsnis"
   },
   "nav": {
     "home": "Pradžia",
@@ -76,7 +76,7 @@
     "badgeBenefits": "Ženklelio privalumai",
     "completeProfile": "Užpildykite savo profilį",
     "desk": "Mano stalas",
-    "settings": "Settings"
+    "settings": "Nustatymai"
   },
   "notifications": {
     "title": "Pranešimai (patiktumas/susidomėjimas/pokalbis/swaply)",
@@ -445,8 +445,8 @@
     "guestFeatureVerifyDesc": "El. paštas, telefonas ir tapatybė — patikrintam naudotojui ženkleliui.",
     "guestCta": "Sukurti savo nemokamą profilį →",
     "networkError": "Tinklo klaida",
-    "passkeyRegFailed": "Passkey registration failed",
-    "genericError": "Error"
+    "passkeyRegFailed": "Saugaus raktų registracija nepavyko",
+    "genericError": "Klaida"
   },
   "home": {
     "welcome": "Sveiki sugrįžę",
@@ -634,17 +634,17 @@
     "badgeProperty": "Nuosavybė",
     "badgeService": "Paslauga",
     "condition_new": "New",
-    "condition_good": "Good",
-    "condition_like_new": "Like new",
-    "condition_fair": "Fair",
-    "condition_poor": "Poor",
-    "condition_used": "Used",
-    "condition_used_good": "Good condition",
+    "condition_good": "Puikiai",
+    "condition_like_new": "Kaip naujas",
+    "condition_fair": "Patenkinamai",
+    "condition_poor": "Blogai",
+    "condition_used": "Naudotas",
+    "condition_used_good": "Gera būklė",
     "status_active": "Aktyvus",
     "status_reserved": "Rezervuota",
     "status_traded": "Iškeista",
     "status_paused": "Pristabdyta",
-    "status_archived": "Archived",
+    "status_archived": "Archyvuotas",
     "shareButton": "Dalintis"
   },
   "objectDetail": {
@@ -1333,13 +1333,13 @@
     "digitalPdf": "PDF / QR kodas",
     "digitalBookingRef": "Užsakymo nuoroda",
     "swapChat": "Swap Chat",
-    "chatEmpty": "No messages yet. Start the conversation!",
-    "chatPlaceholder": "Type a message...",
-    "statusAccepted": "Accepted",
-    "statusInProgress": "In progress",
-    "statusDeliveredA": "Delivered (1/2)",
-    "statusDeliveredB": "Delivered (2/2)",
-    "statusResolved": "Resolved"
+    "chatEmpty": "Dar nėra žinučių. Pradėkite pokalbį!",
+    "chatPlaceholder": "Įveskite žinutę...",
+    "statusAccepted": "Priimta",
+    "statusInProgress": "Vykdoma",
+    "statusDeliveredA": "Pristatyta (1/2)",
+    "statusDeliveredB": "Pristatyta (2/2)",
+    "statusResolved": "Išspręsta"
   },
   "info": {
     "title": "Swaply statistika",
@@ -1752,9 +1752,9 @@
     "mapTitle": "Vietos žemėlapis",
     "noPins": "Nėra žymeklių rodyti",
     "loading": "Žemėlapis įkeliamas…",
-    "title": "Active users near you",
-    "liveBadge": "Live",
-    "guestTooltip": "Sign up to see who swaps in your area"
+    "title": "Aktyvūs vartotojai šalia jūsų",
+    "liveBadge": "Tiesiogiai",
+    "guestTooltip": "Prisiregistruokite, kad pamatytumėte, kas keičiasi jūsų apylinkėse"
   },
   "location": {
     "country": "Šalis",
@@ -2196,7 +2196,7 @@
     "modalDescription": "Sukurkite nemokamą paskyrą, kad galėtumėte siūlyti mainus, siųsti žinutes ir pradėti keistis.",
     "modalCta": "Sukurti nemokamą paskyrą",
     "modalDismiss": "Gal vėliau",
-    "haveAccount": "I already have an account"
+    "haveAccount": "Aš jau turiu paskyrą"
   },
   "about": {
     "title": "Apie „Swaply\"",
@@ -2352,8 +2352,8 @@
     "searchPrefix": "Ieškau:",
     "daysRemaining": "Liko {days} dienų",
     "you": "You",
-    "userPrefix": "User",
-    "lookingFor": "Looking for"
+    "userPrefix": "Vartotojas",
+    "lookingFor": "Ieško"
   },
   "history": {
     "title": "Dalybų istorija",
@@ -2573,16 +2573,16 @@
     "ctaDescription": "Išvardinkite savo daiktus ir sužinokite, ką galite gauti mainais.",
     "ctaButton": "Išbandykite Swaply nemokamai →",
     "metaDescription": "Straipsniai iš „{category}\" kategorijos Swaply bloge.",
-    "tableOfContents": "Table of Contents",
-    "guide": "Guide",
-    "tutorial": "Tutorial",
-    "inspiration": "Inspiration",
-    "sustainability": "Sustainability",
-    "safety": "Safety",
-    "technology": "Technology",
-    "trends": "Trends",
-    "community": "Community",
-    "product": "Product",
+    "tableOfContents": "Turinys",
+    "guide": "Vadovas",
+    "tutorial": "Pamoka",
+    "inspiration": "Inspiracija",
+    "sustainability": "Tvarumas",
+    "safety": "Saugumas",
+    "technology": "Technologija",
+    "trends": "Tendencijos",
+    "community": "Bendruomenė",
+    "product": "Produktas",
     "allCategories": "All"
   },
   "push": {
@@ -2738,31 +2738,31 @@
     "byCity": "{category} pagal miestą"
   },
   "categories": {
-    "electronics": "Electronics",
-    "sport": "Sports",
-    "arts": "Art & Hobby",
-    "books": "Books",
-    "home": "Home",
-    "fashion": "Fashion",
-    "automotive": "Auto",
-    "music": "Music",
-    "garden": "Garden",
-    "toys": "Toys",
-    "tools": "Tools",
-    "other": "Other",
-    "sports_outdoor": "Sports & Outdoor",
-    "hobby_games": "Hobbies & Games",
-    "books_media": "Books & Media",
-    "home_garden": "Home & Garden",
-    "fashion_accessories": "Fashion & Accessories",
-    "auto_moto": "Auto & Moto",
-    "music_audio": "Music & Audio",
-    "gardening_outdoor": "Gardening & Outdoor",
-    "toys_kids": "Toys & Kids",
-    "tools_diy": "Tools & DIY",
-    "vehicles": "Vehicles",
-    "experiences": "Experiences",
-    "medical": "Medical Equipment"
+    "electronics": "Elektronika",
+    "sport": "Sportas",
+    "arts": "Menas ir Hobis",
+    "books": "Knygos",
+    "home": "Namai",
+    "fashion": "Mada",
+    "automotive": "Automobiliai",
+    "music": "Muzika",
+    "garden": "Sodas",
+    "toys": "Žaisliukai",
+    "tools": "Įrankiai",
+    "other": "Kita",
+    "sports_outdoor": "Sportas ir lauke",
+    "hobby_games": "Hobiai ir žaidimai",
+    "books_media": "Knygos ir medija",
+    "home_garden": "Namas ir sodas",
+    "fashion_accessories": "Moda ir aksesuarai",
+    "auto_moto": "Automobiliai ir motociklai",
+    "music_audio": "Muzika ir garsas",
+    "gardening_outdoor": "Sodo ir lauko reikmenys",
+    "toys_kids": "Žaisliukai ir vaikai",
+    "tools_diy": "Įrankiai ir savadarbystė",
+    "vehicles": "Transporto priemonės",
+    "experiences": "Patirtys",
+    "medical": "Medicininė įranga"
   },
   "trustScore": {
     "trustScoreTitle": "Pasitikėjimo balas",
@@ -2974,10 +2974,10 @@
     "unexpectedError": "Netikėta klaida. Bandykite dar kartą.",
     "stripeUnavailable": "„Stripe\" nėra pasiekiamas",
     "securePayment": "Saugus mokėjimas per „Stripe\". Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "Boost 7 days",
+    "boost7days": "Paspartinti 7 dienas",
     "alreadyPurchased": "Jau nupirkta",
-    "boost24h": "Boost 24h",
-    "boost72h": "Boost 72h"
+    "boost24h": "Paspartinti 24h",
+    "boost72h": "Paspartinti 72h"
   },
   "payments": {
     "paymentMethod": "Mokėjimo būdas",
@@ -3039,66 +3039,66 @@
     "expiresIn": "Baigiasi per {days} dienas"
   },
   "cookieConsent": {
-    "message": "We use cookies to improve your experience. Essential cookies are always active. Non-essential cookies help us analyze traffic and personalize content.",
-    "accept": "Accept all",
-    "reject": "Reject non-essential",
-    "settings": "Cookie settings"
+    "message": "Naudojame slapukus, kad pagerintume jūsų patirtį. Būtini slapukai visada aktyvūs. Nebūtini slapukai padeda mums analizuoti srautą ir personalizuoti turinį.",
+    "accept": "Priimti visus",
+    "reject": "Atmesti nebūtinus",
+    "settings": "Slapukų nustatymai"
   },
   "branches": {
-    "tagline": "Swap what you have for what you need — objects, properties, services, and events.",
-    "objects": "Objects",
-    "objectsDesc": "Swap electronics, books, clothes, and more",
-    "properties": "Properties",
-    "propertiesDesc": "Exchange homes, apartments, and spaces",
-    "services": "Services",
-    "servicesDesc": "Trade skills, labor, and professional help",
-    "events": "Events",
-    "eventsDesc": "Swap tickets, reservations, and experiences",
-    "comingSoon": "This section is coming soon. Stay tuned!"
+    "tagline": "Sukeiskitės tuo, ką turite, į tai, ko jums reikia — daiktus, nekilnojamąjį turtą, paslaugas ir renginius.",
+    "objects": "Daiktai",
+    "objectsDesc": "Sukeiskitės elektronika, knygomis, drabužiais ir dar daugiau",
+    "properties": "Nekilnojamasis turtas",
+    "propertiesDesc": "Sukeiskitės namais, apartamentais ir erdvėmis",
+    "services": "Paslaugos",
+    "servicesDesc": "Sukeiskitės įgūdžiais, darbu ir profesionalia pagalba",
+    "events": "Renginiai",
+    "eventsDesc": "Sukeiskitės bilietais, rezervacijomis ir patirtimis",
+    "comingSoon": "Šis skyrius netrukus bus prieinamas. Sekite naujienas!"
   },
   "hero": {
-    "tagline": "Swap what you have for what you want"
+    "tagline": "Sukeiskitės tuo, ką turite, į tai, ko norite"
   },
   "benefits": {
-    "label": "Why Swaply?",
-    "directSwap": "Direct swap between people",
-    "globalCommunity": "Global community",
-    "aiMatching": "Automatic AI matching",
-    "escrow": "Escrow for safety",
-    "logistics": "Integrated logistics",
-    "negotiation": "In-platform negotiation",
-    "localPartners": "Find partners nearby"
+    "label": "Kodėl Swaply?",
+    "directSwap": "Tiesioginis apsikeitimas tarp žmonių",
+    "globalCommunity": "Pasaulinė bendruomenė",
+    "aiMatching": "Automatinis AI atitikimas",
+    "escrow": "Escrow saugumui",
+    "logistics": "Integruota logistika",
+    "negotiation": "Derybos platformoje",
+    "localPartners": "Raskite partnerius netoliese"
   },
   "premium": {
     "title": "Swaply Premium",
-    "subtitle": "Global visibility · Priority matching"
+    "subtitle": "Pasaulinė matomybė · Prioritetinis suderinimas"
   },
   "analytics": {
-    "title": "Analytics",
-    "loginRequired": "You must be logged in to view analytics.",
-    "dashboard": "Analytics Dashboard",
-    "upgradeToPremium": "Upgrade to Premium for full analytics access",
-    "noData": "No data",
-    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
-    "totalViews": "Total views",
-    "favoritesReceived": "Favorites received",
-    "proposalsReceived": "Proposals received",
-    "conversionRate": "Conversion rate",
-    "completedSwaps": "Completed swaps",
-    "avgTimeToProposal": "Avg time to proposal",
-    "viewsPerDay": "Views per day",
-    "last30Days": "Last 30 days",
-    "topItems": "Top items",
-    "byViews": "By number of views",
-    "insights": "Automated insights",
-    "insightsDesc": "Recommendations based on your data"
+    "title": "Analitika",
+    "loginRequired": "Turite būti prisijungę, kad peržiūrėtumėte analitikos duomenis.",
+    "dashboard": "Analitikos prietaisas",
+    "upgradeToPremium": "Pasiūlymas į Premium, kad gautumėte visą analitikos prieigą",
+    "noData": "Nėra duomenų",
+    "noDataDesc": "Analitikos duomenų dar nėra. Apsilankykite savo prekėse, kad pradėtumėte sekti.",
+    "totalViews": "Bendri peržiūros",
+    "favoritesReceived": "Gauti mėgstamiausiai",
+    "proposalsReceived": "Gautos pasiūlymai",
+    "conversionRate": "Konversijos koeficientas",
+    "completedSwaps": "Užbaigti mainai",
+    "avgTimeToProposal": "Vid. laikas iki pasiūlymo",
+    "viewsPerDay": "Peržiūros per dieną",
+    "last30Days": "Paskutinės 30 dienų",
+    "topItems": "Populiariausios prekės",
+    "byViews": "Pagal peržiūrų skaičių",
+    "insights": "Automatizuota analizė",
+    "insightsDesc": "Rekomendacijos pagal jūsų duomenis"
   },
   "share": {
-    "copied": "Copied!",
-    "copyLink": "Copy link"
+    "copied": "Nukopijuota!",
+    "copyLink": "Kopijuoti nuorodą"
   },
   "badge": {
-    "free": "Free",
+    "free": "Nemokama",
     "premium": "Premium",
     "platinum": "Platinum"
   }

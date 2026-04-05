@@ -46,8 +46,8 @@
     "myDesk": "Môj obchodný stôl",
     "myDeskDescription": "Sledujte aktívne výmeny, čakajúce akcie a termíny",
     "romania": "Rumunsko",
-    "user": "User",
-    "recommendedNextStep": "Recommended next step"
+    "user": "Používateľ",
+    "recommendedNextStep": "Odporúčaný ďalší krok"
   },
   "nav": {
     "home": "Domov",
@@ -76,7 +76,7 @@
     "badgeBenefits": "Výhody odznaku",
     "completeProfile": "Doplňte svoj profil",
     "desk": "Môj stôl",
-    "settings": "Settings"
+    "settings": "Nastavenia"
   },
   "notifications": {
     "title": "Oznámenia (like/záujem/chat/swaply)",
@@ -445,8 +445,8 @@
     "guestFeatureVerifyDesc": "Email, telefón a totožnosť — pre značku overeného používateľa.",
     "guestCta": "Vytvorte svoj bezplatný profil →",
     "networkError": "Chyba siete",
-    "passkeyRegFailed": "Passkey registration failed",
-    "genericError": "Error"
+    "passkeyRegFailed": "Registrácia Passkey zlyhala",
+    "genericError": "Chyba"
   },
   "home": {
     "welcome": "Vítame vás späť",
@@ -634,17 +634,17 @@
     "badgeProperty": "Nehnuteľnosť",
     "badgeService": "Služba",
     "condition_new": "New",
-    "condition_good": "Good",
-    "condition_like_new": "Like new",
-    "condition_fair": "Fair",
-    "condition_poor": "Poor",
-    "condition_used": "Used",
-    "condition_used_good": "Good condition",
+    "condition_good": "Ako nové",
+    "condition_like_new": "Slušný stav",
+    "condition_fair": "Férový",
+    "condition_poor": "Slabý",
+    "condition_used": "Použitý",
+    "condition_used_good": "Dobrom stave",
     "status_active": "Aktívny",
     "status_reserved": "Rezervovaný",
     "status_traded": "Vymenený",
     "status_paused": "Pozastavený",
-    "status_archived": "Archived",
+    "status_archived": "Archivovaný",
     "shareButton": "Zdieľať"
   },
   "objectDetail": {
@@ -1333,13 +1333,13 @@
     "digitalPdf": "PDF / QR kód",
     "digitalBookingRef": "Referenčné číslo rezervácie",
     "swapChat": "Swap Chat",
-    "chatEmpty": "No messages yet. Start the conversation!",
-    "chatPlaceholder": "Type a message...",
-    "statusAccepted": "Accepted",
-    "statusInProgress": "In progress",
-    "statusDeliveredA": "Delivered (1/2)",
-    "statusDeliveredB": "Delivered (2/2)",
-    "statusResolved": "Resolved"
+    "chatEmpty": "Zatiaľ žiadne správy. Začnite konverzáciu!",
+    "chatPlaceholder": "Napíšte správu...",
+    "statusAccepted": "Prijaté",
+    "statusInProgress": "Prebieha",
+    "statusDeliveredA": "Doručené (1/2)",
+    "statusDeliveredB": "Doručené (2/2)",
+    "statusResolved": "Vyriešené"
   },
   "info": {
     "title": "Swaply štatistiky",
@@ -1752,9 +1752,9 @@
     "mapTitle": "Mapa polohy",
     "noPins": "Žiadne piny na zobrazenie",
     "loading": "Načítavam mapu…",
-    "title": "Active users near you",
-    "liveBadge": "Live",
-    "guestTooltip": "Sign up to see who swaps in your area"
+    "title": "Aktívni používatelia blízko vás",
+    "liveBadge": "Naživo",
+    "guestTooltip": "Zaregistrujte sa, aby ste videli, kto si vymieňa v Vašej oblasti"
   },
   "location": {
     "country": "Krajina",
@@ -2196,7 +2196,7 @@
     "modalDescription": "Vytvorte si bezplatný účet na navrhovanie výmen, posielanie správ a začatie výmeny.",
     "modalCta": "Vytvoriť bezplatný účet",
     "modalDismiss": "Možno neskôr",
-    "haveAccount": "I already have an account"
+    "haveAccount": "Už mám účet"
   },
   "about": {
     "title": "O Swaply",
@@ -2352,8 +2352,8 @@
     "searchPrefix": "Hľadám:",
     "daysRemaining": "Zostáva {days} dní",
     "you": "You",
-    "userPrefix": "User",
-    "lookingFor": "Looking for"
+    "userPrefix": "Používateľ",
+    "lookingFor": "Hľadám"
   },
   "history": {
     "title": "História výmen",
@@ -2528,7 +2528,7 @@
     "boost_spent": "Zvýšenie utratené",
     "referral": "Referral",
     "monthly_grant": "Mesačný grant",
-    "admin_grant": "Admin grant",
+    "admin_grant": "Udelenie práv administrátora",
     "gift_sent": "Darček odoslaný",
     "gift_received": "Darček prijatý",
     "purchase": "Nákup",
@@ -2573,16 +2573,16 @@
     "ctaDescription": "Zoznamte svoje objekty a objavte, čo môžete získať výmenou.",
     "ctaButton": "Vyskúšajte Swaply zadarmo →",
     "metaDescription": "Články z kategórie \"{category}\" na blogu Swaply.",
-    "tableOfContents": "Table of Contents",
-    "guide": "Guide",
-    "tutorial": "Tutorial",
-    "inspiration": "Inspiration",
-    "sustainability": "Sustainability",
-    "safety": "Safety",
-    "technology": "Technology",
-    "trends": "Trends",
-    "community": "Community",
-    "product": "Product",
+    "tableOfContents": "Obsah",
+    "guide": "Sprievodca",
+    "tutorial": "Tutoriál",
+    "inspiration": "Inšpirácia",
+    "sustainability": "Udržateľnosť",
+    "safety": "Bezpečnosť",
+    "technology": "Technológia",
+    "trends": "Trendy",
+    "community": "Komunita",
+    "product": "Produkt",
     "allCategories": "All"
   },
   "push": {
@@ -2691,11 +2691,11 @@
     "allStatusFilter": "Všetky stavy",
     "allFilter": "All",
     "realFilter": "Skutočný",
-    "demoFilter": "Demo",
+    "demoFilter": "Ukážka",
     "noItems": "Žiadne položky s týmito filtrami.",
     "tableTitle": "Názov",
     "tableCategory": "Kategória",
-    "tableDemo": "Demo",
+    "tableDemo": "Ukážka",
     "tableActions": "Akcie",
     "deactivate": "Deaktivovať",
     "activate": "Aktivovať",
@@ -2974,7 +2974,7 @@
     "unexpectedError": "Neočakávaná chyba. Skúste znova.",
     "stripeUnavailable": "Stripe nie je dostupný",
     "securePayment": "Bezpečná platba cez Stripe. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "Boost 7 days",
+    "boost7days": "Boost 7 dní",
     "alreadyPurchased": "Už zakúpené",
     "boost24h": "Boost 24h",
     "boost72h": "Boost 72h"
@@ -3045,60 +3045,60 @@
     "settings": "Nastavenia cookies"
   },
   "branches": {
-    "tagline": "Swap what you have for what you need — objects, properties, services, and events.",
-    "objects": "Objects",
-    "objectsDesc": "Swap electronics, books, clothes, and more",
-    "properties": "Properties",
-    "propertiesDesc": "Exchange homes, apartments, and spaces",
-    "services": "Services",
-    "servicesDesc": "Trade skills, labor, and professional help",
-    "events": "Events",
-    "eventsDesc": "Swap tickets, reservations, and experiences",
-    "comingSoon": "This section is coming soon. Stay tuned!"
+    "tagline": "Vymeňte si to, čo máte, za to, čo potrebujete — predmety, nehnuteľnosti, služby a podujatia.",
+    "objects": "Objekty",
+    "objectsDesc": "Vymenujte si elektroniku, knihy, oblečenie a ľalšie",
+    "properties": "Nehnuteľnosti",
+    "propertiesDesc": "Vymenujte si domy, byty a priestory",
+    "services": "Služby",
+    "servicesDesc": "Vymenujte si zručnosti, prácu a profesionálnu pomoc",
+    "events": "Udalosti",
+    "eventsDesc": "Vymenujte si lístky, rezervácie a zážitky",
+    "comingSoon": "Táto sekcia bude čoskoro dostupná. Ostávajte naladení!"
   },
   "hero": {
-    "tagline": "Swap what you have for what you want"
+    "tagline": "Vymenujte si to, čo máte, za to, čo chcete"
   },
   "benefits": {
-    "label": "Why Swaply?",
-    "directSwap": "Direct swap between people",
-    "globalCommunity": "Global community",
-    "aiMatching": "Automatic AI matching",
-    "escrow": "Escrow for safety",
-    "logistics": "Integrated logistics",
-    "negotiation": "In-platform negotiation",
-    "localPartners": "Find partners nearby"
+    "label": "Prečo Swaply?",
+    "directSwap": "Priama výmena medzi ľuďmi",
+    "globalCommunity": "Globálna komunita",
+    "aiMatching": "Automatické párovanie pomocou AI",
+    "escrow": "Escrow pre bezpečnosť",
+    "logistics": "Integrovaná logistika",
+    "negotiation": "Vyjednávanie v platforme",
+    "localPartners": "Nájdite partnerov blízko vás"
   },
   "premium": {
     "title": "Swaply Premium",
-    "subtitle": "Global visibility · Priority matching"
+    "subtitle": "Globálna viditeľnosť · Prioritné párovanie"
   },
   "analytics": {
-    "title": "Analytics",
-    "loginRequired": "You must be logged in to view analytics.",
-    "dashboard": "Analytics Dashboard",
-    "upgradeToPremium": "Upgrade to Premium for full analytics access",
-    "noData": "No data",
-    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
-    "totalViews": "Total views",
-    "favoritesReceived": "Favorites received",
-    "proposalsReceived": "Proposals received",
-    "conversionRate": "Conversion rate",
-    "completedSwaps": "Completed swaps",
-    "avgTimeToProposal": "Avg time to proposal",
-    "viewsPerDay": "Views per day",
-    "last30Days": "Last 30 days",
-    "topItems": "Top items",
-    "byViews": "By number of views",
-    "insights": "Automated insights",
-    "insightsDesc": "Recommendations based on your data"
+    "title": "Analýza",
+    "loginRequired": "Musíte byť prihlásení, aby ste mohli zobraziť analýzu.",
+    "dashboard": "Panel Analytics",
+    "upgradeToPremium": "Upgradujte na Premium pre úplný prístup k analýze",
+    "noData": "Žiadne údaje",
+    "noDataDesc": "Zatiaľ žiadne údaje analýzy. Navštívite svoje položky a začnite sledovanie.",
+    "totalViews": "Celkový počet zobrazení",
+    "favoritesReceived": "Prijaté obľúbenia",
+    "proposalsReceived": "Prijaté návrhy",
+    "conversionRate": "Miera konverzie",
+    "completedSwaps": "Dokončené výmeny",
+    "avgTimeToProposal": "Priemerný čas do návrhu",
+    "viewsPerDay": "Zobrazení za deň",
+    "last30Days": "Posledných 30 dní",
+    "topItems": "Top položky",
+    "byViews": "Podľa počtu zobrazení",
+    "insights": "Automatizované poznatky",
+    "insightsDesc": "Odporúčania podľa vašich údajov"
   },
   "share": {
-    "copied": "Copied!",
-    "copyLink": "Copy link"
+    "copied": "Skopírované!",
+    "copyLink": "Kopírovať odkaz"
   },
   "badge": {
-    "free": "Free",
+    "free": "Zadarmo",
     "premium": "Premium",
     "platinum": "Platinum"
   }

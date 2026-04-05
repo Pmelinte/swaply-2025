@@ -46,8 +46,8 @@
     "myDesk": "מיין שוודל דעסק",
     "myDeskDescription": "טראַק אַקטיווע שוודלס, פּענדינג אַקשנס, און דעדלינס",
     "romania": "רומעניע",
-    "user": "User",
-    "recommendedNextStep": "Recommended next step"
+    "user": "נוצר",
+    "recommendedNextStep": "געריכטער נעקסטער שריט"
   },
   "nav": {
     "home": "הוים",
@@ -76,7 +76,7 @@
     "badgeBenefits": "באַדזש ווע הנאות",
     "completeProfile": "פאַלמאָלן דיין פּראָפיל",
     "desk": "מיין דעסק",
-    "settings": "Settings"
+    "settings": "סעטינגס"
   },
   "notifications": {
     "title": "מודעות",
@@ -474,8 +474,8 @@
     "badgeVerifiedUser": "פאראיביקט יוזער",
     "badgeIdentityConfirmed": "אידענטיטעט קאנפערמד",
     "networkError": "נעטװאָرק גרייַטש",
-    "passkeyRegFailed": "Passkey registration failed",
-    "genericError": "Error"
+    "passkeyRegFailed": "Passkey רעגיסטראציע נישלאגן",
+    "genericError": "פֿעלער"
   },
   "home": {
     "welcome": "װילקום צוריק",
@@ -663,17 +663,17 @@
     "badgeProperty": "פּראָפּערטי",
     "badgeService": "סערוויס",
     "condition_new": "New",
-    "condition_good": "Good",
-    "condition_like_new": "Like new",
-    "condition_fair": "Fair",
-    "condition_poor": "Poor",
-    "condition_used": "Used",
-    "condition_used_good": "Good condition",
+    "condition_good": "גוט",
+    "condition_like_new": "ווי נײַ",
+    "condition_fair": "פֿעיר",
+    "condition_poor": "שלעכט",
+    "condition_used": "געניצט",
+    "condition_used_good": "גוטע מדינה",
     "status_active": "אקטיוו",
     "status_reserved": "רעזערווירט",
     "status_traded": "אויסגעביטן",
     "status_paused": "פּויזירט",
-    "status_archived": "Archived",
+    "status_archived": "אַרכיווירט",
     "shareButton": "טיילן"
   },
   "objectDetail": {
@@ -1361,14 +1361,14 @@
     "digitalEmail": "באַשטעטיקונג ס״מ",
     "digitalPdf": "פּדף / קיו אַר קאָד",
     "digitalBookingRef": "בוקינג רעפערענץ",
-    "swapChat": "Swap Chat",
-    "chatEmpty": "No messages yet. Start the conversation!",
-    "chatPlaceholder": "Type a message...",
-    "statusAccepted": "Accepted",
-    "statusInProgress": "In progress",
-    "statusDeliveredA": "Delivered (1/2)",
-    "statusDeliveredB": "Delivered (2/2)",
-    "statusResolved": "Resolved"
+    "swapChat": "סוואַפּ טשאַט",
+    "chatEmpty": "קיין מেसעדזשן נאָך נישט. הייבן אָן די קאָנווערסאַציע!",
+    "chatPlaceholder": "שרײַב אַ מעסעדזש...",
+    "statusAccepted": "אַקצעפּטיד",
+    "statusInProgress": "אין פּראָצעס",
+    "statusDeliveredA": "דעליווערד (1/2)",
+    "statusDeliveredB": "דעליווערד (2/2)",
+    "statusResolved": "אויפגעלייזט"
   },
   "feedback": {
     "title": "פידבעק",
@@ -1819,9 +1819,9 @@
     "mapTitle": "אָרט קאַרטע",
     "noPins": "קיין פּינס צו ווייזן",
     "loading": "קאַרטע לאָדט…",
-    "title": "Active users near you",
-    "liveBadge": "Live",
-    "guestTooltip": "Sign up to see who swaps in your area"
+    "title": "אַקטיווע יוזערס נאָענט בײַ דיר",
+    "liveBadge": "לייווע",
+    "guestTooltip": "שרײַב דיך אַן צו זען וואָס סוואַפּס אין דײַן געגנט"
   },
   "location": {
     "country": "לאַנד",
@@ -2044,7 +2044,7 @@
     "modalDescription": "שאַפן אַ פריי קאָנטאָ צו פּראָפּאָז סוואַפּס, שיקן מעססידזשס, און סטאַרט עקסטשיינדזשינג.",
     "modalCta": "שאַפן פריי קאָנטאָ",
     "modalDismiss": "עפשר שפּעטער",
-    "haveAccount": "I already have an account"
+    "haveAccount": "איך האָב שוין אַ קאָנטע"
   },
   "onboarding": {
     "step1Title": "אַרײַנשטעלן דײַנע זאַכן",
@@ -2379,8 +2379,8 @@
     "searchPrefix": "זוכן אחרי:",
     "daysRemaining": "{days} טעג לינקס",
     "you": "You",
-    "userPrefix": "User",
-    "lookingFor": "Looking for"
+    "userPrefix": "באָניצער",
+    "lookingFor": "זוכן אַ"
   },
   "history": {
     "title": "סוואפ היסטאָריע",
@@ -2571,16 +2571,16 @@
     "ctaDescription": "ליסט דיינע אָבייעקטן און דיסקאָװער וואָס דו קענסט באַקומען אין אַקסטשेינג.",
     "ctaButton": "פּרוּבירן סווייפּלי פֿריי →",
     "metaDescription": "אַרטיקלען פֿון דער \"{category}\" קאַטעגאָריע אויף דעם סווייפּלי בלאָג.",
-    "tableOfContents": "Table of Contents",
-    "guide": "Guide",
-    "tutorial": "Tutorial",
-    "inspiration": "Inspiration",
-    "sustainability": "Sustainability",
-    "safety": "Safety",
-    "technology": "Technology",
-    "trends": "Trends",
-    "community": "Community",
-    "product": "Product",
+    "tableOfContents": "אינהאַלטס טאָבל",
+    "guide": "גיד",
+    "tutorial": "לערנטוטאָריאַל",
+    "inspiration": "ינספיראַציע",
+    "sustainability": "סוסטיינאַביליטי",
+    "safety": "זיכערקייט",
+    "technology": "טעכנאָלאָגיע",
+    "trends": "טרענדס",
+    "community": "קהל",
+    "product": "פּראָדוקט",
     "allCategories": "All"
   },
   "push": {
@@ -2736,31 +2736,31 @@
     "byCity": "{category} לאַך שטאָט"
   },
   "categories": {
-    "electronics": "Electronics",
-    "sport": "Sports",
-    "arts": "Art & Hobby",
-    "books": "Books",
-    "home": "Home",
-    "fashion": "Fashion",
-    "automotive": "Auto",
-    "music": "Music",
-    "garden": "Garden",
-    "toys": "Toys",
-    "tools": "Tools",
-    "other": "Other",
-    "sports_outdoor": "Sports & Outdoor",
-    "hobby_games": "Hobbies & Games",
-    "books_media": "Books & Media",
-    "home_garden": "Home & Garden",
-    "fashion_accessories": "Fashion & Accessories",
-    "auto_moto": "Auto & Moto",
-    "music_audio": "Music & Audio",
-    "gardening_outdoor": "Gardening & Outdoor",
-    "toys_kids": "Toys & Kids",
-    "tools_diy": "Tools & DIY",
-    "vehicles": "Vehicles",
-    "experiences": "Experiences",
-    "medical": "Medical Equipment"
+    "electronics": "עלעקטראָניקס",
+    "sport": "שפּארט",
+    "arts": "קונסט און האָבי",
+    "books": "בוכער",
+    "home": "היים",
+    "fashion": "מאָד",
+    "automotive": "אָטאָ",
+    "music": "מוזיק",
+    "garden": "גאָרטן",
+    "toys": "שפּילצייג",
+    "tools": "טולס",
+    "other": "אַנדערש",
+    "sports_outdoor": "ספּאָרט און אַודער",
+    "hobby_games": "האָביז און שפּילן",
+    "books_media": "בוכער און מעדיע",
+    "home_garden": "היים און גאָרטן",
+    "fashion_accessories": "מאָד און אַקסעסאָריז",
+    "auto_moto": "אָטאָ און מאָטאָ",
+    "music_audio": "מוזיק און אַודיאָ",
+    "gardening_outdoor": "גאָרטנינג און אַודער",
+    "toys_kids": "שפּילצייג און קינדער",
+    "tools_diy": "טולס און DIY",
+    "vehicles": "פארצייגן",
+    "experiences": "עקספּעריענצן",
+    "medical": "מעדיציניש אויסרוסטונג"
   },
   "trustScore": {
     "trustScoreTitle": "גלויבונג סקור",
@@ -2972,10 +2972,10 @@
     "unexpectedError": "אומצוערוואָרטע טעות. פּרובירט אָפּן מאָל.",
     "stripeUnavailable": "סטריפּ איז נישט פאַראַוועילעך",
     "securePayment": "זיכער פּיימענט דורך סטריפּ. וויזע, מאַסטערקאַרד, אַפּל פּיי, גוגל פּיי.",
-    "boost7days": "Boost 7 days",
+    "boost7days": "באָאָסט 7 טאָג",
     "alreadyPurchased": "שוין קויפט",
-    "boost24h": "Boost 24h",
-    "boost72h": "Boost 72h"
+    "boost24h": "באָאָסט 24 שעה",
+    "boost72h": "באָאָסט 72 שעה"
   },
   "payments": {
     "paymentMethod": "צאָלונגס מעטאָדע",
@@ -3037,66 +3037,66 @@
     "expiresIn": "פארלויפט אין {days} טאָג"
   },
   "cookieConsent": {
-    "message": "We use cookies to improve your experience. Essential cookies are always active. Non-essential cookies help us analyze traffic and personalize content.",
-    "accept": "Accept all",
-    "reject": "Reject non-essential",
-    "settings": "Cookie settings"
+    "message": "מיר נוצן קוקיז כדי פארבעסערן דיין עקספּעריענץ. עסנציאַלע קוקיז זענען אַלװײ אַקטיװ. ניט-עסנציאַלע קוקיז העלפן אונדז אַנאַליזירן תנועה און פּערזאָנאַליזירן אינהאַלט.",
+    "accept": "אַקסעפּט אַלץ",
+    "reject": "אָפּלייַנען ניט-עסנציאַלע",
+    "settings": "קוקי סעטינגס"
   },
   "branches": {
-    "tagline": "Swap what you have for what you need — objects, properties, services, and events.",
-    "objects": "Objects",
-    "objectsDesc": "Swap electronics, books, clothes, and more",
-    "properties": "Properties",
-    "propertiesDesc": "Exchange homes, apartments, and spaces",
-    "services": "Services",
-    "servicesDesc": "Trade skills, labor, and professional help",
-    "events": "Events",
-    "eventsDesc": "Swap tickets, reservations, and experiences",
-    "comingSoon": "This section is coming soon. Stay tuned!"
+    "tagline": "סוואַפּ וואָס דו האָסט פֿאַר וואָס דו דארפסט — אָבייעקטן, פּראָפּערטיז, סערװיסেס און ײ אַנטשטאָס.",
+    "objects": "אָבייעקטן",
+    "objectsDesc": "סוואַפּ עלעקטראָניק, בֿיכער, קלּייַדער און מער",
+    "properties": "פּראָפּערטיז",
+    "propertiesDesc": "עקסטשיינדזש הומז, אַפּאַרטמענטס און שפּאַסן",
+    "services": "סערװיסেס",
+    "servicesDesc": "טרייד סקילס, לייבור און פּראָפֿעשאנאַל העלפּ",
+    "events": "אַנטשטאָס",
+    "eventsDesc": "סוואַפּ טיקעטס, רעזערװיישנס און עקספּעריענצן",
+    "comingSoon": "דער סעקשן קומט באַלד. בלייב אויפֿמערקזאַם!"
   },
   "hero": {
-    "tagline": "Swap what you have for what you want"
+    "tagline": "סוואַפּ וואָס דו האָסט פֿאַר וואָס דו ווילסט"
   },
   "benefits": {
-    "label": "Why Swaply?",
-    "directSwap": "Direct swap between people",
-    "globalCommunity": "Global community",
-    "aiMatching": "Automatic AI matching",
-    "escrow": "Escrow for safety",
-    "logistics": "Integrated logistics",
-    "negotiation": "In-platform negotiation",
-    "localPartners": "Find partners nearby"
+    "label": "פּאַרװאָס Swaply?",
+    "directSwap": "דירעקט סוואַפּ צװישן מענשן",
+    "globalCommunity": "גלובאלע קהילה",
+    "aiMatching": "אָטאַמאַטישע AI מאַטשינג",
+    "escrow": "Escrow פֿאַר זיכערקייט",
+    "logistics": "ינטעגרירטע לאַדזשיסטיקס",
+    "negotiation": "פֿאַרהאַנדלונג אין פּלאַטפֿאָרם",
+    "localPartners": "געפֿינען פּאַרטנערס נאָענט"
   },
   "premium": {
     "title": "Swaply Premium",
-    "subtitle": "Global visibility · Priority matching"
+    "subtitle": "גלובאלע זיכטבארקייט · פּריאָריטעט מאַטשינג"
   },
   "analytics": {
-    "title": "Analytics",
-    "loginRequired": "You must be logged in to view analytics.",
-    "dashboard": "Analytics Dashboard",
-    "upgradeToPremium": "Upgrade to Premium for full analytics access",
-    "noData": "No data",
-    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
-    "totalViews": "Total views",
-    "favoritesReceived": "Favorites received",
-    "proposalsReceived": "Proposals received",
-    "conversionRate": "Conversion rate",
-    "completedSwaps": "Completed swaps",
-    "avgTimeToProposal": "Avg time to proposal",
-    "viewsPerDay": "Views per day",
-    "last30Days": "Last 30 days",
-    "topItems": "Top items",
-    "byViews": "By number of views",
-    "insights": "Automated insights",
-    "insightsDesc": "Recommendations based on your data"
+    "title": "אַנאַליטיקס",
+    "loginRequired": "דו מוסט אַריינגעלאָגט זיין צו זען אַנאַליטיקס",
+    "dashboard": "אַנאַליטיקס דאַשבאָרד",
+    "upgradeToPremium": "אַפּגריידן צו Premium פֿאַר פֿול אַנאַליטיקס אַקסעס",
+    "noData": "קײן דאַטן",
+    "noDataDesc": "קײן אַנאַליטיקס דאַטן ביז יעצט. באזוך דיין איטעמס צו אָנהייבן טראַקינג",
+    "totalViews": "גאַנצע ווויז",
+    "favoritesReceived": "פּייוערז באקומען",
+    "proposalsReceived": "פּראָפּאָזאַלז באקומען",
+    "conversionRate": "קאָנווערשן רייט",
+    "completedSwaps": "קאָמפּליטיד סוואַפּס",
+    "avgTimeToProposal": "אַװג. צײַט צו פּראָפּאָזאַל",
+    "viewsPerDay": "אַנסיכטן פּער טאָג",
+    "last30Days": "לעצטע 30 טעג",
+    "topItems": "טופּ פריימען",
+    "byViews": "נאך אַנצאָל אַנסיכטן",
+    "insights": "אָטאָמאטישע אינסיטס",
+    "insightsDesc": "רעקאָמענדאַציעס בעזירט אויף דײַן דאַטן"
   },
   "share": {
-    "copied": "Copied!",
-    "copyLink": "Copy link"
+    "copied": "קאָפּירט!",
+    "copyLink": "קאָפּיר לינק"
   },
   "badge": {
-    "free": "Free",
+    "free": "פריי",
     "premium": "Premium",
     "platinum": "Platinum"
   }

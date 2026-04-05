@@ -46,8 +46,8 @@
     "myDesk": "Meja Pertukaran Saya",
     "myDeskDescription": "Lacak pertukaran aktif, tindakan tertunda, dan tenggat waktu",
     "romania": "Rumania",
-    "user": "User",
-    "recommendedNextStep": "Recommended next step"
+    "user": "Pengguna",
+    "recommendedNextStep": "Langkah selanjutnya yang disarankan"
   },
   "nav": {
     "home": "Beranda",
@@ -76,7 +76,7 @@
     "badgeBenefits": "Manfaat lencana",
     "completeProfile": "Lengkapi profil Anda",
     "desk": "Meja Saya",
-    "settings": "Settings"
+    "settings": "Pengaturan"
   },
   "notifications": {
     "title": "Notifikasi (suka/minat/chat/swaply)",
@@ -445,8 +445,8 @@
     "guestFeatureVerifyDesc": "Email, telepon, dan identitas — untuk lencana pengguna terverifikasi.",
     "guestCta": "Buat profil gratis Anda →",
     "networkError": "Kesalahan jaringan",
-    "passkeyRegFailed": "Passkey registration failed",
-    "genericError": "Error"
+    "passkeyRegFailed": "Pendaftaran Passkey gagal",
+    "genericError": "Kesalahan"
   },
   "home": {
     "welcome": "Selamat datang kembali",
@@ -634,17 +634,17 @@
     "badgeProperty": "Properti",
     "badgeService": "Layanan",
     "condition_new": "New",
-    "condition_good": "Good",
-    "condition_like_new": "Like new",
-    "condition_fair": "Fair",
-    "condition_poor": "Poor",
-    "condition_used": "Used",
-    "condition_used_good": "Good condition",
+    "condition_good": "Seperti baru",
+    "condition_like_new": "Cukup baik",
+    "condition_fair": "Layak pakai",
+    "condition_poor": "Buruk",
+    "condition_used": "Bekas",
+    "condition_used_good": "Kondisi baik",
     "status_active": "Aktif",
     "status_reserved": "Dipesan",
     "status_traded": "Ditukar",
     "status_paused": "Dijeda",
-    "status_archived": "Archived",
+    "status_archived": "Diarsipkan",
     "shareButton": "Bagikan"
   },
   "objectDetail": {
@@ -682,7 +682,7 @@
     "valueSmall": "Kecil",
     "valueMedium": "Sedang",
     "valueLarge": "Besar",
-    "valueSentimental": "Sentimental",
+    "valueSentimental": "Berkesan",
     "clarity": "Kejelasan",
     "clarityExploring": "Menjelajahi",
     "clarityHaveIdea": "Memiliki ide",
@@ -1111,7 +1111,7 @@
     "serviceHoursPerWeek": "Jam tersedia per minggu",
     "servicePortfolioLink": "Portofolio / contoh",
     "servicePortfolioPlaceholder": "Tautan ke portofolio, GitHub, Instagram, dll.",
-    "serviceTimeBank": "Time Banking",
+    "serviceTimeBank": "Perbankan Waktu",
     "serviceTimeBankDesc": "1 jam layanan apa pun = 1 jam layanan apa pun. Pertukaran yang adil berdasarkan waktu, bukan nilai pasar.",
     "svcTimeEarned": "Jam yang diperoleh",
     "svcTimeSpent": "Jam yang dihabiskan",
@@ -1333,13 +1333,13 @@
     "digitalPdf": "PDF / kode QR",
     "digitalBookingRef": "Referensi pemesanan",
     "swapChat": "Swap Chat",
-    "chatEmpty": "No messages yet. Start the conversation!",
-    "chatPlaceholder": "Type a message...",
-    "statusAccepted": "Accepted",
-    "statusInProgress": "In progress",
-    "statusDeliveredA": "Delivered (1/2)",
-    "statusDeliveredB": "Delivered (2/2)",
-    "statusResolved": "Resolved"
+    "chatEmpty": "Belum ada pesan. Mulai percakapan!",
+    "chatPlaceholder": "Ketik pesan...",
+    "statusAccepted": "Diterima",
+    "statusInProgress": "Sedang berlangsung",
+    "statusDeliveredA": "Terkirim (1/2)",
+    "statusDeliveredB": "Terkirim (2/2)",
+    "statusResolved": "Diselesaikan"
   },
   "info": {
     "title": "Statistik Swaply",
@@ -1414,7 +1414,7 @@
     "tokensNone": "10",
     "tokensSilver": "50",
     "tokensGold": "200",
-    "tokensPlatinum": "Unlimited",
+    "tokensPlatinum": "Tidak terbatas",
     "faq": "Pertanyaan yang Sering Diajukan",
     "faqDescription": "Pertanyaan umum tentang Swaply",
     "faqQ1": "How does swapping work?",
@@ -1752,9 +1752,9 @@
     "mapTitle": "Peta lokasi",
     "noPins": "Tidak ada pin untuk ditampilkan",
     "loading": "Memuat peta…",
-    "title": "Active users near you",
+    "title": "Pengguna aktif di dekat Anda",
     "liveBadge": "Live",
-    "guestTooltip": "Sign up to see who swaps in your area"
+    "guestTooltip": "Daftar untuk melihat siapa yang bertukar di area Anda"
   },
   "location": {
     "country": "Negara",
@@ -2196,7 +2196,7 @@
     "modalDescription": "Buat akun gratis untuk mengusulkan pertukaran, mengirim pesan, dan mulai bertukar.",
     "modalCta": "Buat akun gratis",
     "modalDismiss": "Mungkin nanti",
-    "haveAccount": "I already have an account"
+    "haveAccount": "Saya sudah memiliki akun"
   },
   "about": {
     "title": "Tentang Swaply",
@@ -2352,8 +2352,8 @@
     "searchPrefix": "Mencari:",
     "daysRemaining": "{days} hari tersisa",
     "you": "You",
-    "userPrefix": "User",
-    "lookingFor": "Looking for"
+    "userPrefix": "Pengguna",
+    "lookingFor": "Mencari"
   },
   "history": {
     "title": "Riwayat Tukar",
@@ -2573,16 +2573,16 @@
     "ctaDescription": "Daftarkan objek Anda dan temukan apa yang bisa Anda dapatkan sebagai tukarannya.",
     "ctaButton": "Coba Swaply gratis →",
     "metaDescription": "Artikel dari kategori \"{category}\" di blog Swaply.",
-    "tableOfContents": "Table of Contents",
-    "guide": "Guide",
+    "tableOfContents": "Daftar Isi",
+    "guide": "Panduan",
     "tutorial": "Tutorial",
-    "inspiration": "Inspiration",
-    "sustainability": "Sustainability",
-    "safety": "Safety",
-    "technology": "Technology",
-    "trends": "Trends",
-    "community": "Community",
-    "product": "Product",
+    "inspiration": "Inspirasi",
+    "sustainability": "Keberlanjutan",
+    "safety": "Keselamatan",
+    "technology": "Teknologi",
+    "trends": "Tren",
+    "community": "Komunitas",
+    "product": "Produk",
     "allCategories": "All"
   },
   "push": {
@@ -2738,31 +2738,31 @@
     "byCity": "{category} berdasarkan kota"
   },
   "categories": {
-    "electronics": "Electronics",
-    "sport": "Sports",
-    "arts": "Art & Hobby",
-    "books": "Books",
-    "home": "Home",
+    "electronics": "Elektronik",
+    "sport": "Olahraga",
+    "arts": "Seni & Hobi",
+    "books": "Buku",
+    "home": "Rumah",
     "fashion": "Fashion",
-    "automotive": "Auto",
-    "music": "Music",
-    "garden": "Garden",
-    "toys": "Toys",
-    "tools": "Tools",
-    "other": "Other",
-    "sports_outdoor": "Sports & Outdoor",
-    "hobby_games": "Hobbies & Games",
-    "books_media": "Books & Media",
-    "home_garden": "Home & Garden",
-    "fashion_accessories": "Fashion & Accessories",
-    "auto_moto": "Auto & Moto",
-    "music_audio": "Music & Audio",
-    "gardening_outdoor": "Gardening & Outdoor",
-    "toys_kids": "Toys & Kids",
-    "tools_diy": "Tools & DIY",
-    "vehicles": "Vehicles",
-    "experiences": "Experiences",
-    "medical": "Medical Equipment"
+    "automotive": "Otomotif",
+    "music": "Musik",
+    "garden": "Taman",
+    "toys": "Mainan",
+    "tools": "Alat",
+    "other": "Lainnya",
+    "sports_outdoor": "Olahraga & Outdoor",
+    "hobby_games": "Hobi & Permainan",
+    "books_media": "Buku & Media",
+    "home_garden": "Rumah & Taman",
+    "fashion_accessories": "Fashion & Aksesori",
+    "auto_moto": "Otomotif & Motor",
+    "music_audio": "Musik & Audio",
+    "gardening_outdoor": "Berkebun & Outdoor",
+    "toys_kids": "Mainan & Anak-anak",
+    "tools_diy": "Alat & DIY",
+    "vehicles": "Kendaraan",
+    "experiences": "Pengalaman",
+    "medical": "Peralatan Medis"
   },
   "trustScore": {
     "trustScoreTitle": "Skor kepercayaan",
@@ -2974,10 +2974,10 @@
     "unexpectedError": "Kesalahan yang tidak terduga. Coba lagi.",
     "stripeUnavailable": "Stripe tidak tersedia",
     "securePayment": "Pembayaran aman melalui Stripe. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "Boost 7 days",
+    "boost7days": "Boost 7 hari",
     "alreadyPurchased": "Sudah dibeli",
-    "boost24h": "Boost 24h",
-    "boost72h": "Boost 72h"
+    "boost24h": "Boost 24 jam",
+    "boost72h": "Boost 72 jam"
   },
   "payments": {
     "paymentMethod": "Metode pembayaran",
@@ -3039,66 +3039,66 @@
     "expiresIn": "Berakhir dalam {days} hari"
   },
   "cookieConsent": {
-    "message": "We use cookies to improve your experience. Essential cookies are always active. Non-essential cookies help us analyze traffic and personalize content.",
-    "accept": "Accept all",
-    "reject": "Reject non-essential",
-    "settings": "Cookie settings"
+    "message": "Kami menggunakan cookie untuk meningkatkan pengalaman Anda. Cookie esensial selalu aktif. Cookie non-esensial membantu kami menganalisis lalu lintas dan mempersonalisasi konten.",
+    "accept": "Terima semua",
+    "reject": "Tolak non-esensial",
+    "settings": "Pengaturan cookie"
   },
   "branches": {
-    "tagline": "Swap what you have for what you need — objects, properties, services, and events.",
-    "objects": "Objects",
-    "objectsDesc": "Swap electronics, books, clothes, and more",
-    "properties": "Properties",
-    "propertiesDesc": "Exchange homes, apartments, and spaces",
-    "services": "Services",
-    "servicesDesc": "Trade skills, labor, and professional help",
-    "events": "Events",
-    "eventsDesc": "Swap tickets, reservations, and experiences",
-    "comingSoon": "This section is coming soon. Stay tuned!"
+    "tagline": "Tukarkan apa yang Anda miliki dengan apa yang Anda butuhkan — barang, properti, layanan, dan acara.",
+    "objects": "Barang",
+    "objectsDesc": "Tukarkan elektronik, buku, pakaian, dan lainnya",
+    "properties": "Properti",
+    "propertiesDesc": "Tukarkan rumah, apartemen, dan ruang",
+    "services": "Layanan",
+    "servicesDesc": "Tukarkan keterampilan, tenaga kerja, dan bantuan profesional",
+    "events": "Acara",
+    "eventsDesc": "Tukarkan tiket, reservasi, dan pengalaman",
+    "comingSoon": "Bagian ini akan segera hadir. Nantikan!"
   },
   "hero": {
-    "tagline": "Swap what you have for what you want"
+    "tagline": "Tukarkan apa yang Anda miliki dengan apa yang Anda inginkan"
   },
   "benefits": {
-    "label": "Why Swaply?",
-    "directSwap": "Direct swap between people",
-    "globalCommunity": "Global community",
-    "aiMatching": "Automatic AI matching",
-    "escrow": "Escrow for safety",
-    "logistics": "Integrated logistics",
-    "negotiation": "In-platform negotiation",
-    "localPartners": "Find partners nearby"
+    "label": "Mengapa Swaply?",
+    "directSwap": "Tukar langsung antar pengguna",
+    "globalCommunity": "Komunitas global",
+    "aiMatching": "Pencocokan AI otomatis",
+    "escrow": "Escrow untuk keamanan",
+    "logistics": "Logistik terintegrasi",
+    "negotiation": "Negosiasi dalam platform",
+    "localPartners": "Temukan mitra terdekat"
   },
   "premium": {
     "title": "Swaply Premium",
-    "subtitle": "Global visibility · Priority matching"
+    "subtitle": "Visibilitas global · Pencocokan prioritas"
   },
   "analytics": {
-    "title": "Analytics",
-    "loginRequired": "You must be logged in to view analytics.",
-    "dashboard": "Analytics Dashboard",
-    "upgradeToPremium": "Upgrade to Premium for full analytics access",
-    "noData": "No data",
-    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
-    "totalViews": "Total views",
-    "favoritesReceived": "Favorites received",
-    "proposalsReceived": "Proposals received",
-    "conversionRate": "Conversion rate",
-    "completedSwaps": "Completed swaps",
-    "avgTimeToProposal": "Avg time to proposal",
-    "viewsPerDay": "Views per day",
-    "last30Days": "Last 30 days",
-    "topItems": "Top items",
-    "byViews": "By number of views",
-    "insights": "Automated insights",
-    "insightsDesc": "Recommendations based on your data"
+    "title": "Analitik",
+    "loginRequired": "Anda harus login untuk melihat analitik.",
+    "dashboard": "Dasbor Analitik",
+    "upgradeToPremium": "Upgrade ke Premium untuk akses analitik lengkap",
+    "noData": "Tidak ada data",
+    "noDataDesc": "Belum ada data analitik. Kunjungi item Anda untuk mulai melacak.",
+    "totalViews": "Total tampilan",
+    "favoritesReceived": "Favorit diterima",
+    "proposalsReceived": "Proposal diterima",
+    "conversionRate": "Tingkat konversi",
+    "completedSwaps": "Swap selesai",
+    "avgTimeToProposal": "Waktu rata-rata untuk proposal",
+    "viewsPerDay": "Tampilan per hari",
+    "last30Days": "30 hari terakhir",
+    "topItems": "Item teratas",
+    "byViews": "Berdasarkan jumlah tampilan",
+    "insights": "Wawasan otomatis",
+    "insightsDesc": "Rekomendasi berdasarkan data Anda"
   },
   "share": {
-    "copied": "Copied!",
-    "copyLink": "Copy link"
+    "copied": "Disalin!",
+    "copyLink": "Salin tautan"
   },
   "badge": {
-    "free": "Free",
+    "free": "Gratis",
     "premium": "Premium",
     "platinum": "Platinum"
   }

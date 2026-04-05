@@ -46,8 +46,8 @@
     "myDesk": "Мой стол обменов",
     "myDeskDescription": "Отслеживайте активные обмены, ожидающие действия и сроки",
     "romania": "Румыния",
-    "user": "User",
-    "recommendedNextStep": "Recommended next step"
+    "user": "Пользователь",
+    "recommendedNextStep": "Рекомендуемый следующий шаг"
   },
   "nav": {
     "home": "Главная",
@@ -817,14 +817,14 @@
     "guestFeatureLocationDesc": "Мы приоритизируем совпадения из вашего района для быстрых личных обменов.",
     "guestFeatureCategory": "Категория и стоимость",
     "guestFeatureCategoryDesc": "Алгоритм учитывает желаемую категорию и предполагаемую стоимость товаров.",
-    "guestDemo1Title": "Lenovo ThinkPad Laptop",
+    "guestDemo1Title": "Ноутбук Lenovo ThinkPad",
     "guestDemo1Swap": "iPhone 13 Pro",
     "guestDemo1Location": "Клуж-Напока",
     "guestDemo2Title": "Canon EOS 250D",
     "guestDemo2Swap": "DJI Mini 3",
     "guestDemo2Location": "Бухарест",
-    "guestDemo3Title": "Fender Guitar",
-    "guestDemo3Swap": "Marshall Speakers",
+    "guestDemo3Title": "Гитара Fender",
+    "guestDemo3Swap": "Акустические системы Marshall",
     "guestDemo3Location": "Тимишоара",
     "guestBtnAccept": "Принять совпадение",
     "guestBtnSkip": "Пропустить",
@@ -1333,13 +1333,13 @@
     "digitalPdf": "PDF / QR-код",
     "digitalBookingRef": "Номер бронирования",
     "swapChat": "Swap Chat",
-    "chatEmpty": "No messages yet. Start the conversation!",
-    "chatPlaceholder": "Type a message...",
-    "statusAccepted": "Accepted",
-    "statusInProgress": "In progress",
-    "statusDeliveredA": "Delivered (1/2)",
-    "statusDeliveredB": "Delivered (2/2)",
-    "statusResolved": "Resolved"
+    "chatEmpty": "Нет сообщений. Начните разговор!",
+    "chatPlaceholder": "Введите сообщение...",
+    "statusAccepted": "Принято",
+    "statusInProgress": "В процессе",
+    "statusDeliveredA": "Доставлено (1/2)",
+    "statusDeliveredB": "Доставлено (2/2)",
+    "statusResolved": "Решено"
   },
   "info": {
     "title": "Статистика Swaply",
@@ -1752,9 +1752,9 @@
     "mapTitle": "Карта местоположений",
     "noPins": "Нет меток для отображения",
     "loading": "Загрузка карты…",
-    "title": "Active users near you",
-    "liveBadge": "Live",
-    "guestTooltip": "Sign up to see who swaps in your area"
+    "title": "Активные пользователи рядом с вами",
+    "liveBadge": "Онлайн",
+    "guestTooltip": "Зарегистрируйтесь, чтобы увидеть, кто обменивается в вашем районе"
   },
   "location": {
     "country": "Страна",
@@ -2974,10 +2974,10 @@
     "unexpectedError": "Непредвиденная ошибка. Попробуйте еще раз.",
     "stripeUnavailable": "Stripe недоступен",
     "securePayment": "Безопасный платеж через Stripe. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "Boost 7 days",
+    "boost7days": "Boost 7 дней",
     "alreadyPurchased": "Уже куплено",
-    "boost24h": "Boost 24h",
-    "boost72h": "Boost 72h"
+    "boost24h": "Boost 24ч",
+    "boost72h": "Boost 72ч"
   },
   "payments": {
     "paymentMethod": "Способ оплаты",
@@ -3094,8 +3094,8 @@
     "insightsDesc": "Рекомендации на основе ваших данных"
   },
   "share": {
-    "copied": "Copied!",
-    "copyLink": "Copy link"
+    "copied": "Скопировано!",
+    "copyLink": "Скопировать ссылку"
   },
   "badge": {
     "free": "Free",

@@ -46,8 +46,8 @@
     "myDesk": "میز تبادل من",
     "myDeskDescription": "تبادل‌های فعال، اقدام‌های در انتظار و ضرب‌الآجل‌ها را ردیابی کنید",
     "romania": "رومانی",
-    "user": "User",
-    "recommendedNextStep": "Recommended next step"
+    "user": "کاربر",
+    "recommendedNextStep": "مرحله بعدی توصیه شده"
   },
   "nav": {
     "home": "خانه",
@@ -76,7 +76,7 @@
     "badgeBenefits": "مزایای نشان",
     "completeProfile": "پروفایل خود را تکمیل کنید",
     "desk": "میز من",
-    "settings": "Settings"
+    "settings": "تنظیمات"
   },
   "notifications": {
     "title": "اعلان‌ها (لایک/علاقه/چت/سواپلی)",
@@ -445,8 +445,8 @@
     "guestFeatureVerifyDesc": "ایمیل، تلفن، و شناسایی — برای نشان کاربر تأیید شده.",
     "guestCta": "پروفایل رایگان خود را ایجاد کنید →",
     "networkError": "خطا در شبکه",
-    "passkeyRegFailed": "Passkey registration failed",
-    "genericError": "Error"
+    "passkeyRegFailed": "ثبت Passkey ناموفق بود",
+    "genericError": "خطا"
   },
   "home": {
     "welcome": "خوش آمدید",
@@ -634,17 +634,17 @@
     "badgeProperty": "ویژگی",
     "badgeService": "خدمت",
     "condition_new": "New",
-    "condition_good": "Good",
-    "condition_like_new": "Like new",
-    "condition_fair": "Fair",
-    "condition_poor": "Poor",
-    "condition_used": "Used",
-    "condition_used_good": "Good condition",
+    "condition_good": "عالی",
+    "condition_like_new": "مثل جدید",
+    "condition_fair": "متوسط",
+    "condition_poor": "ضعیف",
+    "condition_used": "استفاده شده",
+    "condition_used_good": "وضعیت خوب",
     "status_active": "فعال",
     "status_reserved": "رزرو شده",
     "status_traded": "مبادله شده",
     "status_paused": "متوقف",
-    "status_archived": "Archived",
+    "status_archived": "بایگانی شده",
     "shareButton": "اشتراک"
   },
   "objectDetail": {
@@ -818,8 +818,8 @@
     "guestFeatureCategory": "دسته‌بندی و ارزش",
     "guestFeatureCategoryDesc": "الگوریتم دسته‌بندی دلخواه و ارزش تخمینی اقلام را در نظر می‌گیرد.",
     "guestDemo1Title": "لپ‌تاپ Lenovo ThinkPad",
-    "guestDemo1Swap": "iPhone 13 Pro",
-    "guestDemo1Location": "Cluj-Napoca",
+    "guestDemo1Swap": "آیفون 13 پرو",
+    "guestDemo1Location": "کلوج-نپوکا",
     "guestDemo2Title": "Canon EOS 250D",
     "guestDemo2Swap": "DJI Mini 3",
     "guestDemo2Location": "بوخارست",
@@ -1333,13 +1333,13 @@
     "digitalPdf": "PDF / کد QR",
     "digitalBookingRef": "مرجع رزرو",
     "swapChat": "Swap Chat",
-    "chatEmpty": "No messages yet. Start the conversation!",
-    "chatPlaceholder": "Type a message...",
-    "statusAccepted": "Accepted",
-    "statusInProgress": "In progress",
-    "statusDeliveredA": "Delivered (1/2)",
-    "statusDeliveredB": "Delivered (2/2)",
-    "statusResolved": "Resolved"
+    "chatEmpty": "هنوز پیامی نیست. گفتگو را شروع کنید!",
+    "chatPlaceholder": "یک پیام بنویسید...",
+    "statusAccepted": "پذیرفته شده",
+    "statusInProgress": "در حال انجام",
+    "statusDeliveredA": "تحویل داده شده (1/2)",
+    "statusDeliveredB": "تحویل داده شده (2/2)",
+    "statusResolved": "حل شده"
   },
   "info": {
     "title": "آمار سواپلی",
@@ -1410,7 +1410,7 @@
     "tierFree": "رایگان",
     "tierSilver": "نقره‌ای",
     "tierGold": "طلایی",
-    "tierPlatinum": "Platinum",
+    "tierPlatinum": "پلاتینیوم",
     "tokensNone": "10",
     "tokensSilver": "50",
     "tokensGold": "200",
@@ -1752,9 +1752,9 @@
     "mapTitle": "نقشه موقعیت",
     "noPins": "پینی برای نمایش وجود ندارد",
     "loading": "در حال بارگذاری نقشه...",
-    "title": "Active users near you",
-    "liveBadge": "Live",
-    "guestTooltip": "Sign up to see who swaps in your area"
+    "title": "کاربران فعال نزدیک شما",
+    "liveBadge": "زنده",
+    "guestTooltip": "برای دیدن افرادی که در منطقه شما تبدیل می‌کنند، ثبت‌نام کنید"
   },
   "location": {
     "country": "کشور",
@@ -2139,7 +2139,7 @@
     "planFreeDesc": "تا 10 آیتم فهرست‌شده، تطابق AI پایه‌ای، چت نامحدود.",
     "planPremium": "Premium",
     "planPremiumDesc": "آیتم‌های نامحدود، تطابق AI پیشرفته، ترویج اولویت‌دار، نشان تایید‌شده.",
-    "planPlatinum": "Platinum",
+    "planPlatinum": "پلاتینیوم",
     "planPlatinumDesc": "همه چیز در Premium به اضافه بیمه تعویض، پشتیبانی اولویت‌دار، و تحلیلات دقیق.",
     "priceFree": "0",
     "pricePremium": "19.99",
@@ -2196,7 +2196,7 @@
     "modalDescription": "یک حساب رایگان بسازید تا مبادله پیشنهاد دهید، پیام بفرستید و شروع به مبادله کنید.",
     "modalCta": "ساخت حساب رایگان",
     "modalDismiss": "شاید بعداً",
-    "haveAccount": "I already have an account"
+    "haveAccount": "من قبلاً حسابی دارم"
   },
   "about": {
     "title": "درباره Swaply",
@@ -2352,8 +2352,8 @@
     "searchPrefix": "دنبال:",
     "daysRemaining": "{days} روز باقی‌مانده",
     "you": "You",
-    "userPrefix": "User",
-    "lookingFor": "Looking for"
+    "userPrefix": "کاربر",
+    "lookingFor": "دنبال کردن"
   },
   "history": {
     "title": "سابقه تبدیل",
@@ -2573,16 +2573,16 @@
     "ctaDescription": "اشیاء خود را فهرست کنید و بفهمید چه چیزی می‌توانید در ازای آن دریافت کنید.",
     "ctaButton": "Swaply را به صورت رایگان امتحان کنید →",
     "metaDescription": "مقالات از دسته‌بندی \"{category}\" در وبلاگ Swaply.",
-    "tableOfContents": "Table of Contents",
-    "guide": "Guide",
-    "tutorial": "Tutorial",
-    "inspiration": "Inspiration",
-    "sustainability": "Sustainability",
-    "safety": "Safety",
-    "technology": "Technology",
-    "trends": "Trends",
-    "community": "Community",
-    "product": "Product",
+    "tableOfContents": "فهرست مطالب",
+    "guide": "راهنما",
+    "tutorial": "آموزش",
+    "inspiration": "الهام‌بخش",
+    "sustainability": "پایداری",
+    "safety": "ایمنی",
+    "technology": "تکنولوژی",
+    "trends": "روندها",
+    "community": "جامعه",
+    "product": "محصول",
     "allCategories": "All"
   },
   "push": {
@@ -2738,31 +2738,31 @@
     "byCity": "{category} بر اساس شهر"
   },
   "categories": {
-    "electronics": "Electronics",
-    "sport": "Sports",
-    "arts": "Art & Hobby",
-    "books": "Books",
-    "home": "Home",
-    "fashion": "Fashion",
-    "automotive": "Auto",
-    "music": "Music",
-    "garden": "Garden",
-    "toys": "Toys",
-    "tools": "Tools",
-    "other": "Other",
-    "sports_outdoor": "Sports & Outdoor",
-    "hobby_games": "Hobbies & Games",
-    "books_media": "Books & Media",
-    "home_garden": "Home & Garden",
-    "fashion_accessories": "Fashion & Accessories",
-    "auto_moto": "Auto & Moto",
-    "music_audio": "Music & Audio",
-    "gardening_outdoor": "Gardening & Outdoor",
-    "toys_kids": "Toys & Kids",
-    "tools_diy": "Tools & DIY",
-    "vehicles": "Vehicles",
-    "experiences": "Experiences",
-    "medical": "Medical Equipment"
+    "electronics": "الکترونیک",
+    "sport": "ورزش",
+    "arts": "هنر و سرگرمی",
+    "books": "کتاب",
+    "home": "خانه",
+    "fashion": "مد و فشن",
+    "automotive": "خودرو",
+    "music": "موسیقی",
+    "garden": "باغ و فضای سبز",
+    "toys": "اسباب بازی",
+    "tools": "ابزار",
+    "other": "سایر",
+    "sports_outdoor": "ورزش و فضای باز",
+    "hobby_games": "سرگرمی‌ها و بازی‌ها",
+    "books_media": "کتاب‌ها و رسانه",
+    "home_garden": "خانه و باغ",
+    "fashion_accessories": "مد و لوازم جانبی",
+    "auto_moto": "خودرو و موتور",
+    "music_audio": "موسیقی و صوت",
+    "gardening_outdoor": "باغبانی و فضای باز",
+    "toys_kids": "اسباب‌بازی و کودکان",
+    "tools_diy": "ابزار و DIY",
+    "vehicles": "خودروها",
+    "experiences": "تجربیات",
+    "medical": "تجهیزات پزشکی"
   },
   "trustScore": {
     "trustScoreTitle": "امتیاز اعتماد",
@@ -2974,10 +2974,10 @@
     "unexpectedError": "خطای غیرمنتظره. دوباره امتحان کنید.",
     "stripeUnavailable": "Stripe دسترس‌پذیر نیست",
     "securePayment": "پرداخت ایمن از طریق Stripe. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "Boost 7 days",
+    "boost7days": "تقویت 7 روز",
     "alreadyPurchased": "قبلاً خریداری شده",
-    "boost24h": "Boost 24h",
-    "boost72h": "Boost 72h"
+    "boost24h": "تقویت 24 ساعت",
+    "boost72h": "تقویت 72 ساعت"
   },
   "payments": {
     "paymentMethod": "روش پرداخت",
@@ -3039,67 +3039,67 @@
     "expiresIn": "منقضی می‌شود در {days} روز"
   },
   "cookieConsent": {
-    "message": "We use cookies to improve your experience. Essential cookies are always active. Non-essential cookies help us analyze traffic and personalize content.",
-    "accept": "Accept all",
-    "reject": "Reject non-essential",
-    "settings": "Cookie settings"
+    "message": "ما از کوکی‌ها برای بهبود تجربه شما استفاده می‌کنیم. کوکی‌های ضروری همیشه فعال هستند. کوکی‌های غیرضروری به ما کمک می‌کنند تا ترافیک را تجزیه و تحلیل کنیم و محتوا را شخصی‌سازی کنیم.",
+    "accept": "پذیرش همه",
+    "reject": "رد کوکی‌های غیرضروری",
+    "settings": "تنظیمات کوکی"
   },
   "branches": {
-    "tagline": "Swap what you have for what you need — objects, properties, services, and events.",
-    "objects": "Objects",
-    "objectsDesc": "Swap electronics, books, clothes, and more",
-    "properties": "Properties",
-    "propertiesDesc": "Exchange homes, apartments, and spaces",
-    "services": "Services",
-    "servicesDesc": "Trade skills, labor, and professional help",
-    "events": "Events",
-    "eventsDesc": "Swap tickets, reservations, and experiences",
-    "comingSoon": "This section is coming soon. Stay tuned!"
+    "tagline": "آنچه دارید را برای آنچه نیاز دارید معاوضه کنید — اشیاء، ملک، خدمات و رویدادها.",
+    "objects": "اشیاء",
+    "objectsDesc": "الکترونیک، کتاب، لباس و موارد دیگر را معاوضه کنید",
+    "properties": "ملک و دارایی",
+    "propertiesDesc": "تبدیل خانه‌ها، آپارتمان‌ها و فضاها",
+    "services": "خدمات",
+    "servicesDesc": "معاملات مهارت‌ها، کار و کمک حرفه‌ای",
+    "events": "رویدادها",
+    "eventsDesc": "تبدیل بلیت‌ها، رزرو و تجربیات",
+    "comingSoon": "این بخش به زودی می‌آید. منتظر بمانید!"
   },
   "hero": {
-    "tagline": "Swap what you have for what you want"
+    "tagline": "آنچه دارید را با آنچه می‌خواهید تبدیل کنید"
   },
   "benefits": {
-    "label": "Why Swaply?",
-    "directSwap": "Direct swap between people",
-    "globalCommunity": "Global community",
-    "aiMatching": "Automatic AI matching",
-    "escrow": "Escrow for safety",
-    "logistics": "Integrated logistics",
-    "negotiation": "In-platform negotiation",
-    "localPartners": "Find partners nearby"
+    "label": "چرا Swaply؟",
+    "directSwap": "تبدیل مستقیم میان افراد",
+    "globalCommunity": "جامعه جهانی",
+    "aiMatching": "تطابق خودکار با AI",
+    "escrow": "Escrow برای امنیت",
+    "logistics": "لجستیک یکپارچه",
+    "negotiation": "مذاکره درون‌پلتفرمی",
+    "localPartners": "یافتن شریکان نزدیک"
   },
   "premium": {
     "title": "Swaply Premium",
-    "subtitle": "Global visibility · Priority matching"
+    "subtitle": "دید رسانی جهانی · تطابق اولویت‌دار"
   },
   "analytics": {
-    "title": "Analytics",
-    "loginRequired": "You must be logged in to view analytics.",
-    "dashboard": "Analytics Dashboard",
-    "upgradeToPremium": "Upgrade to Premium for full analytics access",
-    "noData": "No data",
-    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
-    "totalViews": "Total views",
-    "favoritesReceived": "Favorites received",
-    "proposalsReceived": "Proposals received",
-    "conversionRate": "Conversion rate",
-    "completedSwaps": "Completed swaps",
-    "avgTimeToProposal": "Avg time to proposal",
-    "viewsPerDay": "Views per day",
-    "last30Days": "Last 30 days",
-    "topItems": "Top items",
-    "byViews": "By number of views",
-    "insights": "Automated insights",
-    "insightsDesc": "Recommendations based on your data"
+    "title": "تحلیل‌ها",
+    "loginRequired": "برای مشاهده تحلیل‌ها باید وارد سیستم شوید.",
+    "dashboard": "داشبورد تحلیلات",
+    "upgradeToPremium": "برای دسترسی کامل به تحلیلات، به Premium ارتقاء دهید",
+    "noData": "بدون داده",
+    "noDataDesc": "هنوز داده تحلیلاتی وجود ندارد. برای شروع پیگیری به موارد خود مراجعه کنید.",
+    "totalViews": "کل بازدیدها",
+    "favoritesReceived": "لایک های دریافت شده",
+    "proposalsReceived": "پیشنهادهای دریافت شده",
+    "conversionRate": "نرخ تبدیل",
+    "completedSwaps": "معاملات تکمیل شده",
+    "avgTimeToProposal": "میانگین زمان تا پیشنهاد",
+    "viewsPerDay": "بازدید در روز",
+    "last30Days": "30 روز گذشته",
+    "topItems": "بهترین موارد",
+    "byViews": "بر اساس تعداد بازدیدها",
+    "insights": "بینش های خودکار",
+    "insightsDesc": "توصیه هایی بر اساس داده های شما"
   },
   "share": {
-    "copied": "Copied!",
-    "copyLink": "Copy link"
+    "copied": "کپی شد!",
+    "copyLink": "کپی لینک"
   },
   "badge": {
-    "free": "Free",
+    "free": "رایگان",
     "premium": "Premium",
-    "platinum": "Platinum"
+    "platinum": "پلاتینیوم"
   }
 }

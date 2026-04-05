@@ -46,8 +46,8 @@
     "myDesk": "Моят работен плот за размяна",
     "myDeskDescription": "Проследяване на активни размяни, очаквани действия и краични срокове",
     "romania": "Румъния",
-    "user": "User",
-    "recommendedNextStep": "Recommended next step"
+    "user": "Потребител",
+    "recommendedNextStep": "Препоръчан следващ етап"
   },
   "nav": {
     "home": "Начало",
@@ -76,7 +76,7 @@
     "badgeBenefits": "Предимства на значката",
     "completeProfile": "Попълнете профила си",
     "desk": "Моят работен плот",
-    "settings": "Settings"
+    "settings": "Настройки"
   },
   "notifications": {
     "title": "Известия (харесване/интерес/чат/swaply)",
@@ -634,17 +634,17 @@
     "badgeProperty": "Имущество",
     "badgeService": "Услуга",
     "condition_new": "New",
-    "condition_good": "Good",
-    "condition_like_new": "Like new",
-    "condition_fair": "Fair",
-    "condition_poor": "Poor",
-    "condition_used": "Used",
-    "condition_used_good": "Good condition",
+    "condition_good": "Отлично",
+    "condition_like_new": "Като ново",
+    "condition_fair": "Задоволително",
+    "condition_poor": "Лошо",
+    "condition_used": "Използвано",
+    "condition_used_good": "В добро състояние",
     "status_active": "Активен",
     "status_reserved": "Резервиран",
     "status_traded": "Разменен",
     "status_paused": "На пауза",
-    "status_archived": "Archived",
+    "status_archived": "Архивирано",
     "shareButton": "Споделяне"
   },
   "objectDetail": {
@@ -819,13 +819,13 @@
     "guestFeatureCategoryDesc": "Алгоритмът взема предвид желаната категория и прогнозната стойност на елементите.",
     "guestDemo1Title": "Lenovo ThinkPad Laptop",
     "guestDemo1Swap": "iPhone 13 Pro",
-    "guestDemo1Location": "Cluj-Napoca",
+    "guestDemo1Location": "Клуж-Напока",
     "guestDemo2Title": "Canon EOS 250D",
     "guestDemo2Swap": "DJI Mini 3",
     "guestDemo2Location": "Букурещ",
     "guestDemo3Title": "Fender китара",
     "guestDemo3Swap": "Marshall високоговорители",
-    "guestDemo3Location": "Timișoara",
+    "guestDemo3Location": "Тимишoara",
     "guestBtnAccept": "Приемете съвпадението",
     "guestBtnSkip": "Пропуснете",
     "guestDemoNote": "Това са примери. Вашите истински съвпадения чакат.",
@@ -1333,13 +1333,13 @@
     "digitalPdf": "PDF / QR код",
     "digitalBookingRef": "Референция за резервация",
     "swapChat": "Swap Chat",
-    "chatEmpty": "No messages yet. Start the conversation!",
-    "chatPlaceholder": "Type a message...",
-    "statusAccepted": "Accepted",
-    "statusInProgress": "In progress",
-    "statusDeliveredA": "Delivered (1/2)",
-    "statusDeliveredB": "Delivered (2/2)",
-    "statusResolved": "Resolved"
+    "chatEmpty": "Няма съобщения още. Започнете разговора!",
+    "chatPlaceholder": "Напишете съобщение...",
+    "statusAccepted": "Приемено",
+    "statusInProgress": "В процес",
+    "statusDeliveredA": "Доставено (1/2)",
+    "statusDeliveredB": "Доставено (2/2)",
+    "statusResolved": "Разрешено"
   },
   "info": {
     "title": "Swaply статистики",
@@ -1364,7 +1364,7 @@
     "freeDescription": "Обикновена значка, ограничена видимост на картата.",
     "premium": "Premium",
     "premiumDescription": "Подчертана значка, появява се на картата като публичен пин.",
-    "platinum": "Platinum",
+    "platinum": "Платинум",
     "platinumDescription": "Специална значка, уникален пин, приоритизиране на съвпадения.",
     "tokenLedger": "Регистър на токени",
     "accountBenefits": "Предимства на акаунта",
@@ -1408,9 +1408,9 @@
     "featureTokens": "Месечни токени",
     "featureSupport": "Приоритетна поддръжка",
     "tierFree": "Безплатно",
-    "tierSilver": "Silver",
-    "tierGold": "Gold",
-    "tierPlatinum": "Platinum",
+    "tierSilver": "Сребро",
+    "tierGold": "Злато",
+    "tierPlatinum": "Платинум",
     "tokensNone": "10",
     "tokensSilver": "50",
     "tokensGold": "200",
@@ -1752,9 +1752,9 @@
     "mapTitle": "Карта на местоположенията",
     "noPins": "Няма пинове за показване",
     "loading": "Зареждане на карта…",
-    "title": "Active users near you",
-    "liveBadge": "Live",
-    "guestTooltip": "Sign up to see who swaps in your area"
+    "title": "Активни потребители близо до вас",
+    "liveBadge": "Живо",
+    "guestTooltip": "Регистрирайте се, за да видите кой търгува в вашия район"
   },
   "location": {
     "country": "Държава",
@@ -2574,15 +2574,15 @@
     "ctaButton": "Опитайте Swaply безплатно →",
     "metaDescription": "Статии от категория \"{category}\" в блога на Swaply.",
     "tableOfContents": "Съдържание",
-    "guide": "Guide",
-    "tutorial": "Tutorial",
-    "inspiration": "Inspiration",
-    "sustainability": "Sustainability",
-    "safety": "Safety",
-    "technology": "Technology",
-    "trends": "Trends",
-    "community": "Community",
-    "product": "Product",
+    "guide": "Ръководство",
+    "tutorial": "Урок",
+    "inspiration": "Вдохновение",
+    "sustainability": "Устойчивост",
+    "safety": "Безопасност",
+    "technology": "Технология",
+    "trends": "Тенденции",
+    "community": "Общност",
+    "product": "Продукт",
     "allCategories": "All"
   },
   "push": {
@@ -2974,10 +2974,10 @@
     "unexpectedError": "Неочаквана грешка. Опитайте отново.",
     "stripeUnavailable": "Stripe не е достъпен",
     "securePayment": "Безопасно плащане чрез Stripe. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "Boost 7 days",
+    "boost7days": "Boost 7 дни",
     "alreadyPurchased": "Вече закупено",
-    "boost24h": "Boost 24h",
-    "boost72h": "Boost 72h"
+    "boost24h": "Boost 24ч",
+    "boost72h": "Boost 72ч"
   },
   "payments": {
     "paymentMethod": "Метод на плащане",
@@ -3045,7 +3045,7 @@
     "settings": "Настройки за бисквитки"
   },
   "branches": {
-    "tagline": "Swap what you have for what you need — objects, properties, services, and events.",
+    "tagline": "Размени това, което имаш, за това, което имаш нужда — предмети, имущество, услуги и събития.",
     "objects": "Обекти",
     "objectsDesc": "Разменете електроника, книги, дрехи и още",
     "properties": "Имоти",
@@ -3054,7 +3054,7 @@
     "servicesDesc": "Обменяйте умения, труд и професионална помощ",
     "events": "Събития",
     "eventsDesc": "Разменете билети, резервации и преживявания",
-    "comingSoon": "This section is coming soon. Stay tuned!"
+    "comingSoon": "Този раздел скоро ще бъде наличен. Остани в тока!"
   },
   "hero": {
     "tagline": "Разменете това, което имате, за това, което искате"
@@ -3094,11 +3094,11 @@
     "insightsDesc": "Препоръки въз основа на вашите данни"
   },
   "share": {
-    "copied": "Copied!",
-    "copyLink": "Copy link"
+    "copied": "Копирано!",
+    "copyLink": "Копирай линка"
   },
   "badge": {
-    "free": "Free",
+    "free": "Безплатно",
     "premium": "Premium",
     "platinum": "Platinum"
   }

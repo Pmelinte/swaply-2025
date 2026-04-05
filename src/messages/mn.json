@@ -46,8 +46,8 @@
     "myDesk": "Миний Солилцоо Ширээ",
     "myDeskDescription": "Идэвхтэй солилцоо, хүлээлтийн үйлдэл болон хугацаа хянах",
     "romania": "Румын",
-    "user": "User",
-    "recommendedNextStep": "Recommended next step"
+    "user": "Хэрэглэгч",
+    "recommendedNextStep": "Дараагийн санал болгох алхам"
   },
   "nav": {
     "home": "Нүүр",
@@ -76,7 +76,7 @@
     "badgeBenefits": "Тэмдэгний давуу тал",
     "completeProfile": "Профайлаа бөглөх",
     "desk": "Миний Ширээ",
-    "settings": "Settings"
+    "settings": "Тохиргоо"
   },
   "notifications": {
     "title": "Мэдэгдлүүд (таалагдсан/сонирхол/чат/swaply)",
@@ -445,8 +445,8 @@
     "guestFeatureVerifyDesc": "Имэйл, утас, болон өөрийн таних мэдээлэл — баталгаажүүлсэн хэрэглэгчийн бэлгээ.",
     "guestCta": "Эргүүлэх үнэгүй профайл үүсгэх →",
     "networkError": "Сүлжээний алдаа",
-    "passkeyRegFailed": "Passkey registration failed",
-    "genericError": "Error"
+    "passkeyRegFailed": "Passkey бүртгэл амжилтгүй болсон",
+    "genericError": "Алдаа"
   },
   "home": {
     "welcome": "Тавтай морилно уу",
@@ -634,17 +634,17 @@
     "badgeProperty": "Өмч",
     "badgeService": "Үйлчилгээ",
     "condition_new": "New",
-    "condition_good": "Good",
-    "condition_like_new": "Like new",
-    "condition_fair": "Fair",
-    "condition_poor": "Poor",
-    "condition_used": "Used",
-    "condition_used_good": "Good condition",
+    "condition_good": "Сайн",
+    "condition_like_new": "Шинэтэй ижил",
+    "condition_fair": "Хэвийн",
+    "condition_poor": "Муу",
+    "condition_used": "Ашигласан",
+    "condition_used_good": "Сайн байдалтай",
     "status_active": "Идэвхтэй",
     "status_reserved": "Захиалсан",
     "status_traded": "Солигдсон",
     "status_paused": "Түр зогсоосон",
-    "status_archived": "Archived",
+    "status_archived": "Архивлагдсан",
     "shareButton": "Хуваалцах"
   },
   "objectDetail": {
@@ -819,13 +819,13 @@
     "guestFeatureCategoryDesc": "Алгоритм нь хүссэн ангилал болон зүйлсийн сметаны үнэ цэнийг анхаарч үздэг.",
     "guestDemo1Title": "Lenovo ThinkPad Зөөлөлтийн компьютер",
     "guestDemo1Swap": "iPhone 13 Pro",
-    "guestDemo1Location": "Cluj-Napoca",
+    "guestDemo1Location": "Клуж-Напока",
     "guestDemo2Title": "Canon EOS 250D",
     "guestDemo2Swap": "DJI Mini 3",
-    "guestDemo2Location": "Bucharest",
+    "guestDemo2Location": "Бухарест",
     "guestDemo3Title": "Fender Гитар",
     "guestDemo3Swap": "Marshall Чанга",
-    "guestDemo3Location": "Timișoara",
+    "guestDemo3Location": "Тимишоара",
     "guestBtnAccept": "Нийцлийг зөвшөөрөх",
     "guestBtnSkip": "Алгасах",
     "guestDemoNote": "Эдгээр нь жишээ юм. Таны жинхэнэ нийцлүүд чамаа хүлээж байна.",
@@ -1333,13 +1333,13 @@
     "digitalPdf": "PDF / QR код",
     "digitalBookingRef": "Захиалгын эш",
     "swapChat": "Swap Chat",
-    "chatEmpty": "No messages yet. Start the conversation!",
-    "chatPlaceholder": "Type a message...",
-    "statusAccepted": "Accepted",
-    "statusInProgress": "In progress",
-    "statusDeliveredA": "Delivered (1/2)",
-    "statusDeliveredB": "Delivered (2/2)",
-    "statusResolved": "Resolved"
+    "chatEmpty": "Одоогоор мессеж байхгүй байна. Яриаг эхлүүлээрэй!",
+    "chatPlaceholder": "Мессеж бичээрэй...",
+    "statusAccepted": "Хүлээн авсан",
+    "statusInProgress": "Явц хийгдэж байна",
+    "statusDeliveredA": "Хүргэгдсэн (1/2)",
+    "statusDeliveredB": "Хүргэгдсэн (2/2)",
+    "statusResolved": "Шийдэгдсэн"
   },
   "info": {
     "title": "Swaply Статистик",
@@ -1752,9 +1752,9 @@
     "mapTitle": "Байршлын газрын зураг",
     "noPins": "Харуулах пин байхгүй",
     "loading": "Газрын зураг ачаалж байна…",
-    "title": "Active users near you",
-    "liveBadge": "Live",
-    "guestTooltip": "Sign up to see who swaps in your area"
+    "title": "Таны ойролцоох идэвхтэй хэрэглэгчид",
+    "liveBadge": "Идэвхтэй",
+    "guestTooltip": "Таны нутаг дахь swap хийдэг хүмүүсийг харахын тулд бүртгүүлнэ үү"
   },
   "location": {
     "country": "Улс",
@@ -2196,7 +2196,7 @@
     "modalDescription": "Солилцоо санал болгох, мессеж илгээх, солилцоо эхлүүлэхийн тулд үнэгүй бүртгэл үүсгэнэ үү.",
     "modalCta": "Үнэгүй бүртгэл үүсгэх",
     "modalDismiss": "Магадгүй дараа",
-    "haveAccount": "I already have an account"
+    "haveAccount": "Надад аль хэдийн акаунт байна"
   },
   "about": {
     "title": "Swaply-ийн тухай",
@@ -2352,8 +2352,8 @@
     "searchPrefix": "Хайж байна:",
     "daysRemaining": "{days} хоног үлдсэн",
     "you": "You",
-    "userPrefix": "User",
-    "lookingFor": "Looking for"
+    "userPrefix": "Хэрэглэгч",
+    "lookingFor": "Хайж байна"
   },
   "history": {
     "title": "Солилцооны түүх",
@@ -2573,16 +2573,16 @@
     "ctaDescription": "Өөрийн зүйлсийг жагсаа сольж авах боломжтойг олоорой.",
     "ctaButton": "Swaply-г үнэгүй туршаарай →",
     "metaDescription": "Swaply блогийн \"{category}\" ангиллын нийтлэлүүд.",
-    "tableOfContents": "Table of Contents",
-    "guide": "Guide",
-    "tutorial": "Tutorial",
-    "inspiration": "Inspiration",
-    "sustainability": "Sustainability",
-    "safety": "Safety",
-    "technology": "Technology",
-    "trends": "Trends",
-    "community": "Community",
-    "product": "Product",
+    "tableOfContents": "Агуулгын хүснэгт",
+    "guide": "Гарын авлага",
+    "tutorial": "Зааварчилгаа",
+    "inspiration": "Урам зориг",
+    "sustainability": "Тогтвортой байдал",
+    "safety": "Аюулгүй байдал",
+    "technology": "Технологи",
+    "trends": "Чиг хандлага",
+    "community": "Нийгэмлэг",
+    "product": "Бүтээгдэхүүн",
     "allCategories": "All"
   },
   "push": {
@@ -2738,31 +2738,31 @@
     "byCity": "{category} хотоор"
   },
   "categories": {
-    "electronics": "Electronics",
-    "sport": "Sports",
-    "arts": "Art & Hobby",
-    "books": "Books",
-    "home": "Home",
-    "fashion": "Fashion",
-    "automotive": "Auto",
-    "music": "Music",
-    "garden": "Garden",
-    "toys": "Toys",
-    "tools": "Tools",
-    "other": "Other",
-    "sports_outdoor": "Sports & Outdoor",
-    "hobby_games": "Hobbies & Games",
-    "books_media": "Books & Media",
-    "home_garden": "Home & Garden",
-    "fashion_accessories": "Fashion & Accessories",
-    "auto_moto": "Auto & Moto",
-    "music_audio": "Music & Audio",
-    "gardening_outdoor": "Gardening & Outdoor",
-    "toys_kids": "Toys & Kids",
-    "tools_diy": "Tools & DIY",
-    "vehicles": "Vehicles",
-    "experiences": "Experiences",
-    "medical": "Medical Equipment"
+    "electronics": "Электроник",
+    "sport": "Спорт",
+    "arts": "Урлаг & Сонирхол",
+    "books": "Номууд",
+    "home": "Нүүр",
+    "fashion": "Өмд",
+    "automotive": "Автомашин",
+    "music": "Хөгжим",
+    "garden": "Цэцэрлэг",
+    "toys": "Тоглоом",
+    "tools": "Хэрэгслүүд",
+    "other": "Бусад",
+    "sports_outdoor": "Спорт & Гадаа Үйл Ажиллагаа",
+    "hobby_games": "Хобби & Тоглоомууд",
+    "books_media": "Номууд & Медиа",
+    "home_garden": "Гэр & Цэцэрлэг",
+    "fashion_accessories": "Өмд & Аксессуарууд",
+    "auto_moto": "Автомашин & Мотоцикл",
+    "music_audio": "Хөгжим & Аудио",
+    "gardening_outdoor": "Цэцэрлэг & Гадаа",
+    "toys_kids": "Тоглоомууд & Хүүхдүүд",
+    "tools_diy": "Хэрэгслүүд & DIY",
+    "vehicles": "Тээврийн Хэрэгсэл",
+    "experiences": "Туршлага",
+    "medical": "Эмнэлгийн Тоног Төхөөрөмж"
   },
   "trustScore": {
     "trustScoreTitle": "Итгэлийн үнэлгээ",
@@ -2974,10 +2974,10 @@
     "unexpectedError": "Хүлээлцэхүй алдаа. Дахин оролдоорой.",
     "stripeUnavailable": "Stripe боломжгүй",
     "securePayment": "Stripe-р аюулгүй төлөлт. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "Boost 7 days",
+    "boost7days": "7 өдрийн өргөтгөл",
     "alreadyPurchased": "Аль хэдийн худалдаж авсан",
-    "boost24h": "Boost 24h",
-    "boost72h": "Boost 72h"
+    "boost24h": "24 цагийн өргөтгөл",
+    "boost72h": "72 цагийн өргөтгөл"
   },
   "payments": {
     "paymentMethod": "Төлбөрийн арга",
@@ -3039,66 +3039,66 @@
     "expiresIn": "{days} өдрийн дараа дуусна"
   },
   "cookieConsent": {
-    "message": "We use cookies to improve your experience. Essential cookies are always active. Non-essential cookies help us analyze traffic and personalize content.",
-    "accept": "Accept all",
-    "reject": "Reject non-essential",
-    "settings": "Cookie settings"
+    "message": "Бид таны туршлагыг сайжруулахын тулд kookie ашигладаг. Зайлшгүй шаардлагатай kookie үргэлж идэвхтэй байдаг. Зайлшгүй шаардлагатай биш kookie нь бид трафикийг шинжлэх, агуулгыг хувьсалгахад туслах юм.",
+    "accept": "Бүгдийг зөвшөөрөх",
+    "reject": "Зайлшгүй шаардлагатай биш файлыг сүүлдэх",
+    "settings": "Kookie тохиргоо"
   },
   "branches": {
-    "tagline": "Swap what you have for what you need — objects, properties, services, and events.",
-    "objects": "Objects",
-    "objectsDesc": "Swap electronics, books, clothes, and more",
-    "properties": "Properties",
-    "propertiesDesc": "Exchange homes, apartments, and spaces",
-    "services": "Services",
-    "servicesDesc": "Trade skills, labor, and professional help",
-    "events": "Events",
-    "eventsDesc": "Swap tickets, reservations, and experiences",
-    "comingSoon": "This section is coming soon. Stay tuned!"
+    "tagline": "Байгаа зүйлээ сайхан мөлжлөгт нь солилцоо — объект, эд хөрөнгө, үйлчилгээ, үйл явдал.",
+    "objects": "Объект",
+    "objectsDesc": "Электроник, ном, хувцас болон бусад зүйлсийг солилцоо",
+    "properties": "Эд хөрөнгө",
+    "propertiesDesc": "Гэр, орон сууц, орон зайг сольё",
+    "services": "Үйлчилгээ",
+    "servicesDesc": "Ур чадвар, хөлсөлмөр, мэргэжлийн тусламжийг сольё",
+    "events": "Үйл явдал",
+    "eventsDesc": "Тасалбар, захиалга, туршлагыг солилцоо",
+    "comingSoon": "Энэ хэсэг удахгүй нээгдэх болно. Анхаарч байгаарай!"
   },
   "hero": {
-    "tagline": "Swap what you have for what you want"
+    "tagline": "Байгаа зүйлээ сайхан мөлжлөгт нь солилцоо"
   },
   "benefits": {
-    "label": "Why Swaply?",
-    "directSwap": "Direct swap between people",
-    "globalCommunity": "Global community",
-    "aiMatching": "Automatic AI matching",
-    "escrow": "Escrow for safety",
-    "logistics": "Integrated logistics",
-    "negotiation": "In-platform negotiation",
-    "localPartners": "Find partners nearby"
+    "label": "Яагаад Swaply?",
+    "directSwap": "Хүмүүсийн хоорондын шууд солилцоо",
+    "globalCommunity": "Дэлхийн нийгэмлэг",
+    "aiMatching": "Автомат AI сонголт",
+    "escrow": "Аюулгүй байдлын төлөө escrow",
+    "logistics": "Интегрирован логистик",
+    "negotiation": "Платформ доторх санал болгох",
+    "localPartners": "Ойрхон байгаа түнэгчийг олох"
   },
   "premium": {
     "title": "Swaply Premium",
-    "subtitle": "Global visibility · Priority matching"
+    "subtitle": "Дэлхийн хүрээний харагдац · Давуу эрхтэй таарах"
   },
   "analytics": {
-    "title": "Analytics",
-    "loginRequired": "You must be logged in to view analytics.",
-    "dashboard": "Analytics Dashboard",
-    "upgradeToPremium": "Upgrade to Premium for full analytics access",
-    "noData": "No data",
-    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
-    "totalViews": "Total views",
-    "favoritesReceived": "Favorites received",
-    "proposalsReceived": "Proposals received",
-    "conversionRate": "Conversion rate",
-    "completedSwaps": "Completed swaps",
-    "avgTimeToProposal": "Avg time to proposal",
-    "viewsPerDay": "Views per day",
-    "last30Days": "Last 30 days",
-    "topItems": "Top items",
-    "byViews": "By number of views",
-    "insights": "Automated insights",
-    "insightsDesc": "Recommendations based on your data"
+    "title": "Аналитик",
+    "loginRequired": "Аналитикийг үзэхийн тулд та нэвтрэлтээ хийсэн байх ёстой.",
+    "dashboard": "Аналитик самбар",
+    "upgradeToPremium": "Бүрэн аналитик мэдээлэл авахын тулд Premium руу шинэчилнэ үү",
+    "noData": "Өгөгдөл байхгүй",
+    "noDataDesc": "Аналитик өгөгдөл байхгүй байна. Хянах эхлүүлэхийн тулд таны зүйлүүдийг сайтаа үзнэ үү.",
+    "totalViews": "Нийт үзэх",
+    "favoritesReceived": "Хүлээн авсан дуртай",
+    "proposalsReceived": "Хүлээн авсан санал",
+    "conversionRate": "Хөрвүүлэлтийн үзүүлэлт",
+    "completedSwaps": "Дүрэмжсэн сэлбүүлэлтүүд",
+    "avgTimeToProposal": "Санал хүргэх дундаж хугацаа",
+    "viewsPerDay": "Өдөр бүрийн үзэх",
+    "last30Days": "Сүүлийн 30 хоног",
+    "topItems": "Топ зүйлс",
+    "byViews": "Үзэлтийн тоо эрэмбээр",
+    "insights": "Автоматжуулсан мэдээлэл",
+    "insightsDesc": "Таны өгөгдөл дээр суурилсан зөвлөмжүүд"
   },
   "share": {
-    "copied": "Copied!",
-    "copyLink": "Copy link"
+    "copied": "Хаслагдсан!",
+    "copyLink": "Холбоосыг хуулах"
   },
   "badge": {
-    "free": "Free",
+    "free": "Үнэгүй",
     "premium": "Premium",
     "platinum": "Platinum"
   }

@@ -46,8 +46,8 @@
     "myDesk": "La mia scrivania di scambio",
     "myDeskDescription": "Monitora scambi attivi, azioni in sospeso e scadenze",
     "romania": "Romania",
-    "user": "User",
-    "recommendedNextStep": "Recommended next step"
+    "user": "Utente",
+    "recommendedNextStep": "Prossimo passo consigliato"
   },
   "nav": {
     "home": "Home",
@@ -634,12 +634,12 @@
     "badgeProperty": "Proprietà",
     "badgeService": "Servizio",
     "condition_new": "New",
-    "condition_good": "Good",
-    "condition_like_new": "Like new",
-    "condition_fair": "Fair",
-    "condition_poor": "Poor",
-    "condition_used": "Used",
-    "condition_used_good": "Good condition",
+    "condition_good": "Buono",
+    "condition_like_new": "Come nuovo",
+    "condition_fair": "Discreto",
+    "condition_poor": "Scadente",
+    "condition_used": "Usato",
+    "condition_used_good": "In buone condizioni",
     "status_active": "Attivo",
     "status_reserved": "Riservato",
     "status_traded": "Scambiato",
@@ -822,7 +822,7 @@
     "guestDemo1Location": "Cluj-Napoca",
     "guestDemo2Title": "Canon EOS 250D",
     "guestDemo2Swap": "DJI Mini 3",
-    "guestDemo2Location": "Bucharest",
+    "guestDemo2Location": "Bucarest",
     "guestDemo3Title": "Fender Guitar",
     "guestDemo3Swap": "Marshall Speakers",
     "guestDemo3Location": "Timișoara",
@@ -1335,11 +1335,11 @@
     "swapChat": "Chat di scambio",
     "chatEmpty": "Nessun messaggio. Inizia la conversazione!",
     "chatPlaceholder": "Scrivi un messaggio...",
-    "statusAccepted": "Accepted",
-    "statusInProgress": "In progress",
-    "statusDeliveredA": "Delivered (1/2)",
-    "statusDeliveredB": "Delivered (2/2)",
-    "statusResolved": "Resolved"
+    "statusAccepted": "Accettato",
+    "statusInProgress": "In corso",
+    "statusDeliveredA": "Consegnato (1/2)",
+    "statusDeliveredB": "Consegnato (2/2)",
+    "statusResolved": "Risolto"
   },
   "info": {
     "title": "Statistiche Swaply",
@@ -1410,8 +1410,8 @@
     "featureTokens": "Monthly token",
     "featureSupport": "Supporto prioritario",
     "tierFree": "Gratis",
-    "tierSilver": "Silver",
-    "tierGold": "Gold",
+    "tierSilver": "Argento",
+    "tierGold": "Oro",
     "tierPlatinum": "Platinum",
     "tokensNone": "10",
     "tokensSilver": "50",
@@ -2159,7 +2159,7 @@
     "conversionFunnel": "Funnel di Conversione",
     "cronDescription": "Attività automatizzate eseguite a intervalli regolari. In produzione, vengono eseguite tramite Vercel Cron / Supabase Edge Functions.",
     "cronJobs": "Processi Pianificati",
-    "featureFlags": "Feature Flags",
+    "featureFlags": "Flag Funzionalità",
     "frictionLimits": "Limiti di Attrito Adattivi",
     "links": "Link",
     "listedItems": "Listed ≥1 oggetto",
@@ -2755,7 +2755,7 @@
     "books_media": "Libri & Media",
     "home_garden": "Casa & Giardino",
     "fashion_accessories": "Moda & Accessori",
-    "auto_moto": "Auto & Moto",
+    "auto_moto": "Auto e Moto",
     "music_audio": "Musica & Audio",
     "gardening_outdoor": "Giardinaggio & Esterno",
     "toys_kids": "Giocattoli & Bambini",
@@ -2974,7 +2974,7 @@
     "unexpectedError": "Errore inaspettato. Riprova.",
     "stripeUnavailable": "Stripe non è disponibile",
     "securePayment": "Pagamento sicuro tramite Stripe. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "Boost 7 days",
+    "boost7days": "Boost 7 giorni",
     "alreadyPurchased": "Già acquistato",
     "boost24h": "Boost 24h",
     "boost72h": "Boost 72h"
@@ -3094,11 +3094,11 @@
     "insightsDesc": "Raccomandazioni basate sui tuoi dati"
   },
   "share": {
-    "copied": "Copied!",
-    "copyLink": "Copy link"
+    "copied": "Copiato!",
+    "copyLink": "Copia link"
   },
   "badge": {
-    "free": "Free",
+    "free": "Gratuito",
     "premium": "Premium",
     "platinum": "Platinum"
   }

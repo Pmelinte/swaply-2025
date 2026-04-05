@@ -45,9 +45,9 @@
     "nextStepRecommended": "Suositeltu seuraava askel",
     "myDesk": "Oma Swap Desk",
     "myDeskDescription": "Seuraa aktiivisia vaihtoja, odottavia toimintoja ja määräaikoja",
-    "romania": "Romania",
-    "user": "User",
-    "recommendedNextStep": "Recommended next step"
+    "romania": "Romaniaa",
+    "user": "Käyttäjä",
+    "recommendedNextStep": "Suositeltu seuraava vaihe"
   },
   "nav": {
     "home": "Etusivu",
@@ -76,7 +76,7 @@
     "badgeBenefits": "Merkkien edut",
     "completeProfile": "Täydennä profiilisi",
     "desk": "Oma työpöytä",
-    "settings": "Settings"
+    "settings": "Asetukset"
   },
   "notifications": {
     "title": "Ilmoitukset",
@@ -180,7 +180,7 @@
     "reputation": "Maine",
     "publicIdentity": "Julkinen identiteetti",
     "publicIdentityDescription": "Mitä maailma näkee: näyttönimi, avatar, bio, puhutut kielet.",
-    "avatarUrl": "Avatar (URL)",
+    "avatarUrl": "Profiilikuva (URL)",
     "avatarPlaceholder": "https://example.com/avatar.jpg",
     "avatarUploadNote": "Todellinen lataus vaatii Cloudinary/Supabase Storage -integraation.",
     "uploadAvatar": "Lataa kuva",
@@ -445,8 +445,8 @@
     "guestFeatureVerifyDesc": "Sähköposti, puhelin ja henkilöllisyys — vahvistetulle käyttäjälle.",
     "guestCta": "Luo ilmainen profiilisi →",
     "networkError": "Verkkovirhe",
-    "passkeyRegFailed": "Passkey registration failed",
-    "genericError": "Error"
+    "passkeyRegFailed": "Passkey-rekisteröinti epäonnistui",
+    "genericError": "Virhe"
   },
   "home": {
     "welcome": "Tervetuloa takaisin",
@@ -634,17 +634,17 @@
     "badgeProperty": "Omaisuus",
     "badgeService": "Palvelu",
     "condition_new": "New",
-    "condition_good": "Good",
-    "condition_like_new": "Like new",
-    "condition_fair": "Fair",
-    "condition_poor": "Poor",
-    "condition_used": "Used",
-    "condition_used_good": "Good condition",
+    "condition_good": "Hyvä",
+    "condition_like_new": "Kuin uusi",
+    "condition_fair": "Kohtuullinen",
+    "condition_poor": "Huono",
+    "condition_used": "Käytetty",
+    "condition_used_good": "Hyvä kunto",
     "status_active": "Aktiivinen",
     "status_reserved": "Varattu",
     "status_traded": "Vaihdettu",
     "status_paused": "Tauolla",
-    "status_archived": "Archived",
+    "status_archived": "Arkistoitu",
     "shareButton": "Jaa"
   },
   "objectDetail": {
@@ -1333,13 +1333,13 @@
     "digitalPdf": "PDF / QR-koodi",
     "digitalBookingRef": "Varausnumero",
     "swapChat": "Swap Chat",
-    "chatEmpty": "No messages yet. Start the conversation!",
-    "chatPlaceholder": "Type a message...",
-    "statusAccepted": "Accepted",
-    "statusInProgress": "In progress",
-    "statusDeliveredA": "Delivered (1/2)",
-    "statusDeliveredB": "Delivered (2/2)",
-    "statusResolved": "Resolved"
+    "chatEmpty": "Ei viestejä vielä. Aloita keskustelu!",
+    "chatPlaceholder": "Kirjoita viesti...",
+    "statusAccepted": "Hyväksytty",
+    "statusInProgress": "Käynnissä",
+    "statusDeliveredA": "Toimitettu (1/2)",
+    "statusDeliveredB": "Toimitettu (2/2)",
+    "statusResolved": "Ratkaistu"
   },
   "info": {
     "title": "Swaply-tilastot",
@@ -1752,9 +1752,9 @@
     "mapTitle": "Sijaintikartta",
     "noPins": "Ei pinnejä näytettäväksi",
     "loading": "Ladataan karttaa…",
-    "title": "Active users near you",
+    "title": "Aktiiviset käyttäjät lähellä sinua",
     "liveBadge": "Live",
-    "guestTooltip": "Sign up to see who swaps in your area"
+    "guestTooltip": "Rekisteröidy nähdäksesi, kuka vaihtaa alueellasi"
   },
   "location": {
     "country": "Maa",
@@ -2196,7 +2196,7 @@
     "modalDescription": "Luo ilmainen tili ehdottaaksesi vaihtoja, lähettääksesi viestejä ja aloittaaksesi vaihtamisen.",
     "modalCta": "Luo ilmainen tili",
     "modalDismiss": "Ehkä myöhemmin",
-    "haveAccount": "I already have an account"
+    "haveAccount": "Minulla on jo tili"
   },
   "about": {
     "title": "Tietoa Swaplystä",
@@ -2352,8 +2352,8 @@
     "searchPrefix": "Etsitään:",
     "daysRemaining": "{days} päivää jäljellä",
     "you": "You",
-    "userPrefix": "User",
-    "lookingFor": "Looking for"
+    "userPrefix": "Käyttäjä",
+    "lookingFor": "Etsii"
   },
   "history": {
     "title": "Vaihtohistoria",
@@ -2573,16 +2573,16 @@
     "ctaDescription": "Listaa objektisi ja löydä mitä voit saada vastineeksi.",
     "ctaButton": "Kokeile Swaplya ilmaiseksi →",
     "metaDescription": "Artikkelit \"{category}\" -kategoriasta Swaply-blogista.",
-    "tableOfContents": "Table of Contents",
-    "guide": "Guide",
-    "tutorial": "Tutorial",
-    "inspiration": "Inspiration",
-    "sustainability": "Sustainability",
-    "safety": "Safety",
-    "technology": "Technology",
-    "trends": "Trends",
-    "community": "Community",
-    "product": "Product",
+    "tableOfContents": "Sisällysluettelo",
+    "guide": "Opas",
+    "tutorial": "Opetusohjelma",
+    "inspiration": "Inspiraatio",
+    "sustainability": "Kestävyys",
+    "safety": "Turvallisuus",
+    "technology": "Teknologia",
+    "trends": "Trendit",
+    "community": "Yhteisö",
+    "product": "Tuote",
     "allCategories": "All"
   },
   "push": {
@@ -2974,7 +2974,7 @@
     "unexpectedError": "Odottamaton virhe. Yritä uudelleen.",
     "stripeUnavailable": "Stripe ei ole saatavilla",
     "securePayment": "Turvallinen maksu Stripen kautta. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "Boost 7 days",
+    "boost7days": "Boost 7 päivää",
     "alreadyPurchased": "Jo ostettu",
     "boost24h": "Boost 24h",
     "boost72h": "Boost 72h"
@@ -3016,9 +3016,9 @@
     "fieldAirline": "Lentoyhtiö",
     "fieldFlightNumber": "Lentonumero",
     "fieldFlightClass": "Luokka",
-    "classEconomy": "Economy",
+    "classEconomy": "Talousluokka",
     "classBusiness": "Liiketoiminta",
-    "classFirst": "First",
+    "classFirst": "Ensimmäinen",
     "fieldEstimatedValue": "Arvioitu arvo",
     "nights": "yötä",
     "platformDirect": "Suora varaus",
@@ -3045,60 +3045,60 @@
     "settings": "Evästeasetukset"
   },
   "branches": {
-    "tagline": "Swap what you have for what you need — objects, properties, services, and events.",
-    "objects": "Objects",
-    "objectsDesc": "Swap electronics, books, clothes, and more",
-    "properties": "Properties",
-    "propertiesDesc": "Exchange homes, apartments, and spaces",
-    "services": "Services",
-    "servicesDesc": "Trade skills, labor, and professional help",
-    "events": "Events",
-    "eventsDesc": "Swap tickets, reservations, and experiences",
-    "comingSoon": "This section is coming soon. Stay tuned!"
+    "tagline": "Vaihda omistamasi tavarat siihen, mitä tarvitset — esineet, kiinteistöt, palvelut ja tapahtumat.",
+    "objects": "Esineet",
+    "objectsDesc": "Vaihda elektroniikkaa, kirjoja, vaatteita ja paljon muuta",
+    "properties": "Kiinteistöt",
+    "propertiesDesc": "Vaihda asuntoja, kerrostaloasuntoja ja tiloja",
+    "services": "Palvelut",
+    "servicesDesc": "Vaihda osaamista, työvoimaa ja ammatillista apua",
+    "events": "Tapahtumat",
+    "eventsDesc": "Vaihda lippuja, varauksia ja kokemuksia",
+    "comingSoon": "Tämä osio tulee pian. Pysy kuulolla!"
   },
   "hero": {
-    "tagline": "Swap what you have for what you want"
+    "tagline": "Vaihda mitä sinulla on siihen mitä haluat"
   },
   "benefits": {
-    "label": "Why Swaply?",
-    "directSwap": "Direct swap between people",
-    "globalCommunity": "Global community",
-    "aiMatching": "Automatic AI matching",
-    "escrow": "Escrow for safety",
-    "logistics": "Integrated logistics",
-    "negotiation": "In-platform negotiation",
-    "localPartners": "Find partners nearby"
+    "label": "Miksi Swaply?",
+    "directSwap": "Suora vaihto ihmisten välillä",
+    "globalCommunity": "Globaali yhteisö",
+    "aiMatching": "Automaattinen AI-sovitus",
+    "escrow": "Escrow turvallisuuden vuoksi",
+    "logistics": "Integroitu logistiikka",
+    "negotiation": "Neuvottelu alustan sisällä",
+    "localPartners": "Etsi kumppaneita lähellä"
   },
   "premium": {
     "title": "Swaply Premium",
-    "subtitle": "Global visibility · Priority matching"
+    "subtitle": "Globaali näkyvyys · Etusija-sovitus"
   },
   "analytics": {
-    "title": "Analytics",
-    "loginRequired": "You must be logged in to view analytics.",
-    "dashboard": "Analytics Dashboard",
-    "upgradeToPremium": "Upgrade to Premium for full analytics access",
-    "noData": "No data",
-    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
-    "totalViews": "Total views",
-    "favoritesReceived": "Favorites received",
-    "proposalsReceived": "Proposals received",
-    "conversionRate": "Conversion rate",
-    "completedSwaps": "Completed swaps",
-    "avgTimeToProposal": "Avg time to proposal",
-    "viewsPerDay": "Views per day",
-    "last30Days": "Last 30 days",
-    "topItems": "Top items",
-    "byViews": "By number of views",
-    "insights": "Automated insights",
-    "insightsDesc": "Recommendations based on your data"
+    "title": "Analytiikka",
+    "loginRequired": "Sinun on kirjauduttava sisään nähdäksesi analytiikan.",
+    "dashboard": "Analytiikan kojelauta",
+    "upgradeToPremium": "Päivitä Premium-tilalle saadaksesi täyden analytiikan käyttöoikeuden",
+    "noData": "Ei tietoja",
+    "noDataDesc": "Ei analytiikan tietoja vielä. Käy kohteissasi aloittaaksesi seurannan.",
+    "totalViews": "Näkymät yhteensä",
+    "favoritesReceived": "Saadut suosikit",
+    "proposalsReceived": "Saadut ehdotukset",
+    "conversionRate": "Konversiosuhde",
+    "completedSwaps": "Valmistuneet vaihdot",
+    "avgTimeToProposal": "Keskimääräinen aika ehdotukseen",
+    "viewsPerDay": "Näkymät päivässä",
+    "last30Days": "Viimeiset 30 päivää",
+    "topItems": "Suosituimmat kohteet",
+    "byViews": "Näkymien lukumäärän mukaan",
+    "insights": "Automatisoitu raportointi",
+    "insightsDesc": "Suositukset perustuen tietoihisi"
   },
   "share": {
-    "copied": "Copied!",
-    "copyLink": "Copy link"
+    "copied": "Kopioitu!",
+    "copyLink": "Kopioi linkki"
   },
   "badge": {
-    "free": "Free",
+    "free": "Ilmainen",
     "premium": "Premium",
     "platinum": "Platinum"
   }

@@ -46,8 +46,8 @@
     "myDesk": "Benim Taka Masam",
     "myDeskDescription": "Aktif takalar, bekleyen işlemler ve son tarihler izleyin",
     "romania": "Romanya",
-    "user": "User",
-    "recommendedNextStep": "Recommended next step"
+    "user": "Kullanıcı",
+    "recommendedNextStep": "Önerilen sonraki adım"
   },
   "nav": {
     "home": "Ana Sayfa",
@@ -1220,7 +1220,7 @@
     "bundleLockedDesc": "Bu paket swap kabul edildiğinde kilitlendi. Öğeler değiştirilemez.",
     "bundleItems": "Pakette {count} öğe",
     "bundleCurrency": "RON",
-    "bundleSwapSummary": "Swap: {left} ↔ {right}",
+    "bundleSwapSummary": "Takas: {left} ↔ {right}",
     "disputeReason": "Sebep:",
     "disputeEvidenceCount": "{count} kanıt eklendi",
     "disputeOpenedOn": "{date} tarihinde açıldı",
@@ -1332,14 +1332,14 @@
     "digitalEmail": "Onay e-postası",
     "digitalPdf": "PDF / QR kodu",
     "digitalBookingRef": "Rezervasyon referansı",
-    "swapChat": "Swap Chat",
-    "chatEmpty": "No messages yet. Start the conversation!",
-    "chatPlaceholder": "Type a message...",
-    "statusAccepted": "Accepted",
-    "statusInProgress": "In progress",
-    "statusDeliveredA": "Delivered (1/2)",
-    "statusDeliveredB": "Delivered (2/2)",
-    "statusResolved": "Resolved"
+    "swapChat": "Takas Sohbeti",
+    "chatEmpty": "Henüz mesaj yok. Konuşmayı başlat!",
+    "chatPlaceholder": "Bir mesaj yaz...",
+    "statusAccepted": "Kabul edildi",
+    "statusInProgress": "Devam ediyor",
+    "statusDeliveredA": "Teslim edildi (1/2)",
+    "statusDeliveredB": "Teslim edildi (2/2)",
+    "statusResolved": "Çözüldü"
   },
   "info": {
     "title": "Swaply İstatistikleri",
@@ -1752,9 +1752,9 @@
     "mapTitle": "Konum haritası",
     "noPins": "Gösterilecek pin yok",
     "loading": "Harita yükleniyor…",
-    "title": "Active users near you",
-    "liveBadge": "Live",
-    "guestTooltip": "Sign up to see who swaps in your area"
+    "title": "Sizin yakınında aktif kullanıcılar",
+    "liveBadge": "Canlı",
+    "guestTooltip": "Bölgenizdeki takas yapanları görmek için kaydolun"
   },
   "location": {
     "country": "Ülke",
@@ -2974,10 +2974,10 @@
     "unexpectedError": "Beklenmeyen hata. Lütfen tekrar deneyin.",
     "stripeUnavailable": "Stripe kullanılamıyor",
     "securePayment": "Stripe ile güvenli ödeme. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "Boost 7 days",
+    "boost7days": "7 gün Boost",
     "alreadyPurchased": "Zaten satın alındı",
-    "boost24h": "Boost 24h",
-    "boost72h": "Boost 72h"
+    "boost24h": "24 saat Boost",
+    "boost72h": "72 saat Boost"
   },
   "payments": {
     "paymentMethod": "Ödeme yöntemi",
@@ -3018,7 +3018,7 @@
     "fieldFlightClass": "Sınıf",
     "classEconomy": "Ekonomi",
     "classBusiness": "İşletme",
-    "classFirst": "First",
+    "classFirst": "İlk",
     "fieldEstimatedValue": "Tahmini değer",
     "nights": "gece",
     "platformDirect": "Doğrudan rezervasyon",
@@ -3045,7 +3045,7 @@
     "settings": "Çerez ayarları"
   },
   "branches": {
-    "tagline": "Swap what you have for what you need — objects, properties, services, and events.",
+    "tagline": "Sahip olduklarınızı ihtiyaç duyduklarınızla takas edin — nesneler, mülkler, hizmetler ve etkinlikler.",
     "objects": "Nesneler",
     "objectsDesc": "Elektronik, kitap, giysi ve daha fazlasını takas edin",
     "properties": "Mülkler",
@@ -3054,7 +3054,7 @@
     "servicesDesc": "Beceri, emek ve profesyonel yardımı takas edin",
     "events": "Etkinlikler",
     "eventsDesc": "Bilet, rezervasyon ve deneyimleri takas edin",
-    "comingSoon": "This section is coming soon. Stay tuned!"
+    "comingSoon": "Bu bölüm yakında gelecek. Bizi takip edin!"
   },
   "hero": {
     "tagline": "Sahip olduğunu istediğinle takas et"
@@ -3094,11 +3094,11 @@
     "insightsDesc": "Verilerinize dayalı öneriler"
   },
   "share": {
-    "copied": "Copied!",
-    "copyLink": "Copy link"
+    "copied": "Kopyalandı!",
+    "copyLink": "Bağlantıyı kopyala"
   },
   "badge": {
-    "free": "Free",
+    "free": "Ücretsiz",
     "premium": "Premium",
     "platinum": "Platinum"
   }

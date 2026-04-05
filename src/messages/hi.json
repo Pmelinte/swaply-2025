@@ -46,8 +46,8 @@
     "myDesk": "मेरा स्वैप डेस्क",
     "myDeskDescription": "सक्रिय स्वैप, लंबित कार्यों और समय सीमा को ट्रैक करें",
     "romania": "रोमानिया",
-    "user": "User",
-    "recommendedNextStep": "Recommended next step"
+    "user": "उपयोगकर्ता",
+    "recommendedNextStep": "अनुशंसित अगला कदम"
   },
   "nav": {
     "home": "होम",
@@ -1333,13 +1333,13 @@
     "digitalPdf": "PDF / QR कोड",
     "digitalBookingRef": "बुकिंग संदर्भ",
     "swapChat": "Swap Chat",
-    "chatEmpty": "No messages yet. Start the conversation!",
-    "chatPlaceholder": "Type a message...",
-    "statusAccepted": "Accepted",
-    "statusInProgress": "In progress",
-    "statusDeliveredA": "Delivered (1/2)",
-    "statusDeliveredB": "Delivered (2/2)",
-    "statusResolved": "Resolved"
+    "chatEmpty": "अभी कोई संदेश नहीं। बातचीत शुरू करें!",
+    "chatPlaceholder": "एक संदेश टाइप करें...",
+    "statusAccepted": "स्वीकृत",
+    "statusInProgress": "प्रगति में",
+    "statusDeliveredA": "डिलीवर किया गया (1/2)",
+    "statusDeliveredB": "डिलीवर किया गया (2/2)",
+    "statusResolved": "हल किया गया"
   },
   "info": {
     "title": "Swaply आंकड़े",
@@ -1752,9 +1752,9 @@
     "mapTitle": "स्थान मानचित्र",
     "noPins": "प्रदर्शित करने के लिए कोई पिन नहीं",
     "loading": "मानचित्र लोड हो रहा है…",
-    "title": "Active users near you",
-    "liveBadge": "Live",
-    "guestTooltip": "Sign up to see who swaps in your area"
+    "title": "आपके पास सक्रिय उपयोगकर्ता",
+    "liveBadge": "लाइव",
+    "guestTooltip": "अपने क्षेत्र में स्वैप करने वालों को देखने के लिए साइन अप करें"
   },
   "location": {
     "country": "देश",
@@ -2974,10 +2974,10 @@
     "unexpectedError": "अप्रत्याशित त्रुटि। फिर से कोशिश करें।",
     "stripeUnavailable": "Stripe उपलब्ध नहीं है",
     "securePayment": "Stripe के माध्यम से सुरक्षित भुगतान। Visa, Mastercard, Apple Pay, Google Pay।",
-    "boost7days": "Boost 7 days",
+    "boost7days": "7 दिन के लिए बूस्ट करें",
     "alreadyPurchased": "पहले से खरीदा गया",
-    "boost24h": "Boost 24h",
-    "boost72h": "Boost 72h"
+    "boost24h": "24 घंटे के लिए बूस्ट करें",
+    "boost72h": "72 घंटे के लिए बूस्ट करें"
   },
   "payments": {
     "paymentMethod": "भुगतान विधि",
@@ -3045,7 +3045,7 @@
     "settings": "कुकी सेटिंग्स"
   },
   "branches": {
-    "tagline": "Swap what you have for what you need — objects, properties, services, and events.",
+    "tagline": "जो आपके पास है उसे उसके लिए स्वैप करें जिसकी आपको जरूरत है — वस्तुएं, संपत्ति, सेवाएं और इवेंट।",
     "objects": "वस्तुएं",
     "objectsDesc": "इलेक्ट्रॉनिक्स, किताबें, कपड़े और अधिक बदलें",
     "properties": "संपत्तियां",
@@ -3054,7 +3054,7 @@
     "servicesDesc": "कौशल, श्रम और पेशेवर मदद बदलें",
     "events": "कार्यक्रम",
     "eventsDesc": "टिकट, आरक्षण और अनुभव बदलें",
-    "comingSoon": "This section is coming soon. Stay tuned!"
+    "comingSoon": "यह सेक्शन जल्द ही आने वाला है। जुड़े रहें!"
   },
   "hero": {
     "tagline": "जो आपके पास है उसे जो चाहिए उससे बदलें"
@@ -3094,8 +3094,8 @@
     "insightsDesc": "आपके डेटा पर आधारित अनुशंसाएं"
   },
   "share": {
-    "copied": "Copied!",
-    "copyLink": "Copy link"
+    "copied": "कॉपी हो गया!",
+    "copyLink": "लिंक कॉपी करें"
   },
   "badge": {
     "free": "Free",

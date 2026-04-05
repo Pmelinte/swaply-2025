@@ -46,8 +46,8 @@
     "myDesk": "Min byttedesk",
     "myDeskDescription": "Spor aktive bytter, ventende handlinger og frister",
     "romania": "Romania",
-    "user": "User",
-    "recommendedNextStep": "Recommended next step"
+    "user": "Bruker",
+    "recommendedNextStep": "Anbefalt neste trinn"
   },
   "nav": {
     "home": "Hjem",
@@ -76,7 +76,7 @@
     "badgeBenefits": "Merkefordeler",
     "completeProfile": "Fullfør profilen din",
     "desk": "Min Skrivebord",
-    "settings": "Settings"
+    "settings": "Innstillinger"
   },
   "notifications": {
     "title": "Varsler (lik/interesse/chat/swaply)",
@@ -445,8 +445,8 @@
     "guestFeatureVerifyDesc": "E-post, telefon og identitet — for merket for verifisert bruker.",
     "guestCta": "Opprett din gratis profil →",
     "networkError": "Nettverksfeil",
-    "passkeyRegFailed": "Passkey registration failed",
-    "genericError": "Error"
+    "passkeyRegFailed": "Passkey-registrering mislyktes",
+    "genericError": "Feil"
   },
   "home": {
     "welcome": "Velkommen tilbake",
@@ -634,17 +634,17 @@
     "badgeProperty": "Eiendom",
     "badgeService": "Tjeneste",
     "condition_new": "New",
-    "condition_good": "Good",
-    "condition_like_new": "Like new",
-    "condition_fair": "Fair",
-    "condition_poor": "Poor",
-    "condition_used": "Used",
-    "condition_used_good": "Good condition",
+    "condition_good": "God",
+    "condition_like_new": "Nesten ny",
+    "condition_fair": "Rimelig",
+    "condition_poor": "Dårlig",
+    "condition_used": "Brukt",
+    "condition_used_good": "God stand",
     "status_active": "Aktiv",
     "status_reserved": "Reservert",
     "status_traded": "Byttet",
     "status_paused": "Pauset",
-    "status_archived": "Archived",
+    "status_archived": "Arkivert",
     "shareButton": "Del"
   },
   "objectDetail": {
@@ -822,9 +822,9 @@
     "guestDemo1Location": "Cluj-Napoca",
     "guestDemo2Title": "Canon EOS 250D",
     "guestDemo2Swap": "DJI Mini 3",
-    "guestDemo2Location": "Bucharest",
-    "guestDemo3Title": "Fender Guitar",
-    "guestDemo3Swap": "Marshall Speakers",
+    "guestDemo2Location": "Bukarest",
+    "guestDemo3Title": "Fender gitar",
+    "guestDemo3Swap": "Marshall høyttalere",
     "guestDemo3Location": "Timișoara",
     "guestBtnAccept": "Godta samsvar",
     "guestBtnSkip": "Hopp over",
@@ -1333,13 +1333,13 @@
     "digitalPdf": "PDF / QR-kode",
     "digitalBookingRef": "Bookingsreferanse",
     "swapChat": "Swap Chat",
-    "chatEmpty": "No messages yet. Start the conversation!",
-    "chatPlaceholder": "Type a message...",
-    "statusAccepted": "Accepted",
-    "statusInProgress": "In progress",
-    "statusDeliveredA": "Delivered (1/2)",
-    "statusDeliveredB": "Delivered (2/2)",
-    "statusResolved": "Resolved"
+    "chatEmpty": "Ingen meldinger ennå. Start samtalen!",
+    "chatPlaceholder": "Skriv en melding...",
+    "statusAccepted": "Akseptert",
+    "statusInProgress": "Pågår",
+    "statusDeliveredA": "Levert (1/2)",
+    "statusDeliveredB": "Levert (2/2)",
+    "statusResolved": "Løst"
   },
   "info": {
     "title": "Swaply-statistikk",
@@ -1752,9 +1752,9 @@
     "mapTitle": "Lokasjonskart",
     "noPins": "Ingen pins å vise",
     "loading": "Laster inn kart…",
-    "title": "Active users near you",
-    "liveBadge": "Live",
-    "guestTooltip": "Sign up to see who swaps in your area"
+    "title": "Aktive brukere nær deg",
+    "liveBadge": "Direkte",
+    "guestTooltip": "Registrer deg for å se hvem som bytter i ditt område"
   },
   "location": {
     "country": "Land",
@@ -1808,7 +1808,7 @@
     "healthShortDesc": "Kort beskrivelse — legg til flere detaljer",
     "insights": "Innsikter",
     "views": "Visninger",
-    "likes": "Likes",
+    "likes": "Liker",
     "proposals": "Forslag",
     "chats": "Chatter",
     "confirmDelete": "Er du sikker på at du vil slette dette objektet? Dette kan ikke angres.",
@@ -2108,7 +2108,7 @@
     "swapMilestones": "Bytte-milepæler",
     "swapsCompleted": "{count} bytter fullført",
     "tabMilestones": "Milepæl",
-    "tabReferrals": "Referrals",
+    "tabReferrals": "Referrasjoner",
     "tabStreak": "Streak",
     "tabSubscriptions": "Abonnementer",
     "tabThemes": "Temaer",
@@ -2196,7 +2196,7 @@
     "modalDescription": "Opprett en gratis konto for å foreslå bytter, sende meldinger og begynne å bytte.",
     "modalCta": "Opprett gratis konto",
     "modalDismiss": "Kanskje senere",
-    "haveAccount": "I already have an account"
+    "haveAccount": "Jeg har allerede en konto"
   },
   "about": {
     "title": "Om Swaply",
@@ -2352,8 +2352,8 @@
     "searchPrefix": "Søker etter:",
     "daysRemaining": "{days} dager igjen",
     "you": "You",
-    "userPrefix": "User",
-    "lookingFor": "Looking for"
+    "userPrefix": "Bruker",
+    "lookingFor": "Søker etter"
   },
   "history": {
     "title": "Byttehistorikk",
@@ -2364,10 +2364,10 @@
     "reputation": "Omdømme",
     "milestones": "Milepæler",
     "milestone1": "Første swap",
-    "milestone5": "5 swaps",
-    "milestone10": "10 swaps",
-    "milestone25": "25 swaps",
-    "milestone50": "50 swaps",
+    "milestone5": "5 byttes",
+    "milestone10": "10 byttes",
+    "milestone25": "25 byttes",
+    "milestone50": "50 byttes",
     "filter_all": "All",
     "filter_completed": "Fullført",
     "filter_pending": "Pågår",
@@ -2573,16 +2573,16 @@
     "ctaDescription": "List opp objektene dine og oppdag hva du kan få i bytte.",
     "ctaButton": "Prøv Swaply gratis →",
     "metaDescription": "Artikler fra \"{category}\" kategorien på Swaply-bloggen.",
-    "tableOfContents": "Table of Contents",
-    "guide": "Guide",
-    "tutorial": "Tutorial",
-    "inspiration": "Inspiration",
-    "sustainability": "Sustainability",
-    "safety": "Safety",
-    "technology": "Technology",
-    "trends": "Trends",
-    "community": "Community",
-    "product": "Product",
+    "tableOfContents": "Innholdsfortegnelse",
+    "guide": "Veiledning",
+    "tutorial": "Opplæring",
+    "inspiration": "Inspirasjon",
+    "sustainability": "Bærekraft",
+    "safety": "Sikkerhet",
+    "technology": "Teknologi",
+    "trends": "Trender",
+    "community": "Fellesskap",
+    "product": "Produkt",
     "allCategories": "All"
   },
   "push": {
@@ -2904,7 +2904,7 @@
     "taskConfirmLogistics": "Bekreft logistikk for {item}",
     "taskConfirmReceipt": "Bekreft mottak av {item}",
     "taskLeaveReview": "Gi en vurdering for {item}",
-    "taskStartSwap": "Start swap for {item}",
+    "taskStartSwap": "Start bytte for {item}",
     "actionRespond": "Svar",
     "actionConfirmLogistics": "Oppsett",
     "actionConfirmReceipt": "Bekreft",
@@ -2974,10 +2974,10 @@
     "unexpectedError": "Uventet feil. Prøv igjen.",
     "stripeUnavailable": "Stripe er ikke tilgjengelig",
     "securePayment": "Sikker betaling via Stripe. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "Boost 7 days",
+    "boost7days": "Boost 7 dager",
     "alreadyPurchased": "Allerede kjøpt",
-    "boost24h": "Boost 24h",
-    "boost72h": "Boost 72h"
+    "boost24h": "Boost 24t",
+    "boost72h": "Boost 72t"
   },
   "payments": {
     "paymentMethod": "Betalingsmåte",
@@ -3045,57 +3045,57 @@
     "settings": "Innstillinger for informasjonskapsler"
   },
   "branches": {
-    "tagline": "Swap what you have for what you need — objects, properties, services, and events.",
-    "objects": "Objects",
-    "objectsDesc": "Swap electronics, books, clothes, and more",
-    "properties": "Properties",
-    "propertiesDesc": "Exchange homes, apartments, and spaces",
-    "services": "Services",
-    "servicesDesc": "Trade skills, labor, and professional help",
-    "events": "Events",
-    "eventsDesc": "Swap tickets, reservations, and experiences",
-    "comingSoon": "This section is coming soon. Stay tuned!"
+    "tagline": "Bytt det du har mot det du trenger — gjenstander, eiendommer, tjenester og arrangementer.",
+    "objects": "Gjenstander",
+    "objectsDesc": "Bytt elektronikk, bøker, klær og mer",
+    "properties": "Eiendommer",
+    "propertiesDesc": "Bytt boliger, leiligheter og lokaler",
+    "services": "Tjenester",
+    "servicesDesc": "Bytt ferdigheter, arbeidskraft og faglig hjelp",
+    "events": "Arrangementer",
+    "eventsDesc": "Bytt billetter, reservasjoner og opplevelser",
+    "comingSoon": "Denne delen kommer snart. Følg med!"
   },
   "hero": {
-    "tagline": "Swap what you have for what you want"
+    "tagline": "Bytt det du har mot det du ønsker"
   },
   "benefits": {
-    "label": "Why Swaply?",
-    "directSwap": "Direct swap between people",
-    "globalCommunity": "Global community",
-    "aiMatching": "Automatic AI matching",
-    "escrow": "Escrow for safety",
-    "logistics": "Integrated logistics",
-    "negotiation": "In-platform negotiation",
-    "localPartners": "Find partners nearby"
+    "label": "Hvorfor Swaply?",
+    "directSwap": "Direkte bytte mellom personer",
+    "globalCommunity": "Global fellesskap",
+    "aiMatching": "Automatisk AI-matching",
+    "escrow": "Escrow for sikkerhet",
+    "logistics": "Integrert logistikk",
+    "negotiation": "Forhandling på plattformen",
+    "localPartners": "Finn partnere i nærheten"
   },
   "premium": {
     "title": "Swaply Premium",
-    "subtitle": "Global visibility · Priority matching"
+    "subtitle": "Global synlighet · Prioritert matching"
   },
   "analytics": {
-    "title": "Analytics",
-    "loginRequired": "You must be logged in to view analytics.",
-    "dashboard": "Analytics Dashboard",
-    "upgradeToPremium": "Upgrade to Premium for full analytics access",
-    "noData": "No data",
-    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
-    "totalViews": "Total views",
-    "favoritesReceived": "Favorites received",
-    "proposalsReceived": "Proposals received",
-    "conversionRate": "Conversion rate",
-    "completedSwaps": "Completed swaps",
-    "avgTimeToProposal": "Avg time to proposal",
-    "viewsPerDay": "Views per day",
-    "last30Days": "Last 30 days",
-    "topItems": "Top items",
-    "byViews": "By number of views",
-    "insights": "Automated insights",
-    "insightsDesc": "Recommendations based on your data"
+    "title": "Analyser",
+    "loginRequired": "Du må være logget inn for å se analyser.",
+    "dashboard": "Analysedashbord",
+    "upgradeToPremium": "Oppgrader til Premium for full tilgang til analyser",
+    "noData": "Ingen data",
+    "noDataDesc": "Ingen analysedata ennå. Besøk elementene dine for å starte sporing.",
+    "totalViews": "Totale visninger",
+    "favoritesReceived": "Favoritter mottatt",
+    "proposalsReceived": "Forslag mottatt",
+    "conversionRate": "Konverteringsrate",
+    "completedSwaps": "Gjennomførte bytter",
+    "avgTimeToProposal": "Gjennomsnittlig tid til forslag",
+    "viewsPerDay": "Visninger per dag",
+    "last30Days": "Siste 30 dager",
+    "topItems": "Topp-elementer",
+    "byViews": "Etter antall visninger",
+    "insights": "Automatisert innsikt",
+    "insightsDesc": "Anbefalinger basert på dataene dine"
   },
   "share": {
-    "copied": "Copied!",
-    "copyLink": "Copy link"
+    "copied": "Kopiert!",
+    "copyLink": "Kopier lenke"
   },
   "badge": {
     "free": "Free",

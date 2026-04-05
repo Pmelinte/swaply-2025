@@ -46,8 +46,8 @@
     "myDesk": "Mo Dheasc Babhtála",
     "myDeskDescription": "Lean spéis ar bhabhtálacha gníomhach, gníomhartha ar feitheamh, agus spriocdhátaí",
     "romania": "An Rómáin",
-    "user": "User",
-    "recommendedNextStep": "Recommended next step"
+    "user": "Úsáideoir",
+    "recommendedNextStep": "An chéad chéim dheireanach a bhí beartaithe"
   },
   "nav": {
     "home": "Baile",
@@ -76,7 +76,7 @@
     "badgeBenefits": "Buntaisti suaitheantais",
     "completeProfile": "Comhlanaigh do phroifil",
     "desk": "Mo Dheasc",
-    "settings": "Settings"
+    "settings": "Socruithe"
   },
   "notifications": {
     "title": "Fograí (maith liom/speis/comhrá/swaply)",
@@ -445,8 +445,8 @@
     "guestFeatureVerifyDesc": "Ríomhphost, fón, agus céannacht — do bheirthe an fhíorite.",
     "guestCta": "Cruthaigh do phróifíl saor in aisce →",
     "networkError": "Earráid líonra",
-    "passkeyRegFailed": "Passkey registration failed",
-    "genericError": "Error"
+    "passkeyRegFailed": "Theip ar chlárú Passkey",
+    "genericError": "Earráid"
   },
   "home": {
     "welcome": "Fáilte ar ais",
@@ -519,7 +519,7 @@
     "actionWantedDesc": "Féach ar a bhfuil ag teastáil ó dhaoine eile",
     "actionFavorites": "Míreanna Sábháilte",
     "actionFavoritesDesc": "Do rogha bhreise sábháilte",
-    "actionLeaderboard": "Leaderboard",
+    "actionLeaderboard": "Clár Cinn",
     "actionLeaderboardDesc": "Babhtálaithe barrainn an phobail",
     "actionEco": "Tionchar Éiceolaíoch",
     "actionEcoDesc": "Do rannchuidiú comhshaoil",
@@ -634,17 +634,17 @@
     "badgeProperty": "Maoin",
     "badgeService": "Seirbhís",
     "condition_new": "New",
-    "condition_good": "Good",
-    "condition_like_new": "Like new",
-    "condition_fair": "Fair",
-    "condition_poor": "Poor",
-    "condition_used": "Used",
-    "condition_used_good": "Good condition",
+    "condition_good": "Go maith",
+    "condition_like_new": "Cosúil le nua",
+    "condition_fair": "Réasúnta",
+    "condition_poor": "Bocht",
+    "condition_used": "Úsáidte",
+    "condition_used_good": "Dea-chondáil",
     "status_active": "Gníomhach",
     "status_reserved": "Curtha in áirithe",
     "status_traded": "Malartaithe",
     "status_paused": "Ar sos",
-    "status_archived": "Archived",
+    "status_archived": "Cartlannaithe",
     "shareButton": "Roinn"
   },
   "objectDetail": {
@@ -878,7 +878,7 @@
     "agreedItems": "Aontaithe",
     "pendingItems": "Foluain",
     "summaryItems": "Míreanna: {req} ↔ {res}",
-    "summaryLogistics": "Logistics: {method}",
+    "summaryLogistics": "Logainm: {method}",
     "summaryMeetup": "Casadh: {point}",
     "summaryNotAgreed": "Níor pléadh go fóill",
     "goToExchange": "Téigh go dtí an Malartú",
@@ -1262,7 +1262,7 @@
     "disputeStatusResolvedSplit": "Réasúnaithe — scaoileadh",
     "disputeStatusRejected": "Diúltaithe",
     "disputeDetailTitle": "Sonraí an díospóid",
-    "disputeTimeline": "Timeline",
+    "disputeTimeline": "Fhad Ama",
     "disputeEvidenceFromInitiator": "Fianaise ón tosaitheoir",
     "disputeEvidenceFromRespondent": "Fianaise ón bhfreagróir",
     "disputeAdminResolve": "Réiteach an díospóireachta",
@@ -1333,13 +1333,13 @@
     "digitalPdf": "PDF / Cód QR",
     "digitalBookingRef": "Iomrá an bhogearraí",
     "swapChat": "Swap Chat",
-    "chatEmpty": "No messages yet. Start the conversation!",
-    "chatPlaceholder": "Type a message...",
-    "statusAccepted": "Accepted",
-    "statusInProgress": "In progress",
-    "statusDeliveredA": "Delivered (1/2)",
-    "statusDeliveredB": "Delivered (2/2)",
-    "statusResolved": "Resolved"
+    "chatEmpty": "Gan teachtaireachtaí fós. Tosaigh an comhrá!",
+    "chatPlaceholder": "Clóscríobh teachtaireacht...",
+    "statusAccepted": "Glactha",
+    "statusInProgress": "Ar siúl",
+    "statusDeliveredA": "Seachaint (1/2)",
+    "statusDeliveredB": "Seachaint (2/2)",
+    "statusResolved": "Réitithe"
   },
   "info": {
     "title": "Staitistici Swaply",
@@ -1752,9 +1752,9 @@
     "mapTitle": "Leárscáil suimh",
     "noPins": "Nil aon bhiorrain le taispeáint",
     "loading": "Ag lódáil an mhapa…",
-    "title": "Active users near you",
-    "liveBadge": "Live",
-    "guestTooltip": "Sign up to see who swaps in your area"
+    "title": "Úsáideoirí gníomhach gar duit",
+    "liveBadge": "Beo",
+    "guestTooltip": "Clárú chun a fhéachaint cé a bhíonn ag socrú in do cheantar"
   },
   "location": {
     "country": "Tir",
@@ -2117,7 +2117,7 @@
     "themesDescription": "Neasaigh do phróifíl le téama uathúil. Athraíonn gach téama dathanna do phróifíl.",
     "title": "Gealadh",
     "tokenHistory": "Stair Comharthaí",
-    "tokens": "tokens",
+    "tokens": "coins",
     "tokensClaimed": "+{count} tokens éilíonn!",
     "tokensEarned": "Comharthaí a thuill",
     "tokensSent": "tokens seolta!",
@@ -2196,7 +2196,7 @@
     "modalDescription": "Cruthaigh cuntas saor in aisce chun babhtálacha a mholadh, teachtaireachtaí a sheoladh agus tosú ag babhtáil.",
     "modalCta": "Cruthaigh cuntas saor in aisce",
     "modalDismiss": "B'fhéidir níos déanaí",
-    "haveAccount": "I already have an account"
+    "haveAccount": "Tá cuntas agam cheana féin"
   },
   "about": {
     "title": "Maidir le Swaply",
@@ -2352,8 +2352,8 @@
     "searchPrefix": "Ag lorg:",
     "daysRemaining": "{days} lá fágtha",
     "you": "You",
-    "userPrefix": "User",
-    "lookingFor": "Looking for"
+    "userPrefix": "Úsáideoir",
+    "lookingFor": "Ag lorg"
   },
   "history": {
     "title": "Stair Babhtála",
@@ -2573,16 +2573,16 @@
     "ctaDescription": "Liostáil do réada agus faigh amach cad a bhféadfá a fháil i gcomhréir.",
     "ctaButton": "Déan iarracht ar Swaply saor in aisce →",
     "metaDescription": "Ailt ó chatagóir \"{category}\" ar bhlag Swaply.",
-    "tableOfContents": "Table of Contents",
-    "guide": "Guide",
-    "tutorial": "Tutorial",
-    "inspiration": "Inspiration",
-    "sustainability": "Sustainability",
-    "safety": "Safety",
-    "technology": "Technology",
-    "trends": "Trends",
-    "community": "Community",
-    "product": "Product",
+    "tableOfContents": "Clár an Ábhair",
+    "guide": "Treoir",
+    "tutorial": "Oiliúint",
+    "inspiration": "Inspioráid",
+    "sustainability": "Inbhuanaitheacht",
+    "safety": "Sábháilteacht",
+    "technology": "Teicneolaíocht",
+    "trends": "Treochtanna",
+    "community": "Pobal",
+    "product": "Táirge",
     "allCategories": "All"
   },
   "push": {
@@ -2738,31 +2738,31 @@
     "byCity": "{category} de réir cathrach"
   },
   "categories": {
-    "electronics": "Electronics",
-    "sport": "Sports",
-    "arts": "Art & Hobby",
-    "books": "Books",
-    "home": "Home",
-    "fashion": "Fashion",
-    "automotive": "Auto",
-    "music": "Music",
-    "garden": "Garden",
-    "toys": "Toys",
-    "tools": "Tools",
-    "other": "Other",
-    "sports_outdoor": "Sports & Outdoor",
-    "hobby_games": "Hobbies & Games",
-    "books_media": "Books & Media",
-    "home_garden": "Home & Garden",
-    "fashion_accessories": "Fashion & Accessories",
-    "auto_moto": "Auto & Moto",
-    "music_audio": "Music & Audio",
-    "gardening_outdoor": "Gardening & Outdoor",
-    "toys_kids": "Toys & Kids",
-    "tools_diy": "Tools & DIY",
-    "vehicles": "Vehicles",
-    "experiences": "Experiences",
-    "medical": "Medical Equipment"
+    "electronics": "Gréine",
+    "sport": "Spórt",
+    "arts": "Ealaín & Hobby",
+    "books": "Leabhair",
+    "home": "Baile",
+    "fashion": "Faisin",
+    "automotive": "Gluaisteán",
+    "music": "Ceol",
+    "garden": "Gairdín",
+    "toys": "Bréagáchán",
+    "tools": "Uirlisí",
+    "other": "Eile",
+    "sports_outdoor": "Spórt & Foluain",
+    "hobby_games": "Hobbies & Cluichí",
+    "books_media": "Leabhair & Meáin",
+    "home_garden": "Baile & Gairdín",
+    "fashion_accessories": "Faisin & Gréithe",
+    "auto_moto": "Gluaisteán & Moto",
+    "music_audio": "Ceol & Fuaim",
+    "gardening_outdoor": "Garraigeoireacht & Foluain",
+    "toys_kids": "Bréagáchán & Leanaí",
+    "tools_diy": "Uirlisí & DIY",
+    "vehicles": "Feithiclí",
+    "experiences": "Taithí",
+    "medical": "Trealamh Leighis"
   },
   "trustScore": {
     "trustScoreTitle": "Scór iontaoibh",
@@ -2974,7 +2974,7 @@
     "unexpectedError": "Earráid bhreise. Triail arís.",
     "stripeUnavailable": "Níl Stripe ar fáil",
     "securePayment": "Íocaíocht dhíonraitheSripe. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "Boost 7 days",
+    "boost7days": "Boost 7 lá",
     "alreadyPurchased": "Cheannach cheana féin",
     "boost24h": "Boost 24h",
     "boost72h": "Boost 72h"
@@ -3039,66 +3039,66 @@
     "expiresIn": "Fágann sé in {days} lá"
   },
   "cookieConsent": {
-    "message": "We use cookies to improve your experience. Essential cookies are always active. Non-essential cookies help us analyze traffic and personalize content.",
-    "accept": "Accept all",
-    "reject": "Reject non-essential",
-    "settings": "Cookie settings"
+    "message": "Úsáidimid fianáin chun do thaithí a fheabhsú. Bíonn fianáin riachtanacha gníomhach i gcónaí. Cabhraíonn fianáin neamhriachtanacha linn an trácht a anailísiú agus an t-ábhar a dhéanamh pearsanta.",
+    "accept": "Glacadh ar fad",
+    "reject": "Diúltaigh do neamhriachtanacha",
+    "settings": "Socrú fianáin"
   },
   "branches": {
-    "tagline": "Swap what you have for what you need — objects, properties, services, and events.",
-    "objects": "Objects",
-    "objectsDesc": "Swap electronics, books, clothes, and more",
-    "properties": "Properties",
-    "propertiesDesc": "Exchange homes, apartments, and spaces",
-    "services": "Services",
-    "servicesDesc": "Trade skills, labor, and professional help",
-    "events": "Events",
-    "eventsDesc": "Swap tickets, reservations, and experiences",
-    "comingSoon": "This section is coming soon. Stay tuned!"
+    "tagline": "Babhtáil an méid atá agat ar an méid atá uait — rudaí, maoin, seirbhísí, agus imeachtaí.",
+    "objects": "Rudaí",
+    "objectsDesc": "Babhtáil leictreonic, leabhar, éadaí, agus níos mó",
+    "properties": "Maoin",
+    "propertiesDesc": "Malartú tithe, árasáin, agus spásanna",
+    "services": "Seirbhísí",
+    "servicesDesc": "Babhtáil scileanna, obair, agus cabhair ghairmiúil",
+    "events": "Imeachtaí",
+    "eventsDesc": "Babhtáil ticéid, leagain, agus taithí",
+    "comingSoon": "Tá an chuid seo ag teacht go gairid. Fan go fóill!"
   },
   "hero": {
-    "tagline": "Swap what you have for what you want"
+    "tagline": "Babhtáil an méid atá agat ar an méid a bhíonn uait"
   },
   "benefits": {
-    "label": "Why Swaply?",
-    "directSwap": "Direct swap between people",
-    "globalCommunity": "Global community",
-    "aiMatching": "Automatic AI matching",
-    "escrow": "Escrow for safety",
-    "logistics": "Integrated logistics",
-    "negotiation": "In-platform negotiation",
-    "localPartners": "Find partners nearby"
+    "label": "Cén fáth Swaply?",
+    "directSwap": "Babhtáil dhíreach idir daoine",
+    "globalCommunity": "Comhphobal Domhanda",
+    "aiMatching": "Meaitseáil uathoibríoch AI",
+    "escrow": "Escrow le haghaidh sábháilteachta",
+    "logistics": "Logaistíc Comhtháite",
+    "negotiation": "Idirnegóireacht ar an Ardán",
+    "localPartners": "Faigh Páirtnéirí gar duit"
   },
   "premium": {
     "title": "Swaply Premium",
-    "subtitle": "Global visibility · Priority matching"
+    "subtitle": "Infheictheacht Domhanda · Meaitseáil Thosaíochta"
   },
   "analytics": {
-    "title": "Analytics",
-    "loginRequired": "You must be logged in to view analytics.",
-    "dashboard": "Analytics Dashboard",
-    "upgradeToPremium": "Upgrade to Premium for full analytics access",
-    "noData": "No data",
-    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
-    "totalViews": "Total views",
-    "favoritesReceived": "Favorites received",
-    "proposalsReceived": "Proposals received",
-    "conversionRate": "Conversion rate",
-    "completedSwaps": "Completed swaps",
-    "avgTimeToProposal": "Avg time to proposal",
-    "viewsPerDay": "Views per day",
-    "last30Days": "Last 30 days",
-    "topItems": "Top items",
-    "byViews": "By number of views",
-    "insights": "Automated insights",
-    "insightsDesc": "Recommendations based on your data"
+    "title": "Anailísíochta",
+    "loginRequired": "Caithfidh tú a bheith logáilte isteach chun anailísíochta a fhéachaint.",
+    "dashboard": "Painéal Fhiosrúcháin Anailísíochta",
+    "upgradeToPremium": "Ardaigh go Premium chun rochtain iomlán ar anailísíochta",
+    "noData": "Gan Sonraí",
+    "noDataDesc": "Gan sonraí anailísíochta fós. Tabhair cuairt ar do mhíreanna chun foluain a thosú.",
+    "totalViews": "Iomlán Radharc",
+    "favoritesReceived": "Grá-rogha Faighte",
+    "proposalsReceived": "Togra Faighte",
+    "conversionRate": "Ráta Tiontaithe",
+    "completedSwaps": "Babhtanna Críochnaithe",
+    "avgTimeToProposal": "Am Meánach go Togra",
+    "viewsPerDay": "Radharc in aghaidh an Lae",
+    "last30Days": "30 lá anuas",
+    "topItems": "Príomheachtaí",
+    "byViews": "De réir líon na bhfeachaint",
+    "insights": "Fionnachtain uathoibríoch",
+    "insightsDesc": "Moltaí bunaithe ar do chuid sonraí"
   },
   "share": {
-    "copied": "Copied!",
-    "copyLink": "Copy link"
+    "copied": "Cóipeáilte!",
+    "copyLink": "Cóipeáil nasc"
   },
   "badge": {
-    "free": "Free",
+    "free": "Saor in aisce",
     "premium": "Premium",
     "platinum": "Platinum"
   }

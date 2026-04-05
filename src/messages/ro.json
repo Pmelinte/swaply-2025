@@ -149,7 +149,7 @@
     "resetPassword": "Reset parolă",
     "authOrRegister": "Autentificare / Înregistrare",
     "authDescription": "Email + parolă, cu opțiuni Google și OTP. Return-to păstrat după login.",
-    "email": "Email",
+    "email": "E-mail",
     "password": "Parolă",
     "acceptTerms": "Accept Termeni & Politica GDPR (nu permitem submit fără consimțământ)",
     "loginButton": "Autentificare",
@@ -2425,7 +2425,7 @@
     "paymentCanceled": "Plata a fost anulată. Poți încerca din nou."
   },
   "contact": {
-    "title": "Contact",
+    "title": "Contactează",
     "subtitle": "Raspundem in 24 de ore.",
     "formTitle": "Trimite-ne un mesaj",
     "labelName": "Nume",
@@ -2668,7 +2668,7 @@
     "fieldFuel": "Combustibil",
     "fuelPetrol": "Benzină",
     "fuelDiesel": "Diesel",
-    "fuelElectric": "Electric",
+    "fuelElectric": "Electrice",
     "fuelHybrid": "Hibrid",
     "fieldFrom": "De la (oraș/aeroport)",
     "fieldTo": "Până la (oraș/aeroport)",

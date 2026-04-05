@@ -46,8 +46,8 @@
     "myDesk": "Mans Apmaiņas Galds",
     "myDeskDescription": "Sekojiet aktīvām apmaiņām, gaidu darbībām un termiņiem",
     "romania": "Rumānija",
-    "user": "User",
-    "recommendedNextStep": "Recommended next step"
+    "user": "Lietotājs",
+    "recommendedNextStep": "Ieteiktais nākamais solis"
   },
   "nav": {
     "home": "Sakums",
@@ -76,7 +76,7 @@
     "badgeBenefits": "Zimes prieksrocibas",
     "completeProfile": "Aizpildiet savu profilu",
     "desk": "Mans Galds",
-    "settings": "Settings"
+    "settings": "Iestatījumi"
   },
   "notifications": {
     "title": "Pazinojumi (patik/interese/terzesana/swaply)",
@@ -445,8 +445,8 @@
     "guestFeatureVerifyDesc": "E-pasts, tālrunis un identitāte — verifikācijas lietotāja nozīmei.",
     "guestCta": "Izveidojiet bezmaksas profilu →",
     "networkError": "Tīkla kļūda",
-    "passkeyRegFailed": "Passkey registration failed",
-    "genericError": "Error"
+    "passkeyRegFailed": "Passpast reģistrācija neizdevās",
+    "genericError": "Kļūda"
   },
   "home": {
     "welcome": "Otrreiz sveicināti",
@@ -634,17 +634,17 @@
     "badgeProperty": "Īpašums",
     "badgeService": "Pakalpojums",
     "condition_new": "New",
-    "condition_good": "Good",
-    "condition_like_new": "Like new",
-    "condition_fair": "Fair",
-    "condition_poor": "Poor",
-    "condition_used": "Used",
-    "condition_used_good": "Good condition",
+    "condition_good": "Laba",
+    "condition_like_new": "Kā jauna",
+    "condition_fair": "Pieņemama",
+    "condition_poor": "Sliktā",
+    "condition_used": "Lietota",
+    "condition_used_good": "Labā stāvoklī",
     "status_active": "Aktīvs",
     "status_reserved": "Rezervēts",
     "status_traded": "Apmainīts",
     "status_paused": "Apturēts",
-    "status_archived": "Archived",
+    "status_archived": "Arhivēts",
     "shareButton": "Dalīties"
   },
   "objectDetail": {
@@ -819,7 +819,7 @@
     "guestFeatureCategoryDesc": "Algoritms ņem vērā vēlamo kategoriju un priekšmetu aprēķināto vērtību.",
     "guestDemo1Title": "Lenovo ThinkPad klēpjdators",
     "guestDemo1Swap": "iPhone 13 Pro",
-    "guestDemo1Location": "Cluj-Napoca",
+    "guestDemo1Location": "Kļuža-Napoka",
     "guestDemo2Title": "Canon EOS 250D",
     "guestDemo2Swap": "DJI Mini 3",
     "guestDemo2Location": "Bukareste",
@@ -1332,14 +1332,14 @@
     "digitalEmail": "Apstiprināšanas e-pasts",
     "digitalPdf": "PDF / QR kods",
     "digitalBookingRef": "Rezervācijas atsauce",
-    "swapChat": "Swap Chat",
-    "chatEmpty": "No messages yet. Start the conversation!",
-    "chatPlaceholder": "Type a message...",
-    "statusAccepted": "Accepted",
-    "statusInProgress": "In progress",
-    "statusDeliveredA": "Delivered (1/2)",
-    "statusDeliveredB": "Delivered (2/2)",
-    "statusResolved": "Resolved"
+    "swapChat": "Swap tērzēšana",
+    "chatEmpty": "Vēl nav ziņu. Sāc sarunu!",
+    "chatPlaceholder": "Ieraksti ziņu...",
+    "statusAccepted": "Pieņemts",
+    "statusInProgress": "Notiek",
+    "statusDeliveredA": "Piegādāts (1/2)",
+    "statusDeliveredB": "Piegādāts (2/2)",
+    "statusResolved": "Atrisināts"
   },
   "info": {
     "title": "Swaply statistika",
@@ -1752,9 +1752,9 @@
     "mapTitle": "Atrašanās vietas karte",
     "noPins": "Nav adatu ko rādīt",
     "loading": "Kartes ielāde…",
-    "title": "Active users near you",
-    "liveBadge": "Live",
-    "guestTooltip": "Sign up to see who swaps in your area"
+    "title": "Aktīvie lietotāji tuvu jums",
+    "liveBadge": "Tiešraide",
+    "guestTooltip": "Reģistrējieties, lai redzētu, kas samaina jūsu apgabalā"
   },
   "location": {
     "country": "Valsts",
@@ -2196,7 +2196,7 @@
     "modalDescription": "Izveidojiet bezmaksas kontu, lai piedāvātu apmaiņas, sūtītu ziņojumus un sāktu apmainīties.",
     "modalCta": "Izveidot bezmaksas kontu",
     "modalDismiss": "Varbūt vēlāk",
-    "haveAccount": "I already have an account"
+    "haveAccount": "Man jau ir konts"
   },
   "about": {
     "title": "Par Swaply",
@@ -2352,8 +2352,8 @@
     "searchPrefix": "Meklē:",
     "daysRemaining": "Atliek {days} dienas",
     "you": "You",
-    "userPrefix": "User",
-    "lookingFor": "Looking for"
+    "userPrefix": "Lietotājs",
+    "lookingFor": "Meklē"
   },
   "history": {
     "title": "Swap vēsture",
@@ -2573,16 +2573,16 @@
     "ctaDescription": "Uzskaitiet savus objektus un atklājiet, ko varat saņemt apmaiņā.",
     "ctaButton": "Izmēģiniet Swaply bez maksas →",
     "metaDescription": "Raksti no \"{category}\" kategorijas Swaply blogā.",
-    "tableOfContents": "Table of Contents",
-    "guide": "Guide",
-    "tutorial": "Tutorial",
-    "inspiration": "Inspiration",
-    "sustainability": "Sustainability",
-    "safety": "Safety",
-    "technology": "Technology",
-    "trends": "Trends",
-    "community": "Community",
-    "product": "Product",
+    "tableOfContents": "Satura rādītājs",
+    "guide": "Ceļvedis",
+    "tutorial": "Apmācība",
+    "inspiration": "Iedvesma",
+    "sustainability": "Ilgtspēja",
+    "safety": "Drošība",
+    "technology": "Tehnoloģija",
+    "trends": "Tendences",
+    "community": "Kopiena",
+    "product": "Produkts",
     "allCategories": "All"
   },
   "push": {
@@ -2738,31 +2738,31 @@
     "byCity": "{category} pēc pilsētas"
   },
   "categories": {
-    "electronics": "Electronics",
+    "electronics": "Elektronika",
     "sport": "Sports",
-    "arts": "Art & Hobby",
-    "books": "Books",
-    "home": "Home",
-    "fashion": "Fashion",
+    "arts": "Māksla un hobijs",
+    "books": "Grāmatas",
+    "home": "Sākums",
+    "fashion": "Modes",
     "automotive": "Auto",
-    "music": "Music",
-    "garden": "Garden",
-    "toys": "Toys",
-    "tools": "Tools",
-    "other": "Other",
-    "sports_outdoor": "Sports & Outdoor",
-    "hobby_games": "Hobbies & Games",
-    "books_media": "Books & Media",
-    "home_garden": "Home & Garden",
-    "fashion_accessories": "Fashion & Accessories",
-    "auto_moto": "Auto & Moto",
-    "music_audio": "Music & Audio",
-    "gardening_outdoor": "Gardening & Outdoor",
-    "toys_kids": "Toys & Kids",
-    "tools_diy": "Tools & DIY",
-    "vehicles": "Vehicles",
-    "experiences": "Experiences",
-    "medical": "Medical Equipment"
+    "music": "Mūzika",
+    "garden": "Dārzs",
+    "toys": "Rotaļlietas",
+    "tools": "Rīki",
+    "other": "Cits",
+    "sports_outdoor": "Sports un Āra aktivitātes",
+    "hobby_games": "Hobiji un Spēles",
+    "books_media": "Grāmatas un Mediji",
+    "home_garden": "Māja un Dārzs",
+    "fashion_accessories": "Modes un Aksesuāri",
+    "auto_moto": "Auto un Moto",
+    "music_audio": "Mūzika un Audio",
+    "gardening_outdoor": "Dārzkopība un Āra aktivitātes",
+    "toys_kids": "Rotaļlietas un Bērni",
+    "tools_diy": "Rīki un Patstāvīgā Darba",
+    "vehicles": "Transportlīdzekļi",
+    "experiences": "Pieredzes",
+    "medical": "Medicīniskā aprīkošana"
   },
   "trustScore": {
     "trustScoreTitle": "Uzticības reitings",
@@ -2974,10 +2974,10 @@
     "unexpectedError": "Neparedzēta kļūda. Mēģiniet vēlreiz.",
     "stripeUnavailable": "Stripe nav pieejams",
     "securePayment": "Draudzīga maksājuma metode caur Stripe. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "Boost 7 days",
+    "boost7days": "Palielināt 7 dienas",
     "alreadyPurchased": "Jau iegādāts",
-    "boost24h": "Boost 24h",
-    "boost72h": "Boost 72h"
+    "boost24h": "Palielināt 24h",
+    "boost72h": "Palielināt 72h"
   },
   "payments": {
     "paymentMethod": "Maksāšanas metode",
@@ -3026,7 +3026,7 @@
     "fieldAccommodationType": "Mājvietas tips",
     "typeRoom": "Istaba",
     "typeApartment": "Dzīvoklis",
-    "typeVilla": "Villa",
+    "typeVilla": "Vila",
     "fieldEventName": "Pasākuma nosaukums",
     "fieldVenue": "Vieta / Atrašanās vieta",
     "fieldEventDate": "Pasākuma datums",
@@ -3039,66 +3039,66 @@
     "expiresIn": "Beidzas {days} dienu laikā"
   },
   "cookieConsent": {
-    "message": "We use cookies to improve your experience. Essential cookies are always active. Non-essential cookies help us analyze traffic and personalize content.",
-    "accept": "Accept all",
-    "reject": "Reject non-essential",
-    "settings": "Cookie settings"
+    "message": "Mēs izmantojam sīkdatnes, lai uzlabotu jūsu pieredzi. Būtiskās sīkdatnes vienmēr ir aktīvas. Nebūtiskās sīkdatnes palīdz mums analizēt satiksmi un personalizēt saturu.",
+    "accept": "Pieņemt visu",
+    "reject": "Noraidīt nebūtiskās",
+    "settings": "Sīkdatņu iestatījumi"
   },
   "branches": {
-    "tagline": "Swap what you have for what you need — objects, properties, services, and events.",
-    "objects": "Objects",
-    "objectsDesc": "Swap electronics, books, clothes, and more",
-    "properties": "Properties",
-    "propertiesDesc": "Exchange homes, apartments, and spaces",
-    "services": "Services",
-    "servicesDesc": "Trade skills, labor, and professional help",
-    "events": "Events",
-    "eventsDesc": "Swap tickets, reservations, and experiences",
-    "comingSoon": "This section is coming soon. Stay tuned!"
+    "tagline": "Nomainies uz to, kas tev vajag — priekšmetus, īpašumus, pakalpojumus un pasākumus.",
+    "objects": "Priekšmeti",
+    "objectsDesc": "Nomainies elektroniku, grāmatas, apģērbu un daudz ko citu",
+    "properties": "Īpašumi",
+    "propertiesDesc": "Mainies mājas, dzīvokļus un telpas",
+    "services": "Pakalpojumi",
+    "servicesDesc": "Trgājies prasmes, darbu un profesionālo palīdzību",
+    "events": "Pasākumi",
+    "eventsDesc": "Nomainies biļetes, rezervācijas un pieredzi",
+    "comingSoon": "Šī sadaļa drīzumā būs pieejama. Paliec uzmanīgš!"
   },
   "hero": {
-    "tagline": "Swap what you have for what you want"
+    "tagline": "Nomainies uz to, kas tev patīk"
   },
   "benefits": {
-    "label": "Why Swaply?",
-    "directSwap": "Direct swap between people",
-    "globalCommunity": "Global community",
-    "aiMatching": "Automatic AI matching",
-    "escrow": "Escrow for safety",
-    "logistics": "Integrated logistics",
-    "negotiation": "In-platform negotiation",
-    "localPartners": "Find partners nearby"
+    "label": "Kāpēc Swaply?",
+    "directSwap": "Tiešā apmaiņa starp cilvēkiem",
+    "globalCommunity": "Globāla kopiena",
+    "aiMatching": "Automātiska AI atbilstība",
+    "escrow": "Escrow drošībai",
+    "logistics": "Integrēta loģistika",
+    "negotiation": "Negocēšana platformā",
+    "localPartners": "Atrodiet partnerus tuvumā"
   },
   "premium": {
     "title": "Swaply Premium",
-    "subtitle": "Global visibility · Priority matching"
+    "subtitle": "Globāla redzamība · Prioritāra saskaņošana"
   },
   "analytics": {
-    "title": "Analytics",
-    "loginRequired": "You must be logged in to view analytics.",
-    "dashboard": "Analytics Dashboard",
-    "upgradeToPremium": "Upgrade to Premium for full analytics access",
-    "noData": "No data",
-    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
-    "totalViews": "Total views",
-    "favoritesReceived": "Favorites received",
-    "proposalsReceived": "Proposals received",
-    "conversionRate": "Conversion rate",
-    "completedSwaps": "Completed swaps",
-    "avgTimeToProposal": "Avg time to proposal",
-    "viewsPerDay": "Views per day",
-    "last30Days": "Last 30 days",
-    "topItems": "Top items",
-    "byViews": "By number of views",
-    "insights": "Automated insights",
-    "insightsDesc": "Recommendations based on your data"
+    "title": "Analitika",
+    "loginRequired": "Jums jāpiesakās, lai skatītu analītiku.",
+    "dashboard": "Analītikas Panelis",
+    "upgradeToPremium": "Jauniniet uz Premium, lai iegūtu pilnu piekļuvi analītikai",
+    "noData": "Nav datu",
+    "noDataDesc": "Vēl nav analītikas datu. Apmeklējiet savus priekšmetus, lai sāktu izsekošanu.",
+    "totalViews": "Kopējie skati",
+    "favoritesReceived": "Saņemtās iecienītības",
+    "proposalsReceived": "Saņemtie priekšlikumi",
+    "conversionRate": "Konversijas likme",
+    "completedSwaps": "Pabeigti apmaiņas darījumi",
+    "avgTimeToProposal": "Vidējais laiks līdz priekšlikumam",
+    "viewsPerDay": "Skati dienā",
+    "last30Days": "Pēdējās 30 dienas",
+    "topItems": "Populārākās preces",
+    "byViews": "Pēc skata skaita",
+    "insights": "Automatizētā analīze",
+    "insightsDesc": "Ieteikumi, pamatojoties uz jūsu datiem"
   },
   "share": {
-    "copied": "Copied!",
-    "copyLink": "Copy link"
+    "copied": "Nokopēts!",
+    "copyLink": "Kopēt saiti"
   },
   "badge": {
-    "free": "Free",
+    "free": "Bez maksas",
     "premium": "Premium",
     "platinum": "Platinum"
   }

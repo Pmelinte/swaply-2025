@@ -1890,7 +1890,7 @@
     "privacyLegalBasisText": "El tratamiento se basa en: tu consentimiento (creación de cuenta, aceptación de cookies), ejecución contractual (facilitación de intercambios) e interés legítimo (seguridad de la plataforma, prevención de fraude).",
     "privacySharing": "4. Compartición de datos",
     "privacySharingText": "Compartimos datos con: Supabase (alojamiento de base de datos, región UE), Cloudinary (alojamiento de imágenes), HuggingFace (análisis de contenido con IA, solo en servidor). Tu información de perfil es visible para otros usuarios según tu configuración de visibilidad.",
-    "privacyCookies": "5. Cookies",
+    "privacyCookies": "Cookies",
     "privacyCookiesText": "Usamos cookies esenciales para autenticación y gestión de sesiones. Las cookies analíticas opcionales nos ayudan a entender los patrones de uso. Puedes gestionar tus preferencias de cookies en cualquier momento a través del banner de consentimiento de cookies.",
     "privacyRights": "6. Tus derechos (RGPD)",
     "privacyRightsText": "Tienes derecho a: acceder a tus datos (disponible en tu perfil), corregir datos inexactos, eliminar tu cuenta y todos los datos asociados, exportar tus datos, retirar el consentimiento y presentar una queja ante tu autoridad nacional de protección de datos.",
@@ -2755,7 +2755,7 @@
     "books_media": "Libros & Medios",
     "home_garden": "Hogar & Jardín",
     "fashion_accessories": "Moda & Accesorios",
-    "auto_moto": "Auto & Moto",
+    "auto_moto": "Auto y Moto",
     "music_audio": "Música & Audio",
     "gardening_outdoor": "Jardinería & Exterior",
     "toys_kids": "Juguetes & Niños",
@@ -2977,7 +2977,7 @@
     "boost7days": "Boost 7 días",
     "alreadyPurchased": "Ya comprado",
     "boost24h": "Boost 24h",
-    "boost72h": "Boost 72h"
+    "boost72h": "Impulso 72h"
   },
   "payments": {
     "paymentMethod": "Método de pago",

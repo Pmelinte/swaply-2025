@@ -46,8 +46,8 @@
     "myDesk": "Meja Pertukaran Saya",
     "myDeskDescription": "Jejaki pertukaran aktif, tindakan yang tertunda, dan tarikh akhir",
     "romania": "Romania",
-    "user": "User",
-    "recommendedNextStep": "Recommended next step"
+    "user": "Pengguna",
+    "recommendedNextStep": "Langkah seterusnya yang disyorkan"
   },
   "nav": {
     "home": "Laman utama",
@@ -76,7 +76,7 @@
     "badgeBenefits": "Manfaat lencana",
     "completeProfile": "Lengkapkan profil anda",
     "desk": "Meja Saya",
-    "settings": "Settings"
+    "settings": "Tetapan"
   },
   "notifications": {
     "title": "Pemberitahuan (suka/minat/sembang/swaply)",
@@ -445,8 +445,8 @@
     "guestFeatureVerifyDesc": "E-mel, telefon, dan identiti — untuk lencana pengguna yang disahkan.",
     "guestCta": "Buat profil percuma anda →",
     "networkError": "Ralat rangkaian",
-    "passkeyRegFailed": "Passkey registration failed",
-    "genericError": "Error"
+    "passkeyRegFailed": "Pendaftaran Passkey gagal",
+    "genericError": "Ralat"
   },
   "home": {
     "welcome": "Selamat kembali",
@@ -634,17 +634,17 @@
     "badgeProperty": "Harta benda",
     "badgeService": "Perkhidmatan",
     "condition_new": "New",
-    "condition_good": "Good",
-    "condition_like_new": "Like new",
-    "condition_fair": "Fair",
-    "condition_poor": "Poor",
-    "condition_used": "Used",
-    "condition_used_good": "Good condition",
+    "condition_good": "Baik",
+    "condition_like_new": "Seperti baru",
+    "condition_fair": "Adil",
+    "condition_poor": "Buruk",
+    "condition_used": "Terpakai",
+    "condition_used_good": "Keadaan Baik",
     "status_active": "Aktif",
     "status_reserved": "Ditempah",
     "status_traded": "Ditukar",
     "status_paused": "Dijeda",
-    "status_archived": "Archived",
+    "status_archived": "Diarkibkan",
     "shareButton": "Kongsi"
   },
   "objectDetail": {
@@ -682,7 +682,7 @@
     "valueSmall": "Kecil",
     "valueMedium": "Sedang",
     "valueLarge": "Besar",
-    "valueSentimental": "Sentimental",
+    "valueSentimental": "Bersentimen",
     "clarity": "Kejelasan",
     "clarityExploring": "Meneroka",
     "clarityHaveIdea": "Mempunyai idea",
@@ -1333,13 +1333,13 @@
     "digitalPdf": "PDF / Kod QR",
     "digitalBookingRef": "Rujukan tempahan",
     "swapChat": "Swap Chat",
-    "chatEmpty": "No messages yet. Start the conversation!",
-    "chatPlaceholder": "Type a message...",
-    "statusAccepted": "Accepted",
-    "statusInProgress": "In progress",
-    "statusDeliveredA": "Delivered (1/2)",
-    "statusDeliveredB": "Delivered (2/2)",
-    "statusResolved": "Resolved"
+    "chatEmpty": "Tiada mesej lagi. Mulakan perbualan!",
+    "chatPlaceholder": "Taip mesej...",
+    "statusAccepted": "Diterima",
+    "statusInProgress": "Sedang berlangsung",
+    "statusDeliveredA": "Dihantar (1/2)",
+    "statusDeliveredB": "Dihantar (2/2)",
+    "statusResolved": "Diselesaikan"
   },
   "info": {
     "title": "Statistik Swaply",
@@ -1620,7 +1620,7 @@
     "factor_bundle": "Berkas",
     "factor_subcategory": "Subkategori",
     "factor_tags": "Tag",
-    "factor_sentimental": "Sentimental",
+    "factor_sentimental": "Sentimen",
     "accept": "Terima",
     "negotiate": "Runding",
     "reject": "Tolak",
@@ -1752,9 +1752,9 @@
     "mapTitle": "Peta lokasi",
     "noPins": "Tiada pin untuk dipaparkan",
     "loading": "Memuat peta…",
-    "title": "Active users near you",
-    "liveBadge": "Live",
-    "guestTooltip": "Sign up to see who swaps in your area"
+    "title": "Pengguna aktif berhampiran anda",
+    "liveBadge": "Langsung",
+    "guestTooltip": "Daftar untuk melihat siapa yang bertukar dalam kawasan anda"
   },
   "location": {
     "country": "Negara",
@@ -2196,7 +2196,7 @@
     "modalDescription": "Buat akaun percuma untuk mencadangkan pertukaran, menghantar mesej, dan mula bertukar.",
     "modalCta": "Buat akaun percuma",
     "modalDismiss": "Mungkin nanti",
-    "haveAccount": "I already have an account"
+    "haveAccount": "Saya sudah mempunyai akaun"
   },
   "about": {
     "title": "Tentang Swaply",
@@ -2352,8 +2352,8 @@
     "searchPrefix": "Mencari:",
     "daysRemaining": "{days} hari tinggal",
     "you": "You",
-    "userPrefix": "User",
-    "lookingFor": "Looking for"
+    "userPrefix": "Pengguna",
+    "lookingFor": "Mencari"
   },
   "history": {
     "title": "Sejarah Tukar",
@@ -2573,16 +2573,16 @@
     "ctaDescription": "Senaraikan objek anda dan temui apa yang boleh anda dapatkan sebagai pertukaran.",
     "ctaButton": "Cuba Swaply secara percuma →",
     "metaDescription": "Artikel daripada kategori \"{category}\" di blog Swaply.",
-    "tableOfContents": "Table of Contents",
-    "guide": "Guide",
+    "tableOfContents": "Jadual Kandungan",
+    "guide": "Panduan",
     "tutorial": "Tutorial",
-    "inspiration": "Inspiration",
-    "sustainability": "Sustainability",
-    "safety": "Safety",
-    "technology": "Technology",
-    "trends": "Trends",
-    "community": "Community",
-    "product": "Product",
+    "inspiration": "Inspirasi",
+    "sustainability": "Keberlanjutan",
+    "safety": "Keselamatan",
+    "technology": "Teknologi",
+    "trends": "Aliran",
+    "community": "Komuniti",
+    "product": "Produk",
     "allCategories": "All"
   },
   "push": {
@@ -2738,31 +2738,31 @@
     "byCity": "{category} mengikut bandar"
   },
   "categories": {
-    "electronics": "Electronics",
-    "sport": "Sports",
-    "arts": "Art & Hobby",
-    "books": "Books",
-    "home": "Home",
-    "fashion": "Fashion",
-    "automotive": "Auto",
-    "music": "Music",
-    "garden": "Garden",
-    "toys": "Toys",
-    "tools": "Tools",
-    "other": "Other",
-    "sports_outdoor": "Sports & Outdoor",
-    "hobby_games": "Hobbies & Games",
-    "books_media": "Books & Media",
-    "home_garden": "Home & Garden",
-    "fashion_accessories": "Fashion & Accessories",
+    "electronics": "Elektronik",
+    "sport": "Sukan",
+    "arts": "Seni & Hobi",
+    "books": "Buku",
+    "home": "Rumah",
+    "fashion": "Fesyen",
+    "automotive": "Kenderaan",
+    "music": "Muzik",
+    "garden": "Taman",
+    "toys": "Mainan",
+    "tools": "Alatan",
+    "other": "Lain-lain",
+    "sports_outdoor": "Sukan & Luar Ruangan",
+    "hobby_games": "Hobi & Permainan",
+    "books_media": "Buku & Media",
+    "home_garden": "Rumah & Taman",
+    "fashion_accessories": "Fesyen & Aksesori",
     "auto_moto": "Auto & Moto",
-    "music_audio": "Music & Audio",
-    "gardening_outdoor": "Gardening & Outdoor",
-    "toys_kids": "Toys & Kids",
-    "tools_diy": "Tools & DIY",
-    "vehicles": "Vehicles",
-    "experiences": "Experiences",
-    "medical": "Medical Equipment"
+    "music_audio": "Muzik & Audio",
+    "gardening_outdoor": "Berkebun & Luar Ruangan",
+    "toys_kids": "Mainan & Kanak-kanak",
+    "tools_diy": "Alat & DIY",
+    "vehicles": "Kenderaan",
+    "experiences": "Pengalaman",
+    "medical": "Peralatan Perubatan"
   },
   "trustScore": {
     "trustScoreTitle": "Skor kepercayaan",
@@ -2974,10 +2974,10 @@
     "unexpectedError": "Ralat yang tidak dijangka. Cuba lagi.",
     "stripeUnavailable": "Stripe tidak tersedia",
     "securePayment": "Pembayaran selamat melalui Stripe. Visa, Mastercard, Apple Pay, Google Pay.",
-    "boost7days": "Boost 7 days",
+    "boost7days": "Boost 7 hari",
     "alreadyPurchased": "Sudah dibeli",
-    "boost24h": "Boost 24h",
-    "boost72h": "Boost 72h"
+    "boost24h": "Boost 24 jam",
+    "boost72h": "Boost 72 jam"
   },
   "payments": {
     "paymentMethod": "Kaedah pembayaran",
@@ -3039,66 +3039,66 @@
     "expiresIn": "Tamat dalam {days} hari"
   },
   "cookieConsent": {
-    "message": "We use cookies to improve your experience. Essential cookies are always active. Non-essential cookies help us analyze traffic and personalize content.",
-    "accept": "Accept all",
-    "reject": "Reject non-essential",
-    "settings": "Cookie settings"
+    "message": "Kami menggunakan cookies untuk meningkatkan pengalaman anda. Cookies penting sentiasa aktif. Cookies bukan penting membantu kami menganalisis lalu lintas dan mempersonalisasi kandungan.",
+    "accept": "Terima semua",
+    "reject": "Tolak bukan penting",
+    "settings": "Tetapan cookie"
   },
   "branches": {
-    "tagline": "Swap what you have for what you need — objects, properties, services, and events.",
-    "objects": "Objects",
-    "objectsDesc": "Swap electronics, books, clothes, and more",
-    "properties": "Properties",
-    "propertiesDesc": "Exchange homes, apartments, and spaces",
-    "services": "Services",
-    "servicesDesc": "Trade skills, labor, and professional help",
-    "events": "Events",
-    "eventsDesc": "Swap tickets, reservations, and experiences",
-    "comingSoon": "This section is coming soon. Stay tuned!"
+    "tagline": "Tukar apa yang anda ada dengan apa yang anda perlukan — objek, harta benda, perkhidmatan, dan acara.",
+    "objects": "Objek",
+    "objectsDesc": "Tukar elektronik, buku, pakaian, dan banyak lagi",
+    "properties": "Harta Benda",
+    "propertiesDesc": "Tukar rumah, apartmen, dan ruang",
+    "services": "Perkhidmatan",
+    "servicesDesc": "Berdagang kemahiran, buruh, dan bantuan profesional",
+    "events": "Acara",
+    "eventsDesc": "Tukar tiket, tempahan, dan pengalaman",
+    "comingSoon": "Bahagian ini akan datang tidak lama lagi. Nantikan!"
   },
   "hero": {
-    "tagline": "Swap what you have for what you want"
+    "tagline": "Tukar apa yang anda ada dengan apa yang anda inginkan"
   },
   "benefits": {
-    "label": "Why Swaply?",
-    "directSwap": "Direct swap between people",
-    "globalCommunity": "Global community",
-    "aiMatching": "Automatic AI matching",
-    "escrow": "Escrow for safety",
-    "logistics": "Integrated logistics",
-    "negotiation": "In-platform negotiation",
-    "localPartners": "Find partners nearby"
+    "label": "Mengapa Swaply?",
+    "directSwap": "Pertukaran langsung antara orang",
+    "globalCommunity": "Komuniti global",
+    "aiMatching": "Padanan AI automatik",
+    "escrow": "Escrow untuk keselamatan",
+    "logistics": "Logistik bersepadu",
+    "negotiation": "Rundingan dalam platform",
+    "localPartners": "Cari rakan kongsi berdekatan"
   },
   "premium": {
     "title": "Swaply Premium",
-    "subtitle": "Global visibility · Priority matching"
+    "subtitle": "Keterlihatan global · Padanan keutamaan"
   },
   "analytics": {
-    "title": "Analytics",
-    "loginRequired": "You must be logged in to view analytics.",
-    "dashboard": "Analytics Dashboard",
-    "upgradeToPremium": "Upgrade to Premium for full analytics access",
-    "noData": "No data",
-    "noDataDesc": "No analytics data yet. Visit your items to start tracking.",
-    "totalViews": "Total views",
-    "favoritesReceived": "Favorites received",
-    "proposalsReceived": "Proposals received",
-    "conversionRate": "Conversion rate",
-    "completedSwaps": "Completed swaps",
-    "avgTimeToProposal": "Avg time to proposal",
-    "viewsPerDay": "Views per day",
-    "last30Days": "Last 30 days",
-    "topItems": "Top items",
-    "byViews": "By number of views",
-    "insights": "Automated insights",
-    "insightsDesc": "Recommendations based on your data"
+    "title": "Analitik",
+    "loginRequired": "Anda mesti log masuk untuk melihat analitik.",
+    "dashboard": "Papan Pemuka Analitik",
+    "upgradeToPremium": "Tingkatkan ke Premium untuk akses analitik penuh",
+    "noData": "Tiada data",
+    "noDataDesc": "Tiada data analitik lagi. Kunjungi item anda untuk memulakan penjejakan.",
+    "totalViews": "Jumlah paparan",
+    "favoritesReceived": "Kegemaran diterima",
+    "proposalsReceived": "Cadangan diterima",
+    "conversionRate": "Kadar penukaran",
+    "completedSwaps": "Pertukaran selesai",
+    "avgTimeToProposal": "Purata masa hingga cadangan",
+    "viewsPerDay": "Paparan per hari",
+    "last30Days": "30 hari terakhir",
+    "topItems": "Item teratas",
+    "byViews": "Mengikut bilangan paparan",
+    "insights": "Wawasan automatik",
+    "insightsDesc": "Cadangan berdasarkan data anda"
   },
   "share": {
-    "copied": "Copied!",
-    "copyLink": "Copy link"
+    "copied": "Disalin!",
+    "copyLink": "Salin pautan"
   },
   "badge": {
-    "free": "Free",
+    "free": "Percuma",
     "premium": "Premium",
     "platinum": "Platinum"
   }
