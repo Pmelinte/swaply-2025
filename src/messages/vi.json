@@ -967,7 +967,7 @@
     "rateExperience": "Đánh giá trải nghiệm",
     "commentPlaceholder": "Viết nhận xét về trải nghiệm của bạn...",
     "feedbackSent": "Đã gửi phản hồi",
-    "logistics": "Logistics",
+    "logistics": "Logistik",
     "logisticsDescription": "Chọn cách bạn muốn trao đổi",
     "methodPublicSpot": "Gặp mặt địa phương",
     "methodPublicSpotDesc": "Gặp tại một địa điểm công cộng để trao đổi trực tiếp",
@@ -1408,8 +1408,8 @@
     "featureTokens": "Token hàng tháng",
     "featureSupport": "Hỗ trợ ưu tiên",
     "tierFree": "Miễn phí",
-    "tierSilver": "Silver",
-    "tierGold": "Gold",
+    "tierSilver": "Bạc",
+    "tierGold": "Vàng",
     "tierPlatinum": "Platinum",
     "tokensNone": "10",
     "tokensSilver": "50",
@@ -3090,7 +3090,7 @@
     "last30Days": "30 ngày qua",
     "topItems": "Mục hàng đầu",
     "byViews": "Theo số lượt xem",
-    "insights": "Automated insights",
+    "insights": "Những hiểu biết tự động",
     "insightsDesc": "Khuyến nghị dựa trên dữ liệu của bạn"
   },
   "share": {
@@ -3098,7 +3098,7 @@
     "copyLink": "Sao chép liên kết"
   },
   "badge": {
-    "free": "Free",
+    "free": "Miễn phí",
     "premium": "Premium",
     "platinum": "Platinum"
   }

@@ -2744,7 +2744,7 @@
     "books": "Bøker",
     "home": "Hjem",
     "fashion": "Mote",
-    "automotive": "Auto",
+    "automotive": "Automatisk",
     "music": "Musikk",
     "garden": "Hage",
     "toys": "Leker",
@@ -3098,7 +3098,7 @@
     "copyLink": "Kopier lenke"
   },
   "badge": {
-    "free": "Free",
+    "free": "Gratis",
     "premium": "Premium",
     "platinum": "Platinum"
   }

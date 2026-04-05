@@ -2137,7 +2137,7 @@
     "guestIntro": "Swaply برای تعویض‌های پایه‌ای رایگان است. طرح‌های حق الامتیاز ویژگی‌های پیشرفته را باز می‌کند که به شما کمک می‌کند سریع‌تر و ایمن‌تر تعویض کنید.",
     "planFree": "رایگان",
     "planFreeDesc": "تا 10 آیتم فهرست‌شده، تطابق AI پایه‌ای، چت نامحدود.",
-    "planPremium": "Premium",
+    "planPremium": "پریمیوم",
     "planPremiumDesc": "آیتم‌های نامحدود، تطابق AI پیشرفته، ترویج اولویت‌دار، نشان تایید‌شده.",
     "planPlatinum": "پلاتینیوم",
     "planPlatinumDesc": "همه چیز در Premium به اضافه بیمه تعویض، پشتیبانی اولویت‌دار، و تحلیلات دقیق.",
@@ -2254,7 +2254,7 @@
     "free7": "اقلام توصیه شده",
     "free8": "نشان تایید شده",
     "freeButton": "شما قبلاً اینجا هستید",
-    "premiumTitle": "Premium",
+    "premiumTitle": "پریمیوم",
     "premiumYearly": "or 149 lei / year",
     "premiumIncludes": "همه چیز در بسته رایگان، به علاوه:",
     "premium1": "تا 50 مورد فعال",
@@ -3070,7 +3070,7 @@
     "localPartners": "یافتن شریکان نزدیک"
   },
   "premium": {
-    "title": "Swaply Premium",
+    "title": "Swaply پریمیوم",
     "subtitle": "دید رسانی جهانی · تطابق اولویت‌دار"
   },
   "analytics": {
@@ -3099,7 +3099,7 @@
   },
   "badge": {
     "free": "رایگان",
-    "premium": "Premium",
+    "premium": "پریمیوم",
     "platinum": "پلاتینیوم"
   }
 }

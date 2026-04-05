@@ -76,7 +76,7 @@
     "badgeBenefits": "Benefiċċji tal-badge",
     "completeProfile": "Ikkompleta l-profil tiegħek",
     "desk": "Id-Desk Tiegħi",
-    "settings": "Settings"
+    "settings": "Issettings"
   },
   "notifications": {
     "title": "Notifiki (like/interess/chat/swaply)",
@@ -1810,7 +1810,7 @@
     "views": "Views",
     "likes": "Likes",
     "proposals": "Proposti",
-    "chats": "Chats",
+    "chats": "Ċatts",
     "confirmDelete": "Inti sigur li trid tħassar dan l-oġġett? Dan ma jistax jiġi mħassar.",
     "confirmArchive": "Tikser għal arkivju? L-oġġett se jkun moħbi mill-marketplace iżda jista' jiġi stabbilit aktar tard.",
     "addNew": "Żid oġġett",
@@ -1902,7 +1902,7 @@
     "cookieAccept": "Aċċetta kollha",
     "cookieReject": "Essenzjali biss",
     "cookieLearnMore": "Tgħallem iktar",
-    "cookiesTitle": "Cookie Policy",
+    "cookiesTitle": "Politika tal-Cookies",
     "cookiesLastUpdated": "Aħħar aġġornament: Marzu 2026",
     "cookiesWhat": "1. X'Inhu l-Cookies",
     "cookiesWhatText": "Il-cookies huma fajls ta' test ċkejkin maħżuna fuq il-ġihaz tiegħek meta żżur websajt. Jgħinaw is-sit biex jiftakar il-preferenzi tiegħek u jitjib l-esperjenza tiegħek. Swaply juża cookies biex iħallok connectat u biex nifhmu kif tintuża l-platform.",
@@ -2012,7 +2012,7 @@
     "placeholderRating": "X'għoxx fuq Swaply? X'kien jista' jkun aħjar?",
     "contactEmail": "Email ta' kuntatt (fakultatif)",
     "contactEmailDesc": "Jekk trid li nkomplu, agħti l-email tiegħek.",
-    "emailPlaceholder": "your-email@example.com",
+    "emailPlaceholder": "id-email-tiegħek@example.com",
     "submit": "Ibgħat feedback",
     "thankYou": "Grazzi!",
     "thankYouDesc": "Il-feedback tiegħek ġie rċevut. Aħna nirrevedu kull sottomissjoni u nużaha biex itejjbu Swaply.",
@@ -2035,7 +2035,7 @@
     "activeMockDesc": "Taħdem mingħajr API key, b'data simulata. Żid il-key f' .env.local għad-data reali.",
     "activeMockReady": "Attiv (mock-ready)",
     "affiliateDesc": "Jaħdem immedjatament, mingħajr API key. L-Affiliate ID huwa opzjonali (għal kommissjoni biss).",
-    "affiliateLinks": "Affiliate links",
+    "affiliateLinks": "Linkijiet ta' Affiljazzjoni",
     "apiDocs": "Dokumentazzjoni API",
     "apiEndpoint": "API Endpoint",
     "categoryAll": "All",
@@ -2110,8 +2110,8 @@
     "tabMilestones": "Milestone",
     "tabReferrals": "Referrals",
     "tabStreak": "Streak",
-    "tabSubscriptions": "Subscriptions",
-    "tabThemes": "Themes",
+    "tabSubscriptions": "Sottoscrizzjonijiet",
+    "tabThemes": "Temi",
     "tabTokenShop": "Token Shop",
     "themeActivated": "Tema {name} attivata!",
     "themesDescription": "Personallizza l-profil tiegħek bi tema unika. Kull tema tbiddel il-kuluri tal-profil tiegħek.",
@@ -2892,7 +2892,7 @@
     "proposeChain": "Iproponi katina"
   },
   "desk": {
-    "title": "My Swap Desk",
+    "title": "Fuq-Fuq tal-Iskambji Tiegħi",
     "subtitle": "Kollox li trid tagħmel, f'post wieħed.",
     "loginRequired": "Dħol biex tara l-mewn ta' skambju tiegħek.",
     "tasksTitle": "Għamel",
@@ -3074,31 +3074,31 @@
     "subtitle": "Viżibilità globali · Priorità fil-matching"
   },
   "analytics": {
-    "title": "Analytics",
+    "title": "Analitiċi",
     "loginRequired": "Għandek tkun loggat biex tara l-analytics.",
     "dashboard": "Dashboard ta' Analytics",
     "upgradeToPremium": "Ugħajjar sa Premium għal aċċess sħiħ ta' analytics",
     "noData": "L-ebda data",
     "noDataDesc": "L-ebda data analitika għal issa. Żur l-items tiegħek biex tibda ti-track.",
-    "totalViews": "Total views",
-    "favoritesReceived": "Favorites received",
-    "proposalsReceived": "Proposals received",
+    "totalViews": "Total ta' views",
+    "favoritesReceived": "Favorites miriċevuti",
+    "proposalsReceived": "Proposals miriċevuti",
     "conversionRate": "Conversion rate",
-    "completedSwaps": "Completed swaps",
-    "avgTimeToProposal": "Avg time to proposal",
-    "viewsPerDay": "Views per day",
-    "last30Days": "Last 30 days",
+    "completedSwaps": "Swaps kompluti",
+    "avgTimeToProposal": "Avg ħin għal proposal",
+    "viewsPerDay": "Views kull ġurnata",
+    "last30Days": "L-aħħar 30 ġurnata",
     "topItems": "Top items",
-    "byViews": "By number of views",
+    "byViews": "B'numru ta' views",
     "insights": "Automated insights",
-    "insightsDesc": "Recommendations based on your data"
+    "insightsDesc": "Rakkomandazzjonijiet ibbażati fuq id-data tiegħek"
   },
   "share": {
-    "copied": "Copied!",
+    "copied": "Ikkopjat!",
     "copyLink": "Copy link"
   },
   "badge": {
-    "free": "Free",
+    "free": "Ħielsa",
     "premium": "Premium",
     "platinum": "Platinum"
   }

@@ -1170,7 +1170,7 @@
     "shipmentBtoA": "การจัดส่ง B → A",
     "selectCourier": "เลือกบริษัทขนส่ง",
     "courierFanCourier": "FanCourier",
-    "courierSameday": "Sameday",
+    "courierSameday": "ส่งวันเดียวกัน",
     "courierCargus": "Cargus",
     "courierDHL": "DHL",
     "courierOther": "อื่น ๆ",
@@ -3098,7 +3098,7 @@
     "copyLink": "คัดลอกลิงก์"
   },
   "badge": {
-    "free": "Free",
+    "free": "ฟรี",
     "premium": "Premium",
     "platinum": "Platinum"
   }

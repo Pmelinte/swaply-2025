@@ -823,8 +823,8 @@
     "guestDemo2Title": "Canon EOS 250D",
     "guestDemo2Swap": "DJI Mini 3",
     "guestDemo2Location": "Bucareste",
-    "guestDemo3Title": "Fender Guitar",
-    "guestDemo3Swap": "Marshall Speakers",
+    "guestDemo3Title": "Guitarra Fender",
+    "guestDemo3Swap": "Altifalantes Marshall",
     "guestDemo3Location": "Timișoara",
     "guestBtnAccept": "Aceitar match",
     "guestBtnSkip": "Pular",
@@ -1990,7 +1990,7 @@
     "start": "Comece a trocar!"
   },
   "feedback": {
-    "title": "Feedback",
+    "title": "Avaliações",
     "subtitle": "Ajude-nos a melhorar o Swaply — relate bugs, sugira recursos ou compartilhe sua experiência.",
     "feedbackType": "Tipo de feedback",
     "feedbackTypeDesc": "Que tipo de feedback você tem?",

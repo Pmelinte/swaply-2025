@@ -300,7 +300,7 @@
     "reputation": "Rykte",
     "publicIdentity": "Offentlig identitet",
     "publicIdentityDescription": "Vad världen ser: visningsnamn, avatar, biografi, talade språk.",
-    "avatarUrl": "Avatar (URL)",
+    "avatarUrl": "Profilbild (URL)",
     "avatarPlaceholder": "https://example.com/avatar.jpg",
     "avatarUploadNote": "Integration med Cloudinary/Supabase Storage krävs för riktig uppladdning.",
     "uploadAvatar": "Ladda upp bild",
@@ -676,7 +676,7 @@
     "heroSubtitle": "Utforska objekt i ditt område, upptäck matchningar och föreslå byten.",
     "statItems": "{count} aktiva objekt",
     "statSwaps": "{count} byten",
-    "statTokens": "{count} tokens",
+    "statTokens": "{count} token",
     "statNotifs": "{count} nya aviseringar",
     "guestHeadline": "Byt det du har mot det du vill ha",
     "guestSubtitle": "Swaply kopplar ihop människor som vill byta objekt, utan pengar inblandade. Enkelt, lokalt, transparent.",
@@ -1741,7 +1741,7 @@
     "guestFeatureLocationDesc": "Vi prioriterar matchningar från ditt område för snabba, ansikte-mot-ansikte byten.",
     "guestFeatureCategory": "Kategori & värde",
     "guestFeatureCategoryDesc": "Algoritmen tar hänsyn till den önskade kategorin och uppskattat värde på varorna.",
-    "guestDemo1Title": "Lenovo ThinkPad Laptop",
+    "guestDemo1Title": "Lenovo ThinkPad bärbar dator",
     "guestDemo1Swap": "iPhone 13 Pro",
     "guestDemo1Location": "Cluj-Napoca",
     "guestDemo2Title": "Canon EOS 250D",
@@ -2504,7 +2504,7 @@
     "manageSubscription": "Hantera prenumeration",
     "includedInPlatinum": "Ingår i Platinum",
     "freePrice": "$0",
-    "premiumPrice": "$3.99"
+    "premiumPrice": "$3,99"
   },
   "contact": {
     "title": "Kontakt",

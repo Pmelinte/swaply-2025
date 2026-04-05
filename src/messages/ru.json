@@ -2291,7 +2291,7 @@
     "manageSubscription": "Управлять подпиской",
     "includedInPlatinum": "Включено в Platinum",
     "freePrice": "$0",
-    "premiumPrice": "$3.99"
+    "premiumPrice": "$3,99"
   },
   "contact": {
     "title": "Контакты",
@@ -2799,7 +2799,7 @@
     "safe_bank": "Банк (холл)",
     "safe_metro": "Станция метро",
     "addressLabel": "Точный адрес (необязательно)",
-    "addressPlaceholder": "123 Example St, Suite 1",
+    "addressPlaceholder": "ул. Example, 123, офис 1",
     "dateLabel": "Дата встречи",
     "timeLabel": "Время встречи",
     "scheduleButton": "Создать код встречи",
@@ -3098,7 +3098,7 @@
     "copyLink": "Скопировать ссылку"
   },
   "badge": {
-    "free": "Free",
+    "free": "Бесплатно",
     "premium": "Premium",
     "platinum": "Platinum"
   }

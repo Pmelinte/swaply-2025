@@ -100,7 +100,7 @@
     "description": "Alege cum vrei să fii notificat pentru fiecare tip de eveniment.",
     "notificationType": "Tip notificare",
     "channel_inapp": "În aplicație",
-    "channel_email": "Email",
+    "channel_email": "E-mail",
     "channel_push": "Notificare push",
     "type_match_new": "Match nou",
     "type_match_new_desc": "Când se găsește un match nou pentru obiectele tale.",
@@ -3017,7 +3017,7 @@
     "boost7days": "Boost 7 zile",
     "alreadyPurchased": "Deja cumpărat",
     "boost24h": "Boost 24h",
-    "boost72h": "Boost 72h"
+    "boost72h": "Amplificare 72h"
   },
   "payments": {
     "paymentMethod": "Metodă de plată",
