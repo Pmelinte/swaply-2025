@@ -1,0 +1,56 @@
+name: Translate All Locale Keys
+
+on:
+  workflow_dispatch:
+
+jobs:
+  translate:
+    name: Translate English fallback keys
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Verify API key
+        run: |
+          if [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "::error::ANTHROPIC_API_KEY not set"
+            exit 1
+          fi
+          echo "✓ API key configured"
+
+      - name: Translate all locale keys
+        run: node scripts/translate-all-locale-keys.mjs
+
+      - name: Run audit after translation
+        run: node scripts/full-i18n-audit.mjs || true
+
+      - name: Upload audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: post-translation-audit
+          path: audit-reports/
+          retention-days: 90
+
+      - name: Commit translated files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add src/messages/*.json
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Auto-translate all English fallback keys in 42 locale files"
+            git push
+          fi
