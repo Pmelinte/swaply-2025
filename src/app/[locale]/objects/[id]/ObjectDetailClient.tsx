@@ -998,7 +998,7 @@ export default function ObjectDetailClient() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <SimilarItemTitle title={si.title} />
-                      <p className="text-xs text-zinc-500">{tObj("condition_" + normalizeCondition(si.condition))}{si.location ? ` · ${si.location}` : ""}</p>
+                      <p className="text-xs text-zinc-500">{tObj("condition_" + normalizeCondition(si.condition))}{si.location ? <> · <TranslatedLocation location={si.location} /></> : ""}</p>
                     </div>
                   </Link>
                 ))}
@@ -1030,28 +1030,6 @@ function TranslatedItemDesc({ description, fallback }: { description: string; fa
 }
 
 function TranslatedLocation({ location }: { location: string }) {
-  const locale = useLocale();
-  // Split "City, Country" and translate country using Intl.DisplayNames
-  const parts = location.split(",").map((p) => p.trim());
-  if (parts.length >= 2) {
-    const city = parts[0];
-    const countryRaw = parts[parts.length - 1];
-    // Map Romanian country names to ISO codes
-    const COUNTRY_CODES: Record<string, string> = {
-      "România": "RO", "Romania": "RO", "Germania": "DE", "Germany": "DE",
-      "Franța": "FR", "France": "FR", "Italia": "IT", "Italy": "IT",
-      "Spania": "ES", "Spain": "ES", "Marea Britanie": "GB", "United Kingdom": "GB",
-      "SUA": "US", "USA": "US", "United States": "US", "Olanda": "NL", "Netherlands": "NL",
-      "Japonia": "JP", "Japan": "JP", "China": "CN", "India": "IN",
-      "Republica Moldova": "MD", "Moldova": "MD",
-    };
-    const code = COUNTRY_CODES[countryRaw];
-    if (code) {
-      try {
-        const dn = new Intl.DisplayNames([locale], { type: "region" });
-        return <>{city}, {dn.of(code)}</>;
-      } catch { /* fallback */ }
-    }
-  }
-  return <>{location}</>;
+  const translated = useTranslatedText(location);
+  return <>{translated}</>;
 }

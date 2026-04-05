@@ -102,7 +102,7 @@ function SlotCard({
       {item.location && (
         <p className="mt-0.5 flex items-center gap-0.5 truncate text-[10px] text-zinc-400">
           <MapPin className="h-2.5 w-2.5 shrink-0" />
-          {item.location}
+          <TranslatedLoc text={item.location} />
         </p>
       )}
       {item.wishlist && (
@@ -152,7 +152,11 @@ function SlotTitle({ title }: { title: string }) {
   );
 }
 
-/* ─── Browse card for grid/list secondary view ─── */
+function TranslatedLoc({ text }: { text: string }) {
+  const translated = useTranslatedText(text);
+  return <>{translated}</>;
+}
+
 function ObjectCard({ item, mode }: { item: Item; mode: BrowseMode }) {
   const t = useTranslations("objects");
   const tCat = useTranslations("categories");
@@ -192,7 +196,7 @@ function ObjectCard({ item, mode }: { item: Item; mode: BrowseMode }) {
             {item.location && (
               <span className="flex items-center gap-0.5">
                 <MapPin className="h-3 w-3" />
-                {item.location}
+                <TranslatedLoc text={item.location} />
               </span>
             )}
           </div>
@@ -246,7 +250,7 @@ function ObjectCard({ item, mode }: { item: Item; mode: BrowseMode }) {
         {item.location && (
           <p className="item-card__location mt-1 flex items-center gap-0.5 text-xs text-zinc-400">
             <MapPin className="h-3 w-3" />
-            {item.location}
+            <TranslatedLoc text={item.location} />
           </p>
         )}
         {item.wishlist && (
