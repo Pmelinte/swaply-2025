@@ -639,7 +639,13 @@
     "condition_fair": "Fair",
     "condition_poor": "Poor",
     "condition_used": "Used",
-    "condition_used_good": "Good condition"
+    "condition_used_good": "Good condition",
+    "status_active": "Ativo",
+    "status_reserved": "Reservado",
+    "status_traded": "Trocado",
+    "status_paused": "Pausado",
+    "status_archived": "Arquivado",
+    "shareButton": "Compartilhar"
   },
   "objectDetail": {
     "loading": "A carregar objeto",

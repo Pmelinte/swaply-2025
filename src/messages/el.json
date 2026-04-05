@@ -639,7 +639,13 @@
     "condition_fair": "Αποδεκτό",
     "condition_poor": "Φθαρμένο",
     "condition_used": "Μεταχειρισμένο",
-    "condition_used_good": "Καλή κατάσταση"
+    "condition_used_good": "Καλή κατάσταση",
+    "status_active": "Ενεργό",
+    "status_reserved": "Κρατημένο",
+    "status_traded": "Ανταλλαγμένο",
+    "status_paused": "Σε παύση",
+    "status_archived": "Αρχειοθετημένο",
+    "shareButton": "Κοινοποίηση"
   },
   "objectDetail": {
     "loading": "Φόρτωση αντικειμένου",

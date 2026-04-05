@@ -11,7 +11,7 @@ import { Link } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { useFavorites } from "@/hooks/useFavorites";
-import { normalizeCategory, normalizeCondition } from "@/lib/normalize-i18n";
+import { normalizeCategory, normalizeCondition, normalizeStatus } from "@/lib/normalize-i18n";
 import { useTranslatedText } from "@/hooks/useTranslation";
 import { Pill, SectionCard } from "@/components/ui-custom";
 import {
@@ -634,12 +634,12 @@ export default function ObjectDetailClient() {
                   Rezervat
                 </span>
               ) : (
-                <Pill color="green">{item.status}</Pill>
+                <Pill color="green">{tObj("status_" + normalizeStatus(item.status))}</Pill>
               )}
               {item.location && (
                 <span className="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
                   <MapPin className="h-3 w-3" />
-                  {item.location}
+                  <TranslatedLocation location={item.location} />
                 </span>
               )}
             </div>
@@ -1027,4 +1027,31 @@ function TranslatedItemTitle({ title, fallback }: { title: string; fallback: str
 function TranslatedItemDesc({ description, fallback }: { description: string; fallback: string | null }) {
   const translated = useTranslatedText(description);
   return <>{translated !== description ? translated : (fallback || description)}</>;
+}
+
+function TranslatedLocation({ location }: { location: string }) {
+  const locale = useLocale();
+  // Split "City, Country" and translate country using Intl.DisplayNames
+  const parts = location.split(",").map((p) => p.trim());
+  if (parts.length >= 2) {
+    const city = parts[0];
+    const countryRaw = parts[parts.length - 1];
+    // Map Romanian country names to ISO codes
+    const COUNTRY_CODES: Record<string, string> = {
+      "România": "RO", "Romania": "RO", "Germania": "DE", "Germany": "DE",
+      "Franța": "FR", "France": "FR", "Italia": "IT", "Italy": "IT",
+      "Spania": "ES", "Spain": "ES", "Marea Britanie": "GB", "United Kingdom": "GB",
+      "SUA": "US", "USA": "US", "United States": "US", "Olanda": "NL", "Netherlands": "NL",
+      "Japonia": "JP", "Japan": "JP", "China": "CN", "India": "IN",
+      "Republica Moldova": "MD", "Moldova": "MD",
+    };
+    const code = COUNTRY_CODES[countryRaw];
+    if (code) {
+      try {
+        const dn = new Intl.DisplayNames([locale], { type: "region" });
+        return <>{city}, {dn.of(code)}</>;
+      } catch { /* fallback */ }
+    }
+  }
+  return <>{location}</>;
 }

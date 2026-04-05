@@ -6,6 +6,7 @@ import { Share2, Copy, Check } from "lucide-react";
 
 export function ShareButtons({ title, itemId }: { title: string; itemId: string }) {
   const t = useTranslations("share");
+  const tObj = useTranslations("objects");
   const [copied, setCopied] = useState(false);
   const url = typeof window !== "undefined" ? `${window.location.origin}/objects/${itemId}` : `/objects/${itemId}`;
   const text = `Check out "${title}" on Swaply — want to swap?`;
@@ -37,7 +38,7 @@ export function ShareButtons({ title, itemId }: { title: string; itemId: string 
         className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs font-medium text-zinc-700 shadow-sm transition hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
       >
         <Share2 className="h-3.5 w-3.5" />
-        Share
+        {tObj("shareButton")}
       </button>
       <button
         onClick={copyLink}

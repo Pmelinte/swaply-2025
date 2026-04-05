@@ -639,7 +639,13 @@
     "condition_fair": "普通",
     "condition_poor": "使用感あり",
     "condition_used": "中古",
-    "condition_used_good": "良い状態"
+    "condition_used_good": "良い状態",
+    "status_active": "アクティブ",
+    "status_reserved": "予約済み",
+    "status_traded": "交換済み",
+    "status_paused": "一時停止",
+    "status_archived": "アーカイブ",
+    "shareButton": "共有"
   },
   "objectDetail": {
     "loading": "オブジェクトを読み込み中",
