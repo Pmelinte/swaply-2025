@@ -3046,32 +3046,32 @@
   },
   "branches": {
     "tagline": "Swap what you have for what you need — objects, properties, services, and events.",
-    "objects": "Objects",
-    "objectsDesc": "Swap electronics, books, clothes, and more",
-    "properties": "Properties",
-    "propertiesDesc": "Exchange homes, apartments, and spaces",
-    "services": "Services",
-    "servicesDesc": "Trade skills, labor, and professional help",
-    "events": "Events",
-    "eventsDesc": "Swap tickets, reservations, and experiences",
+    "objects": "Nesneler",
+    "objectsDesc": "Elektronik, kitap, giysi ve daha fazlasını takas edin",
+    "properties": "Mülkler",
+    "propertiesDesc": "Ev, daire ve mekanları takas edin",
+    "services": "Hizmetler",
+    "servicesDesc": "Beceri, emek ve profesyonel yardımı takas edin",
+    "events": "Etkinlikler",
+    "eventsDesc": "Bilet, rezervasyon ve deneyimleri takas edin",
     "comingSoon": "This section is coming soon. Stay tuned!"
   },
   "hero": {
-    "tagline": "Swap what you have for what you want"
+    "tagline": "Sahip olduğunu istediğinle takas et"
   },
   "benefits": {
-    "label": "Why Swaply?",
-    "directSwap": "Direct swap between people",
-    "globalCommunity": "Global community",
-    "aiMatching": "Automatic AI matching",
-    "escrow": "Escrow for safety",
-    "logistics": "Integrated logistics",
-    "negotiation": "In-platform negotiation",
-    "localPartners": "Find partners nearby"
+    "label": "Neden Swaply?",
+    "directSwap": "İnsanlar arası doğrudan takas",
+    "globalCommunity": "Küresel topluluk",
+    "aiMatching": "Otomatik AI eşleştirme",
+    "escrow": "Güvenlik için emanet",
+    "logistics": "Entegre lojistik",
+    "negotiation": "Platform içi müzakere",
+    "localPartners": "Yakın ortaklar bul"
   },
   "premium": {
     "title": "Swaply Premium",
-    "subtitle": "Global visibility · Priority matching"
+    "subtitle": "Küresel görünürlük · Öncelikli eşleştirme"
   },
   "analytics": {
     "title": "Analiz",

@@ -3046,32 +3046,32 @@
   },
   "branches": {
     "tagline": "Swap what you have for what you need — objects, properties, services, and events.",
-    "objects": "Objects",
-    "objectsDesc": "Swap electronics, books, clothes, and more",
-    "properties": "Properties",
-    "propertiesDesc": "Exchange homes, apartments, and spaces",
-    "services": "Services",
-    "servicesDesc": "Trade skills, labor, and professional help",
-    "events": "Events",
-    "eventsDesc": "Swap tickets, reservations, and experiences",
+    "objects": "أغراض",
+    "objectsDesc": "بادل الإلكترونيات والكتب والملابس وأكثر",
+    "properties": "عقارات",
+    "propertiesDesc": "تبادل المنازل والشقق والمساحات",
+    "services": "خدمات",
+    "servicesDesc": "تبادل المهارات والعمل والمساعدة المهنية",
+    "events": "فعاليات",
+    "eventsDesc": "بادل التذاكر والحجوزات والتجارب",
     "comingSoon": "This section is coming soon. Stay tuned!"
   },
   "hero": {
-    "tagline": "Swap what you have for what you want"
+    "tagline": "بادل ما لديك بما تريد"
   },
   "benefits": {
-    "label": "Why Swaply?",
-    "directSwap": "Direct swap between people",
-    "globalCommunity": "Global community",
-    "aiMatching": "Automatic AI matching",
-    "escrow": "Escrow for safety",
-    "logistics": "Integrated logistics",
-    "negotiation": "In-platform negotiation",
-    "localPartners": "Find partners nearby"
+    "label": "لماذا سواپلي؟",
+    "directSwap": "تبادل مباشر بين الأشخاص",
+    "globalCommunity": "مجتمع عالمي",
+    "aiMatching": "مطابقة تلقائية بالذكاء الاصطناعي",
+    "escrow": "ضمان للأمان",
+    "logistics": "لوجستيات متكاملة",
+    "negotiation": "تفاوض داخل المنصة",
+    "localPartners": "ابحث عن شركاء قريبين"
   },
   "premium": {
-    "title": "Swaply Premium",
-    "subtitle": "Global visibility · Priority matching"
+    "title": "سواپلي بريميوم",
+    "subtitle": "رؤية عالمية · مطابقة أولوية"
   },
   "analytics": {
     "title": "التحليلات",

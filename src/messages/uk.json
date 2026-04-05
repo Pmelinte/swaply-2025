@@ -3046,32 +3046,32 @@
   },
   "branches": {
     "tagline": "Swap what you have for what you need — objects, properties, services, and events.",
-    "objects": "Objects",
-    "objectsDesc": "Swap electronics, books, clothes, and more",
-    "properties": "Properties",
-    "propertiesDesc": "Exchange homes, apartments, and spaces",
-    "services": "Services",
-    "servicesDesc": "Trade skills, labor, and professional help",
-    "events": "Events",
-    "eventsDesc": "Swap tickets, reservations, and experiences",
+    "objects": "Об'єкти",
+    "objectsDesc": "Обмінюйте електроніку, книги, одяг та інше",
+    "properties": "Нерухомість",
+    "propertiesDesc": "Обмінюйте будинки, квартири та простори",
+    "services": "Послуги",
+    "servicesDesc": "Обмінюйте навички, працю та професійну допомогу",
+    "events": "Події",
+    "eventsDesc": "Обмінюйте квитки, бронювання та враження",
     "comingSoon": "This section is coming soon. Stay tuned!"
   },
   "hero": {
-    "tagline": "Swap what you have for what you want"
+    "tagline": "Обміняй те, що маєш, на те, що хочеш"
   },
   "benefits": {
-    "label": "Why Swaply?",
-    "directSwap": "Direct swap between people",
-    "globalCommunity": "Global community",
-    "aiMatching": "Automatic AI matching",
-    "escrow": "Escrow for safety",
-    "logistics": "Integrated logistics",
-    "negotiation": "In-platform negotiation",
-    "localPartners": "Find partners nearby"
+    "label": "Чому Swaply?",
+    "directSwap": "Прямий обмін між людьми",
+    "globalCommunity": "Глобальна спільнота",
+    "aiMatching": "Автоматичне AI-зіставлення",
+    "escrow": "Ескроу для безпеки",
+    "logistics": "Інтегрована логістика",
+    "negotiation": "Переговори на платформі",
+    "localPartners": "Знайдіть партнерів поруч"
   },
   "premium": {
-    "title": "Swaply Premium",
-    "subtitle": "Global visibility · Priority matching"
+    "title": "Swaply Преміум",
+    "subtitle": "Глобальна видимість · Пріоритетне зіставлення"
   },
   "analytics": {
     "title": "Аналітика",

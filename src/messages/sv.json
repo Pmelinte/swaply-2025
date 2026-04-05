@@ -3259,32 +3259,32 @@
   },
   "branches": {
     "tagline": "Swap what you have for what you need — objects, properties, services, and events.",
-    "objects": "Objects",
-    "objectsDesc": "Swap electronics, books, clothes, and more",
-    "properties": "Properties",
-    "propertiesDesc": "Exchange homes, apartments, and spaces",
-    "services": "Services",
-    "servicesDesc": "Trade skills, labor, and professional help",
-    "events": "Events",
-    "eventsDesc": "Swap tickets, reservations, and experiences",
+    "objects": "Objekt",
+    "objectsDesc": "Byt elektronik, böcker, kläder och mer",
+    "properties": "Fastigheter",
+    "propertiesDesc": "Byt hus, lägenheter och utrymmen",
+    "services": "Tjänster",
+    "servicesDesc": "Byt färdigheter, arbete och professionell hjälp",
+    "events": "Evenemang",
+    "eventsDesc": "Byt biljetter, bokningar och upplevelser",
     "comingSoon": "This section is coming soon. Stay tuned!"
   },
   "hero": {
-    "tagline": "Swap what you have for what you want"
+    "tagline": "Byt det du har mot det du vill ha"
   },
   "benefits": {
-    "label": "Why Swaply?",
-    "directSwap": "Direct swap between people",
-    "globalCommunity": "Global community",
-    "aiMatching": "Automatic AI matching",
-    "escrow": "Escrow for safety",
-    "logistics": "Integrated logistics",
-    "negotiation": "In-platform negotiation",
-    "localPartners": "Find partners nearby"
+    "label": "Varför Swaply?",
+    "directSwap": "Direktbyte mellan människor",
+    "globalCommunity": "Global gemenskap",
+    "aiMatching": "Automatisk AI-matchning",
+    "escrow": "Escrow för säkerhet",
+    "logistics": "Integrerad logistik",
+    "negotiation": "Förhandling på plattformen",
+    "localPartners": "Hitta partners i närheten"
   },
   "premium": {
     "title": "Swaply Premium",
-    "subtitle": "Global visibility · Priority matching"
+    "subtitle": "Global synlighet · Prioriterad matchning"
   },
   "analytics": {
     "title": "Analys",

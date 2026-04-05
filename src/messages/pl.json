@@ -3046,32 +3046,32 @@
   },
   "branches": {
     "tagline": "Swap what you have for what you need — objects, properties, services, and events.",
-    "objects": "Objects",
-    "objectsDesc": "Swap electronics, books, clothes, and more",
-    "properties": "Properties",
-    "propertiesDesc": "Exchange homes, apartments, and spaces",
-    "services": "Services",
-    "servicesDesc": "Trade skills, labor, and professional help",
-    "events": "Events",
-    "eventsDesc": "Swap tickets, reservations, and experiences",
+    "objects": "Przedmioty",
+    "objectsDesc": "Wymieniaj elektronikę, książki, ubrania i więcej",
+    "properties": "Nieruchomości",
+    "propertiesDesc": "Wymieniaj domy, mieszkania i przestrzenie",
+    "services": "Usługi",
+    "servicesDesc": "Wymieniaj umiejętności, pracę i pomoc profesjonalną",
+    "events": "Wydarzenia",
+    "eventsDesc": "Wymieniaj bilety, rezerwacje i doświadczenia",
     "comingSoon": "This section is coming soon. Stay tuned!"
   },
   "hero": {
-    "tagline": "Swap what you have for what you want"
+    "tagline": "Wymień to, co masz, na to, czego chcesz"
   },
   "benefits": {
-    "label": "Why Swaply?",
-    "directSwap": "Direct swap between people",
-    "globalCommunity": "Global community",
-    "aiMatching": "Automatic AI matching",
-    "escrow": "Escrow for safety",
-    "logistics": "Integrated logistics",
-    "negotiation": "In-platform negotiation",
-    "localPartners": "Find partners nearby"
+    "label": "Dlaczego Swaply?",
+    "directSwap": "Bezpośrednia wymiana między ludźmi",
+    "globalCommunity": "Globalna społeczność",
+    "aiMatching": "Automatyczne dopasowanie AI",
+    "escrow": "Escrow dla bezpieczeństwa",
+    "logistics": "Zintegrowana logistyka",
+    "negotiation": "Negocjacje na platformie",
+    "localPartners": "Znajdź partnerów w pobliżu"
   },
   "premium": {
     "title": "Swaply Premium",
-    "subtitle": "Global visibility · Priority matching"
+    "subtitle": "Globalna widoczność · Priorytetowe dopasowanie"
   },
   "analytics": {
     "title": "Analityka",
