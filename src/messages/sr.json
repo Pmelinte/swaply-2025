@@ -640,12 +640,12 @@
     "condition_poor": "Poor",
     "condition_used": "Used",
     "condition_used_good": "Good condition",
-    "status_active": "Active",
-    "status_reserved": "Reserved",
-    "status_traded": "Traded",
-    "status_paused": "Paused",
+    "status_active": "Активан",
+    "status_reserved": "Резервисано",
+    "status_traded": "Размењено",
+    "status_paused": "Паузирано",
     "status_archived": "Archived",
-    "shareButton": "Share"
+    "shareButton": "Подели"
   },
   "objectDetail": {
     "loading": "Učitavanje predmeta",
@@ -2573,7 +2573,17 @@
     "ctaDescription": "Наведи своје предмете и открри шта можеш добити за замену.",
     "ctaButton": "Слободно испробај Swaply →",
     "metaDescription": "Чланци из категорије \"{category}\" на Swaply блогу.",
-    "tableOfContents": "Table of Contents"
+    "tableOfContents": "Table of Contents",
+    "guide": "Guide",
+    "tutorial": "Tutorial",
+    "inspiration": "Inspiration",
+    "sustainability": "Sustainability",
+    "safety": "Safety",
+    "technology": "Technology",
+    "trends": "Trends",
+    "community": "Community",
+    "product": "Product",
+    "allCategories": "All"
   },
   "push": {
     "enableTitle": "Uključi obaveštenja",

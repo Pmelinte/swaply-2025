@@ -640,12 +640,12 @@
     "condition_poor": "Poor",
     "condition_used": "Used",
     "condition_used_good": "Good condition",
-    "status_active": "Active",
-    "status_reserved": "Reserved",
-    "status_traded": "Traded",
-    "status_paused": "Paused",
+    "status_active": "Aktív",
+    "status_reserved": "Foglalt",
+    "status_traded": "Elcserélt",
+    "status_paused": "Szünetel",
     "status_archived": "Archived",
-    "shareButton": "Share"
+    "shareButton": "Megosztás"
   },
   "objectDetail": {
     "loading": "Tárgy betöltése",
@@ -2573,7 +2573,17 @@
     "ctaDescription": "Sorold fel tárgyaidat, és fedezd fel, mit kaphatsz cserébe.",
     "ctaButton": "Próbáld ki ingyenesen a Swaplyt →",
     "metaDescription": "Cikkek a „{category}\" kategóriából a Swaply blogon.",
-    "tableOfContents": "Tartalomjegyzék"
+    "tableOfContents": "Tartalomjegyzék",
+    "guide": "Guide",
+    "tutorial": "Tutorial",
+    "inspiration": "Inspiration",
+    "sustainability": "Sustainability",
+    "safety": "Safety",
+    "technology": "Technology",
+    "trends": "Trends",
+    "community": "Community",
+    "product": "Product",
+    "allCategories": "All"
   },
   "push": {
     "enableTitle": "Értesítések engedélyezése",

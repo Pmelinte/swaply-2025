@@ -217,7 +217,7 @@ export default async function BlogPostPage({ params }: Props) {
           className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 transition hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50"
         >
           <Tag className="h-3 w-3" />
-          {post.category}
+          {t(rawPost.category.toLowerCase())}
         </Link>
 
         <h1 className="text-3xl font-bold leading-tight text-zinc-900 dark:text-zinc-50 sm:text-4xl">

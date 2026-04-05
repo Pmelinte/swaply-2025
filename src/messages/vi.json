@@ -640,12 +640,12 @@
     "condition_poor": "Poor",
     "condition_used": "Used",
     "condition_used_good": "Good condition",
-    "status_active": "Active",
-    "status_reserved": "Reserved",
-    "status_traded": "Traded",
-    "status_paused": "Paused",
+    "status_active": "Hoạt động",
+    "status_reserved": "Đã đặt trước",
+    "status_traded": "Đã trao đổi",
+    "status_paused": "Tạm dừng",
     "status_archived": "Archived",
-    "shareButton": "Share"
+    "shareButton": "Chia sẻ"
   },
   "objectDetail": {
     "loading": "Đang tải đồ vật",
@@ -2573,7 +2573,17 @@
     "ctaDescription": "Liệt kê các vật của bạn và khám phá những gì bạn có thể nhận lấy để trao đổi.",
     "ctaButton": "Thử Swaply miễn phí →",
     "metaDescription": "Bài viết từ danh mục \"{category}\" trên blog Swaply.",
-    "tableOfContents": "Table of Contents"
+    "tableOfContents": "Table of Contents",
+    "guide": "Guide",
+    "tutorial": "Tutorial",
+    "inspiration": "Inspiration",
+    "sustainability": "Sustainability",
+    "safety": "Safety",
+    "technology": "Technology",
+    "trends": "Trends",
+    "community": "Community",
+    "product": "Product",
+    "allCategories": "All"
   },
   "push": {
     "enableTitle": "Bật thông báo",

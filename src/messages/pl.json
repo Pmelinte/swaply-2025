@@ -640,12 +640,12 @@
     "condition_poor": "Poor",
     "condition_used": "Used",
     "condition_used_good": "Good condition",
-    "status_active": "Active",
-    "status_reserved": "Reserved",
-    "status_traded": "Traded",
-    "status_paused": "Paused",
+    "status_active": "Aktywny",
+    "status_reserved": "Zarezerwowany",
+    "status_traded": "Wymieniony",
+    "status_paused": "Wstrzymany",
     "status_archived": "Archived",
-    "shareButton": "Share"
+    "shareButton": "Udostępnij"
   },
   "objectDetail": {
     "loading": "Ładowanie obiektu",
@@ -2573,7 +2573,17 @@
     "ctaDescription": "Wypisz swoje przedmioty i odkryj, co możesz otrzymać w zamian.",
     "ctaButton": "Spróbuj Swaply za darmo →",
     "metaDescription": "Artykuły z kategorii \"{category}\" na blogu Swaply.",
-    "tableOfContents": "Spis treści"
+    "tableOfContents": "Spis treści",
+    "guide": "Guide",
+    "tutorial": "Tutorial",
+    "inspiration": "Inspiration",
+    "sustainability": "Sustainability",
+    "safety": "Safety",
+    "technology": "Technology",
+    "trends": "Trends",
+    "community": "Community",
+    "product": "Product",
+    "allCategories": "All"
   },
   "push": {
     "enableTitle": "Włącz powiadomienia",

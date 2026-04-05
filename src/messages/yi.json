@@ -669,12 +669,12 @@
     "condition_poor": "Poor",
     "condition_used": "Used",
     "condition_used_good": "Good condition",
-    "status_active": "Active",
-    "status_reserved": "Reserved",
-    "status_traded": "Traded",
-    "status_paused": "Paused",
+    "status_active": "אקטיוו",
+    "status_reserved": "רעזערווירט",
+    "status_traded": "אויסגעביטן",
+    "status_paused": "פּויזירט",
     "status_archived": "Archived",
-    "shareButton": "Share"
+    "shareButton": "טיילן"
   },
   "objectDetail": {
     "loading": "לאָדן אָבייעקט",
@@ -2571,7 +2571,17 @@
     "ctaDescription": "ליסט דיינע אָבייעקטן און דיסקאָװער וואָס דו קענסט באַקומען אין אַקסטשेינג.",
     "ctaButton": "פּרוּבירן סווייפּלי פֿריי →",
     "metaDescription": "אַרטיקלען פֿון דער \"{category}\" קאַטעגאָריע אויף דעם סווייפּלי בלאָג.",
-    "tableOfContents": "Table of Contents"
+    "tableOfContents": "Table of Contents",
+    "guide": "Guide",
+    "tutorial": "Tutorial",
+    "inspiration": "Inspiration",
+    "sustainability": "Sustainability",
+    "safety": "Safety",
+    "technology": "Technology",
+    "trends": "Trends",
+    "community": "Community",
+    "product": "Product",
+    "allCategories": "All"
   },
   "push": {
     "enableTitle": "אַקטיװירט נאָטיפיקיישנס",

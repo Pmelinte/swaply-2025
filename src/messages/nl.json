@@ -640,12 +640,12 @@
     "condition_poor": "Poor",
     "condition_used": "Used",
     "condition_used_good": "Good condition",
-    "status_active": "Active",
-    "status_reserved": "Reserved",
-    "status_traded": "Traded",
-    "status_paused": "Paused",
+    "status_active": "Actief",
+    "status_reserved": "Gereserveerd",
+    "status_traded": "Geruild",
+    "status_paused": "Gepauzeerd",
     "status_archived": "Archived",
-    "shareButton": "Share"
+    "shareButton": "Delen"
   },
   "objectDetail": {
     "loading": "Object laden",
@@ -2573,7 +2573,17 @@
     "ctaDescription": "Plaats je spullen en ontdek wat je ervoor kunt krijgen.",
     "ctaButton": "Probeer Swaply gratis →",
     "metaDescription": "Artikelen uit de categorie \"{category}\" op de Swaply blog.",
-    "tableOfContents": "Inhoudsopgave"
+    "tableOfContents": "Inhoudsopgave",
+    "guide": "Guide",
+    "tutorial": "Tutorial",
+    "inspiration": "Inspiration",
+    "sustainability": "Sustainability",
+    "safety": "Safety",
+    "technology": "Technology",
+    "trends": "Trends",
+    "community": "Community",
+    "product": "Product",
+    "allCategories": "All"
   },
   "push": {
     "enableTitle": "Meldingen inschakelen",

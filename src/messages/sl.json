@@ -640,12 +640,12 @@
     "condition_poor": "Poor",
     "condition_used": "Used",
     "condition_used_good": "Good condition",
-    "status_active": "Active",
-    "status_reserved": "Reserved",
-    "status_traded": "Traded",
-    "status_paused": "Paused",
+    "status_active": "Aktivno",
+    "status_reserved": "Rezervirano",
+    "status_traded": "Zamenjano",
+    "status_paused": "Zaustavljeno",
     "status_archived": "Archived",
-    "shareButton": "Share"
+    "shareButton": "Deli"
   },
   "objectDetail": {
     "loading": "Nalaganje predmeta",
@@ -2573,7 +2573,17 @@
     "ctaDescription": "Napiši svoje predmete in odkrij, kaj lahko dobiš v zameno.",
     "ctaButton": "Preizkusi Swaply brezplačno →",
     "metaDescription": "Članki iz kategorije \"{category}\" na Swaply blogu.",
-    "tableOfContents": "Table of Contents"
+    "tableOfContents": "Table of Contents",
+    "guide": "Guide",
+    "tutorial": "Tutorial",
+    "inspiration": "Inspiration",
+    "sustainability": "Sustainability",
+    "safety": "Safety",
+    "technology": "Technology",
+    "trends": "Trends",
+    "community": "Community",
+    "product": "Product",
+    "allCategories": "All"
   },
   "push": {
     "enableTitle": "Omogoči obvestila",

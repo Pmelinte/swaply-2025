@@ -67,7 +67,7 @@ export function BlogSearch({ posts, categories }: Props) {
                 : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
             }`}
           >
-            {cat}
+            {t(cat.toLowerCase())}
           </button>
         ))}
       </nav>
@@ -99,7 +99,7 @@ export function BlogSearch({ posts, categories }: Props) {
               <div className="flex flex-1 flex-col p-5">
                 <span className="inline-flex w-fit items-center gap-1 rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
                   <Tag className="h-3 w-3" />
-                  {post.category}
+                  {t(post.category.toLowerCase())}
                 </span>
 
                 <h2 className="mt-3 text-lg font-bold leading-snug text-zinc-900 group-hover:text-blue-700 dark:text-zinc-50 dark:group-hover:text-blue-400">

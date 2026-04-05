@@ -2573,7 +2573,17 @@
     "ctaDescription": "あなたのアイテムをリストアップして、交換で何が得られるかを発見してください。",
     "ctaButton": "Swapyを無料で試す →",
     "metaDescription": "Swapyブログの「{category}」カテゴリーの記事。",
-    "tableOfContents": "目次"
+    "tableOfContents": "目次",
+    "guide": "ガイド",
+    "tutorial": "チュートリアル",
+    "inspiration": "インスピレーション",
+    "sustainability": "サステナビリティ",
+    "safety": "安全",
+    "technology": "テクノロジー",
+    "trends": "トレンド",
+    "community": "コミュニティ",
+    "product": "プロダクト",
+    "allCategories": "すべて"
   },
   "push": {
     "enableTitle": "通知を有効にする",
