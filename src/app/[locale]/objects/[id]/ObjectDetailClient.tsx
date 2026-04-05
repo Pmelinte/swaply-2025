@@ -651,7 +651,7 @@ export default function ObjectDetailClient() {
           {/* Description */}
           {item.description && (
             <p className="text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
-              {translatedDesc || item.description}
+              <TranslatedItemDesc description={item.description} fallback={translatedDesc} />
             </p>
           )}
 
@@ -1021,6 +1021,10 @@ function SimilarItemTitle({ title }: { title: string }) {
 
 function TranslatedItemTitle({ title, fallback }: { title: string; fallback: string | null }) {
   const translated = useTranslatedText(title);
-  // Priority: useTranslatedText result > /api/translate/item fallback > original
   return <>{translated !== title ? translated : (fallback || title)}</>;
+}
+
+function TranslatedItemDesc({ description, fallback }: { description: string; fallback: string | null }) {
+  const translated = useTranslatedText(description);
+  return <>{translated !== description ? translated : (fallback || description)}</>;
 }
