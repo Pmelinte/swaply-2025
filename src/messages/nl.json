@@ -3046,32 +3046,32 @@
   },
   "branches": {
     "tagline": "Swap what you have for what you need — objects, properties, services, and events.",
-    "objects": "Objects",
-    "objectsDesc": "Swap electronics, books, clothes, and more",
-    "properties": "Properties",
-    "propertiesDesc": "Exchange homes, apartments, and spaces",
-    "services": "Services",
-    "servicesDesc": "Trade skills, labor, and professional help",
-    "events": "Events",
-    "eventsDesc": "Swap tickets, reservations, and experiences",
+    "objects": "Objecten",
+    "objectsDesc": "Ruil elektronica, boeken, kleding en meer",
+    "properties": "Vastgoed",
+    "propertiesDesc": "Wissel huizen, appartementen en ruimtes",
+    "services": "Diensten",
+    "servicesDesc": "Wissel vaardigheden, arbeid en professionele hulp",
+    "events": "Evenementen",
+    "eventsDesc": "Ruil tickets, reserveringen en ervaringen",
     "comingSoon": "This section is coming soon. Stay tuned!"
   },
   "hero": {
-    "tagline": "Swap what you have for what you want"
+    "tagline": "Ruil wat je hebt voor wat je wilt"
   },
   "benefits": {
-    "label": "Why Swaply?",
-    "directSwap": "Direct swap between people",
-    "globalCommunity": "Global community",
-    "aiMatching": "Automatic AI matching",
-    "escrow": "Escrow for safety",
-    "logistics": "Integrated logistics",
-    "negotiation": "In-platform negotiation",
-    "localPartners": "Find partners nearby"
+    "label": "Waarom Swaply?",
+    "directSwap": "Directe ruil tussen mensen",
+    "globalCommunity": "Wereldwijde gemeenschap",
+    "aiMatching": "Automatische AI-matching",
+    "escrow": "Escrow voor veiligheid",
+    "logistics": "Geïntegreerde logistiek",
+    "negotiation": "Onderhandeling op het platform",
+    "localPartners": "Vind partners in de buurt"
   },
   "premium": {
     "title": "Swaply Premium",
-    "subtitle": "Global visibility · Priority matching"
+    "subtitle": "Wereldwijde zichtbaarheid · Prioriteitsmatching"
   },
   "analytics": {
     "title": "Analyse",

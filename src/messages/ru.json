@@ -3046,7 +3046,7 @@
   },
   "branches": {
     "tagline": "Обменивайте то, что имеете, на то, что нужно — вещи, недвижимость, услуги и мероприятия.",
-    "objects": "Объекты",
+    "objects": "Предметы",
     "objectsDesc": "Обменивайте электронику, книги, одежду и другое",
     "properties": "Недвижимость",
     "propertiesDesc": "Обменивайте дома, квартиры и пространства",
@@ -3057,21 +3057,21 @@
     "comingSoon": "Этот раздел скоро появится. Следите за обновлениями!"
   },
   "hero": {
-    "tagline": "Swap what you have for what you want"
+    "tagline": "Обменяй то, что имеешь, на то, что хочешь"
   },
   "benefits": {
-    "label": "Why Swaply?",
-    "directSwap": "Direct swap between people",
-    "globalCommunity": "Global community",
-    "aiMatching": "Automatic AI matching",
-    "escrow": "Escrow for safety",
-    "logistics": "Integrated logistics",
-    "negotiation": "In-platform negotiation",
-    "localPartners": "Find partners nearby"
+    "label": "Почему Swaply?",
+    "directSwap": "Прямой обмен между людьми",
+    "globalCommunity": "Глобальное сообщество",
+    "aiMatching": "Автоматическое AI-сопоставление",
+    "escrow": "Эскроу для безопасности",
+    "logistics": "Интегрированная логистика",
+    "negotiation": "Переговоры на платформе",
+    "localPartners": "Найдите партнёров рядом"
   },
   "premium": {
-    "title": "Swaply Premium",
-    "subtitle": "Global visibility · Priority matching"
+    "title": "Swaply Премиум",
+    "subtitle": "Глобальная видимость · Приоритетное сопоставление"
   },
   "analytics": {
     "title": "Аналитика",

@@ -3046,32 +3046,32 @@
   },
   "branches": {
     "tagline": "Swap what you have for what you need — objects, properties, services, and events.",
-    "objects": "Objects",
-    "objectsDesc": "Swap electronics, books, clothes, and more",
-    "properties": "Properties",
-    "propertiesDesc": "Exchange homes, apartments, and spaces",
-    "services": "Services",
-    "servicesDesc": "Trade skills, labor, and professional help",
-    "events": "Events",
-    "eventsDesc": "Swap tickets, reservations, and experiences",
+    "objects": "Předměty",
+    "objectsDesc": "Vyměňte elektroniku, knihy, oblečení a více",
+    "properties": "Nemovitosti",
+    "propertiesDesc": "Vyměňte domy, byty a prostory",
+    "services": "Služby",
+    "servicesDesc": "Vyměňte dovednosti, práci a odbornou pomoc",
+    "events": "Události",
+    "eventsDesc": "Vyměňte vstupenky, rezervace a zážitky",
     "comingSoon": "This section is coming soon. Stay tuned!"
   },
   "hero": {
-    "tagline": "Swap what you have for what you want"
+    "tagline": "Vyměňte to, co máte, za to, co chcete"
   },
   "benefits": {
-    "label": "Why Swaply?",
-    "directSwap": "Direct swap between people",
-    "globalCommunity": "Global community",
-    "aiMatching": "Automatic AI matching",
-    "escrow": "Escrow for safety",
-    "logistics": "Integrated logistics",
-    "negotiation": "In-platform negotiation",
-    "localPartners": "Find partners nearby"
+    "label": "Proč Swaply?",
+    "directSwap": "Přímá výměna mezi lidmi",
+    "globalCommunity": "Globální komunita",
+    "aiMatching": "Automatické AI párování",
+    "escrow": "Escrow pro bezpečnost",
+    "logistics": "Integrovaná logistika",
+    "negotiation": "Vyjednávání na platformě",
+    "localPartners": "Najděte partnery poblíž"
   },
   "premium": {
     "title": "Swaply Premium",
-    "subtitle": "Global visibility · Priority matching"
+    "subtitle": "Globální viditelnost · Prioritní párování"
   },
   "analytics": {
     "title": "Analytika",

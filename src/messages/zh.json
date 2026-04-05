@@ -3057,21 +3057,21 @@
     "comingSoon": "此板块即将上线，敬请期待！"
   },
   "hero": {
-    "tagline": "Swap what you have for what you want"
+    "tagline": "用你拥有的换你想要的"
   },
   "benefits": {
-    "label": "Why Swaply?",
-    "directSwap": "Direct swap between people",
-    "globalCommunity": "Global community",
-    "aiMatching": "Automatic AI matching",
-    "escrow": "Escrow for safety",
-    "logistics": "Integrated logistics",
-    "negotiation": "In-platform negotiation",
-    "localPartners": "Find partners nearby"
+    "label": "为什么选择Swaply？",
+    "directSwap": "人与人直接交换",
+    "globalCommunity": "全球社区",
+    "aiMatching": "AI自动匹配",
+    "escrow": "托管保障安全",
+    "logistics": "集成物流",
+    "negotiation": "平台内协商",
+    "localPartners": "寻找附近的伙伴"
   },
   "premium": {
-    "title": "Swaply Premium",
-    "subtitle": "Global visibility · Priority matching"
+    "title": "Swaply高级版",
+    "subtitle": "全球可见度 · 优先匹配"
   },
   "analytics": {
     "title": "分析",

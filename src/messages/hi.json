@@ -3046,32 +3046,32 @@
   },
   "branches": {
     "tagline": "Swap what you have for what you need — objects, properties, services, and events.",
-    "objects": "Objects",
-    "objectsDesc": "Swap electronics, books, clothes, and more",
-    "properties": "Properties",
-    "propertiesDesc": "Exchange homes, apartments, and spaces",
-    "services": "Services",
-    "servicesDesc": "Trade skills, labor, and professional help",
-    "events": "Events",
-    "eventsDesc": "Swap tickets, reservations, and experiences",
+    "objects": "वस्तुएं",
+    "objectsDesc": "इलेक्ट्रॉनिक्स, किताबें, कपड़े और अधिक बदलें",
+    "properties": "संपत्तियां",
+    "propertiesDesc": "घर, अपार्टमेंट और स्थान बदलें",
+    "services": "सेवाएं",
+    "servicesDesc": "कौशल, श्रम और पेशेवर मदद बदलें",
+    "events": "कार्यक्रम",
+    "eventsDesc": "टिकट, आरक्षण और अनुभव बदलें",
     "comingSoon": "This section is coming soon. Stay tuned!"
   },
   "hero": {
-    "tagline": "Swap what you have for what you want"
+    "tagline": "जो आपके पास है उसे जो चाहिए उससे बदलें"
   },
   "benefits": {
-    "label": "Why Swaply?",
-    "directSwap": "Direct swap between people",
-    "globalCommunity": "Global community",
-    "aiMatching": "Automatic AI matching",
-    "escrow": "Escrow for safety",
-    "logistics": "Integrated logistics",
-    "negotiation": "In-platform negotiation",
-    "localPartners": "Find partners nearby"
+    "label": "Swaply क्यों?",
+    "directSwap": "लोगों के बीच सीधा आदान-प्रदान",
+    "globalCommunity": "वैश्विक समुदाय",
+    "aiMatching": "AI स्वचालित मिलान",
+    "escrow": "सुरक्षा के लिए एस्क्रो",
+    "logistics": "एकीकृत लॉजिस्टिक्स",
+    "negotiation": "प्लेटफ़ॉर्म में बातचीत",
+    "localPartners": "पास में साथी खोजें"
   },
   "premium": {
-    "title": "Swaply Premium",
-    "subtitle": "Global visibility · Priority matching"
+    "title": "Swaply प्रीमियम",
+    "subtitle": "वैश्विक दृश्यता · प्राथमिकता मिलान"
   },
   "analytics": {
     "title": "विश्लेषण",

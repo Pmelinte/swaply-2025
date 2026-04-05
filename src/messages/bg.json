@@ -3046,32 +3046,32 @@
   },
   "branches": {
     "tagline": "Swap what you have for what you need — objects, properties, services, and events.",
-    "objects": "Objects",
-    "objectsDesc": "Swap electronics, books, clothes, and more",
-    "properties": "Properties",
-    "propertiesDesc": "Exchange homes, apartments, and spaces",
-    "services": "Services",
-    "servicesDesc": "Trade skills, labor, and professional help",
-    "events": "Events",
-    "eventsDesc": "Swap tickets, reservations, and experiences",
+    "objects": "Обекти",
+    "objectsDesc": "Разменете електроника, книги, дрехи и още",
+    "properties": "Имоти",
+    "propertiesDesc": "Обменяйте домове, апартаменти и пространства",
+    "services": "Услуги",
+    "servicesDesc": "Обменяйте умения, труд и професионална помощ",
+    "events": "Събития",
+    "eventsDesc": "Разменете билети, резервации и преживявания",
     "comingSoon": "This section is coming soon. Stay tuned!"
   },
   "hero": {
-    "tagline": "Swap what you have for what you want"
+    "tagline": "Разменете това, което имате, за това, което искате"
   },
   "benefits": {
-    "label": "Why Swaply?",
-    "directSwap": "Direct swap between people",
-    "globalCommunity": "Global community",
-    "aiMatching": "Automatic AI matching",
-    "escrow": "Escrow for safety",
-    "logistics": "Integrated logistics",
-    "negotiation": "In-platform negotiation",
-    "localPartners": "Find partners nearby"
+    "label": "Защо Swaply?",
+    "directSwap": "Директен обмен между хора",
+    "globalCommunity": "Глобална общност",
+    "aiMatching": "Автоматично AI съвпадение",
+    "escrow": "Ескроу за сигурност",
+    "logistics": "Интегрирана логистика",
+    "negotiation": "Преговори в платформата",
+    "localPartners": "Намерете партньори наблизо"
   },
   "premium": {
     "title": "Swaply Premium",
-    "subtitle": "Global visibility · Priority matching"
+    "subtitle": "Глобална видимост · Приоритетно съвпадение"
   },
   "analytics": {
     "title": "Анализ",

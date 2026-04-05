@@ -3057,21 +3057,21 @@
     "comingSoon": "このセクションは近日公開予定です。お楽しみに！"
   },
   "hero": {
-    "tagline": "Swap what you have for what you want"
+    "tagline": "持っているものを欲しいものと交換"
   },
   "benefits": {
-    "label": "Why Swaply?",
-    "directSwap": "Direct swap between people",
-    "globalCommunity": "Global community",
-    "aiMatching": "Automatic AI matching",
-    "escrow": "Escrow for safety",
-    "logistics": "Integrated logistics",
-    "negotiation": "In-platform negotiation",
-    "localPartners": "Find partners nearby"
+    "label": "なぜSwaply？",
+    "directSwap": "人と人の直接交換",
+    "globalCommunity": "グローバルコミュニティ",
+    "aiMatching": "AI自動マッチング",
+    "escrow": "安全のためのエスクロー",
+    "logistics": "統合物流",
+    "negotiation": "プラットフォーム内交渉",
+    "localPartners": "近くのパートナーを見つける"
   },
   "premium": {
-    "title": "Swaply Premium",
-    "subtitle": "Global visibility · Priority matching"
+    "title": "Swaplyプレミアム",
+    "subtitle": "グローバル可視性 · 優先マッチング"
   },
   "analytics": {
     "title": "アナリティクス",

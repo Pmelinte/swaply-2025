@@ -3046,32 +3046,32 @@
   },
   "branches": {
     "tagline": "Swap what you have for what you need — objects, properties, services, and events.",
-    "objects": "Objects",
-    "objectsDesc": "Swap electronics, books, clothes, and more",
-    "properties": "Properties",
-    "propertiesDesc": "Exchange homes, apartments, and spaces",
-    "services": "Services",
-    "servicesDesc": "Trade skills, labor, and professional help",
-    "events": "Events",
-    "eventsDesc": "Swap tickets, reservations, and experiences",
+    "objects": "물건",
+    "objectsDesc": "전자제품, 책, 옷 등을 교환",
+    "properties": "부동산",
+    "propertiesDesc": "집, 아파트, 공간을 교환",
+    "services": "서비스",
+    "servicesDesc": "기술, 노동, 전문 도움을 교환",
+    "events": "이벤트",
+    "eventsDesc": "티켓, 예약, 경험을 교환",
     "comingSoon": "This section is coming soon. Stay tuned!"
   },
   "hero": {
-    "tagline": "Swap what you have for what you want"
+    "tagline": "가진 것을 원하는 것으로 교환하세요"
   },
   "benefits": {
-    "label": "Why Swaply?",
-    "directSwap": "Direct swap between people",
-    "globalCommunity": "Global community",
-    "aiMatching": "Automatic AI matching",
-    "escrow": "Escrow for safety",
-    "logistics": "Integrated logistics",
-    "negotiation": "In-platform negotiation",
-    "localPartners": "Find partners nearby"
+    "label": "왜 Swaply?",
+    "directSwap": "사람 간 직접 교환",
+    "globalCommunity": "글로벌 커뮤니티",
+    "aiMatching": "AI 자동 매칭",
+    "escrow": "안전을 위한 에스크로",
+    "logistics": "통합 물류",
+    "negotiation": "플랫폼 내 협상",
+    "localPartners": "가까운 파트너 찾기"
   },
   "premium": {
-    "title": "Swaply Premium",
-    "subtitle": "Global visibility · Priority matching"
+    "title": "Swaply 프리미엄",
+    "subtitle": "글로벌 가시성 · 우선 매칭"
   },
   "analytics": {
     "title": "분석",

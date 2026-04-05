@@ -3046,32 +3046,32 @@
   },
   "branches": {
     "tagline": "Swap what you have for what you need — objects, properties, services, and events.",
-    "objects": "Objects",
-    "objectsDesc": "Swap electronics, books, clothes, and more",
-    "properties": "Properties",
-    "propertiesDesc": "Exchange homes, apartments, and spaces",
-    "services": "Services",
-    "servicesDesc": "Trade skills, labor, and professional help",
-    "events": "Events",
-    "eventsDesc": "Swap tickets, reservations, and experiences",
+    "objects": "Αντικείμενα",
+    "objectsDesc": "Ανταλλάξτε ηλεκτρονικά, βιβλία, ρούχα και άλλα",
+    "properties": "Ακίνητα",
+    "propertiesDesc": "Ανταλλάξτε σπίτια, διαμερίσματα και χώρους",
+    "services": "Υπηρεσίες",
+    "servicesDesc": "Ανταλλάξτε δεξιότητες, εργασία και επαγγελματική βοήθεια",
+    "events": "Εκδηλώσεις",
+    "eventsDesc": "Ανταλλάξτε εισιτήρια, κρατήσεις και εμπειρίες",
     "comingSoon": "This section is coming soon. Stay tuned!"
   },
   "hero": {
-    "tagline": "Swap what you have for what you want"
+    "tagline": "Ανταλλάξτε αυτό που έχετε με αυτό που θέλετε"
   },
   "benefits": {
-    "label": "Why Swaply?",
-    "directSwap": "Direct swap between people",
-    "globalCommunity": "Global community",
-    "aiMatching": "Automatic AI matching",
-    "escrow": "Escrow for safety",
-    "logistics": "Integrated logistics",
-    "negotiation": "In-platform negotiation",
-    "localPartners": "Find partners nearby"
+    "label": "Γιατί Swaply;",
+    "directSwap": "Άμεση ανταλλαγή μεταξύ ανθρώπων",
+    "globalCommunity": "Παγκόσμια κοινότητα",
+    "aiMatching": "Αυτόματη αντιστοίχιση AI",
+    "escrow": "Μεσεγγύηση για ασφάλεια",
+    "logistics": "Ενσωματωμένη εφοδιαστική",
+    "negotiation": "Διαπραγμάτευση στην πλατφόρμα",
+    "localPartners": "Βρείτε συνεργάτες κοντά σας"
   },
   "premium": {
     "title": "Swaply Premium",
-    "subtitle": "Global visibility · Priority matching"
+    "subtitle": "Παγκόσμια ορατότητα · Προτεραιότητα αντιστοίχισης"
   },
   "analytics": {
     "title": "Analytics",

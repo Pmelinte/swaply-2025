@@ -3046,32 +3046,32 @@
   },
   "branches": {
     "tagline": "Swap what you have for what you need — objects, properties, services, and events.",
-    "objects": "Objects",
-    "objectsDesc": "Swap electronics, books, clothes, and more",
-    "properties": "Properties",
-    "propertiesDesc": "Exchange homes, apartments, and spaces",
-    "services": "Services",
-    "servicesDesc": "Trade skills, labor, and professional help",
-    "events": "Events",
-    "eventsDesc": "Swap tickets, reservations, and experiences",
+    "objects": "Tárgyak",
+    "objectsDesc": "Cserélj elektronikát, könyveket, ruhákat és mást",
+    "properties": "Ingatlanok",
+    "propertiesDesc": "Cserélj házakat, lakásokat és tereket",
+    "services": "Szolgáltatások",
+    "servicesDesc": "Cserélj készségeket, munkát és szakmai segítséget",
+    "events": "Események",
+    "eventsDesc": "Cserélj jegyeket, foglalásokat és élményeket",
     "comingSoon": "This section is coming soon. Stay tuned!"
   },
   "hero": {
-    "tagline": "Swap what you have for what you want"
+    "tagline": "Cseréld el, amid van, arra, amit szeretnél"
   },
   "benefits": {
-    "label": "Why Swaply?",
-    "directSwap": "Direct swap between people",
-    "globalCommunity": "Global community",
-    "aiMatching": "Automatic AI matching",
-    "escrow": "Escrow for safety",
-    "logistics": "Integrated logistics",
-    "negotiation": "In-platform negotiation",
-    "localPartners": "Find partners nearby"
+    "label": "Miért Swaply?",
+    "directSwap": "Közvetlen csere emberek között",
+    "globalCommunity": "Globális közösség",
+    "aiMatching": "Automatikus AI párosítás",
+    "escrow": "Letéti védelem",
+    "logistics": "Integrált logisztika",
+    "negotiation": "Tárgyalás a platformon",
+    "localPartners": "Találj partnereket a közelben"
   },
   "premium": {
-    "title": "Swaply Premium",
-    "subtitle": "Global visibility · Priority matching"
+    "title": "Swaply Prémium",
+    "subtitle": "Globális láthatóság · Elsőbbségi párosítás"
   },
   "analytics": {
     "title": "Elemzés",
