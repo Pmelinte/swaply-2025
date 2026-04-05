@@ -47,8 +47,8 @@ jobs:
           fi
           echo "✓ All secrets configured"
 
-      - name: Run translation cache population
-        run: npx tsx src/scripts/populate-translation-cache.ts
+      - name: Translate descriptions only
+        run: npx tsx src/scripts/translate-descriptions-only.ts
 
       - name: Report results
         if: always()
