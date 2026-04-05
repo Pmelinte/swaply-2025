@@ -1,0 +1,167 @@
+═══════════════════════════════════════════════════
+  FULL i18n AUDIT REPORT
+  Generated: 2026-04-05T22:31:54.686Z
+═══════════════════════════════════════════════════
+
+══ PART 1: HARDCODED USER-VISIBLE STRINGS ══
+
+Found 220 potential hardcoded strings:
+
+  src/app/[locale]/admin/users/page.tsx:170  "Enter"
+  src/app/[locale]/change/ChangeClient.tsx:1107  "Enter"
+  src/app/[locale]/change/ChangeClient.tsx:1867  "Loading timeline"
+  src/app/[locale]/change/ChangeClient.tsx:1877  "Confirmation blockers"
+  src/app/[locale]/chat/ChatClient.tsx:125  "Loading conversations"
+  src/app/[locale]/chat/ChatClient.tsx:135  "Message delivery error"
+  src/app/[locale]/contact/page.tsx:33  "Request failed"
+  src/app/[locale]/contact/page.tsx:34  "Request failed"
+  src/app/[locale]/contact/page.tsx:44  "Unknown error"
+  src/app/[locale]/feedback/page.tsx:24  "Dark mode toggle in top bar"
+  src/app/[locale]/feedback/page.tsx:25  "Push notifications for new matches"
+  src/app/[locale]/feedback/page.tsx:26  "Image upload fails on Safari mobile"
+  src/app/[locale]/feedback/page.tsx:27  "Add QR code for meetup confirmation"
+  src/app/[locale]/feedback/page.tsx:28  "Multi-language AI chat translation"
+  src/app/[locale]/info/page.tsx:378  "Swaply Team"
+  src/app/[locale]/info/page.tsx:380  "Community"
+  src/app/[locale]/integrations/page.tsx:34  "Domestic Couriers"
+  src/app/[locale]/integrations/page.tsx:35  "Country-specific courier services — auto-detected per user l"
+  src/app/[locale]/integrations/page.tsx:42  "Cost estimation"
+  src/app/[locale]/integrations/page.tsx:42  "Package tracking"
+  src/app/[locale]/integrations/page.tsx:46  "Country Service Registry"
+  src/app/[locale]/integrations/page.tsx:47  "Per-country courier, payment, and transport configuration fo"
+  src/app/[locale]/integrations/page.tsx:54  "Estimare cost"
+  src/app/[locale]/integrations/page.tsx:54  "Creare AWB"
+  src/app/[locale]/integrations/page.tsx:54  "Tracking"
+  src/app/[locale]/integrations/page.tsx:59  "International express shipping — 220+ countries"
+  src/app/[locale]/integrations/page.tsx:67  "Price quote"
+  src/app/[locale]/integrations/page.tsx:67  "Create shipment"
+  src/app/[locale]/integrations/page.tsx:67  "International tracking"
+  src/app/[locale]/integrations/page.tsx:71  "Packaging & Swaply Kits"
+  src/app/[locale]/integrations/page.tsx:72  "Packaging recommendations, suppliers and branded Swaply kits"
+  src/app/[locale]/integrations/page.tsx:79  "Size recommendation"
+  src/app/[locale]/integrations/page.tsx:79  "Supplier links"
+  src/app/[locale]/integrations/page.tsx:79  "Swaply Eco Kits"
+  src/app/[locale]/integrations/page.tsx:79  "Packaging guide"
+  src/app/[locale]/integrations/page.tsx:85  "Flight Tickets"
+  src/app/[locale]/integrations/page.tsx:94  "Flight search"
+  src/app/[locale]/integrations/page.tsx:94  "Price comparison"
+  src/app/[locale]/integrations/page.tsx:94  "Affiliate links"
+  src/app/[locale]/integrations/page.tsx:94  "Price estimate"
+  src/app/[locale]/integrations/page.tsx:98  "Booking / Airbnb / VRBO"
+  src/app/[locale]/integrations/page.tsx:99  "Accommodation for home swaps — affiliate links"
+  src/app/[locale]/integrations/page.tsx:106  "Search links"
+  src/app/[locale]/integrations/page.tsx:106  "Location suggestions"
+  src/app/[locale]/integrations/page.tsx:110  "Car Rental"
+  src/app/[locale]/integrations/page.tsx:111  "Rentalcars, DiscoverCars, AutoEurope — affiliate links"
+  src/app/[locale]/integrations/page.tsx:118  "Price estimate"
+  src/app/[locale]/integrations/page.tsx:118  "Destination suggestions"
+  src/app/[locale]/integrations/page.tsx:122  "Ground Transport"
+  src/app/[locale]/integrations/page.tsx:123  "FlixBus, BlaBlaCar, Omio, Rome2rio — local railways per coun"
+  ... +170 more
+
+══ PART 2: KEY COVERAGE ACROSS ALL 43 LOCALES ══
+
+Baseline: en.json with 2933 keys
+
+  ar: 98.1% translated | 0 missing | 57 untranslated (English fallback)
+  bg: 97.2% translated | 0 missing | 82 untranslated (English fallback)
+  bn: 95.7% translated | 0 missing | 127 untranslated (English fallback)
+  cs: 96.6% translated | 0 missing | 99 untranslated (English fallback)
+  da: 92.9% translated | 0 missing | 207 untranslated (English fallback)
+  de: 96.7% translated | 0 missing | 98 untranslated (English fallback)
+  el: 96.6% translated | 0 missing | 101 untranslated (English fallback)
+  es: 97.6% translated | 0 missing | 70 untranslated (English fallback)
+  et: 93.5% translated | 0 missing | 190 untranslated (English fallback)
+  fa: 95.2% translated | 0 missing | 141 untranslated (English fallback)
+  fi: 95.3% translated | 0 missing | 137 untranslated (English fallback)
+  fil: 83.9% translated | 0 missing | 472 untranslated (English fallback)
+  fr: 95.8% translated | 0 missing | 122 untranslated (English fallback)
+  ga: 94.9% translated | 0 missing | 150 untranslated (English fallback)
+  hi: 98.4% translated | 0 missing | 46 untranslated (English fallback)
+  hr: 95.0% translated | 0 missing | 146 untranslated (English fallback)
+  hu: 97.1% translated | 0 missing | 84 untranslated (English fallback)
+  id: 93.7% translated | 0 missing | 185 untranslated (English fallback)
+  it: 96.2% translated | 0 missing | 110 untranslated (English fallback)
+  ja: 99.1% translated | 0 missing | 27 untranslated (English fallback)
+  ko: 98.3% translated | 0 missing | 50 untranslated (English fallback)
+  lt: 95.1% translated | 0 missing | 145 untranslated (English fallback)
+  lv: 94.9% translated | 0 missing | 149 untranslated (English fallback)
+  mn: 94.9% translated | 0 missing | 149 untranslated (English fallback)
+  ms: 94.0% translated | 0 missing | 177 untranslated (English fallback)
+  mt: 91.9% translated | 0 missing | 238 untranslated (English fallback)
+  nl: 94.0% translated | 0 missing | 176 untranslated (English fallback)
+  no: 94.1% translated | 0 missing | 174 untranslated (English fallback)
+  pl: 96.5% translated | 0 missing | 103 untranslated (English fallback)
+  pt: 96.3% translated | 0 missing | 108 untranslated (English fallback)
+  ro: 97.5% translated | 0 missing | 72 untranslated (English fallback)
+  ru: 98.1% translated | 0 missing | 57 untranslated (English fallback)
+  sk: 95.1% translated | 0 missing | 143 untranslated (English fallback)
+  sl: 95.6% translated | 0 missing | 128 untranslated (English fallback)
+  sr: 95.6% translated | 0 missing | 130 untranslated (English fallback)
+  sv: 95.8% translated | 0 missing | 122 untranslated (English fallback)
+  th: 94.7% translated | 0 missing | 156 untranslated (English fallback)
+  tr: 97.6% translated | 0 missing | 69 untranslated (English fallback)
+  uk: 97.8% translated | 0 missing | 64 untranslated (English fallback)
+  vi: 94.0% translated | 0 missing | 176 untranslated (English fallback)
+  yi: 95.5% translated | 0 missing | 131 untranslated (English fallback)
+  zh: 99.1% translated | 0 missing | 27 untranslated (English fallback)
+
+Total missing keys across all locales: 0
+Total untranslated (English fallback): 5395
+
+══ PART 3: TRANSLATION CACHE COVERAGE ══
+
+⚠ SUPABASE_URL/KEY not set — skipping cache coverage check
+  Set SUPABASE_URL and SUPABASE_ANON_KEY to enable this check
+
+══ PART 4: PER-LOCALE SUMMARY ══
+
+Locale | Total | Translated | Missing | Untranslated | Coverage
+-------|-------|------------|---------|-------------|--------
+ar     |  2933 |       2876 |       0 |          57 | 98.1%
+bg     |  2933 |       2851 |       0 |          82 | 97.2%
+bn     |  2933 |       2806 |       0 |         127 | 95.7%
+cs     |  2933 |       2834 |       0 |          99 | 96.6%
+da     |  2933 |       2726 |       0 |         207 | 92.9%
+de     |  2933 |       2835 |       0 |          98 | 96.7%
+el     |  2933 |       2832 |       0 |         101 | 96.6%
+en     |  2933 |       2933 |       0 |           0 | 100.0%
+es     |  2933 |       2863 |       0 |          70 | 97.6%
+et     |  2933 |       2743 |       0 |         190 | 93.5%
+fa     |  2933 |       2792 |       0 |         141 | 95.2%
+fi     |  2933 |       2796 |       0 |         137 | 95.3%
+fil    |  2933 |       2461 |       0 |         472 | 83.9%
+fr     |  2933 |       2811 |       0 |         122 | 95.8%
+ga     |  2933 |       2783 |       0 |         150 | 94.9%
+hi     |  2933 |       2887 |       0 |          46 | 98.4%
+hr     |  2933 |       2787 |       0 |         146 | 95.0%
+hu     |  2933 |       2849 |       0 |          84 | 97.1%
+id     |  2933 |       2748 |       0 |         185 | 93.7%
+it     |  2933 |       2823 |       0 |         110 | 96.2%
+ja     |  2933 |       2906 |       0 |          27 | 99.1%
+ko     |  2933 |       2883 |       0 |          50 | 98.3%
+lt     |  2933 |       2788 |       0 |         145 | 95.1%
+lv     |  2933 |       2784 |       0 |         149 | 94.9%
+mn     |  2933 |       2784 |       0 |         149 | 94.9%
+ms     |  2933 |       2756 |       0 |         177 | 94.0%
+mt     |  2933 |       2695 |       0 |         238 | 91.9%
+nl     |  2933 |       2757 |       0 |         176 | 94.0%
+no     |  2933 |       2759 |       0 |         174 | 94.1%
+pl     |  2933 |       2830 |       0 |         103 | 96.5%
+pt     |  2933 |       2825 |       0 |         108 | 96.3%
+ro     |  2933 |       2861 |       0 |          72 | 97.5%
+ru     |  2933 |       2876 |       0 |          57 | 98.1%
+sk     |  2933 |       2790 |       0 |         143 | 95.1%
+sl     |  2933 |       2805 |       0 |         128 | 95.6%
+sr     |  2933 |       2803 |       0 |         130 | 95.6%
+sv     |  2933 |       2811 |       0 |         122 | 95.8%
+th     |  2933 |       2777 |       0 |         156 | 94.7%
+tr     |  2933 |       2864 |       0 |          69 | 97.6%
+uk     |  2933 |       2869 |       0 |          64 | 97.8%
+vi     |  2933 |       2757 |       0 |         176 | 94.0%
+yi     |  2933 |       2802 |       0 |         131 | 95.5%
+zh     |  2933 |       2906 |       0 |          27 | 99.1%
+
+═══════════════════════════════════════════════════
+  END OF AUDIT REPORT
+═══════════════════════════════════════════════════

@@ -1,0 +1,32 @@
+name: Full i18n Audit
+
+on:
+  workflow_dispatch:
+
+jobs:
+  audit:
+    name: Run i18n Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Run full i18n audit
+        run: node scripts/full-i18n-audit.mjs
+
+      - name: Upload audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: i18n-audit-report
+          path: audit-reports/
+          retention-days: 90
