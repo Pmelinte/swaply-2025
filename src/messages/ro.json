@@ -668,7 +668,13 @@
     "condition_fair": "Acceptabil",
     "condition_poor": "Uzat",
     "condition_used": "Folosit",
-    "condition_used_good": "Stare bună"
+    "condition_used_good": "Stare bună",
+    "status_active": "Activ",
+    "status_reserved": "Rezervat",
+    "status_traded": "Schimbat",
+    "status_paused": "Pauză",
+    "status_archived": "Arhivat",
+    "shareButton": "Distribuie"
   },
   "objectDetail": {
     "loading": "Se încarcă obiectul",

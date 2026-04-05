@@ -639,7 +639,13 @@
     "condition_fair": "مقبول",
     "condition_poor": "مستهلك",
     "condition_used": "مستعمل",
-    "condition_used_good": "حالة جيدة"
+    "condition_used_good": "حالة جيدة",
+    "status_active": "نشط",
+    "status_reserved": "محجوز",
+    "status_traded": "تم التبادل",
+    "status_paused": "متوقف",
+    "status_archived": "مؤرشف",
+    "shareButton": "مشاركة"
   },
   "objectDetail": {
     "loading": "جارٍ تحميل الغرض",

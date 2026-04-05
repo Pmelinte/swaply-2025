@@ -639,7 +639,13 @@
     "condition_fair": "Приемлемый",
     "condition_poor": "Изношенный",
     "condition_used": "Б/у",
-    "condition_used_good": "Хорошее состояние"
+    "condition_used_good": "Хорошее состояние",
+    "status_active": "Активен",
+    "status_reserved": "Забронирован",
+    "status_traded": "Обменян",
+    "status_paused": "Приостановлен",
+    "status_archived": "В архиве",
+    "shareButton": "Поделиться"
   },
   "objectDetail": {
     "loading": "Загрузка объекта",

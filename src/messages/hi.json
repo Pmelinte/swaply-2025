@@ -639,7 +639,13 @@
     "condition_fair": "ठीक",
     "condition_poor": "पुराना",
     "condition_used": "इस्तेमाल किया",
-    "condition_used_good": "अच्छी स्थिति"
+    "condition_used_good": "अच्छी स्थिति",
+    "status_active": "सक्रिय",
+    "status_reserved": "आरक्षित",
+    "status_traded": "विनिमय",
+    "status_paused": "रुका",
+    "status_archived": "संग्रहीत",
+    "shareButton": "साझा करें"
   },
   "objectDetail": {
     "loading": "वस्तु लोड हो रही है",

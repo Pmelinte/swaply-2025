@@ -668,7 +668,13 @@
     "condition_fair": "Fair",
     "condition_poor": "Poor",
     "condition_used": "Used",
-    "condition_used_good": "Good condition"
+    "condition_used_good": "Good condition",
+    "status_active": "Active",
+    "status_reserved": "Reserved",
+    "status_traded": "Traded",
+    "status_paused": "Paused",
+    "status_archived": "Archived",
+    "shareButton": "Share"
   },
   "objectDetail": {
     "loading": "Loading object",

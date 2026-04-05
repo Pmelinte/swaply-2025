@@ -639,7 +639,13 @@
     "condition_fair": "一般",
     "condition_poor": "较旧",
     "condition_used": "二手",
-    "condition_used_good": "状态良好"
+    "condition_used_good": "状态良好",
+    "status_active": "活跃",
+    "status_reserved": "已预订",
+    "status_traded": "已交换",
+    "status_paused": "暂停",
+    "status_archived": "已归档",
+    "shareButton": "分享"
   },
   "objectDetail": {
     "loading": "正在加载物品",
