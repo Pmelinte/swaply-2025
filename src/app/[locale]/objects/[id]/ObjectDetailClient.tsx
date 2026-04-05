@@ -551,7 +551,7 @@ export default function ObjectDetailClient() {
             <div className="flex items-start justify-between gap-2">
               <div>
                 <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
-                  {translatedTitle || item.title}
+                  <TranslatedItemTitle title={item.title} fallback={translatedTitle} />
                 </h1>
                 {showTranslation && translatedTitle && (
                   <button
@@ -1017,4 +1017,10 @@ function SimilarItemTitle({ title }: { title: string }) {
   return (
     <p className="truncate text-sm font-medium text-zinc-900 dark:text-zinc-50">{translated}</p>
   );
+}
+
+function TranslatedItemTitle({ title, fallback }: { title: string; fallback: string | null }) {
+  const translated = useTranslatedText(title);
+  // Priority: useTranslatedText result > /api/translate/item fallback > original
+  return <>{translated !== title ? translated : (fallback || title)}</>;
 }
