@@ -640,12 +640,12 @@
     "condition_poor": "Poor",
     "condition_used": "Used",
     "condition_used_good": "Good condition",
-    "status_active": "Active",
-    "status_reserved": "Reserved",
-    "status_traded": "Traded",
-    "status_paused": "Paused",
+    "status_active": "Aktivní",
+    "status_reserved": "Rezervováno",
+    "status_traded": "Vyměněno",
+    "status_paused": "Pozastaveno",
     "status_archived": "Archived",
-    "shareButton": "Share"
+    "shareButton": "Sdílet"
   },
   "objectDetail": {
     "loading": "Načítání objektu",
@@ -2573,7 +2573,17 @@
     "ctaDescription": "Vypište své předměty a zjistěte, co můžete získat výměnou.",
     "ctaButton": "Vyzkoušej Swaply zdarma →",
     "metaDescription": "Články z kategorie \"{category}\" na blogu Swaply.",
-    "tableOfContents": "Obsah"
+    "tableOfContents": "Obsah",
+    "guide": "Guide",
+    "tutorial": "Tutorial",
+    "inspiration": "Inspiration",
+    "sustainability": "Sustainability",
+    "safety": "Safety",
+    "technology": "Technology",
+    "trends": "Trends",
+    "community": "Community",
+    "product": "Product",
+    "allCategories": "All"
   },
   "push": {
     "enableTitle": "Povolit oznámení",

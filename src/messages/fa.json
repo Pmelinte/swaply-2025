@@ -640,12 +640,12 @@
     "condition_poor": "Poor",
     "condition_used": "Used",
     "condition_used_good": "Good condition",
-    "status_active": "Active",
-    "status_reserved": "Reserved",
-    "status_traded": "Traded",
-    "status_paused": "Paused",
+    "status_active": "فعال",
+    "status_reserved": "رزرو شده",
+    "status_traded": "مبادله شده",
+    "status_paused": "متوقف",
     "status_archived": "Archived",
-    "shareButton": "Share"
+    "shareButton": "اشتراک"
   },
   "objectDetail": {
     "loading": "در حال بارگذاری شیء",
@@ -2573,7 +2573,17 @@
     "ctaDescription": "اشیاء خود را فهرست کنید و بفهمید چه چیزی می‌توانید در ازای آن دریافت کنید.",
     "ctaButton": "Swaply را به صورت رایگان امتحان کنید →",
     "metaDescription": "مقالات از دسته‌بندی \"{category}\" در وبلاگ Swaply.",
-    "tableOfContents": "Table of Contents"
+    "tableOfContents": "Table of Contents",
+    "guide": "Guide",
+    "tutorial": "Tutorial",
+    "inspiration": "Inspiration",
+    "sustainability": "Sustainability",
+    "safety": "Safety",
+    "technology": "Technology",
+    "trends": "Trends",
+    "community": "Community",
+    "product": "Product",
+    "allCategories": "All"
   },
   "push": {
     "enableTitle": "فعال‌سازی اطلاع‌رسانی",

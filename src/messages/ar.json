@@ -2573,7 +2573,17 @@
     "ctaDescription": "اعرض أشياءك واكتشف ما يمكنك الحصول عليه في المقابل.",
     "ctaButton": "جرب Swaply مجانًا →",
     "metaDescription": "مقالات من فئة \"{category}\" في مدونة Swaply.",
-    "tableOfContents": "جدول المحتويات"
+    "tableOfContents": "جدول المحتويات",
+    "guide": "دليل",
+    "tutorial": "درس تعليمي",
+    "inspiration": "إلهام",
+    "sustainability": "استدامة",
+    "safety": "أمان",
+    "technology": "تكنولوجيا",
+    "trends": "اتجاهات",
+    "community": "مجتمع",
+    "product": "منتج",
+    "allCategories": "الكل"
   },
   "push": {
     "enableTitle": "تفعيل الإخطارات",

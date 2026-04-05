@@ -2573,7 +2573,17 @@
     "ctaDescription": "Listez vos objets et découvrez ce que vous pouvez obtenir en échange.",
     "ctaButton": "Essayez Swaply gratuitement →",
     "metaDescription": "Articles de la catégorie « {category} » sur le blog Swaply.",
-    "tableOfContents": "Sommaire"
+    "tableOfContents": "Sommaire",
+    "guide": "Guide",
+    "tutorial": "Tutoriel",
+    "inspiration": "Inspiration",
+    "sustainability": "Durabilité",
+    "safety": "Sécurité",
+    "technology": "Technologie",
+    "trends": "Tendances",
+    "community": "Communauté",
+    "product": "Produit",
+    "allCategories": "Tous"
   },
   "push": {
     "enableTitle": "Activer les notifications",

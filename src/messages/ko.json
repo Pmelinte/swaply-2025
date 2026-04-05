@@ -2573,7 +2573,17 @@
     "ctaDescription": "물품을 등록하고 교환할 수 있는 것을 발견하세요.",
     "ctaButton": "무료로 Swaply 시도해보기 →",
     "metaDescription": "Swaply 블로그의 \"{category}\" 카테고리의 기사.",
-    "tableOfContents": "목차"
+    "tableOfContents": "목차",
+    "guide": "가이드",
+    "tutorial": "튜토리얼",
+    "inspiration": "영감",
+    "sustainability": "지속가능성",
+    "safety": "안전",
+    "technology": "기술",
+    "trends": "트렌드",
+    "community": "커뮤니티",
+    "product": "제품",
+    "allCategories": "전체"
   },
   "push": {
     "enableTitle": "알림 활성화",

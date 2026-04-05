@@ -2573,7 +2573,17 @@
     "ctaDescription": "列出您的物品，发现您可以换取什么。",
     "ctaButton": "免费试用 Swaply →",
     "metaDescription": "Swaply 博客中\"{category}\"类别的文章。",
-    "tableOfContents": "目录"
+    "tableOfContents": "目录",
+    "guide": "指南",
+    "tutorial": "教程",
+    "inspiration": "灵感",
+    "sustainability": "可持续性",
+    "safety": "安全",
+    "technology": "技术",
+    "trends": "趋势",
+    "community": "社区",
+    "product": "产品",
+    "allCategories": "全部"
   },
   "push": {
     "enableTitle": "启用通知",

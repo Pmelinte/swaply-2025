@@ -640,12 +640,12 @@
     "condition_poor": "Poor",
     "condition_used": "Used",
     "condition_used_good": "Good condition",
-    "status_active": "Active",
-    "status_reserved": "Reserved",
-    "status_traded": "Traded",
-    "status_paused": "Paused",
+    "status_active": "Attiv",
+    "status_reserved": "Riżervat",
+    "status_traded": "Skambjat",
+    "status_paused": "Ppaużat",
     "status_archived": "Archived",
-    "shareButton": "Share"
+    "shareButton": "Aqsam"
   },
   "objectDetail": {
     "loading": "Qed jillowdja l-oġġett",
@@ -2573,7 +2573,17 @@
     "ctaDescription": "Elenca l-oġġetti tiegħek u skopri x'tista' tikseb bħala skambju.",
     "ctaButton": "Prova Swaply b'xejn →",
     "metaDescription": "Artikoli mill-kategorija \"{category}\" fuq il-blog Swaply.",
-    "tableOfContents": "Table of Contents"
+    "tableOfContents": "Table of Contents",
+    "guide": "Guide",
+    "tutorial": "Tutorial",
+    "inspiration": "Inspiration",
+    "sustainability": "Sustainability",
+    "safety": "Safety",
+    "technology": "Technology",
+    "trends": "Trends",
+    "community": "Community",
+    "product": "Product",
+    "allCategories": "All"
   },
   "push": {
     "enableTitle": "Abilita notifiki",

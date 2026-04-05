@@ -640,12 +640,12 @@
     "condition_poor": "Poor",
     "condition_used": "Used",
     "condition_used_good": "Good condition",
-    "status_active": "Active",
-    "status_reserved": "Reserved",
-    "status_traded": "Traded",
-    "status_paused": "Paused",
+    "status_active": "Aktiivinen",
+    "status_reserved": "Varattu",
+    "status_traded": "Vaihdettu",
+    "status_paused": "Tauolla",
     "status_archived": "Archived",
-    "shareButton": "Share"
+    "shareButton": "Jaa"
   },
   "objectDetail": {
     "loading": "Ladataan esinettä",
@@ -2573,7 +2573,17 @@
     "ctaDescription": "Listaa objektisi ja löydä mitä voit saada vastineeksi.",
     "ctaButton": "Kokeile Swaplya ilmaiseksi →",
     "metaDescription": "Artikkelit \"{category}\" -kategoriasta Swaply-blogista.",
-    "tableOfContents": "Table of Contents"
+    "tableOfContents": "Table of Contents",
+    "guide": "Guide",
+    "tutorial": "Tutorial",
+    "inspiration": "Inspiration",
+    "sustainability": "Sustainability",
+    "safety": "Safety",
+    "technology": "Technology",
+    "trends": "Trends",
+    "community": "Community",
+    "product": "Product",
+    "allCategories": "All"
   },
   "push": {
     "enableTitle": "Ota ilmoitukset käyttöön",

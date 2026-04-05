@@ -2573,7 +2573,17 @@
     "ctaDescription": "Виставте свої предмети та дізнайтеся, що ви можете отримати в обмін.",
     "ctaButton": "Спробуйте Swaply безкоштовно →",
     "metaDescription": "Статті з категорії \"{category}\" у блозі Swaply.",
-    "tableOfContents": "Зміст"
+    "tableOfContents": "Зміст",
+    "guide": "Посібник",
+    "tutorial": "Урок",
+    "inspiration": "Натхнення",
+    "sustainability": "Сталість",
+    "safety": "Безпека",
+    "technology": "Технології",
+    "trends": "Тренди",
+    "community": "Спільнота",
+    "product": "Продукт",
+    "allCategories": "Усі"
   },
   "push": {
     "enableTitle": "Увімкнути сповіщення",

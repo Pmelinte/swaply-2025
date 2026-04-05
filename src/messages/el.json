@@ -2573,7 +2573,17 @@
     "ctaDescription": "Καταχωρίστε τα αντικείμενά σας και ανακαλύψτε τι μπορείτε να λάβετε ως αντάλλαγμα.",
     "ctaButton": "Δοκιμάστε το Swaply δωρεάν →",
     "metaDescription": "Άρθρα από την κατηγορία \"{category}\" στο blog του Swaply.",
-    "tableOfContents": "Πίνακας Περιεχομένων"
+    "tableOfContents": "Πίνακας Περιεχομένων",
+    "guide": "Οδηγός",
+    "tutorial": "Εκπαιδευτικό",
+    "inspiration": "Έμπνευση",
+    "sustainability": "Βιωσιμότητα",
+    "safety": "Ασφάλεια",
+    "technology": "Τεχνολογία",
+    "trends": "Τάσεις",
+    "community": "Κοινότητα",
+    "product": "Προϊόν",
+    "allCategories": "Όλα"
   },
   "push": {
     "enableTitle": "Ενεργοποίηση ειδοποιήσεων",

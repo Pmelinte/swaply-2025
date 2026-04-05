@@ -640,12 +640,12 @@
     "condition_poor": "Poor",
     "condition_used": "Used",
     "condition_used_good": "Good condition",
-    "status_active": "Active",
-    "status_reserved": "Reserved",
-    "status_traded": "Traded",
-    "status_paused": "Paused",
+    "status_active": "ใช้งานอยู่",
+    "status_reserved": "จองแล้ว",
+    "status_traded": "แลกเปลี่ยนแล้ว",
+    "status_paused": "หยุดชั่วคราว",
     "status_archived": "Archived",
-    "shareButton": "Share"
+    "shareButton": "แชร์"
   },
   "objectDetail": {
     "loading": "กำลังโหลดสิ่งของ",
@@ -2573,7 +2573,17 @@
     "ctaDescription": "แสดงรายการวัตถุของคุณและค้นพบสิ่งที่คุณสามารถแลกเปลี่ยนได้",
     "ctaButton": "ลองใช้ Swaply ฟรี →",
     "metaDescription": "บทความจากหมวดหมู่ \"{category}\" บนบล็อก Swaply",
-    "tableOfContents": "Table of Contents"
+    "tableOfContents": "Table of Contents",
+    "guide": "Guide",
+    "tutorial": "Tutorial",
+    "inspiration": "Inspiration",
+    "sustainability": "Sustainability",
+    "safety": "Safety",
+    "technology": "Technology",
+    "trends": "Trends",
+    "community": "Community",
+    "product": "Product",
+    "allCategories": "All"
   },
   "push": {
     "enableTitle": "เปิดใช้งานการแจ้งเตือน",

@@ -640,12 +640,12 @@
     "condition_poor": "Poor",
     "condition_used": "Used",
     "condition_used_good": "Good condition",
-    "status_active": "Active",
-    "status_reserved": "Reserved",
-    "status_traded": "Traded",
-    "status_paused": "Paused",
+    "status_active": "Gníomhach",
+    "status_reserved": "Curtha in áirithe",
+    "status_traded": "Malartaithe",
+    "status_paused": "Ar sos",
     "status_archived": "Archived",
-    "shareButton": "Share"
+    "shareButton": "Roinn"
   },
   "objectDetail": {
     "loading": "Ag luchtú ruda",
@@ -2573,7 +2573,17 @@
     "ctaDescription": "Liostáil do réada agus faigh amach cad a bhféadfá a fháil i gcomhréir.",
     "ctaButton": "Déan iarracht ar Swaply saor in aisce →",
     "metaDescription": "Ailt ó chatagóir \"{category}\" ar bhlag Swaply.",
-    "tableOfContents": "Table of Contents"
+    "tableOfContents": "Table of Contents",
+    "guide": "Guide",
+    "tutorial": "Tutorial",
+    "inspiration": "Inspiration",
+    "sustainability": "Sustainability",
+    "safety": "Safety",
+    "technology": "Technology",
+    "trends": "Trends",
+    "community": "Community",
+    "product": "Product",
+    "allCategories": "All"
   },
   "push": {
     "enableTitle": "Cumasaigh fógraí",

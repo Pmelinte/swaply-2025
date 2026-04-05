@@ -2573,7 +2573,17 @@
     "ctaDescription": "अपनी वस्तुओं को सूचीबद्ध करें और खोजें कि आप बदले में क्या प्राप्त कर सकते हैं।",
     "ctaButton": "Swaply को मुफ्त आजमाएं →",
     "metaDescription": "Swaply ब्लॉग पर \"{category}\" श्रेणी से लेख।",
-    "tableOfContents": "विषय सूची"
+    "tableOfContents": "विषय सूची",
+    "guide": "गाइड",
+    "tutorial": "ट्यूटोरियल",
+    "inspiration": "प्रेरणा",
+    "sustainability": "स्थिरता",
+    "safety": "सुरक्षा",
+    "technology": "प्रौद्योगिकी",
+    "trends": "रुझान",
+    "community": "समुदाय",
+    "product": "उत्पाद",
+    "allCategories": "सभी"
   },
   "push": {
     "enableTitle": "सूचनाएं सक्षम करें",

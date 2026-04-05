@@ -640,12 +640,12 @@
     "condition_poor": "Poor",
     "condition_used": "Used",
     "condition_used_good": "Good condition",
-    "status_active": "Active",
-    "status_reserved": "Reserved",
-    "status_traded": "Traded",
-    "status_paused": "Paused",
+    "status_active": "Aktif",
+    "status_reserved": "Dipesan",
+    "status_traded": "Ditukar",
+    "status_paused": "Dijeda",
     "status_archived": "Archived",
-    "shareButton": "Share"
+    "shareButton": "Bagikan"
   },
   "objectDetail": {
     "loading": "Memuat objek",
@@ -2573,7 +2573,17 @@
     "ctaDescription": "Daftarkan objek Anda dan temukan apa yang bisa Anda dapatkan sebagai tukarannya.",
     "ctaButton": "Coba Swaply gratis →",
     "metaDescription": "Artikel dari kategori \"{category}\" di blog Swaply.",
-    "tableOfContents": "Table of Contents"
+    "tableOfContents": "Table of Contents",
+    "guide": "Guide",
+    "tutorial": "Tutorial",
+    "inspiration": "Inspiration",
+    "sustainability": "Sustainability",
+    "safety": "Safety",
+    "technology": "Technology",
+    "trends": "Trends",
+    "community": "Community",
+    "product": "Product",
+    "allCategories": "All"
   },
   "push": {
     "enableTitle": "Aktifkan notifikasi",

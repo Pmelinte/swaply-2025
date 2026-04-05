@@ -2763,7 +2763,17 @@
     "ctaDescription": "List your objects and discover what you can get in exchange.",
     "ctaButton": "Try Swaply for free →",
     "metaDescription": "Articles from the \"{category}\" category on the Swaply blog.",
-    "tableOfContents": "Table of Contents"
+    "tableOfContents": "Table of Contents",
+    "guide": "Guide",
+    "tutorial": "Tutorial",
+    "inspiration": "Inspiration",
+    "sustainability": "Sustainability",
+    "safety": "Safety",
+    "technology": "Technology",
+    "trends": "Trends",
+    "community": "Community",
+    "product": "Product",
+    "allCategories": "All"
   },
   "boost": {
     "active": "Boost active",

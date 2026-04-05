@@ -1564,12 +1564,12 @@
     "condition_poor": "Poor",
     "condition_used": "Used",
     "condition_used_good": "Good condition",
-    "status_active": "Active",
-    "status_reserved": "Reserved",
-    "status_traded": "Traded",
-    "status_paused": "Paused",
+    "status_active": "Aktiv",
+    "status_reserved": "Reserverad",
+    "status_traded": "Bytt",
+    "status_paused": "Pausad",
     "status_archived": "Archived",
-    "shareButton": "Share"
+    "shareButton": "Dela"
   },
   "objectDetail": {
     "loading": "Laddar objekt",
@@ -2786,7 +2786,17 @@
     "ctaDescription": "Lista dina objekt och upptäck vad du kan få i utbyte.",
     "ctaButton": "Prova Swaply kostnadsfritt →",
     "metaDescription": "Artiklar från kategorin \"{category}\" på Swaply-bloggen.",
-    "tableOfContents": "Innehåll"
+    "tableOfContents": "Innehåll",
+    "guide": "Guide",
+    "tutorial": "Tutorial",
+    "inspiration": "Inspiration",
+    "sustainability": "Sustainability",
+    "safety": "Safety",
+    "technology": "Technology",
+    "trends": "Trends",
+    "community": "Community",
+    "product": "Product",
+    "allCategories": "All"
   },
   "push": {
     "enableTitle": "Aktivera aviseringar",

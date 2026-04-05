@@ -2763,7 +2763,17 @@
     "ctaDescription": "Listează obiectele tale și descoperă ce poți obține în schimb.",
     "ctaButton": "Încearcă Swaply gratuit →",
     "metaDescription": "Articole din categoria \"{category}\" pe blogul Swaply.",
-    "tableOfContents": "Cuprins"
+    "tableOfContents": "Cuprins",
+    "guide": "Ghid",
+    "tutorial": "Tutorial",
+    "inspiration": "Inspirație",
+    "sustainability": "Sustenabilitate",
+    "safety": "Siguranță",
+    "technology": "Tehnologie",
+    "trends": "Tendințe",
+    "community": "Comunitate",
+    "product": "Produs",
+    "allCategories": "Toate"
   },
   "push": {
     "enableTitle": "Activează notificările",
