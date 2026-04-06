@@ -817,7 +817,7 @@
     "guestFeatureLocationDesc": "Dajemo prednost podudaranjima iz vaše oblasti za brze, licemerne razmene.",
     "guestFeatureCategory": "Kategorija i vrednost",
     "guestFeatureCategoryDesc": "Algoritam uzima u obzir željenu kategoriju i procijenjenu vrednost stavki.",
-    "guestDemo1Title": "Lenovo ThinkPad Laptop",
+    "guestDemo1Title": "Lenovo ThinkPad laptop",
     "guestDemo1Swap": "iPhone 13 Pro",
     "guestDemo1Location": "Cluj-Napoca",
     "guestDemo2Title": "Canon EOS 250D",
@@ -2319,8 +2319,8 @@
     "emailSecurity": "Za hitne sigurnosne probleme",
     "businessTitle": "Za poslovno",
     "businessText": "Jesi li prodavnica polovnih stvari, NVO ili organizacija? Imamo dedicirani plan za tebe. Napiši nam na partnerships@swaply.world",
-    "requestFailed": "Request failed",
-    "unknownError": "Unknown error"
+    "requestFailed": "Zahtev nije uspio",
+    "unknownError": "Nepoznata greška"
   },
   "wanted": {
     "title": "Traženi zahtevi",

@@ -817,14 +817,14 @@
     "guestFeatureLocationDesc": "Priorisoimme ottelut alueeltasi nopeisiin, kasvokkain tehtäviin vaihtoihin.",
     "guestFeatureCategory": "Kategoria ja arvo",
     "guestFeatureCategoryDesc": "Algoritmi ottaa huomioon halutun kategorian ja tuotteiden arvioidun arvon.",
-    "guestDemo1Title": "Lenovo ThinkPad Laptop",
+    "guestDemo1Title": "Lenovo ThinkPad -kannettava",
     "guestDemo1Swap": "iPhone 13 Pro",
     "guestDemo1Location": "Cluj-Napoca",
     "guestDemo2Title": "Canon EOS 250D",
     "guestDemo2Swap": "DJI Mini 3",
     "guestDemo2Location": "Bukarest",
-    "guestDemo3Title": "Fender Guitar",
-    "guestDemo3Swap": "Marshall Speakers",
+    "guestDemo3Title": "Fender-kitara",
+    "guestDemo3Swap": "Marshall-kaiuttimet",
     "guestDemo3Location": "Timișoara",
     "guestBtnAccept": "Hyväksy ottelu",
     "guestBtnSkip": "Ohita",
@@ -2319,8 +2319,8 @@
     "emailSecurity": "Kiireellisille turvallisuusongelmille",
     "businessTitle": "Yrityksille",
     "businessText": "Oletko käytettyjen tavaroiden liike, järjestö tai organisaatio? Meillä on sinulle omaa suunnitelmaa. Kirjoita meille osoitteeseen partnerships@swaply.world",
-    "requestFailed": "Request failed",
-    "unknownError": "Unknown error"
+    "requestFailed": "Pyyntö epäonnistui",
+    "unknownError": "Tuntematon virhe"
   },
   "wanted": {
     "title": "Pyynnöt",

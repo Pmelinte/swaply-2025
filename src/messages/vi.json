@@ -2319,8 +2319,8 @@
     "emailSecurity": "Đối với các vấn đề bảo mật khẩn cấp",
     "businessTitle": "Cho doanh nghiệp",
     "businessText": "Bạn là cửa hàng đồ cũ, tổ chức phi lợi nhuận, hoặc một tổ chức? Chúng tôi có một gói kế hoạch dành riêng cho bạn. Hãy viết cho chúng tôi tại partnerships@swaply.world",
-    "requestFailed": "Request failed",
-    "unknownError": "Unknown error"
+    "requestFailed": "Yêu cầu thất bại",
+    "unknownError": "Lỗi không xác định"
   },
   "wanted": {
     "title": "Các Yêu Cầu Tìm Kiếm",
@@ -2697,7 +2697,7 @@
     "noItems": "Không có mục nào với các bộ lọc này.",
     "tableTitle": "Tiêu đề",
     "tableCategory": "Danh mục",
-    "tableDemo": "Demo",
+    "tableDemo": "Bản demo",
     "tableActions": "Hành động",
     "deactivate": "Vô hiệu hóa",
     "activate": "Kích hoạt",

@@ -2291,7 +2291,7 @@
     "manageSubscription": "مدیریت اشتراک",
     "includedInPlatinum": "شامل در Platinum",
     "freePrice": "$0",
-    "premiumPrice": "$3.99"
+    "premiumPrice": "3.99 دلار"
   },
   "contact": {
     "title": "تماس با ما",
@@ -2319,8 +2319,8 @@
     "emailSecurity": "برای مسائل امنیتی فوری",
     "businessTitle": "برای مسائل تجاری",
     "businessText": "آیا شما یک فروشگاه کالای دست دوم، سازمان غیردولتی یا سازمانی هستید؟ ما برای شما یک برنامه اختصاصی داریم. برای ما نامه بنویسید: partnerships@swaply.world",
-    "requestFailed": "Request failed",
-    "unknownError": "Unknown error"
+    "requestFailed": "درخواست ناموفق بود",
+    "unknownError": "خطای نامشخص"
   },
   "wanted": {
     "title": "درخواست‌های جستجو شده",

@@ -951,7 +951,7 @@
     "findAnotherMatchDescription": "Opdag nye byttemuligheder",
     "viewStats": "Se statistikker",
     "viewStatsDescription": "Tjek dit omdømme og tokens",
-    "bilateralStatus": "Bilateral status",
+    "bilateralStatus": "Bilateralt status",
     "bilateralDescription": "Se status for hver part i byttehandlen",
     "requester": "Anmoder",
     "responder": "Partner",
@@ -2319,8 +2319,8 @@
     "emailSecurity": "For hastende sikkerhedsproblemer",
     "businessTitle": "For erhverv",
     "businessText": "Er du en brugthandel, NGO eller organisation? Vi har en dedikeret plan til dig. Skriv til os på partnerships@swaply.world",
-    "requestFailed": "Request failed",
-    "unknownError": "Unknown error"
+    "requestFailed": "Anmodning mislykkedes",
+    "unknownError": "Ukendt fejl"
   },
   "wanted": {
     "title": "Efterspurgte anmodninger",

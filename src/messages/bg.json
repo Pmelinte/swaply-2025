@@ -2319,8 +2319,8 @@
     "emailSecurity": "За спешни проблеми със сигурността",
     "businessTitle": "За бизнес",
     "businessText": "Вие сте магазин за втора ръка, НПО или организация? Имаме посветен план за вас. Пишете ни на partnerships@swaply.world",
-    "requestFailed": "Request failed",
-    "unknownError": "Unknown error"
+    "requestFailed": "Заявката не успя",
+    "unknownError": "Неизвестна грешка"
   },
   "wanted": {
     "title": "Търсени запитвания",
@@ -3102,6 +3102,6 @@
   "badge": {
     "free": "Безплатно",
     "premium": "Premium",
-    "platinum": "Platinum"
+    "platinum": "Платинум"
   }
 }

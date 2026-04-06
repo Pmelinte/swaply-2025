@@ -2319,8 +2319,8 @@
     "emailSecurity": "Pre urgentné bezpečnostné problémy",
     "businessTitle": "Pre podnikateľov",
     "businessText": "Ste second-hand obchod, občianska organizácia alebo organizácia? Máme pre vás vyhradený plán. Napíšte nám na partnerships@swaply.world",
-    "requestFailed": "Request failed",
-    "unknownError": "Unknown error"
+    "requestFailed": "Požiadavka zlyhala",
+    "unknownError": "Neznáma chyba"
   },
   "wanted": {
     "title": "Hľadané požiadavky",

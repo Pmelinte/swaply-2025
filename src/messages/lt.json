@@ -216,7 +216,7 @@
     "emailChangeDescription": "Pakeiskite su jūsų paskyra susietą el. pašto adresą.",
     "currentEmail": "Dabartinis el. paštas",
     "newEmail": "Naujas el. paštas",
-    "newEmailPlaceholder": "new-email@example.com",
+    "newEmailPlaceholder": "naujas-el-pastas@example.com",
     "changeEmailButton": "Keisti el. paštą",
     "emailChangeSuccess": "Patvirtinimo laiškas išsiųstas jūsų nauju adresu. Patikrinkite pašto dėžutę.",
     "passwordChange": "Keisti slaptažodį",
@@ -2319,8 +2319,8 @@
     "emailSecurity": "Skubiais saugumo klausimais",
     "businessTitle": "Verslui",
     "businessText": "Ar jūs antrankis parduotuvė, NVO ar organizacija? Turime jums skirtą planą. Rašykite mums į partnerships@swaply.world",
-    "requestFailed": "Request failed",
-    "unknownError": "Unknown error"
+    "requestFailed": "Užklausa nepavyko",
+    "unknownError": "Nežinoma klaida"
   },
   "wanted": {
     "title": "Paieškomi prašymai",

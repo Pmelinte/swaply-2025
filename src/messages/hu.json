@@ -2319,8 +2319,8 @@
     "emailSecurity": "Sürgős biztonsági problémákhoz",
     "businessTitle": "Üzleti megkeresésekhez",
     "businessText": "Ön egy használt árukereskedő, NGO vagy szervezet? Van dedikált terv az Ön számára. Írjon nekünk a partnerships@swaply.world címre",
-    "requestFailed": "Request failed",
-    "unknownError": "Unknown error"
+    "requestFailed": "Kérés sikertelen",
+    "unknownError": "Ismeretlen hiba"
   },
   "wanted": {
     "title": "Keresett kérések",
@@ -3102,6 +3102,6 @@
   "badge": {
     "free": "Ingyenes",
     "premium": "Premium",
-    "platinum": "Platinum"
+    "platinum": "Platina"
   }
 }

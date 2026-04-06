@@ -2319,8 +2319,8 @@
     "emailSecurity": "Для невідкладних проблем безпеки",
     "businessTitle": "Для бізнесу",
     "businessText": "Ви магазин секонд-henду, НУО чи організація? У нас є спеціальний план для вас. Напишіть нам на partnerships@swaply.world",
-    "requestFailed": "Request failed",
-    "unknownError": "Unknown error"
+    "requestFailed": "Запит не вдався",
+    "unknownError": "Невідома помилка"
   },
   "wanted": {
     "title": "Шукані пропозиції",

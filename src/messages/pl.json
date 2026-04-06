@@ -2107,7 +2107,7 @@
     "subtitle": "Zarządzaj subskrypcją, tokenami i nagrodami",
     "swapMilestones": "Osiągnięcia Swap",
     "swapsCompleted": "{count} wymian ukończonych",
-    "tabMilestones": "Milestone",
+    "tabMilestones": "Kamień milowy",
     "tabReferrals": "Polecenia",
     "tabStreak": "Seria",
     "tabSubscriptions": "Subskrypcje",
@@ -2319,8 +2319,8 @@
     "emailSecurity": "W przypadku pilnych problemów bezpieczeństwa",
     "businessTitle": "Dla biznesu",
     "businessText": "Jesteś sklepem second-hand, organizacją pozarządową lub instytucją? Mamy dedykowany plan dla Ciebie. Napisz do nas na adres partnerships@swaply.world",
-    "requestFailed": "Request failed",
-    "unknownError": "Unknown error"
+    "requestFailed": "Żądanie nie powiodło się",
+    "unknownError": "Nieznany błąd"
   },
   "wanted": {
     "title": "Poszukiwane prośby",

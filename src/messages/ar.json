@@ -1410,7 +1410,7 @@
     "tierFree": "مجاني",
     "tierSilver": "فضي",
     "tierGold": "ذهبي",
-    "tierPlatinum": "Platinum",
+    "tierPlatinum": "بلاتينيوم",
     "tokensNone": "10",
     "tokensSilver": "50",
     "tokensGold": "200",
@@ -2139,7 +2139,7 @@
     "planFreeDesc": "حتى 10 عناصر مدرجة، مطابقة ذكية أساسية، دردشة غير محدودة.",
     "planPremium": "Premium",
     "planPremiumDesc": "عناصر غير محدودة، مطابقة ذكية متقدمة، ترويج أولوي، شارة موثقة.",
-    "planPlatinum": "Platinum",
+    "planPlatinum": "بلاتينيوم",
     "planPlatinumDesc": "كل شيء في Premium بالإضافة إلى تأمين المقايضة، دعم أولوي، وتحليلات مفصلة.",
     "priceFree": "0",
     "pricePremium": "19.99",
@@ -3102,6 +3102,6 @@
   "badge": {
     "free": "مجاني",
     "premium": "Premium",
-    "platinum": "Platinum"
+    "platinum": "بلاتينيوم"
   }
 }

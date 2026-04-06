@@ -902,8 +902,8 @@
     "guestFeature2": "Trajno ohranjena zgodovina",
     "guestFeature3": "Datoteke in slike v pogovorih",
     "guestFeature4": "Avtomatska moderacija proti spamu",
-    "guestMockUser1": "Maria",
-    "guestMockUser2": "Andrei",
+    "guestMockUser1": "Marija",
+    "guestMockUser2": "Andrej",
     "guestMockMsg1": "Živjo! Zanima me tvoj prenosnik. Je cena pogodljiva?",
     "guestMockMsg2": "Hej! Da, lahko se pogovorimo. Kaj lahko ponudiš?",
     "guestMockMsg3": "Imam iPhone 13 v odličnem stanju...",
@@ -2319,8 +2319,8 @@
     "emailSecurity": "Za nujne varnostne težave",
     "businessTitle": "Za poslovanje",
     "businessText": "Ste trgovina s predmeti v drugem stanju, nevladna organizacija ali organizacija? Imamo namenski načrt za vas. Napišite nam na partnerships@swaply.world",
-    "requestFailed": "Request failed",
-    "unknownError": "Unknown error"
+    "requestFailed": "Zahteva ni uspela",
+    "unknownError": "Neznana napaka"
   },
   "wanted": {
     "title": "Iskane prošnje",

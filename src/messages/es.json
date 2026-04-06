@@ -2302,7 +2302,7 @@
     "labelSubject": "Asunto",
     "labelMessage": "Mensaje",
     "placeholderName": "Tu nombre",
-    "placeholderEmail": "email@example.com",
+    "placeholderEmail": "correo@ejemplo.com",
     "placeholderMessage": "Describe brevemente tu problema o sugerencia...",
     "subjectTechnical": "Problema técnico",
     "subjectSuggestion": "Sugerencia",
@@ -2746,7 +2746,7 @@
     "books": "Libros",
     "home": "Inicio",
     "fashion": "Moda",
-    "automotive": "Auto",
+    "automotive": "Automático",
     "music": "Música",
     "garden": "Jardín",
     "toys": "Juguetes",
@@ -2978,7 +2978,7 @@
     "securePayment": "Pago seguro a través de Stripe. Visa, Mastercard, Apple Pay, Google Pay.",
     "boost7days": "Boost 7 días",
     "alreadyPurchased": "Ya comprado",
-    "boost24h": "Boost 24h",
+    "boost24h": "Impulso 24h",
     "boost72h": "Impulso 72h"
   },
   "payments": {

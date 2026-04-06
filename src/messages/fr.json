@@ -1491,7 +1491,7 @@
     "descriptionMaxLength": "La description ne peut pas dépasser 2000 caractères.",
     "wishlistMaxLength": "Le souhait ne peut pas dépasser 500 caractères.",
     "locationRequired": "Spécifiez un emplacement (ville ou zone).",
-    "maxTags": "Maximum 10 tags.",
+    "maxTags": "Maximum 10 étiquettes.",
     "imageOptional": "Image (optionnelle)",
     "uploadFile": "Télécharger un fichier",
     "uploadingImage": "Téléchargement et redimensionnement de l'image…",

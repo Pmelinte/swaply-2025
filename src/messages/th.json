@@ -2254,7 +2254,7 @@
     "free7": "รายการแนะนำ",
     "free8": "ป้ายยืนยันตัวตน",
     "freeButton": "คุณอยู่ที่นี่แล้ว",
-    "premiumTitle": "Premium",
+    "premiumTitle": "พรีเมียม",
     "premiumYearly": "or 149 lei / year",
     "premiumIncludes": "ทุกอย่างในแผน Free บวกกับ:",
     "premium1": "สูงสุด 50 รายการที่ใช้งานอยู่",
@@ -2319,8 +2319,8 @@
     "emailSecurity": "สำหรับปัญหาด้านความปลอดภัยเร่งด่วน",
     "businessTitle": "สำหรับธุรกิจ",
     "businessText": "คุณเป็นร้านสินค้ามือสอง องค์กรพัฒนาเอกชน หรือองค์กรหรือไม่? เรามีแผนเฉพาะสำหรับคุณ เขียนถึงเราที่ partnerships@swaply.world",
-    "requestFailed": "Request failed",
-    "unknownError": "Unknown error"
+    "requestFailed": "ร้องขอล้มเหลว",
+    "unknownError": "ข้อผิดพลาดที่ไม่รู้จัก"
   },
   "wanted": {
     "title": "คำขอที่ต้องการ",
@@ -2393,7 +2393,7 @@
     "remove": "ลบออกจากที่บันทึก"
   },
   "leaderboard": {
-    "title": "Community Leaderboard",
+    "title": "แผนภูมิลำดับชั้นของชุมชน",
     "subtitle": "ผู้แลกเปลี่ยนยอดนิยมในชุมชน",
     "range_all": "ตลอดเวลา",
     "range_month": "เดือนนี้",
@@ -3101,7 +3101,7 @@
   },
   "badge": {
     "free": "ฟรี",
-    "premium": "Premium",
+    "premium": "พรีเมียม",
     "platinum": "Platinum"
   }
 }

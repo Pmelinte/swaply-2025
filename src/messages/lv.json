@@ -291,7 +291,7 @@
     "housePropertyType": "Īpašuma tips",
     "propType_apartment": "Dzīvoklis",
     "propType_house": "Māja",
-    "propType_villa": "Villa",
+    "propType_villa": "Vila",
     "propType_cabin": "Būdiņa",
     "propType_studio": "Studija",
     "propType_room": "Istaba",
@@ -1048,7 +1048,7 @@
     "housePropertyType": "Īpašuma tips",
     "propType_apartment": "Dzīvoklis",
     "propType_house": "Māja",
-    "propType_villa": "Villa",
+    "propType_villa": "Vila",
     "propType_cabin": "Būdiņa",
     "propType_studio": "Studija",
     "propType_room": "Istaba",
@@ -2319,8 +2319,8 @@
     "emailSecurity": "Steidzamiem drošības jautājumiem",
     "businessTitle": "Biznesa jautājumiem",
     "businessText": "Vai jūs esat lietoto preču veikals, NVO vai organizācija? Mums ir īpašs plāns jums. Rakstiet mums uz partnerships@swaply.world",
-    "requestFailed": "Request failed",
-    "unknownError": "Unknown error"
+    "requestFailed": "Pieprasījums neizdevās",
+    "unknownError": "Nezināma kļūda"
   },
   "wanted": {
     "title": "Meklētie pieprasījumi",

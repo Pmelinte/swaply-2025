@@ -2319,8 +2319,8 @@
     "emailSecurity": "For kritiske sikkerhetsproblemer",
     "businessTitle": "For næringsliv",
     "businessText": "Er du en brukthandel, NGO eller organisasjon? Vi har en dedikert plan for deg. Skriv til oss på partnerships@swaply.world",
-    "requestFailed": "Request failed",
-    "unknownError": "Unknown error"
+    "requestFailed": "Forespørsel mislyktes",
+    "unknownError": "Ukjent feil"
   },
   "wanted": {
     "title": "Etterspurte forespørsler",
@@ -2708,7 +2708,7 @@
     "page": "Side",
     "results": "resultater",
     "overview": "Oversikt",
-    "panelTitle": "Admin Panel",
+    "panelTitle": "Administrasjonspanel",
     "panelSubtitle": "Moderering & plattformledelse",
     "authRequired": "Autentisering kreves",
     "authRequiredDesc": "Du må være autentisert for å få tilgang til admin panelet.",

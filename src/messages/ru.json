@@ -1364,7 +1364,7 @@
     "freeDescription": "Простой значок, ограниченная видимость на карте.",
     "premium": "Premium",
     "premiumDescription": "Выделенный значок, отображается на карте как публичная метка.",
-    "platinum": "Platinum",
+    "platinum": "Платинум",
     "platinumDescription": "Особый значок, отдельная метка, приоритет совпадений.",
     "tokenLedger": "Реестр токенов",
     "accountBenefits": "Преимущества аккаунта",
@@ -1410,7 +1410,7 @@
     "tierFree": "Бесплатно",
     "tierSilver": "Серебро",
     "tierGold": "Золото",
-    "tierPlatinum": "Platinum",
+    "tierPlatinum": "Платинум",
     "tokensNone": "10",
     "tokensSilver": "50",
     "tokensGold": "200",
@@ -2137,9 +2137,9 @@
     "guestIntro": "Swaply бесплатен для базовых обменов. Премиум-планы открывают расширенные функции, которые помогут вам быстрее и безопаснее обмениваться.",
     "planFree": "Бесплатно",
     "planFreeDesc": "До 10 выставленных предметов, базовое AI-подбор, неограниченный чат.",
-    "planPremium": "Premium",
+    "planPremium": "Премиум",
     "planPremiumDesc": "Неограниченные предметы, продвинутое AI-подбор, приоритетная промоция, значок верификации.",
-    "planPlatinum": "Platinum",
+    "planPlatinum": "Платинум",
     "planPlatinumDesc": "Всё в Premium плюс страховка обменов, приоритетная поддержка и детальная аналитика.",
     "priceFree": "0",
     "pricePremium": "19,99",
@@ -2254,7 +2254,7 @@
     "free7": "Рекомендуемые товары",
     "free8": "Проверенный значок",
     "freeButton": "Вы уже здесь",
-    "premiumTitle": "Premium",
+    "premiumTitle": "Премиум",
     "premiumYearly": "or 149 lei / year",
     "premiumIncludes": "Всё из бесплатного плана, плюс:",
     "premium1": "До 50 активных товаров",
@@ -3101,7 +3101,7 @@
   },
   "badge": {
     "free": "Бесплатно",
-    "premium": "Premium",
-    "platinum": "Platinum"
+    "premium": "Премиум",
+    "platinum": "Платинум"
   }
 }

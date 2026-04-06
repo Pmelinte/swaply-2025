@@ -2302,7 +2302,7 @@
     "labelSubject": "件名",
     "labelMessage": "メッセージ",
     "placeholderName": "あなたのお名前",
-    "placeholderEmail": "email@example.com",
+    "placeholderEmail": "メールアドレス例@example.com",
     "placeholderMessage": "問題またはご提案について簡潔に説明してください...",
     "subjectTechnical": "技術的な問題",
     "subjectSuggestion": "ご提案",

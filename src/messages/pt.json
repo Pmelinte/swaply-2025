@@ -120,7 +120,7 @@
     "resetPassword": "Repor palavra-passe",
     "authOrRegister": "Autenticação / Registo",
     "authDescription": "Email + palavra-passe, com opções Google e OTP. Redirecionamento preservado após login.",
-    "email": "Email",
+    "email": "E-mail",
     "password": "Palavra-passe",
     "acceptTerms": "Aceito os Termos e a Política de Privacidade RGPD (submissão não permitida sem consentimento)",
     "loginButton": "Entrar",
@@ -2319,8 +2319,8 @@
     "emailSecurity": "Para problemas de segurança urgentes",
     "businessTitle": "Para negócios",
     "businessText": "Você é uma loja de segunda mão, ONG ou organização? Temos um plano dedicado para você. Escreva para partnerships@swaply.world",
-    "requestFailed": "Request failed",
-    "unknownError": "Unknown error"
+    "requestFailed": "Solicitação falhou",
+    "unknownError": "Erro desconhecido"
   },
   "wanted": {
     "title": "Pedidos Procurados",
@@ -2477,7 +2477,7 @@
     "description": "Escolha como deseja ser notificado para cada tipo de evento.",
     "notificationType": "Tipo de notificação",
     "channel_inapp": "No app",
-    "channel_email": "Email",
+    "channel_email": "E-mail",
     "channel_push": "Notificação Push",
     "type_match_new": "Novo match",
     "type_match_new_desc": "Quando um novo match é encontrado para seus itens.",

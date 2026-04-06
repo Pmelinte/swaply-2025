@@ -1143,7 +1143,7 @@
     "crossObjectsDesc": "Fysieke items opgenomen in de deal",
     "crossProperties": "Eigendomsaccommodaties",
     "crossPropertiesDesc": "Accommodatie aangeboden als onderdeel van de ruil",
-    "crossServices": "Services",
+    "crossServices": "Diensten",
     "crossServicesDesc": "Vaardigheden of tijd ingebracht in de uitwisseling",
     "crossSwapNote": "Eerlijkheidsovereenkomst qua waarde",
     "crossSwapNoteDesc": "Beide partijen moeten zich voor aanvang akkoord verklaren over de gecombineerde waarde. Het AI-matchingsysteem houdt bij de scorebepaling van compatibiliteit rekening met alle componenten.",
@@ -1448,7 +1448,7 @@
     "leaderboard1": "SwapMaster",
     "leaderboard2": "TradeQueen",
     "leaderboard3": "EcoSwapper",
-    "leaderboardSwaps": "{count} swaps",
+    "leaderboardSwaps": "{count} ruilmiddelen",
     "streak": "dag-reeks",
     "leaderboardNote": "Ranglijst wordt maandelijks opnieuw ingesteld. Activiteit omvat voltooide ruildeals, positieve beoordelingen en consistent engagement.",
     "badgeBenefits": "Badgevoordelen",
@@ -2319,8 +2319,8 @@
     "emailSecurity": "Voor urgente beveiligingsproblemen",
     "businessTitle": "Voor bedrijven",
     "businessText": "Bent u een tweedehandswinkel, NGO of organisatie? We hebben een speciaal plan voor u. Stuur ons een e-mail naar partnerships@swaply.world",
-    "requestFailed": "Request failed",
-    "unknownError": "Unknown error"
+    "requestFailed": "Verzoek mislukt",
+    "unknownError": "Onbekende fout"
   },
   "wanted": {
     "title": "Gezochte Verzoeken",

@@ -2142,8 +2142,8 @@
     "planPlatinum": "Platinum",
     "planPlatinumDesc": "Όλα του Premium συν ασφάλιση ανταλλαγών, προτεραιότητα support, και λεπτομερειακή ανάλυση.",
     "priceFree": "0",
-    "pricePremium": "19.99",
-    "pricePlatinum": "39.99",
+    "pricePremium": "19,99",
+    "pricePlatinum": "39,99",
     "currency": "EUR",
     "perMonthShort": "/mo"
   },
@@ -2291,7 +2291,7 @@
     "manageSubscription": "Διαχείριση συνδρομής",
     "includedInPlatinum": "Περιλαμβάνεται στο Platinum",
     "freePrice": "$0",
-    "premiumPrice": "$3.99"
+    "premiumPrice": "$3,99"
   },
   "contact": {
     "title": "Επικοινωνία",
@@ -2319,8 +2319,8 @@
     "emailSecurity": "Για επείγοντα ζητήματα ασφαλείας",
     "businessTitle": "Για επιχειρησιακές υποθέσεις",
     "businessText": "Είστε δεύτερο κατάστημα, ΜΚΟ ή οργανισμός; Έχουμε ένα ειδικό σχέδιο για σας. Γράψτε μας στο partnerships@swaply.world",
-    "requestFailed": "Request failed",
-    "unknownError": "Unknown error"
+    "requestFailed": "Αποτυχία αιτήματος",
+    "unknownError": "Άγνωστο σφάλμα"
   },
   "wanted": {
     "title": "Ζητούμενα Αιτήματα",

@@ -90,7 +90,7 @@
     "managePreferences": "Ġestisci l-preferenzi tal-notifiki",
     "filterAll": "All",
     "filterUnread": "Ma qrija",
-    "filterSwaps": "Swaps",
+    "filterSwaps": "Skambji",
     "filterMessages": "Messaġġi",
     "filterAlerts": "Avviżi"
   },
@@ -437,7 +437,7 @@
     "guestDescription": "Il-profil tiegħek jirrifletti r-reputazzjoni tiegħek fil-komunità. Iktar ma jkun komplut, iktar tħeġġeġ fiduċja.",
     "guestFeatureRating": "Ratings & reviews",
     "guestFeatureRatingDesc": "Irċievi ratings wara kull swap li jitlestħa b'suċċess.",
-    "guestFeatureBadge": "Badges & achievements",
+    "guestFeatureBadge": "Badges u kisba",
     "guestFeatureBadgeDesc": "Sblokkja badges meta tikkontribwixxi għall-komunità.",
     "guestFeatureHistory": "Storika tal-swaps",
     "guestFeatureHistoryDesc": "Il-swaps kollha tiegħek, viżibbli biex jinbnew l-fiduċja.",
@@ -453,7 +453,7 @@
     "greeting": "Hey, {name}!",
     "heroSubtitle": "Esplora oġġetti fl-erja tiegħek, skopri matches, u proponi swaps.",
     "statItems": "{count} items attivi",
-    "statSwaps": "{count} swaps",
+    "statSwaps": "{count} skambji",
     "statTokens": "{count} tokens",
     "statNotifs": "{count} notifiki ġodda",
     "guestHeadline": "Isbadel dak li għandek għal dak li trid",
@@ -468,7 +468,7 @@
     "actionExploreDesc": "Skopri oġġetti disponibbli",
     "actionMatch": "Tqabbiliet tal-AI",
     "actionMatchDesc": "Analizza l-kompatibilità",
-    "actionSwaps": "Swaps",
+    "actionSwaps": "Skambji",
     "actionSwapsDesc": "Monitorja l-iskambji tiegħek",
     "mapTitle": "Mappa ta' utenti",
     "mapSubtitle": "L-utenti Premium u Platinum huma viżibbli fuq il-mappa.",
@@ -2112,7 +2112,7 @@
     "tabStreak": "Streak",
     "tabSubscriptions": "Sottoscrizzjonijiet",
     "tabThemes": "Temi",
-    "tabTokenShop": "Token Shop",
+    "tabTokenShop": "Negozju tat-Tokens",
     "themeActivated": "Tema {name} attivata!",
     "themesDescription": "Personallizza l-profil tiegħek bi tema unika. Kull tema tbiddel il-kuluri tal-profil tiegħek.",
     "title": "Monetizzazzjoni",
@@ -2319,8 +2319,8 @@
     "emailSecurity": "Għal kwistjonijiet ta' sigurtà urġenti",
     "businessTitle": "Għal negozju",
     "businessText": "Inti ħanut ta' rċiklazz, ONG, jew organizzazzjoni? Għandna planu dedikat għalik. Iktebilna fuq partnerships@swaply.world",
-    "requestFailed": "Request failed",
-    "unknownError": "Unknown error"
+    "requestFailed": "Talba falla",
+    "unknownError": "Żball mhux magħruf"
   },
   "wanted": {
     "title": "Talabiet Mfittxija",
@@ -2866,7 +2866,7 @@
     "suggAcceptFlexible": "Ibdel għal preferenzi flessibli",
     "suggApply": "Applikah",
     "suggAffects": "Taffetwa {count} korrispondenza",
-    "suggAvgPoints": "avg pts"
+    "suggAvgPoints": "pts medju"
   },
   "chains": {
     "participants": "parteċipanti",
