@@ -37,12 +37,13 @@ export default async function BlogPage({ params }: Props) {
   const rawPosts = getAllPosts(locale);
   const categories = getAllCategories();
 
-  // Translate post titles and descriptions server-side for non-ro locales
+  // Translate post titles and descriptions server-side
+  // Posts have sourceLang indicating their actual language (ro or en)
   const posts = await Promise.all(
     rawPosts.map(async (post) => ({
       ...post,
-      title: await translateOnDemand(post.title, locale, "en"),
-      description: await translateOnDemand(post.description, locale, "en"),
+      title: await translateOnDemand(post.title, locale, (post as any).sourceLang ?? "en"),
+      description: await translateOnDemand(post.description, locale, (post as any).sourceLang ?? "en"),
     })),
   );
 

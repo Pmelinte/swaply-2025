@@ -21,8 +21,9 @@ import { join } from "path";
 import matter from "gray-matter";
 
 // ── Config ──────────────────────────────────────────────────────────
+// Skip "ro" — Romanian blog posts exist natively in src/content/blog/ro/
 const TARGET_LANGS = [
-  "ro","de","fr","es","it","pt","nl","pl","el","hu","bg","cs","sk","hr",
+  "de","fr","es","it","pt","nl","pl","el","hu","bg","cs","sk","hr",
   "sl","sr","sv","da","fi","no","lt","lv","et","ga","mt","ru","tr","ar",
   "zh","hi","bn","ja","ko","vi","th","id","ms","fil","fa","mn","uk","yi",
 ] as const;
