@@ -2318,7 +2318,9 @@
     "emailPartnerships": "Partnerluste ja sponsorluste jaoks",
     "emailSecurity": "Kiirustava turvalisuse probleemi jaoks",
     "businessTitle": "Ärikontakte jaoks",
-    "businessText": "Kas te olete kasutatud kaupade pood, MTÜ või organisatsioon? Meil on teie jaoks spetsialiseeritud pakett. Kirjutage meile aadressile partnerships@swaply.world"
+    "businessText": "Kas te olete kasutatud kaupade pood, MTÜ või organisatsioon? Meil on teie jaoks spetsialiseeritud pakett. Kirjutage meile aadressile partnerships@swaply.world",
+    "requestFailed": "Request failed",
+    "unknownError": "Unknown error"
   },
   "wanted": {
     "title": "Otsitavad taotlused",

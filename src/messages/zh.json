@@ -2318,7 +2318,9 @@
     "emailPartnerships": "合作与赞助",
     "emailSecurity": "紧急安全问题",
     "businessTitle": "商务合作",
-    "businessText": "您是二手店、非营利组织或机构吗？我们为您提供专属计划。请发送邮件至 partnerships@swaply.world"
+    "businessText": "您是二手店、非营利组织或机构吗？我们为您提供专属计划。请发送邮件至 partnerships@swaply.world",
+    "requestFailed": "请求失败",
+    "unknownError": "未知错误"
   },
   "wanted": {
     "title": "求购请求",

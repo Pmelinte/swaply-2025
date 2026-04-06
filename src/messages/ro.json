@@ -2449,7 +2449,9 @@
     "emailPartnerships": "Pentru parteneriate si sponsorizari",
     "emailSecurity": "Pentru probleme urgente de securitate",
     "businessTitle": "Pentru business",
-    "businessText": "Esti un magazin second-hand, ONG sau organizatie? Avem un plan dedicat pentru tine. Scrie-ne la partnerships@swaply.world"
+    "businessText": "Esti un magazin second-hand, ONG sau organizatie? Avem un plan dedicat pentru tine. Scrie-ne la partnerships@swaply.world",
+    "requestFailed": "Cererea a eșuat",
+    "unknownError": "Eroare necunoscută"
   },
   "wanted": {
     "title": "Cereri căutate",

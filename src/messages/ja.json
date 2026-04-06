@@ -2318,7 +2318,9 @@
     "emailPartnerships": "パートナーシップとスポンサーシップについて",
     "emailSecurity": "緊急のセキュリティ問題について",
     "businessTitle": "ビジネスについて",
-    "businessText": "中古品店、NGO、または組織ですか？専用プランがあります。partnerships@swaply.world までお問い合わせください"
+    "businessText": "中古品店、NGO、または組織ですか？専用プランがあります。partnerships@swaply.world までお問い合わせください",
+    "requestFailed": "リクエスト失敗",
+    "unknownError": "不明なエラー"
   },
   "wanted": {
     "title": "欲しい物リクエスト",

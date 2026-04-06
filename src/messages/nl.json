@@ -2318,7 +2318,9 @@
     "emailPartnerships": "Voor partnerschappen en sponsoring",
     "emailSecurity": "Voor urgente beveiligingsproblemen",
     "businessTitle": "Voor bedrijven",
-    "businessText": "Bent u een tweedehandswinkel, NGO of organisatie? We hebben een speciaal plan voor u. Stuur ons een e-mail naar partnerships@swaply.world"
+    "businessText": "Bent u een tweedehandswinkel, NGO of organisatie? We hebben een speciaal plan voor u. Stuur ons een e-mail naar partnerships@swaply.world",
+    "requestFailed": "Request failed",
+    "unknownError": "Unknown error"
   },
   "wanted": {
     "title": "Gezochte Verzoeken",

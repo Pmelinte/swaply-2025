@@ -2449,7 +2449,9 @@
     "emailPartnerships": "For partnerships and sponsorships",
     "emailSecurity": "For urgent security issues",
     "businessTitle": "For business",
-    "businessText": "Are you a second-hand shop, NGO, or organization? We have a dedicated plan for you. Write to us at partnerships@swaply.world"
+    "businessText": "Are you a second-hand shop, NGO, or organization? We have a dedicated plan for you. Write to us at partnerships@swaply.world",
+    "requestFailed": "Request failed",
+    "unknownError": "Unknown error"
   },
   "wanted": {
     "title": "Wanted Requests",

@@ -2318,7 +2318,9 @@
     "emailPartnerships": "Untuk perkongsian dan penajaan",
     "emailSecurity": "Untuk isu keselamatan yang mendesak",
     "businessTitle": "Untuk perniagaan",
-    "businessText": "Adakah anda kedai barangan terpakai, NGO, atau organisasi? Kami mempunyai pelan khusus untuk anda. Tulis kepada kami di partnerships@swaply.world"
+    "businessText": "Adakah anda kedai barangan terpakai, NGO, atau organisasi? Kami mempunyai pelan khusus untuk anda. Tulis kepada kami di partnerships@swaply.world",
+    "requestFailed": "Request failed",
+    "unknownError": "Unknown error"
   },
   "wanted": {
     "title": "Permintaan Dicari",

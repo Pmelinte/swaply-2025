@@ -2318,7 +2318,9 @@
     "emailPartnerships": "Untuk kemitraan dan sponsorship",
     "emailSecurity": "Untuk masalah keamanan mendesak",
     "businessTitle": "Untuk bisnis",
-    "businessText": "Apakah Anda toko bekas, LSM, atau organisasi? Kami memiliki paket khusus untuk Anda. Tulis kepada kami di partnerships@swaply.world"
+    "businessText": "Apakah Anda toko bekas, LSM, atau organisasi? Kami memiliki paket khusus untuk Anda. Tulis kepada kami di partnerships@swaply.world",
+    "requestFailed": "Request failed",
+    "unknownError": "Unknown error"
   },
   "wanted": {
     "title": "Permintaan yang Dicari",

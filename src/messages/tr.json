@@ -2318,7 +2318,9 @@
     "emailPartnerships": "İş ortaklıkları ve sponsorluklar için",
     "emailSecurity": "Acil güvenlik sorunları için",
     "businessTitle": "İşletme için",
-    "businessText": "İkinci el dükkanı, STK veya kuruluş musunuz? Sizin için özel bir planımız var. Bize partnerships@swaply.world adresinden yazın"
+    "businessText": "İkinci el dükkanı, STK veya kuruluş musunuz? Sizin için özel bir planımız var. Bize partnerships@swaply.world adresinden yazın",
+    "requestFailed": "İstek başarısız",
+    "unknownError": "Bilinmeyen hata"
   },
   "wanted": {
     "title": "Talep Edilen İstek Listeleri",

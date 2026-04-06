@@ -2531,7 +2531,9 @@
     "emailPartnerships": "För partnerskap och sponsorskap",
     "emailSecurity": "För brådskande säkerhetsproblem",
     "businessTitle": "För verksamhet",
-    "businessText": "Är du en second-hand-butik, NGO eller organisation? Vi har en dedikerad plan för dig. Skriv till oss på partnerships@swaply.world"
+    "businessText": "Är du en second-hand-butik, NGO eller organisation? Vi har en dedikerad plan för dig. Skriv till oss på partnerships@swaply.world",
+    "requestFailed": "Request failed",
+    "unknownError": "Unknown error"
   },
   "wanted": {
     "title": "Önskade förfrågningar",

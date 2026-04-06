@@ -2318,7 +2318,9 @@
     "emailPartnerships": "Za partnerstva in sponzorstva",
     "emailSecurity": "Za nujne varnostne težave",
     "businessTitle": "Za poslovanje",
-    "businessText": "Ste trgovina s predmeti v drugem stanju, nevladna organizacija ali organizacija? Imamo namenski načrt za vas. Napišite nam na partnerships@swaply.world"
+    "businessText": "Ste trgovina s predmeti v drugem stanju, nevladna organizacija ali organizacija? Imamo namenski načrt za vas. Napišite nam na partnerships@swaply.world",
+    "requestFailed": "Request failed",
+    "unknownError": "Unknown error"
   },
   "wanted": {
     "title": "Iskane prošnje",

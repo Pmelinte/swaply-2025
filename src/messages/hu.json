@@ -2318,7 +2318,9 @@
     "emailPartnerships": "Partnerségek és szponzorálás esetén",
     "emailSecurity": "Sürgős biztonsági problémákhoz",
     "businessTitle": "Üzleti megkeresésekhez",
-    "businessText": "Ön egy használt árukereskedő, NGO vagy szervezet? Van dedikált terv az Ön számára. Írjon nekünk a partnerships@swaply.world címre"
+    "businessText": "Ön egy használt árukereskedő, NGO vagy szervezet? Van dedikált terv az Ön számára. Írjon nekünk a partnerships@swaply.world címre",
+    "requestFailed": "Request failed",
+    "unknownError": "Unknown error"
   },
   "wanted": {
     "title": "Keresett kérések",

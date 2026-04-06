@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { locales } from "@/i18n/config";
 import Script from "next/script";
 import { getServerSupabase } from "@/lib/supabase/server";
+import { getTranslations } from "next-intl/server";
 import { translateFields, translateOnDemand } from "@/lib/translate-on-demand";
 import ObjectDetailClient from "./ObjectDetailClient";
 
@@ -43,7 +44,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const item = await getItem(id);
 
   if (!item) {
-    return { title: "Object not found — Swaply" };
+    const t = await getTranslations({ locale, namespace: "objectDetail" });
+    return { title: t("notFound") + " — Swaply" };
   }
 
   const sourceLang = detectSourceLanguage(`${item.title ?? ""} ${item.description ?? ""}`);

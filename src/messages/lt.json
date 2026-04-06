@@ -2318,7 +2318,9 @@
     "emailPartnerships": "Dėl partnerystės ir sponzorystės",
     "emailSecurity": "Skubiais saugumo klausimais",
     "businessTitle": "Verslui",
-    "businessText": "Ar jūs antrankis parduotuvė, NVO ar organizacija? Turime jums skirtą planą. Rašykite mums į partnerships@swaply.world"
+    "businessText": "Ar jūs antrankis parduotuvė, NVO ar organizacija? Turime jums skirtą planą. Rašykite mums į partnerships@swaply.world",
+    "requestFailed": "Request failed",
+    "unknownError": "Unknown error"
   },
   "wanted": {
     "title": "Paieškomi prašymai",

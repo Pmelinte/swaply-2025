@@ -2318,7 +2318,9 @@
     "emailPartnerships": "สำหรับความร่วมมือและการสนับสนุน",
     "emailSecurity": "สำหรับปัญหาด้านความปลอดภัยเร่งด่วน",
     "businessTitle": "สำหรับธุรกิจ",
-    "businessText": "คุณเป็นร้านสินค้ามือสอง องค์กรพัฒนาเอกชน หรือองค์กรหรือไม่? เรามีแผนเฉพาะสำหรับคุณ เขียนถึงเราที่ partnerships@swaply.world"
+    "businessText": "คุณเป็นร้านสินค้ามือสอง องค์กรพัฒนาเอกชน หรือองค์กรหรือไม่? เรามีแผนเฉพาะสำหรับคุณ เขียนถึงเราที่ partnerships@swaply.world",
+    "requestFailed": "Request failed",
+    "unknownError": "Unknown error"
   },
   "wanted": {
     "title": "คำขอที่ต้องการ",

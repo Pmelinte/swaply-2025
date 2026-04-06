@@ -2318,7 +2318,9 @@
     "emailPartnerships": "Għal sħubija u sponsorships",
     "emailSecurity": "Għal kwistjonijiet ta' sigurtà urġenti",
     "businessTitle": "Għal negozju",
-    "businessText": "Inti ħanut ta' rċiklazz, ONG, jew organizzazzjoni? Għandna planu dedikat għalik. Iktebilna fuq partnerships@swaply.world"
+    "businessText": "Inti ħanut ta' rċiklazz, ONG, jew organizzazzjoni? Għandna planu dedikat għalik. Iktebilna fuq partnerships@swaply.world",
+    "requestFailed": "Request failed",
+    "unknownError": "Unknown error"
   },
   "wanted": {
     "title": "Talabiet Mfittxija",
