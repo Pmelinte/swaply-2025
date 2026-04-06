@@ -2318,7 +2318,9 @@
     "emailPartnerships": "অংশীদারিত্ব এবং স্পন্সরশিপের জন্য",
     "emailSecurity": "জরুরি নিরাপত্তা সমস্যার জন্য",
     "businessTitle": "ব্যবসার জন্য",
-    "businessText": "আপনি কি একটি সেকেন্ড-হ্যান্ড দোকান, এনজিও, বা সংস্থা? আমাদের কাছে আপনার জন্য একটি উৎসর্গীকৃত পরিকল্পনা রয়েছে। partnerships@swaply.world এ আমাদের কাছে লিখুন"
+    "businessText": "আপনি কি একটি সেকেন্ড-হ্যান্ড দোকান, এনজিও, বা সংস্থা? আমাদের কাছে আপনার জন্য একটি উৎসর্গীকৃত পরিকল্পনা রয়েছে। partnerships@swaply.world এ আমাদের কাছে লিখুন",
+    "requestFailed": "Request failed",
+    "unknownError": "Unknown error"
   },
   "wanted": {
     "title": "চাহিদা অনুযায়ী অনুরোধ",

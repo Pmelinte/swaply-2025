@@ -2318,7 +2318,9 @@
     "emailPartnerships": "For partnerskap og sponsorater",
     "emailSecurity": "For kritiske sikkerhetsproblemer",
     "businessTitle": "For næringsliv",
-    "businessText": "Er du en brukthandel, NGO eller organisasjon? Vi har en dedikert plan for deg. Skriv til oss på partnerships@swaply.world"
+    "businessText": "Er du en brukthandel, NGO eller organisasjon? Vi har en dedikert plan for deg. Skriv til oss på partnerships@swaply.world",
+    "requestFailed": "Request failed",
+    "unknownError": "Unknown error"
   },
   "wanted": {
     "title": "Etterspurte forespørsler",

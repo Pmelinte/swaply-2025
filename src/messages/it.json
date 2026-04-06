@@ -2318,7 +2318,9 @@
     "emailPartnerships": "For partnerships e sponsorships",
     "emailSecurity": "Per problemi di sicurezza urgenti",
     "businessTitle": "Per affari",
-    "businessText": "Sei un negozio di seconda mano, un'ONG o un'organizzazione? Abbiamo un piano dedicato per te. Scrivici a partnerships@swaply.world"
+    "businessText": "Sei un negozio di seconda mano, un'ONG o un'organizzazione? Abbiamo un piano dedicato per te. Scrivici a partnerships@swaply.world",
+    "requestFailed": "Request failed",
+    "unknownError": "Unknown error"
   },
   "wanted": {
     "title": "Richieste Cercate",

@@ -83,7 +83,7 @@ export function StatsBar() {
     queryKey: ["stats"],
     queryFn: async () => {
       const res = await fetch("/api/stats");
-      if (!res.ok) throw new Error("Failed to fetch stats");
+      if (!res.ok) throw new Error("stats_fetch_error");
       return res.json();
     },
     refetchInterval: 60_000,

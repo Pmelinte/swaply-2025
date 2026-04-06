@@ -2318,7 +2318,9 @@
     "emailPartnerships": "Do chomhpháirtíochtaí agus do dhréachtaí",
     "emailSecurity": "Do cheisteanna slándála práinneacha",
     "businessTitle": "Do ghnó",
-    "businessText": "An siopa dara lámh, NGO, nó eagraíocht atá ionat? Tá phlean speisialta againn duit. Scríobh chugainn ag partnerships@swaply.world"
+    "businessText": "An siopa dara lámh, NGO, nó eagraíocht atá ionat? Tá phlean speisialta againn duit. Scríobh chugainn ag partnerships@swaply.world",
+    "requestFailed": "Request failed",
+    "unknownError": "Unknown error"
   },
   "wanted": {
     "title": "Achainí ar Iarrhaidh",

@@ -30,8 +30,8 @@ export default function ContactPage() {
       });
 
       if (!res.ok) {
-        const data = await res.json().catch(() => ({ error: "Request failed" }));
-        throw new Error(data.error ?? "Request failed");
+        const data = await res.json().catch(() => ({ error: t("requestFailed") }));
+        throw new Error(data.error ?? t("requestFailed"));
       }
 
       setStatus("success");
@@ -41,7 +41,7 @@ export default function ContactPage() {
       setMessage("");
     } catch (err) {
       setStatus("error");
-      setErrorMsg(err instanceof Error ? err.message : "Unknown error");
+      setErrorMsg(err instanceof Error ? err.message : t("unknownError"));
     }
   };
 

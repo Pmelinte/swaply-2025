@@ -2318,7 +2318,9 @@
     "emailPartnerships": "파트너십 및 스폰서십의 경우",
     "emailSecurity": "긴급 보안 문제의 경우",
     "businessTitle": "비즈니스의 경우",
-    "businessText": "중고 판매점, NGO 또는 단체이신가요? 저희는 귀사를 위한 전용 요금제를 보유하고 있습니다. partnerships@swaply.world로 연락주세요."
+    "businessText": "중고 판매점, NGO 또는 단체이신가요? 저희는 귀사를 위한 전용 요금제를 보유하고 있습니다. partnerships@swaply.world로 연락주세요.",
+    "requestFailed": "요청 실패",
+    "unknownError": "알 수 없는 오류"
   },
   "wanted": {
     "title": "원하는 요청",

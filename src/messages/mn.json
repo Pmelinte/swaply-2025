@@ -2318,7 +2318,9 @@
     "emailPartnerships": "Түншлэл ба спонсоршипийн хувьд",
     "emailSecurity": "Яаралтай аюулгүй байдлын асуудлын хувьд",
     "businessTitle": "Бизнесийн хувьд",
-    "businessText": "Та хоёр дахь гарын дүүжээ, НУУ эсвэл байгууллага уу? Бидэнд танд зориулсан төлөвлөгөө байдаг. partnerships@swaply.world хаягт бидэнд бичнэ үү"
+    "businessText": "Та хоёр дахь гарын дүүжээ, НУУ эсвэл байгууллага уу? Бидэнд танд зориулсан төлөвлөгөө байдаг. partnerships@swaply.world хаягт бидэнд бичнэ үү",
+    "requestFailed": "Request failed",
+    "unknownError": "Unknown error"
   },
   "wanted": {
     "title": "Хайж буй хүсэлтүүд",

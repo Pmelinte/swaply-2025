@@ -2345,7 +2345,9 @@
     "emailPartnerships": "לשותפויות וספונסורشיפים",
     "emailSecurity": "לבעיות אבטחה דחופות",
     "businessTitle": "לעסקים",
-    "businessText": "האם אתה חנות יד שנייה, ארגון ללא רווח, או ארגון? יש לנו תוכנית ייעודית עבורך. כתוב לנו ל partnerships@swaply.world"
+    "businessText": "האם אתה חנות יד שנייה, ארגון ללא רווח, או ארגון? יש לנו תוכנית ייעודית עבורך. כתוב לנו ל partnerships@swaply.world",
+    "requestFailed": "Request failed",
+    "unknownError": "Unknown error"
   },
   "wanted": {
     "title": "בקשות מתמשכות",

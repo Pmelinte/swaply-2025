@@ -2318,7 +2318,9 @@
     "emailPartnerships": "برای همکاری و حمایت‌های تبلیغاتی",
     "emailSecurity": "برای مسائل امنیتی فوری",
     "businessTitle": "برای مسائل تجاری",
-    "businessText": "آیا شما یک فروشگاه کالای دست دوم، سازمان غیردولتی یا سازمانی هستید؟ ما برای شما یک برنامه اختصاصی داریم. برای ما نامه بنویسید: partnerships@swaply.world"
+    "businessText": "آیا شما یک فروشگاه کالای دست دوم، سازمان غیردولتی یا سازمانی هستید؟ ما برای شما یک برنامه اختصاصی داریم. برای ما نامه بنویسید: partnerships@swaply.world",
+    "requestFailed": "Request failed",
+    "unknownError": "Unknown error"
   },
   "wanted": {
     "title": "درخواست‌های جستجو شده",

@@ -2318,7 +2318,9 @@
     "emailPartnerships": "Για συνεργασίες και χορηγίες",
     "emailSecurity": "Για επείγοντα ζητήματα ασφαλείας",
     "businessTitle": "Για επιχειρησιακές υποθέσεις",
-    "businessText": "Είστε δεύτερο κατάστημα, ΜΚΟ ή οργανισμός; Έχουμε ένα ειδικό σχέδιο για σας. Γράψτε μας στο partnerships@swaply.world"
+    "businessText": "Είστε δεύτερο κατάστημα, ΜΚΟ ή οργανισμός; Έχουμε ένα ειδικό σχέδιο για σας. Γράψτε μας στο partnerships@swaply.world",
+    "requestFailed": "Request failed",
+    "unknownError": "Unknown error"
   },
   "wanted": {
     "title": "Ζητούμενα Αιτήματα",

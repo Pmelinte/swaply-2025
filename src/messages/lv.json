@@ -2318,7 +2318,9 @@
     "emailPartnerships": "Partnerībām un sponsorībām",
     "emailSecurity": "Steidzamiem drošības jautājumiem",
     "businessTitle": "Biznesa jautājumiem",
-    "businessText": "Vai jūs esat lietoto preču veikals, NVO vai organizācija? Mums ir īpašs plāns jums. Rakstiet mums uz partnerships@swaply.world"
+    "businessText": "Vai jūs esat lietoto preču veikals, NVO vai organizācija? Mums ir īpašs plāns jums. Rakstiet mums uz partnerships@swaply.world",
+    "requestFailed": "Request failed",
+    "unknownError": "Unknown error"
   },
   "wanted": {
     "title": "Meklētie pieprasījumi",

@@ -2318,7 +2318,9 @@
     "emailPartnerships": "للشراكات والرعايات",
     "emailSecurity": "للمشاكل الأمنية العاجلة",
     "businessTitle": "للأعمال التجارية",
-    "businessText": "هل أنت متجر للسلع المستعملة أو منظمة غير حكومية أو مؤسسة؟ لدينا خطة مخصصة لك. اكتب إلينا على partnerships@swaply.world"
+    "businessText": "هل أنت متجر للسلع المستعملة أو منظمة غير حكومية أو مؤسسة؟ لدينا خطة مخصصة لك. اكتب إلينا على partnerships@swaply.world",
+    "requestFailed": "فشل الطلب",
+    "unknownError": "خطأ غير معروف"
   },
   "wanted": {
     "title": "طلبات البحث",

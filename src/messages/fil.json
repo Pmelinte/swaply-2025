@@ -2318,7 +2318,9 @@
     "emailPartnerships": "Para sa mga partnership at sponsorship",
     "emailSecurity": "Para sa mga urgent na isyu sa seguridad",
     "businessTitle": "Para sa negosyo",
-    "businessText": "Ikaw ba ay isang second-hand shop, NGO, o organisasyon? Mayroon kaming dedikadong plano para sa iyo. Sumulat sa amin sa partnerships@swaply.world"
+    "businessText": "Ikaw ba ay isang second-hand shop, NGO, o organisasyon? Mayroon kaming dedikadong plano para sa iyo. Sumulat sa amin sa partnerships@swaply.world",
+    "requestFailed": "Request failed",
+    "unknownError": "Unknown error"
   },
   "wanted": {
     "title": "Wanted Requests",

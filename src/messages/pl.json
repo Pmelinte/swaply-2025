@@ -2318,7 +2318,9 @@
     "emailPartnerships": "W sprawie partnerstw i sponsoringu",
     "emailSecurity": "W przypadku pilnych problemów bezpieczeństwa",
     "businessTitle": "Dla biznesu",
-    "businessText": "Jesteś sklepem second-hand, organizacją pozarządową lub instytucją? Mamy dedykowany plan dla Ciebie. Napisz do nas na adres partnerships@swaply.world"
+    "businessText": "Jesteś sklepem second-hand, organizacją pozarządową lub instytucją? Mamy dedykowany plan dla Ciebie. Napisz do nas na adres partnerships@swaply.world",
+    "requestFailed": "Request failed",
+    "unknownError": "Unknown error"
   },
   "wanted": {
     "title": "Poszukiwane prośby",

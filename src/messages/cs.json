@@ -2318,7 +2318,9 @@
     "emailPartnerships": "Pro partnerství a sponzorství",
     "emailSecurity": "Pro naléhavé bezpečnostní problémy",
     "businessTitle": "Pro obchodní partnery",
-    "businessText": "Jste second-hand obchod, nezisková organizace nebo instituce? Máme pro vás speciální plán. Napište nám na partnerships@swaply.world"
+    "businessText": "Jste second-hand obchod, nezisková organizace nebo instituce? Máme pro vás speciální plán. Napište nám na partnerships@swaply.world",
+    "requestFailed": "Request failed",
+    "unknownError": "Unknown error"
   },
   "wanted": {
     "title": "Hledané požadavky",

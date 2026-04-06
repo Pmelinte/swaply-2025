@@ -276,7 +276,7 @@ export default function AccountTab({
                 const enabling = e.target.checked;
                 if (enabling) {
                   if (!isWebAuthnSupported()) {
-                    alert(t("passkeyNotSupported") ?? "Passkeys are not supported by this browser.");
+                    alert(t("passkeyNotSupported"));
                     return;
                   }
                   const result = await registerPasskey(user.id, user.email, user.displayName || "");

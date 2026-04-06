@@ -2318,7 +2318,9 @@
     "emailPartnerships": "Kumppanuuksista ja sponsoroinneista",
     "emailSecurity": "Kiireellisille turvallisuusongelmille",
     "businessTitle": "Yrityksille",
-    "businessText": "Oletko käytettyjen tavaroiden liike, järjestö tai organisaatio? Meillä on sinulle omaa suunnitelmaa. Kirjoita meille osoitteeseen partnerships@swaply.world"
+    "businessText": "Oletko käytettyjen tavaroiden liike, järjestö tai organisaatio? Meillä on sinulle omaa suunnitelmaa. Kirjoita meille osoitteeseen partnerships@swaply.world",
+    "requestFailed": "Request failed",
+    "unknownError": "Unknown error"
   },
   "wanted": {
     "title": "Pyynnöt",

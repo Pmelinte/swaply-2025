@@ -2318,7 +2318,9 @@
     "emailPartnerships": "За партньорства и спонсорства",
     "emailSecurity": "За спешни проблеми със сигурността",
     "businessTitle": "За бизнес",
-    "businessText": "Вие сте магазин за втора ръка, НПО или организация? Имаме посветен план за вас. Пишете ни на partnerships@swaply.world"
+    "businessText": "Вие сте магазин за втора ръка, НПО или организация? Имаме посветен план за вас. Пишете ни на partnerships@swaply.world",
+    "requestFailed": "Request failed",
+    "unknownError": "Unknown error"
   },
   "wanted": {
     "title": "Търсени запитвания",
