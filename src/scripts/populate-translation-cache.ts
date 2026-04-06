@@ -163,10 +163,13 @@ async function main() {
 
   let translated = 0;
   let skipped = 0;
+  let failed = 0;
+  const maxFields = total * 2 * TARGET_LANGS.length; // upper bound
+  console.log(`Max translations needed: ~${maxFields} (${total} items × 2 fields × ${TARGET_LANGS.length} langs)\n`);
 
   for (let i = 0; i < total; i++) {
     const item = items[i];
-    console.log(`Translating item ${i + 1}/${total}  [${item.id}] "${(item.title ?? "").slice(0, 50)}"`);
+    console.log(`\n[${i + 1}/${total}] "${(item.title ?? "").slice(0, 50)}" | done=${translated} skip=${skipped} fail=${failed}`);
 
     const fields: Array<{ name: string; text: string }> = [];
     if (item.title) fields.push({ name: "title", text: item.title });
@@ -181,22 +184,32 @@ async function main() {
           continue;
         }
 
-        const result = await translateWithClaude(field.text, lang);
+        // Retry up to 3 times on transient failures
+        let result: string | null = null;
+        for (let attempt = 0; attempt < 3; attempt++) {
+          result = await translateWithClaude(field.text, lang);
+          if (result) break;
+          console.log(`  ⟳ retry ${attempt + 1}/3 for ${field.name} → ${lang}`);
+          await sleep(2000 * (attempt + 1));
+        }
+
         if (result) {
           await cacheTranslation(hash, "ro", lang, result);
           translated++;
-          console.log(`  ✓ ${field.name} → ${lang}`);
         } else {
-          console.log(`  ✗ ${field.name} → ${lang} (failed)`);
+          failed++;
+          console.log(`  ✗ ${field.name} → ${lang} (failed after 3 attempts)`);
         }
 
-        // Rate limit: 1 API call per second
-        await sleep(1000);
+        // Rate limit: ~2 API calls per second (safe for Haiku)
+        await sleep(500);
       }
     }
   }
 
-  console.log(`\nDone! Translated: ${translated}, Skipped (cached): ${skipped}`);
+  console.log(`\n${"=".repeat(60)}`);
+  console.log(`Done! Translated: ${translated} | Skipped (cached): ${skipped} | Failed: ${failed}`);
+  console.log(`${"=".repeat(60)}`);
 }
 
 main().catch((err) => {
