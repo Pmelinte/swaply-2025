@@ -5,7 +5,7 @@
  * paragraphs, list items), and populates the translation_cache table
  * using the same hash format as translateOnDemand.
  *
- * Uses batching (20 texts per API call) to minimize cost.
+ * Uses batching (5 texts per API call) with rate-limit-safe pacing.
  *
  * Usage:
  *   ANTHROPIC_API_KEY=sk-... \
@@ -41,7 +41,7 @@ const LOCALE_NAMES: Record<string, string> = {
   mn: "Mongolian", uk: "Ukrainian", yi: "Yiddish",
 };
 
-const BATCH_SIZE = 20;
+const BATCH_SIZE = 5;
 const BLOG_DIR = join(process.cwd(), "src", "content", "blog");
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
@@ -153,6 +153,8 @@ async function translateBatch(
   if (!res.ok) {
     const body = await res.text().catch(() => "");
     console.error(`  API ${res.status}: ${body.slice(0, 200)}`);
+    // Signal 429 specifically so caller can apply longer backoff
+    if (res.status === 429) throw new Error("RATE_LIMITED");
     return null;
   }
 
@@ -248,11 +250,19 @@ async function main() {
 
       let results: string[] | null = null;
       for (let attempt = 0; attempt < 3; attempt++) {
-        results = await translateBatch(batchTexts, lang);
-        apiCalls++;
-        if (results) break;
-        console.log(`  ⟳ retry batch (attempt ${attempt + 2}/3)`);
-        await sleep(2000 * (attempt + 1));
+        try {
+          results = await translateBatch(batchTexts, lang);
+          apiCalls++;
+          if (results) break;
+          console.log(`  ⟳ retry batch (attempt ${attempt + 2}/3)`);
+          await sleep(5000 * Math.pow(2, attempt)); // 5s, 10s, 20s
+        } catch (err: unknown) {
+          apiCalls++;
+          const isRateLimit = err instanceof Error && err.message === "RATE_LIMITED";
+          const backoff = isRateLimit ? 5000 * Math.pow(2, attempt) : 3000;
+          console.log(`  ⟳ ${isRateLimit ? "rate limited" : "error"}, waiting ${backoff / 1000}s (attempt ${attempt + 2}/3)`);
+          await sleep(backoff);
+        }
       }
 
       if (results) {
@@ -278,7 +288,8 @@ async function main() {
         console.error(`  ✗ Batch failed after 3 attempts`);
       }
 
-      await sleep(600);
+      // 2s delay between batches to stay under rate limits
+      await sleep(2000);
     }
 
     console.log(`  ✓ ${lang} done | total: ${translated} translated, ${skipped} skipped, ${failed} failed`);
