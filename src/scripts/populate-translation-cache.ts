@@ -1,11 +1,8 @@
 /**
- * Populate translation cache for all items.
+ * Populate translation cache for all items — BATCHED version.
  *
- * Reads every item from the Supabase items table, translates title and
- * description into 5 target languages (ro, en, de, fr, it) via Claude
- * Haiku, and stores each result in the translation_cache table.
- *
- * Existing cache entries are skipped.  Rate-limited to 1 API call/s.
+ * Sends up to 20 texts in a single Claude Haiku API call per language,
+ * drastically reducing cost (~$1.50 instead of ~$8).
  *
  * Usage:
  *   ANTHROPIC_API_KEY=sk-... \
@@ -18,7 +15,6 @@ import { createClient } from "@supabase/supabase-js";
 import { createHash } from "crypto";
 
 // ── Config ──────────────────────────────────────────────────────────
-// All 42 non-ro locales from the i18n config
 const TARGET_LANGS = [
   "en","de","fr","es","it","pt","nl","pl","el","hu","bg","cs","sk","hr",
   "sl","sr","sv","da","fi","no","lt","lv","et","ga","mt","ru","tr","ar",
@@ -39,6 +35,8 @@ const LOCALE_NAMES: Record<string, string> = {
   mn: "Mongolian", uk: "Ukrainian", yi: "Yiddish",
 };
 
+const BATCH_SIZE = 20; // texts per API call
+
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const SUPABASE_URL =
   process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -46,14 +44,8 @@ const SUPABASE_KEY =
   process.env.SUPABASE_SERVICE_ROLE_KEY ??
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-if (!ANTHROPIC_API_KEY) {
-  console.error("Missing ANTHROPIC_API_KEY");
-  process.exit(1);
-}
-if (!SUPABASE_URL || !SUPABASE_KEY) {
-  console.error("Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY");
-  process.exit(1);
-}
+if (!ANTHROPIC_API_KEY) { console.error("Missing ANTHROPIC_API_KEY"); process.exit(1); }
+if (!SUPABASE_URL || !SUPABASE_KEY) { console.error("Missing SUPABASE_URL or key"); process.exit(1); }
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
   auth: { autoRefreshToken: false, persistSession: false },
@@ -62,33 +54,45 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
 // ── Helpers ─────────────────────────────────────────────────────────
 
 function hashText(text: string, targetLang: string): string {
-  return createHash("sha256")
-    .update(`${text}::${targetLang}`)
-    .digest("hex");
+  return createHash("sha256").update(`${text}::${targetLang}`).digest("hex");
 }
 
 function sleep(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-async function isCached(
-  textHash: string,
-  targetLang: string,
-): Promise<boolean> {
-  const { data } = await supabase
-    .from("translation_cache")
-    .select("id")
-    .eq("source_text_hash", textHash)
-    .eq("target_lang", targetLang)
-    .maybeSingle();
-  return data !== null;
+interface TextEntry {
+  index: number;
+  text: string;
+  hash: string;
+  itemId: string;
+  field: string;
 }
 
-async function translateWithClaude(
-  text: string,
+async function getExistingHashes(hashes: string[], lang: string): Promise<Set<string>> {
+  // Check in batches of 100 to avoid query limits
+  const existing = new Set<string>();
+  for (let i = 0; i < hashes.length; i += 100) {
+    const batch = hashes.slice(i, i + 100);
+    const { data } = await supabase
+      .from("translation_cache")
+      .select("source_text_hash")
+      .in("source_text_hash", batch)
+      .eq("target_lang", lang);
+    if (data) {
+      for (const row of data) existing.add(row.source_text_hash);
+    }
+  }
+  return existing;
+}
+
+async function translateBatch(
+  texts: string[],
   targetLang: string,
-  sourceLang = "ro",
-): Promise<string | null> {
+): Promise<string[] | null> {
+  // Build numbered list for batch translation
+  const numbered = texts.map((t, i) => `[${i + 1}] ${t}`).join("\n");
+
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
@@ -98,49 +102,57 @@ async function translateWithClaude(
     },
     body: JSON.stringify({
       model: "claude-haiku-4-5-20251001",
-      max_tokens: 1024,
+      max_tokens: 4096,
       system:
-        "You are a professional translator for Swaply, a global barter/swap marketplace. " +
-        "Translate naturally and accurately into the target language. " +
-        "Preserve the meaning in the context of object exchange and bartering. " +
-        "Return ONLY the translated text, nothing else. " +
-        "Do not add explanations, quotes, or prefixes.",
-      messages: [
-        {
-          role: "user",
-          content: `Translate the following from ${LOCALE_NAMES[sourceLang] ?? sourceLang} to ${LOCALE_NAMES[targetLang]}:\n\n${text}`,
-        },
-      ],
+        "You are a translator for Swaply, a barter marketplace. " +
+        "Translate each numbered item. Return ONLY the translations in the same numbered format: [1] translation\\n[2] translation\\n... " +
+        "Keep the [N] numbering. Do not add explanations.",
+      messages: [{
+        role: "user",
+        content: `Translate from Romanian to ${LOCALE_NAMES[targetLang] ?? targetLang}:\n\n${numbered}`,
+      }],
     }),
   });
 
   if (!res.ok) {
     const body = await res.text().catch(() => "");
-    console.error(`  Claude API ${res.status}: ${body.slice(0, 200)}`);
+    console.error(`  API ${res.status}: ${body.slice(0, 200)}`);
     return null;
   }
 
-  const data = (await res.json()) as {
-    content?: Array<{ type: string; text: string }>;
-  };
-  return data.content?.[0]?.text?.trim() ?? null;
-}
+  const data = (await res.json()) as { content?: Array<{ text: string }> };
+  const responseText = data.content?.[0]?.text?.trim();
+  if (!responseText) return null;
 
-async function cacheTranslation(
-  textHash: string,
-  sourceLang: string,
-  targetLang: string,
-  translatedText: string,
-): Promise<void> {
-  await supabase.from("translation_cache").upsert(
-    {
-      source_text_hash: textHash,
-      source_lang: sourceLang,
-      target_lang: targetLang,
-      translated_text: translatedText,
-    },
-    { onConflict: "source_text_hash,target_lang" },
-  );
+  // Parse numbered responses: [1] text, [2] text, ...
+  const results: string[] = [];
+  const lines = responseText.split("\n");
+  let currentIdx = -1;
+  let currentText = "";
+
+  for (const line of lines) {
+    const match = line.match(/^\[(\d+)\]\s*(.*)/);
+    if (match) {
+      if (currentIdx >= 0) {
+        results[currentIdx] = currentText.trim();
+      }
+      currentIdx = parseInt(match[1]) - 1;
+      currentText = match[2];
+    } else if (currentIdx >= 0) {
+      currentText += "\n" + line;
+    }
+  }
+  if (currentIdx >= 0) {
+    results[currentIdx] = currentText.trim();
+  }
+
+  // Verify we got all translations
+  if (results.filter(Boolean).length !== texts.length) {
+    console.error(`  Expected ${texts.length} translations, got ${results.filter(Boolean).length}`);
+    return null;
+  }
+
+  return results;
 }
 
 // ── Main ────────────────────────────────────────────────────────────
@@ -150,65 +162,112 @@ async function main() {
 
   const { data: items, error } = await supabase
     .from("items")
-    .select("id, title, description, category")
+    .select("id, title, description")
     .order("created_at", { ascending: true });
 
-  if (error) {
-    console.error("Failed to fetch items:", error.message);
+  if (error || !items) {
+    console.error("Failed to fetch items:", error?.message);
     process.exit(1);
   }
 
-  const total = items.length;
-  console.log(`Found ${total} items. Target languages: ${TARGET_LANGS.join(", ")}\n`);
+  // Build flat list of all texts to translate
+  const allTexts: TextEntry[] = [];
+  for (const item of items) {
+    if (item.title) {
+      allTexts.push({ index: 0, text: item.title, hash: "", itemId: item.id, field: "title" });
+    }
+    if (item.description) {
+      allTexts.push({ index: 0, text: item.description, hash: "", itemId: item.id, field: "desc" });
+    }
+  }
+
+  console.log(`Found ${items.length} items, ${allTexts.length} text fields.`);
+  console.log(`Target: ${TARGET_LANGS.length} languages, batch size: ${BATCH_SIZE}`);
+  console.log(`Max translations: ${allTexts.length * TARGET_LANGS.length}`);
+  console.log(`Estimated API calls: ~${Math.ceil(allTexts.length / BATCH_SIZE) * TARGET_LANGS.length} (batched)\n`);
 
   let translated = 0;
   let skipped = 0;
   let failed = 0;
-  const maxFields = total * 2 * TARGET_LANGS.length; // upper bound
-  console.log(`Max translations needed: ~${maxFields} (${total} items × 2 fields × ${TARGET_LANGS.length} langs)\n`);
+  let apiCalls = 0;
 
-  for (let i = 0; i < total; i++) {
-    const item = items[i];
-    console.log(`\n[${i + 1}/${total}] "${(item.title ?? "").slice(0, 50)}" | done=${translated} skip=${skipped} fail=${failed}`);
+  for (const lang of TARGET_LANGS) {
+    console.log(`\n── ${LOCALE_NAMES[lang]} (${lang}) ──`);
 
-    const fields: Array<{ name: string; text: string }> = [];
-    if (item.title) fields.push({ name: "title", text: item.title });
-    if (item.description) fields.push({ name: "description", text: item.description });
+    // Compute hashes for this language
+    const entries = allTexts.map((e) => ({
+      ...e,
+      hash: hashText(e.text, lang),
+    }));
 
-    for (const lang of TARGET_LANGS) {
-      for (const field of fields) {
-        const hash = hashText(field.text, lang);
+    // Bulk check which are already cached
+    const existingHashes = await getExistingHashes(
+      entries.map((e) => e.hash),
+      lang,
+    );
 
-        if (await isCached(hash, lang)) {
-          skipped++;
-          continue;
-        }
+    const uncached = entries.filter((e) => !existingHashes.has(e.hash));
+    skipped += entries.length - uncached.length;
 
-        // Retry up to 3 times on transient failures
-        let result: string | null = null;
-        for (let attempt = 0; attempt < 3; attempt++) {
-          result = await translateWithClaude(field.text, lang);
-          if (result) break;
-          console.log(`  ⟳ retry ${attempt + 1}/3 for ${field.name} → ${lang}`);
-          await sleep(2000 * (attempt + 1));
-        }
-
-        if (result) {
-          await cacheTranslation(hash, "ro", lang, result);
-          translated++;
-        } else {
-          failed++;
-          console.log(`  ✗ ${field.name} → ${lang} (failed after 3 attempts)`);
-        }
-
-        // Rate limit: ~2 API calls per second (safe for Haiku)
-        await sleep(500);
-      }
+    if (uncached.length === 0) {
+      console.log(`  All ${entries.length} already cached, skipping.`);
+      continue;
     }
+
+    console.log(`  Need to translate: ${uncached.length} (${entries.length - uncached.length} cached)`);
+
+    // Process in batches
+    for (let b = 0; b < uncached.length; b += BATCH_SIZE) {
+      const batch = uncached.slice(b, b + BATCH_SIZE);
+      const batchTexts = batch.map((e) => e.text);
+
+      // Retry up to 3 times
+      let results: string[] | null = null;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        results = await translateBatch(batchTexts, lang);
+        apiCalls++;
+        if (results) break;
+        console.log(`  ⟳ retry batch ${Math.floor(b / BATCH_SIZE) + 1} (attempt ${attempt + 2}/3)`);
+        await sleep(2000 * (attempt + 1));
+      }
+
+      if (results) {
+        // Store all translations
+        const rows = batch.map((entry, i) => ({
+          source_text_hash: entry.hash,
+          source_lang: "ro",
+          target_lang: lang,
+          translated_text: results![i],
+        }));
+
+        const { error: upsertErr } = await supabase
+          .from("translation_cache")
+          .upsert(rows, { onConflict: "source_text_hash,target_lang" });
+
+        if (upsertErr) {
+          console.error(`  Upsert error: ${upsertErr.message}`);
+          failed += batch.length;
+        } else {
+          translated += batch.length;
+        }
+      } else {
+        failed += batch.length;
+        console.error(`  ✗ Batch failed after 3 attempts`);
+      }
+
+      // Rate limit between batches
+      await sleep(600);
+    }
+
+    console.log(`  ✓ ${lang} done | total: ${translated} translated, ${skipped} skipped, ${failed} failed`);
   }
 
   console.log(`\n${"=".repeat(60)}`);
-  console.log(`Done! Translated: ${translated} | Skipped (cached): ${skipped} | Failed: ${failed}`);
+  console.log(`DONE!`);
+  console.log(`  Translated: ${translated}`);
+  console.log(`  Skipped (cached): ${skipped}`);
+  console.log(`  Failed: ${failed}`);
+  console.log(`  API calls: ${apiCalls} (batched ${BATCH_SIZE}/call)`);
   console.log(`${"=".repeat(60)}`);
 }
 
