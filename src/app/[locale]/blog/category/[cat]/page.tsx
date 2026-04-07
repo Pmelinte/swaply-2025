@@ -42,11 +42,12 @@ export default async function CategoryPage({ params }: Props) {
   const rawPosts = getPostsByCategory(category);
 
   // Translate post titles and descriptions server-side
+  // Posts have sourceLang indicating their actual language
   const posts = await Promise.all(
     rawPosts.map(async (post) => ({
       ...post,
-      title: await translateOnDemand(post.title, locale, "en"),
-      description: await translateOnDemand(post.description, locale, "en"),
+      title: await translateOnDemand(post.title, locale, (post as any).sourceLang ?? "en"),
+      description: await translateOnDemand(post.description, locale, (post as any).sourceLang ?? "en"),
     })),
   );
 

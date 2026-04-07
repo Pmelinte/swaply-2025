@@ -61,11 +61,11 @@ export function getAllPosts(locale?: string): BlogPost[] {
       if (hasLocaleDir) {
         const localePath = path.join(localeDir, file);
         if (fs.existsSync(localePath)) {
-          return parsePostFromPath(localePath, slug);
+          return { ...parsePostFromPath(localePath, slug), sourceLang: locale! };
         }
       }
       // Fallback to English
-      return parsePost(file);
+      return { ...parsePost(file), sourceLang: "en" };
     })
     .sort((a, b) => (a.date > b.date ? -1 : 1));
 }
@@ -73,18 +73,18 @@ export function getAllPosts(locale?: string): BlogPost[] {
 /**
  * Get a single post by slug, with locale fallback.
  */
-export function getPostBySlug(slug: string, locale?: string): BlogPost | null {
+export function getPostBySlug(slug: string, locale?: string): (BlogPost & { sourceLang: string }) | null {
   // Try locale-specific version first
   if (locale && locale !== "en") {
     const localePath = path.join(BLOG_DIR, locale, `${slug}.mdx`);
     if (fs.existsSync(localePath)) {
-      return parsePostFromPath(localePath, slug);
+      return { ...parsePostFromPath(localePath, slug), sourceLang: locale };
     }
   }
   // Fallback to English
   const enPath = path.join(BLOG_DIR, `${slug}.mdx`);
   if (!fs.existsSync(enPath)) return null;
-  return parsePost(`${slug}.mdx`);
+  return { ...parsePost(`${slug}.mdx`), sourceLang: "en" };
 }
 
 export function getPostsByCategory(category: string, locale?: string): BlogPost[] {

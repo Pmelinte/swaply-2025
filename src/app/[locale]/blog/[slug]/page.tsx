@@ -145,7 +145,11 @@ export default async function BlogPostPage({ params }: Props) {
   const rawPost = getPostBySlug(slug, locale);
   if (!rawPost) notFound();
 
-  // On-demand translation for non-ro locales (title, description, content, category)
+  // Determine actual source language of loaded content
+  // (ro/ folder = Romanian, root = English)
+  const contentSourceLang = rawPost.sourceLang;
+
+  // On-demand translation — skip if content is already in the target locale
   const [
     { title: translatedTitle, description: translatedDesc, category: translatedCategory },
     translatedContent,
@@ -153,9 +157,9 @@ export default async function BlogPostPage({ params }: Props) {
     translateFields(
       { title: rawPost.title, description: rawPost.description, category: rawPost.category },
       locale,
-      "en",
+      contentSourceLang,
     ),
-    translateContent(rawPost.content, locale, "en"),
+    translateContent(rawPost.content, locale, contentSourceLang),
   ]);
 
   const post = {
