@@ -6,7 +6,11 @@ import { getServerSupabase } from "@/lib/supabase/server";
 
 /** Get a Supabase client — prefer service role, fall back to server (anon) */
 async function getSupabase() {
-  return getServiceSupabase() ?? (await getServerSupabase());
+  const svc = getServiceSupabase();
+  if (!svc) {
+    console.warn("[translateOnDemand] SUPABASE_SERVICE_ROLE_KEY not set — falling back to anon client");
+  }
+  return svc ?? (await getServerSupabase());
 }
 
 function hashText(text: string, targetLang: string): string {
@@ -37,16 +41,20 @@ export async function translateOnDemand(
   // 1. Check cache
   if (supabase) {
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("translation_cache")
         .select("translated_text")
         .eq("source_text_hash", hash)
         .eq("target_lang", targetLang)
         .maybeSingle();
 
-      if (data?.translated_text) return data.translated_text;
-    } catch {
-      // Cache read failed — continue to translate
+      if (error) {
+        console.error("[translateOnDemand] cache read error:", error.message);
+      } else if (data?.translated_text) {
+        return data.translated_text;
+      }
+    } catch (err) {
+      console.error("[translateOnDemand] cache read exception:", err);
     }
   }
 
