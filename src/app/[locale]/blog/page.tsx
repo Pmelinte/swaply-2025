@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { Link } from "@/i18n/navigation";
 import { Rss } from "lucide-react";
-import { getAllPosts, getAllCategories } from "@/lib/blog";
+import { getAllCategoriesDB, getAllPostsDB } from "@/lib/blog-db";
 import { BlogSearch } from "@/components/blog/BlogSearch";
 import { translateOnDemand } from "@/lib/translate-on-demand";
+import { getTranslations } from "next-intl/server";
 
 export const revalidate = 3600;
-import { getTranslations } from "next-intl/server";
 
 interface Props {
   params: Promise<{ locale: string }>;
@@ -24,9 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: "website",
     },
     alternates: {
-      types: {
-        "application/rss+xml": "/blog/feed.xml",
-      },
+      types: { "application/rss+xml": "/blog/feed.xml" },
     },
   };
 }
@@ -34,16 +32,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function BlogPage({ params }: Props) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "blog" });
-  const rawPosts = getAllPosts(locale);
-  const categories = getAllCategories();
 
-  // Translate post titles and descriptions server-side
-  // Posts have sourceLang indicating their actual language (ro or en)
+  const rawPosts = await getAllPostsDB(locale);
+  const categories = await getAllCategoriesDB();
+
   const posts = await Promise.all(
     rawPosts.map(async (post) => ({
       ...post,
-      title: await translateOnDemand(post.title, locale, (post as any).sourceLang ?? "en"),
-      description: await translateOnDemand(post.description, locale, (post as any).sourceLang ?? "en"),
+      title: await translateOnDemand(post.title, locale, post.sourceLang),
+      description: await translateOnDemand(post.description, locale, post.sourceLang),
     })),
   );
 
@@ -67,7 +64,6 @@ export default async function BlogPage({ params }: Props) {
           RSS
         </Link>
       </div>
-
       <BlogSearch posts={posts} categories={categories} />
     </div>
   );

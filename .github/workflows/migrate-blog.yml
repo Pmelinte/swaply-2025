@@ -8,26 +8,22 @@ jobs:
     name: Migrate English blog posts to Supabase
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    env:
-      SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
-      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: "22"
-          cache: npm
+          node-version: '22'
 
       - name: Install dependencies
         run: npm ci
 
       - name: Verify secrets
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
-          if [ -z "$SUPABASE_URL" ]; then
+          if [ -z "$NEXT_PUBLIC_SUPABASE_URL" ]; then
             echo "::error::NEXT_PUBLIC_SUPABASE_URL variable is not set"
             exit 1
           fi
@@ -38,8 +34,7 @@ jobs:
           echo "✓ All secrets configured"
 
       - name: Run migration
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: node scripts/migrate-blog-to-supabase.mjs
-
-      - name: Report results
-        if: always()
-        run: echo "Blog migration completed"
