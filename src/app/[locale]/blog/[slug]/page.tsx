@@ -27,11 +27,16 @@ async function translateContent(
   sourceLang = "ro",
 ): Promise<string> {
   if (targetLang === sourceLang) return content;
+
   const lines = content.split(/\n/);
   const translated = await Promise.all(
     lines.map((line) => {
       const trimmed = line.trim();
+
+      // Linie goală
       if (!trimmed) return Promise.resolve("");
+
+      // Skip: cod, HTML, imagini markdown, separatori
       if (
         trimmed.startsWith("```") ||
         trimmed.startsWith("<") ||
@@ -40,20 +45,48 @@ async function translateContent(
       ) {
         return Promise.resolve(line);
       }
-      const leadingMatch = line.match(/^(\s*(?:[-*>]+\s*)?)/);
-      const leading = leadingMatch ? leadingMatch[1] : "";
-      const textPart = line.slice(leading.length);
-      if (!textPart.trim()) return Promise.resolve(line);
-      return translateOnDemand(textPart, targetLang, sourceLang).then(
-        (t) => leading + t,
-      );
+
+      // Bold labels: **Text:** sau **Text** la începutul liniei
+      // ex: **Elektronik:** **Clothing and Fashion:**
+      const boldLabelMatch = trimmed.match(/^\*\*(.+?)\*\*(:?)$/);
+      if (boldLabelMatch) {
+        const innerText = boldLabelMatch[1];
+        const colon = boldLabelMatch[2];
+        return translateOnDemand(innerText, targetLang, sourceLang).then(
+          (t) => `**${t}**${colon}`,
+        );
+      }
+
+      // Headings: ## text sau ### text
+      const headingMatch = line.match(/^(#{1,6}\s+)(.*)/);
+      if (headingMatch) {
+        const prefix = headingMatch[1]; // ex: "## "
+        const text = headingMatch[2];
+        if (!text.trim()) return Promise.resolve(line);
+        return translateOnDemand(text, targetLang, sourceLang).then(
+          (t) => prefix + t,
+        );
+      }
+
+      // Liste și blockquotes: - item, * item, > quote, 1. item
+      const listMatch = line.match(/^(\s*(?:\d+\.|[-*>])\s+)(.*)/);
+      if (listMatch) {
+        const prefix = listMatch[1]; // ex: "- " sau "1. "
+        const text = listMatch[2];
+        if (!text.trim()) return Promise.resolve(line);
+        return translateOnDemand(text, targetLang, sourceLang).then(
+          (t) => prefix + t,
+        );
+      }
+
+      // Paragrafe normale — traduce tot
+      return translateOnDemand(line, targetLang, sourceLang);
     }),
   );
   return translated.join("\n");
 }
 
 export async function generateStaticParams() {
-  // Pre-render primele 10 articole la build time
   const { getAllPostsDB } = await import("@/lib/blog-db");
   const posts = await getAllPostsDB();
   return posts.slice(0, 10).map((post) => ({ slug: post.slug }));
@@ -101,7 +134,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 function createHeadingComponent(level: 2 | 3) {
   const Tag = level === 2 ? "h2" : "h3";
-  return function HeadingComponent({ children }: { children?: React.ReactNode }) {
+  return function HeadingComponent({
+    children,
+  }: {
+    children?: React.ReactNode;
+  }) {
     const text = String(children ?? "");
     const id = text
       .toLowerCase()
@@ -126,7 +163,11 @@ export default async function BlogPostPage({ params }: Props) {
   const contentSourceLang = rawPost.sourceLang;
 
   const [
-    { title: translatedTitle, description: translatedDesc, category: translatedCategory },
+    {
+      title: translatedTitle,
+      description: translatedDesc,
+      category: translatedCategory,
+    },
     translatedContent,
   ] = await Promise.all([
     translateFields(
@@ -159,7 +200,11 @@ export default async function BlogPostPage({ params }: Props) {
     rawRelated.map(async (p) => ({
       ...p,
       title: await translateOnDemand(p.title, locale, contentSourceLang),
-      description: await translateOnDemand(p.description, locale, contentSourceLang),
+      description: await translateOnDemand(
+        p.description,
+        locale,
+        contentSourceLang,
+      ),
     })),
   );
 
