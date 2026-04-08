@@ -52,6 +52,7 @@ export async function getAllPostsDB(): Promise<(BlogPost & { sourceLang: string 
 
 export async function getPostBySlugDB(
   slug: string,
+  _locale?: string,
 ): Promise<(BlogPost & { sourceLang: string }) | null> {
   const supabase = getSupabase();
   const { data, error } = await supabase
