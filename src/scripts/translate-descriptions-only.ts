@@ -115,7 +115,7 @@ async function main() {
       const result = await translateWithClaude(desc, lang);
       if (result) {
         await supabase.from("translation_cache").upsert(
-          { source_text_hash: hash, source_lang: "ro", target_lang: lang, translated_text: result },
+          [{ source_text_hash: hash, source_lang: "ro", target_lang: lang, translated_text: result }],
           { onConflict: "source_text_hash,target_lang", defaultToNull: false },
         );
         translated++;
