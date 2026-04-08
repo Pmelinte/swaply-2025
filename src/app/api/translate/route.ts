@@ -5,7 +5,6 @@ import { requestLogger } from "@/lib/logger";
 import { getServiceSupabase } from "@/lib/supabase/service";
 import { getServerSupabase } from "@/lib/supabase/server";
 import { createHash } from "crypto";
-import { translateText } from "@/lib/translate";
 
 function hashText(text: string, targetLang: string): string {
   return createHash("sha256").update(`${text}::${targetLang}`).digest("hex");
@@ -36,29 +35,6 @@ async function getCachedTranslation(
   }
 }
 
-/** Cache a translation in Supabase */
-async function cacheTranslation(
-  textHash: string,
-  sourceLang: string,
-  targetLang: string,
-  translatedText: string,
-): Promise<void> {
-  const supabase = await getSupabase();
-  if (!supabase) return;
-  try {
-    await supabase.from("translation_cache").upsert(
-      {
-        source_text_hash: textHash,
-        source_lang: sourceLang,
-        target_lang: targetLang,
-        translated_text: translatedText,
-      },
-      { onConflict: "source_text_hash,target_lang" },
-    );
-  } catch {
-    // Cache write is best-effort
-  }
-}
 
 export async function POST(request: Request) {
   const ip = getClientIp(request);
@@ -92,12 +68,7 @@ export async function POST(request: Request) {
     });
   }
 
-  // ── Translate via Claude Haiku ────────────────────────────────────
-  const result = await translateText(text, to, from);
-  if (result) {
-    void cacheTranslation(textHash, from, to, result);
-    return NextResponse.json({ translated: result, status: "ok" });
-  }
-
+  // ── On-demand translation via API is temporarily disabled. ────────
+  //    Return original text when no cached translation exists.
   return NextResponse.json({ translated: text, status: "fallback" });
 }

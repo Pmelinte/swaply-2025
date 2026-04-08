@@ -3,7 +3,6 @@ import "server-only";
 import { createHash } from "crypto";
 import { getServiceSupabase } from "@/lib/supabase/service";
 import { getServerSupabase } from "@/lib/supabase/server";
-import { translateText } from "@/lib/translate";
 
 /** Get a Supabase client — prefer service role, fall back to server (anon) */
 async function getSupabase() {
@@ -51,29 +50,9 @@ export async function translateOnDemand(
     }
   }
 
-  // 2. Translate via Claude Haiku
-  const translated = await translateText(text, targetLang, sourceLang);
-  if (!translated) return text; // Fallback to original
-
-  // 3. Store in cache (fire-and-forget)
-  if (supabase) {
-    supabase
-      .from("translation_cache")
-      .upsert(
-        {
-          source_text_hash: hash,
-          source_lang: sourceLang,
-          target_lang: targetLang,
-          translated_text: translated,
-        },
-        { onConflict: "source_text_hash,target_lang" },
-      )
-      .then(({ error }) => {
-        if (error) console.error("[translateOnDemand] cache write error:", error.message);
-      });
-  }
-
-  return translated;
+  // 2. On-demand translation via API is temporarily disabled.
+  //    Return original text when no cached translation exists.
+  return text;
 }
 
 /**
