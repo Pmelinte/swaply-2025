@@ -1,6 +1,9 @@
 /**
  * One-time migration script: MDX files → Supabase blog_posts table
- * 
+ *
+ * Reads English .mdx files from src/content/blog/ (root, NOT the ro/ subfolder)
+ * and upserts into blog_posts with locale="en".
+ *
  * Run via GitHub Actions or locally with:
  *   SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... node scripts/migrate-blog-to-supabase.mjs
  */
@@ -26,7 +29,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 function parseFrontmatter(content) {
   const match = content.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
   if (!match) throw new Error("No frontmatter found");
-  
+
   const frontmatter = {};
   const lines = match[1].split("\n");
   let currentKey = null;
@@ -47,7 +50,7 @@ function parseFrontmatter(content) {
     if (colonIdx === -1) continue;
     const key = line.substring(0, colonIdx).trim();
     const value = line.substring(colonIdx + 1).trim();
-    
+
     if (value === "" || value === "[]") {
       currentKey = key;
       inArray = true;
@@ -67,10 +70,25 @@ function parseFrontmatter(content) {
 }
 
 async function migrate() {
-  const blogDir = join(__dirname, "../src/content/blog/ro");
-  const files = readdirSync(blogDir).filter((f) => f.endsWith(".mdx"));
+  // 1. Delete all existing rows
+  console.log("Deleting existing blog_posts rows...");
+  const { error: delError } = await supabase
+    .from("blog_posts")
+    .delete()
+    .neq("id", "00000000-0000-0000-0000-000000000000");
+  if (delError) {
+    console.error("Delete failed:", delError.message);
+    process.exit(1);
+  }
+  console.log("  Done.\n");
 
-  console.log(`Found ${files.length} MDX files to migrate`);
+  // 2. Read English .mdx files from root blog dir (NOT the ro/ subfolder)
+  const blogDir = join(__dirname, "../src/content/blog");
+  const files = readdirSync(blogDir).filter(
+    (f) => f.endsWith(".mdx") // only root-level .mdx, not subdirectories
+  );
+
+  console.log(`Found ${files.length} English MDX files to migrate`);
 
   let success = 0;
   let errors = 0;
@@ -84,7 +102,7 @@ async function migrate() {
 
       const record = {
         slug,
-        locale: "ro",
+        locale: "en",
         title: frontmatter.title || slug,
         description: frontmatter.description || null,
         content_md: body,

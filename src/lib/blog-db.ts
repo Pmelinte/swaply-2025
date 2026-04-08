@@ -1,15 +1,19 @@
 /**
  * blog-db.ts — Supabase-backed blog functions.
  * Drop-in replacement for blog.ts (same return types).
+ *
+ * All queries use locale="en" (English source).
+ * sourceLang is hardcoded to "en" so translateOnDemand translates from English.
  */
 import { createClient } from "@supabase/supabase-js";
 import readingTime from "reading-time";
 import type { BlogPost } from "./blog";
 
 function getSupabase() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY
-    ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+    ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) return null;
   return createClient(url, key);
 }
 
@@ -27,17 +31,17 @@ function mapRow(row: Record<string, unknown>): BlogPost & { sourceLang: string }
     seoKeyword: String(row.slug ?? ""),
     readingTime: readingTime(content).text,
     content,
-    sourceLang: String(row.locale ?? "ro"),
+    sourceLang: "en",
   };
 }
 
-export async function getAllPostsDB(locale?: string): Promise<(BlogPost & { sourceLang: string })[]> {
+export async function getAllPostsDB(_locale?: string): Promise<(BlogPost & { sourceLang: string })[]> {
   const supabase = getSupabase();
-  // Always fetch Romanian source — translateOnDemand handles other locales at render
+  if (!supabase) return [];
   const { data, error } = await supabase
     .from("blog_posts")
     .select("*")
-    .eq("locale", "ro")
+    .eq("locale", "en")
     .eq("published", true)
     .order("date", { ascending: false });
 
@@ -53,11 +57,12 @@ export async function getPostBySlugDB(
   _locale?: string,
 ): Promise<(BlogPost & { sourceLang: string }) | null> {
   const supabase = getSupabase();
+  if (!supabase) return null;
   const { data, error } = await supabase
     .from("blog_posts")
     .select("*")
     .eq("slug", slug)
-    .eq("locale", "ro")
+    .eq("locale", "en")
     .eq("published", true)
     .maybeSingle();
 
@@ -73,10 +78,11 @@ export async function getPostsByCategoryDB(
   category: string,
 ): Promise<(BlogPost & { sourceLang: string })[]> {
   const supabase = getSupabase();
+  if (!supabase) return [];
   const { data, error } = await supabase
     .from("blog_posts")
     .select("*")
-    .eq("locale", "ro")
+    .eq("locale", "en")
     .eq("published", true)
     .ilike("category", category)
     .order("date", { ascending: false });
