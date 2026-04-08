@@ -34,7 +34,7 @@ function mapRow(row: Record<string, unknown>): BlogPost & { sourceLang: string }
   };
 }
 
-export async function getAllPostsDB(): Promise<(BlogPost & { sourceLang: string })[]> {
+export async function getAllPostsDB(_locale?: string): Promise<(BlogPost & { sourceLang: string })[]> {
   const supabase = getSupabase();
   const { data, error } = await supabase
     .from("blog_posts")
