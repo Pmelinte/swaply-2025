@@ -1,16 +1,14 @@
 import "server-only";
 
 import { createHash } from "crypto";
+import { after } from "next/server";
 import { getServiceSupabase } from "@/lib/supabase/service";
 import { getServerSupabase } from "@/lib/supabase/server";
+import { translateText } from "@/lib/translate";
 
 /** Get a Supabase client — prefer service role, fall back to server (anon) */
 async function getSupabase() {
-  const svc = getServiceSupabase();
-  if (!svc) {
-    console.warn("[translateOnDemand] SUPABASE_SERVICE_ROLE_KEY not set — falling back to anon client");
-  }
-  return svc ?? (await getServerSupabase());
+  return getServiceSupabase() ?? (await getServerSupabase());
 }
 
 function hashText(text: string, targetLang: string): string {
@@ -41,26 +39,50 @@ export async function translateOnDemand(
   // 1. Check cache
   if (supabase) {
     try {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from("translation_cache")
         .select("translated_text")
         .eq("source_text_hash", hash)
         .eq("target_lang", targetLang)
         .maybeSingle();
 
-      if (error) {
-        console.error("[translateOnDemand] cache read error:", error.message);
-      } else if (data?.translated_text) {
-        return data.translated_text;
-      }
-    } catch (err) {
-      console.error("[translateOnDemand] cache read exception:", err);
+      if (data?.translated_text) return data.translated_text;
+    } catch {
+      // Cache read failed — continue to translate
     }
   }
 
   // 2. On-demand translation via API is temporarily disabled.
-  //    Return original text when no cached translation exists.
+  //    Remove this early return to re-enable Claude Haiku translation.
   return text;
+
+  // 3. Translate via Claude Haiku
+  const translated = await translateText(text, targetLang, sourceLang);
+  if (!translated) return text; // Fallback to original
+
+  // 4. Store in cache — runs after the response is sent so Vercel
+  //    does not kill the lambda before the write completes.
+  //    `defaultToNull: false` sends Prefer: missing=default so PostgREST
+  //    uses gen_random_uuid() for the PK instead of null, allowing the
+  //    ON CONFLICT on (source_text_hash, target_lang) to work correctly.
+  if (supabase) {
+    after(async () => {
+      const { error } = await supabase
+        .from("translation_cache")
+        .upsert(
+          {
+            source_text_hash: hash,
+            source_lang: sourceLang,
+            target_lang: targetLang,
+            translated_text: translated,
+          },
+          { onConflict: "source_text_hash,target_lang", defaultToNull: false },
+        );
+      if (error) console.error("[translateOnDemand] cache write error:", error.message);
+    });
+  }
+
+  return translated;
 }
 
 /**

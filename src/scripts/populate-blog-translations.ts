@@ -276,7 +276,7 @@ async function main() {
 
         const { error: upsertErr } = await supabase
           .from("translation_cache")
-          .upsert(rows, { onConflict: "source_text_hash,target_lang" });
+          .upsert(rows, { onConflict: "source_text_hash,target_lang", defaultToNull: false });
 
         if (upsertErr) {
           console.error(`  Upsert error: ${upsertErr.message}`);
