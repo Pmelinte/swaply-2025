@@ -192,7 +192,7 @@ export default async function BlogPostPage({ params }: Props) {
 
   const headings = extractHeadings(post.content);
 
-  const rawRelated = (await getPostsByCategoryDB(rawpost.category))
+  const rawRelated = (await getPostsByCategoryDB(rawPost.category))
     .filter((p) => p.slug !== slug)
     .slice(0, 3);
 
