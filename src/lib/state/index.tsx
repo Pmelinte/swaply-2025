@@ -627,7 +627,7 @@ export function AppStateProvider({ children, initialLocale }: { children: ReactN
           .eq("is_active", true)
           .eq("status", "active")
           .order("created_at", { ascending: false })
-          .limit(100);
+          .limit(2000);
         if (publicItems) {
           const mapped = publicItems.map(mapItem);
           // Mark boosted items for guest view
