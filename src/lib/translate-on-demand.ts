@@ -1,10 +1,10 @@
 import "server-only";
 
 import { createHash } from "crypto";
-// import { after } from "next/server";
+import { after } from "next/server";
 import { getServiceSupabase } from "@/lib/supabase/service";
 import { getServerSupabase } from "@/lib/supabase/server";
-// import { translateText } from "@/lib/translate";
+import { translateText } from "@/lib/translate";
 
 /** Get a Supabase client — prefer service role, fall back to server (anon) */
 async function getSupabase() {
@@ -18,13 +18,10 @@ function hashText(text: string, targetLang: string): string {
 /**
  * Translate a text string on demand with caching.
  *
- * Currently on-demand translation is disabled — returns the original text
- * when no cached translation exists (does not call the Anthropic API).
- *
- * To re-enable:
- *  1. Uncomment the `after` and `translateText` imports above.
- *  2. Uncomment the "Translate via Claude Haiku" block below.
- *  3. Remove the `return text` early-exit.
+ * 1. Check translation_cache for an existing translation.
+ * 2. If not found, call Claude Haiku via translateText().
+ * 3. Store the result in translation_cache for future requests.
+ * 4. Returns the original text if translation fails or locale matches source.
  *
  * Safe to call from Server Components — uses service role Supabase.
  */
@@ -55,38 +52,35 @@ export async function translateOnDemand(
     }
   }
 
-  // 2. On-demand translation via API is temporarily disabled.
-  return text;
+  // 2. Translate via Claude Haiku
+  const translated = await translateText(text, targetLang, sourceLang);
+  if (!translated) return text;
 
-  // ---------- RE-ENABLE BLOCK (uncomment when ready) ----------
-  // // 3. Translate via Claude Haiku
-  // const translated = await translateText(text, targetLang, sourceLang);
-  // if (!translated) return text;
-  //
-  // // 4. Store in cache — runs after the response is sent so Vercel
-  // //    does not kill the lambda before the write completes.
-  // //    `defaultToNull: false` sends Prefer: missing=default so PostgREST
-  // //    uses gen_random_uuid() for the PK instead of null, allowing the
-  // //    ON CONFLICT on (source_text_hash, target_lang) to work correctly.
-  // if (supabase) {
-  //   after(async () => {
-  //     const { error } = await supabase
-  //       .from("translation_cache")
-  //       .upsert(
-  //         {
-  //           source_text_hash: hash,
-  //           source_lang: sourceLang,
-  //           target_lang: targetLang,
-  //           translated_text: translated,
-  //         },
-  //         { onConflict: "source_text_hash,target_lang", defaultToNull: false },
-  //       );
-  //     if (error) console.error("[translateOnDemand] cache write error:", error.message);
-  //   });
-  // }
-  //
-  // return translated;
-  // ---------- END RE-ENABLE BLOCK ----------
+  // 3. Store in cache — runs after the response is sent so Vercel
+  //    does not kill the lambda before the write completes.
+  //    `defaultToNull: false` sends Prefer: missing=default so PostgREST
+  //    uses gen_random_uuid() for the PK instead of null, allowing the
+  //    ON CONFLICT on (source_text_hash, target_lang) to work correctly.
+  if (supabase) {
+    after(async () => {
+      const { error } = await supabase
+        .from("translation_cache")
+        .upsert(
+          [
+            {
+              source_text_hash: hash,
+              source_lang: sourceLang,
+              target_lang: targetLang,
+              translated_text: translated,
+            },
+          ],
+          { onConflict: "source_text_hash,target_lang", defaultToNull: false },
+        );
+      if (error) console.error("[translateOnDemand] cache write error:", error.message);
+    });
+  }
+
+  return translated;
 }
 
 /**
