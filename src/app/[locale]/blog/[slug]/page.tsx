@@ -4,86 +4,65 @@ import { locales } from "@/i18n/config";
 import Script from "next/script";
 import { notFound } from "next/navigation";
 import { translateFields, translateOnDemand } from "@/lib/translate-on-demand";
-
-export const revalidate = 3600;
-
-/**
- * Translate full article body by splitting into paragraphs,
- * translating each individually (cached by hash), then rejoining.
- */
-async function translateContent(
-  content: string,
-  targetLang: string,
-  sourceLang = "en",
-): Promise<string> {
-  if (targetLang === sourceLang) return content;
-
-  // Split into individual lines to handle lists, blockquotes, etc.
-  const lines = content.split(/\n/);
-  const translated = await Promise.all(
-    lines.map((line) => {
-      const trimmed = line.trim();
-      if (!trimmed) return Promise.resolve("");
-      // Skip code blocks, HTML, markdown images, and horizontal rules
-      if (trimmed.startsWith("```") || trimmed.startsWith("<") || trimmed.startsWith("![") || trimmed === "---") {
-        return Promise.resolve(line);
-      }
-      // Preserve leading whitespace/markdown markers, translate the text part
-      const leadingMatch = line.match(/^(\s*(?:[-*>]+\s*)?)/);
-      const leading = leadingMatch ? leadingMatch[1] : "";
-      const textPart = line.slice(leading.length);
-      if (!textPart.trim()) return Promise.resolve(line);
-      return translateOnDemand(textPart, targetLang, sourceLang).then((t) => leading + t);
-    }),
-  );
-  return translated.join("\n");
-}
-
-/**
- * Translate table-of-contents heading texts.
- */
-async function translateHeadings(
-  headings: Array<{ level: 2 | 3; text: string; id: string }>,
-  targetLang: string,
-  sourceLang = "en",
-): Promise<Array<{ level: 2 | 3; text: string; id: string }>> {
-  if (targetLang === sourceLang || headings.length === 0) return headings;
-
-  const texts = await Promise.all(
-    headings.map((h) => translateOnDemand(h.text, targetLang, sourceLang)),
-  );
-  return headings.map((h, i) => ({ ...h, text: texts[i] }));
-}
+import { getPostBySlugDB, getPostsByCategoryDB } from "@/lib/blog-db";
+import { extractHeadings } from "@/lib/blog";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { ArrowLeft, Calendar, Clock, Tag, User } from "lucide-react";
-import {
-  getAllPosts,
-  getPostBySlug,
-  getPostsByCategory,
-  extractHeadings,
-} from "@/lib/blog";
 import { TableOfContents } from "@/components/blog/TableOfContents";
 import { BlogShareButtons } from "@/components/blog/BlogShareButtons";
 import { AuthorCard } from "@/components/blog/AuthorCard";
 import { RelatedPosts } from "@/components/blog/RelatedPosts";
-
 import { getTranslations } from "next-intl/server";
+
+export const revalidate = 3600;
+export const dynamicParams = true;
 
 interface Props {
   params: Promise<{ locale: string; slug: string }>;
 }
 
-export const dynamicParams = true;
+async function translateContent(
+  content: string,
+  targetLang: string,
+  sourceLang = "ro",
+): Promise<string> {
+  if (targetLang === sourceLang) return content;
+  const lines = content.split(/\n/);
+  const translated = await Promise.all(
+    lines.map((line) => {
+      const trimmed = line.trim();
+      if (!trimmed) return Promise.resolve("");
+      if (
+        trimmed.startsWith("```") ||
+        trimmed.startsWith("<") ||
+        trimmed.startsWith("![") ||
+        trimmed === "---"
+      ) {
+        return Promise.resolve(line);
+      }
+      const leadingMatch = line.match(/^(\s*(?:[-*>]+\s*)?)/);
+      const leading = leadingMatch ? leadingMatch[1] : "";
+      const textPart = line.slice(leading.length);
+      if (!textPart.trim()) return Promise.resolve(line);
+      return translateOnDemand(textPart, targetLang, sourceLang).then(
+        (t) => leading + t,
+      );
+    }),
+  );
+  return translated.join("\n");
+}
 
 export async function generateStaticParams() {
-  // Only pre-render posts for ro + en; other locales generated on demand
-  return getAllPosts().slice(0, 10).map((post) => ({ slug: post.slug }));
+  // Pre-render primele 10 articole la build time
+  const { getAllPostsDB } = await import("@/lib/blog-db");
+  const posts = await getAllPostsDB();
+  return posts.slice(0, 10).map((post) => ({ slug: post.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
-  const post = getPostBySlug(slug, locale);
   const t = await getTranslations({ locale, namespace: "blog" });
+  const post = await getPostBySlugDB(slug, locale);
   if (!post) return { title: t("articleNotFound") };
 
   return {
@@ -110,21 +89,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     alternates: {
       canonical: `https://www.swaply.world/en/blog/${slug}`,
       languages: Object.fromEntries([
-        ...locales.map((loc) => [loc, `https://www.swaply.world/${loc}/blog/${slug}`]),
+        ...locales.map((loc) => [
+          loc,
+          `https://www.swaply.world/${loc}/blog/${slug}`,
+        ]),
         ["x-default", `https://www.swaply.world/en/blog/${slug}`],
       ]),
     },
   };
 }
 
-/** Custom MDX components that add IDs to headings for TOC linking */
 function createHeadingComponent(level: 2 | 3) {
   const Tag = level === 2 ? "h2" : "h3";
-  return function HeadingComponent({
-    children,
-  }: {
-    children?: React.ReactNode;
-  }) {
+  return function HeadingComponent({ children }: { children?: React.ReactNode }) {
     const text = String(children ?? "");
     const id = text
       .toLowerCase()
@@ -142,20 +119,22 @@ const mdxComponents = {
 export default async function BlogPostPage({ params }: Props) {
   const { locale, slug } = await params;
   const t = await getTranslations({ locale, namespace: "blog" });
-  const rawPost = getPostBySlug(slug, locale);
+
+  const rawPost = await getPostBySlugDB(slug, locale);
   if (!rawPost) notFound();
 
-  // Determine actual source language of loaded content
-  // (ro/ folder = Romanian, root = English)
   const contentSourceLang = rawPost.sourceLang;
 
-  // On-demand translation — skip if content is already in the target locale
   const [
     { title: translatedTitle, description: translatedDesc, category: translatedCategory },
     translatedContent,
   ] = await Promise.all([
     translateFields(
-      { title: rawPost.title, description: rawPost.description, category: rawPost.category },
+      {
+        title: rawPost.title,
+        description: rawPost.description,
+        category: rawPost.category,
+      },
       locale,
       contentSourceLang,
     ),
@@ -170,19 +149,17 @@ export default async function BlogPostPage({ params }: Props) {
     content: translatedContent,
   };
 
-  // Extract headings from the already-translated content — no separate translation needed
   const headings = extractHeadings(post.content);
 
-  const rawRelated = getPostsByCategory(post.category)
+  const rawRelated = (await getPostsByCategoryDB(post.category))
     .filter((p) => p.slug !== slug)
     .slice(0, 3);
 
-  // Translate related post titles server-side
   const related = await Promise.all(
     rawRelated.map(async (p) => ({
       ...p,
-      title: await translateOnDemand(p.title, locale, "en"),
-      description: await translateOnDemand(p.description, locale, "en"),
+      title: await translateOnDemand(p.title, locale, contentSourceLang),
+      description: await translateOnDemand(p.description, locale, contentSourceLang),
     })),
   );
 
@@ -205,7 +182,6 @@ export default async function BlogPostPage({ params }: Props) {
         strategy="lazyOnload"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
       />
-      {/* Back nav */}
       <Link
         href="/blog"
         className="inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
@@ -214,14 +190,13 @@ export default async function BlogPostPage({ params }: Props) {
         {t("backToBlog")}
       </Link>
 
-      {/* Header */}
       <header className="space-y-4">
         <Link
           href={`/blog/category/${encodeURIComponent(post.category)}`}
           className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 transition hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50"
         >
           <Tag className="h-3 w-3" />
-          {t(rawPost.category.toLowerCase())}
+          {t(rawPost.category.toLowerCase() as Parameters<typeof t>[0])}
         </Link>
 
         <h1 className="text-3xl font-bold leading-tight text-zinc-900 dark:text-zinc-50 sm:text-4xl">
@@ -250,7 +225,6 @@ export default async function BlogPostPage({ params }: Props) {
         <BlogShareButtons title={post.title} slug={post.slug} />
       </header>
 
-      {/* Cover image */}
       {post.coverImage && (
         <img
           src={post.coverImage}
@@ -259,15 +233,12 @@ export default async function BlogPostPage({ params }: Props) {
         />
       )}
 
-      {/* Table of Contents */}
       {headings.length > 2 && <TableOfContents headings={headings} />}
 
-      {/* MDX content */}
       <article className="prose prose-zinc max-w-none dark:prose-invert prose-headings:font-bold prose-headings:tracking-tight prose-h2:text-2xl prose-h3:text-xl prose-p:leading-relaxed prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline prose-img:rounded-xl prose-pre:rounded-xl prose-pre:bg-zinc-900 prose-pre:text-zinc-100 dark:prose-a:text-blue-400 dark:prose-pre:bg-zinc-800">
         <MDXRemote source={post.content} components={mdxComponents} />
       </article>
 
-      {/* Tags */}
       {post.tags.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {post.tags.map((tag) => (
@@ -281,13 +252,9 @@ export default async function BlogPostPage({ params }: Props) {
         </div>
       )}
 
-      {/* Author card */}
       <AuthorCard />
-
-      {/* Related posts */}
       <RelatedPosts posts={related} />
 
-      {/* CTA */}
       <div className="rounded-2xl border border-green-200 bg-green-50/50 p-6 text-center dark:border-green-800 dark:bg-green-950/30">
         <p className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
           {t("ctaTitle")}
