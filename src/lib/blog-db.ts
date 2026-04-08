@@ -10,9 +10,10 @@ import readingTime from "reading-time";
 import type { BlogPost } from "./blog";
 
 function getSupabase() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY
-    ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+    ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) return null;
   return createClient(url, key);
 }
 
@@ -36,6 +37,7 @@ function mapRow(row: Record<string, unknown>): BlogPost & { sourceLang: string }
 
 export async function getAllPostsDB(_locale?: string): Promise<(BlogPost & { sourceLang: string })[]> {
   const supabase = getSupabase();
+  if (!supabase) return [];
   const { data, error } = await supabase
     .from("blog_posts")
     .select("*")
@@ -55,6 +57,7 @@ export async function getPostBySlugDB(
   _locale?: string,
 ): Promise<(BlogPost & { sourceLang: string }) | null> {
   const supabase = getSupabase();
+  if (!supabase) return null;
   const { data, error } = await supabase
     .from("blog_posts")
     .select("*")
@@ -75,6 +78,7 @@ export async function getPostsByCategoryDB(
   category: string,
 ): Promise<(BlogPost & { sourceLang: string })[]> {
   const supabase = getSupabase();
+  if (!supabase) return [];
   const { data, error } = await supabase
     .from("blog_posts")
     .select("*")
