@@ -3,7 +3,8 @@
 import { useRouter, usePathname, Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { useState, useRef, useEffect, useCallback } from "react";
-import { ChevronDown, LogOut, Globe, Search, User, Settings } from "lucide-react";
+import { ChevronDown, LogOut, Globe, Search, User, Settings, Menu } from "lucide-react";
+import { SideDrawer } from "@/components/layout/SideDrawer";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,6 +40,7 @@ export function TopBar() {
   const pathname = usePathname();
   const { user, logout, language, setLanguage } = useAppState();
 
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const [langSearch, setLangSearch] = useState("");
@@ -131,8 +133,16 @@ export function TopBar() {
   return (
     <div className="sticky top-0 z-20 border-b border-zinc-200 bg-white/90 backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/80">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2">
-        {/* Left: Logo + Country/Language */}
+        {/* Left: Hamburger + Logo + Country/Language */}
         <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setDrawerOpen(true)}
+            className="inline-flex items-center justify-center rounded-lg p-1.5 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+            aria-label="Open menu"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
           <Link href="/" className="flex items-center gap-2" title="Swaply">
             <Image src="/logo-swaply.svg" alt="Swaply" width={28} height={28} className="h-7 w-7" priority />
             <span className="hidden text-lg font-bold text-zinc-900 dark:text-zinc-50 sm:inline">Swaply</span>
@@ -288,6 +298,8 @@ export function TopBar() {
           )}
         </div>
       </div>
+
+      <SideDrawer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} />
     </div>
   );
 }
