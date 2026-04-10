@@ -2597,7 +2597,8 @@
   "footer": {
     "about": "Dwar",
     "pricing": "Prezzar",
-    "activeCities": "Active cities:"
+    "activeCities": "Active cities:",
+    "exploreByCity": "Esplora skont il-belt"
   },
   "onboardingBanner": {
     "welcome": "Merħba f'Swaply!",

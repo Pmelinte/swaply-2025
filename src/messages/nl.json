@@ -2597,7 +2597,8 @@
   "footer": {
     "about": "Over",
     "pricing": "Prijzen",
-    "activeCities": "Active cities:"
+    "activeCities": "Active cities:",
+    "exploreByCity": "Verken per stad"
   },
   "onboardingBanner": {
     "welcome": "Welkom bij Swaply!",

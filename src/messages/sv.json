@@ -2810,7 +2810,8 @@
   "footer": {
     "about": "Om",
     "pricing": "Prissättning",
-    "activeCities": "Active cities:"
+    "activeCities": "Active cities:",
+    "exploreByCity": "Utforska efter stad"
   },
   "onboardingBanner": {
     "welcome": "Välkommen till Swaply!",

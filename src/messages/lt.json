@@ -2597,7 +2597,8 @@
   "footer": {
     "about": "Apie",
     "pricing": "Kainodara",
-    "activeCities": "Active cities:"
+    "activeCities": "Active cities:",
+    "exploreByCity": "Naršyti pagal miestą"
   },
   "onboardingBanner": {
     "welcome": "Sveiki į Swaply!",

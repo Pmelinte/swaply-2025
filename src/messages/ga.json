@@ -2597,7 +2597,8 @@
   "footer": {
     "about": "Maidir leis",
     "pricing": "Praghsáil",
-    "activeCities": "Active cities:"
+    "activeCities": "Active cities:",
+    "exploreByCity": "Déan iniúchadh de réir cathrach"
   },
   "onboardingBanner": {
     "welcome": "Fáilte go Swaply!",

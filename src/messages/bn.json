@@ -2597,7 +2597,8 @@
   "footer": {
     "about": "সম্পর্কে",
     "pricing": "মূল্য নির্ধারণ",
-    "activeCities": "Active cities:"
+    "activeCities": "Active cities:",
+    "exploreByCity": "শহর অনুসারে অন্বেষণ করুন"
   },
   "onboardingBanner": {
     "welcome": "Swaply-তে স্বাগতম!",

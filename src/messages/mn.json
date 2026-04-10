@@ -2597,7 +2597,8 @@
   "footer": {
     "about": "Тухайн",
     "pricing": "Үнэ төлөлт",
-    "activeCities": "Active cities:"
+    "activeCities": "Active cities:",
+    "exploreByCity": "Хотоор хайх"
   },
   "onboardingBanner": {
     "welcome": "Swaply-д тавтай морилно уу!",

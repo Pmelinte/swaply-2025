@@ -2597,7 +2597,8 @@
   "footer": {
     "about": "정보",
     "pricing": "요금",
-    "activeCities": "Active cities:"
+    "activeCities": "Active cities:",
+    "exploreByCity": "도시별 탐색"
   },
   "onboardingBanner": {
     "welcome": "Swaply에 오신 것을 환영합니다!",

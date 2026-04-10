@@ -2597,7 +2597,8 @@
   "footer": {
     "about": "حول",
     "pricing": "التسعير",
-    "activeCities": "Active cities:"
+    "activeCities": "Active cities:",
+    "exploreByCity": "استكشف حسب المدينة"
   },
   "onboardingBanner": {
     "welcome": "مرحباً بك في Swaply!",

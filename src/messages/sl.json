@@ -2597,7 +2597,8 @@
   "footer": {
     "about": "O aplikaciji",
     "pricing": "Cenovna politika",
-    "activeCities": "Active cities:"
+    "activeCities": "Active cities:",
+    "exploreByCity": "Raziščite po mestu"
   },
   "onboardingBanner": {
     "welcome": "Dobrodošli v Swaply!",

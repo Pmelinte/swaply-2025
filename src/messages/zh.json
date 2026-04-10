@@ -2597,7 +2597,8 @@
   "footer": {
     "about": "关于",
     "pricing": "定价",
-    "activeCities": "Active cities:"
+    "activeCities": "Active cities:",
+    "exploreByCity": "按城市浏览"
   },
   "onboardingBanner": {
     "welcome": "欢迎来到Swaply!",

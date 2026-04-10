@@ -2597,7 +2597,8 @@
   "footer": {
     "about": "Tentang",
     "pricing": "Harga",
-    "activeCities": "Active cities:"
+    "activeCities": "Active cities:",
+    "exploreByCity": "Terokai mengikut bandar"
   },
   "onboardingBanner": {
     "welcome": "Selamat datang ke Swaply!",

@@ -2597,7 +2597,8 @@
   "footer": {
     "about": "À propos",
     "pricing": "Tarification",
-    "activeCities": "Active cities:"
+    "activeCities": "Active cities:",
+    "exploreByCity": "Explorer par ville"
   },
   "onboardingBanner": {
     "welcome": "Bienvenue sur Swaply !",

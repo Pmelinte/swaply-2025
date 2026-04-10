@@ -2597,7 +2597,8 @@
   "footer": {
     "about": "Hakkında",
     "pricing": "Fiyatlandırma",
-    "activeCities": "Active cities:"
+    "activeCities": "Active cities:",
+    "exploreByCity": "Şehre göre keşfet"
   },
   "onboardingBanner": {
     "welcome": "Swaply'ye hoşgeldiniz!",

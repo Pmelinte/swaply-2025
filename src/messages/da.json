@@ -2597,7 +2597,8 @@
   "footer": {
     "about": "Om",
     "pricing": "Prissætning",
-    "activeCities": "Active cities:"
+    "activeCities": "Active cities:",
+    "exploreByCity": "Udforsk efter by"
   },
   "onboardingBanner": {
     "welcome": "Velkommen til Swaply!",

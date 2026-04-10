@@ -2597,7 +2597,8 @@
   "footer": {
     "about": "Om",
     "pricing": "Priser",
-    "activeCities": "Active cities:"
+    "activeCities": "Active cities:",
+    "exploreByCity": "Utforsk etter by"
   },
   "onboardingBanner": {
     "welcome": "Velkommen til Swaply!",

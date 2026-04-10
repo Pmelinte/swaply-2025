@@ -2597,7 +2597,8 @@
   "footer": {
     "about": "Tungkol sa",
     "pricing": "Presyo",
-    "activeCities": "Active cities:"
+    "activeCities": "Active cities:",
+    "exploreByCity": "Mag-explore ayon sa lungsod"
   },
   "onboardingBanner": {
     "welcome": "Maligayang pagdating sa Swaply!",

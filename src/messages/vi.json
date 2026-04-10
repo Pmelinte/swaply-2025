@@ -2597,7 +2597,8 @@
   "footer": {
     "about": "Giới thiệu",
     "pricing": "Bảng giá",
-    "activeCities": "Active cities:"
+    "activeCities": "Active cities:",
+    "exploreByCity": "Khám phá theo thành phố"
   },
   "onboardingBanner": {
     "welcome": "Chào mừng đến với Swaply!",

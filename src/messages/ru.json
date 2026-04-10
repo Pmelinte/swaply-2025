@@ -2597,7 +2597,8 @@
   "footer": {
     "about": "О приложении",
     "pricing": "Цены",
-    "activeCities": "Active cities:"
+    "activeCities": "Active cities:",
+    "exploreByCity": "Искать по городу"
   },
   "onboardingBanner": {
     "welcome": "Добро пожаловать в Swaply!",

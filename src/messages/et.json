@@ -2597,7 +2597,8 @@
   "footer": {
     "about": "Teave",
     "pricing": "Hinnakirjad",
-    "activeCities": "Active cities:"
+    "activeCities": "Active cities:",
+    "exploreByCity": "Avasta linna järgi"
   },
   "onboardingBanner": {
     "welcome": "Tere tulemast Swaplyle!",

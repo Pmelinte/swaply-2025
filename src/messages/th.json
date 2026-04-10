@@ -2597,7 +2597,8 @@
   "footer": {
     "about": "เกี่ยวกับ",
     "pricing": "ราคา",
-    "activeCities": "Active cities:"
+    "activeCities": "Active cities:",
+    "exploreByCity": "สำรวจตามเมือง"
   },
   "onboardingBanner": {
     "welcome": "ยินดีต้อนรับสู่ Swaply!",

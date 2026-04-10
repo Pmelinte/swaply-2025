@@ -2597,7 +2597,8 @@
   "footer": {
     "about": "について",
     "pricing": "価格設定",
-    "activeCities": "Active cities:"
+    "activeCities": "Active cities:",
+    "exploreByCity": "都市別に探す"
   },
   "onboardingBanner": {
     "welcome": "Swapyへようこそ！",

@@ -2597,7 +2597,8 @@
   "footer": {
     "about": "Σχετικά",
     "pricing": "Τιμολόγηση",
-    "activeCities": "Active cities:"
+    "activeCities": "Active cities:",
+    "exploreByCity": "Εξερεύνηση ανά πόλη"
   },
   "onboardingBanner": {
     "welcome": "Καλώς ήρθατε στο Swaply!",

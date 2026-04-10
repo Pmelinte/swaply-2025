@@ -2597,7 +2597,8 @@
   "footer": {
     "about": "За нас",
     "pricing": "Ценообразуване",
-    "activeCities": "Active cities:"
+    "activeCities": "Active cities:",
+    "exploreByCity": "Разгледай по град"
   },
   "onboardingBanner": {
     "welcome": "Добре дошли в Swaply!",

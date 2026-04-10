@@ -2597,7 +2597,8 @@
   "footer": {
     "about": "O nama",
     "pricing": "Cene",
-    "activeCities": "Active cities:"
+    "activeCities": "Active cities:",
+    "exploreByCity": "Istražite po gradu"
   },
   "onboardingBanner": {
     "welcome": "Dobrodošli u Swaply!",

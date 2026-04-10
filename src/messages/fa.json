@@ -2597,7 +2597,8 @@
   "footer": {
     "about": "درباره",
     "pricing": "قیمت‌گذاری",
-    "activeCities": "Active cities:"
+    "activeCities": "Active cities:",
+    "exploreByCity": "جستجو بر اساس شهر"
   },
   "onboardingBanner": {
     "welcome": "خوش آمدید به اسوپلای!",

@@ -2597,7 +2597,8 @@
   "footer": {
     "about": "Rólunk",
     "pricing": "Árazás",
-    "activeCities": "Active cities:"
+    "activeCities": "Active cities:",
+    "exploreByCity": "Felfedezés város szerint"
   },
   "onboardingBanner": {
     "welcome": "Üdvözlünk a Swaplyben!",
