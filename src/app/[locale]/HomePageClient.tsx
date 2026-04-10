@@ -29,12 +29,25 @@ const BRANCH_CARDS = [
   { href: "/events",     emoji: "🎫", label: "events",      desc: "eventsDesc",      bg: "#FAEEDA", anim: "home-card-br" },
 ] as const;
 
+const CITIES = [
+  { slug: "london", name: "London" },
+  { slug: "new-york", name: "New York" },
+  { slug: "berlin", name: "Berlin" },
+  { slug: "tokyo", name: "Tokyo" },
+  { slug: "paris", name: "Paris" },
+  { slug: "sydney", name: "Sydney" },
+  { slug: "toronto", name: "Toronto" },
+  { slug: "sao-paulo", name: "Sao Paulo" },
+  { slug: "mumbai", name: "Mumbai" },
+] as const;
+
 export default function HomePageClient() {
   const { user } = useAppState();
   const tHero = useTranslations("hero");
   const tBranch = useTranslations("branches");
   const tBenefits = useTranslations("benefits");
   const tMap = useTranslations("map");
+  const tFooter = useTranslations("footer");
   const tPremium = useTranslations("premium");
   const tGuest = useTranslations("guest");
 
@@ -144,7 +157,27 @@ export default function HomePageClient() {
         )}
       </section>
 
-      {/* ── 6. Premium Upsell (logged-in only) ── */}
+      {/* ── 6. Explore by City ── */}
+      <section className="space-y-2">
+        <h3 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+          {tFooter("exploreByCity")}
+        </h3>
+        <div className="flex flex-wrap items-center gap-x-1 gap-y-0.5 text-xs text-zinc-500 dark:text-zinc-400">
+          {CITIES.map((city, i) => (
+            <span key={city.slug} className="inline-flex items-center">
+              {i > 0 && <span className="mx-1 text-zinc-300 dark:text-zinc-600">|</span>}
+              <Link
+                href={`/objects/city/${city.slug}` as "/"}
+                className="hover:text-blue-600 hover:underline dark:hover:text-blue-400"
+              >
+                {city.name}
+              </Link>
+            </span>
+          ))}
+        </div>
+      </section>
+
+      {/* ── 7. Premium Upsell (logged-in only) ── */}
       {user && (
         <Link
           href="/premium"

@@ -2787,7 +2787,8 @@
   "footer": {
     "about": "Despre",
     "pricing": "Prețuri",
-    "activeCities": "Orașe active:"
+    "activeCities": "Orașe active:",
+    "exploreByCity": "Explorează după oraș"
   },
   "onboardingBanner": {
     "welcome": "Bine ai venit pe Swaply!",

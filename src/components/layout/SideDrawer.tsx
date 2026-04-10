@@ -269,19 +269,46 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
           </DrawerSection>
         </div>
 
-        {/* Footer: Logout */}
-        {user && (
-          <div className="border-t border-zinc-200 px-4 py-3 dark:border-zinc-800">
-            <button
-              type="button"
-              onClick={() => void handleLogout()}
-              className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/20"
+        {/* Footer: User + Sign out / Sign in */}
+        <div className="border-t border-zinc-200 px-4 py-3 dark:border-zinc-800">
+          {user ? (
+            <div className="flex items-center gap-3">
+              {user.avatarUrl ? (
+                <Image
+                  src={user.avatarUrl}
+                  alt={user.displayName}
+                  width={32}
+                  height={32}
+                  className="h-8 w-8 rounded-full object-cover"
+                />
+              ) : (
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
+                  {(user.displayName || user.email || "?")[0].toUpperCase()}
+                </div>
+              )}
+              <span className="min-w-0 flex-1 truncate text-sm font-medium text-zinc-900 dark:text-zinc-50">
+                {user.displayName}
+              </span>
+              <button
+                type="button"
+                onClick={() => void handleLogout()}
+                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/20"
+              >
+                <LogOut className="h-4 w-4" />
+                {t("nav.logout")}
+              </button>
+            </div>
+          ) : (
+            <Link
+              href="/login"
+              onClick={handleLinkClick}
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-3 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
             >
-              <LogOut className="h-5 w-5" />
-              {t("nav.logout")}
-            </button>
-          </div>
-        )}
+              <LogIn className="h-4 w-4" />
+              {t("nav.login")}
+            </Link>
+          )}
+        </div>
       </aside>
     </>
   );

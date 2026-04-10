@@ -2805,7 +2805,8 @@
   "footer": {
     "about": "About",
     "pricing": "Pricing",
-    "activeCities": "Available in 40+ countries:"
+    "activeCities": "Available in 40+ countries:",
+    "exploreByCity": "Explore by city"
   },
   "onboardingBanner": {
     "welcome": "Welcome to Swaply!",
