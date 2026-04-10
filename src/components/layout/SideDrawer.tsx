@@ -2,7 +2,7 @@
 
 import { usePathname, Link } from "@/i18n/navigation";
 import Image from "next/image";
-import { useEffect, useCallback } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import {
@@ -38,13 +38,16 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
   const t = useTranslations();
   const pathname = usePathname();
   const { user, logout } = useAppState();
+  const prevPathname = useRef(pathname);
+  const drawerRef = useRef<HTMLElement>(null);
 
-  const stableClose = useCallback(() => onClose(), [onClose]);
-
-  // Close on route change
+  // Close only when pathname actually changes (not on mount)
   useEffect(() => {
-    stableClose();
-  }, [pathname, stableClose]);
+    if (prevPathname.current !== pathname) {
+      prevPathname.current = pathname;
+      onClose();
+    }
+  }, [pathname, onClose]);
 
   // Lock body scroll when open
   useEffect(() => {
@@ -61,14 +64,46 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
   // Close on Escape key
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") stableClose();
+      if (e.key === "Escape") onClose();
     }
     if (isOpen) document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, stableClose]);
+  }, [isOpen, onClose]);
+
+  // Swipe-to-close: swipe left on the drawer panel closes it
+  useEffect(() => {
+    if (!isOpen) return;
+
+    let startX = 0;
+    let startY = 0;
+
+    const onTouchStart = (e: TouchEvent) => {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    };
+
+    const onTouchEnd = (e: TouchEvent) => {
+      const deltaX = e.changedTouches[0].clientX - startX;
+      const deltaY = e.changedTouches[0].clientY - startY;
+      if (deltaX < -60 && Math.abs(deltaX) > Math.abs(deltaY)) {
+        onClose();
+      }
+    };
+
+    const el = drawerRef.current;
+    if (!el) return;
+
+    el.addEventListener("touchstart", onTouchStart, { passive: true });
+    el.addEventListener("touchend", onTouchEnd, { passive: true });
+
+    return () => {
+      el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("touchend", onTouchEnd);
+    };
+  }, [isOpen, onClose]);
 
   const handleLogout = async () => {
-    stableClose();
+    onClose();
     await logout();
   };
 
@@ -105,6 +140,8 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
     { href: "/feedback" as const, label: t("feedback.title"), icon: MessageSquare },
   ];
 
+  const handleLinkClick = useCallback(() => onClose(), [onClose]);
+
   return (
     <>
       {/* Overlay */}
@@ -112,12 +149,13 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
         className={`fixed inset-0 z-50 bg-black/40 transition-opacity duration-300 ${
           isOpen ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
-        onClick={stableClose}
+        onClick={onClose}
         aria-hidden="true"
       />
 
       {/* Drawer panel */}
       <aside
+        ref={drawerRef}
         className={`fixed left-0 top-0 z-50 flex h-full w-[280px] flex-col bg-white shadow-2xl transition-transform duration-300 ease-in-out dark:bg-zinc-900 sm:w-[320px] ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
@@ -127,13 +165,13 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-zinc-200 px-4 py-3 dark:border-zinc-800">
-          <Link href="/" className="flex items-center gap-2" onClick={stableClose}>
+          <Link href="/" className="flex items-center gap-2" onClick={handleLinkClick}>
             <Image src="/logo-swaply.svg" alt="Swaply" width={28} height={28} className="h-7 w-7" />
             <span className="text-lg font-bold text-zinc-900 dark:text-zinc-50">Swaply</span>
           </Link>
           <button
             type="button"
-            onClick={stableClose}
+            onClick={onClose}
             className="rounded-lg p-1.5 text-zinc-500 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
             aria-label={t("common.close")}
           >
@@ -146,7 +184,7 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
           {/* User profile section */}
           {user ? (
             <div className="border-b border-zinc-100 px-4 py-4 dark:border-zinc-800">
-              <Link href="/profile" onClick={stableClose} className="flex items-center gap-3">
+              <Link href="/profile" onClick={handleLinkClick} className="flex items-center gap-3">
                 {user.avatarUrl ? (
                   <Image
                     src={user.avatarUrl}
@@ -174,7 +212,7 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
             <div className="flex gap-2 border-b border-zinc-100 px-4 py-4 dark:border-zinc-800">
               <Link
                 href="/login"
-                onClick={stableClose}
+                onClick={handleLinkClick}
                 className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
               >
                 <LogIn className="h-4 w-4" />
@@ -182,7 +220,7 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
               </Link>
               <Link
                 href="/register"
-                onClick={stableClose}
+                onClick={handleLinkClick}
                 className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-zinc-300 px-3 py-2 text-sm font-semibold text-zinc-700 hover:bg-zinc-50 dark:border-zinc-600 dark:text-zinc-200 dark:hover:bg-zinc-800"
               >
                 <UserPlus className="h-4 w-4" />
@@ -194,14 +232,14 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
           {/* Main navigation */}
           <DrawerSection title={t("nav.quickNav")}>
             {navLinks.map((link) => (
-              <DrawerLink key={link.href} {...link} pathname={pathname} onClick={stableClose} />
+              <DrawerLink key={link.href} {...link} pathname={pathname} onClick={handleLinkClick} />
             ))}
           </DrawerSection>
 
           {/* Categories */}
-          <DrawerSection title={t("branches.tagline").split("—")[0].trim()}>
+          <DrawerSection title={t("branches.tagline").split("\u2014")[0].trim()}>
             {categoryLinks.map((link) => (
-              <DrawerLink key={`cat-${link.href}`} {...link} pathname={pathname} onClick={stableClose} />
+              <DrawerLink key={`cat-${link.href}`} {...link} pathname={pathname} onClick={handleLinkClick} />
             ))}
           </DrawerSection>
 
@@ -209,7 +247,7 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
           {user && (
             <DrawerSection title={t("nav.profile")}>
               {userLinks.map((link) => (
-                <DrawerLink key={link.href} {...link} pathname={pathname} onClick={stableClose} />
+                <DrawerLink key={link.href} {...link} pathname={pathname} onClick={handleLinkClick} />
               ))}
             </DrawerSection>
           )}
@@ -218,7 +256,7 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
           {user && (
             <DrawerSection title={t("contextBar.monetization")}>
               {monetizationLinks.map((link) => (
-                <DrawerLink key={link.href} {...link} pathname={pathname} onClick={stableClose} />
+                <DrawerLink key={link.href} {...link} pathname={pathname} onClick={handleLinkClick} />
               ))}
             </DrawerSection>
           )}
@@ -226,7 +264,7 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
           {/* Info & Support */}
           <DrawerSection title={t("nav.info")}>
             {infoLinks.map((link) => (
-              <DrawerLink key={link.href} {...link} pathname={pathname} onClick={stableClose} />
+              <DrawerLink key={link.href} {...link} pathname={pathname} onClick={handleLinkClick} />
             ))}
           </DrawerSection>
         </div>

@@ -130,7 +130,35 @@ export function TopBar() {
   const displayCountryCode = country.toUpperCase();
   const displayNativeName = currentLocaleInfo.nativeName;
 
+  // Swipe-to-open: detect right-swipe from left edge of screen
+  useEffect(() => {
+    let startX = 0;
+    let startY = 0;
+
+    const onTouchStart = (e: TouchEvent) => {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    };
+
+    const onTouchEnd = (e: TouchEvent) => {
+      const deltaX = e.changedTouches[0].clientX - startX;
+      const deltaY = e.changedTouches[0].clientY - startY;
+      if (startX < 20 && deltaX > 60 && Math.abs(deltaX) > Math.abs(deltaY)) {
+        setDrawerOpen(true);
+      }
+    };
+
+    document.addEventListener("touchstart", onTouchStart, { passive: true });
+    document.addEventListener("touchend", onTouchEnd, { passive: true });
+
+    return () => {
+      document.removeEventListener("touchstart", onTouchStart);
+      document.removeEventListener("touchend", onTouchEnd);
+    };
+  }, []);
+
   return (
+    <>
     <div className="sticky top-0 z-20 border-b border-zinc-200 bg-white/90 backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/80">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2">
         {/* Left: Hamburger + Logo + Country/Language */}
@@ -298,8 +326,9 @@ export function TopBar() {
           )}
         </div>
       </div>
-
-      <SideDrawer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} />
     </div>
+
+    <SideDrawer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} />
+    </>
   );
 }
