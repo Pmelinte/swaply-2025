@@ -137,10 +137,10 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // Merge auth cookies into the intl response
+  // Merge auth cookies into the intl response (preserve full cookie attributes)
   const authResponse = supaResponse();
   for (const cookie of authResponse.cookies.getAll()) {
-    intlResponse.cookies.set(cookie.name, cookie.value);
+    intlResponse.cookies.set(cookie);
   }
 
   return intlResponse;
