@@ -7,26 +7,21 @@ import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import {
   X,
-  Home,
-  Box,
-  HeartHandshake,
-  MessageCircle,
-  Shuffle,
-  Building2,
-  Wrench,
-  CalendarDays,
-  User,
-  Heart,
-  Clock,
-  Package,
-  Coins,
-  Trophy,
   Info,
   Mail,
   MessageSquare,
   LogOut,
   LogIn,
   UserPlus,
+  Coins,
+  Tag,
+  BookOpen,
+  FileText,
+  ShieldCheck,
+  Lock,
+  ShieldAlert,
+  AlertTriangle,
+  Settings,
 } from "lucide-react";
 
 interface SideDrawerProps {
@@ -107,40 +102,29 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
     await logout();
   };
 
-  const navLinks = [
-    { href: "/" as const, label: t("nav.home"), icon: Home },
-    { href: "/objects" as const, label: t("nav.objects"), icon: Box },
-    { href: "/match" as const, label: t("nav.matching"), icon: HeartHandshake },
-    { href: "/chat" as const, label: t("nav.messages"), icon: MessageCircle },
-    { href: "/change" as const, label: t("nav.exchange"), icon: Shuffle },
-  ];
-
-  const categoryLinks = [
-    { href: "/objects" as const, label: t("branches.objects"), icon: Box },
-    { href: "/properties" as const, label: t("branches.properties"), icon: Building2 },
-    { href: "/services" as const, label: t("branches.services"), icon: Wrench },
-    { href: "/events" as const, label: t("branches.events"), icon: CalendarDays },
-  ];
-
-  const userLinks = [
-    { href: "/profile" as const, label: t("nav.profile"), icon: User },
-    { href: "/favorites" as const, label: t("favorites.title"), icon: Heart },
-    { href: "/history" as const, label: t("history.title"), icon: Clock },
-    { href: "/my-objects" as const, label: t("myObjects.title"), icon: Package },
-  ];
-
-  const monetizationLinks = [
-    { href: "/monetization" as const, label: t("contextBar.tokens"), icon: Coins },
-    { href: "/leaderboard" as const, label: t("leaderboard.title"), icon: Trophy },
-  ];
-
   const infoLinks = [
     { href: "/about" as const, label: t("about.title"), icon: Info },
+    { href: "/blog" as const, label: "Blog", icon: BookOpen },
     { href: "/contact" as const, label: t("contact.title"), icon: Mail },
     { href: "/feedback" as const, label: t("feedback.title"), icon: MessageSquare },
   ];
 
+  const legalLinks = [
+    { href: "/terms" as const, label: t("legal.termsTitle"), icon: FileText },
+    { href: "/privacy" as const, label: t("legal.privacyTitle"), icon: ShieldCheck },
+    { href: "/cookies" as const, label: t("legal.cookiesTitle"), icon: Lock },
+    { href: "/safety" as const, label: t("legal.safetyTitle"), icon: ShieldAlert },
+    { href: "/dmca" as const, label: t("legal.dmcaTitle"), icon: AlertTriangle },
+    { href: "/copyright" as const, label: t("legal.copyrightTitle"), icon: FileText },
+  ];
+
   const handleLinkClick = useCallback(() => onClose(), [onClose]);
+
+  const handleCookieSettings = () => {
+    localStorage.removeItem("cookie_consent");
+    window.dispatchEvent(new Event("storage"));
+    window.location.reload();
+  };
 
   return (
     <>
@@ -181,7 +165,7 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
 
         {/* Scrollable content */}
         <div className="flex-1 overflow-y-auto">
-          {/* User profile section */}
+          {/* Auth / Profile section */}
           {user ? (
             <div className="border-b border-zinc-100 px-4 py-4 dark:border-zinc-800">
               <Link href="/profile" onClick={handleLinkClick} className="flex items-center gap-3">
@@ -207,6 +191,10 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
                   </p>
                 </div>
               </Link>
+              <nav className="mt-2 flex flex-col gap-0.5">
+                <DrawerLink href="/pricing" label={t("pricing.title")} icon={Tag} pathname={pathname} onClick={handleLinkClick} />
+                <DrawerLink href="/monetization" label="Swapleni" icon={Coins} pathname={pathname} onClick={handleLinkClick} />
+              </nav>
             </div>
           ) : (
             <div className="flex gap-2 border-b border-zinc-100 px-4 py-4 dark:border-zinc-800">
@@ -229,47 +217,27 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
             </div>
           )}
 
-          {/* Main navigation */}
-          <DrawerSection title={t("nav.quickNav")}>
-            {navLinks.map((link) => (
-              <DrawerLink key={link.href} {...link} pathname={pathname} onClick={handleLinkClick} />
-            ))}
-          </DrawerSection>
-
-          {/* Categories */}
-          <DrawerSection title={t("branches.tagline").split("\u2014")[0].trim()}>
-            {categoryLinks.map((link) => (
-              <DrawerLink key={`cat-${link.href}`} {...link} pathname={pathname} onClick={handleLinkClick} />
-            ))}
-          </DrawerSection>
-
-          {/* User features (logged in only) */}
-          {user && (
-            <DrawerSection title={t("nav.profile")}>
-              {userLinks.map((link) => (
-                <DrawerLink key={link.href} {...link} pathname={pathname} onClick={handleLinkClick} />
-              ))}
-            </DrawerSection>
-          )}
-
-          {/* Monetization (logged in only) */}
-          {user && (
-            <DrawerSection title={t("contextBar.monetization")}>
-              {monetizationLinks.map((link) => (
-                <DrawerLink key={link.href} {...link} pathname={pathname} onClick={handleLinkClick} />
-              ))}
-            </DrawerSection>
-          )}
-
-          {/* Info & Support */}
+          {/* Info */}
           <DrawerSection title={t("nav.info")}>
             {infoLinks.map((link) => (
               <DrawerLink key={link.href} {...link} pathname={pathname} onClick={handleLinkClick} />
             ))}
           </DrawerSection>
+
+          {/* Legal */}
+          <DrawerSection title="Legal">
+            {legalLinks.map((link) => (
+              <DrawerLink key={link.href} {...link} pathname={pathname} onClick={handleLinkClick} />
+            ))}
+            <DrawerButton
+              label={t("cookieConsent.settings")}
+              icon={Settings}
+              onClick={handleCookieSettings}
+            />
+          </DrawerSection>
         </div>
 
-        {/* Footer: Logout */}
+        {/* Sticky Logout (logged in only) */}
         {user && (
           <div className="border-t border-zinc-200 px-4 py-3 dark:border-zinc-800">
             <button
@@ -325,5 +293,26 @@ function DrawerLink({
       <Icon className="h-5 w-5" />
       {label}
     </Link>
+  );
+}
+
+function DrawerButton({
+  label,
+  icon: Icon,
+  onClick,
+}: {
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-zinc-700 transition hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+    >
+      <Icon className="h-5 w-5 shrink-0" />
+      {label}
+    </button>
   );
 }
