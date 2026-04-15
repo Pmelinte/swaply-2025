@@ -6,6 +6,7 @@ import { routing } from "@/i18n/routing";
 import { locales, type Locale } from "@/i18n/config";
 import { Providers } from "./providers";
 import { TopBar } from "@/components/layout/TopBar";
+import { BranchBar } from "@/components/layout/BranchBar";
 import { ContextBar } from "@/components/layout/ContextBar";
 import { FooterNav } from "@/components/layout/FooterNav";
 import { GlobalNudge } from "@/components/layout/GlobalNudge";
@@ -166,6 +167,7 @@ export default async function LocaleLayout({ children, params }: Props) {
         <NextIntlClientProvider locale={locale} messages={messages}>
           <Providers locale={locale}>
             <TopBar />
+            <BranchBar />
             <ContextBar />
             <GlobalNudge />
             <div className="mx-auto min-h-screen max-w-6xl px-4 pb-24 pt-4">
