@@ -106,11 +106,16 @@ export async function proxy(request: NextRequest) {
 
   const { supabase, response: supaResponse } =
     createMiddlewareSupabase(request);
+  // Use getSession() instead of getUser() to avoid an external network call
+  // on every middleware invocation. getSession() validates the JWT from cookies
+  // locally (no round-trip to Supabase Auth API), which is sufficient for
+  // route-protection guards. Route handlers / server components that access
+  // user data must still call getUser() for proper security validation.
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (!user) {
+  if (!session) {
     const loginUrl = request.nextUrl.clone();
     // Keep locale prefix in login redirect
     const localePrefix = pathname.split("/")[1] || "en";
@@ -124,7 +129,7 @@ export async function proxy(request: NextRequest) {
     const { data: profile } = await supabase
       .from("profiles")
       .select("badge")
-      .eq("user_id", user.id)
+      .eq("user_id", session.user.id)
       .maybeSingle();
 
     const badge = (profile as Record<string, unknown> | null)?.badge as string;
