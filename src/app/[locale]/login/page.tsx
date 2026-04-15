@@ -1,9 +1,8 @@
 "use client";
 
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { NextStepRecommendation, SectionCard, StateShowcase } from "@/components/ui-custom";
 import { Eye, EyeOff } from "lucide-react";
@@ -25,7 +24,7 @@ const strengthColors = ["bg-red-500", "bg-orange-500", "bg-amber-500", "bg-blue-
 
 function LoginContent() {
   const params = useSearchParams();
-  const router = useRouter();
+  const locale = useLocale();
   const t = useTranslations("login");
   const tc = useTranslations("common");
   const rawReturnTo = params.get("returnTo") || "/profile";
@@ -66,12 +65,18 @@ function LoginContent() {
     t("strengthStrong"),
   ];
 
+  // Hard navigate to ensure fresh cookies are sent to the server
+  const hardNavigate = (path: string) => {
+    if (navigatingRef.current) return;
+    navigatingRef.current = true;
+    window.location.href = `/${locale}${path}`;
+  };
+
   useEffect(() => {
     if (user && !navigatingRef.current) {
-      navigatingRef.current = true;
-      router.replace(returnTo);
+      hardNavigate(returnTo);
     }
-  }, [user, returnTo, router]);
+  }, [user, returnTo]);
 
   const handleSubmit = async () => {
     setMessage(null);
@@ -103,11 +108,7 @@ function LoginContent() {
         } else {
           setMessage(t("authenticated"));
           setStatus("success");
-          // Navigate only if useEffect hasn't already done so (prevents double-navigation race)
-          if (!navigatingRef.current) {
-            navigatingRef.current = true;
-            router.replace(returnTo);
-          }
+          hardNavigate(returnTo);
         }
       } else if (activeTab === "register") {
         const result = await register(email, password, accept);
