@@ -76,7 +76,8 @@
     "badgeBenefits": "مزايا الشارات",
     "completeProfile": "أكمل ملفك الشخصي",
     "desk": "مكتبي",
-    "settings": "الإعدادات"
+    "settings": "الإعدادات",
+    "explore": "Explore"
   },
   "notifications": {
     "title": "الإشعارات (إعجاب/اهتمام/محادثة/swaply)",
@@ -837,7 +838,15 @@
     "chainDescription": "المبادلات الدائرية متعددة الأطراف: أ يعطي ب، ب يعطي ج، ج يعطي أ",
     "myChainsTitle": "السلاسل النشطة الخاصة بي",
     "myChainsDescription": "المبادلات المتسلسلة التي تشارك فيها",
-    "chainDetected": "تم الكشف عن السلسلة تلقائيًا"
+    "chainDetected": "تم الكشف عن السلسلة تلقائيًا",
+    "guestTitle": "Smart matching algorithm",
+    "guestAlgorithm": "Our AI analyzes 9 compatibility factors to find the best swaps for you.",
+    "guestDemoTitle": "Sony WH-1000XM5 Headphones",
+    "guestDemoScore": "92% match",
+    "guestDemoCategory": "Electronics",
+    "guestDemoCondition": "Like new",
+    "guestDemoLocation": "Berlin, Germany",
+    "guestDemoWants": "Looking for a tablet or e-reader in good condition"
   },
   "chat": {
     "title": "محادثة آمنة",

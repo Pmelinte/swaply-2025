@@ -76,7 +76,8 @@
     "badgeBenefits": "Pogodnosti značke",
     "completeProfile": "Dopunite svoj profil",
     "desk": "Moj radni sto",
-    "settings": "Подешавања"
+    "settings": "Подешавања",
+    "explore": "Explore"
   },
   "notifications": {
     "title": "Obaveštenja (lajk/interes/ćaskanje/swaply)",
@@ -837,7 +838,15 @@
     "chainDescription": "Višestranična kružna razmena: A daje B, B daje C, C daje A",
     "myChainsTitle": "Moji aktivni lanci",
     "myChainsDescription": "Lančane razmene u kojima učestvujete",
-    "chainDetected": "Lanac detektovan automatski"
+    "chainDetected": "Lanac detektovan automatski",
+    "guestTitle": "Smart matching algorithm",
+    "guestAlgorithm": "Our AI analyzes 9 compatibility factors to find the best swaps for you.",
+    "guestDemoTitle": "Sony WH-1000XM5 Headphones",
+    "guestDemoScore": "92% match",
+    "guestDemoCategory": "Electronics",
+    "guestDemoCondition": "Like new",
+    "guestDemoLocation": "Berlin, Germany",
+    "guestDemoWants": "Looking for a tablet or e-reader in good condition"
   },
   "chat": {
     "title": "Sigurno ćaskanje",

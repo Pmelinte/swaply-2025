@@ -76,7 +76,8 @@
     "badgeBenefits": "Переваги значків",
     "completeProfile": "Заповнити профіль",
     "desk": "Мій стіл",
-    "settings": "Налаштування"
+    "settings": "Налаштування",
+    "explore": "Explore"
   },
   "notifications": {
     "title": "Сповіщення",
@@ -837,7 +838,15 @@
     "chainDescription": "Багатосторонній циклічний своп: A дає B, B дає C, C дає A",
     "myChainsTitle": "Мої активні ланцюги",
     "myChainsDescription": "Ланцюги свопів, в яких ви беруть участь",
-    "chainDetected": "Ланцюг виявлений автоматично"
+    "chainDetected": "Ланцюг виявлений автоматично",
+    "guestTitle": "Smart matching algorithm",
+    "guestAlgorithm": "Our AI analyzes 9 compatibility factors to find the best swaps for you.",
+    "guestDemoTitle": "Sony WH-1000XM5 Headphones",
+    "guestDemoScore": "92% match",
+    "guestDemoCategory": "Electronics",
+    "guestDemoCondition": "Like new",
+    "guestDemoLocation": "Berlin, Germany",
+    "guestDemoWants": "Looking for a tablet or e-reader in good condition"
   },
   "chat": {
     "title": "Захищений чат",

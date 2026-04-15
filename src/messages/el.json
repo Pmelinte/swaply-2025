@@ -76,7 +76,8 @@
     "badgeBenefits": "Πλεονεκτήματα σήματος",
     "completeProfile": "Συμπληρώστε το προφίλ σας",
     "desk": "Μου Desk",
-    "settings": "Ρυθμίσεις"
+    "settings": "Ρυθμίσεις",
+    "explore": "Explore"
   },
   "notifications": {
     "title": "Ειδοποιήσεις (like/ενδιαφέρον/συνομιλία/swaply)",
@@ -837,7 +838,15 @@
     "chainDescription": "Πολυμερείς κυκλικές ανταλλαγές: Ο Α δίνει στον Β, ο Β δίνει στον Γ, ο Γ δίνει στον Α",
     "myChainsTitle": "Οι ενεργές μου αλυσίδες",
     "myChainsDescription": "Ανταλλαγές αλυσίδας που συμμετέχετε",
-    "chainDetected": "Αλυσίδα ανιχνευθείσα αυτόματα"
+    "chainDetected": "Αλυσίδα ανιχνευθείσα αυτόματα",
+    "guestTitle": "Smart matching algorithm",
+    "guestAlgorithm": "Our AI analyzes 9 compatibility factors to find the best swaps for you.",
+    "guestDemoTitle": "Sony WH-1000XM5 Headphones",
+    "guestDemoScore": "92% match",
+    "guestDemoCategory": "Electronics",
+    "guestDemoCondition": "Like new",
+    "guestDemoLocation": "Berlin, Germany",
+    "guestDemoWants": "Looking for a tablet or e-reader in good condition"
   },
   "chat": {
     "title": "Ασφαλής συνομιλία",

@@ -76,7 +76,8 @@
     "badgeBenefits": "Badge-voordelen",
     "completeProfile": "Maak je profiel compleet",
     "desk": "Mijn Desk",
-    "settings": "Instellingen"
+    "settings": "Instellingen",
+    "explore": "Explore"
   },
   "notifications": {
     "title": "Meldingen (like/interesse/chat/swaply)",
@@ -837,7 +838,15 @@
     "chainDescription": "Multi-partij circulaire swaps: A geeft aan B, B geeft aan C, C geeft aan A",
     "myChainsTitle": "Mijn actieve ketens",
     "myChainsDescription": "Keten-swaps waar je aan deelneemt",
-    "chainDetected": "Keten automatisch gedetecteerd"
+    "chainDetected": "Keten automatisch gedetecteerd",
+    "guestTitle": "Smart matching algorithm",
+    "guestAlgorithm": "Our AI analyzes 9 compatibility factors to find the best swaps for you.",
+    "guestDemoTitle": "Sony WH-1000XM5 Headphones",
+    "guestDemoScore": "92% match",
+    "guestDemoCategory": "Electronics",
+    "guestDemoCondition": "Like new",
+    "guestDemoLocation": "Berlin, Germany",
+    "guestDemoWants": "Looking for a tablet or e-reader in good condition"
   },
   "chat": {
     "title": "Beveiligde chat",

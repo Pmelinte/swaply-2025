@@ -76,7 +76,8 @@
     "badgeBenefits": "배지 혜택",
     "completeProfile": "프로필 완성하기",
     "desk": "내 데스크",
-    "settings": "설정"
+    "settings": "설정",
+    "explore": "Explore"
   },
   "notifications": {
     "title": "알림 (좋아요/관심/채팅/교환)",
@@ -837,7 +838,15 @@
     "chainDescription": "다중 참여자 순환 스왑: A가 B에게 제공, B가 C에게 제공, C가 A에게 제공",
     "myChainsTitle": "내 활성 체인",
     "myChainsDescription": "참여 중인 체인 스왑",
-    "chainDetected": "자동으로 감지된 체인"
+    "chainDetected": "자동으로 감지된 체인",
+    "guestTitle": "Smart matching algorithm",
+    "guestAlgorithm": "Our AI analyzes 9 compatibility factors to find the best swaps for you.",
+    "guestDemoTitle": "Sony WH-1000XM5 Headphones",
+    "guestDemoScore": "92% match",
+    "guestDemoCategory": "Electronics",
+    "guestDemoCondition": "Like new",
+    "guestDemoLocation": "Berlin, Germany",
+    "guestDemoWants": "Looking for a tablet or e-reader in good condition"
   },
   "chat": {
     "title": "보안 채팅",

@@ -76,7 +76,8 @@
     "badgeBenefits": "Manfaat lencana",
     "completeProfile": "Lengkapi profil Anda",
     "desk": "Meja Saya",
-    "settings": "Pengaturan"
+    "settings": "Pengaturan",
+    "explore": "Explore"
   },
   "notifications": {
     "title": "Notifikasi (suka/minat/chat/swaply)",
@@ -837,7 +838,15 @@
     "chainDescription": "Pertukaran sirkular multi-pihak: A memberi ke B, B memberi ke C, C memberi ke A",
     "myChainsTitle": "Rantai aktif saya",
     "myChainsDescription": "Pertukaran rantai yang Anda ikuti",
-    "chainDetected": "Rantai terdeteksi secara otomatis"
+    "chainDetected": "Rantai terdeteksi secara otomatis",
+    "guestTitle": "Smart matching algorithm",
+    "guestAlgorithm": "Our AI analyzes 9 compatibility factors to find the best swaps for you.",
+    "guestDemoTitle": "Sony WH-1000XM5 Headphones",
+    "guestDemoScore": "92% match",
+    "guestDemoCategory": "Electronics",
+    "guestDemoCondition": "Like new",
+    "guestDemoLocation": "Berlin, Germany",
+    "guestDemoWants": "Looking for a tablet or e-reader in good condition"
   },
   "chat": {
     "title": "Chat aman",

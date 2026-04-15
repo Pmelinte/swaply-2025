@@ -76,7 +76,8 @@
     "badgeBenefits": "Buntaisti suaitheantais",
     "completeProfile": "Comhlanaigh do phroifil",
     "desk": "Mo Dheasc",
-    "settings": "Socruithe"
+    "settings": "Socruithe",
+    "explore": "Explore"
   },
   "notifications": {
     "title": "Fograí (maith liom/speis/comhrá/swaply)",
@@ -837,7 +838,15 @@
     "chainDescription": "Babhtaí ciorclach iolraithíocha: A a thugann do B, B a thugann do C, C a thugann do A",
     "myChainsTitle": "Mo babhtaí gníomhach",
     "myChainsDescription": "Babhtaí comhpháirtíochta ar a bhfuil tú páirteach",
-    "chainDetected": "Babht braithe go huathoibríoch"
+    "chainDetected": "Babht braithe go huathoibríoch",
+    "guestTitle": "Smart matching algorithm",
+    "guestAlgorithm": "Our AI analyzes 9 compatibility factors to find the best swaps for you.",
+    "guestDemoTitle": "Sony WH-1000XM5 Headphones",
+    "guestDemoScore": "92% match",
+    "guestDemoCategory": "Electronics",
+    "guestDemoCondition": "Like new",
+    "guestDemoLocation": "Berlin, Germany",
+    "guestDemoWants": "Looking for a tablet or e-reader in good condition"
   },
   "chat": {
     "title": "Comhrá slán",

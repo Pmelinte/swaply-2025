@@ -76,7 +76,8 @@
     "badgeBenefits": "Benefiċċji tal-badge",
     "completeProfile": "Ikkompleta l-profil tiegħek",
     "desk": "Id-Desk Tiegħi",
-    "settings": "Issettings"
+    "settings": "Issettings",
+    "explore": "Explore"
   },
   "notifications": {
     "title": "Notifiki (like/interess/chat/swaply)",
@@ -837,7 +838,15 @@
     "chainDescription": "Swaps ċirkulari ta' multi-party: A jagħti lil B, B jagħti lil C, C jagħti lil A",
     "myChainsTitle": "Il-chains attivi tiegħi",
     "myChainsDescription": "Chain swaps li qed tipparteċipa fihom",
-    "chainDetected": "Chain deskoperta awtomatikament"
+    "chainDetected": "Chain deskoperta awtomatikament",
+    "guestTitle": "Smart matching algorithm",
+    "guestAlgorithm": "Our AI analyzes 9 compatibility factors to find the best swaps for you.",
+    "guestDemoTitle": "Sony WH-1000XM5 Headphones",
+    "guestDemoScore": "92% match",
+    "guestDemoCategory": "Electronics",
+    "guestDemoCondition": "Like new",
+    "guestDemoLocation": "Berlin, Germany",
+    "guestDemoWants": "Looking for a tablet or e-reader in good condition"
   },
   "chat": {
     "title": "Chat sigur",

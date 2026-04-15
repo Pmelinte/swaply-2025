@@ -76,7 +76,8 @@
     "badgeBenefits": "Avantages des badges",
     "completeProfile": "Complétez votre profil",
     "desk": "Mon Bureau",
-    "settings": "Paramètres"
+    "settings": "Paramètres",
+    "explore": "Explore"
   },
   "notifications": {
     "title": "Notifications",
@@ -837,7 +838,15 @@
     "chainDescription": "Échanges circulaires multi-parties : A donne à B, B donne à C, C donne à A",
     "myChainsTitle": "Mes chaînes actives",
     "myChainsDescription": "Échanges en chaîne auxquels vous participez",
-    "chainDetected": "Chaîne détectée automatiquement"
+    "chainDetected": "Chaîne détectée automatiquement",
+    "guestTitle": "Smart matching algorithm",
+    "guestAlgorithm": "Our AI analyzes 9 compatibility factors to find the best swaps for you.",
+    "guestDemoTitle": "Sony WH-1000XM5 Headphones",
+    "guestDemoScore": "92% match",
+    "guestDemoCategory": "Electronics",
+    "guestDemoCondition": "Like new",
+    "guestDemoLocation": "Berlin, Germany",
+    "guestDemoWants": "Looking for a tablet or e-reader in good condition"
   },
   "chat": {
     "title": "Chat sécurisé",
@@ -1060,7 +1069,7 @@
     "houseMaxGuests": "Invités max",
     "houseAmenities": "Équipements",
     "amenity_wifi": "WiFi",
-    "amenity_parking": "Stationnement",
+    "amenity_parking": "Parking",
     "amenity_ac": "Climatisation",
     "amenity_heating": "Chauffage",
     "amenity_washer": "Lave-linge",

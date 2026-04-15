@@ -76,7 +76,8 @@
     "badgeBenefits": "Ugodnosti značke",
     "completeProfile": "Dopolnite svoj profil",
     "desk": "Moja Miza",
-    "settings": "Nastavitve"
+    "settings": "Nastavitve",
+    "explore": "Explore"
   },
   "notifications": {
     "title": "Obvestila (všeček/interes/klepet/swaply)",
@@ -837,7 +838,15 @@
     "chainDescription": "Večstranske krožne izmenjave: A da B, B da C, C da A",
     "myChainsTitle": "Moje aktivne verige",
     "myChainsDescription": "Verižne izmenjave, v katerih sodelujete",
-    "chainDetected": "Veriga zaznana samodejno"
+    "chainDetected": "Veriga zaznana samodejno",
+    "guestTitle": "Smart matching algorithm",
+    "guestAlgorithm": "Our AI analyzes 9 compatibility factors to find the best swaps for you.",
+    "guestDemoTitle": "Sony WH-1000XM5 Headphones",
+    "guestDemoScore": "92% match",
+    "guestDemoCategory": "Electronics",
+    "guestDemoCondition": "Like new",
+    "guestDemoLocation": "Berlin, Germany",
+    "guestDemoWants": "Looking for a tablet or e-reader in good condition"
   },
   "chat": {
     "title": "Varen klepet",

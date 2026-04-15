@@ -76,7 +76,8 @@
     "badgeBenefits": "Merkkien edut",
     "completeProfile": "Täydennä profiilisi",
     "desk": "Oma työpöytä",
-    "settings": "Asetukset"
+    "settings": "Asetukset",
+    "explore": "Explore"
   },
   "notifications": {
     "title": "Ilmoitukset",
@@ -837,7 +838,15 @@
     "chainDescription": "Monipuoliset pyöreät vaihdot: A antaa B:lle, B antaa C:lle, C antaa A:lle",
     "myChainsTitle": "Omat aktiiviset ketjut",
     "myChainsDescription": "Ketjuvaihdot, joihin osallistut",
-    "chainDetected": "Ketju havaittu automaattisesti"
+    "chainDetected": "Ketju havaittu automaattisesti",
+    "guestTitle": "Smart matching algorithm",
+    "guestAlgorithm": "Our AI analyzes 9 compatibility factors to find the best swaps for you.",
+    "guestDemoTitle": "Sony WH-1000XM5 Headphones",
+    "guestDemoScore": "92% match",
+    "guestDemoCategory": "Electronics",
+    "guestDemoCondition": "Like new",
+    "guestDemoLocation": "Berlin, Germany",
+    "guestDemoWants": "Looking for a tablet or e-reader in good condition"
   },
   "chat": {
     "title": "Suojattu keskustelu",
