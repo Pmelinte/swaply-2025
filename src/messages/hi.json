@@ -76,7 +76,8 @@
     "badgeBenefits": "बैज के लाभ",
     "completeProfile": "अपनी प्रोफ़ाइल पूरी करें",
     "desk": "मेरा डेस्क",
-    "settings": "सेटिंग्स"
+    "settings": "सेटिंग्स",
+    "explore": "Explore"
   },
   "notifications": {
     "title": "सूचनाएँ (लाइक/रुचि/चैट/स्वैपली)",
@@ -837,7 +838,15 @@
     "chainDescription": "बहु-पक्षीय वृत्ताकार स्वैप: A, B को देता है, B, C को देता है, C, A को देता है",
     "myChainsTitle": "मेरी सक्रिय चेनें",
     "myChainsDescription": "चेन स्वैप जिनमें आप भाग ले रहे हैं",
-    "chainDetected": "चेन स्वचालित रूप से पहचानी गई"
+    "chainDetected": "चेन स्वचालित रूप से पहचानी गई",
+    "guestTitle": "Smart matching algorithm",
+    "guestAlgorithm": "Our AI analyzes 9 compatibility factors to find the best swaps for you.",
+    "guestDemoTitle": "Sony WH-1000XM5 Headphones",
+    "guestDemoScore": "92% match",
+    "guestDemoCategory": "Electronics",
+    "guestDemoCondition": "Like new",
+    "guestDemoLocation": "Berlin, Germany",
+    "guestDemoWants": "Looking for a tablet or e-reader in good condition"
   },
   "chat": {
     "title": "सुरक्षित चैट",

@@ -76,7 +76,8 @@
     "badgeBenefits": "Badge-Vorteile",
     "completeProfile": "Profil vervollständigen",
     "desk": "Mein Desk",
-    "settings": "Einstellungen"
+    "settings": "Einstellungen",
+    "explore": "Explore"
   },
   "notifications": {
     "title": "Benachrichtigungen",
@@ -837,7 +838,15 @@
     "chainDescription": "Mehrteiliger zirkulärer Tausch: A gibt an B, B gibt an C, C gibt an A",
     "myChainsTitle": "Meine aktiven Ketten",
     "myChainsDescription": "Chain Tausche you're participating in",
-    "chainDetected": "Kette automatisch erkannt"
+    "chainDetected": "Kette automatisch erkannt",
+    "guestTitle": "Smart matching algorithm",
+    "guestAlgorithm": "Our AI analyzes 9 compatibility factors to find the best swaps for you.",
+    "guestDemoTitle": "Sony WH-1000XM5 Headphones",
+    "guestDemoScore": "92% match",
+    "guestDemoCategory": "Electronics",
+    "guestDemoCondition": "Like new",
+    "guestDemoLocation": "Berlin, Germany",
+    "guestDemoWants": "Looking for a tablet or e-reader in good condition"
   },
   "chat": {
     "title": "Sicherer Chat",
@@ -1105,7 +1114,7 @@
     "svcLevelIntermediate": "Fortgeschritten",
     "svcLevelExpert": "Experte",
     "serviceDeliveryMethod": "Liefermethode",
-    "svcDeliveryRemote": "Ferngesteuert",
+    "svcDeliveryRemote": "Remote",
     "svcDeliveryInPerson": "Persönlich",
     "svcDeliveryHybrid": "Hybrid",
     "serviceHoursPerWeek": "Verfügbare Stunden pro Woche",

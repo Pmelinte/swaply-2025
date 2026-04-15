@@ -76,7 +76,8 @@
     "badgeBenefits": "バッジの特典",
     "completeProfile": "プロフィールを完成させる",
     "desk": "マイデスク",
-    "settings": "設定"
+    "settings": "設定",
+    "explore": "Explore"
   },
   "notifications": {
     "title": "通知（いいね/関心/チャット/スワプリー）",
@@ -837,7 +838,15 @@
     "chainDescription": "マルチパーティサーキュラースワップ：AがBに与え、BがCに与え、CがAに与える",
     "myChainsTitle": "アクティブなチェーン",
     "myChainsDescription": "あなたが参加しているチェーンスワップ",
-    "chainDetected": "チェーンが自動検出されました"
+    "chainDetected": "チェーンが自動検出されました",
+    "guestTitle": "Smart matching algorithm",
+    "guestAlgorithm": "Our AI analyzes 9 compatibility factors to find the best swaps for you.",
+    "guestDemoTitle": "Sony WH-1000XM5 Headphones",
+    "guestDemoScore": "92% match",
+    "guestDemoCategory": "Electronics",
+    "guestDemoCondition": "Like new",
+    "guestDemoLocation": "Berlin, Germany",
+    "guestDemoWants": "Looking for a tablet or e-reader in good condition"
   },
   "chat": {
     "title": "セキュアチャット",

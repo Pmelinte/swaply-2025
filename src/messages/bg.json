@@ -76,7 +76,8 @@
     "badgeBenefits": "Предимства на значката",
     "completeProfile": "Попълнете профила си",
     "desk": "Моят работен плот",
-    "settings": "Настройки"
+    "settings": "Настройки",
+    "explore": "Explore"
   },
   "notifications": {
     "title": "Известия (харесване/интерес/чат/swaply)",
@@ -837,7 +838,15 @@
     "chainDescription": "Многостранни циркулярни размени: A дава на B, B дава на C, C дава на A",
     "myChainsTitle": "Моите активни вериги",
     "myChainsDescription": "Верижни размени, в които участвувате",
-    "chainDetected": "Верига открита автоматично"
+    "chainDetected": "Верига открита автоматично",
+    "guestTitle": "Smart matching algorithm",
+    "guestAlgorithm": "Our AI analyzes 9 compatibility factors to find the best swaps for you.",
+    "guestDemoTitle": "Sony WH-1000XM5 Headphones",
+    "guestDemoScore": "92% match",
+    "guestDemoCategory": "Electronics",
+    "guestDemoCondition": "Like new",
+    "guestDemoLocation": "Berlin, Germany",
+    "guestDemoWants": "Looking for a tablet or e-reader in good condition"
   },
   "chat": {
     "title": "Защитен чат",

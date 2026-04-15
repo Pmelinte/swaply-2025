@@ -76,7 +76,8 @@
     "badgeBenefits": "Тэмдэгний давуу тал",
     "completeProfile": "Профайлаа бөглөх",
     "desk": "Миний Ширээ",
-    "settings": "Тохиргоо"
+    "settings": "Тохиргоо",
+    "explore": "Explore"
   },
   "notifications": {
     "title": "Мэдэгдлүүд (таалагдсан/сонирхол/чат/swaply)",
@@ -837,7 +838,15 @@
     "chainDescription": "Олон талын дугуй солилцоо: А нь В-д өгдөг, В нь С-д өгдөг, С нь А-д өгдөг",
     "myChainsTitle": "Миний идэвхтэй гинжүүд",
     "myChainsDescription": "Та оролцож буй гинжин солилцоо",
-    "chainDetected": "Гинж автоматаар илэрсэн"
+    "chainDetected": "Гинж автоматаар илэрсэн",
+    "guestTitle": "Smart matching algorithm",
+    "guestAlgorithm": "Our AI analyzes 9 compatibility factors to find the best swaps for you.",
+    "guestDemoTitle": "Sony WH-1000XM5 Headphones",
+    "guestDemoScore": "92% match",
+    "guestDemoCategory": "Electronics",
+    "guestDemoCondition": "Like new",
+    "guestDemoLocation": "Berlin, Germany",
+    "guestDemoWants": "Looking for a tablet or e-reader in good condition"
   },
   "chat": {
     "title": "Аюулгүй чат",

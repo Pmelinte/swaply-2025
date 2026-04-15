@@ -76,7 +76,8 @@
     "badgeBenefits": "Mga benepisyo ng badge",
     "completeProfile": "Kumpletuhin ang iyong profile",
     "desk": "Aking Desk",
-    "settings": "Mga setting"
+    "settings": "Mga setting",
+    "explore": "Explore"
   },
   "notifications": {
     "title": "Mga Notipikasyon (like/interes/chat/swaply)",
@@ -837,7 +838,15 @@
     "chainDescription": "Multi-party circular swaps: Nagbibigay ang A sa B, nagbibigay ang B sa C, nagbibigay ang C sa A",
     "myChainsTitle": "Ang aking aktibong chains",
     "myChainsDescription": "Chain swaps na iyong sinasali",
-    "chainDetected": "Chain na na-detect nang awtomatiko"
+    "chainDetected": "Chain na na-detect nang awtomatiko",
+    "guestTitle": "Smart matching algorithm",
+    "guestAlgorithm": "Our AI analyzes 9 compatibility factors to find the best swaps for you.",
+    "guestDemoTitle": "Sony WH-1000XM5 Headphones",
+    "guestDemoScore": "92% match",
+    "guestDemoCategory": "Electronics",
+    "guestDemoCondition": "Like new",
+    "guestDemoLocation": "Berlin, Germany",
+    "guestDemoWants": "Looking for a tablet or e-reader in good condition"
   },
   "chat": {
     "title": "Ligtas na chat",

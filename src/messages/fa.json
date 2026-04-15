@@ -76,7 +76,8 @@
     "badgeBenefits": "مزایای نشان",
     "completeProfile": "پروفایل خود را تکمیل کنید",
     "desk": "میز من",
-    "settings": "تنظیمات"
+    "settings": "تنظیمات",
+    "explore": "Explore"
   },
   "notifications": {
     "title": "اعلان‌ها (لایک/علاقه/چت/سواپلی)",
@@ -837,7 +838,15 @@
     "chainDescription": "تبادل‌های دایره‌ای چندجانبه: A به B می‌دهد، B به C می‌دهد، C به A می‌دهد",
     "myChainsTitle": "زنجیرهای فعال من",
     "myChainsDescription": "تعویض‌های زنجیره‌ای که شما در آن شرکت دارید",
-    "chainDetected": "زنجیره به‌صورت خودکار تشخیص داده شد"
+    "chainDetected": "زنجیره به‌صورت خودکار تشخیص داده شد",
+    "guestTitle": "Smart matching algorithm",
+    "guestAlgorithm": "Our AI analyzes 9 compatibility factors to find the best swaps for you.",
+    "guestDemoTitle": "Sony WH-1000XM5 Headphones",
+    "guestDemoScore": "92% match",
+    "guestDemoCategory": "Electronics",
+    "guestDemoCondition": "Like new",
+    "guestDemoLocation": "Berlin, Germany",
+    "guestDemoWants": "Looking for a tablet or e-reader in good condition"
   },
   "chat": {
     "title": "چت امن",

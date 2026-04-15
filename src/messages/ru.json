@@ -76,7 +76,8 @@
     "badgeBenefits": "Преимущества значков",
     "completeProfile": "Заполните свой профиль",
     "desk": "Мой стол",
-    "settings": "Настройки"
+    "settings": "Настройки",
+    "explore": "Explore"
   },
   "notifications": {
     "title": "Уведомления (лайк/интерес/чат/swaply)",
@@ -837,7 +838,15 @@
     "chainDescription": "Многосторонние круговые свопы: A отдает B, B отдает C, C отдает A",
     "myChainsTitle": "Мои активные цепочки",
     "myChainsDescription": "Цепочечные свопы, в которых вы участвуете",
-    "chainDetected": "Цепочка обнаружена автоматически"
+    "chainDetected": "Цепочка обнаружена автоматически",
+    "guestTitle": "Smart matching algorithm",
+    "guestAlgorithm": "Our AI analyzes 9 compatibility factors to find the best swaps for you.",
+    "guestDemoTitle": "Sony WH-1000XM5 Headphones",
+    "guestDemoScore": "92% match",
+    "guestDemoCategory": "Electronics",
+    "guestDemoCondition": "Like new",
+    "guestDemoLocation": "Berlin, Germany",
+    "guestDemoWants": "Looking for a tablet or e-reader in good condition"
   },
   "chat": {
     "title": "Защищённый чат",

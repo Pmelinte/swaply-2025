@@ -76,7 +76,8 @@
     "termsAndGdpr": "Termeni & GDPR",
     "badgeBenefits": "Beneficii badge",
     "completeProfile": "Completează profilul",
-    "settings": "Setări"
+    "settings": "Setări",
+    "explore": "Explore"
   },
   "notifications": {
     "title": "Notificări",
@@ -866,7 +867,15 @@
     "chainDescription": "Schimburi circulare: A dă lui B, B dă lui C, C dă lui A",
     "myChainsTitle": "Lanțurile mele active",
     "myChainsDescription": "Schimburi în lanț la care participi",
-    "chainDetected": "Lanț detectat automat"
+    "chainDetected": "Lanț detectat automat",
+    "guestTitle": "Smart matching algorithm",
+    "guestAlgorithm": "Our AI analyzes 9 compatibility factors to find the best swaps for you.",
+    "guestDemoTitle": "Sony WH-1000XM5 Headphones",
+    "guestDemoScore": "92% match",
+    "guestDemoCategory": "Electronics",
+    "guestDemoCondition": "Like new",
+    "guestDemoLocation": "Berlin, Germany",
+    "guestDemoWants": "Looking for a tablet or e-reader in good condition"
   },
   "chains": {
     "participants": "participanți",

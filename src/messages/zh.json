@@ -76,7 +76,8 @@
     "badgeBenefits": "徽章权益",
     "completeProfile": "完善您的个人资料",
     "desk": "我的桌面",
-    "settings": "设置"
+    "settings": "设置",
+    "explore": "Explore"
   },
   "notifications": {
     "title": "通知（点赞/关注/聊天/swaply）",
@@ -837,7 +838,15 @@
     "chainDescription": "多方循环交换：A 给 B，B 给 C，C 给 A",
     "myChainsTitle": "我的活跃链",
     "myChainsDescription": "您正在参与的链式交换",
-    "chainDetected": "自动检测到链"
+    "chainDetected": "自动检测到链",
+    "guestTitle": "Smart matching algorithm",
+    "guestAlgorithm": "Our AI analyzes 9 compatibility factors to find the best swaps for you.",
+    "guestDemoTitle": "Sony WH-1000XM5 Headphones",
+    "guestDemoScore": "92% match",
+    "guestDemoCategory": "Electronics",
+    "guestDemoCondition": "Like new",
+    "guestDemoLocation": "Berlin, Germany",
+    "guestDemoWants": "Looking for a tablet or e-reader in good condition"
   },
   "chat": {
     "title": "安全聊天",

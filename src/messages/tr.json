@@ -76,7 +76,8 @@
     "badgeBenefits": "Rozet avantajları",
     "completeProfile": "Profilinizi tamamlayın",
     "desk": "Benim Masam",
-    "settings": "Ayarlar"
+    "settings": "Ayarlar",
+    "explore": "Explore"
   },
   "notifications": {
     "title": "Bildirimler (beğeni/ilgi/sohbet/swaply)",
@@ -837,7 +838,15 @@
     "chainDescription": "Çok taraflı döngüsel takaslar: A, B'ye verir; B, C'ye verir; C, A'ya verir",
     "myChainsTitle": "Aktif zincirlerim",
     "myChainsDescription": "Katıldığınız zincir takasları",
-    "chainDetected": "Zincir otomatik olarak algılandı"
+    "chainDetected": "Zincir otomatik olarak algılandı",
+    "guestTitle": "Smart matching algorithm",
+    "guestAlgorithm": "Our AI analyzes 9 compatibility factors to find the best swaps for you.",
+    "guestDemoTitle": "Sony WH-1000XM5 Headphones",
+    "guestDemoScore": "92% match",
+    "guestDemoCategory": "Electronics",
+    "guestDemoCondition": "Like new",
+    "guestDemoLocation": "Berlin, Germany",
+    "guestDemoWants": "Looking for a tablet or e-reader in good condition"
   },
   "chat": {
     "title": "Güvenli sohbet",

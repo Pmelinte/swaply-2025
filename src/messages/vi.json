@@ -76,7 +76,8 @@
     "badgeBenefits": "Quyền lợi huy hiệu",
     "completeProfile": "Hoàn thiện hồ sơ của bạn",
     "desk": "Bàn của tôi",
-    "settings": "Cài đặt"
+    "settings": "Cài đặt",
+    "explore": "Explore"
   },
   "notifications": {
     "title": "Thông báo (thích/quan tâm/trò chuyện/swaply)",
@@ -837,7 +838,15 @@
     "chainDescription": "Trao đổi vòng tròn đa bên: A trao cho B, B trao cho C, C trao cho A",
     "myChainsTitle": "Chuỗi hoạt động của tôi",
     "myChainsDescription": "Trao đổi theo chuỗi bạn đang tham gia",
-    "chainDetected": "Chuỗi được phát hiện tự động"
+    "chainDetected": "Chuỗi được phát hiện tự động",
+    "guestTitle": "Smart matching algorithm",
+    "guestAlgorithm": "Our AI analyzes 9 compatibility factors to find the best swaps for you.",
+    "guestDemoTitle": "Sony WH-1000XM5 Headphones",
+    "guestDemoScore": "92% match",
+    "guestDemoCategory": "Electronics",
+    "guestDemoCondition": "Like new",
+    "guestDemoLocation": "Berlin, Germany",
+    "guestDemoWants": "Looking for a tablet or e-reader in good condition"
   },
   "chat": {
     "title": "Trò chuyện an toàn",

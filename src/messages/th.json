@@ -76,7 +76,8 @@
     "badgeBenefits": "สิทธิประโยชน์ตรา",
     "completeProfile": "กรอกโปรไฟล์ให้สมบูรณ์",
     "desk": "Desk ของฉัน",
-    "settings": "การตั้งค่า"
+    "settings": "การตั้งค่า",
+    "explore": "Explore"
   },
   "notifications": {
     "title": "การแจ้งเตือน (ถูกใจ/สนใจ/แชท/swaply)",
@@ -837,7 +838,15 @@
     "chainDescription": "การแลกเปลี่ยนแบบวงกลมหลายฝ่าย: A ให้แก่ B, B ให้แก่ C, C ให้แก่ A",
     "myChainsTitle": "เชนที่ใช้งานอยู่ของฉัน",
     "myChainsDescription": "เชนสวอปที่คุณกำลังมีส่วนร่วม",
-    "chainDetected": "ตรวจหาเชนโดยอัตโนมัติ"
+    "chainDetected": "ตรวจหาเชนโดยอัตโนมัติ",
+    "guestTitle": "Smart matching algorithm",
+    "guestAlgorithm": "Our AI analyzes 9 compatibility factors to find the best swaps for you.",
+    "guestDemoTitle": "Sony WH-1000XM5 Headphones",
+    "guestDemoScore": "92% match",
+    "guestDemoCategory": "Electronics",
+    "guestDemoCondition": "Like new",
+    "guestDemoLocation": "Berlin, Germany",
+    "guestDemoWants": "Looking for a tablet or e-reader in good condition"
   },
   "chat": {
     "title": "แชทที่ปลอดภัย",

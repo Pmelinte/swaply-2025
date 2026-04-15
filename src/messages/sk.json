@@ -76,7 +76,8 @@
     "badgeBenefits": "Výhody odznaku",
     "completeProfile": "Doplňte svoj profil",
     "desk": "Môj stôl",
-    "settings": "Nastavenia"
+    "settings": "Nastavenia",
+    "explore": "Explore"
   },
   "notifications": {
     "title": "Oznámenia (like/záujem/chat/swaply)",
@@ -837,7 +838,15 @@
     "chainDescription": "Viacstranné kruhové výmeny: A dáva B, B dáva C, C dáva A",
     "myChainsTitle": "Moje aktívne reťazce",
     "myChainsDescription": "Reťazové výmeny, na ktorých sa zúčastňujete",
-    "chainDetected": "Reťazec detegovaný automaticky"
+    "chainDetected": "Reťazec detegovaný automaticky",
+    "guestTitle": "Smart matching algorithm",
+    "guestAlgorithm": "Our AI analyzes 9 compatibility factors to find the best swaps for you.",
+    "guestDemoTitle": "Sony WH-1000XM5 Headphones",
+    "guestDemoScore": "92% match",
+    "guestDemoCategory": "Electronics",
+    "guestDemoCondition": "Like new",
+    "guestDemoLocation": "Berlin, Germany",
+    "guestDemoWants": "Looking for a tablet or e-reader in good condition"
   },
   "chat": {
     "title": "Zabezpečený chat",

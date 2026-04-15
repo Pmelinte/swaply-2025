@@ -76,7 +76,8 @@
     "badgeBenefits": "Märgi eelised",
     "completeProfile": "Täida oma profiil",
     "desk": "Minu laud",
-    "settings": "Seaded"
+    "settings": "Seaded",
+    "explore": "Explore"
   },
   "notifications": {
     "title": "Teavitused (meeldimine/huvi/vestlus/swaply)",
@@ -837,7 +838,15 @@
     "chainDescription": "Mitmeosalised ringvahetused: A annab B-le, B annab C-le, C annab A-le",
     "myChainsTitle": "Minu aktiivsed ahelad",
     "myChainsDescription": "Ahela vahetused, milles osaled",
-    "chainDetected": "Ahel tuvastati automaatselt"
+    "chainDetected": "Ahel tuvastati automaatselt",
+    "guestTitle": "Smart matching algorithm",
+    "guestAlgorithm": "Our AI analyzes 9 compatibility factors to find the best swaps for you.",
+    "guestDemoTitle": "Sony WH-1000XM5 Headphones",
+    "guestDemoScore": "92% match",
+    "guestDemoCategory": "Electronics",
+    "guestDemoCondition": "Like new",
+    "guestDemoLocation": "Berlin, Germany",
+    "guestDemoWants": "Looking for a tablet or e-reader in good condition"
   },
   "chat": {
     "title": "Turvaline vestlus",

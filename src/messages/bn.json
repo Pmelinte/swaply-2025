@@ -76,7 +76,8 @@
     "badgeBenefits": "ব্যাজের সুবিধা",
     "completeProfile": "আপনার প্রোফাইল সম্পূর্ণ করুন",
     "desk": "আমার ডেস্ক",
-    "settings": "সেটিংস"
+    "settings": "সেটিংস",
+    "explore": "Explore"
   },
   "notifications": {
     "title": "বিজ্ঞপ্তি (লাইক/আগ্রহ/চ্যাট/স্বাপলি)",
@@ -837,7 +838,15 @@
     "chainDescription": "বহু-পক্ষীয় বৃত্তাকার সোয়াপ: এ দেয় বি-কে, বি দেয় সি-কে, সি দেয় এ-কে",
     "myChainsTitle": "আমার সক্রিয় চেইন",
     "myChainsDescription": "চেইন সোয়াপগুলি যাতে আপনি অংশগ্রহণ করছেন",
-    "chainDetected": "চেইন স্বয়ংক্রিয়ভাবে সনাক্ত করা হয়েছে"
+    "chainDetected": "চেইন স্বয়ংক্রিয়ভাবে সনাক্ত করা হয়েছে",
+    "guestTitle": "Smart matching algorithm",
+    "guestAlgorithm": "Our AI analyzes 9 compatibility factors to find the best swaps for you.",
+    "guestDemoTitle": "Sony WH-1000XM5 Headphones",
+    "guestDemoScore": "92% match",
+    "guestDemoCategory": "Electronics",
+    "guestDemoCondition": "Like new",
+    "guestDemoLocation": "Berlin, Germany",
+    "guestDemoWants": "Looking for a tablet or e-reader in good condition"
   },
   "chat": {
     "title": "নিরাপদ চ্যাট",

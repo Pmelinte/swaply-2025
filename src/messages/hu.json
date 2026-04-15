@@ -76,7 +76,8 @@
     "badgeBenefits": "Jelvény előnyök",
     "completeProfile": "Profil kiegészítése",
     "desk": "Saját Pult",
-    "settings": "Beállítások"
+    "settings": "Beállítások",
+    "explore": "Explore"
   },
   "notifications": {
     "title": "Értesítések (kedvelés/érdeklődés/csevegés/swaply)",
@@ -837,7 +838,15 @@
     "chainDescription": "Többszereplős cirkuláris cserék: A átad B-nek, B átad C-nek, C átad A-nak",
     "myChainsTitle": "Aktív láncaim",
     "myChainsDescription": "Cserélánc cserek, amelyekben részt veszel",
-    "chainDetected": "Lánc automatikusan észlelve"
+    "chainDetected": "Lánc automatikusan észlelve",
+    "guestTitle": "Smart matching algorithm",
+    "guestAlgorithm": "Our AI analyzes 9 compatibility factors to find the best swaps for you.",
+    "guestDemoTitle": "Sony WH-1000XM5 Headphones",
+    "guestDemoScore": "92% match",
+    "guestDemoCategory": "Electronics",
+    "guestDemoCondition": "Like new",
+    "guestDemoLocation": "Berlin, Germany",
+    "guestDemoWants": "Looking for a tablet or e-reader in good condition"
   },
   "chat": {
     "title": "Biztonságos csevegés",

@@ -76,7 +76,8 @@
     "badgeBenefits": "Beneficios de insignias",
     "completeProfile": "Completa tu perfil",
     "desk": "Mi Escritorio",
-    "settings": "Configuración"
+    "settings": "Configuración",
+    "explore": "Explore"
   },
   "notifications": {
     "title": "Notificaciones",
@@ -837,7 +838,15 @@
     "chainDescription": "Intercambios circulares multipartes: A da a B, B da a C, C da a A",
     "myChainsTitle": "Mis cadenas activas",
     "myChainsDescription": "Intercambios en cadena en los que participas",
-    "chainDetected": "Cadena detectada automáticamente"
+    "chainDetected": "Cadena detectada automáticamente",
+    "guestTitle": "Smart matching algorithm",
+    "guestAlgorithm": "Our AI analyzes 9 compatibility factors to find the best swaps for you.",
+    "guestDemoTitle": "Sony WH-1000XM5 Headphones",
+    "guestDemoScore": "92% match",
+    "guestDemoCategory": "Electronics",
+    "guestDemoCondition": "Like new",
+    "guestDemoLocation": "Berlin, Germany",
+    "guestDemoWants": "Looking for a tablet or e-reader in good condition"
   },
   "chat": {
     "title": "Chat seguro",

@@ -76,7 +76,8 @@
     "badgeBenefits": "Zimes prieksrocibas",
     "completeProfile": "Aizpildiet savu profilu",
     "desk": "Mans Galds",
-    "settings": "Iestatījumi"
+    "settings": "Iestatījumi",
+    "explore": "Explore"
   },
   "notifications": {
     "title": "Pazinojumi (patik/interese/terzesana/swaply)",
@@ -837,7 +838,15 @@
     "chainDescription": "Daudzpusīgas apļveida apmaiņas: A dod B, B dod C, C dod A",
     "myChainsTitle": "Manas aktīvās ķēdes",
     "myChainsDescription": "Ķēdes apmaiņas, kuros jūs piedalāties",
-    "chainDetected": "Ķēde automātiski noteikta"
+    "chainDetected": "Ķēde automātiski noteikta",
+    "guestTitle": "Smart matching algorithm",
+    "guestAlgorithm": "Our AI analyzes 9 compatibility factors to find the best swaps for you.",
+    "guestDemoTitle": "Sony WH-1000XM5 Headphones",
+    "guestDemoScore": "92% match",
+    "guestDemoCategory": "Electronics",
+    "guestDemoCondition": "Like new",
+    "guestDemoLocation": "Berlin, Germany",
+    "guestDemoWants": "Looking for a tablet or e-reader in good condition"
   },
   "chat": {
     "title": "Droša tērzēšana",

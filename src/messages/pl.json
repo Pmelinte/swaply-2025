@@ -76,7 +76,8 @@
     "badgeBenefits": "Korzyści z odznak",
     "completeProfile": "Uzupełnij swój profil",
     "desk": "Moje Biuro",
-    "settings": "Ustawienia"
+    "settings": "Ustawienia",
+    "explore": "Explore"
   },
   "notifications": {
     "title": "Powiadomienia (polubienie/zainteresowanie/czat/swaply)",
@@ -837,7 +838,15 @@
     "chainDescription": "Wielostronne zamiany kołowe: A daje B, B daje C, C daje A",
     "myChainsTitle": "Moje aktywne łańcuchy",
     "myChainsDescription": "Zamiany łańcuchowe, w których uczestniczysz",
-    "chainDetected": "Łańcuch wykryty automatycznie"
+    "chainDetected": "Łańcuch wykryty automatycznie",
+    "guestTitle": "Smart matching algorithm",
+    "guestAlgorithm": "Our AI analyzes 9 compatibility factors to find the best swaps for you.",
+    "guestDemoTitle": "Sony WH-1000XM5 Headphones",
+    "guestDemoScore": "92% match",
+    "guestDemoCategory": "Electronics",
+    "guestDemoCondition": "Like new",
+    "guestDemoLocation": "Berlin, Germany",
+    "guestDemoWants": "Looking for a tablet or e-reader in good condition"
   },
   "chat": {
     "title": "Bezpieczny czat",
