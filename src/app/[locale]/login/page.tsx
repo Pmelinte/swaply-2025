@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -28,7 +28,9 @@ function LoginContent() {
   const router = useRouter();
   const t = useTranslations("login");
   const tc = useTranslations("common");
-  const returnTo = params.get("returnTo") || "/profile";
+  const rawReturnTo = params.get("returnTo") || "/profile";
+  // Strip any locale prefix that slipped through (e.g. /en/match → /match)
+  const returnTo = rawReturnTo.replace(/^\/[a-z]{2,3}(?=\/)/, "") || "/";
   const initialTab = params.get("tab");
   const [activeTab, setActiveTab] = useState<string>(
     initialTab === "register" || initialTab === "reset" ? initialTab : "login",
@@ -45,6 +47,8 @@ function LoginContent() {
     errorParam === "confirmation" ? "error" : "idle",
   );
   const [processing, setProcessing] = useState(false);
+  // Guard: ensure at most one navigation happens (prevents useEffect + handleSubmit race)
+  const navigatingRef = useRef(false);
   const { login, register, resetPassword, user } = useAppState();
 
   const tabs = [
@@ -63,7 +67,10 @@ function LoginContent() {
   ];
 
   useEffect(() => {
-    if (user) router.replace(returnTo);
+    if (user && !navigatingRef.current) {
+      navigatingRef.current = true;
+      router.replace(returnTo);
+    }
   }, [user, returnTo, router]);
 
   const handleSubmit = async () => {
@@ -96,7 +103,11 @@ function LoginContent() {
         } else {
           setMessage(t("authenticated"));
           setStatus("success");
-          router.replace(returnTo);
+          // Navigate only if useEffect hasn't already done so (prevents double-navigation race)
+          if (!navigatingRef.current) {
+            navigatingRef.current = true;
+            router.replace(returnTo);
+          }
         }
       } else if (activeTab === "register") {
         const result = await register(email, password, accept);
