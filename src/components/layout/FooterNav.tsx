@@ -4,11 +4,22 @@ import { Link, usePathname } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import {
   Home,
-  Box,
+  Search,
+  Package,
+  Wrench,
+  Ticket,
   HeartHandshake,
   MessageCircle,
   Shuffle,
 } from "lucide-react";
+
+function getExploreIcon(pathname: string) {
+  if (pathname === "/objects" || pathname.startsWith("/objects/")) return Package;
+  if (pathname === "/properties" || pathname.startsWith("/properties/")) return Home;
+  if (pathname === "/services" || pathname.startsWith("/services/")) return Wrench;
+  if (pathname === "/events" || pathname.startsWith("/events/")) return Ticket;
+  return Search;
+}
 
 export function FooterNav() {
   const t = useTranslations("nav");
@@ -17,9 +28,11 @@ export function FooterNav() {
   // Badge: show conversation count (no unread tracking yet)
   const chatBadge = 0;
 
+  const ExploreIcon = getExploreIcon(pathname);
+
   const links = [
     { href: "/", label: t("home"), icon: Home, badge: 0 },
-    { href: "/objects", label: t("objects"), icon: Box, badge: 0 },
+    { href: "/explore", label: t("explore"), icon: ExploreIcon, badge: 0 },
     { href: "/match", label: t("matching"), icon: HeartHandshake, badge: 0 },
     { href: "/chat", label: t("messages"), icon: MessageCircle, badge: chatBadge },
     { href: "/change", label: t("exchange"), icon: Shuffle, badge: 0 },
