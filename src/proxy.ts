@@ -106,17 +106,15 @@ export async function proxy(request: NextRequest) {
 
   const { supabase, response: supaResponse } =
     createMiddlewareSupabase(request);
-  // Use getSession() for route-protection guards: it validates the JWT
-  // locally from cookies with zero network round-trips. getUser() makes an
-  // outbound HTTP call to Supabase Auth on every middleware invocation, which
-  // can time out in edge environments and cause false 307 redirects to login
-  // even when the user has a valid, fresh session.
-  // Token refresh is handled by the browser Supabase client automatically.
+  // getUser() validates the token with Supabase Auth server AND triggers
+  // the setAll() cookie callback, which writes refreshed auth cookies
+  // back into the response. Without this, cookies are never persisted
+  // and the session disappears on the next navigation.
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!session?.user) {
+  if (!user) {
     const loginUrl = request.nextUrl.clone();
     // Keep locale prefix in login redirect
     const localePrefix = pathname.split("/")[1] || "en";
@@ -130,7 +128,7 @@ export async function proxy(request: NextRequest) {
     const { data: profile } = await supabase
       .from("profiles")
       .select("badge")
-      .eq("user_id", session.user.id)
+      .eq("user_id", user.id)
       .maybeSingle();
 
     const badge = (profile as Record<string, unknown> | null)?.badge as string;
