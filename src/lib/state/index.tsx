@@ -595,22 +595,20 @@ export function AppStateProvider({ children, initialLocale }: { children: ReactN
 
     let unsubscribe: (() => void) | undefined;
     const init = async () => {
-      const {
-        data: { user: authUser },
-        error: authError,
-      } = await supabase.auth.getUser();
-      if (authError) {
-        setLastError(authError.message);
+      // Use getSession() — reads JWT locally from cookies, zero network calls.
+      // getUser() makes an HTTP call that can fail/timeout and previously
+      // triggered signOut() which nuked valid cookies, breaking session persistence.
+      const { data, error } = await supabase.auth.getSession();
+      if (error) {
+        setLastError(error.message);
       }
 
-      if (authUser?.id) {
+      const session = data?.session;
+      if (session?.user?.id) {
         setDataSource("supabase");
         setLoggedIn(true);
-        await hydrateSupabase(authUser.id);
+        await hydrateSupabase(session.user.id);
       } else {
-        // If a stale local session exists without a valid server user, clear it
-        // so UI state remains consistent with middleware/server auth checks.
-        try { await supabase.auth.signOut(); } catch { /* ignore */ }
         setLoggedIn(false);
         setUser(null);
         setConversations([]);
