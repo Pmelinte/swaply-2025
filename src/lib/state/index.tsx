@@ -595,25 +595,22 @@ export function AppStateProvider({ children, initialLocale }: { children: ReactN
 
     let unsubscribe: (() => void) | undefined;
     const init = async () => {
-      const { data, error } = await supabase.auth.getSession();
-      if (error) {
-        setLastError(error.message);
-        setDataSource("mock");
-        setUser(mockUser);
-        setItems(mockItems);
-        setConversations(mockConversations);
-        setSwaps(mockSwaps);
-        setNotifications([]);
-        setLoading({ profile: false, items: false, auth: false });
-        return;
+      const {
+        data: { user: authUser },
+        error: authError,
+      } = await supabase.auth.getUser();
+      if (authError) {
+        setLastError(authError.message);
       }
 
-      const session = data.session;
-      if (session?.user?.id) {
+      if (authUser?.id) {
         setDataSource("supabase");
         setLoggedIn(true);
-        await hydrateSupabase(session.user.id);
+        await hydrateSupabase(authUser.id);
       } else {
+        // If a stale local session exists without a valid server user, clear it
+        // so UI state remains consistent with middleware/server auth checks.
+        try { await supabase.auth.signOut(); } catch { /* ignore */ }
         setLoggedIn(false);
         setUser(null);
         setConversations([]);
