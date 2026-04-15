@@ -115,7 +115,7 @@ export async function proxy(request: NextRequest) {
     // Keep locale prefix in login redirect
     const localePrefix = pathname.split("/")[1] || "en";
     loginUrl.pathname = `/${localePrefix}/login`;
-    loginUrl.searchParams.set("returnTo", pathname);
+    loginUrl.searchParams.set("returnTo", barePath);
     return NextResponse.redirect(loginUrl);
   }
 
