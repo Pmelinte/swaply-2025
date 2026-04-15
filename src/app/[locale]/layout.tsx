@@ -8,7 +8,6 @@ import { Providers } from "./providers";
 import { TopBar } from "@/components/layout/TopBar";
 import { ContextBar } from "@/components/layout/ContextBar";
 import { FooterNav } from "@/components/layout/FooterNav";
-import { LegalFooter } from "@/components/layout/LegalFooter";
 import { GlobalNudge } from "@/components/layout/GlobalNudge";
 import { ClientOverlays } from "@/components/ClientOverlays";
 import { TokenToast } from "@/components/tokens/TokenToast";
@@ -172,7 +171,6 @@ export default async function LocaleLayout({ children, params }: Props) {
             <div className="mx-auto min-h-screen max-w-6xl px-4 pb-24 pt-4">
               {children}
             </div>
-            <LegalFooter />
             <FooterNav />
             <ClientOverlays />
             <TokenToast />
