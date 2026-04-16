@@ -3112,5 +3112,53 @@
     "free": "Besplatno",
     "premium": "Premium",
     "platinum": "Platinum"
+  },
+  "explore": {
+    "wants": "Wants",
+    "offers": "Offers",
+    "myWants": "My Wants",
+    "myOffers": "My Offers",
+    "addWant": "+ Add Want",
+    "addOffer": "+ Add Offer",
+    "mapToggleWants": "Wants",
+    "mapToggleOffers": "Offers",
+    "mapCollapse": "Collapse map",
+    "mapExpand": "Expand map",
+    "loginToSwipe": "Sign in to start swiping",
+    "noMoreItems": "No more items to show",
+    "reload": "Reload",
+    "chosenWants": "You chose {count} wants",
+    "chosenOffers": "You chose {count} offers",
+    "wantsDescription": "Swipe right on items you want · Left to skip",
+    "offersDescription": "Select the items you’re ready to offer",
+    "noActiveItems": "You have no active items",
+    "addFirstItem": "Add your first item",
+    "undoSwipe": "Undo",
+    "resetAndChoose": "Reset & choose again",
+    "filterDrawer": {
+      "title": "Filters",
+      "filterWants": "Filter Wants",
+      "filterOffers": "Filter Offers",
+      "searchPlaceholder": "Search categories…",
+      "distance": "Distance",
+      "condition": "Condition",
+      "exchangeType": "Exchange type",
+      "apply": "Apply filters",
+      "reset": "Reset"
+    },
+    "add": {
+      "titleLabel": "Title",
+      "descriptionLabel": "Description",
+      "photosLabel": "Photos",
+      "locationLabel": "Location",
+      "next": "Next",
+      "publish": "Publish",
+      "step": "{current} / {total}",
+      "back": "Back",
+      "addWantTitle": "Add Want",
+      "addOfferTitle": "Add Offer",
+      "signInRequired": "Sign in to add items",
+      "signIn": "Sign in"
+    }
   }
 }
