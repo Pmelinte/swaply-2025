@@ -1,5 +1,7 @@
 import { cookies } from "next/headers";
 
+// Callers only ever look up flat string keys; nested objects (e.g. explore.filterDrawer)
+// exist in the JSON but are never accessed through this helper.
 type Messages = Record<string, Record<string, string>>;
 
 /**
@@ -17,9 +19,11 @@ export async function getMessages(): Promise<Messages> {
     // cookies() can throw in some contexts — use default
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const cast = (m: any): Messages => m as Messages;
   try {
-    return (await import(`../../messages/${locale}.json`)).default;
+    return cast((await import(`../../messages/${locale}.json`)).default);
   } catch {
-    return (await import("../../messages/en.json")).default;
+    return cast((await import("../../messages/en.json")).default);
   }
 }
