@@ -29,7 +29,6 @@ import {
   SlidersHorizontal,
   X,
   Briefcase,
-  Layers,
   Tag,
   Home,
   Wrench,
@@ -286,11 +285,8 @@ export default function ObjectsPage() {
       ? initialTypeFromUrl
       : "all";
 
-  // --- Browse mode (secondary) ---
-  // Guests default to grid view; swipe mode requires auth
-  const [browseMode, setBrowseMode] = useState<BrowseMode | null>(
-    !user || initialListingType !== "all" ? "grid" : null
-  );
+  // --- Browse mode ---
+  const [browseMode, setBrowseMode] = useState<BrowseMode | null>("grid");
   const [search, setSearch] = useState("");
   const [sortMode, setSortMode] = useState<"newest" | "category" | "condition" | "popular" | "trusted">("newest");
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
@@ -547,40 +543,12 @@ export default function ObjectsPage() {
         </div>
       </div>
 
-      {/* ── Category SEO nav ── */}
-      <nav className="mb-5 flex flex-wrap gap-2">
-        {([
-          "electronics", "sport", "arts", "books", "home", "fashion",
-          "automotive", "music", "garden", "toys", "tools", "other",
-        ] as const).map((slug) => (
-          { slug, label: tCat(slug) }
-        )).map((cat) => (
-          <Link
-            key={cat.slug}
-            href={`/objects/category/${cat.slug}`}
-            className="inline-flex items-center gap-1 rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-600 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:border-blue-600 dark:hover:bg-blue-900/20"
-          >
-            <Tag className="h-3 w-3" />
-            {cat.label}
-          </Link>
-        ))}
-      </nav>
-
       {/* ── View mode switcher ── */}
       <div className="mb-4 flex items-center gap-2">
         <div className="flex rounded-lg border border-zinc-200 dark:border-zinc-700">
-          {user && (
-            <button
-              onClick={() => setBrowseMode(null)}
-              className={`rounded-l-lg px-3 py-2 text-xs font-medium ${isSwipeView ? "bg-blue-600 text-white" : "text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"}`}
-            >
-              <Layers className="inline h-3.5 w-3.5 mr-1" />
-              {t("swipeMode")}
-            </button>
-          )}
           <button
             onClick={() => setBrowseMode("grid")}
-            className={`${user ? "" : "rounded-l-lg "}px-2.5 py-2 ${browseMode === "grid" ? "bg-blue-600 text-white" : "text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"}`}
+            className={`rounded-l-lg px-2.5 py-2 ${browseMode === "grid" ? "bg-blue-600 text-white" : "text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"}`}
           >
             <LayoutGrid className="h-3.5 w-3.5" />
           </button>
@@ -590,27 +558,6 @@ export default function ObjectsPage() {
           >
             <List className="h-3.5 w-3.5" />
           </button>
-        </div>
-
-        {/* Listing type filter */}
-        <div className="flex rounded-lg border border-zinc-200 dark:border-zinc-700">
-          {([
-            { key: "all" as const, icon: <Layers className="h-3.5 w-3.5" />, label: t("allTypes") },
-            { key: "object" as const, icon: <Package className="h-3.5 w-3.5" />, label: t("objectsType") },
-            { key: "property" as const, icon: <Home className="h-3.5 w-3.5" />, label: t("propertiesType") },
-            { key: "service" as const, icon: <Wrench className="h-3.5 w-3.5" />, label: t("servicesType") },
-          ]).map((lt, i) => (
-            <button
-              key={lt.key}
-              onClick={() => setListingTypeFilter(lt.key)}
-              className={`inline-flex items-center gap-1 px-2.5 py-2 text-xs font-medium ${
-                i === 0 ? "rounded-l-lg" : i === 3 ? "rounded-r-lg" : ""
-              } ${listingTypeFilter === lt.key ? "bg-purple-600 text-white" : "text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"}`}
-            >
-              {lt.icon}
-              <span className="hidden sm:inline">{lt.label}</span>
-            </button>
-          ))}
         </div>
 
         {/* Show search/filter/sort only in browse modes */}
@@ -864,29 +811,6 @@ export default function ObjectsPage() {
                 </p>
               </div>
               <Pill color="green">{t("chosenOffered", { count: offerRightCount })}</Pill>
-            </div>
-
-            {/* Listing type filter */}
-            <div className="mb-3 flex justify-center">
-              <div className="inline-flex rounded-lg border border-emerald-200 dark:border-emerald-700">
-                {([
-                  { key: "all" as const, icon: <Layers className="h-3.5 w-3.5" />, label: t("allTypes") },
-                  { key: "object" as const, icon: <Package className="h-3.5 w-3.5" />, label: t("objectsType") },
-                  { key: "property" as const, icon: <Home className="h-3.5 w-3.5" />, label: t("propertiesType") },
-                  { key: "service" as const, icon: <Wrench className="h-3.5 w-3.5" />, label: t("servicesType") },
-                ]).map((lt, i) => (
-                  <button
-                    key={lt.key}
-                    onClick={() => setListingTypeFilter(lt.key)}
-                    className={`inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium ${
-                      i === 0 ? "rounded-l-lg" : i === 3 ? "rounded-r-lg" : ""
-                    } ${listingTypeFilter === lt.key ? "bg-emerald-600 text-white" : "text-emerald-700 hover:bg-emerald-100 dark:text-emerald-300 dark:hover:bg-emerald-800"}`}
-                  >
-                    {lt.icon}
-                    <span className="hidden sm:inline">{lt.label}</span>
-                  </button>
-                ))}
-              </div>
             </div>
 
             {/* Undo button for offers */}
