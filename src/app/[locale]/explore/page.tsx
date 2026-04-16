@@ -10,17 +10,15 @@ import { OffersZone } from "@/components/explore/OffersZone";
 import { MapSection } from "@/components/explore/MapSection";
 import { ExploreFilterDrawer } from "@/components/explore/ExploreFilterDrawer";
 import { CategoryPickerSheet } from "@/components/explore/CategoryPickerSheet";
-import type { ExploreFilters } from "@/components/explore/ExploreFilterDrawer";
 
 export default function ExplorePage() {
   const { user } = useAppState();
   const t = useTranslations("nav");
+  const te = useTranslations("explore");
 
   const [filterOpen, setFilterOpen] = useState(false);
   const [addWantOpen, setAddWantOpen] = useState(false);
   const [addOfferOpen, setAddOfferOpen] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_appliedFilters, setAppliedFilters] = useState<ExploreFilters | null>(null);
 
   return (
     <>
@@ -37,7 +35,7 @@ export default function ExplorePage() {
             aria-label="Open filters"
           >
             <SlidersHorizontal className="h-4 w-4" />
-            <span className="hidden sm:inline">Filters</span>
+            <span className="hidden sm:inline">{te("filterDrawer.title")}</span>
           </button>
         </div>
 
@@ -55,10 +53,7 @@ export default function ExplorePage() {
       <ExploreFilterDrawer
         open={filterOpen}
         onClose={() => setFilterOpen(false)}
-        onApply={(filters) => {
-          setAppliedFilters(filters);
-          setFilterOpen(false);
-        }}
+        onApply={() => setFilterOpen(false)}
       />
 
       <CategoryPickerSheet
