@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 
-type Messages = Record<string, Record<string, string>>;
+type Messages = Record<string, Record<string, string | Record<string, string>>>;
 
 /**
  * Load translation messages server-side.
