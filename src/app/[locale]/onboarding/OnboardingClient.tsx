@@ -151,11 +151,11 @@ export function OnboardingClient() {
           if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
             const actualAge = age - 1;
             if (actualAge < 16) {
-              setError("You must be at least 16 years old to use Swaply");
+              setError(tp("ageMinimum"));
               return;
             }
           } else if (age < 16) {
-            setError("You must be at least 16 years old to use Swaply");
+            setError(tp("ageMinimum"));
             return;
           }
           payload.display_name = stepData.display_name;

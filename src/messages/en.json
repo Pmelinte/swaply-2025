@@ -379,6 +379,7 @@
     "dateOfBirthRequired": "Date of birth is required",
     "countryRequired": "Country is required",
     "languageRequired": "Please select at least one language",
+    "ageMinimum": "You must be at least 16 years old to use Swaply",
     "propertiesAndServices": "Properties & Services",
     "myProperty": "My Property",
     "myPropertyDesc": "Configure your property for house swaps — simultaneous, one-way, or permanent.",

@@ -366,6 +366,7 @@
     "dateOfBirthRequired": "Data nașterii este obligatorie",
     "countryRequired": "Țara este obligatorie",
     "languageRequired": "Selectează cel puțin o limbă",
+    "ageMinimum": "Trebuie să ai cel puțin 16 ani pentru a folosi Swaply",
     "propertiesAndServices": "Proprietăți & Servicii",
     "myProperty": "Proprietatea mea",
     "myPropertyDesc": "Configurează proprietatea ta pentru schimb de case — simultan, într-o direcție sau permanent.",
