@@ -2043,7 +2043,11 @@
     "typeEvent": "🎫 Events",
     "typeObject": "📦 Objects",
     "typeProperty": "🏠 Properties",
-    "typeService": "🛠️ Services"
+    "typeService": "🛠️ Services",
+    "wizardStep1Title": "Who are you?",
+    "wizardStep2Title": "Where are you?",
+    "wizardStep3Title": "Your languages",
+    "wizardStep4Title": "How do you want to swap?"
   },
   "feedback": {
     "title": "피드백",
