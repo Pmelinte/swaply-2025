@@ -143,6 +143,21 @@ export function OnboardingClient() {
             setError(tp("dateOfBirthRequired"));
             return;
           }
+          // Validate minimum age of 16
+          const dob = new Date(stepData.date_of_birth);
+          const today = new Date();
+          const age = today.getFullYear() - dob.getFullYear();
+          const monthDiff = today.getMonth() - dob.getMonth();
+          if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+            const actualAge = age - 1;
+            if (actualAge < 16) {
+              setError("You must be at least 16 years old to use Swaply");
+              return;
+            }
+          } else if (age < 16) {
+            setError("You must be at least 16 years old to use Swaply");
+            return;
+          }
           payload.display_name = stepData.display_name;
           payload.first_name = stepData.first_name || null;
           payload.avatar_url = stepData.avatar_url || null;
