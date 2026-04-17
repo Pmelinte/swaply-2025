@@ -142,6 +142,7 @@ export function ObjectWizardClient() {
   const [aiGeneratedDescription, setAiGeneratedDescription] = useState(false);
   const [aiGeneratedCategory, setAiGeneratedCategory] = useState(false);
   const [lastAnalyzedUrl, setLastAnalyzedUrl] = useState<string | null>(null);
+  const [urlInput, setUrlInput] = useState("");
 
   const [form, setForm] = useState<FormData>({
     category_l1: "",
@@ -208,6 +209,16 @@ export function ObjectWizardClient() {
     } finally {
       setAiLoading(false);
     }
+  };
+
+  const handleUrlSubmit = () => {
+    const trimmed = urlInput.trim();
+    if (!trimmed) return;
+    setUrlInput("");
+    if (!form.photos.includes(trimmed)) {
+      setForm((prev) => ({ ...prev, photos: [...prev.photos, trimmed] }));
+    }
+    analyzeWithGrok(trimmed);
   };
 
   const handlePhotoUpload = async (files: File[]) => {
@@ -410,90 +421,123 @@ export function ObjectWizardClient() {
             </div>
           )}
 
-          {/* Step 1: Category & Title */}
+          {/* Step 1: Photo → Title → Categories */}
           {step === 1 && (
             <div className="space-y-6">
               <p className="text-sm text-zinc-600 dark:text-zinc-400">
                 {t("step1Subtitle")}
               </p>
 
-              {/* Category L1 */}
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <label className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
-                    {t("step1CategoryLabel")} *
-                  </label>
-                  {aiGeneratedCategory && (
-                    <span className="text-xs font-medium text-purple-600 dark:text-purple-400">
-                      ✨ AI
-                    </span>
-                  )}
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {CATEGORY_L1_LIST.map((cat) => (
-                    <button
-                      key={cat.name}
-                      type="button"
-                      onClick={() => {
-                        updateForm({ category_l1: cat.name, category_l2: "" });
-                        setAiGeneratedCategory(false);
-                      }}
-                      className={`flex flex-col items-center gap-2 rounded-full px-4 py-3 text-sm font-medium transition ${
-                        form.category_l1 === cat.name
-                          ? "bg-blue-600 text-white"
-                          : "border border-zinc-200 bg-white text-zinc-700 hover:border-blue-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:border-blue-400"
-                      }`}
-                    >
-                      <span className="text-lg">{cat.emoji}</span>
-                      <span className="text-xs">{cat.name}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Category L2 */}
-              {form.category_l1 && (
-                <div>
-                  <label className="block text-sm font-semibold text-zinc-900 dark:text-zinc-50 mb-3">
-                    {t("step1L2Label")}
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    {CATEGORY_L2_MAP[form.category_l1]?.map((subcat) => (
-                      <button
-                        key={subcat}
-                        type="button"
-                        onClick={() => {
-                          updateForm({ category_l2: subcat });
-                          setAiGeneratedCategory(false);
-                        }}
-                        className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-                          form.category_l2 === subcat
-                            ? "bg-blue-600 text-white"
-                            : "border border-zinc-200 bg-white text-zinc-700 hover:border-blue-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:border-blue-400"
-                        }`}
-                      >
-                        {subcat}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Category L3 */}
+              {/* 1. Photo upload */}
               <div>
                 <label className="block text-sm font-semibold text-zinc-900 dark:text-zinc-50 mb-2">
-                  {t("step1L3Label")}
+                  Photo
                 </label>
-                <input
-                  type="text"
-                  value={form.category_l3}
-                  onChange={(e) => updateForm({ category_l3: e.target.value })}
-                  placeholder="e.g., Vintage, Limited Edition"
-                  className="w-full rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
-                />
+
+                {/* Thumbnails */}
+                {form.photos.length > 0 && (
+                  <div className="mb-3 flex flex-wrap gap-2">
+                    {form.photos.map((url, idx) => (
+                      <div key={idx} className="relative group">
+                        <Image
+                          src={url}
+                          alt={`Photo ${idx + 1}`}
+                          width={80}
+                          height={80}
+                          className="h-20 w-20 object-cover rounded-lg"
+                        />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            updateForm({
+                              photos: form.photos.filter((_, i) => i !== idx),
+                              photo_files: form.photo_files.filter((_, i) => i !== idx),
+                            })
+                          }
+                          className="absolute -top-2 -right-2 rounded-full bg-red-600 p-1 text-white opacity-0 group-hover:opacity-100 transition"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Drop zone */}
+                <label
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    const file = Array.from(e.dataTransfer.files).find((f) =>
+                      f.type.startsWith("image/"),
+                    );
+                    if (file) handlePhotoUpload([file]);
+                  }}
+                  className="flex flex-col items-center justify-center w-full border-2 border-dashed border-zinc-300 rounded-lg p-6 cursor-pointer hover:border-blue-400 dark:border-zinc-600 dark:hover:border-blue-400 transition"
+                >
+                  {loading ? (
+                    <Loader2 className="h-7 w-7 text-blue-500 animate-spin mb-2" />
+                  ) : (
+                    <Upload className="h-7 w-7 text-zinc-400 mb-2" />
+                  )}
+                  <span className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
+                    {loading ? "Uploading…" : "Click to upload or drag & drop"}
+                  </span>
+                  <span className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                    JPG, PNG, WebP, GIF · max 5 MB
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.currentTarget.files?.[0];
+                      if (file) handlePhotoUpload([file]);
+                      e.currentTarget.value = "";
+                    }}
+                    className="hidden"
+                  />
+                </label>
+
+                {/* URL input */}
+                <div className="mt-3">
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 text-center mb-2">
+                    or paste an image URL
+                  </p>
+                  <div className="flex gap-2">
+                    <input
+                      type="url"
+                      value={urlInput}
+                      onChange={(e) => setUrlInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleUrlSubmit();
+                        }
+                      }}
+                      placeholder="https://example.com/product.jpg"
+                      className="flex-1 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleUrlSubmit}
+                      disabled={!urlInput.trim() || loading || aiLoading}
+                      className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                    >
+                      Use
+                    </button>
+                  </div>
+                </div>
+
+                {/* AI analyzing indicator */}
+                {aiLoading && (
+                  <div className="mt-3 flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Analyzing image…</span>
+                  </div>
+                )}
               </div>
 
-              {/* Title */}
+              {/* 2. Title */}
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <label className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
@@ -537,6 +581,82 @@ export function ObjectWizardClient() {
                 <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
                   {form.title.length}/120
                 </p>
+              </div>
+
+              {/* 3. Category L1 */}
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <label className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+                    {t("step1CategoryLabel")} *
+                  </label>
+                  {aiGeneratedCategory && (
+                    <span className="text-xs font-medium text-purple-600 dark:text-purple-400">
+                      ✨ AI
+                    </span>
+                  )}
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {CATEGORY_L1_LIST.map((cat) => (
+                    <button
+                      key={cat.name}
+                      type="button"
+                      onClick={() => {
+                        updateForm({ category_l1: cat.name, category_l2: "" });
+                        setAiGeneratedCategory(false);
+                      }}
+                      className={`flex flex-col items-center gap-2 rounded-full px-4 py-3 text-sm font-medium transition ${
+                        form.category_l1 === cat.name
+                          ? "bg-blue-600 text-white"
+                          : "border border-zinc-200 bg-white text-zinc-700 hover:border-blue-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:border-blue-400"
+                      }`}
+                    >
+                      <span className="text-lg">{cat.emoji}</span>
+                      <span className="text-xs">{cat.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* 4. Category L2 */}
+              {form.category_l1 && (
+                <div>
+                  <label className="block text-sm font-semibold text-zinc-900 dark:text-zinc-50 mb-3">
+                    {t("step1L2Label")}
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {CATEGORY_L2_MAP[form.category_l1]?.map((subcat) => (
+                      <button
+                        key={subcat}
+                        type="button"
+                        onClick={() => {
+                          updateForm({ category_l2: subcat });
+                          setAiGeneratedCategory(false);
+                        }}
+                        className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                          form.category_l2 === subcat
+                            ? "bg-blue-600 text-white"
+                            : "border border-zinc-200 bg-white text-zinc-700 hover:border-blue-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:border-blue-400"
+                        }`}
+                      >
+                        {subcat}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 5. Category L3 */}
+              <div>
+                <label className="block text-sm font-semibold text-zinc-900 dark:text-zinc-50 mb-2">
+                  {t("step1L3Label")}
+                </label>
+                <input
+                  type="text"
+                  value={form.category_l3}
+                  onChange={(e) => updateForm({ category_l3: e.target.value })}
+                  placeholder="e.g., Vintage, Limited Edition"
+                  className="w-full rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                />
               </div>
             </div>
           )}
