@@ -137,6 +137,10 @@ export function ObjectWizardClient() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiGeneratedTitle, setAiGeneratedTitle] = useState(false);
+  const [aiGeneratedDescription, setAiGeneratedDescription] = useState(false);
+  const [lastAnalyzedUrl, setLastAnalyzedUrl] = useState<string | null>(null);
 
   const [form, setForm] = useState<FormData>({
     category_l1: "",
@@ -172,25 +176,108 @@ export function ObjectWizardClient() {
     }
   };
 
+  const analyzeWithGrok = async (imageUrl: string) => {
+    const apiKey = process.env.NEXT_PUBLIC_XAI_API_KEY;
+    if (!apiKey) return;
+    setLastAnalyzedUrl(imageUrl);
+    setAiLoading(true);
+    try {
+      const res = await fetch("https://api.x.ai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: "grok-2-vision-latest",
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are a helpful assistant for a peer-to-peer swap marketplace. Analyze the product image and return ONLY a JSON object with fields: title (max 80 chars, concise product name) and description (max 500 chars, detailed description mentioning visible condition, brand if visible, key features). No markdown, no explanation, just the JSON.",
+            },
+            {
+              role: "user",
+              content: [
+                { type: "image_url", image_url: { url: imageUrl } },
+                { type: "text", text: "Analyze this product image for a swap marketplace listing." },
+              ],
+            },
+          ],
+        }),
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      const content = data.choices?.[0]?.message?.content?.trim();
+      if (!content) return;
+      const parsed = JSON.parse(content);
+      if (parsed.title) {
+        updateForm({ title: String(parsed.title).slice(0, 80) });
+        setAiGeneratedTitle(true);
+      }
+      if (parsed.description) {
+        updateForm({ description: String(parsed.description).slice(0, 500) });
+        setAiGeneratedDescription(true);
+      }
+    } catch {
+      // Silently continue — user fills manually
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
   const handlePhotoUpload = async (files: File[]) => {
     if (!user) return;
     setLoading(true);
     try {
+      const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+      const uploadPreset =
+        process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "swaply_unsigned";
       const uploadedUrls: string[] = [];
+
       for (const file of files) {
-        const { url, error: uploadError } = await uploadItemPhoto(file, user.id);
-        if (uploadError) {
-          setError(uploadError);
-          setLoading(false);
-          return;
+        let url: string | null = null;
+
+        if (cloudName) {
+          try {
+            const fd = new FormData();
+            fd.append("file", file);
+            fd.append("upload_preset", uploadPreset);
+            fd.append("folder", `swaply/${user.id}`);
+            const res = await fetch(
+              `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+              { method: "POST", body: fd },
+            );
+            if (res.ok) {
+              const json = await res.json();
+              url = json.secure_url as string;
+            }
+          } catch {
+            // fall through to uploadItemPhoto fallback
+          }
         }
+
+        if (!url) {
+          const { url: fallbackUrl, error: uploadError } = await uploadItemPhoto(file, user.id);
+          if (uploadError) {
+            setError(uploadError);
+            return;
+          }
+          url = fallbackUrl;
+        }
+
         if (url) uploadedUrls.push(url);
       }
+
       setForm((prev) => ({
         ...prev,
         photos: [...prev.photos, ...uploadedUrls],
         photo_files: [...prev.photo_files, ...files],
       }));
+
+      if (uploadedUrls.length > 0 && form.photos.length === 0) {
+        analyzeWithGrok(uploadedUrls[0]);
+      }
     } finally {
       setLoading(false);
     }
@@ -411,17 +498,45 @@ export function ObjectWizardClient() {
 
               {/* Title */}
               <div>
-                <label className="block text-sm font-semibold text-zinc-900 dark:text-zinc-50 mb-2">
-                  {t("step1TitleLabel")} *
-                </label>
-                <input
-                  type="text"
-                  maxLength={120}
-                  value={form.title}
-                  onChange={(e) => updateForm({ title: e.target.value })}
-                  placeholder={t("step1TitlePlaceholder")}
-                  className="w-full rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
-                />
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+                    {t("step1TitleLabel")} *
+                  </label>
+                  <div className="flex items-center gap-2">
+                    {aiGeneratedTitle && (
+                      <span className="text-xs font-medium text-purple-600 dark:text-purple-400">
+                        ✨ AI generated
+                      </span>
+                    )}
+                    {lastAnalyzedUrl && (
+                      <button
+                        type="button"
+                        onClick={() => analyzeWithGrok(lastAnalyzedUrl)}
+                        disabled={aiLoading}
+                        className="text-xs text-blue-600 dark:text-blue-400 hover:underline disabled:opacity-50"
+                      >
+                        {aiLoading ? "Analyzing…" : "Regenerate with AI ✨"}
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <div className="relative">
+                  <input
+                    type="text"
+                    maxLength={120}
+                    value={form.title}
+                    onChange={(e) => {
+                      updateForm({ title: e.target.value });
+                      setAiGeneratedTitle(false);
+                    }}
+                    placeholder={aiLoading ? "Analyzing image…" : t("step1TitlePlaceholder")}
+                    disabled={aiLoading}
+                    className="w-full rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 disabled:opacity-60"
+                  />
+                  {aiLoading && (
+                    <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-blue-500" />
+                  )}
+                </div>
                 <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
                   {form.title.length}/120
                 </p>
@@ -588,17 +703,45 @@ export function ObjectWizardClient() {
 
               {/* Description */}
               <div>
-                <label className="block text-sm font-semibold text-zinc-900 dark:text-zinc-50 mb-2">
-                  {t("step3DescriptionLabel")} *
-                </label>
-                <textarea
-                  value={form.description}
-                  onChange={(e) => updateForm({ description: e.target.value })}
-                  placeholder={t("step3DescriptionPlaceholder")}
-                  maxLength={3000}
-                  rows={5}
-                  className="w-full rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
-                />
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+                    {t("step3DescriptionLabel")} *
+                  </label>
+                  <div className="flex items-center gap-2">
+                    {aiGeneratedDescription && (
+                      <span className="text-xs font-medium text-purple-600 dark:text-purple-400">
+                        ✨ AI generated
+                      </span>
+                    )}
+                    {lastAnalyzedUrl && (
+                      <button
+                        type="button"
+                        onClick={() => analyzeWithGrok(lastAnalyzedUrl)}
+                        disabled={aiLoading}
+                        className="text-xs text-blue-600 dark:text-blue-400 hover:underline disabled:opacity-50"
+                      >
+                        {aiLoading ? "Analyzing…" : "Regenerate with AI ✨"}
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <div className="relative">
+                  <textarea
+                    value={form.description}
+                    onChange={(e) => {
+                      updateForm({ description: e.target.value });
+                      setAiGeneratedDescription(false);
+                    }}
+                    placeholder={aiLoading ? "Analyzing image…" : t("step3DescriptionPlaceholder")}
+                    disabled={aiLoading}
+                    maxLength={3000}
+                    rows={5}
+                    className="w-full rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 disabled:opacity-60"
+                  />
+                  {aiLoading && (
+                    <Loader2 className="absolute right-3 top-3 h-4 w-4 animate-spin text-blue-500" />
+                  )}
+                </div>
                 <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
                   {form.description.length}/3000
                 </p>
