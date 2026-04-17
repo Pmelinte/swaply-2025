@@ -89,10 +89,10 @@ export function OnboardingClient() {
   }, [user, router, locale]);
 
   useEffect(() => {
-    getCountries().then((list: Record<string, string | number>[]) => {
+    getCountries().then((list) => {
       setCountries(list.map((c) => ({
-        isoCode: String(c.isoCode),
-        name: String(c.name),
+        isoCode: c.isoCode,
+        name: c.name,
       })));
     });
   }, []);
