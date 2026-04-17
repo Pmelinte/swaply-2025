@@ -482,7 +482,6 @@ function Step2({ data, onChange, countries }: {
           <option value="">Select a country</option>
           {countries.map((c) => (
             <option key={c.isoCode} value={c.isoCode}>
-              {c.flag && <span>{c.flag} </span>}
               {c.name}
             </option>
           ))}
