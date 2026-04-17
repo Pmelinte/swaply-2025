@@ -2566,7 +2566,8 @@
       "retryTranslate": "Retry",
       "translatedContent": "Translated content",
       "autoTranslated": "Auto-translated"
-    }
+    },
+  "objectWizard": {}
   },
   "translate": {
     "translate": "Aistrigh",
@@ -3210,6 +3211,8 @@
       "addOfferTitle": "Add Offer",
       "signInRequired": "Sign in to add items",
       "signIn": "Sign in"
-    }
-  }
+    },
+  "objectWizard": {}
+  },
+  "objectWizard": {}
 }
