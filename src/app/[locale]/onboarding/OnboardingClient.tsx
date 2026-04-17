@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter, useLocale } from "next-intl";
+import { useLocale } from "next-intl";
 import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import { useAppState } from "@/lib/state";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { getCountries } from "@/lib/lazy-imports";
@@ -91,7 +92,7 @@ export function OnboardingClient() {
         .then(({ data }) => {
           if (data?.onboarding_completed && !navigatingRef.current) {
             navigatingRef.current = true;
-            router.push(`/${locale}`);
+            router.push("/");
           }
         });
     }
@@ -868,4 +869,3 @@ function Step5({ data, onChange }: {
     </div>
   );
 }
-
