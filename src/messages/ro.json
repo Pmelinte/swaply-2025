@@ -362,11 +362,6 @@
     "gdprDeleteConfirmButton": "Confirmă ștergerea",
     "gdprDeleteCancel": "Renunță",
     "gdprError": "Eroare: {error}",
-    "displayNameRequired": "Numele afișat este obligatoriu (minim 2 caractere)",
-    "dateOfBirthRequired": "Data nașterii este obligatorie",
-    "countryRequired": "Țara este obligatorie",
-    "languageRequired": "Selectează cel puțin o limbă",
-    "ageMinimum": "Trebuie să ai cel puțin 16 ani pentru a folosi Swaply",
     "propertiesAndServices": "Proprietăți & Servicii",
     "myProperty": "Proprietatea mea",
     "myPropertyDesc": "Configurează proprietatea ta pentru schimb de case — simultan, într-o direcție sau permanent.",
@@ -2135,8 +2130,7 @@
     "step4Desc": "Întâlnește-te în locuri publice sau trimite prin curier. Confirmă cu cod QR și câștigă reputație.",
     "back": "Înapoi",
     "next": "Următorul",
-    "start": "Începe să schimbi!",
-    "completeLater": "Completează mai târziu"
+    "start": "Începe să schimbi!"
   },
   "pwa": {
     "installSwaply": "Instalează Swaply",
