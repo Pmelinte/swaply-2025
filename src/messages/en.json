@@ -375,6 +375,10 @@
     "gdprDeleteConfirmButton": "Confirm deletion",
     "gdprDeleteCancel": "Cancel",
     "gdprError": "Error: {error}",
+    "displayNameRequired": "Display name is required (minimum 2 characters)",
+    "dateOfBirthRequired": "Date of birth is required",
+    "countryRequired": "Country is required",
+    "languageRequired": "Please select at least one language",
     "propertiesAndServices": "Properties & Services",
     "myProperty": "My Property",
     "myPropertyDesc": "Configure your property for house swaps — simultaneous, one-way, or permanent.",
@@ -2130,7 +2134,8 @@
     "step4Desc": "Meet in safe public spots or ship via courier. Confirm with QR codes, rate your experience, and earn reputation.",
     "back": "Back",
     "next": "Next",
-    "start": "Start swapping!"
+    "start": "Start swapping!",
+    "completeLater": "Complete later"
   },
   "pwa": {
     "installSwaply": "Install Swaply",
