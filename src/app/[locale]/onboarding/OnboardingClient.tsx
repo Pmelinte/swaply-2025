@@ -18,26 +18,17 @@ type OpenToType = "object" | "property" | "service" | "event";
 type SwapIntent = "exploring" | "open" | "clear" | "serious";
 
 interface StepData {
-  // Step 1
   display_name?: string;
   first_name?: string;
   avatar_url?: string;
   date_of_birth?: string;
-
-  // Step 2
   address_country?: string;
   address_city?: string;
-
-  // Step 3
   languages?: LanguageCode[];
-
-  // Step 4
   swap_geo_range?: SwapGeoRange;
   swap_context?: SwapContext[];
   open_to_types?: OpenToType[];
   swap_intent?: SwapIntent;
-
-  // Step 5
   bio?: string;
   affinity_groups?: string[];
   interests?: string[];
@@ -72,7 +63,6 @@ export function OnboardingClient() {
   const [countries, setCountries] = useState<Country[]>([]);
   const [avatarUploading, setAvatarUploading] = useState(false);
 
-  // Redirect if not authenticated or onboarding already completed
   useEffect(() => {
     if (!loading.auth && !user && !navigatingRef.current) {
       navigatingRef.current = true;
@@ -80,10 +70,10 @@ export function OnboardingClient() {
     }
   }, [user, loading.auth, locale]);
 
-  // Check if onboarding already completed
   useEffect(() => {
     if (user && !navigatingRef.current) {
       const supabase = getSupabaseClient();
+      if (!supabase) return;
       supabase
         .from("profiles")
         .select("onboarding_completed")
@@ -98,7 +88,6 @@ export function OnboardingClient() {
     }
   }, [user, router, locale]);
 
-  // Load countries
   useEffect(() => {
     getCountries().then((list: Record<string, string | number>[]) => {
       setCountries(list.map((c) => ({
@@ -129,36 +118,24 @@ export function OnboardingClient() {
       setError(null);
 
       const supabase = getSupabaseClient();
-      const payload: Record<string, unknown> = {
-        user_id: user.id,
-      };
+      if (!supabase) throw new Error("Supabase client not available");
 
-      // Prepare payload based on current step
+      const payload: Record<string, unknown> = { user_id: user.id };
+
       switch (currentStep) {
         case 1:
           if (!stepData.display_name || stepData.display_name.length < 2) {
-            setError(tp("displayNameRequired"));
-            return;
+            setError(tp("displayNameRequired")); return;
           }
           if (!stepData.date_of_birth) {
-            setError(tp("dateOfBirthRequired"));
-            return;
+            setError(tp("dateOfBirthRequired")); return;
           }
-          // Validate minimum age of 16
           const dob = new Date(stepData.date_of_birth);
           const today = new Date();
           const age = today.getFullYear() - dob.getFullYear();
           const monthDiff = today.getMonth() - dob.getMonth();
-          if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
-            const actualAge = age - 1;
-            if (actualAge < 16) {
-              setError(tp("ageMinimum"));
-              return;
-            }
-          } else if (age < 16) {
-            setError(tp("ageMinimum"));
-            return;
-          }
+          const actualAge = (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) ? age - 1 : age;
+          if (actualAge < 16) { setError(tp("ageMinimum")); return; }
           payload.display_name = stepData.display_name;
           payload.first_name = stepData.first_name || null;
           payload.avatar_url = stepData.avatar_url || null;
@@ -166,22 +143,15 @@ export function OnboardingClient() {
           break;
 
         case 2:
-          if (!stepData.address_country) {
-            setError(tp("countryRequired"));
-            return;
-          }
+          if (!stepData.address_country) { setError(tp("countryRequired")); return; }
           payload.address_country = stepData.address_country;
           payload.address_city = stepData.address_city || null;
-          payload.location = {
-            city: stepData.address_city || null,
-            country: stepData.address_country,
-          };
+          payload.location = { city: stepData.address_city || null, country: stepData.address_country };
           break;
 
         case 3:
           if (!stepData.languages || stepData.languages.length === 0) {
-            setError(tp("languageRequired"));
-            return;
+            setError(tp("languageRequired")); return;
           }
           payload.languages = stepData.languages;
           break;
@@ -208,7 +178,6 @@ export function OnboardingClient() {
 
       if (updateError) throw updateError;
 
-      // If completed all steps, finalize onboarding
       if (currentStep === 5) {
         await finializeOnboarding();
       } else {
@@ -235,31 +204,20 @@ export function OnboardingClient() {
   const finializeOnboarding = async () => {
     try {
       const supabase = getSupabaseClient();
+      if (!supabase) throw new Error("Supabase client not available");
 
-      // Mark onboarding as completed
       await supabase
         .from("profiles")
-        .update({
-          onboarding_completed: true,
-          onboarding_step: "done",
-        })
+        .update({ onboarding_completed: true, onboarding_step: "done" })
         .eq("user_id", user.id);
 
-      // Update profile completeness via RPC
-      await supabase.rpc("update_profile_completeness", {
-        p_user_id: user.id,
-      });
+      await supabase.rpc("update_profile_completeness", { p_user_id: user.id });
 
-      // Update onboarding progress
       await supabase
         .from("onboarding_progress")
-        .update({
-          step_profile: true,
-          current_step: "first_item",
-        })
+        .update({ step_profile: true, current_step: "first_item" })
         .eq("user_id", user.id);
 
-      // Redirect to objects/new
       if (!navigatingRef.current) {
         navigatingRef.current = true;
         router.push("/objects/new");
@@ -271,20 +229,15 @@ export function OnboardingClient() {
   };
 
   const handleBack = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    }
+    if (currentStep > 1) setCurrentStep(currentStep - 1);
   };
 
   const handleAvatarUpload = async (file: File) => {
     try {
       setAvatarUploading(true);
       const result = await uploadItemPhoto(file, user.id);
-      if (result.error) {
-        setError(result.error);
-      } else if (result.url) {
-        handleStepData("avatar_url", result.url);
-      }
+      if (result.error) setError(result.error);
+      else if (result.url) handleStepData("avatar_url", result.url);
     } finally {
       setAvatarUploading(false);
     }
@@ -293,12 +246,9 @@ export function OnboardingClient() {
   return (
     <div className="bg-gradient-to-br from-zinc-50 to-blue-50 min-h-screen py-12 px-4">
       <div className="max-w-lg mx-auto">
-        {/* Progress Bar */}
         <div className="mb-8">
           <div className="flex justify-between items-center mb-3">
-            <span className="text-sm font-semibold text-zinc-700">
-              {currentStep}/5
-            </span>
+            <span className="text-sm font-semibold text-zinc-700">{currentStep}/5</span>
             <span className="text-xs text-zinc-400">{[
               t("step1Title"), t("step2Title"), t("step3Title"), t("step4Title"), t("step5Title")
             ][currentStep - 1]}</span>
@@ -311,7 +261,6 @@ export function OnboardingClient() {
           </div>
         </div>
 
-        {/* Content Card */}
         <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm p-6">
           {error && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
@@ -319,14 +268,12 @@ export function OnboardingClient() {
             </div>
           )}
 
-          {/* Step Content */}
           {currentStep === 1 && <Step1 data={stepData} onChange={handleStepData} onUpload={handleAvatarUpload} uploading={avatarUploading} />}
           {currentStep === 2 && <Step2 data={stepData} onChange={handleStepData} countries={countries} />}
           {currentStep === 3 && <Step3 data={stepData} onChange={handleStepData} />}
           {currentStep === 4 && <Step4 data={stepData} onChange={handleStepData} />}
           {currentStep === 5 && <Step5 data={stepData} onChange={handleStepData} />}
 
-          {/* Buttons */}
           <div className="mt-8 flex gap-3">
             {currentStep > 1 && (
               <button
@@ -348,11 +295,7 @@ export function OnboardingClient() {
               </button>
             ) : (
               <>
-                <button
-                  onClick={skipToEnd}
-                  disabled={saving}
-                  className="text-zinc-400 text-sm hover:text-zinc-600 py-3"
-                >
+                <button onClick={skipToEnd} disabled={saving} className="text-zinc-400 text-sm hover:text-zinc-600 py-3">
                   {t("completeLater")}
                 </button>
                 <button
@@ -371,7 +314,6 @@ export function OnboardingClient() {
   );
 }
 
-// Step 1: Who are you
 function Step1({ data, onChange, onUpload, uploading }: {
   data: StepData;
   onChange: (key: keyof StepData, value: unknown) => void;
@@ -389,7 +331,6 @@ function Step1({ data, onChange, onUpload, uploading }: {
         <p className="text-sm text-zinc-600 mt-1">{t("step1Subtitle")}</p>
       </div>
 
-      {/* Avatar */}
       <div className="flex items-center gap-4">
         <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full border-2 border-zinc-200 bg-zinc-100">
           {data.avatar_url ? (
@@ -418,9 +359,7 @@ function Step1({ data, onChange, onUpload, uploading }: {
               disabled={uploading}
               onChange={async (e) => {
                 const file = e.target.files?.[0];
-                if (file) {
-                  await onUpload(file);
-                }
+                if (file) await onUpload(file);
               }}
             />
           </label>
@@ -437,7 +376,6 @@ function Step1({ data, onChange, onUpload, uploading }: {
         </div>
       </div>
 
-      {/* Display Name */}
       <label className="block text-sm font-semibold text-zinc-700">
         {tp("displayName")} *
         <input
@@ -450,7 +388,6 @@ function Step1({ data, onChange, onUpload, uploading }: {
         />
       </label>
 
-      {/* First Name */}
       <label className="block text-sm font-semibold text-zinc-700">
         {tp("firstName")}
         <input
@@ -462,7 +399,6 @@ function Step1({ data, onChange, onUpload, uploading }: {
         />
       </label>
 
-      {/* Date of Birth */}
       <label className="block text-sm font-semibold text-zinc-700">
         {t("dateOfBirthLabel")}
         <input
@@ -476,7 +412,6 @@ function Step1({ data, onChange, onUpload, uploading }: {
   );
 }
 
-// Step 2: Where are you
 function Step2({ data, onChange, countries }: {
   data: StepData;
   onChange: (key: keyof StepData, value: unknown) => void;
@@ -492,7 +427,6 @@ function Step2({ data, onChange, countries }: {
         <p className="text-sm text-zinc-600 mt-1">{t("step2Subtitle")}</p>
       </div>
 
-      {/* Country */}
       <label className="block text-sm font-semibold text-zinc-700">
         {t("countryLabel")} *
         <select
@@ -502,14 +436,11 @@ function Step2({ data, onChange, countries }: {
         >
           <option value="">{tl("selectCountry")}</option>
           {countries.map((c) => (
-            <option key={c.isoCode} value={c.isoCode}>
-              {c.name}
-            </option>
+            <option key={c.isoCode} value={c.isoCode}>{c.name}</option>
           ))}
         </select>
       </label>
 
-      {/* City */}
       <label className="block text-sm font-semibold text-zinc-700">
         {t("cityLabel")}
         <input
@@ -524,7 +455,6 @@ function Step2({ data, onChange, countries }: {
   );
 }
 
-// Step 3: Your languages
 function Step3({ data, onChange }: {
   data: StepData;
   onChange: (key: keyof StepData, value: unknown) => void;
@@ -542,27 +472,19 @@ function Step3({ data, onChange }: {
         <h2 className="text-2xl font-bold text-zinc-900">{t("step3Title")}</h2>
         <p className="text-sm text-zinc-600 mt-1">{t("step3Subtitle")}</p>
       </div>
-
       <div className="flex flex-wrap gap-2">
         {allLanguages.map((lang) => {
           const isSelected = (data.languages || []).includes(lang);
           const info = languageNames[lang as Locale];
-
           return (
             <button
               key={lang}
               onClick={() => {
                 const langs = data.languages || [];
-                if (isSelected) {
-                  onChange("languages", langs.filter((l) => l !== lang));
-                } else {
-                  onChange("languages", [...langs, lang]);
-                }
+                onChange("languages", isSelected ? langs.filter((l) => l !== lang) : [...langs, lang]);
               }}
               className={`px-4 py-2 rounded-full font-semibold text-sm transition ${
-                isSelected
-                  ? "bg-blue-600 text-white"
-                  : "border border-zinc-200 text-zinc-700 hover:border-blue-300"
+                isSelected ? "bg-blue-600 text-white" : "border border-zinc-200 text-zinc-700 hover:border-blue-300"
               }`}
             >
               {info ? info.nativeName : lang.toUpperCase()}
@@ -574,12 +496,39 @@ function Step3({ data, onChange }: {
   );
 }
 
-// Step 4: How you want to swap
 function Step4({ data, onChange }: {
   data: StepData;
   onChange: (key: keyof StepData, value: unknown) => void;
 }) {
   const t = useTranslations("onboarding");
+
+  const geoOptions: { value: SwapGeoRange; labelKey: string }[] = [
+    { value: "local", labelKey: "geoLocal" },
+    { value: "regional", labelKey: "geoRegional" },
+    { value: "international", labelKey: "geoInternational" },
+    { value: "vacation", labelKey: "geoVacation" },
+  ];
+
+  const contextOptions: { value: SwapContext; labelKey: string }[] = [
+    { value: "permanent", labelKey: "contextPermanent" },
+    { value: "vacation", labelKey: "contextVacation" },
+    { value: "temporary", labelKey: "contextTemporary" },
+    { value: "urgent", labelKey: "contextUrgent" },
+  ];
+
+  const typeOptions: { value: OpenToType; labelKey: string }[] = [
+    { value: "object", labelKey: "typeObject" },
+    { value: "property", labelKey: "typeProperty" },
+    { value: "service", labelKey: "typeService" },
+    { value: "event", labelKey: "typeEvent" },
+  ];
+
+  const intentOptions: { value: SwapIntent; labelKey: string; descKey: string }[] = [
+    { value: "exploring", labelKey: "intentExploring", descKey: "intentExploringDesc" },
+    { value: "open", labelKey: "intentOpen", descKey: "intentOpenDesc" },
+    { value: "clear", labelKey: "intentClear", descKey: "intentClearDesc" },
+    { value: "serious", labelKey: "intentSerious", descKey: "intentSeriousDesc" },
+  ];
 
   return (
     <div className="space-y-6">
@@ -588,123 +537,83 @@ function Step4({ data, onChange }: {
         <p className="text-sm text-zinc-600 mt-1">{t("step4Subtitle")}</p>
       </div>
 
-      {/* Swap Geo Range */}
       <div>
         <label className="block text-sm font-semibold text-zinc-700 mb-3">{t("geoRangeLabel")}</label>
         <div className="space-y-2">
-          {[
-            { value: "local" as SwapGeoRange, label: t("geoLocal") },
-            { value: "regional" as SwapGeoRange, label: t("geoRegional") },
-            { value: "international" as SwapGeoRange, label: t("geoInternational") },
-            { value: "vacation" as SwapGeoRange, label: t("geoVacation") },
-          ].map((opt) => (
+          {geoOptions.map((opt) => (
             <button
               key={opt.value}
               onClick={() => onChange("swap_geo_range", opt.value)}
               className={`w-full px-4 py-3 rounded-lg font-semibold text-left transition ${
-                data.swap_geo_range === opt.value
-                  ? "bg-blue-600 text-white"
-                  : "border border-zinc-200 text-zinc-700 hover:border-blue-300"
+                data.swap_geo_range === opt.value ? "bg-blue-600 text-white" : "border border-zinc-200 text-zinc-700 hover:border-blue-300"
               }`}
             >
-              {opt.label}
+              {t(opt.labelKey as Parameters<typeof t>[0])}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Swap Context */}
       <div>
         <label className="block text-sm font-semibold text-zinc-700 mb-3">{t("swapContextLabel")}</label>
         <div className="flex flex-wrap gap-2">
-          {[
-            { value: "permanent" as SwapContext, label: t("contextPermanent") },
-            { value: "vacation" as SwapContext, label: t("contextVacation") },
-            { value: "temporary" as SwapContext, label: t("contextTemporary") },
-            { value: "urgent" as SwapContext, label: t("contextUrgent") },
-          ].map((opt) => {
+          {contextOptions.map((opt) => {
             const isSelected = (data.swap_context || []).includes(opt.value);
             return (
               <button
                 key={opt.value}
                 onClick={() => {
                   const contexts = data.swap_context || [];
-                  if (isSelected) {
-                    onChange("swap_context", contexts.filter((c) => c !== opt.value));
-                  } else {
-                    onChange("swap_context", [...contexts, opt.value]);
-                  }
+                  onChange("swap_context", isSelected ? contexts.filter((c) => c !== opt.value) : [...contexts, opt.value]);
                 }}
                 className={`px-4 py-2 rounded-full font-semibold text-sm transition ${
-                  isSelected
-                    ? "bg-blue-600 text-white"
-                    : "border border-zinc-200 text-zinc-700 hover:border-blue-300"
+                  isSelected ? "bg-blue-600 text-white" : "border border-zinc-200 text-zinc-700 hover:border-blue-300"
                 }`}
               >
-                {opt.label}
+                {t(opt.labelKey as Parameters<typeof t>[0])}
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* Open to Types */}
       <div>
         <label className="block text-sm font-semibold text-zinc-700 mb-3">{t("openToLabel")}</label>
         <div className="flex flex-wrap gap-2">
-          {[
-            { value: "object" as OpenToType, label: t("typeObject") },
-            { value: "property" as OpenToType, label: t("typeProperty") },
-            { value: "service" as OpenToType, label: t("typeService") },
-            { value: "event" as OpenToType, label: t("typeEvent") },
-          ].map((opt) => {
+          {typeOptions.map((opt) => {
             const isSelected = (data.open_to_types || []).includes(opt.value);
             return (
               <button
                 key={opt.value}
                 onClick={() => {
                   const types = data.open_to_types || [];
-                  if (isSelected) {
-                    onChange("open_to_types", types.filter((tp) => tp !== opt.value));
-                  } else {
-                    onChange("open_to_types", [...types, opt.value]);
-                  }
+                  onChange("open_to_types", isSelected ? types.filter((tp) => tp !== opt.value) : [...types, opt.value]);
                 }}
                 className={`px-4 py-2 rounded-full font-semibold text-sm transition ${
-                  isSelected
-                    ? "bg-blue-600 text-white"
-                    : "border border-zinc-200 text-zinc-700 hover:border-blue-300"
+                  isSelected ? "bg-blue-600 text-white" : "border border-zinc-200 text-zinc-700 hover:border-blue-300"
                 }`}
               >
-                {opt.label}
+                {t(opt.labelKey as Parameters<typeof t>[0])}
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* Swap Intent */}
       <div>
         <label className="block text-sm font-semibold text-zinc-700 mb-3">{t("intentLabel")}</label>
         <div className="grid gap-3 sm:grid-cols-2">
-          {[
-            { value: "exploring" as SwapIntent, label: t("intentExploring"), desc: t("intentExploringDesc") },
-            { value: "open" as SwapIntent, label: t("intentOpen"), desc: t("intentOpenDesc") },
-            { value: "clear" as SwapIntent, label: t("intentClear"), desc: t("intentClearDesc") },
-            { value: "serious" as SwapIntent, label: t("intentSerious"), desc: t("intentSeriousDesc") },
-          ].map((opt) => (
+          {intentOptions.map((opt) => (
             <button
               key={opt.value}
               onClick={() => onChange("swap_intent", opt.value)}
               className={`p-3 rounded-lg text-left transition ${
-                data.swap_intent === opt.value
-                  ? "bg-blue-600 text-white"
-                  : "border border-zinc-200 text-zinc-700 hover:border-blue-300"
+                data.swap_intent === opt.value ? "bg-blue-600 text-white" : "border border-zinc-200 text-zinc-700 hover:border-blue-300"
               }`}
             >
-              <div className="font-semibold text-sm">{opt.label}</div>
+              <div className="font-semibold text-sm">{t(opt.labelKey as Parameters<typeof t>[0])}</div>
               <div className={`text-xs mt-1 ${data.swap_intent === opt.value ? "text-blue-100" : "text-zinc-500"}`}>
-                {opt.desc}
+                {t(opt.descKey as Parameters<typeof t>[0])}
               </div>
             </button>
           ))}
@@ -714,7 +623,6 @@ function Step4({ data, onChange }: {
   );
 }
 
-// Step 5: Interests & Affinity
 function Step5({ data, onChange }: {
   data: StepData;
   onChange: (key: keyof StepData, value: unknown) => void;
@@ -728,9 +636,7 @@ function Step5({ data, onChange }: {
     if (!value.trim()) return;
     const current = (data[type] || []) as string[];
     if (current.length >= 10) return;
-    if (!current.includes(value.trim())) {
-      onChange(type, [...current, value.trim()]);
-    }
+    if (!current.includes(value.trim())) onChange(type, [...current, value.trim()]);
     if (type === "interests") setInterestInput("");
     else setAffinityInput("");
   };
@@ -747,7 +653,6 @@ function Step5({ data, onChange }: {
         <p className="text-sm text-zinc-600 mt-1">{t("step5Subtitle")}</p>
       </div>
 
-      {/* Bio */}
       <label className="block text-sm font-semibold text-zinc-700">
         {tp("bio")}
         <textarea
@@ -758,50 +663,29 @@ function Step5({ data, onChange }: {
           className="mt-1 w-full border border-zinc-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
           rows={3}
         />
-        <p className="text-xs text-zinc-400 mt-1">
-          {(data.bio || "").length}/500
-        </p>
+        <p className="text-xs text-zinc-400 mt-1">{(data.bio || "").length}/500</p>
       </label>
 
-      {/* Affinity Groups */}
       <div>
-        <label className="block text-sm font-semibold text-zinc-700 mb-2">
-          {t("affinityLabel")}
-        </label>
+        <label className="block text-sm font-semibold text-zinc-700 mb-2">{t("affinityLabel")}</label>
         <div className="flex gap-2 mb-3">
           <input
             type="text"
             value={affinityInput}
             onChange={(e) => setAffinityInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === ",") {
-                e.preventDefault();
-                addTag("affinity_groups", affinityInput);
-              }
-            }}
+            onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addTag("affinity_groups", affinityInput); } }}
             placeholder={t("affinityPlaceholder")}
             className="flex-1 border border-zinc-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
           />
-          <button
-            type="button"
-            onClick={() => addTag("affinity_groups", affinityInput)}
-            className="px-3 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100"
-          >
+          <button type="button" onClick={() => addTag("affinity_groups", affinityInput)} className="px-3 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100">
             <Plus className="h-4 w-4" />
           </button>
         </div>
         <div className="flex flex-wrap gap-2">
           {(data.affinity_groups || []).map((tag, i) => (
-            <span
-              key={i}
-              className="inline-flex items-center gap-1.5 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs"
-            >
+            <span key={i} className="inline-flex items-center gap-1.5 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs">
               {tag}
-              <button
-                type="button"
-                onClick={() => removeTag("affinity_groups", i)}
-                className="text-blue-600 hover:text-blue-900"
-              >
+              <button type="button" onClick={() => removeTag("affinity_groups", i)} className="text-blue-600 hover:text-blue-900">
                 <X className="h-3 w-3" />
               </button>
             </span>
@@ -809,45 +693,26 @@ function Step5({ data, onChange }: {
         </div>
       </div>
 
-      {/* Interests */}
       <div>
-        <label className="block text-sm font-semibold text-zinc-700 mb-2">
-          {t("interestsLabel")}
-        </label>
+        <label className="block text-sm font-semibold text-zinc-700 mb-2">{t("interestsLabel")}</label>
         <div className="flex gap-2 mb-3">
           <input
             type="text"
             value={interestInput}
             onChange={(e) => setInterestInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === ",") {
-                e.preventDefault();
-                addTag("interests", interestInput);
-              }
-            }}
+            onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addTag("interests", interestInput); } }}
             placeholder={t("interestsPlaceholder")}
             className="flex-1 border border-zinc-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
           />
-          <button
-            type="button"
-            onClick={() => addTag("interests", interestInput)}
-            className="px-3 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100"
-          >
+          <button type="button" onClick={() => addTag("interests", interestInput)} className="px-3 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100">
             <Plus className="h-4 w-4" />
           </button>
         </div>
         <div className="flex flex-wrap gap-2">
           {(data.interests || []).map((tag, i) => (
-            <span
-              key={i}
-              className="inline-flex items-center gap-1.5 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs"
-            >
+            <span key={i} className="inline-flex items-center gap-1.5 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs">
               {tag}
-              <button
-                type="button"
-                onClick={() => removeTag("interests", i)}
-                className="text-blue-600 hover:text-blue-900"
-              >
+              <button type="button" onClick={() => removeTag("interests", i)} className="text-blue-600 hover:text-blue-900">
                 <X className="h-3 w-3" />
               </button>
             </span>
@@ -855,7 +720,6 @@ function Step5({ data, onChange }: {
         </div>
       </div>
 
-      {/* Occupation */}
       <label className="block text-sm font-semibold text-zinc-700">
         {t("occupationLabel")}
         <input
