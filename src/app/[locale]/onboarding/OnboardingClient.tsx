@@ -250,7 +250,7 @@ export function OnboardingClient() {
           <div className="flex justify-between items-center mb-3">
             <span className="text-sm font-semibold text-zinc-700">{currentStep}/5</span>
             <span className="text-xs text-zinc-400">{[
-              t("step1Title"), t("step2Title"), t("step3Title"), t("step4Title"), t("step5Title")
+              t("wizardStep1Title"), t("wizardStep2Title"), t("wizardStep3Title"), t("wizardStep4Title"), t("step5Title")
             ][currentStep - 1]}</span>
           </div>
           <div className="w-full bg-zinc-200 rounded-full h-1 overflow-hidden">
@@ -327,7 +327,7 @@ function Step1({ data, onChange, onUpload, uploading }: {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-zinc-900">{t("step1Title")}</h2>
+        <h2 className="text-2xl font-bold text-zinc-900">{t("wizardStep1Title")}</h2>
         <p className="text-sm text-zinc-600 mt-1">{t("step1Subtitle")}</p>
       </div>
 
@@ -423,7 +423,7 @@ function Step2({ data, onChange, countries }: {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-zinc-900">{t("step2Title")}</h2>
+        <h2 className="text-2xl font-bold text-zinc-900">{t("wizardStep2Title")}</h2>
         <p className="text-sm text-zinc-600 mt-1">{t("step2Subtitle")}</p>
       </div>
 
@@ -469,7 +469,7 @@ function Step3({ data, onChange }: {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-zinc-900">{t("step3Title")}</h2>
+        <h2 className="text-2xl font-bold text-zinc-900">{t("wizardStep3Title")}</h2>
         <p className="text-sm text-zinc-600 mt-1">{t("step3Subtitle")}</p>
       </div>
       <div className="flex flex-wrap gap-2">
@@ -533,7 +533,7 @@ function Step4({ data, onChange }: {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-zinc-900">{t("step4Title")}</h2>
+        <h2 className="text-2xl font-bold text-zinc-900">{t("wizardStep4Title")}</h2>
         <p className="text-sm text-zinc-600 mt-1">{t("step4Subtitle")}</p>
       </div>
 
