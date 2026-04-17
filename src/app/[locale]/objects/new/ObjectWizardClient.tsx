@@ -140,6 +140,7 @@ export function ObjectWizardClient() {
   const [aiLoading, setAiLoading] = useState(false);
   const [aiGeneratedTitle, setAiGeneratedTitle] = useState(false);
   const [aiGeneratedDescription, setAiGeneratedDescription] = useState(false);
+  const [aiGeneratedCategory, setAiGeneratedCategory] = useState(false);
   const [lastAnalyzedUrl, setLastAnalyzedUrl] = useState<string | null>(null);
 
   const [form, setForm] = useState<FormData>({
@@ -177,48 +178,31 @@ export function ObjectWizardClient() {
   };
 
   const analyzeWithGrok = async (imageUrl: string) => {
-    const apiKey = process.env.NEXT_PUBLIC_XAI_API_KEY;
-    if (!apiKey) return;
     setLastAnalyzedUrl(imageUrl);
     setAiLoading(true);
     try {
-      const res = await fetch("https://api.x.ai/v1/chat/completions", {
+      const res = await fetch("/api/analyze-image", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model: "grok-2-vision-latest",
-          messages: [
-            {
-              role: "system",
-              content:
-                "You are a helpful assistant for a peer-to-peer swap marketplace. Analyze the product image and return ONLY a JSON object with fields: title (max 80 chars, concise product name) and description (max 500 chars, detailed description mentioning visible condition, brand if visible, key features). No markdown, no explanation, just the JSON.",
-            },
-            {
-              role: "user",
-              content: [
-                { type: "image_url", image_url: { url: imageUrl } },
-                { type: "text", text: "Analyze this product image for a swap marketplace listing." },
-              ],
-            },
-          ],
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageUrl }),
       });
       if (!res.ok) return;
       const data = await res.json();
-      const content = data.choices?.[0]?.message?.content?.trim();
-      if (!content) return;
-      const parsed = JSON.parse(content);
-      if (parsed.title) {
-        updateForm({ title: String(parsed.title).slice(0, 80) });
+      const updates: Partial<FormData> = {};
+      if (data.title) {
+        updates.title = data.title;
         setAiGeneratedTitle(true);
       }
-      if (parsed.description) {
-        updateForm({ description: String(parsed.description).slice(0, 500) });
+      if (data.description) {
+        updates.description = data.description;
         setAiGeneratedDescription(true);
       }
+      if (data.category_l1) {
+        updates.category_l1 = data.category_l1;
+        updates.category_l2 = data.category_l2 || "";
+        setAiGeneratedCategory(true);
+      }
+      if (Object.keys(updates).length > 0) updateForm(updates);
     } catch {
       // Silently continue — user fills manually
     } finally {
@@ -435,15 +419,25 @@ export function ObjectWizardClient() {
 
               {/* Category L1 */}
               <div>
-                <label className="block text-sm font-semibold text-zinc-900 dark:text-zinc-50 mb-3">
-                  {t("step1CategoryLabel")} *
-                </label>
+                <div className="flex items-center gap-2 mb-3">
+                  <label className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+                    {t("step1CategoryLabel")} *
+                  </label>
+                  {aiGeneratedCategory && (
+                    <span className="text-xs font-medium text-purple-600 dark:text-purple-400">
+                      ✨ AI
+                    </span>
+                  )}
+                </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {CATEGORY_L1_LIST.map((cat) => (
                     <button
                       key={cat.name}
                       type="button"
-                      onClick={() => updateForm({ category_l1: cat.name, category_l2: "" })}
+                      onClick={() => {
+                        updateForm({ category_l1: cat.name, category_l2: "" });
+                        setAiGeneratedCategory(false);
+                      }}
                       className={`flex flex-col items-center gap-2 rounded-full px-4 py-3 text-sm font-medium transition ${
                         form.category_l1 === cat.name
                           ? "bg-blue-600 text-white"
@@ -468,7 +462,10 @@ export function ObjectWizardClient() {
                       <button
                         key={subcat}
                         type="button"
-                        onClick={() => updateForm({ category_l2: subcat })}
+                        onClick={() => {
+                          updateForm({ category_l2: subcat });
+                          setAiGeneratedCategory(false);
+                        }}
                         className={`rounded-full px-4 py-2 text-sm font-medium transition ${
                           form.category_l2 === subcat
                             ? "bg-blue-600 text-white"
