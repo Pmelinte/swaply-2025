@@ -252,8 +252,8 @@ export function ChatPage({ conversationId }: Props) {
     const myName = user.displayName ?? "You";
     const newSummary = buildSummary(
       agendaState,
-      { id: "a", title: "Item A", ownerId: user.id } as Parameters<typeof buildSummary>[2],
-      { id: "b", title: "Item B", ownerId: meta.participantIds.find(id => id !== user.id) ?? "" } as Parameters<typeof buildSummary>[3],
+      { id: "a", title: "Item A", ownerId: user.id } as Parameters<typeof buildSummary>[1],
+      { id: "b", title: "Item B", ownerId: meta.participantIds.find(id => id !== user.id) ?? "" } as Parameters<typeof buildSummary>[2],
       myName,
       meta.partnerName,
       myRole,
