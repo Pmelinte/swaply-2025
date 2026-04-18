@@ -8,11 +8,11 @@ const ChatPage = dynamic(
 );
 
 interface Props {
-  params: { conversationId: string; locale: string };
+  params: Promise<{ conversationId: string; locale: string }>;
 }
 
 export default async function ConversationPage({ params }: Props) {
-  const { conversationId, locale } = params;
+  const { conversationId, locale } = await params;
 
   const supabase = await getServerSupabase();
   if (supabase) {

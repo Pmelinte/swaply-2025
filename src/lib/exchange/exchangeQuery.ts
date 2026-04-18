@@ -49,7 +49,10 @@ export async function getExchangeSwap(swapId: string): Promise<ExchangeSwap | nu
     .eq("id", swapId)
     .maybeSingle();
 
-  if (error || !data) return null;
+  if (error) {
+    console.error("[exchange] getExchangeSwap failed:", error);
+  }
+  if (!data) return null;
 
   const row = data as Record<string, unknown>;
 
@@ -57,10 +60,13 @@ export async function getExchangeSwap(swapId: string): Promise<ExchangeSwap | nu
   const responderId = String(row.responder_id ?? "");
 
   // Load profiles for both participants
-  const { data: profiles } = await supabase
+  const { data: profiles, error: profilesError } = await supabase
     .from("profiles")
     .select("user_id, display_name, avatar_url")
     .in("user_id", [requesterId, responderId]);
+  if (profilesError) {
+    console.error("[exchange] profiles lookup failed:", profilesError);
+  }
 
   const byId = Object.fromEntries(
     (profiles ?? []).map((p) => [p.user_id as string, p]),
@@ -90,11 +96,15 @@ export async function getSwapServices(swapId: string): Promise<SupportService[]>
   const supabase = await getServerSupabase();
   if (!supabase) return [];
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("swap_support_services")
     .select("*")
     .eq("swap_id", swapId)
     .order("created_at", { ascending: true });
+
+  if (error) {
+    console.error("[exchange] getSwapServices failed:", error);
+  }
 
   return (data ?? []).map((row: Record<string, unknown>) => ({
     id: String(row.id ?? ""),
