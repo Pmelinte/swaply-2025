@@ -11,44 +11,63 @@ const SYSTEM_PROMPT =
   "No markdown, no explanation, just the JSON.";
 
 export async function POST(req: NextRequest) {
-  const body = await req.json().catch(() => null);
+  // --- Stage 1: parse body ---
+  const body = await req.json().catch((e: unknown) => {
+    console.error("[analyze-image] body parse failed:", e);
+    return null;
+  });
   const imageUrl: unknown = body?.imageUrl;
   if (!imageUrl || typeof imageUrl !== "string") {
-    return NextResponse.json(EMPTY);
+    console.error("[analyze-image] missing/invalid imageUrl, body keys:", body ? Object.keys(body) : "null");
+    return NextResponse.json({ ...EMPTY, _debug: "missing imageUrl" });
   }
 
-  // Blob URLs only exist in the browser session — server cannot access them
+  const urlType = imageUrl.startsWith("data:") ? "data" : imageUrl.startsWith("blob:") ? "blob" : "http";
+  const payloadKB = Math.round(imageUrl.length / 1024);
+  console.log(`[analyze-image] imageUrl type=${urlType} size=${payloadKB}KB`);
+
   if (imageUrl.startsWith("blob:")) {
-    return NextResponse.json(EMPTY);
+    console.error("[analyze-image] blob: URLs cannot be fetched server-side");
+    return NextResponse.json({ ...EMPTY, _debug: "blob url not supported" });
   }
 
+  // --- Stage 2: API key check ---
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
-    return NextResponse.json(EMPTY);
+    console.error("[analyze-image] GROQ_API_KEY is not set");
+    return NextResponse.json({ ...EMPTY, _debug: "no api key" });
   }
+  console.log("[analyze-image] GROQ_API_KEY present, length:", apiKey.length);
 
-  // Resolve the image as a base64 data URL
+  // --- Stage 3: resolve image to base64 ---
   let dataUrl: string;
   if (imageUrl.startsWith("data:")) {
-    // Already a base64 data URL from the client (local file upload)
     dataUrl = imageUrl;
+    console.log(`[analyze-image] using existing data URL, size=${Math.round(dataUrl.length / 1024)}KB`);
   } else {
-    // External HTTP URL — download server-side to bypass CORS restrictions
+    console.log("[analyze-image] fetching external URL:", imageUrl.slice(0, 100));
     try {
       const imgRes = await fetch(imageUrl, {
         headers: { "User-Agent": "Mozilla/5.0 (compatible; Swaply/1.0)" },
       });
-      if (!imgRes.ok) return NextResponse.json(EMPTY);
+      if (!imgRes.ok) {
+        console.error("[analyze-image] external fetch failed:", imgRes.status, imgRes.statusText);
+        return NextResponse.json({ ...EMPTY, _debug: `fetch failed ${imgRes.status}` });
+      }
       const mimeType =
         imgRes.headers.get("content-type")?.split(";")[0].trim() || "image/jpeg";
       const buffer = await imgRes.arrayBuffer();
       const base64 = Buffer.from(buffer).toString("base64");
       dataUrl = `data:${mimeType};base64,${base64}`;
-    } catch {
-      return NextResponse.json(EMPTY);
+      console.log(`[analyze-image] external image fetched, mime=${mimeType} size=${Math.round(dataUrl.length / 1024)}KB`);
+    } catch (e) {
+      console.error("[analyze-image] external fetch exception:", e);
+      return NextResponse.json({ ...EMPTY, _debug: "fetch exception" });
     }
   }
 
+  // --- Stage 4: call Groq ---
+  console.log("[analyze-image] calling Groq API...");
   try {
     const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
@@ -74,21 +93,35 @@ export async function POST(req: NextRequest) {
       }),
     });
 
-    if (!res.ok) return NextResponse.json(EMPTY);
+    if (!res.ok) {
+      const errText = await res.text().catch(() => "");
+      console.error(`[analyze-image] Groq API error ${res.status}:`, errText.slice(0, 500));
+      return NextResponse.json({ ...EMPTY, _debug: `groq ${res.status}: ${errText.slice(0, 200)}` });
+    }
 
     const data = await res.json();
     const content = data.choices?.[0]?.message?.content?.trim();
-    if (!content) return NextResponse.json(EMPTY);
+    console.log("[analyze-image] Groq raw content:", content?.slice(0, 300));
 
-    const parsed = JSON.parse(content);
+    if (!content) {
+      console.error("[analyze-image] Groq returned empty content, full response:", JSON.stringify(data).slice(0, 500));
+      return NextResponse.json({ ...EMPTY, _debug: "empty groq content" });
+    }
+
+    // Strip markdown code fences if present
+    const cleaned = content.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+    const parsed = JSON.parse(cleaned);
+    console.log("[analyze-image] parsed result:", JSON.stringify(parsed).slice(0, 200));
+
     return NextResponse.json({
       title: parsed.title ? String(parsed.title).slice(0, 80) : "",
       description: parsed.description ? String(parsed.description).slice(0, 500) : "",
       category_l1: parsed.category_l1 ? String(parsed.category_l1) : "",
       category_l2: parsed.category_l2 ? String(parsed.category_l2) : "",
+      _debug: "ok",
     });
   } catch (err) {
-    console.error("analyze-image error:", err);
-    return NextResponse.json(EMPTY);
+    console.error("[analyze-image] exception:", err);
+    return NextResponse.json({ ...EMPTY, _debug: `exception: ${String(err).slice(0, 200)}` });
   }
 }

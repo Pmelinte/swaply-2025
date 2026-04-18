@@ -142,6 +142,7 @@ export function ObjectWizardClient() {
   const [aiGeneratedCategory, setAiGeneratedCategory] = useState(false);
   const [lastAnalyzedUrl, setLastAnalyzedUrl] = useState<string | null>(null);
   const [urlInput, setUrlInput] = useState("");
+  const [aiDebug, setAiDebug] = useState<string | null>(null);
 
   const [form, setForm] = useState<FormData>({
     category_l1: "",
@@ -180,14 +181,27 @@ export function ObjectWizardClient() {
   const analyzeWithGrok = async (imageUrl: string) => {
     setLastAnalyzedUrl(imageUrl);
     setAiLoading(true);
+    setAiDebug("Sending to AI...");
     try {
+      const payloadKB = Math.round(imageUrl.length / 1024);
+      console.log(`[AI] sending imageUrl type=${imageUrl.startsWith("data:") ? "data" : "http"} size=${payloadKB}KB`);
+
       const res = await fetch("/api/analyze-image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ imageUrl }),
       });
-      if (!res.ok) return;
+
+      console.log(`[AI] response status=${res.status}`);
+      if (!res.ok) {
+        setAiDebug(`HTTP ${res.status}`);
+        return;
+      }
+
       const data = await res.json();
+      console.log("[AI] response body:", JSON.stringify(data));
+      setAiDebug(data._debug ?? "no _debug");
+
       const updates: Partial<FormData> = {};
       if (data.title) {
         updates.title = data.title;
@@ -203,8 +217,9 @@ export function ObjectWizardClient() {
         setAiGeneratedCategory(true);
       }
       if (Object.keys(updates).length > 0) updateForm(updates);
-    } catch {
-      // Silently continue — user fills manually
+    } catch (e) {
+      console.error("[AI] fetch exception:", e);
+      setAiDebug(`exception: ${String(e).slice(0, 80)}`);
     } finally {
       setAiLoading(false);
     }
@@ -575,6 +590,13 @@ export function ObjectWizardClient() {
                   <div className="mt-3 flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400">
                     <Loader2 className="h-4 w-4 animate-spin" />
                     <span>Analyzing image…</span>
+                  </div>
+                )}
+
+                {/* AI debug status — visible in production to diagnose failures */}
+                {!aiLoading && aiDebug && (
+                  <div className={`mt-2 rounded px-2 py-1 text-xs font-mono ${aiDebug === "ok" ? "bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300" : "bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-300"}`}>
+                    AI: {aiDebug}
                   </div>
                 )}
               </div>
