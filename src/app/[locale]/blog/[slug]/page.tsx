@@ -87,9 +87,7 @@ async function translateContent(
 }
 
 export async function generateStaticParams() {
-  const { getAllPostsDB } = await import("@/lib/blog-db");
-  const posts = await getAllPostsDB();
-  return posts.slice(0, 10).map((post) => ({ slug: post.slug }));
+  return [];
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -158,29 +156,31 @@ export default async function BlogPostPage({ params }: Props) {
   const t = await getTranslations({ locale, namespace: "blog" });
 
   const rawPost = await getPostBySlugDB(slug, locale);
-  if (!rawPost) notFound();
+  if (!rawPost) return notFound();
 
   const contentSourceLang = rawPost.sourceLang;
 
-  const [
-    {
-      title: translatedTitle,
-      description: translatedDesc,
-      category: translatedCategory,
-    },
-    translatedContent,
-  ] = await Promise.all([
-    translateFields(
-      {
-        title: rawPost.title,
-        description: rawPost.description,
-        category: rawPost.category,
-      },
-      locale,
-      contentSourceLang,
-    ),
-    translateContent(rawPost.content, locale, contentSourceLang),
-  ]);
+  let translatedTitle = rawPost.title;
+  let translatedDesc = rawPost.description;
+  let translatedCategory = rawPost.category;
+  let translatedContent = rawPost.content;
+
+  try {
+    const [fields, content] = await Promise.all([
+      translateFields(
+        { title: rawPost.title, description: rawPost.description, category: rawPost.category },
+        locale,
+        contentSourceLang,
+      ),
+      translateContent(rawPost.content, locale, contentSourceLang),
+    ]);
+    translatedTitle = fields.title;
+    translatedDesc = fields.description;
+    translatedCategory = fields.category;
+    translatedContent = content;
+  } catch {
+    // Translation failed — render original content
+  }
 
   const post = {
     ...rawPost,
@@ -197,15 +197,17 @@ export default async function BlogPostPage({ params }: Props) {
     .slice(0, 3);
 
   const related = await Promise.all(
-    rawRelated.map(async (p) => ({
-      ...p,
-      title: await translateOnDemand(p.title, locale, contentSourceLang),
-      description: await translateOnDemand(
-        p.description,
-        locale,
-        contentSourceLang,
-      ),
-    })),
+    rawRelated.map(async (p) => {
+      try {
+        return {
+          ...p,
+          title: await translateOnDemand(p.title, locale, contentSourceLang),
+          description: await translateOnDemand(p.description, locale, contentSourceLang),
+        };
+      } catch {
+        return p;
+      }
+    }),
   );
 
   const articleJsonLd = {
