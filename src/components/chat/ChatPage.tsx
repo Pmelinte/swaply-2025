@@ -55,12 +55,13 @@ export function ChatPage({ conversationId }: Props) {
 
     const supabase = getSupabaseClient();
     if (!supabase) return;
+    const sb = supabase;
 
     async function load() {
       setLoading(true);
       try {
         // Load conversation metadata
-        const { data: conv } = await supabase
+        const { data: conv } = await sb
           .from("conversations")
           .select("*")
           .eq("id", conversationId)
@@ -69,7 +70,7 @@ export function ChatPage({ conversationId }: Props) {
         if (conv) {
           const partnerId = (conv.participant_ids as string[]).find((id: string) => id !== user!.id) ?? "";
           // Load partner profile
-          const { data: profile } = await supabase
+          const { data: profile } = await sb
             .from("profiles")
             .select("display_name, avatar_url, phone_verified, id_verified")
             .eq("user_id", partnerId)
@@ -99,7 +100,7 @@ export function ChatPage({ conversationId }: Props) {
         }
 
         // Load recent messages (structured conv)
-        const { data: msgs } = await supabase
+        const { data: msgs } = await sb
           .from("messages")
           .select("*")
           .or(`struct_conv_id.eq.${conversationId},conversation_id.eq.${conversationId}`)
@@ -121,7 +122,7 @@ export function ChatPage({ conversationId }: Props) {
         }
 
         // Mark messages as read
-        await markConversationRead(supabase, conversationId, user!.id);
+        await markConversationRead(sb, conversationId, user!.id);
       } finally {
         setLoading(false);
       }
