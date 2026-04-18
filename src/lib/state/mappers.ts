@@ -205,15 +205,10 @@ export function createMapSwapIntent() {
       id: safeString(row.id, nanoid()),
       requesterId: safeString(row.requester_id, safeString(row.requesterId)),
       responderId: safeString(row.responder_id, safeString(row.responderId)),
-      // DB `swaps` table uses offered_item_id / requested_item_id
-      requesterItemId: safeString(
-        row.offered_item_id,
-        safeString(row.requester_item_id, safeString(row.requesterItemId)),
-      ),
-      responderItemId: safeString(
-        row.requested_item_id,
-        safeString(row.responder_item_id, safeString(row.responderItemId)),
-      ),
+      // DB `swaps` uses offered_item_id / requested_item_id.
+      // camelCase fallbacks cover objects coming from client-side state, not the DB.
+      requesterItemId: safeString(row.offered_item_id, safeString(row.requesterItemId)),
+      responderItemId: safeString(row.requested_item_id, safeString(row.responderItemId)),
       status: safeSwapStatus(row.status, "pending"),
       logistics: {
         locationType: safeLocationType(logistics.locationType),

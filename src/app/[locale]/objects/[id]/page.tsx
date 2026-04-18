@@ -31,11 +31,14 @@ async function getItem(id: string) {
   const supabase = await getServerSupabase();
   if (!supabase) return null;
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("items")
     .select("title, description, category, condition, location, images")
     .eq("id", id)
     .maybeSingle();
+  if (error) {
+    console.error("[objects/detail] item lookup failed:", error);
+  }
   return data;
 }
 

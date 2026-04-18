@@ -39,22 +39,28 @@ export function ExchangePage({ swapId }: Props) {
     async function load() {
       setLoading(true);
       try {
-        const { data: swapRow } = await sb
+        const { data: swapRow, error: swapError } = await sb
           .from("swaps")
           .select("*, conversations(summary)")
           .eq("id", swapId)
           .maybeSingle();
 
+        if (swapError) {
+          console.error("[exchange] swap lookup failed:", swapError);
+        }
         if (!swapRow) { setLoading(false); return; }
 
         const row = swapRow as Record<string, unknown>;
         const requesterId = String(row.requester_id ?? "");
         const responderId = String(row.responder_id ?? "");
 
-        const { data: profiles } = await sb
+        const { data: profiles, error: profilesError } = await sb
           .from("profiles")
           .select("user_id, display_name, avatar_url")
           .in("user_id", [requesterId, responderId]);
+        if (profilesError) {
+          console.error("[exchange] profiles lookup failed:", profilesError);
+        }
 
         const byId = Object.fromEntries(
           (profiles ?? []).map((p: Record<string, unknown>) => [p.user_id as string, p]),
@@ -80,11 +86,14 @@ export function ExchangePage({ swapId }: Props) {
         });
 
         // Load my services
-        const { data: services } = await sb
+        const { data: services, error: servicesError } = await sb
           .from("swap_support_services")
           .select("*")
           .eq("swap_id", swapId)
           .eq("user_id", user!.id);
+        if (servicesError) {
+          console.error("[exchange] services lookup failed:", servicesError);
+        }
 
         setMyServices(
           (services ?? []).map((s: Record<string, unknown>) => ({

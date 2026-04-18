@@ -19,14 +19,18 @@ async function loadActiveSwaps(userId: string): Promise<ActiveSwap[]> {
   const supabase = await getServerSupabase();
   if (!supabase) return [];
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("swaps")
     .select(
-      "id, status, created_at, requester_id, responder_id, requester_item_id, responder_item_id",
+      "id, status, created_at, requester_id, responder_id, offered_item_id, requested_item_id",
     )
     .or(`requester_id.eq.${userId},responder_id.eq.${userId}`)
     .not("status", "in", "(completed,cancelled)")
     .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("[exchange] swaps query failed:", error);
+  }
 
   const rows = (data ?? []) as Array<Record<string, unknown>>;
   if (rows.length === 0) return [];
@@ -34,10 +38,10 @@ async function loadActiveSwaps(userId: string): Promise<ActiveSwap[]> {
   const itemIds = new Set<string>();
   const partnerIds = new Set<string>();
   for (const r of rows) {
-    const reqItem = r.requester_item_id as string | null;
-    const resItem = r.responder_item_id as string | null;
-    if (reqItem) itemIds.add(reqItem);
-    if (resItem) itemIds.add(resItem);
+    const offered = r.offered_item_id as string | null;
+    const requested = r.requested_item_id as string | null;
+    if (offered) itemIds.add(offered);
+    if (requested) itemIds.add(requested);
     const reqId = String(r.requester_id ?? "");
     const resId = String(r.responder_id ?? "");
     partnerIds.add(reqId === userId ? resId : reqId);
@@ -46,14 +50,21 @@ async function loadActiveSwaps(userId: string): Promise<ActiveSwap[]> {
   const [itemsRes, profilesRes] = await Promise.all([
     itemIds.size
       ? supabase.from("items").select("id, title").in("id", [...itemIds])
-      : Promise.resolve({ data: [] as Array<Record<string, unknown>> }),
+      : Promise.resolve({ data: [] as Array<Record<string, unknown>>, error: null }),
     partnerIds.size
       ? supabase
           .from("profiles")
           .select("user_id, display_name")
           .in("user_id", [...partnerIds])
-      : Promise.resolve({ data: [] as Array<Record<string, unknown>> }),
+      : Promise.resolve({ data: [] as Array<Record<string, unknown>>, error: null }),
   ]);
+
+  if ("error" in itemsRes && itemsRes.error) {
+    console.error("[exchange] items lookup failed:", itemsRes.error);
+  }
+  if ("error" in profilesRes && profilesRes.error) {
+    console.error("[exchange] profiles lookup failed:", profilesRes.error);
+  }
 
   const itemById = new Map<string, string>();
   for (const row of (itemsRes.data ?? []) as Array<Record<string, unknown>>) {
@@ -69,8 +80,9 @@ async function loadActiveSwaps(userId: string): Promise<ActiveSwap[]> {
     const resId = String(r.responder_id ?? "");
     const isRequester = reqId === userId;
     const partnerId = isRequester ? resId : reqId;
-    const myItemId = String((isRequester ? r.requester_item_id : r.responder_item_id) ?? "");
-    const partnerItemId = String((isRequester ? r.responder_item_id : r.requester_item_id) ?? "");
+    // Requester owns offered_item_id, responder owns requested_item_id.
+    const myItemId = String((isRequester ? r.offered_item_id : r.requested_item_id) ?? "");
+    const partnerItemId = String((isRequester ? r.requested_item_id : r.offered_item_id) ?? "");
     return {
       id: String(r.id ?? ""),
       status: String(r.status ?? ""),

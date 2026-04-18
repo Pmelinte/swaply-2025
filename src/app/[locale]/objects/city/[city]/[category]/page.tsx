@@ -105,7 +105,7 @@ async function getCityCategoryItems(
   if (!supabase) return { local: [], nearby: [] };
 
   // Items matching both city AND category
-  const { data: localData } = await supabase
+  const { data: localData, error: localError } = await supabase
     .from("items")
     .select("id, title, category, condition, images, location, created_at")
     .eq("category", dbCategory)
@@ -113,6 +113,7 @@ async function getCityCategoryItems(
     .eq("status", "active")
     .order("created_at", { ascending: false })
     .limit(24);
+  if (localError) console.error("[objects/city/category] local items query failed:", localError);
 
   const local = (localData as ItemRow[]) ?? [];
 
@@ -120,7 +121,7 @@ async function getCityCategoryItems(
   let nearby: ItemRow[] = [];
   if (local.length < 3) {
     const localIds = new Set(local.map((i) => i.id));
-    const { data: countyData } = await supabase
+    const { data: countyData, error: countyError } = await supabase
       .from("items")
       .select("id, title, category, condition, images, location, created_at")
       .eq("category", dbCategory)
@@ -128,19 +129,21 @@ async function getCityCategoryItems(
       .eq("status", "active")
       .order("created_at", { ascending: false })
       .limit(12);
+    if (countyError) console.error("[objects/city/category] county items query failed:", countyError);
 
     const countyItems = ((countyData as ItemRow[]) ?? []).filter(
       (i) => !localIds.has(i.id),
     );
 
     if (countyItems.length + local.length < 3) {
-      const { data: nationalData } = await supabase
+      const { data: nationalData, error: nationalError } = await supabase
         .from("items")
         .select("id, title, category, condition, images, location, created_at")
         .eq("category", dbCategory)
         .eq("status", "active")
         .order("created_at", { ascending: false })
         .limit(12);
+      if (nationalError) console.error("[objects/city/category] national items query failed:", nationalError);
 
       const allIds = new Set([...localIds, ...countyItems.map((i) => i.id)]);
       nearby = [

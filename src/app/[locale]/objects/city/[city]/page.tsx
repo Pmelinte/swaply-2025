@@ -65,13 +65,14 @@ async function getCityItems(
   if (!supabase) return { local: [], nearby: [] };
 
   // Local items matching city name
-  const { data: localData } = await supabase
+  const { data: localData, error: localError } = await supabase
     .from("items")
     .select("id, title, category, condition, images, location, created_at")
     .ilike("location", `%${cityName}%`)
     .eq("status", "active")
     .order("created_at", { ascending: false })
     .limit(24);
+  if (localError) console.error("[objects/city] local items query failed:", localError);
 
   const local = (localData as ItemRow[]) ?? [];
 
@@ -79,13 +80,14 @@ async function getCityItems(
   let nearby: ItemRow[] = [];
   if (local.length < 3) {
     const localIds = new Set(local.map((i) => i.id));
-    const { data: countyData } = await supabase
+    const { data: countyData, error: countyError } = await supabase
       .from("items")
       .select("id, title, category, condition, images, location, created_at")
       .ilike("location", `%${countyName}%`)
       .eq("status", "active")
       .order("created_at", { ascending: false })
       .limit(12);
+    if (countyError) console.error("[objects/city] county items query failed:", countyError);
 
     const countyItems = ((countyData as ItemRow[]) ?? []).filter(
       (i) => !localIds.has(i.id),
@@ -93,12 +95,13 @@ async function getCityItems(
 
     if (countyItems.length + local.length < 3) {
       // Fallback to national
-      const { data: nationalData } = await supabase
+      const { data: nationalData, error: nationalError } = await supabase
         .from("items")
         .select("id, title, category, condition, images, location, created_at")
         .eq("status", "active")
         .order("created_at", { ascending: false })
         .limit(12);
+      if (nationalError) console.error("[objects/city] national items query failed:", nationalError);
 
       const allIds = new Set([...localIds, ...countyItems.map((i) => i.id)]);
       nearby = [

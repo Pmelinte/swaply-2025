@@ -68,13 +68,14 @@ async function getItems(categoryName: string): Promise<ItemRow[]> {
   const supabase = await getServerSupabase();
   if (!supabase) return [];
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("items")
     .select("id, title, category, condition, images, location, created_at")
     .eq("category", categoryName)
     .eq("status", "active")
     .order("created_at", { ascending: false })
     .limit(24);
+  if (error) console.error("[objects/category] items query failed:", error);
 
   return (data as ItemRow[]) ?? [];
 }

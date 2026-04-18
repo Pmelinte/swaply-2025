@@ -56,6 +56,11 @@ function AdminOverview() {
         .eq("status", "pending"),
     ]);
 
+    if (usersRes.error) console.error("[admin] users count failed:", usersRes.error);
+    if (itemsRes.error) console.error("[admin] items count failed:", itemsRes.error);
+    if (swapsRes.error) console.error("[admin] swaps count failed:", swapsRes.error);
+    if (reportsRes.error) console.error("[admin] reports count failed:", reportsRes.error);
+
     setStats({
       totalUsers: usersRes.count ?? 0,
       activeItems: itemsRes.count ?? 0,

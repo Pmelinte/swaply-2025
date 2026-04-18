@@ -61,7 +61,10 @@ export default async function SubcategoryPage({ params }: Props) {
         .eq("status", "active")
         .order("created_at", { ascending: false })
         .limit(24)
-        .then((r) => r.data ?? [])
+        .then((r) => {
+          if (r.error) console.error("[objects/subcat] subcat items query failed:", r.error);
+          return r.data ?? [];
+        })
     : [];
 
   // Also fetch items from the parent category if few subcategory results
@@ -73,7 +76,10 @@ export default async function SubcategoryPage({ params }: Props) {
         .eq("status", "active")
         .order("created_at", { ascending: false })
         .limit(12)
-        .then((r) => r.data ?? [])
+        .then((r) => {
+          if (r.error) console.error("[objects/subcat] parent items query failed:", r.error);
+          return r.data ?? [];
+        })
     : [];
 
   // Translate all item titles server-side
