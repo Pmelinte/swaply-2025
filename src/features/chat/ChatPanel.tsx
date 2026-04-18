@@ -586,7 +586,7 @@ export function ChatPanel({
             {swapContext ? (
               <div className="mt-2 flex items-center gap-3">
                 <Link
-                  href="/change"
+                  href={swapContext ? `/exchange/${swapContext.swap.id}` : "/exchange"}
                   className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:from-blue-700 hover:to-emerald-700"
                 >
                   <ExternalLink className="h-4 w-4" />

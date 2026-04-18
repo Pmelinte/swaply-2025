@@ -50,14 +50,14 @@ const STEPS = [
     field: "stepFirstMatch" as const,
     icon: Sparkles,
     color: "from-violet-500 to-purple-600",
-    href: "/match",
+    href: "/matching",
   },
   {
     key: "first_swap" as const,
     field: "stepFirstSwap" as const,
     icon: Repeat2,
     color: "from-amber-500 to-orange-600",
-    href: "/change",
+    href: "/exchange",
   },
 ] as const;
 

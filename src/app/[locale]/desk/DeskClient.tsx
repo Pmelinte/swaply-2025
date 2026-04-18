@@ -328,7 +328,7 @@ export function DeskClient() {
           title={t("activeSwapsTitle")}
           description={t("activeSwapsDescription", { count: activeSwaps.length })}
           action={
-            <Link href="/change" className="text-xs font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400">
+            <Link href="/exchange" className="text-xs font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400">
               {t("viewAll")}
             </Link>
           }

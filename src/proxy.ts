@@ -10,6 +10,9 @@ const intlMiddleware = createIntlMiddleware(routing);
 const AUTH_ROUTES = [
   "/profile",
   "/chat",
+  "/matching",
+  "/exchange",
+  // Legacy routes — kept temporarily for backward compatibility (redirected in follow-up commit)
   "/match",
   "/change",
   "/desk",

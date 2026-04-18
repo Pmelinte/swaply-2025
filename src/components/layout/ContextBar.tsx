@@ -58,7 +58,12 @@ export function ContextBar() {
         </Link>
       </div>
     );
-  } else if (pathname === "/match") {
+  } else if (
+    pathname === "/matching" ||
+    pathname.startsWith("/matching/") ||
+    pathname === "/match" ||
+    pathname.startsWith("/match/")
+  ) {
     content = (
       <div className="flex items-center gap-3">
         <span className="inline-flex items-center gap-1">
@@ -99,7 +104,12 @@ export function ContextBar() {
         )}
       </div>
     );
-  } else if (pathname === "/change" || pathname.startsWith("/change")) {
+  } else if (
+    pathname === "/exchange" ||
+    pathname.startsWith("/exchange/") ||
+    pathname === "/change" ||
+    pathname.startsWith("/change/")
+  ) {
     const pendingSwaps = swaps.filter((s) => s.status === "pending");
     const inProgressSwaps = swaps.filter((s) => s.status === "accepted");
     content = (
