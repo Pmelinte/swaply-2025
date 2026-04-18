@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { SlidersHorizontal } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
@@ -8,24 +10,46 @@ import { GuestBanner } from "@/components/GuestBanner";
 import { WantsZone } from "@/components/explore/WantsZone";
 import { OffersZone } from "@/components/explore/OffersZone";
 import { MapSection } from "@/components/explore/MapSection";
-import { ExploreFilterDrawer } from "@/components/explore/ExploreFilterDrawer";
+import {
+  ExploreFilterDrawer,
+  type ExploreFilters,
+} from "@/components/explore/ExploreFilterDrawer";
 import { CategoryPickerSheet } from "@/components/explore/CategoryPickerSheet";
+import {
+  filtersToSearchParams,
+  searchParamsToFilters,
+} from "@/lib/explore/exploreFilters";
 
 export default function ExplorePage() {
   const { user } = useAppState();
   const t = useTranslations("nav");
   const te = useTranslations("explore");
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [filterOpen, setFilterOpen] = useState(false);
   const [addWantOpen, setAddWantOpen] = useState(false);
   const [addOfferOpen, setAddOfferOpen] = useState(false);
+
+  // Hydrate filters from the URL so bookmarks and shared links render consistently
+  const initialFilters = useMemo<ExploreFilters>(
+    () => searchParamsToFilters(new URLSearchParams(searchParams.toString())),
+    [searchParams],
+  );
+
+  // Sync back to URL whenever the user applies new filters
+  const handleApply = (filters: ExploreFilters) => {
+    const sp = filtersToSearchParams(filters);
+    const qs = sp.toString();
+    router.replace(qs ? `/explore?${qs}` : `/explore`, { scroll: false });
+    setFilterOpen(false);
+  };
 
   return (
     <>
       {!user && <GuestBanner />}
 
       <div className="mx-auto max-w-6xl space-y-4 px-4 py-4">
-        {/* ── Page header ── */}
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{t("explore")}</h1>
           <button
@@ -39,21 +63,18 @@ export default function ExplorePage() {
           </button>
         </div>
 
-        {/* ── Wants zone ── */}
         <WantsZone onAddWant={() => setAddWantOpen(true)} />
 
-        {/* ── Map (collapsible) ── */}
         <MapSection />
 
-        {/* ── Offers zone ── */}
         <OffersZone onAddOffer={() => setAddOfferOpen(true)} />
       </div>
 
-      {/* ── Overlays ── */}
       <ExploreFilterDrawer
         open={filterOpen}
         onClose={() => setFilterOpen(false)}
-        onApply={() => setFilterOpen(false)}
+        onApply={handleApply}
+        initialFilters={initialFilters}
       />
 
       <CategoryPickerSheet

@@ -3204,7 +3204,16 @@
       "condition": "Condition",
       "exchangeType": "Exchange type",
       "apply": "Apply filters",
-      "reset": "Reset"
+      "reset": "Reset",
+      "wantsTab": "Wants",
+      "offersTab": "Offers",
+      "profileTab": "Profile",
+      "profileUserTypeTitle": "User type",
+      "profileUserTypeIndividual": "Individual",
+      "profileUserTypeBusiness": "Business",
+      "profileUserTypeBoth": "Both",
+      "profileVerifiedOnly": "Verified users only",
+      "profileMinRating": "Minimum rating"
     },
     "add": {
       "titleLabel": "Title",
