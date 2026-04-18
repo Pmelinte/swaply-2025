@@ -4091,6 +4091,10 @@
     "reviewSubmitted": "Feedback trimis — mulțumim!",
     "loadingSwap": "Se încarcă schimbul…",
     "notFound": "Schimbul nu a fost găsit",
-    "notParticipant": "Nu ești participant la acest schimb"
+    "notParticipant": "Nu ești participant la acest schimb",
+    "listTitle": "Your active exchanges",
+    "listEmpty": "You don't have any active exchanges yet",
+    "listEmptyCta": "Find a match",
+    "listCardStatus": "Status"
   }
 }

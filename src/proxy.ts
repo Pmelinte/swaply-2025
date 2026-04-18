@@ -12,9 +12,8 @@ const AUTH_ROUTES = [
   "/chat",
   "/matching",
   "/exchange",
-  // Legacy routes — kept temporarily for backward compatibility (redirected in follow-up commit)
-  "/match",
-  "/change",
+  // Legacy /match and /change are plain redirects — no auth required;
+  // they forward to /matching and /exchange which are protected here.
   "/desk",
   "/my-objects",
   "/objects/new",

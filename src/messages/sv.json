@@ -4315,6 +4315,10 @@
     "reviewSubmitted": "Feedback submitted — thank you!",
     "loadingSwap": "Loading swap…",
     "notFound": "Swap not found",
-    "notParticipant": "You are not a participant in this swap"
+    "notParticipant": "You are not a participant in this swap",
+    "listTitle": "Your active exchanges",
+    "listEmpty": "You don't have any active exchanges yet",
+    "listEmptyCta": "Find a match",
+    "listCardStatus": "Status"
   }
 }
