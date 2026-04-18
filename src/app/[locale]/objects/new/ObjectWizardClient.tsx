@@ -220,12 +220,41 @@ export function ObjectWizardClient() {
     analyzeWithGrok(trimmed);
   };
 
-  const fileToDataUrl = (file: File): Promise<string> =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
+  // Resize + compress a File to a small JPEG data URL (≤800 px, q=0.8).
+  // Keeps the base64 payload well under Next.js's 4 MB body-parser limit.
+  const resizeForAI = (file: File): Promise<string> =>
+    new Promise((resolve) => {
+      const objectUrl = URL.createObjectURL(file);
+      const img = new window.Image();
+      img.onload = () => {
+        const MAX = 800;
+        let { width, height } = img;
+        if (width > MAX || height > MAX) {
+          if (width >= height) {
+            height = Math.round((height * MAX) / width);
+            width = MAX;
+          } else {
+            width = Math.round((width * MAX) / height);
+            height = MAX;
+          }
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (ctx) ctx.drawImage(img, 0, 0, width, height);
+        URL.revokeObjectURL(objectUrl);
+        resolve(canvas.toDataURL("image/jpeg", 0.8));
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(objectUrl);
+        // Canvas failed (e.g. SVG/tainted) — fall back to raw FileReader
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = () => resolve("");
+        reader.readAsDataURL(file);
+      };
+      img.src = objectUrl;
     });
 
   const handlePhotoUpload = async (files: File[]) => {
@@ -236,10 +265,12 @@ export function ObjectWizardClient() {
       const uploadPreset =
         process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "swaply_unsigned";
 
-      // Kick off AI analysis immediately using the local base64 data URL,
-      // so it runs in parallel with the Cloudinary upload.
+      // Kick off AI analysis immediately using a compressed local data URL —
+      // runs in parallel with the Cloudinary upload.
       if (files[0] && form.photos.length === 0) {
-        fileToDataUrl(files[0]).then((dataUrl) => analyzeWithGrok(dataUrl));
+        resizeForAI(files[0]).then((dataUrl) => {
+          if (dataUrl) analyzeWithGrok(dataUrl);
+        });
       }
 
       // Upload all files (Cloudinary → uploadItemPhoto → local blob fallback)
@@ -451,7 +482,11 @@ export function ObjectWizardClient() {
                         <img
                           src={url}
                           alt={`Photo ${idx + 1}`}
-                          className="h-20 w-20 object-cover rounded-lg"
+                          className="h-20 w-20 object-cover rounded-lg bg-zinc-100 dark:bg-zinc-800"
+                          onError={(e) => {
+                            e.currentTarget.src =
+                              "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect width='1' height='1' fill='%23d4d4d8'/%3E%3C/svg%3E";
+                          }}
                         />
                         <button
                           type="button"
@@ -771,7 +806,11 @@ export function ObjectWizardClient() {
                         <img
                           src={url}
                           alt={`Photo ${idx + 1}`}
-                          className="w-full h-24 object-cover rounded-lg"
+                          className="w-full h-24 object-cover rounded-lg bg-zinc-100 dark:bg-zinc-800"
+                          onError={(e) => {
+                            e.currentTarget.src =
+                              "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect width='1' height='1' fill='%23d4d4d8'/%3E%3C/svg%3E";
+                          }}
                         />
                         <button
                           type="button"
@@ -1095,7 +1134,11 @@ export function ObjectWizardClient() {
                     <img
                       src={form.photos[0]}
                       alt={form.title || "Preview"}
-                      className="w-full h-40 object-cover rounded-lg"
+                      className="w-full h-40 object-cover rounded-lg bg-zinc-100 dark:bg-zinc-800"
+                      onError={(e) => {
+                        e.currentTarget.src =
+                          "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect width='1' height='1' fill='%23d4d4d8'/%3E%3C/svg%3E";
+                      }}
                     />
                   )}
                   <div>
