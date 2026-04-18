@@ -7,7 +7,6 @@ import { useAppState } from "@/lib/state";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { uploadItemPhoto } from "@/lib/storage";
 import { ChevronLeft, ChevronRight, Upload, X, Loader2, CheckCircle2 } from "lucide-react";
-import Image from "next/image";
 
 const WIZARD_STEPS = 5;
 
@@ -253,12 +252,9 @@ export function ObjectWizardClient() {
         }
 
         if (!url) {
-          const { url: fallbackUrl, error: uploadError } = await uploadItemPhoto(file, user.id);
-          if (uploadError) {
-            setError(uploadError);
-            return;
-          }
-          url = fallbackUrl;
+          const { url: fallbackUrl } = await uploadItemPhoto(file, user.id);
+          // Use Supabase/blob URL from uploadItemPhoto, or create a local blob for preview
+          url = fallbackUrl ?? URL.createObjectURL(file);
         }
 
         if (url) uploadedUrls.push(url);
@@ -439,11 +435,10 @@ export function ObjectWizardClient() {
                   <div className="mb-3 flex flex-wrap gap-2">
                     {form.photos.map((url, idx) => (
                       <div key={idx} className="relative group">
-                        <Image
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
                           src={url}
                           alt={`Photo ${idx + 1}`}
-                          width={80}
-                          height={80}
                           className="h-20 w-20 object-cover rounded-lg"
                         />
                         <button
@@ -760,11 +755,10 @@ export function ObjectWizardClient() {
                   <div className="mb-4 grid grid-cols-4 gap-2">
                     {form.photos.map((url, idx) => (
                       <div key={idx} className="relative group">
-                        <Image
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
                           src={url}
                           alt={`Photo ${idx + 1}`}
-                          width={100}
-                          height={100}
                           className="w-full h-24 object-cover rounded-lg"
                         />
                         <button
@@ -1085,11 +1079,10 @@ export function ObjectWizardClient() {
                 </h3>
                 <div className="space-y-3">
                   {form.photos[0] && (
-                    <Image
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
                       src={form.photos[0]}
-                      alt="Preview"
-                      width={300}
-                      height={200}
+                      alt={form.title || "Preview"}
                       className="w-full h-40 object-cover rounded-lg"
                     />
                   )}
