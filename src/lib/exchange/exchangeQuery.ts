@@ -45,7 +45,7 @@ export async function getExchangeSwap(swapId: string): Promise<ExchangeSwap | nu
 
   const { data, error } = await supabase
     .from("swaps")
-    .select("*, conversations(summary)")
+    .select("*")
     .eq("id", swapId)
     .maybeSingle();
 
@@ -72,7 +72,20 @@ export async function getExchangeSwap(swapId: string): Promise<ExchangeSwap | nu
     (profiles ?? []).map((p) => [p.user_id as string, p]),
   );
 
-  const conv = row.conversations as { summary?: SwapSummary } | null;
+  // Fetch conversation summary separately (avoid join that fails silently)
+  let summary: SwapSummary | null = null;
+  const conversationId = row.conversation_id as string | null;
+  if (conversationId) {
+    const { data: conv, error: convError } = await supabase
+      .from("conversations")
+      .select("summary")
+      .eq("id", conversationId)
+      .maybeSingle();
+    if (convError) {
+      console.error("[exchange] conversation lookup failed:", convError);
+    }
+    summary = (conv?.summary as SwapSummary) ?? null;
+  }
 
   return {
     id: String(row.id ?? ""),
@@ -83,8 +96,8 @@ export async function getExchangeSwap(swapId: string): Promise<ExchangeSwap | nu
     pdfUrl: (row.pdf_url as string) ?? null,
     confirmedBy: (row.confirmed_by as string[]) ?? [],
     completedAt: (row.completed_at as string) ?? null,
-    conversationId: (row.conversation_id as string) ?? null,
-    summary: conv?.summary ?? null,
+    conversationId: conversationId ?? null,
+    summary,
     requesterName: (byId[requesterId]?.display_name as string) ?? requesterId.slice(0, 8),
     responderName: (byId[responderId]?.display_name as string) ?? responderId.slice(0, 8),
     requesterAvatarUrl: (byId[requesterId]?.avatar_url as string) ?? null,
