@@ -220,6 +220,14 @@ export function ObjectWizardClient() {
     analyzeWithGrok(trimmed);
   };
 
+  const fileToDataUrl = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
   const handlePhotoUpload = async (files: File[]) => {
     if (!user) return;
     setLoading(true);
@@ -227,48 +235,52 @@ export function ObjectWizardClient() {
       const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
       const uploadPreset =
         process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "swaply_unsigned";
-      const uploadedUrls: string[] = [];
 
-      for (const file of files) {
-        let url: string | null = null;
-
-        if (cloudName) {
-          try {
-            const fd = new FormData();
-            fd.append("file", file);
-            fd.append("upload_preset", uploadPreset);
-            fd.append("folder", `swaply/${user.id}`);
-            const res = await fetch(
-              `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-              { method: "POST", body: fd },
-            );
-            if (res.ok) {
-              const json = await res.json();
-              url = json.secure_url as string;
-            }
-          } catch {
-            // fall through to uploadItemPhoto fallback
-          }
-        }
-
-        if (!url) {
-          const { url: fallbackUrl } = await uploadItemPhoto(file, user.id);
-          // Use Supabase/blob URL from uploadItemPhoto, or create a local blob for preview
-          url = fallbackUrl ?? URL.createObjectURL(file);
-        }
-
-        if (url) uploadedUrls.push(url);
+      // Kick off AI analysis immediately using the local base64 data URL,
+      // so it runs in parallel with the Cloudinary upload.
+      if (files[0] && form.photos.length === 0) {
+        fileToDataUrl(files[0]).then((dataUrl) => analyzeWithGrok(dataUrl));
       }
 
+      // Upload all files (Cloudinary → uploadItemPhoto → local blob fallback)
+      const uploadedUrls = await Promise.all(
+        files.map(async (file) => {
+          let url: string | null = null;
+
+          if (cloudName) {
+            try {
+              const fd = new FormData();
+              fd.append("file", file);
+              fd.append("upload_preset", uploadPreset);
+              fd.append("folder", `swaply/${user.id}`);
+              const res = await fetch(
+                `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+                { method: "POST", body: fd },
+              );
+              if (res.ok) {
+                const json = await res.json();
+                url = json.secure_url as string;
+              }
+            } catch {
+              // fall through to uploadItemPhoto
+            }
+          }
+
+          if (!url) {
+            const { url: fallbackUrl } = await uploadItemPhoto(file, user.id);
+            url = fallbackUrl ?? URL.createObjectURL(file);
+          }
+
+          return url;
+        }),
+      );
+
+      const validUrls = uploadedUrls.filter((u): u is string => Boolean(u));
       setForm((prev) => ({
         ...prev,
-        photos: [...prev.photos, ...uploadedUrls],
+        photos: [...prev.photos, ...validUrls],
         photo_files: [...prev.photo_files, ...files],
       }));
-
-      if (uploadedUrls.length > 0 && form.photos.length === 0) {
-        analyzeWithGrok(uploadedUrls[0]);
-      }
     } finally {
       setLoading(false);
     }
