@@ -3,8 +3,9 @@
 import { useRouter, usePathname, Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { useState, useRef, useEffect, useCallback } from "react";
-import { ChevronDown, LogOut, Globe, Search, User, Settings, Menu } from "lucide-react";
+import { ChevronDown, LogOut, Globe, Search, User, Settings, Menu, PanelLeft } from "lucide-react";
 import { SideDrawer } from "@/components/layout/SideDrawer";
+import { useDrawerStore } from "@/lib/state/drawerStore";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -170,6 +171,15 @@ export function TopBar() {
             aria-label="Open menu"
           >
             <Menu className="h-5 w-5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => useDrawerStore.getState().toggle()}
+            className="inline-flex items-center justify-center rounded-lg p-1.5 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+            aria-label="Open unified drawer (beta)"
+            title="Unified drawer (beta)"
+          >
+            <PanelLeft className="h-5 w-5" />
           </button>
           <Link href="/" className="flex items-center gap-2" title="Swaply">
             <Image src="/logo-swaply.svg" alt="Swaply" width={28} height={28} className="h-7 w-7" priority />

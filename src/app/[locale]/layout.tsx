@@ -10,6 +10,7 @@ import { BranchBar } from "@/components/layout/BranchBar";
 import { ContextBar } from "@/components/layout/ContextBar";
 import { FooterNav } from "@/components/layout/FooterNav";
 import { GlobalNudge } from "@/components/layout/GlobalNudge";
+import { UnifiedSideDrawer } from "@/components/drawer/UnifiedSideDrawer";
 import { ClientOverlays } from "@/components/ClientOverlays";
 import { TokenToast } from "@/components/tokens/TokenToast";
 import Script from "next/script";
@@ -174,6 +175,7 @@ export default async function LocaleLayout({ children, params }: Props) {
               {children}
             </div>
             <FooterNav />
+            <UnifiedSideDrawer />
             <ClientOverlays />
             <TokenToast />
             <ConditionalAnalytics />
