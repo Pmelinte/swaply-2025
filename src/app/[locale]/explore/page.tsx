@@ -9,6 +9,7 @@ import { WantsZone } from "@/components/explore/WantsZone";
 import { OffersZone } from "@/components/explore/OffersZone";
 import { MapSection } from "@/components/explore/MapSection";
 import { ExploreFilterDrawer } from "@/components/explore/ExploreFilterDrawer";
+import { ExploreDrawer } from "@/components/explore/ExploreDrawer";
 import { CategoryPickerSheet } from "@/components/explore/CategoryPickerSheet";
 
 export default function ExplorePage() {
@@ -17,6 +18,7 @@ export default function ExplorePage() {
   const te = useTranslations("explore");
 
   const [filterOpen, setFilterOpen] = useState(false);
+  const [smartFilterOpen, setSmartFilterOpen] = useState(false);
   const [addWantOpen, setAddWantOpen] = useState(false);
   const [addOfferOpen, setAddOfferOpen] = useState(false);
 
@@ -28,15 +30,26 @@ export default function ExplorePage() {
         {/* ── Page header ── */}
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{t("explore")}</h1>
-          <button
-            type="button"
-            onClick={() => setFilterOpen(true)}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-zinc-200 px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
-            aria-label="Open filters"
-          >
-            <SlidersHorizontal className="h-4 w-4" />
-            <span className="hidden sm:inline">{te("filterDrawer.title")}</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setSmartFilterOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700 transition"
+              aria-label={te("drawer.openSmartFilters")}
+            >
+              <span>🎛️</span>
+              <span className="hidden sm:inline">{te("drawer.smartFiltersButton")}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setFilterOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-zinc-200 px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+              aria-label="Open filters"
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+              <span className="hidden sm:inline">{te("filterDrawer.title")}</span>
+            </button>
+          </div>
         </div>
 
         {/* ── Wants zone ── */}
@@ -54,6 +67,11 @@ export default function ExplorePage() {
         open={filterOpen}
         onClose={() => setFilterOpen(false)}
         onApply={() => setFilterOpen(false)}
+      />
+
+      <ExploreDrawer
+        open={smartFilterOpen}
+        onClose={() => setSmartFilterOpen(false)}
       />
 
       <CategoryPickerSheet
