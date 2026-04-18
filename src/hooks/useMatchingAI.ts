@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { useAppState } from "@/lib/state";
-import { calculateMatchScore } from "@/lib/matching/score";
+import { calculateMatchScore } from "@/lib/matching/matchScore";
 import type { Item } from "@/lib/types";
 import type { ScoredItem } from "./useMatchingResults";
 
