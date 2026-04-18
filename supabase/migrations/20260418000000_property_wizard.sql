@@ -17,6 +17,8 @@ ALTER TABLE public.items
   ADD COLUMN IF NOT EXISTS swap_wants_description TEXT,
   ADD COLUMN IF NOT EXISTS swap_value_match  TEXT,
   ADD COLUMN IF NOT EXISTS swap_flexibility  TEXT,
+  -- Referred to as "chain_swap_allowed" in wizard form state / product docs.
+  -- The DB column keeps the "swap_" prefix for consistency with sibling columns.
   ADD COLUMN IF NOT EXISTS swap_chain_allowed BOOLEAN DEFAULT false,
   ADD COLUMN IF NOT EXISTS swap_geo_preference TEXT,
   ADD COLUMN IF NOT EXISTS cross_category_swap BOOLEAN DEFAULT false,

@@ -7,7 +7,7 @@
  */
 import type { Item, MatchCandidate, MatchExplanation, MatchTier, NearMatchSuggestion, UserProfile } from "../types";
 import { getAllKeywords, areSiblingCategories } from "../categories";
-import { calculateMatchScore as calcWeightedScore, weightedScoreTier } from "../matching/score";
+import { calculateMatchScore as calcWeightedScore, weightedScoreTier } from "../matching/matchScore";
 
 /** Semantic scores map: "itemA_id:itemB_id" → cosine similarity (0-1) */
 export type SemanticScoresMap = Map<string, number>;

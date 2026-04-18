@@ -850,7 +850,7 @@ export default function ObjectsPage() {
                     >
                       {tc("reset")}
                     </button>
-                    <CTAButton href="/match">{t("matchingTitle")}</CTAButton>
+                    <CTAButton href="/matching">{t("matchingTitle")}</CTAButton>
                   </div>
                 </div>
               ) : currentOfferItem ? (
@@ -922,7 +922,7 @@ export default function ObjectsPage() {
                 {t("aiAnalyzesCompatibility")}
               </p>
               <div className="mt-3 flex justify-center gap-2">
-                <CTAButton href="/match">{t("matchingTitle")}</CTAButton>
+                <CTAButton href="/matching">{t("matchingTitle")}</CTAButton>
                 <button
                   type="button"
                   onClick={() => {

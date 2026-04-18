@@ -903,7 +903,7 @@ export default function ObjectDetailClient() {
                                 responderId: item.ownerId,
                               });
                               setSwapDialogOpen(false);
-                              router.push(swap ? `/change?swap=${swap.id}` : "/change");
+                              router.push(swap ? `/exchange/${swap.id}` : "/exchange");
                             })();
                           }}
                         >
@@ -929,7 +929,7 @@ export default function ObjectDetailClient() {
                 <button
                   type="button"
                   className="flex w-full items-center justify-center gap-2 rounded-xl border border-zinc-200 px-4 py-2.5 text-sm font-semibold text-zinc-700 hover:bg-zinc-50 dark:border-zinc-600 dark:text-zinc-200 dark:hover:bg-zinc-700"
-                  onClick={() => router.push("/match")}
+                  onClick={() => router.push("/matching")}
                 >
                   <Sparkles className="h-4 w-4" />
                   {t("requestMatch")}

@@ -2,27 +2,13 @@
 
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { MatchScoreBadge } from "./MatchScoreBadge";
 import type { ScoredItem } from "@/hooks/useMatchingResults";
 
 interface Props {
   scored: ScoredItem;
   onSelect: (scored: ScoredItem) => void;
   isAISuggested?: boolean;
-}
-
-function ScoreBadge({ score }: { score: number }) {
-  const color =
-    score >= 75
-      ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-      : score >= 50
-        ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
-        : "bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400";
-
-  return (
-    <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${color}`}>
-      ⭐ {score}%
-    </span>
-  );
 }
 
 export function MatchingItemCard({ scored, onSelect, isAISuggested }: Props) {
@@ -59,7 +45,7 @@ export function MatchingItemCard({ scored, onSelect, isAISuggested }: Props) {
           </span>
         )}
         <div className="absolute right-2 top-2">
-          <ScoreBadge score={score} />
+          <MatchScoreBadge score={score} />
         </div>
       </div>
 

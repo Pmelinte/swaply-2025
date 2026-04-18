@@ -10,8 +10,10 @@ const intlMiddleware = createIntlMiddleware(routing);
 const AUTH_ROUTES = [
   "/profile",
   "/chat",
-  "/match",
-  "/change",
+  "/matching",
+  "/exchange",
+  // Legacy /match and /change are plain redirects — no auth required;
+  // they forward to /matching and /exchange which are protected here.
   "/desk",
   "/my-objects",
   "/objects/new",

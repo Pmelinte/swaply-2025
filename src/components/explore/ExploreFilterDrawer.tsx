@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { X, ChevronDown, ChevronRight, Search } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
+import { X, ChevronDown, ChevronRight, Search, Star } from "lucide-react";
 
-type FilterState = {
+type CatalogFilter = {
   categories: string[];
   subcategories: string[];
   distance: number;
@@ -11,17 +12,34 @@ type FilterState = {
   exchangeType: string | null;
 };
 
-export type ExploreFilters = {
-  wantsFilters: FilterState;
-  offersFilters: FilterState;
+type UserType = "individual" | "business" | "both";
+
+export type ProfileFilter = {
+  distance: number;
+  userType: UserType;
+  verifiedOnly: boolean;
+  minRating: number;
 };
 
-const defaultFilter = (): FilterState => ({
+export type ExploreFilters = {
+  wantsFilters: CatalogFilter;
+  offersFilters: CatalogFilter;
+  profileFilters: ProfileFilter;
+};
+
+const defaultCatalog = (): CatalogFilter => ({
   categories: [],
   subcategories: [],
   distance: 500,
   condition: null,
   exchangeType: null,
+});
+
+const defaultProfile = (): ProfileFilter => ({
+  distance: 50,
+  userType: "both",
+  verifiedOnly: false,
+  minRating: 0,
 });
 
 const OBJECT_SUBCATEGORIES = [
@@ -59,28 +77,26 @@ const EXCHANGE_TYPES = [
   { key: "any", label: "Any" },
 ];
 
-/* ─── Single filter section (used for both Wants and Offers) ─── */
-function FilterSection({
-  title,
+/* ─── Catalog tab (Wants / Offers) ─── */
+function CatalogPanel({
   filters,
   onChange,
   searchQuery,
+  t,
 }: {
-  title: string;
-  filters: FilterState;
-  onChange: (f: FilterState) => void;
+  filters: CatalogFilter;
+  onChange: (f: CatalogFilter) => void;
   searchQuery: string;
+  t: ReturnType<typeof useTranslations>;
 }) {
   const [objectsExpanded, setObjectsExpanded] = useState(false);
-
   const q = searchQuery.toLowerCase();
 
   const visibleTopCategories = TOP_CATEGORIES.filter(
-    (c) => !q || c.label.toLowerCase().includes(q) || (c.hasSubcategories && "objects".includes(q))
+    (c) => !q || c.label.toLowerCase().includes(q) || (c.hasSubcategories && "objects".includes(q)),
   );
-
   const visibleSubcats = OBJECT_SUBCATEGORIES.filter(
-    (s) => !q || s.label.toLowerCase().includes(q) || s.key.includes(q)
+    (s) => !q || s.label.toLowerCase().includes(q) || s.key.includes(q),
   );
 
   const toggleCategory = (key: string) => {
@@ -98,11 +114,8 @@ function FilterSection({
   };
 
   return (
-    <div className="mb-4">
-      <h3 className="mb-3 text-sm font-bold text-zinc-900 dark:text-zinc-50">{title}</h3>
-
-      {/* Categories */}
-      <div className="mb-4 space-y-1.5">
+    <div className="space-y-4">
+      <div className="space-y-1.5">
         {visibleTopCategories.map((cat) => (
           <div key={cat.key}>
             <div className="flex items-center gap-2">
@@ -124,11 +137,7 @@ function FilterSection({
                   className="rounded-lg p-2 text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                   aria-label="Toggle subcategories"
                 >
-                  {objectsExpanded ? (
-                    <ChevronDown className="h-4 w-4" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4" />
-                  )}
+                  {objectsExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                 </button>
               )}
             </div>
@@ -154,10 +163,9 @@ function FilterSection({
         ))}
       </div>
 
-      {/* Distance slider */}
-      <div className="mb-4">
+      <div>
         <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-          Distance: <span className="font-bold text-zinc-700 dark:text-zinc-200">{filters.distance} km</span>
+          {t("distance")}: <span className="font-bold text-zinc-700 dark:text-zinc-200">{filters.distance} km</span>
         </p>
         <input
           type="range"
@@ -174,10 +182,9 @@ function FilterSection({
         </div>
       </div>
 
-      {/* Condition */}
-      <div className="mb-4">
+      <div>
         <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-          Condition
+          {t("condition")}
         </p>
         <div className="flex flex-wrap gap-1.5">
           {CONDITIONS.map((cond) => (
@@ -202,10 +209,9 @@ function FilterSection({
         </div>
       </div>
 
-      {/* Exchange type */}
       <div>
         <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-          Exchange type
+          {t("exchangeType")}
         </p>
         <div className="flex flex-wrap gap-1.5">
           {EXCHANGE_TYPES.map((et) => (
@@ -233,32 +239,154 @@ function FilterSection({
   );
 }
 
+/* ─── Profile tab ─── */
+function ProfilePanel({
+  filters,
+  onChange,
+  t,
+}: {
+  filters: ProfileFilter;
+  onChange: (f: ProfileFilter) => void;
+  t: ReturnType<typeof useTranslations>;
+}) {
+  const USER_TYPES: Array<{ key: UserType; labelKey: string }> = [
+    { key: "individual", labelKey: "profileUserTypeIndividual" },
+    { key: "business", labelKey: "profileUserTypeBusiness" },
+    { key: "both", labelKey: "profileUserTypeBoth" },
+  ];
+
+  return (
+    <div className="space-y-5">
+      <div>
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+          {t("distance")}: <span className="font-bold text-zinc-700 dark:text-zinc-200">{filters.distance} km</span>
+        </p>
+        <input
+          type="range"
+          min={5}
+          max={500}
+          step={5}
+          value={filters.distance}
+          onChange={(e) => onChange({ ...filters, distance: Number(e.target.value) })}
+          className="w-full accent-blue-600"
+        />
+        <div className="mt-0.5 flex justify-between text-xs text-zinc-400">
+          <span>5 km</span>
+          <span>500 km</span>
+        </div>
+      </div>
+
+      <div>
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+          {t("profileUserTypeTitle")}
+        </p>
+        <div className="flex flex-wrap gap-1.5">
+          {USER_TYPES.map((ut) => (
+            <button
+              key={ut.key}
+              type="button"
+              onClick={() => onChange({ ...filters, userType: ut.key })}
+              className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
+                filters.userType === ut.key
+                  ? "bg-blue-600 text-white"
+                  : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-700 dark:text-zinc-300"
+              }`}
+            >
+              {t(ut.labelKey)}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <label className="flex cursor-pointer items-center justify-between rounded-xl border border-zinc-200 bg-white px-3 py-3 text-sm dark:border-zinc-700 dark:bg-zinc-800">
+        <span className="font-medium text-zinc-700 dark:text-zinc-200">{t("profileVerifiedOnly")}</span>
+        <input
+          type="checkbox"
+          checked={filters.verifiedOnly}
+          onChange={(e) => onChange({ ...filters, verifiedOnly: e.target.checked })}
+          className="h-4 w-4 accent-blue-600"
+        />
+      </label>
+
+      <div>
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+          {t("profileMinRating")}
+        </p>
+        <div className="flex gap-1">
+          {[1, 2, 3, 4, 5].map((n) => (
+            <button
+              key={n}
+              type="button"
+              onClick={() => onChange({ ...filters, minRating: filters.minRating === n ? 0 : n })}
+              className="rounded-md p-1.5 transition hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              aria-label={`${n} star${n > 1 ? "s" : ""}`}
+            >
+              <Star
+                className={`h-5 w-5 ${
+                  n <= filters.minRating
+                    ? "fill-amber-400 text-amber-400"
+                    : "text-zinc-300 dark:text-zinc-600"
+                }`}
+              />
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ─── Main drawer ─── */
 type Props = {
   open: boolean;
   onClose: () => void;
   onApply: (filters: ExploreFilters) => void;
+  initialFilters?: Partial<ExploreFilters>;
 };
 
-export function ExploreFilterDrawer({ open, onClose, onApply }: Props) {
+type TabKey = "wants" | "offers" | "profile";
+
+export function ExploreFilterDrawer({ open, onClose, onApply, initialFilters }: Props) {
+  const t = useTranslations("explore.filterDrawer");
   const [search, setSearch] = useState("");
-  const [wantsFilters, setWantsFilters] = useState<FilterState>(defaultFilter);
-  const [offersFilters, setOffersFilters] = useState<FilterState>(defaultFilter);
+  const [tab, setTab] = useState<TabKey>("wants");
+  const [wantsFilters, setWantsFilters] = useState<CatalogFilter>(
+    initialFilters?.wantsFilters ?? defaultCatalog,
+  );
+  const [offersFilters, setOffersFilters] = useState<CatalogFilter>(
+    initialFilters?.offersFilters ?? defaultCatalog,
+  );
+  const [profileFilters, setProfileFilters] = useState<ProfileFilter>(
+    initialFilters?.profileFilters ?? defaultProfile,
+  );
+
+  // Rehydrate when initialFilters change (URL-driven state updates)
+  useEffect(() => {
+    if (initialFilters?.wantsFilters) setWantsFilters(initialFilters.wantsFilters);
+    if (initialFilters?.offersFilters) setOffersFilters(initialFilters.offersFilters);
+    if (initialFilters?.profileFilters) setProfileFilters(initialFilters.profileFilters);
+  }, [initialFilters]);
 
   const handleReset = () => {
-    setWantsFilters(defaultFilter());
-    setOffersFilters(defaultFilter());
+    setWantsFilters(defaultCatalog());
+    setOffersFilters(defaultCatalog());
+    setProfileFilters(defaultProfile());
     setSearch("");
   };
 
   const handleApply = () => {
-    onApply({ wantsFilters, offersFilters });
+    onApply({ wantsFilters, offersFilters, profileFilters });
     onClose();
   };
 
+  const TABS: Array<{ key: TabKey; labelKey: string }> = [
+    { key: "wants", labelKey: "wantsTab" },
+    { key: "offers", labelKey: "offersTab" },
+    { key: "profile", labelKey: "profileTab" },
+  ];
+
   return (
     <>
-      {/* Backdrop */}
       {open && (
         <div
           className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm"
@@ -267,7 +395,6 @@ export function ExploreFilterDrawer({ open, onClose, onApply }: Props) {
         />
       )}
 
-      {/* Drawer — slides from right */}
       <div
         className={`fixed right-0 top-0 z-50 flex h-full w-full max-w-sm flex-col bg-white shadow-2xl transition-transform duration-300 ease-in-out dark:bg-zinc-900 ${
           open ? "translate-x-0" : "translate-x-full"
@@ -276,9 +403,8 @@ export function ExploreFilterDrawer({ open, onClose, onApply }: Props) {
         aria-modal="true"
         aria-label="Explore filters"
       >
-        {/* Header */}
         <div className="flex items-center justify-between border-b border-zinc-200 px-4 py-4 dark:border-zinc-700">
-          <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">Filters</h2>
+          <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">{t("title")}</h2>
           <button
             type="button"
             onClick={onClose}
@@ -289,54 +415,75 @@ export function ExploreFilterDrawer({ open, onClose, onApply }: Props) {
           </button>
         </div>
 
-        {/* Search */}
-        <div className="border-b border-zinc-100 px-4 py-3 dark:border-zinc-800">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search categories…"
-              className="w-full rounded-xl border border-zinc-200 bg-zinc-50 py-2 pl-10 pr-4 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
-            />
-          </div>
+        <div className="flex border-b border-zinc-200 dark:border-zinc-700" role="tablist">
+          {TABS.map((tabDef) => (
+            <button
+              key={tabDef.key}
+              type="button"
+              role="tab"
+              aria-selected={tab === tabDef.key}
+              onClick={() => setTab(tabDef.key)}
+              className={`flex-1 py-3 text-sm font-semibold transition ${
+                tab === tabDef.key
+                  ? "border-b-2 border-blue-600 text-blue-700 dark:text-blue-300"
+                  : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+              }`}
+            >
+              {t(tabDef.labelKey)}
+            </button>
+          ))}
         </div>
 
-        {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto px-4 pt-4">
-          <FilterSection
-            title="Filter Wants"
-            filters={wantsFilters}
-            onChange={setWantsFilters}
-            searchQuery={search}
-          />
-          <div className="my-4 border-t border-zinc-200 dark:border-zinc-700" />
-          <FilterSection
-            title="Filter Offers"
-            filters={offersFilters}
-            onChange={setOffersFilters}
-            searchQuery={search}
-          />
-          {/* bottom padding so content isn't behind sticky footer */}
+        {tab !== "profile" && (
+          <div className="border-b border-zinc-100 px-4 py-3 dark:border-zinc-800">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder={t("searchPlaceholder")}
+                className="w-full rounded-xl border border-zinc-200 bg-zinc-50 py-2 pl-10 pr-4 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
+              />
+            </div>
+          </div>
+        )}
+
+        <div className="flex-1 overflow-y-auto px-4 py-4">
+          {tab === "wants" && (
+            <CatalogPanel
+              filters={wantsFilters}
+              onChange={setWantsFilters}
+              searchQuery={search}
+              t={t}
+            />
+          )}
+          {tab === "offers" && (
+            <CatalogPanel
+              filters={offersFilters}
+              onChange={setOffersFilters}
+              searchQuery={search}
+              t={t}
+            />
+          )}
+          {tab === "profile" && <ProfilePanel filters={profileFilters} onChange={setProfileFilters} t={t} />}
           <div className="h-4" />
         </div>
 
-        {/* Sticky footer */}
         <div className="flex gap-3 border-t border-zinc-200 bg-white px-4 py-4 dark:border-zinc-700 dark:bg-zinc-900">
           <button
             type="button"
             onClick={handleReset}
             className="flex-1 rounded-xl border border-zinc-300 py-2.5 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-50 dark:border-zinc-600 dark:text-zinc-200 dark:hover:bg-zinc-800"
           >
-            Reset
+            {t("reset")}
           </button>
           <button
             type="button"
             onClick={handleApply}
             className="flex-1 rounded-xl bg-blue-600 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
           >
-            Apply filters
+            {t("apply")}
           </button>
         </div>
       </div>

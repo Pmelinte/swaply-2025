@@ -3417,7 +3417,16 @@
       "condition": "Condition",
       "exchangeType": "Exchange type",
       "apply": "Apply filters",
-      "reset": "Reset"
+      "reset": "Reset",
+      "wantsTab": "Wants",
+      "offersTab": "Offers",
+      "profileTab": "Profile",
+      "profileUserTypeTitle": "User type",
+      "profileUserTypeIndividual": "Individual",
+      "profileUserTypeBusiness": "Business",
+      "profileUserTypeBoth": "Both",
+      "profileVerifiedOnly": "Verified users only",
+      "profileMinRating": "Minimum rating"
     },
     "add": {
       "titleLabel": "Title",
@@ -4315,6 +4324,10 @@
     "reviewSubmitted": "Feedback submitted — thank you!",
     "loadingSwap": "Loading swap…",
     "notFound": "Swap not found",
-    "notParticipant": "You are not a participant in this swap"
+    "notParticipant": "You are not a participant in this swap",
+    "listTitle": "Your active exchanges",
+    "listEmpty": "You don't have any active exchanges yet",
+    "listEmptyCta": "Find a match",
+    "listCardStatus": "Status"
   }
 }

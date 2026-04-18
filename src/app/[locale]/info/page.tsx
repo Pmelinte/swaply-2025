@@ -405,7 +405,7 @@ export default function InfoPage() {
         title={tc("nextStepRecommended")}
         steps={[
           { label: t("startWithObjects"), href: "/objects", description: t("startWithObjectsDescription") },
-          { label: t("discoverMatches"), href: "/match", description: t("discoverMatchesDescription") },
+          { label: t("discoverMatches"), href: "/matching", description: t("discoverMatchesDescription") },
           { label: t("authentication"), href: "/login", description: t("authenticationDescription") },
         ]}
       />

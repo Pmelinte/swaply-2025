@@ -481,12 +481,7 @@
     "guestCta": "Create your free profile →",
     "networkError": "Network error",
     "passkeyRegFailed": "Passkey registration failed",
-    "genericError": "Error",
-    "ageMinimum": "You must be at least 16 years old to use Swaply",
-    "countryRequired": "Country is required",
-    "dateOfBirthRequired": "Date of birth is required",
-    "displayNameRequired": "Display name is required (minimum 2 characters)",
-    "languageRequired": "Please select at least one language"
+    "genericError": "Error"
   },
   "home": {
     "welcome": "Welcome back",
@@ -3198,7 +3193,16 @@
       "condition": "Condition",
       "exchangeType": "Exchange type",
       "apply": "Apply filters",
-      "reset": "Reset"
+      "reset": "Reset",
+      "wantsTab": "Wants",
+      "offersTab": "Offers",
+      "profileTab": "Profile",
+      "profileUserTypeTitle": "User type",
+      "profileUserTypeIndividual": "Individual",
+      "profileUserTypeBusiness": "Business",
+      "profileUserTypeBoth": "Both",
+      "profileVerifiedOnly": "Verified users only",
+      "profileMinRating": "Minimum rating"
     },
     "add": {
       "titleLabel": "Title",
@@ -3337,7 +3341,6 @@
     "publish": "Publish Property",
     "saveDraft": "Save as Draft",
     "vacationDisclaimer": "⚠️ Swaply = Temporary vacation use only. NOT a property transfer.",
-
     "step1Title": "Type & Classification",
     "step1Subtitle": "Select your property type and basic classification",
     "step1PropertyTypeLabel": "Property type",
@@ -3362,7 +3365,6 @@
     "step1TypeRoom": "Room",
     "step1TypeMobileHome": "Mobile Home",
     "step1TypeOther": "Other",
-
     "step2Title": "Location & GPS",
     "step2Subtitle": "Where is your property located?",
     "step2CountryLabel": "Country",
@@ -3385,7 +3387,6 @@
     "step2LocationMountain": "Mountain",
     "step2LocationForest": "Forest",
     "step2LocationIsolated": "Isolated",
-
     "step3Title": "Structure & Rooms",
     "step3Subtitle": "Details about the building and room layout",
     "step3TotalBuildingsLabel": "Number of buildings",
@@ -3416,7 +3417,6 @@
     "step3GardenAreaLabel": "Garden area (optional)",
     "step3TerraceAreaLabel": "Terrace area (optional)",
     "step3PoolAreaLabel": "Pool area",
-
     "step4Title": "Amenities & Features",
     "step4Subtitle": "What does your property offer?",
     "step4ExteriorLabel": "Exterior & Recreation",
@@ -3468,7 +3468,6 @@
     "step4FurnishingPartially": "Partially Furnished",
     "step4FurnishingFully": "Fully Furnished",
     "step4FurnishingLuxury": "Luxury Furnished",
-
     "step5Title": "Utilities & Systems",
     "step5Subtitle": "Tell us about the infrastructure",
     "step5HeatingLabel": "Heating type",
@@ -3514,7 +3513,6 @@
     "step5EcoCertificationsLabel": "Eco certifications",
     "step5BackupGeneratorLabel": "Backup generator",
     "step5SepticTankLabel": "Septic tank (vs sewage)",
-
     "step6Title": "Exchange Terms",
     "step6Subtitle": "Define how you want to exchange your property",
     "step6DisclaimerTitle": "Vacation Use Only",
@@ -3562,7 +3560,6 @@
     "step6PartialAllowedLabel": "Partial swap allowed (+ top-up)",
     "step6PartialTopupLabel": "Maximum top-up amount (€)",
     "step6ChainSwapLabel": "Chain swap allowed",
-
     "step7Title": "Rules & Policies",
     "step7Subtitle": "Set the house rules for your property",
     "step7CheckInLabel": "Check-in time",
@@ -3610,7 +3607,6 @@
     "step7AccessibilityRamp": "Ramp",
     "step7AccessibilityHandrails": "Handrails",
     "step7AccessibilityBraille": "Braille",
-
     "step8Title": "Review & Publish",
     "step8Subtitle": "Review your property listing before publishing",
     "step8ConfirmVacationOnly": "I confirm this property is available for temporary vacation exchange only — NOT for property transfer or sale.",
@@ -4103,6 +4099,10 @@
     "reviewSubmitted": "Feedback submitted — thank you!",
     "loadingSwap": "Loading swap…",
     "notFound": "Swap not found",
-    "notParticipant": "You are not a participant in this swap"
+    "notParticipant": "You are not a participant in this swap",
+    "listTitle": "Your active exchanges",
+    "listEmpty": "You don't have any active exchanges yet",
+    "listEmptyCta": "Find a match",
+    "listCardStatus": "Status"
   }
 }

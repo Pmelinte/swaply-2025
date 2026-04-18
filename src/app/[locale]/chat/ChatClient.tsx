@@ -97,7 +97,7 @@ export function ChatClient({
       <SectionCard
         title={t("title")}
         description={t("description")}
-        action={<CTAButton href="/change">{t("confirmSwap")}</CTAButton>}
+        action={<CTAButton href="/exchange">{t("confirmSwap")}</CTAButton>}
       >
         <ChatPanel conversations={conversations} initialConversationId={initialConversationId} />
       </SectionCard>
@@ -112,8 +112,8 @@ export function ChatClient({
       <NextStepRecommendation
         title={tc("nextStepRecommended")}
         steps={[
-          { label: t("confirmASwap"), href: "/change", description: t("confirmDescription") },
-          { label: t("viewMatches"), href: "/match", description: t("viewMatchesDescription") },
+          { label: t("confirmASwap"), href: "/exchange", description: t("confirmDescription") },
+          { label: t("viewMatches"), href: "/matching", description: t("viewMatchesDescription") },
         ]}
       />
 

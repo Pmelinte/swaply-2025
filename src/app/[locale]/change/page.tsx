@@ -1,22 +1,19 @@
-export const dynamic = "force-dynamic";
-import { ChangeClient } from "./ChangeClient";
-import { getServerSupabase } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 
-export default async function ChangePage({
+/**
+ * Legacy /change route. Permanently redirects to /exchange (PR8).
+ * Preserves ?swap=<id> query by redirecting to /exchange/<id> directly.
+ */
+export default async function ChangeRedirect({
+  params,
   searchParams,
 }: {
-  searchParams?: Record<string, string | string[] | undefined>;
+  params: Promise<{ locale: string }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const raw = searchParams?.swap;
-  const swapFromQuery = Array.isArray(raw) ? raw[0] : raw ?? null;
-
-  const supabase = await getServerSupabase();
-  let isAuthenticated = false;
-
-  if (supabase) {
-    const { data: { user } } = await supabase.auth.getUser();
-    isAuthenticated = !!user;
-  }
-
-  return <ChangeClient swapFromQuery={swapFromQuery} serverAuthenticated={isAuthenticated} />;
+  const { locale } = await params;
+  const sp = (await searchParams) ?? {};
+  const raw = sp.swap;
+  const swapId = Array.isArray(raw) ? raw[0] : raw;
+  redirect(swapId ? `/${locale}/exchange/${swapId}` : `/${locale}/exchange`);
 }
