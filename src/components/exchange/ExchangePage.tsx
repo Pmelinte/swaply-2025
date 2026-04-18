@@ -41,7 +41,7 @@ export function ExchangePage({ swapId }: Props) {
       try {
         const { data: swapRow, error: swapError } = await sb
           .from("swaps")
-          .select("*, conversations(summary)")
+          .select("*")
           .eq("id", swapId)
           .maybeSingle();
 
@@ -66,8 +66,20 @@ export function ExchangePage({ swapId }: Props) {
           (profiles ?? []).map((p: Record<string, unknown>) => [p.user_id as string, p]),
         );
 
-        const conv = (row.conversations as { summary?: SwapSummary } | null);
-        const swapSummary = conv?.summary ?? null;
+        // Fetch conversation summary separately (avoid join that fails silently)
+        let swapSummary: SwapSummary | null = null;
+        const conversationId = row.conversation_id as string | null;
+        if (conversationId) {
+          const { data: conv, error: convError } = await sb
+            .from("conversations")
+            .select("summary")
+            .eq("id", conversationId)
+            .maybeSingle();
+          if (convError) {
+            console.error("[exchange] conversation lookup failed:", convError);
+          }
+          swapSummary = (conv?.summary as SwapSummary) ?? null;
+        }
         setSummary(swapSummary);
 
         setSwap({
