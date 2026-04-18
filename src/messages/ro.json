@@ -3205,6 +3205,13 @@
     "drawer": {
       "smartFiltersButton": "Smart Filters",
       "openSmartFilters": "Open smart filters"
+    },
+    "slots": {
+      "empty": "Choose an item to start matching",
+      "oneSelected": "You can add 1 more item or go to Matching now",
+      "full": "You have 2 items selected. Go to Matching or free a slot.",
+      "counter": "{count}/2 items selected",
+      "goMatching": "🎯 Go to Matching ({count})"
     }
   },
   "objectWizard": {

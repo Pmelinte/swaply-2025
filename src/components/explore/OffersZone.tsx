@@ -11,7 +11,7 @@ import { ExploreItemCard } from "@/components/explore/ExploreItemCard";
 import { LayoutGrid, List, Plus, User, Undo2 } from "lucide-react";
 import type { Item } from "@/lib/types";
 
-const MAX_SWIPES = 3;
+const MAX_SWIPES = 2;
 type BrowseMode = "swipe" | "grid" | "list";
 
 /* ── Compact slot card ── */
@@ -59,7 +59,7 @@ export function OffersZone({ onAddOffer }: Props) {
   const [mode, setMode] = useState<BrowseMode>("swipe");
   const [swipeIndex, setSwipeIndex] = useState(0);
   const [rightCount, setRightCount] = useState(0);
-  const [slots, setSlots] = useState<(Item | null)[]>([null, null, null]);
+  const [slots, setSlots] = useState<(Item | null)[]>([null, null]);
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
   const [history, setHistory] = useState<Array<{ item: Item; action: "left" | "right" }>>([]);
 
@@ -125,7 +125,7 @@ export function OffersZone({ onAddOffer }: Props) {
     setSwipeIndex(0);
     setRightCount(0);
     setDismissed(new Set());
-    setSlots([null, null, null]);
+    setSlots([null, null]);
     setHistory([]);
   };
 
@@ -246,21 +246,39 @@ export function OffersZone({ onAddOffer }: Props) {
             )}
           </div>
 
-          {/* 3 slots */}
+          {/* 2 slots */}
           {user && (
-            <div className="mt-4 grid grid-cols-3 gap-2" style={{ minHeight: 80 }}>
-              {slots.map((item, idx) => (
-                <SlotCard
-                  key={idx}
-                  item={item}
-                  onRemove={
-                    item
-                      ? () => setSlots((prev) => { const n = [...prev]; n[idx] = null; return n; })
-                      : undefined
-                  }
-                />
-              ))}
-            </div>
+            <>
+              <div className="mt-4 grid grid-cols-2 gap-2" style={{ minHeight: 80 }}>
+                {slots.map((item, idx) => (
+                  <SlotCard
+                    key={idx}
+                    item={item}
+                    onRemove={
+                      item
+                        ? () => setSlots((prev) => { const n = [...prev]; n[idx] = null; return n; })
+                        : undefined
+                    }
+                  />
+                ))}
+              </div>
+              <div className="mt-3 flex items-center justify-between gap-2">
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  {rightCount === 0
+                    ? t("slots.empty")
+                    : rightCount < MAX_SWIPES
+                    ? t("slots.oneSelected")
+                    : t("slots.full")}
+                </p>
+                <button
+                  type="button"
+                  disabled={rightCount === 0}
+                  className="inline-flex items-center gap-1 rounded-full bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-40 transition"
+                >
+                  {t("slots.goMatching", { count: rightCount })}
+                </button>
+              </div>
+            </>
           )}
         </>
       )}
