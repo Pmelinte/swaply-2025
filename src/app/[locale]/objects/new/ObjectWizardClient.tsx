@@ -397,7 +397,7 @@ export function ObjectWizardClient() {
         original_packaging: form.original_packaging,
         tags: form.tags.length > 0 ? form.tags : null,
         photos: form.photos,
-        swap_open_to: form.swap_open_to,
+        swap_open_to: form.swap_open_to ? [form.swap_open_to] : null,
         swap_wants_description: form.swap_wants_description.trim(),
         swap_value_match: form.swap_value_match,
         swap_flexibility: form.swap_flexibility,

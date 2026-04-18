@@ -20,7 +20,7 @@ export async function submitEventWizard(
       item_type: "event",
       wizard_type: form.event_type_l1 || "event",
       wizard_step: 5,
-      swap_open_to: form.swap_for_type.join(","),
+      swap_open_to: form.swap_for_type.length > 0 ? form.swap_for_type : null,
       swap_wants_description: form.swap_wants_description || null,
       swap_value_match: form.swap_value_match || null,
       swap_geo_preference: form.swap_geo_preference || null,
