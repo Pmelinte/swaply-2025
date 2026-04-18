@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import Image from "next/image";
+import { MatchScoreBadge } from "./MatchScoreBadge";
 import { MatchingScoreBreakdown } from "./MatchingScoreBreakdown";
 import type { SelectedProfile } from "@/lib/matching/matchingStore";
 import type { ScoredItem } from "@/hooks/useMatchingResults";
@@ -64,10 +65,8 @@ export function MatchingProfileCard({ profile, onRefuse, allScoredItems }: Props
             {reputationLabel[reputation] ?? reputation} · {completedSwaps} swaps
           </p>
         </div>
-        <div className="text-right">
-          <p className="text-lg font-bold text-blue-600 dark:text-blue-400">
-            {profile.matchScore}%
-          </p>
+        <div className="flex flex-col items-end gap-0.5">
+          <MatchScoreBadge score={profile.matchScore} size="md" />
           <p className="text-[10px] text-zinc-400">{t("matchScore")}</p>
         </div>
       </div>
