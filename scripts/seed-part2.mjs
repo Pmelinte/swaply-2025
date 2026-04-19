@@ -332,7 +332,9 @@ async function main() {
         }
 
         const onboardingRow = buildOnboardingRow(userId);
-        const { error: onboardError } = await supabase.from('onboarding_progress').insert(onboardingRow);
+        const { error: onboardError } = await supabase
+          .from('onboarding_progress')
+          .upsert(onboardingRow, { onConflict: 'user_id', ignoreDuplicates: true });
 
         if (onboardError) {
           errors++;

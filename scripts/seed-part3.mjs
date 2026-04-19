@@ -228,6 +228,8 @@ function buildItemRow({ user, type, template, analysis }) {
     owner_id: user.userId,
     title: analysis.title,
     description: analysis.description,
+    category: analysis.category_l1 || template.cat1,
+    subcategory: analysis.category_l2 || template.cat2,
     category_l1: analysis.category_l1,
     category_l2: analysis.category_l2,
     category_path: `${analysis.category_l1}/${analysis.category_l2}`,
