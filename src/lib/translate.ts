@@ -26,8 +26,10 @@ function getLocaleName(code: string): string {
 
 /**
  * Translate text using Claude Haiku API.
+ * Kept for re-enabling later; currently unreferenced because translateText
+ * is stubbed. Prefixed with underscore to satisfy no-unused-vars.
  */
-async function translateWithClaude(
+async function _translateWithClaude(
   text: string,
   targetLocale: string,
   sourceLang = "ro",
@@ -83,10 +85,17 @@ export async function translateText(
   targetLang: string,
   sourceLang = "ro",
 ): Promise<string | null> {
+  // DISABLED 2026-04-19 — investigating runaway API consumption
+  // (21M tokens / ~$76 spike Apr 8-11). Re-enable only after RCA.
+  // Original implementation preserved in git history (revert this commit to restore).
+  //
+  // Short-circuits for empty/same-language are kept — they are pure local
+  // logic and never hit the Anthropic API, so they are safe to preserve
+  // (and they are part of the public contract tested in translate.test.ts).
   if (!text.trim()) return null;
   if (targetLang === sourceLang) return text;
-
-  return translateWithClaude(text, targetLang, sourceLang);
+  console.warn("[translate] disabled");
+  return null;
 }
 
 /**
