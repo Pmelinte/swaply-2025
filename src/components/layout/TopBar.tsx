@@ -3,8 +3,7 @@
 import { useRouter, usePathname, Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { useState, useRef, useEffect, useCallback } from "react";
-import { ChevronDown, LogOut, Globe, Search, User, Settings, Menu, PanelLeft } from "lucide-react";
-import { SideDrawer } from "@/components/layout/SideDrawer";
+import { ChevronDown, LogOut, Globe, Search, User, Settings, Menu } from "lucide-react";
 import { useDrawerStore } from "@/lib/state/drawerStore";
 import {
   DropdownMenu,
@@ -41,7 +40,6 @@ export function TopBar() {
   const pathname = usePathname();
   const { user, logout, language, setLanguage } = useAppState();
 
-  const [drawerOpen, setDrawerOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const [langSearch, setLangSearch] = useState("");
@@ -145,7 +143,7 @@ export function TopBar() {
       const deltaX = e.changedTouches[0].clientX - startX;
       const deltaY = e.changedTouches[0].clientY - startY;
       if (startX < 20 && deltaX > 60 && Math.abs(deltaX) > Math.abs(deltaY)) {
-        setDrawerOpen(true);
+        useDrawerStore.getState().openWith({ type: "home" });
       }
     };
 
@@ -166,20 +164,11 @@ export function TopBar() {
         <div className="flex items-center gap-3">
           <button
             type="button"
-            onClick={() => setDrawerOpen(true)}
+            onClick={() => useDrawerStore.getState().openWith({ type: "home" })}
             className="inline-flex items-center justify-center rounded-lg p-1.5 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
             aria-label="Open menu"
           >
             <Menu className="h-5 w-5" />
-          </button>
-          <button
-            type="button"
-            onClick={() => useDrawerStore.getState().toggle()}
-            className="inline-flex items-center justify-center rounded-lg p-1.5 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
-            aria-label="Open unified drawer (beta)"
-            title="Unified drawer (beta)"
-          >
-            <PanelLeft className="h-5 w-5" />
           </button>
           <Link href="/" className="flex items-center gap-2" title="Swaply">
             <Image src="/logo-swaply.svg" alt="Swaply" width={28} height={28} className="h-7 w-7" priority />
@@ -337,8 +326,6 @@ export function TopBar() {
         </div>
       </div>
     </div>
-
-    <SideDrawer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} />
     </>
   );
 }
