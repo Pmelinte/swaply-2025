@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
-import { X } from "lucide-react";
 import { usePathname } from "@/i18n/navigation";
 import { locales } from "@/i18n/config";
 import { useDrawerStore, type DrawerVariant } from "@/lib/state/drawerStore";
@@ -100,31 +99,15 @@ export function UnifiedSideDrawer() {
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex items-center justify-between border-b border-zinc-200 px-4 py-3 dark:border-zinc-800">
-          <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-            {effectiveVariant.type}
-          </span>
-          <button
-            type="button"
-            onClick={close}
-            className="rounded-lg p-1.5 text-zinc-500 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
-            aria-label="Close drawer"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-
-        <div className="flex-1 overflow-y-auto">
-          {effectiveVariant.type === "home" && <DrawerHome />}
-          {effectiveVariant.type === "chat" && (
-            <DrawerChat conversationId={effectiveVariant.conversationId} />
-          )}
-          {effectiveVariant.type === "explore" && <DrawerExplore />}
-          {effectiveVariant.type === "matching" && <DrawerMatching />}
-          {effectiveVariant.type === "exchange" && (
-            <DrawerExchange swapId={effectiveVariant.swapId} />
-          )}
-        </div>
+        {effectiveVariant.type === "home" && <DrawerHome />}
+        {effectiveVariant.type === "chat" && (
+          <DrawerChat conversationId={effectiveVariant.conversationId} />
+        )}
+        {effectiveVariant.type === "explore" && <DrawerExplore />}
+        {effectiveVariant.type === "matching" && <DrawerMatching />}
+        {effectiveVariant.type === "exchange" && (
+          <DrawerExchange swapId={effectiveVariant.swapId} />
+        )}
       </aside>
     </>
   );
