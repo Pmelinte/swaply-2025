@@ -9,7 +9,7 @@ import { ChatMessages } from "./ChatMessages";
 import { ChatInput } from "./ChatInput";
 import { ChatAgenda } from "./ChatAgenda";
 import { ChatSummary } from "./ChatSummary";
-import { ChatDrawer } from "./drawer/ChatDrawer";
+import { useDrawerStore } from "@/lib/state/drawerStore";
 import { subscribeToConversation, broadcastTyping, markConversationRead } from "@/lib/chat/chatRealtime";
 import { buildInitialAgenda, advanceAgendaItem } from "@/lib/chat/chatAgenda";
 import { buildSummary, approveSummary } from "@/lib/chat/chatSummary";
@@ -42,7 +42,6 @@ export function ChatPage({ conversationId }: Props) {
   const [summary, setSummary] = useState<SwapSummary | null>(null);
   const [partnerTyping, setPartnerTyping] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [drawerOpen, setDrawerOpen] = useState(false);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const myRole: "userA" | "userB" =
@@ -289,7 +288,7 @@ export function ChatPage({ conversationId }: Props) {
         partnerName={partnerName}
         partnerAvatarUrl={meta?.partnerAvatarUrl}
         isPartnerVerified={meta?.partnerVerified}
-        onOpenDrawer={() => setDrawerOpen(true)}
+        onOpenDrawer={() => useDrawerStore.getState().openWith({ type: "chat", conversationId })}
       />
 
       {/* Main content area */}
@@ -348,20 +347,6 @@ export function ChatPage({ conversationId }: Props) {
         />
       </div>
 
-      {/* Drawer */}
-      {meta && (
-        <ChatDrawer
-          open={drawerOpen}
-          onClose={() => setDrawerOpen(false)}
-          conversationId={conversationId}
-          partnerId={meta.participantIds.find((id) => id !== user.id) ?? ""}
-          partnerName={partnerName}
-          partnerAvatarUrl={meta.partnerAvatarUrl}
-          messages={messages}
-          agendaState={agendaState}
-          myRole={myRole}
-        />
-      )}
     </div>
   );
 }

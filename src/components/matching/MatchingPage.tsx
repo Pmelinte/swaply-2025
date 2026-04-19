@@ -12,7 +12,7 @@ import { MatchingBrowsing } from "./MatchingBrowsing";
 import { MatchingMap } from "./MatchingMap";
 import { MatchingAIButton } from "./MatchingAIButton";
 import { MatchingSelectedProfiles } from "./MatchingSelectedProfiles";
-import { ExploreFilterDrawer } from "@/components/explore/ExploreFilterDrawer";
+import { useDrawerStore } from "@/lib/state/drawerStore";
 import type { SortOrder } from "@/hooks/useMatchingResults";
 
 export function MatchingPage() {
@@ -31,7 +31,6 @@ export function MatchingPage() {
   } = useMatchingSlots();
 
   const [sort, setSort] = useState<SortOrder>("score");
-  const [filterOpen, setFilterOpen] = useState(false);
 
   const { scoredItems, loading } = useMatchingResults(activeSlots, sort);
   const { suggestions: aiSuggestions, loading: aiLoading, fetchSuggestions } = useMatchingAI(activeSlots);
@@ -74,7 +73,7 @@ export function MatchingPage() {
         averageScores={averageScores}
         onRemoveSlot={removeSlot}
         onAddItem={handleAddItem}
-        onOpenDrawer={() => setFilterOpen(true)}
+        onOpenDrawer={() => useDrawerStore.getState().openWith({ type: "explore" })}
       />
 
       {/* 2. Browsing — cards with scores */}
@@ -111,13 +110,6 @@ export function MatchingPage() {
         selectedProfiles={selectedProfiles}
         allScoredItems={scoredItems}
         onRefuse={removeSelectedProfile}
-      />
-
-      {/* Filter drawer (reused from Explore) */}
-      <ExploreFilterDrawer
-        open={filterOpen}
-        onClose={() => setFilterOpen(false)}
-        onApply={() => setFilterOpen(false)}
       />
     </div>
   );

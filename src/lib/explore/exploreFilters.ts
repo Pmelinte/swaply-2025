@@ -1,4 +1,4 @@
-import type { ExploreFilters } from "@/components/explore/ExploreFilterDrawer";
+import type { ExploreFilters } from "@/components/drawer/variants/DrawerExplore";
 
 const asCsv = (arr: string[]) => arr.join(",");
 

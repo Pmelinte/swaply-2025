@@ -6,11 +6,11 @@ import { Settings } from "lucide-react";
 import { useAppState } from "@/lib/state";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { ExchangeSummary } from "./ExchangeSummary";
-import { ExchangeDrawer } from "./ExchangeDrawer";
 import { ExchangeServices } from "./ExchangeServices";
 import { ExchangePDFGenerator } from "./ExchangePDFGenerator";
 import { ExchangeConfirmation } from "./ExchangeConfirmation";
-import { upsertService, removeService, SERVICE_DEFS } from "@/lib/exchange/exchangeServices";
+import { useDrawerStore } from "@/lib/state/drawerStore";
+import { upsertService, SERVICE_DEFS } from "@/lib/exchange/exchangeServices";
 import type { ServiceType, SupportService } from "@/lib/exchange/exchangeServices";
 import type { ExchangeSwap } from "@/lib/exchange/exchangeQuery";
 import type { SwapSummary } from "@/lib/chat/chatSummary";
@@ -27,7 +27,6 @@ export function ExchangePage({ swapId }: Props) {
   const [summary, setSummary] = useState<SwapSummary | null>(null);
   const [myServices, setMyServices] = useState<SupportService[]>([]);
   const [loading, setLoading] = useState(true);
-  const [drawerOpen, setDrawerOpen] = useState(false);
 
   // ── Load swap + services ──
   useEffect(() => {
@@ -142,23 +141,6 @@ export function ExchangePage({ swapId }: Props) {
     ...activeServices,
   ];
 
-  // ── Toggle service ──
-  const handleToggle = useCallback(async (key: ServiceType) => {
-    if (!user || !swap) return;
-
-    const isBilateral = SERVICE_DEFS.find((s) => s.key === key)?.bilateral ?? false;
-    if (isBilateral && bilateralActive.includes(key)) return; // can't remove bilateral
-
-    const existing = myServices.find((s) => s.serviceType === key);
-    if (existing) {
-      await removeService(swapId, user.id, key);
-      setMyServices((prev) => prev.filter((s) => s.serviceType !== key));
-    } else {
-      const result = await upsertService(swapId, user.id, key, {}, isBilateral);
-      if (result) setMyServices((prev) => [...prev, result]);
-    }
-  }, [user, swap, swapId, myServices, bilateralActive]);
-
   // ── Save service details ──
   const handleSave = useCallback(async (
     type: ServiceType,
@@ -205,7 +187,7 @@ export function ExchangePage({ swapId }: Props) {
         </h1>
         <button
           type="button"
-          onClick={() => setDrawerOpen(true)}
+          onClick={() => useDrawerStore.getState().openWith({ type: "exchange", swapId })}
           className="flex items-center gap-1.5 rounded-xl border border-zinc-200 px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-800"
         >
           <Settings className="h-4 w-4" />
@@ -233,15 +215,6 @@ export function ExchangePage({ swapId }: Props) {
         partnerName={partnerName}
         confirmedBy={swap.confirmedBy}
         participantIds={[swap.requesterId, swap.responderId]}
-      />
-
-      {/* Drawer */}
-      <ExchangeDrawer
-        open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-        activeServices={activeServices}
-        bilateralActive={bilateralActive}
-        onToggle={handleToggle}
       />
     </div>
   );
