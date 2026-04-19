@@ -1,0 +1,50 @@
+name: Seed Test Data
+on:
+  workflow_dispatch:
+    inputs:
+      script:
+        description: 'Which script to run'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - part1
+          - part2
+          - part3
+          - cleanup
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install @supabase/supabase-js groq-sdk
+      - name: Run part1 (services_by_country)
+        if: inputs.script == 'all' || inputs.script == 'part1'
+        run: node scripts/seed-part1.mjs
+        env:
+          SUPABASE_URL: https://keaejxlwqtjjglijiplh.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      - name: Run part2 (users + profiles)
+        if: inputs.script == 'all' || inputs.script == 'part2'
+        run: node scripts/seed-part2.mjs
+        env:
+          SUPABASE_URL: https://keaejxlwqtjjglijiplh.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      - name: Run part3 (items + swaps)
+        if: inputs.script == 'all' || inputs.script == 'part3'
+        run: node scripts/seed-part3.mjs
+        env:
+          SUPABASE_URL: https://keaejxlwqtjjglijiplh.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      - name: Run cleanup
+        if: inputs.script == 'cleanup'
+        run: node scripts/seed-cleanup.mjs
+        env:
+          SUPABASE_URL: https://keaejxlwqtjjglijiplh.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
