@@ -51,7 +51,7 @@ type PageAuditResult = {
   };
 };
 
-const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || 'https://www.swaply.world';
+const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || process.env.BASE_URL || 'https://www.swaply.world';
 const TEST_EMAIL = process.env.PLAYWRIGHT_TEST_EMAIL || '';
 const TEST_PASSWORD = process.env.PLAYWRIGHT_TEST_PASSWORD || '';
 const LOGIN_PATHS = ['/en/login', '/login', '/en/auth/login', '/auth/login'];
@@ -117,22 +117,30 @@ async function dismissCookieBanners(page: Page) {
   }
 }
 
+async function readLocalStorageSnapshot(page: Page) {
+  try {
+    return await page.evaluate(() => {
+      const out: Array<{ key: string; value: string }> = [];
+      for (let i = 0; i < localStorage.length; i += 1) {
+        const key = localStorage.key(i);
+        if (!key) continue;
+        const value = localStorage.getItem(key) ?? '';
+        out.push({ key, value: value.slice(0, 300) });
+      }
+      return out;
+    });
+  } catch {
+    return [] as Array<{ key: string; value: string }>;
+  }
+}
+
 async function collectAuthState(page: Page, context: BrowserContext) {
   const cookies = await context.cookies();
   const authCookies = cookies.filter((cookie) =>
     /sb-|supabase|auth|session|token/i.test(cookie.name)
   );
 
-  const localStorageSnapshot = await page.evaluate(() => {
-    const out: Array<{ key: string; value: string }> = [];
-    for (let i = 0; i < localStorage.length; i += 1) {
-      const key = localStorage.key(i);
-      if (!key) continue;
-      const value = localStorage.getItem(key) ?? '';
-      out.push({ key, value: value.slice(0, 300) });
-    }
-    return out;
-  });
+  const localStorageSnapshot = await readLocalStorageSnapshot(page);
 
   const authStorage = localStorageSnapshot.filter(
     (item) =>
@@ -244,18 +252,6 @@ async function performLogin(page: Page, context: BrowserContext, testInfo: TestI
   }
 
   return false;
-}
-
-async function findVisibleBottomNav(page: Page) {
-  return page.locator(`
-    nav:visible,
-    [role="navigation"]:visible,
-    [data-testid*="bottom-nav"]:visible,
-    [class*="bottom-nav"]:visible,
-    [class*="bottomNav"]:visible,
-    [class*="fixed"][class*="bottom"]:visible,
-    [class*="sticky"][class*="bottom"]:visible
-  `);
 }
 
 async function getBottomMostNav(page: Page) {
@@ -471,7 +467,6 @@ async function inspectMainContent(page: Page) {
     const directChildren = Array.from(main.children).filter((el) => isVisible(el));
     const contentChildren = directChildren.filter((el) => el !== nav && el !== header && el !== footer);
 
-    const visibleText = normalize(main.textContent || '');
     const headings = Array.from(main.querySelectorAll('h1,h2,h3'))
       .filter((el) => isVisible(el))
       .map((el) => normalize(el.textContent || ''))
