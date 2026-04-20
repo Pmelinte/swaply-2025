@@ -6,6 +6,7 @@ const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || process.env.BASE_URL || 'htt
 const TEST_EMAIL = process.env.PLAYWRIGHT_TEST_EMAIL || '';
 const TEST_PASSWORD = process.env.PLAYWRIGHT_TEST_PASSWORD || '';
 const LOGIN_PATHS = ['/en/login', '/login', '/en/auth/login', '/auth/login'];
+const AUTH_STATE_PATH = path.join('playwright', '.auth', 'user.json');
 
 const PAGES = [
   { name: 'objects', path: '/en/objects' },
@@ -64,6 +65,28 @@ async function collectAuthState(page: Page, context: BrowserContext) {
   return authCookies.length > 0 || authStorage.length > 0;
 }
 
+async function tryReuseSavedAuth(page: Page, context: BrowserContext): Promise<boolean> {
+  if (!fs.existsSync(AUTH_STATE_PATH)) return false;
+  try {
+    const saved = JSON.parse(await fs.promises.readFile(AUTH_STATE_PATH, 'utf8'));
+    if (Array.isArray(saved.cookies) && saved.cookies.length > 0) {
+      await context.addCookies(saved.cookies);
+    }
+    await page.goto(BASE_URL, { waitUntil: 'domcontentloaded' });
+    if (Array.isArray(saved.origins)) {
+      for (const origin of saved.origins) {
+        if (!Array.isArray(origin.localStorage)) continue;
+        await page.evaluate((items: Array<{ name: string; value: string }>) => {
+          for (const item of items) localStorage.setItem(item.name, item.value);
+        }, origin.localStorage);
+      }
+    }
+    return await collectAuthState(page, context);
+  } catch {
+    return false;
+  }
+}
+
 async function performLogin(page: Page, context: BrowserContext, testInfo: TestInfo) {
   if (!TEST_EMAIL || !TEST_PASSWORD) {
     testInfo.annotations.push({
@@ -73,31 +96,36 @@ async function performLogin(page: Page, context: BrowserContext, testInfo: TestI
     return false;
   }
 
+  if (await tryReuseSavedAuth(page, context)) return true;
+
   for (const loginPath of LOGIN_PATHS) {
+    const loginUrl = new URL(loginPath, BASE_URL).toString();
+    await page.goto(loginUrl, { waitUntil: 'domcontentloaded' });
+
+    const emailInput = page.locator('input[type="email"]').first();
+    const passwordInput = page.locator('input[type="password"]').first();
+
+    if (!(await emailInput.isVisible().catch(() => false))) continue;
+    if (!(await passwordInput.isVisible().catch(() => false))) continue;
+
+    await emailInput.fill(TEST_EMAIL);
+    await passwordInput.fill(TEST_PASSWORD);
+    // Terms checkbox MUST be checked or the form blocks submission silently.
+    await page.check('input[type="checkbox"]');
+
+    await page.locator('button[type="submit"]').first().click();
+
     try {
-      await page.goto(new URL(loginPath, BASE_URL).toString(), {
-        waitUntil: 'domcontentloaded',
-      });
-
-      const emailInput = page.locator('input[type="email"]').first();
-      const passwordInput = page.locator('input[type="password"]').first();
-
-      if (!(await emailInput.isVisible().catch(() => false))) continue;
-      if (!(await passwordInput.isVisible().catch(() => false))) continue;
-
-      await emailInput.fill(TEST_EMAIL);
-      await passwordInput.fill(TEST_PASSWORD);
-
-      const submit = page.locator('button[type="submit"]').first();
-      await submit.click().catch(() => {});
-      await page.waitForLoadState('networkidle').catch(() => {});
-      await page.waitForTimeout(2000);
-
-      const authenticated = await collectAuthState(page, context);
-      if (authenticated) return true;
+      await page.waitForURL((url) => !url.toString().includes('/login'), { timeout: 10_000 });
     } catch {
-      continue;
+      throw new Error('Login failed - check credentials or form');
     }
+
+    await page.waitForLoadState('networkidle').catch(() => {});
+
+    await ensureDir(path.dirname(AUTH_STATE_PATH));
+    await context.storageState({ path: AUTH_STATE_PATH });
+    return true;
   }
 
   return false;
