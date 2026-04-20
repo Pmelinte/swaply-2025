@@ -38,6 +38,11 @@ jobs:
 
       - name: Prepare output directories
         run: |
+          rm -rf test-results
+          rm -rf playwright-report
+          rm -rf audit-reports
+          rm -rf screenshots
+
           mkdir -p test-results
           mkdir -p playwright-report
           mkdir -p audit-reports
