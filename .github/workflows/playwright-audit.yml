@@ -6,7 +6,12 @@ on:
 jobs:
   audit:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
+
+    env:
+      PLAYWRIGHT_BASE_URL: https://www.swaply.world
+      PLAYWRIGHT_TEST_EMAIL: ${{ secrets.SEED_USER_EMAIL }}
+      PLAYWRIGHT_TEST_PASSWORD: ${{ secrets.SEED_USER_PASSWORD }}
 
     steps:
       - name: Checkout repository
@@ -16,155 +21,64 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
 
-      - name: Install Playwright
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+
+      - name: Ensure Playwright is installed
         run: |
           npm install --no-save @playwright/test
           npx playwright install --with-deps chromium
 
       - name: Prepare output directories
-        run: mkdir -p audit-reports screenshots
-
-      - name: Write Playwright audit script
         run: |
-          cat > audit.mjs << 'PLAYWRIGHT_SCRIPT'
-          import { chromium } from '@playwright/test';
-          import { writeFileSync } from 'fs';
+          mkdir -p test-results
+          mkdir -p playwright-report
+          mkdir -p audit-reports
+          mkdir -p screenshots
 
-          const BASE_URL = 'https://www.swaply.world';
-          const EMAIL    = process.env.SEED_USER_EMAIL;
-          const PASSWORD = process.env.SEED_USER_PASSWORD;
-          const REPORT_DATE = '2026-04-19';
+      - name: Run comprehensive Playwright audit
+        run: npx playwright test tests/audit.spec.ts --project=chromium
+        continue-on-error: true
 
-          const ROUTES = [
-            '/en/',
-            '/en/objects',
-            '/en/explore',
-            '/en/matching',
-            '/en/messages',
-            '/en/chat',
-            '/en/exchange',
-            '/en/properties',
-            '/en/services',
-            '/en/events',
-            '/en/blog',
-            '/en/about',
-            '/en/contact',
-            '/en/profile',
-            '/en/settings',
-          ];
+      - name: Collect audit artifacts
+        if: always()
+        run: |
+          mkdir -p audit-reports/from-test-results
+          mkdir -p screenshots/from-test-results
 
-          function slug(route) {
-            return route.replace(/^\//, '').replace(/\//g, '__') || 'home';
-          }
+          find test-results -type f \( -name "*.json" -o -name "*.md" \) -exec cp {} audit-reports/from-test-results/ \; || true
+          find test-results -type f \( -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" -o -name "*.webp" \) -exec cp {} screenshots/from-test-results/ \; || true
 
-          async function main() {
-            const browser = await chromium.launch({ headless: true });
-            const context = await browser.newContext({
-              viewport: { width: 1280, height: 800 },
-              locale: 'en-US',
-            });
-            const page = await context.newPage();
+      - name: Upload Playwright raw results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-test-results-${{ github.run_id }}
+          path: test-results/
+          if-no-files-found: warn
 
-            // --- Login ---
-            console.log('Logging in as', EMAIL);
-            const loginErrors = [];
-            page.on('console', (msg) => {
-              if (msg.type() === 'error') loginErrors.push(msg.text());
-            });
+      - name: Upload Playwright HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-html-report-${{ github.run_id }}
+          path: playwright-report/
+          if-no-files-found: warn
 
-            await page.goto(`${BASE_URL}/en/login`, { waitUntil: 'networkidle', timeout: 30000 });
-            await page.fill('input[type="email"]', EMAIL);
-            await page.fill('input[type="password"]', PASSWORD);
-            await page.check('input[type="checkbox"]');
-            await page.click('button[type="submit"]');
-            await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 20000 }).catch(() => {});
-            console.log('Post-login URL:', page.url());
-
-            const results = [];
-
-            // --- Visit each route ---
-            for (const route of ROUTES) {
-              const url = `${BASE_URL}${route}`;
-              const routeErrors = [];
-              const handler = (msg) => { if (msg.type() === 'error') routeErrors.push(msg.text()); };
-              page.on('console', handler);
-
-              let status = 'ok';
-              let title = '';
-              const screenshotFile = `screenshots/${slug(route)}.png`;
-
-              try {
-                const response = await page.goto(url, { waitUntil: 'networkidle', timeout: 30000 });
-                await page.waitForTimeout(1500);
-                title = await page.title();
-                await page.screenshot({ path: screenshotFile, fullPage: true });
-                if (response && response.status() >= 400) status = `http-${response.status()}`;
-              } catch (err) {
-                status = 'error';
-                routeErrors.push(err.message);
-              }
-
-              page.off('console', handler);
-              console.log(`[${status}] ${route} \u2014 "${title}" \u2014 ${routeErrors.length} console error(s)`);
-              results.push({ route, url, status, title, screenshotFile, errors: routeErrors });
-            }
-
-            await browser.close();
-
-            // --- Build Markdown report ---
-            const ok    = results.filter((r) => r.status === 'ok' && r.errors.length === 0).length;
-            const warns = results.filter((r) => r.status === 'ok' && r.errors.length > 0).length;
-            const fails = results.filter((r) => r.status !== 'ok').length;
-
-            const lines = [
-              `# Playwright Audit \u2014 ${REPORT_DATE}`,
-              '',
-              `**Base URL:** ${BASE_URL}  `,
-              `**Seed user:** ${EMAIL}  `,
-              `**Routes tested:** ${results.length}  `,
-              `**Passed (no console errors):** ${ok}  `,
-              `**Warnings (console errors):** ${warns}  `,
-              `**Failed:** ${fails}  `,
-              '',
-              '## Results',
-              '',
-              '| Route | Status | Title | Console errors |',
-              '|-------|--------|-------|----------------|',
-              ...results.map((r) =>
-                `| \`${r.route}\` | ${r.status} | ${r.title || '\u2014'} | ${r.errors.length} |`
-              ),
-              '',
-              '## Per-page Details',
-              '',
-              ...results.flatMap((r) => [
-                `### \`${r.route}\``,
-                '',
-                `- **URL:** ${r.url}`,
-                `- **Status:** ${r.status}`,
-                `- **Title:** ${r.title || '\u2014'}`,
-                `- **Screenshot:** ![${r.route}](../${r.screenshotFile})`,
-                '',
-                r.errors.length > 0
-                  ? ['**Console errors:**', '```', ...r.errors, '```', ''].join('\n')
-                  : '_No console errors._',
-                '',
-              ]),
-            ];
-
-            const reportPath = `audit-reports/playwright-${REPORT_DATE}.md`;
-            writeFileSync(reportPath, lines.join('\n'));
-            console.log(`Report written to ${reportPath}`);
-          }
-
-          main().catch((err) => { console.error(err); process.exit(1); });
-          PLAYWRIGHT_SCRIPT
-
-      - name: Run Playwright audit
-        env:
-          SEED_USER_EMAIL: 'alexandru.stoica516@gmail.com'
-          SEED_USER_PASSWORD: 'Swaply2026!'
-        run: node audit.mjs
+      - name: Upload audit reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-audit-report-${{ github.run_id }}
+          path: audit-reports/
+          if-no-files-found: warn
 
       - name: Upload screenshots
         if: always()
@@ -172,12 +86,4 @@ jobs:
         with:
           name: playwright-screenshots-${{ github.run_id }}
           path: screenshots/
-          if-no-files-found: warn
-
-      - name: Upload audit report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-audit-report-${{ github.run_id }}
-          path: audit-reports/
           if-no-files-found: warn
