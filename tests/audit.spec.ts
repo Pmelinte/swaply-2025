@@ -5,7 +5,8 @@ import { test, expect, Page, BrowserContext, TestInfo } from '@playwright/test';
 const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || process.env.BASE_URL || 'https://www.swaply.world';
 const TEST_EMAIL = process.env.PLAYWRIGHT_TEST_EMAIL || '';
 const TEST_PASSWORD = process.env.PLAYWRIGHT_TEST_PASSWORD || '';
-const LOGIN_PATHS = ['/en/login', '/login', '/en/auth/login', '/auth/login'];
+const SUPABASE_URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 const PAGES = [
   { name: 'objects', path: '/en/objects' },
@@ -64,7 +65,7 @@ async function collectAuthState(page: Page, context: BrowserContext) {
   return authCookies.length > 0 || authStorage.length > 0;
 }
 
-async function performLogin(page: Page, context: BrowserContext, testInfo: TestInfo) {
+async function performLogin(page: Page, context: BrowserContext, testInfo: TestInfo): Promise<boolean> {
   if (!TEST_EMAIL || !TEST_PASSWORD) {
     testInfo.annotations.push({
       type: 'warning',
@@ -73,34 +74,48 @@ async function performLogin(page: Page, context: BrowserContext, testInfo: TestI
     return false;
   }
 
-  for (const loginPath of LOGIN_PATHS) {
-    try {
-      await page.goto(new URL(loginPath, BASE_URL).toString(), {
-        waitUntil: 'domcontentloaded',
-      });
-
-      const emailInput = page.locator('input[type="email"]').first();
-      const passwordInput = page.locator('input[type="password"]').first();
-
-      if (!(await emailInput.isVisible().catch(() => false))) continue;
-      if (!(await passwordInput.isVisible().catch(() => false))) continue;
-
-      await emailInput.fill(TEST_EMAIL);
-      await passwordInput.fill(TEST_PASSWORD);
-
-      const submit = page.locator('button[type="submit"]').first();
-      await submit.click().catch(() => {});
-      await page.waitForLoadState('networkidle').catch(() => {});
-      await page.waitForTimeout(2000);
-
-      const authenticated = await collectAuthState(page, context);
-      if (authenticated) return true;
-    } catch {
-      continue;
-    }
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    testInfo.annotations.push({
+      type: 'warning',
+      description: 'Missing SUPABASE_URL or SUPABASE_ANON_KEY — cannot authenticate.',
+    });
+    return false;
   }
 
-  return false;
+  try {
+    const response = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        apikey: SUPABASE_ANON_KEY,
+      },
+      body: JSON.stringify({ email: TEST_EMAIL, password: TEST_PASSWORD }),
+    });
+
+    if (!response.ok) return false;
+
+    const session = await response.json() as Record<string, unknown>;
+    const { access_token } = session;
+    if (!access_token) return false;
+
+    // Navigate to base URL first so localStorage is set on the correct origin
+    await page.goto(BASE_URL, { waitUntil: 'domcontentloaded' });
+
+    // Supabase JS v2 stores the session under sb-<projectRef>-auth-token
+    const projectRef = SUPABASE_URL.match(/https?:\/\/([^.]+)\.supabase\.co/)?.[1] ?? '';
+    const storageKey = projectRef ? `sb-${projectRef}-auth-token` : 'sb-auth-token';
+
+    await page.evaluate(
+      ({ key, value }: { key: string; value: string }) => {
+        localStorage.setItem(key, value);
+      },
+      { key: storageKey, value: JSON.stringify(session) }
+    );
+
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 test.describe('swaply.world comprehensive audit', () => {
