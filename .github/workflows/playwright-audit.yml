@@ -43,8 +43,19 @@ jobs:
           mkdir -p audit-reports
           mkdir -p screenshots
 
+      - name: Debug repository files
+        run: |
+          echo "Repository root:"
+          ls -la
+          echo ""
+          echo "Tests folder:"
+          ls -la tests || true
+          echo ""
+          echo "Find all spec files:"
+          find . -type f \( -name "*.spec.ts" -o -name "*.spec.js" -o -name "*.test.ts" -o -name "*.test.js" \) | sort
+
       - name: Run comprehensive Playwright audit
-        run: npx playwright test tests/audit.spec.ts --project=chromium
+        run: npx playwright test --project=chromium
         continue-on-error: true
 
       - name: Collect audit artifacts
