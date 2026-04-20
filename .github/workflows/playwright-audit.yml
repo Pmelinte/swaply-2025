@@ -53,14 +53,14 @@ jobs:
           echo "Repository root:"
           ls -la
           echo ""
-          echo "Tests folder:"
-          ls -la tests || true
+          echo "E2E folder:"
+          ls -la e2e || true
           echo ""
           echo "Find all spec files:"
           find . -type f \( -name "*.spec.ts" -o -name "*.spec.js" -o -name "*.test.ts" -o -name "*.test.js" \) | sort
 
-      - name: Run comprehensive Playwright audit
-        run: npx playwright test --project=chromium
+      - name: Run Playwright audit only
+        run: npx playwright test e2e/audit.spec.ts --project=chromium
         continue-on-error: true
 
       - name: Collect audit artifacts
