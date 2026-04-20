@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useTranslations } from "next-intl";
 
 export default function GlobalError({
   error,
@@ -9,6 +10,8 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const t = useTranslations("common");
+
   useEffect(() => {
     console.error("[Swaply Error Boundary]", error);
   }, [error]);
@@ -17,7 +20,7 @@ export default function GlobalError({
     <div className="mx-auto max-w-lg px-4 py-20 text-center" role="alert">
       <div className="rounded-2xl border border-red-200 bg-red-50 p-6 dark:border-red-800 dark:bg-red-900/30">
         <h2 className="text-lg font-bold text-red-900 dark:text-red-100">
-          Something went wrong
+          {t("errorOccurred")}
         </h2>
         <p className="mt-2 text-sm text-red-700 dark:text-red-300">
           {error.message || "An unexpected error occurred."}
