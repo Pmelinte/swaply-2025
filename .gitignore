@@ -44,3 +44,6 @@ yarn-error.log*
 
 # Audit results (generated)
 audit-results/
+
+# MCP config (contains secrets)
+.mcp.json
