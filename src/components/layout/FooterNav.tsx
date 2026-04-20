@@ -34,7 +34,7 @@ export function FooterNav() {
     { href: "/", label: t("home"), icon: Home, badge: 0 },
     { href: "/explore", label: t("explore"), icon: ExploreIcon, badge: 0 },
     { href: "/matching", label: t("matching"), icon: HeartHandshake, badge: 0 },
-    { href: "/chat", label: t("messages"), icon: MessageCircle, badge: chatBadge },
+    { href: "/messages", label: t("messages"), icon: MessageCircle, badge: chatBadge },
     { href: "/exchange", label: t("exchange"), icon: Shuffle, badge: 0 },
   ];
 
