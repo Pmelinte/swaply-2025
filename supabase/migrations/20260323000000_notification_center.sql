@@ -2,14 +2,11 @@
 -- Notification Center: extend notifications + add preferences
 -- ============================================================
 
--- Add new columns to existing notifications table
 ALTER TABLE public.notifications
   ADD COLUMN IF NOT EXISTS title TEXT,
   ADD COLUMN IF NOT EXISTS body TEXT,
   ADD COLUMN IF NOT EXISTS data JSONB DEFAULT '{}';
 
--- Expand priority check: drop old constraint, add new one
--- (the old constraint allows only 'info','warning','success')
 DO $$ BEGIN
   ALTER TABLE public.notifications DROP CONSTRAINT IF EXISTS notifications_priority_check;
 EXCEPTION WHEN undefined_object THEN NULL;
@@ -19,23 +16,20 @@ ALTER TABLE public.notifications
   ADD CONSTRAINT notifications_priority_check
   CHECK (priority IN ('low','normal','high','urgent','info','warning','success'));
 
--- Index for faster unread count queries
 CREATE INDEX IF NOT EXISTS idx_notifications_user_unread
   ON public.notifications (user_id, read)
   WHERE read = false;
 
--- Index for filtering by type
 CREATE INDEX IF NOT EXISTS idx_notifications_user_type
   ON public.notifications (user_id, type);
 
--- Delete policy for users to delete their own notifications
 DO $$ BEGIN
   IF NOT EXISTS (
     SELECT 1 FROM pg_policies WHERE policyname = 'notifications_delete_own'
   ) THEN
     CREATE POLICY "notifications_delete_own" ON public.notifications
       FOR DELETE TO authenticated
-      USING (user_id = current_setting('request.jwt.claims', true)::json->>'sub');
+      USING (user_id = auth.uid());
   END IF;
 END $$;
 
@@ -43,7 +37,7 @@ END $$;
 -- Notification Preferences table
 -- ============================================================
 CREATE TABLE IF NOT EXISTS public.notification_preferences (
-  user_id TEXT PRIMARY KEY REFERENCES public.profiles(id) ON DELETE CASCADE,
+  user_id UUID PRIMARY KEY REFERENCES public.profiles(user_id) ON DELETE CASCADE,
   match_new_inapp BOOLEAN DEFAULT true,
   match_new_email BOOLEAN DEFAULT true,
   match_new_push BOOLEAN DEFAULT false,
@@ -85,7 +79,7 @@ DO $$ BEGIN
   ) THEN
     CREATE POLICY "notification_preferences_select_own" ON public.notification_preferences
       FOR SELECT TO authenticated
-      USING (user_id = current_setting('request.jwt.claims', true)::json->>'sub');
+      USING (user_id = auth.uid());
   END IF;
 END $$;
 
@@ -95,7 +89,7 @@ DO $$ BEGIN
   ) THEN
     CREATE POLICY "notification_preferences_upsert_own" ON public.notification_preferences
       FOR ALL TO authenticated
-      USING (user_id = current_setting('request.jwt.claims', true)::json->>'sub')
-      WITH CHECK (user_id = current_setting('request.jwt.claims', true)::json->>'sub');
+      USING (user_id = auth.uid())
+      WITH CHECK (user_id = auth.uid());
   END IF;
 END $$;
