@@ -1,0 +1,63 @@
+name: Playwright Quick Audit
+
+on:
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    env:
+      BASE_URL: https://www.swaply.world
+      PLAYWRIGHT_BASE_URL: https://www.swaply.world
+      PLAYWRIGHT_TEST_EMAIL: ${{ secrets.SEED_USER_EMAIL }}
+      PLAYWRIGHT_TEST_PASSWORD: ${{ secrets.SEED_USER_PASSWORD }}
+      SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+
+      - name: Ensure Playwright browsers are installed
+        run: npx playwright install --with-deps chromium
+
+      - name: Prepare output directories
+        run: |
+          rm -rf test-results
+          rm -rf playwright-report
+          rm -rf audit-results
+
+          mkdir -p test-results
+          mkdir -p playwright-report
+          mkdir -p audit-results
+
+      - name: Run Playwright quick audit suite
+        run: npx playwright test tests/audit.quick.spec.ts --config=playwright.audit.quick.config.ts
+        continue-on-error: true
+
+      - name: Upload quick audit results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-quick-audit-results-${{ github.run_id }}
+          path: |
+            audit-results/
+            playwright-report/
+            test-results/
+          if-no-files-found: warn
