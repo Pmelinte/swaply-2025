@@ -1,4 +1,4 @@
-name: Playwright Audit
+name: Playwright Deep Audit
 
 on:
   workflow_dispatch:
@@ -55,21 +55,21 @@ jobs:
           echo "Tests folder:"
           ls -la tests || true
           echo ""
-          echo "Audit config:"
+          echo "Deep audit config:"
           ls -la playwright.audit.config.ts || true
           echo ""
-          echo "Audit tests:"
+          echo "Deep audit tests:"
           find tests -type f \( -name "*audit*.ts" -o -name "*audit*.js" \) | sort
 
-      - name: Run Playwright audit suite
-        run: npx playwright test --config=playwright.audit.config.ts
+      - name: Run Playwright deep audit suite
+        run: npx playwright test tests/audit.spec.ts --config=playwright.audit.config.ts
         continue-on-error: true
 
-      - name: Upload audit results
+      - name: Upload deep audit results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-audit-results-${{ github.run_id }}
+          name: playwright-deep-audit-results-${{ github.run_id }}
           path: |
             audit-results/
             playwright-report/
