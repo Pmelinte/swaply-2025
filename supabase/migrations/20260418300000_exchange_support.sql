@@ -2,7 +2,7 @@
 -- Extends swaps table + creates swap_support_services
 
 ALTER TABLE swaps
-  ADD COLUMN IF NOT EXISTS conversation_id uuid REFERENCES conversations(id),
+  ADD COLUMN IF NOT EXISTS conversation_id uuid,
   ADD COLUMN IF NOT EXISTS exchange_data   jsonb          DEFAULT '{}',
   ADD COLUMN IF NOT EXISTS pdf_url         text,
   ADD COLUMN IF NOT EXISTS confirmed_by    uuid[]         DEFAULT '{}',
