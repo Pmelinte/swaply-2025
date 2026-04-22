@@ -11,8 +11,13 @@ jobs:
     env:
       BASE_URL: https://www.swaply.world
       PLAYWRIGHT_BASE_URL: https://www.swaply.world
-      PLAYWRIGHT_TEST_EMAIL: ${{ secrets.SEED_USER_EMAIL }}
-      PLAYWRIGHT_TEST_PASSWORD: ${{ secrets.SEED_USER_PASSWORD }}
+
+      PLAYWRIGHT_USER_EMAIL: ${{ secrets.SEED_USER_EMAIL }}
+      PLAYWRIGHT_USER_PASSWORD: ${{ secrets.SEED_USER_PASSWORD }}
+
+      PLAYWRIGHT_ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+      PLAYWRIGHT_ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+
       SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
       SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
@@ -23,8 +28,8 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: Install dependencies
         run: |
@@ -42,28 +47,12 @@ jobs:
           rm -rf test-results
           rm -rf playwright-report
           rm -rf audit-results
-
           mkdir -p test-results
           mkdir -p playwright-report
           mkdir -p audit-results
 
-      - name: Debug audit files
-        run: |
-          echo "Repository root:"
-          ls -la
-          echo ""
-          echo "Tests folder:"
-          ls -la tests || true
-          echo ""
-          echo "Deep audit config:"
-          ls -la playwright.audit.config.ts || true
-          echo ""
-          echo "Deep audit tests:"
-          find tests -type f \( -name "*audit*.ts" -o -name "*audit*.js" \) | sort
-
-      - name: Run Playwright deep audit suite
+      - name: Run Playwright authenticated audit suite
         run: npx playwright test tests/audit.spec.ts --config=playwright.audit.config.ts
-        continue-on-error: true
 
       - name: Upload deep audit results
         if: always()
