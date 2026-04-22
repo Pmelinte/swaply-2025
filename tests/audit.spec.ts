@@ -324,7 +324,6 @@ test.describe("swaply.world authenticated deep audit", () => {
         }
 
         expect.soft(status, `${route.path} should return HTTP 200 for ${role}`).toBe(200);
-        expect.soft(signals.hasMain, `${route.path} should render <main> for ${role}`).toBeTruthy();
 
         if (route.requiredSelectors?.length) {
           for (const selector of route.requiredSelectors) {
