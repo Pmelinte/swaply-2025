@@ -56,10 +56,16 @@ export function UnifiedSideDrawer() {
   const storedVariant = useDrawerStore((s) => s.variant);
   const close = useDrawerStore((s) => s.close);
 
-  const effectiveVariant = useMemo<DrawerVariant>(
-    () => storedVariant ?? variantFromPath(pathname),
-    [storedVariant, pathname],
-  );
+  const effectiveVariant = useMemo<DrawerVariant>(() => {
+    // chat and exchange variants carry required IDs that can't be derived
+    // from the path, so the stored variant is always authoritative for them.
+    if (storedVariant?.type === "chat" || storedVariant?.type === "exchange") {
+      return storedVariant;
+    }
+    // For every other case the current path determines which drawer to show:
+    // /explore → filter drawer, /matching → matching drawer, else → home drawer.
+    return variantFromPath(pathname);
+  }, [storedVariant, pathname]);
 
   // Close on Escape
   useEffect(() => {
