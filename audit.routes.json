@@ -1,9 +1,0 @@
-{
-  "public": [
-    "/ro",
-    "/ro/login",
-    "/ro/register",
-    "/ro/objects",
-    "/ro/info"
-  ]
-}

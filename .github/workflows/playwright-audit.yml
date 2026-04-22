@@ -11,13 +11,8 @@ jobs:
     env:
       BASE_URL: https://www.swaply.world
       PLAYWRIGHT_BASE_URL: https://www.swaply.world
-
-      PLAYWRIGHT_USER_EMAIL: ${{ secrets.SEED_USER_EMAIL }}
-      PLAYWRIGHT_USER_PASSWORD: ${{ secrets.SEED_USER_PASSWORD }}
-
-      PLAYWRIGHT_ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
-      PLAYWRIGHT_ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
-
+      PLAYWRIGHT_TEST_EMAIL: ${{ secrets.PLAYWRIGHT_TEST_EMAIL }}
+      PLAYWRIGHT_TEST_PASSWORD: ${{ secrets.PLAYWRIGHT_TEST_PASSWORD }}
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
 
