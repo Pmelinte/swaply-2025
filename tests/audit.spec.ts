@@ -17,8 +17,8 @@ const SUPABASE_ANON_KEY =
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
   "";
 
-const USER_EMAIL = process.env.PLAYWRIGHT_USER_EMAIL || "";
-const USER_PASSWORD = process.env.PLAYWRIGHT_USER_PASSWORD || "";
+const USER_EMAIL = process.env.PLAYWRIGHT_TEST_EMAIL || "";
+const USER_PASSWORD = process.env.PLAYWRIGHT_TEST_PASSWORD || "";
 
 const ADMIN_EMAIL = process.env.PLAYWRIGHT_ADMIN_EMAIL || "";
 const ADMIN_PASSWORD = process.env.PLAYWRIGHT_ADMIN_PASSWORD || "";
