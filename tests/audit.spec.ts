@@ -287,7 +287,7 @@ test.describe("swaply.world authenticated deep audit", () => {
           waitUntil: "domcontentloaded",
         }).catch(() => null);
 
-        await page.waitForLoadState("networkidle").catch(() => {});
+        await page.waitForLoadState("networkidle", { timeout: 5_000 }).catch(() => {});
         await page.waitForTimeout(1000);
 
         const finalUrl = page.url();
