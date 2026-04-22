@@ -2,6 +2,9 @@ name: Playwright Deep Audit
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - claude/fix-audit-login-supabase-8WDvg
 
 jobs:
   audit:
