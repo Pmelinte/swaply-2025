@@ -167,6 +167,8 @@ async function authenticateWithSupabase(
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return false;
 
   try {
+    const controller = new AbortController();
+    const authTimeout = setTimeout(() => controller.abort(), 10_000);
     const response = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
       method: "POST",
       headers: {
@@ -174,7 +176,9 @@ async function authenticateWithSupabase(
         apikey: SUPABASE_ANON_KEY,
       },
       body: JSON.stringify({ email, password }),
+      signal: controller.signal,
     });
+    clearTimeout(authTimeout);
 
     if (!response.ok) return false;
 
@@ -285,6 +289,7 @@ test.describe("swaply.world authenticated deep audit", () => {
         const targetUrl = new URL(route.path, BASE_URL).toString();
         const response = await page.goto(targetUrl, {
           waitUntil: "domcontentloaded",
+          timeout: 20_000,
         }).catch(() => null);
 
         await page.waitForLoadState("networkidle", { timeout: 5_000 }).catch(() => {});
