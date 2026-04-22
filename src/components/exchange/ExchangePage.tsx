@@ -22,6 +22,7 @@ interface Props {
 export function ExchangePage({ swapId }: Props) {
   const t = useTranslations("exchangePage");
   const { user } = useAppState();
+  const openDrawer = useDrawerStore((s) => s.openWith);
 
   const [swap, setSwap] = useState<ExchangeSwap | null>(null);
   const [summary, setSummary] = useState<SwapSummary | null>(null);
@@ -187,7 +188,7 @@ export function ExchangePage({ swapId }: Props) {
         </h1>
         <button
           type="button"
-          onClick={() => useDrawerStore.getState().openWith({ type: "exchange", swapId })}
+          onClick={() => openDrawer({ type: "exchange", swapId })}
           className="flex items-center gap-1.5 rounded-xl border border-zinc-200 px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-800"
         >
           <Settings className="h-4 w-4" />
