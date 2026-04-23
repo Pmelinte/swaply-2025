@@ -88,8 +88,8 @@ export function MatchingPage({ userId, initialSlotIds }: Props) {
       />
 
       <div className="mx-auto max-w-4xl space-y-6 px-4 py-4 pb-24">
-        {/* 1. Slots header — permanently sticky below global header */}
-        <div className="sticky top-[97px] z-20 bg-white/95 backdrop-blur border-b border-zinc-200">
+        {/* 1. Slots header */}
+        <div>
           <MatchingSlots
             slots={slots}
             averageScores={averageScores}
