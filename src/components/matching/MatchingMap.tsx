@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { MatchingMapPin } from "./MatchingMapPin";
 import type { ScoredItem } from "@/hooks/useMatchingResults";
@@ -25,6 +25,24 @@ function pseudoPosition(id: string): { x: number; y: number } {
 
 export function MatchingMap({ scoredItems, selectedProfilesCount, onSelect }: Props) {
   const t = useTranslations("matching");
+  const [userPos, setUserPos] = useState<{ x: number; y: number } | null>(null);
+
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      // Romania center fallback
+      setUserPos({ x: 50, y: 50 });
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        // Map Romania bounding box (lat 43.5–48.5, lon 20.0–30.0) to 10–90% pseudo coords
+        const x = Math.min(90, Math.max(10, ((coords.longitude - 20.0) / 10.0) * 80 + 10));
+        const y = Math.min(90, Math.max(10, ((48.5 - coords.latitude) / 5.0) * 80 + 10));
+        setUserPos({ x, y });
+      },
+      () => setUserPos({ x: 50, y: 50 }),
+    );
+  }, []);
 
   // Show top 30 pins max
   const pins = useMemo(
@@ -58,6 +76,14 @@ export function MatchingMap({ scoredItems, selectedProfilesCount, onSelect }: Pr
             <span className="text-3xl opacity-30">🗺️</span>
             <p className="text-sm text-zinc-400">{t("noPins")}</p>
           </div>
+        )}
+
+        {userPos && (
+          <div
+            className="absolute z-10 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-blue-500 shadow-md"
+            style={{ left: `${userPos.x}%`, top: `${userPos.y}%` }}
+            title={t("youAreHere")}
+          />
         )}
 
         {pins.map(({ pos, ...scored }) => (

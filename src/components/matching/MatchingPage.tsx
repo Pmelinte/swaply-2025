@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { useMatchingSlots } from "@/hooks/useMatchingSlots";
 import { useMatchingResults } from "@/hooks/useMatchingResults";
@@ -38,6 +38,24 @@ export function MatchingPage({ userId, initialSlotIds }: Props) {
   const [sort, setSort] = useState<SortOrder>("score");
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
   const [filters, setFilters] = useState<MatchingFilters>(DEFAULT_FILTERS);
+  const [slotsVisible, setSlotsVisible] = useState(true);
+  const lastYRef = useRef(0);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const y = window.scrollY;
+      const diff = y - lastYRef.current;
+      if (diff > 80) {
+        setSlotsVisible(false);
+        lastYRef.current = y;
+      } else if (diff < -10) {
+        setSlotsVisible(true);
+        lastYRef.current = y;
+      }
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   // Hydrate slots from URL params on first mount if localStorage is empty
   useEffect(() => {
@@ -87,9 +105,9 @@ export function MatchingPage({ userId, initialSlotIds }: Props) {
         userId={userId}
       />
 
-      <div className="mx-auto max-w-4xl space-y-6 px-4 py-4">
-        {/* 1. Slots header — sticky */}
-        <div className="sticky top-0 z-20">
+      <div className="mx-auto max-w-4xl space-y-6 px-4 py-4 pb-24">
+        {/* 1. Slots header — sticky, hides on scroll-down */}
+        <div className={`sticky top-0 z-20 transition-transform duration-300 ${slotsVisible ? "" : "-translate-y-full"}`}>
           <MatchingSlots
             slots={slots}
             averageScores={averageScores}
