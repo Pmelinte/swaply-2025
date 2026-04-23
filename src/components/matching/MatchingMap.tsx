@@ -3,12 +3,12 @@
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { MapEmbed } from "@/components/maps/MapEmbed";
+import type { SelectedProfile } from "@/lib/matching/matchingStore";
 
 interface Props {
-  // kept for API compatibility but not used for pin rendering
   scoredItems?: unknown[];
   selectedProfilesCount?: number;
-  onSelect?: (profile: unknown) => void;
+  onSelect?: (profile: SelectedProfile) => void;
 }
 
 export function MatchingMap(_props: Props) {
