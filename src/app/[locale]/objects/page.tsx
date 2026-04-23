@@ -18,7 +18,6 @@ import { GuestBanner } from "@/components/GuestBanner";
 import { AuthGateModal } from "@/components/AuthGateModal";
 import { SaveSearchModal } from "@/components/SaveSearchModal";
 import { SwipeCard } from "@/features/items/SwipeCard";
-import { AddToMatchingButton } from "@/components/matching/AddToMatchingButton";
 import type { Item, ListingType } from "@/lib/types";
 import {
   Search,
@@ -1049,7 +1048,6 @@ export default function ObjectsPage() {
                         >
                           <Heart className={`h-3.5 w-3.5 ${favorites.has(item.id) ? "fill-red-500 text-red-500" : "text-zinc-400"}`} />
                         </button>
-                        <AddToMatchingButton itemId={item.id} />
                       </>
                     ) : (
                       <AuthGateModal returnTo="/register?returnTo=/objects" gaEvent="favorite_click_guest">
@@ -1089,7 +1087,6 @@ export default function ObjectsPage() {
                         >
                           <Heart className={`h-3.5 w-3.5 ${favorites.has(item.id) ? "fill-red-500 text-red-500" : "text-zinc-400"}`} />
                         </button>
-                        <AddToMatchingButton itemId={item.id} />
                       </>
                     ) : (
                       <AuthGateModal returnTo="/register?returnTo=/objects" gaEvent="favorite_click_guest">
