@@ -39,7 +39,7 @@ function GeneralItemCard({ item }: { item: Item }) {
   const thumb = item.photos?.[0];
   return (
     <Link
-      href={{ pathname: "/objects/[id]", params: { id: item.id } }}
+      href={`/objects/${item.id}`}
       className="group flex flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white transition hover:border-blue-300 hover:shadow-md dark:border-zinc-700 dark:bg-zinc-900 dark:hover:border-blue-600"
     >
       <div className="relative aspect-square w-full overflow-hidden bg-zinc-100 dark:bg-zinc-800">
