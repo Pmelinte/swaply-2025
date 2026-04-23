@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
+import type React from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 
@@ -33,7 +34,7 @@ export function AddToMatchingButton({ itemId, className }: Props) {
   const router = useRouter();
 
   const handleClick = useCallback(
-    (e: MouseEvent) => {
+    (e: React.MouseEvent<HTMLButtonElement>) => {
       e.stopPropagation();
       e.preventDefault();
 
