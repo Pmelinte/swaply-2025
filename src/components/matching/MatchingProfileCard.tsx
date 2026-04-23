@@ -34,8 +34,7 @@ export function MatchingProfileCard({ profile, onRefuse, allScoredItems }: Props
   };
 
   function handleChat() {
-    // Navigate to chat — the conversation will be pre-created with context
-    router.push(`/chat`);
+    router.push("/messages");
   }
 
   return (

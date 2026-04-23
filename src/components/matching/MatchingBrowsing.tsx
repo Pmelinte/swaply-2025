@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { MatchingItemCard } from "./MatchingItemCard";
 import { MatchingItemModal } from "./MatchingItemModal";
@@ -37,7 +38,10 @@ const PAGE_SIZE = 12;
 function GeneralItemCard({ item }: { item: Item }) {
   const thumb = item.photos?.[0];
   return (
-    <div className="flex flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
+    <Link
+      href={`/objects/${item.id}`}
+      className="group flex flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white transition hover:border-blue-300 hover:shadow-md dark:border-zinc-700 dark:bg-zinc-900 dark:hover:border-blue-600"
+    >
       <div className="relative aspect-square w-full overflow-hidden bg-zinc-100 dark:bg-zinc-800">
         {thumb ? (
           <Image
@@ -45,7 +49,7 @@ function GeneralItemCard({ item }: { item: Item }) {
             alt={item.title}
             fill
             sizes="(max-width: 640px) 50vw, 25vw"
-            className="object-cover"
+            className="object-cover transition group-hover:scale-105"
           />
         ) : (
           <div className="flex h-full items-center justify-center text-2xl text-zinc-300">📦</div>
@@ -57,7 +61,7 @@ function GeneralItemCard({ item }: { item: Item }) {
         </p>
         <p className="text-[10px] text-zinc-400 dark:text-zinc-500">{item.category}</p>
       </div>
-    </div>
+    </Link>
   );
 }
 
