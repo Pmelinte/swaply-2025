@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { X, Plus } from "lucide-react";
 import type { Item } from "@/lib/types";
 
@@ -9,7 +10,6 @@ interface Props {
   slots: [Item | null, Item | null];
   averageScores: [number | null, number | null];
   onRemoveSlot: (itemId: string) => void;
-  onAddItem: () => void;
   onOpenDrawer: () => void;
 }
 
@@ -78,22 +78,20 @@ function SlotCard({
   );
 }
 
-function EmptySlot({ onAdd, disabled }: { onAdd: () => void; disabled: boolean }) {
+function EmptySlot({ disabled }: { disabled: boolean }) {
   const t = useTranslations("matching");
   return (
-    <button
-      type="button"
-      onClick={onAdd}
-      disabled={disabled}
-      className="flex h-full min-h-[90px] flex-col items-center justify-center gap-1 rounded-2xl border-2 border-dashed border-blue-200 bg-blue-50/30 text-center transition hover:border-blue-400 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-blue-800 dark:bg-blue-950/20 dark:hover:border-blue-600"
+    <Link
+      href="/objects"
+      className={`flex h-full min-h-[90px] flex-col items-center justify-center gap-1 rounded-2xl border-2 border-dashed border-blue-200 bg-blue-50/30 text-center transition hover:border-blue-400 hover:bg-blue-50 dark:border-blue-800 dark:bg-blue-950/20 dark:hover:border-blue-600${disabled ? " pointer-events-none opacity-40" : ""}`}
     >
       <Plus className="h-5 w-5 text-blue-400" />
       <span className="text-xs text-blue-500 dark:text-blue-400">{t("slotAddLink")}</span>
-    </button>
+    </Link>
   );
 }
 
-export function MatchingSlots({ slots, averageScores, onRemoveSlot, onAddItem, onOpenDrawer }: Props) {
+export function MatchingSlots({ slots, averageScores, onRemoveSlot, onOpenDrawer }: Props) {
   const t = useTranslations("matching");
 
   return (
@@ -117,7 +115,7 @@ export function MatchingSlots({ slots, averageScores, onRemoveSlot, onAddItem, o
             onRemove={() => onRemoveSlot(slots[0]!.id)}
           />
         ) : (
-          <EmptySlot onAdd={onAddItem} disabled={false} />
+          <EmptySlot disabled={false} />
         )}
         {slots[1] ? (
           <SlotCard
@@ -126,7 +124,7 @@ export function MatchingSlots({ slots, averageScores, onRemoveSlot, onAddItem, o
             onRemove={() => onRemoveSlot(slots[1]!.id)}
           />
         ) : (
-          <EmptySlot onAdd={onAddItem} disabled={!slots[0]} />
+          <EmptySlot disabled={!slots[0]} />
         )}
       </div>
     </div>
