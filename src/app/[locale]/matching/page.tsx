@@ -27,10 +27,10 @@ export default async function Page({
   }
 
   const sp = (await searchParams) ?? {};
-  const rawS1 = sp.s1 ?? sp.slot1;
-  const rawS2 = sp.s2 ?? sp.slot2;
-  const s1 = Array.isArray(rawS1) ? rawS1[0] : (rawS1 ?? null);
-  const s2 = Array.isArray(rawS2) ? rawS2[0] : (rawS2 ?? null);
+  const raw1 = sp.slot1;
+  const raw2 = sp.slot2;
+  const s1 = Array.isArray(raw1) ? raw1[0] : (raw1 ?? null);
+  const s2 = Array.isArray(raw2) ? raw2[0] : (raw2 ?? null);
 
   return <MatchingPage userId={userId!} initialSlotIds={[s1, s2]} />;
 }

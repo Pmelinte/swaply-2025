@@ -37,22 +37,22 @@ export function AddToMatchingButton({ itemId, className }: Props) {
       e.stopPropagation();
       e.preventDefault();
 
-      const [s1, s2] = getSlotIds();
+      const [slot1, slot2] = getSlotIds();
 
       // If this item is already in a slot, navigate to matching
-      if (s1 === itemId || s2 === itemId) {
+      if (slot1 === itemId || slot2 === itemId) {
         router.push("/matching");
         return;
       }
 
       // Fill the first empty slot
       const params = new URLSearchParams();
-      if (s1) {
-        params.set("s1", s1);
-        params.set("s2", itemId);
+      if (slot1) {
+        params.set("slot1", slot1);
+        params.set("slot2", itemId);
       } else {
-        params.set("s1", itemId);
-        if (s2) params.set("s2", s2);
+        params.set("slot1", itemId);
+        if (slot2) params.set("slot2", slot2);
       }
 
       router.push(`/matching?${params.toString()}`);
