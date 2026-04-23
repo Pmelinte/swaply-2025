@@ -1,132 +1,136 @@
 "use client";
 
-import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { X, Plus } from "lucide-react";
-import type { Item } from "@/lib/types";
+import { SlidersHorizontal, X } from "lucide-react";
+import { SafeImage } from "@/components/SafeImage";
+import { NO_IMAGE_URL } from "@/lib/storage";
+import type { MatchingItemRow } from "@/lib/matching/matchQueries";
 
 interface Props {
-  slots: [Item | null, Item | null];
-  averageScores: [number | null, number | null];
-  onRemoveSlot: (itemId: string) => void;
-  onOpenDrawer: () => void;
+  slot1Item: MatchingItemRow | null;
+  slot2Item: MatchingItemRow | null;
+  slot1Id: string | null;
+  slot2Id: string | null;
+  averageScore: number | null;
+  onRemoveSlot1: () => void;
+  onRemoveSlot2: () => void;
+  onOpenFilters: () => void;
 }
 
-function SlotCard({
-  item,
-  avgScore,
-  onRemove,
-}: {
-  item: Item;
-  avgScore: number | null;
-  onRemove: () => void;
-}) {
+export default function MatchingSlots({
+  slot1Item,
+  slot2Item,
+  slot1Id,
+  slot2Id,
+  averageScore,
+  onRemoveSlot1,
+  onRemoveSlot2,
+  onOpenFilters,
+}: Props) {
   const t = useTranslations("matching");
-  const tc = useTranslations("common");
-  const [confirmRemove, setConfirmRemove] = useState(false);
-
-  if (confirmRemove) {
-    return (
-      <div className="flex flex-col gap-2 rounded-2xl border-2 border-red-200 bg-red-50 p-3 dark:border-red-800 dark:bg-red-950/30">
-        <p className="text-xs font-medium text-red-700 dark:text-red-300">{t("confirmRemoveSlot")}</p>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => setConfirmRemove(false)}
-            className="flex-1 rounded-lg border border-zinc-200 py-1.5 text-xs font-medium text-zinc-600 dark:border-zinc-700 dark:text-zinc-300"
-          >
-            {tc("cancel")}
-          </button>
-          <button
-            type="button"
-            onClick={onRemove}
-            className="flex-1 rounded-lg bg-red-500 py-1.5 text-xs font-semibold text-white"
-          >
-            {tc("yes")}
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="flex flex-col gap-1 rounded-2xl border-2 border-blue-200 bg-blue-50/60 p-3 dark:border-blue-800 dark:bg-blue-950/30">
-      <div className="flex items-start justify-between gap-1">
-        <div className="flex min-w-0 items-center gap-1.5">
-          <span className="text-base">📦</span>
-          <p className="line-clamp-2 text-xs font-semibold text-zinc-800 dark:text-zinc-100">
-            {item.title}
-          </p>
-        </div>
+    <div>
+      <div className="mb-3 flex items-center justify-between">
+        <h1 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">{t("title")}</h1>
         <button
           type="button"
-          onClick={() => setConfirmRemove(true)}
-          className="shrink-0 rounded-full p-0.5 text-zinc-400 hover:bg-red-100 hover:text-red-500 dark:hover:bg-red-900/30"
-          aria-label="Remove slot"
+          onClick={onOpenFilters}
+          className="flex items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
         >
-          <X className="h-3.5 w-3.5" />
+          <SlidersHorizontal className="h-4 w-4" />
+          {t("filters")}
         </button>
       </div>
-      <p className="text-[10px] text-zinc-500 dark:text-zinc-400">{item.category}</p>
-      {avgScore !== null && (
-        <p className="text-[10px] font-semibold text-blue-700 dark:text-blue-400">
-          {t("avgScore")}: {avgScore}%
-        </p>
-      )}
+      <div className="grid grid-cols-2 gap-3">
+        <SlotCard
+          item={slot1Item}
+          hasId={Boolean(slot1Id)}
+          averageScore={averageScore}
+          onRemove={onRemoveSlot1}
+        />
+        <SlotCard
+          item={slot2Item}
+          hasId={Boolean(slot2Id)}
+          averageScore={averageScore}
+          onRemove={onRemoveSlot2}
+        />
+      </div>
     </div>
   );
 }
 
-function EmptySlot({ disabled }: { disabled: boolean }) {
-  const t = useTranslations("matching");
-  return (
-    <Link
-      href="/objects"
-      className={`flex h-full min-h-[90px] flex-col items-center justify-center gap-1 rounded-2xl border-2 border-dashed border-blue-200 bg-blue-50/30 text-center transition hover:border-blue-400 hover:bg-blue-50 dark:border-blue-800 dark:bg-blue-950/20 dark:hover:border-blue-600${disabled ? " pointer-events-none opacity-40" : ""}`}
-    >
-      <Plus className="h-5 w-5 text-blue-400" />
-      <span className="text-xs text-blue-500 dark:text-blue-400">{t("slotAddLink")}</span>
-    </Link>
-  );
-}
-
-export function MatchingSlots({ slots, averageScores, onRemoveSlot, onOpenDrawer }: Props) {
+function SlotCard({
+  item,
+  hasId,
+  averageScore,
+  onRemove,
+}: {
+  item: MatchingItemRow | null;
+  hasId: boolean;
+  averageScore: number | null;
+  onRemove: () => void;
+}) {
   const t = useTranslations("matching");
 
-  return (
-    <div className="rounded-2xl border-2 border-blue-200 bg-gradient-to-b from-blue-50 to-white p-4 dark:border-blue-800 dark:from-blue-950/40 dark:to-zinc-900">
-      <div className="mb-3 flex items-center justify-between">
-        <h1 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">🎯 {t("title")}</h1>
-        <button
-          type="button"
-          onClick={onOpenDrawer}
-          className="rounded-xl border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
-        >
-          {t("filters")}
-        </button>
-      </div>
+  if (!item) {
+    if (hasId) {
+      return (
+        <div className="flex h-36 items-center justify-center rounded-xl border-2 border-dashed border-zinc-200 bg-white text-xs text-zinc-400 dark:border-zinc-700 dark:bg-zinc-900">
+          {t("slot_loading")}
+        </div>
+      );
+    }
+    return (
+      <Link
+        href="/objects"
+        className="flex h-36 flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-zinc-300 bg-white text-sm font-semibold text-zinc-500 transition hover:border-blue-400 hover:bg-blue-50/40 hover:text-blue-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-400 dark:hover:border-blue-500 dark:hover:bg-blue-950/30"
+      >
+        <span className="text-2xl leading-none">+</span>
+        <span>{t("slot_add")}</span>
+      </Link>
+    );
+  }
 
-      <div className="grid grid-cols-2 gap-3">
-        {slots[0] ? (
-          <SlotCard
-            item={slots[0]}
-            avgScore={averageScores[0]}
-            onRemove={() => onRemoveSlot(slots[0]!.id)}
-          />
-        ) : (
-          <EmptySlot disabled={false} />
-        )}
-        {slots[1] ? (
-          <SlotCard
-            item={slots[1]}
-            avgScore={averageScores[1]}
-            onRemove={() => onRemoveSlot(slots[1]!.id)}
-          />
-        ) : (
-          <EmptySlot disabled={!slots[0]} />
+  return (
+    <div className="relative flex h-36 gap-3 overflow-hidden rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-900">
+      <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800">
+        <SafeImage
+          src={item.photos?.[0] || NO_IMAGE_URL}
+          alt={item.title}
+          fill
+          className="object-cover"
+          sizes="112px"
+          unoptimized={!item.photos?.[0]}
+        />
+      </div>
+      <div className="flex min-w-0 flex-1 flex-col justify-between">
+        <div className="min-w-0">
+          <p className="truncate text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+            {item.title}
+          </p>
+          {item.category && (
+            <p className="truncate text-xs text-zinc-500 dark:text-zinc-400">{item.category}</p>
+          )}
+        </div>
+        {averageScore !== null && (
+          <span className="inline-flex w-fit items-center rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-800 dark:bg-blue-900/40 dark:text-blue-200">
+            {t("slot_avg_score", { score: averageScore })}
+          </span>
         )}
       </div>
+      <button
+        type="button"
+        onClick={() => {
+          if (typeof window !== "undefined" && !window.confirm(t("slot_remove_confirm"))) return;
+          onRemove();
+        }}
+        aria-label={t("slot_remove_confirm")}
+        className="absolute right-2 top-2 rounded-full bg-white/90 p-1 text-zinc-500 shadow-sm hover:bg-white hover:text-red-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:text-red-400"
+      >
+        <X className="h-4 w-4" />
+      </button>
     </div>
   );
 }
