@@ -95,7 +95,7 @@ export interface Item {
   location: string;
   aiSuggestedTags?: string[];
   userFinalTags?: string[];
-  photos: string[];
+  photos?: string[] | null;
   listingType?: ListingType;
   houseProfile?: HouseProfile;
   serviceProfile?: ServiceProfile;

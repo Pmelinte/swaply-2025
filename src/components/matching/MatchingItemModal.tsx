@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { MatchingScoreBreakdown } from "./MatchingScoreBreakdown";
 import type { ScoredItem } from "@/hooks/useMatchingResults";
@@ -29,9 +29,14 @@ export function MatchingItemModal({
   const { user } = useAppState();
   const [photoIdx, setPhotoIdx] = useState(0);
 
+  useEffect(() => {
+    setPhotoIdx(0);
+  }, [scored?.item.id]);
+
   if (!scored) return null;
   const { item, score } = scored;
-  const photos = item.photos ?? [];
+  const photos = Array.isArray(item.photos) ? item.photos : [];
+  const currentPhoto = photos[photoIdx] ?? photos[0] ?? null;
 
   const scoreColor =
     score >= 75
@@ -81,10 +86,10 @@ export function MatchingItemModal({
         {/* Scrollable body */}
         <div className="flex-1 overflow-y-auto p-5 space-y-4">
           {/* Photo gallery */}
-          {photos.length > 0 && (
+          {photos.length > 0 && currentPhoto && (
             <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-zinc-100 dark:bg-zinc-800">
               <Image
-                src={photos[photoIdx]}
+                src={currentPhoto}
                 alt={item.title}
                 fill
                 className="object-cover"

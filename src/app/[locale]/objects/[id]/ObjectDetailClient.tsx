@@ -399,7 +399,7 @@ export default function ObjectDetailClient() {
   }
 
   const photos = item.photos?.length ? item.photos : [NO_IMAGE_URL];
-  const hasMultiplePhotos = item.photos?.length > 1;
+  const hasMultiplePhotos = (item.photos?.length ?? 0) > 1;
 
   return (
     <div>
