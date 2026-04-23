@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { Link } from "@/i18n/navigation";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { MatchingScoreBreakdown } from "./MatchingScoreBreakdown";
@@ -164,6 +165,13 @@ export function MatchingItemModal({
           >
             {t("ignore")}
           </button>
+          <Link
+            href={`/objects/${item.id}`}
+            onClick={onClose}
+            className="flex-1 rounded-xl border border-blue-200 py-2.5 text-center text-sm font-semibold text-blue-600 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-400 dark:hover:bg-blue-950/30"
+          >
+            View →
+          </Link>
           <button
             type="button"
             onClick={handleInterest}
