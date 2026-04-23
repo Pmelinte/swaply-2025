@@ -12,6 +12,9 @@ export function ContextBar() {
 
   if (!user) return null;
 
+  // Matching page has its own sticky header; ContextBar would duplicate info
+  if (pathname === "/matching" || pathname.startsWith("/matching/")) return null;
+
   const myItems = items.filter((i) => i.ownerId === user.id && i.isActive);
   const activeSwaps = swaps.filter((s) => s.status !== "completed" && s.status !== "cancelled");
   const unreadConvs = conversations.filter((c) => c.messages.length > 0);
