@@ -139,7 +139,7 @@ export function ItemForm({
   );
 
   const [preview, setPreview] = useState<string | null>(
-    item.photos[0] ?? null,
+    item.photos?.[0] ?? null,
   );
   const saving = isSubmitting;
   const [uploading, setUploading] = useState(false);
