@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useMatchingSlots } from "@/hooks/useMatchingSlots";
@@ -12,13 +12,19 @@ import { MatchingBrowsing } from "./MatchingBrowsing";
 import { MatchingMap } from "./MatchingMap";
 import { MatchingAIButton } from "./MatchingAIButton";
 import { MatchingSelectedProfiles } from "./MatchingSelectedProfiles";
-import { useDrawerStore } from "@/lib/state/drawerStore";
+import { MatchingFilterDrawer, DEFAULT_FILTERS } from "./MatchingFilterDrawer";
+import type { MatchingFilters } from "./MatchingFilterDrawer";
 import type { SortOrder } from "@/hooks/useMatchingResults";
 
-export function MatchingPage() {
+interface Props {
+  userId: string;
+  initialSlotIds?: [string | null, string | null];
+}
+
+export function MatchingPage({ userId, initialSlotIds }: Props) {
   const t = useTranslations("matching");
   const router = useRouter();
-  const { user } = useAppState();
+  const { items } = useAppState();
 
   const {
     slots,
@@ -28,11 +34,30 @@ export function MatchingPage() {
     addSelectedProfile,
     removeSelectedProfile,
     removeSlot,
+    addSlot,
   } = useMatchingSlots();
 
   const [sort, setSort] = useState<SortOrder>("score");
+  const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
+  const [filters, setFilters] = useState<MatchingFilters>(DEFAULT_FILTERS);
 
-  const { scoredItems, loading } = useMatchingResults(activeSlots, sort);
+  // Hydrate slots from URL params on first mount if localStorage is empty
+  useEffect(() => {
+    if (!initialSlotIds || (!initialSlotIds[0] && !initialSlotIds[1])) return;
+    if (slots[0] || slots[1]) return; // localStorage already populated
+
+    for (const id of initialSlotIds) {
+      if (!id) continue;
+      const item = items.find((i) => i.id === id);
+      if (item) addSlot(item);
+    }
+  }, [initialSlotIds, items]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const { scoredItems, loading } = useMatchingResults(
+    activeSlots,
+    sort,
+    filters.category || null,
+  );
   const { suggestions: aiSuggestions, loading: aiLoading, fetchSuggestions } = useMatchingAI(activeSlots);
 
   // Average score per slot
@@ -66,51 +91,67 @@ export function MatchingPage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6 px-4 py-4">
-      {/* 1. Active slots header */}
-      <MatchingSlots
+    <>
+      {/* Filter drawer */}
+      <MatchingFilterDrawer
+        open={filterDrawerOpen}
+        onClose={() => setFilterDrawerOpen(false)}
         slots={slots}
-        averageScores={averageScores}
-        onRemoveSlot={removeSlot}
-        onAddItem={handleAddItem}
-        onOpenDrawer={() => useDrawerStore.getState().openWith({ type: "explore" })}
+        filters={filters}
+        onFiltersChange={setFilters}
+        userId={userId}
       />
 
-      {/* 2. Browsing — cards with scores */}
-      <MatchingBrowsing
-        slotItems={activeSlots}
-        scoredItems={scoredItems}
-        aiSuggestions={aiSuggestions}
-        loading={loading}
-        selectedProfilesCount={selectedProfiles.length}
-        onExpressInterest={addSelectedProfile}
-        sort={sort}
-        onSortChange={setSort}
-      />
+      <div className="mx-auto max-w-4xl space-y-6 px-4 py-4">
+        {/* 1. Active slots header — sticky on mobile */}
+        <div className="sticky top-0 z-20">
+          <MatchingSlots
+            slots={slots}
+            averageScores={averageScores}
+            onRemoveSlot={removeSlot}
+            onAddItem={handleAddItem}
+            onOpenDrawer={() => setFilterDrawerOpen(true)}
+          />
+        </div>
 
-      {/* 3. Map */}
-      {scoredItems.length > 0 && (
-        <MatchingMap
+        {/* 2. Browsing — cards with scores */}
+        <MatchingBrowsing
+          slotItems={activeSlots}
           scoredItems={scoredItems}
+          aiSuggestions={aiSuggestions}
+          loading={loading}
           selectedProfilesCount={selectedProfiles.length}
-          onSelect={addSelectedProfile}
+          onExpressInterest={addSelectedProfile}
+          sort={sort}
+          onSortChange={setSort}
         />
-      )}
 
-      {/* 4. AI matching button */}
-      <MatchingAIButton
-        slotItems={activeSlots}
-        onFetch={fetchSuggestions}
-        loading={aiLoading}
-        profilesCount={selectedProfiles.length}
-      />
+        {/* 3. Map */}
+        {scoredItems.length > 0 && (
+          <MatchingMap
+            scoredItems={scoredItems}
+            selectedProfilesCount={selectedProfiles.length}
+            onSelect={addSelectedProfile}
+          />
+        )}
 
-      {/* 5. Selected profiles */}
-      <MatchingSelectedProfiles
-        selectedProfiles={selectedProfiles}
-        allScoredItems={scoredItems}
-        onRefuse={removeSelectedProfile}
-      />
-    </div>
+        {/* 4. AI matching button */}
+        <MatchingAIButton
+          slotItems={activeSlots}
+          onFetch={fetchSuggestions}
+          loading={aiLoading}
+          profilesCount={selectedProfiles.length}
+        />
+
+        {/* 5. Selected profiles — sticky bottom on mobile */}
+        <div className="sm:static">
+          <MatchingSelectedProfiles
+            selectedProfiles={selectedProfiles}
+            allScoredItems={scoredItems}
+            onRefuse={removeSelectedProfile}
+          />
+        </div>
+      </div>
+    </>
   );
 }

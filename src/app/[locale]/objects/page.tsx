@@ -18,6 +18,7 @@ import { GuestBanner } from "@/components/GuestBanner";
 import { AuthGateModal } from "@/components/AuthGateModal";
 import { SaveSearchModal } from "@/components/SaveSearchModal";
 import { SwipeCard } from "@/features/items/SwipeCard";
+import { AddToMatchingButton } from "@/components/matching/AddToMatchingButton";
 import type { Item, ListingType } from "@/lib/types";
 import {
   Search,
@@ -1040,13 +1041,16 @@ export default function ObjectsPage() {
                   <div key={item.id} className="item-card-container relative" style={{ containerType: "inline-size" }}>
                     <ObjectCard item={item} mode="grid" />
                     {user ? (
-                      <button
-                        type="button"
-                        onClick={(e) => { e.stopPropagation(); toggleFavorite(item.id); }}
-                        className="absolute right-3 top-3 z-10 rounded-full bg-white/90 p-1.5 shadow-sm backdrop-blur hover:bg-white dark:bg-zinc-900/80 dark:hover:bg-zinc-800"
-                      >
-                        <Heart className={`h-3.5 w-3.5 ${favorites.has(item.id) ? "fill-red-500 text-red-500" : "text-zinc-400"}`} />
-                      </button>
+                      <>
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); toggleFavorite(item.id); }}
+                          className="absolute right-3 top-3 z-10 rounded-full bg-white/90 p-1.5 shadow-sm backdrop-blur hover:bg-white dark:bg-zinc-900/80 dark:hover:bg-zinc-800"
+                        >
+                          <Heart className={`h-3.5 w-3.5 ${favorites.has(item.id) ? "fill-red-500 text-red-500" : "text-zinc-400"}`} />
+                        </button>
+                        <AddToMatchingButton itemId={item.id} />
+                      </>
                     ) : (
                       <AuthGateModal returnTo="/register?returnTo=/objects" gaEvent="favorite_click_guest">
                         <button
@@ -1077,13 +1081,16 @@ export default function ObjectsPage() {
                   <div key={item.id} className="relative">
                     <ObjectCard item={item} mode="list" />
                     {user ? (
-                      <button
-                        type="button"
-                        onClick={(e) => { e.stopPropagation(); toggleFavorite(item.id); }}
-                        className="absolute right-3 top-3 z-10 rounded-full bg-white/90 p-1.5 shadow-sm backdrop-blur hover:bg-white dark:bg-zinc-900/80 dark:hover:bg-zinc-800"
-                      >
-                        <Heart className={`h-3.5 w-3.5 ${favorites.has(item.id) ? "fill-red-500 text-red-500" : "text-zinc-400"}`} />
-                      </button>
+                      <>
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); toggleFavorite(item.id); }}
+                          className="absolute right-3 top-3 z-10 rounded-full bg-white/90 p-1.5 shadow-sm backdrop-blur hover:bg-white dark:bg-zinc-900/80 dark:hover:bg-zinc-800"
+                        >
+                          <Heart className={`h-3.5 w-3.5 ${favorites.has(item.id) ? "fill-red-500 text-red-500" : "text-zinc-400"}`} />
+                        </button>
+                        <AddToMatchingButton itemId={item.id} />
+                      </>
                     ) : (
                       <AuthGateModal returnTo="/register?returnTo=/objects" gaEvent="favorite_click_guest">
                         <button
