@@ -24,7 +24,7 @@ export function BranchBar() {
   return (
     <nav
       aria-label="Branch navigation"
-      className="h-[44px] border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900"
+      className="sticky top-[53px] z-10 h-[44px] border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900"
     >
       <div className="mx-auto flex h-full max-w-6xl items-stretch px-2 sm:px-4">
         {TABS.map(({ href, emoji, labelKey, descKey, beta }) => {
