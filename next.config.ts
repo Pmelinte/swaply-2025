@@ -9,8 +9,19 @@ const withAnalyzer = withBundleAnalyzer({
 });
 
 const nextConfig: NextConfig = {
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/en',
+        permanent: true,
+      },
+    ];
+  },
+
   // Use standalone output for Docker; Vercel handles its own packaging
   output: process.env.VERCEL ? undefined : "standalone",
+
   images: {
     formats: ["image/avif", "image/webp"],
     deviceSizes: [640, 750, 828, 1080, 1200],
@@ -26,6 +37,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "ui-avatars.com" },
     ],
   },
+
   headers: async () => [
     {
       source: "/(.*)",
