@@ -12,7 +12,10 @@ interface Props {
 
 export function MatchingAIButton({ slotItems, onFetch, loading, profilesCount }: Props) {
   const t = useTranslations("matching");
-  const disabled = profilesCount >= 2 || !slotItems.length;
+
+  const noSlots = slotItems.length === 0;
+  const slotsFull = profilesCount >= 2;
+  const disabled = noSlots || slotsFull;
 
   return (
     <section className="flex justify-center">
@@ -25,15 +28,19 @@ export function MatchingAIButton({ slotItems, onFetch, loading, profilesCount }:
           {t("aiSubtitle")}
         </p>
 
-        {profilesCount >= 2 ? (
+        {slotsFull ? (
           <p className="mt-3 text-xs font-medium text-zinc-400">
             {t("aiDisabledFull")}
+          </p>
+        ) : noSlots ? (
+          <p className="mt-3 text-xs font-medium text-zinc-400">
+            {t("aiNoSlotHint")}
           </p>
         ) : (
           <button
             type="button"
             onClick={onFetch}
-            disabled={disabled || loading}
+            disabled={loading}
             className="mt-3 inline-flex items-center gap-2 rounded-xl bg-purple-600 px-5 py-2.5 text-sm font-semibold text-white shadow hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading ? (

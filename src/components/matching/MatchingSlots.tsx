@@ -88,14 +88,13 @@ function EmptySlot({ onAdd, disabled }: { onAdd: () => void; disabled: boolean }
       className="flex h-full min-h-[90px] flex-col items-center justify-center gap-1 rounded-2xl border-2 border-dashed border-blue-200 bg-blue-50/30 text-center transition hover:border-blue-400 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-blue-800 dark:bg-blue-950/20 dark:hover:border-blue-600"
     >
       <Plus className="h-5 w-5 text-blue-400" />
-      <span className="text-xs text-zinc-400">{t("addItem")}</span>
+      <span className="text-xs text-blue-500 dark:text-blue-400">{t("slotAddLink")}</span>
     </button>
   );
 }
 
 export function MatchingSlots({ slots, averageScores, onRemoveSlot, onAddItem, onOpenDrawer }: Props) {
   const t = useTranslations("matching");
-  const bothEmpty = !slots[0] && !slots[1];
 
   return (
     <div className="rounded-2xl border-2 border-blue-200 bg-gradient-to-b from-blue-50 to-white p-4 dark:border-blue-800 dark:from-blue-950/40 dark:to-zinc-900">
@@ -130,12 +129,6 @@ export function MatchingSlots({ slots, averageScores, onRemoveSlot, onAddItem, o
           <EmptySlot onAdd={onAddItem} disabled={!slots[0]} />
         )}
       </div>
-
-      {bothEmpty && (
-        <p className="mt-3 text-center text-xs text-zinc-500 dark:text-zinc-400">
-          {t("noSlotsHint")}
-        </p>
-      )}
     </div>
   );
 }

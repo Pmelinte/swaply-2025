@@ -2,7 +2,6 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "@/i18n/navigation";
 import { useMatchingSlots } from "@/hooks/useMatchingSlots";
 import { useMatchingResults } from "@/hooks/useMatchingResults";
 import { useMatchingAI } from "@/hooks/useMatchingAI";
@@ -13,6 +12,7 @@ import { MatchingMap } from "./MatchingMap";
 import { MatchingAIButton } from "./MatchingAIButton";
 import { MatchingSelectedProfiles } from "./MatchingSelectedProfiles";
 import { MatchingFilterDrawer, DEFAULT_FILTERS } from "./MatchingFilterDrawer";
+import { useRouter } from "@/i18n/navigation";
 import type { MatchingFilters } from "./MatchingFilterDrawer";
 import type { SortOrder } from "@/hooks/useMatchingResults";
 
@@ -22,15 +22,13 @@ interface Props {
 }
 
 export function MatchingPage({ userId, initialSlotIds }: Props) {
-  const t = useTranslations("matching");
   const router = useRouter();
-  const { items } = useAppState();
+  const { items, user } = useAppState();
 
   const {
     slots,
     selectedProfiles,
     activeSlots,
-    hasAnySlot,
     addSelectedProfile,
     removeSelectedProfile,
     removeSlot,
@@ -44,7 +42,7 @@ export function MatchingPage({ userId, initialSlotIds }: Props) {
   // Hydrate slots from URL params on first mount if localStorage is empty
   useEffect(() => {
     if (!initialSlotIds || (!initialSlotIds[0] && !initialSlotIds[1])) return;
-    if (slots[0] || slots[1]) return; // localStorage already populated
+    if (slots[0] || slots[1]) return;
 
     for (const id of initialSlotIds) {
       if (!id) continue;
@@ -58,7 +56,16 @@ export function MatchingPage({ userId, initialSlotIds }: Props) {
     sort,
     filters.category || null,
   );
+
   const { suggestions: aiSuggestions, loading: aiLoading, fetchSuggestions } = useMatchingAI(activeSlots);
+
+  // General browse items shown when no slots are active
+  const generalItems = useMemo(() => {
+    if (activeSlots.length > 0) return [];
+    return items
+      .filter((i) => i.isActive && i.status === "active" && i.ownerId !== user?.id)
+      .slice(0, 20);
+  }, [items, activeSlots, user]);
 
   // Average score per slot
   const averageScores = useMemo((): [number | null, number | null] => {
@@ -69,30 +76,8 @@ export function MatchingPage({ userId, initialSlotIds }: Props) {
     return [slots[0] ? avg : null, slots[1] ? avg : null];
   }, [scoredItems, slots]);
 
-  function handleAddItem() {
-    router.push("/explore");
-  }
-
-  if (!hasAnySlot) {
-    return (
-      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-4 text-center">
-        <div className="text-4xl">🎯</div>
-        <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">{t("emptyTitle")}</h1>
-        <p className="max-w-sm text-sm text-zinc-500 dark:text-zinc-400">{t("emptyHint")}</p>
-        <button
-          type="button"
-          onClick={() => router.push("/explore")}
-          className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700"
-        >
-          {t("goToExplore")}
-        </button>
-      </div>
-    );
-  }
-
   return (
     <>
-      {/* Filter drawer */}
       <MatchingFilterDrawer
         open={filterDrawerOpen}
         onClose={() => setFilterDrawerOpen(false)}
@@ -103,22 +88,23 @@ export function MatchingPage({ userId, initialSlotIds }: Props) {
       />
 
       <div className="mx-auto max-w-4xl space-y-6 px-4 py-4">
-        {/* 1. Active slots header — sticky on mobile */}
+        {/* 1. Slots header — sticky */}
         <div className="sticky top-0 z-20">
           <MatchingSlots
             slots={slots}
             averageScores={averageScores}
             onRemoveSlot={removeSlot}
-            onAddItem={handleAddItem}
+            onAddItem={() => router.push("/objects")}
             onOpenDrawer={() => setFilterDrawerOpen(true)}
           />
         </div>
 
-        {/* 2. Browsing — cards with scores */}
+        {/* 2. Browse — scored results or general fallback */}
         <MatchingBrowsing
           slotItems={activeSlots}
           scoredItems={scoredItems}
           aiSuggestions={aiSuggestions}
+          generalItems={generalItems}
           loading={loading}
           selectedProfilesCount={selectedProfiles.length}
           onExpressInterest={addSelectedProfile}
@@ -126,16 +112,14 @@ export function MatchingPage({ userId, initialSlotIds }: Props) {
           onSortChange={setSort}
         />
 
-        {/* 3. Map */}
-        {scoredItems.length > 0 && (
-          <MatchingMap
-            scoredItems={scoredItems}
-            selectedProfilesCount={selectedProfiles.length}
-            onSelect={addSelectedProfile}
-          />
-        )}
+        {/* 3. Map — always visible */}
+        <MatchingMap
+          scoredItems={scoredItems}
+          selectedProfilesCount={selectedProfiles.length}
+          onSelect={addSelectedProfile}
+        />
 
-        {/* 4. AI matching button */}
+        {/* 4. AI matching button — always visible */}
         <MatchingAIButton
           slotItems={activeSlots}
           onFetch={fetchSuggestions}
@@ -143,14 +127,12 @@ export function MatchingPage({ userId, initialSlotIds }: Props) {
           profilesCount={selectedProfiles.length}
         />
 
-        {/* 5. Selected profiles — sticky bottom on mobile */}
-        <div className="sm:static">
-          <MatchingSelectedProfiles
-            selectedProfiles={selectedProfiles}
-            allScoredItems={scoredItems}
-            onRefuse={removeSelectedProfile}
-          />
-        </div>
+        {/* 5. Selected profiles — always visible */}
+        <MatchingSelectedProfiles
+          selectedProfiles={selectedProfiles}
+          allScoredItems={scoredItems}
+          onRefuse={removeSelectedProfile}
+        />
       </div>
     </>
   );
