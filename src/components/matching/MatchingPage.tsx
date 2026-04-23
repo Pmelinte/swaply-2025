@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { useTranslations } from "next-intl";
-import { useMatchingSlots } from "@/hooks/useMatchingSlots";
+import { useTranslations } from "next-intl";import { useMatchingSlots } from "@/hooks/useMatchingSlots";
 import { useMatchingResults } from "@/hooks/useMatchingResults";
 import { useMatchingAI } from "@/hooks/useMatchingAI";
 import { useAppState } from "@/lib/state";
@@ -12,7 +11,6 @@ import { MatchingMap } from "./MatchingMap";
 import { MatchingAIButton } from "./MatchingAIButton";
 import { MatchingSelectedProfiles } from "./MatchingSelectedProfiles";
 import { MatchingFilterDrawer, DEFAULT_FILTERS } from "./MatchingFilterDrawer";
-import { useRouter } from "@/i18n/navigation";
 import type { MatchingFilters } from "./MatchingFilterDrawer";
 import type { SortOrder } from "@/hooks/useMatchingResults";
 
@@ -22,7 +20,6 @@ interface Props {
 }
 
 export function MatchingPage({ userId, initialSlotIds }: Props) {
-  const router = useRouter();
   const { items, user } = useAppState();
 
   const {
@@ -34,6 +31,7 @@ export function MatchingPage({ userId, initialSlotIds }: Props) {
     removeSlot,
     addSlot,
   } = useMatchingSlots();
+
 
   const [sort, setSort] = useState<SortOrder>("score");
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
@@ -94,7 +92,6 @@ export function MatchingPage({ userId, initialSlotIds }: Props) {
             slots={slots}
             averageScores={averageScores}
             onRemoveSlot={removeSlot}
-            onAddItem={() => router.push("/objects")}
             onOpenDrawer={() => setFilterDrawerOpen(true)}
           />
         </div>
