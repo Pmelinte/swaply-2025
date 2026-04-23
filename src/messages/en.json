@@ -3942,7 +3942,7 @@
     "aiLoading": "Searching…",
     "aiDisabledFull": "You already have 2 matches selected",
     "selectedTitle": "Selected matches",
-    "noSelectedYet": "Express interest in items above to add them here (max 2)",
+    "noSelectedYet": "No matches selected yet. Browse items above and express interest.",
     "oneMoreSlot": "One more slot available",
     "verified": "Verified",
     "theyOffer": "They offer",
@@ -3983,7 +3983,12 @@
     "filters_save_name_placeholder": "e.g. Looking for laptop",
     "addToMatching": "🎯 Add to Matching",
     "addToMatchingShort": "🎯",
-    "swaps_completed": "{count} swaps"
+    "swaps_completed": "{count} swaps",
+    "browseNoSlotBanner": "Add an item to a slot to see matching results",
+    "browseGeneralTitle": "Browse all items",
+    "aiNoSlotHint": "Add an item to a slot first",
+    "selectedEmptyHint": "No matches selected yet. Browse items above and express interest.",
+    "slotAddLink": "Add an item →"
   },
   "chatAgenda": {
     "title": "Swap Agenda",

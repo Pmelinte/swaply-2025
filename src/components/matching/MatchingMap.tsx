@@ -53,7 +53,9 @@ export function MatchingMap({ scoredItems, selectedProfilesCount, onSelect }: Pr
         />
 
         {pins.length === 0 && (
-          <div className="flex h-full items-center justify-center">
+          <div className="flex h-full flex-col items-center justify-center gap-2">
+            {/* Romania outline placeholder when no items */}
+            <span className="text-3xl opacity-30">🗺️</span>
             <p className="text-sm text-zinc-400">{t("noPins")}</p>
           </div>
         )}
