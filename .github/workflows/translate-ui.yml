@@ -1,11 +1,7 @@
 name: Translate UI
 on:
   workflow_dispatch:
-    inputs:
-      locale:
-        description: "Locale to translate (e.g. it, de, fr, es, pt, nl, pl, id)"
-        required: true
-        default: "it"
+
 jobs:
   translate:
     runs-on: ubuntu-latest
