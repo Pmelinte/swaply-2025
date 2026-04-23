@@ -1,18 +1,6 @@
 name: Seed Test Data
 on:
   workflow_dispatch:
-    inputs:
-      script:
-        description: 'Which script to run'
-        required: true
-        default: 'all'
-        type: choice
-        options:
-          - all
-          - part1
-          - part2
-          - part3
-          - cleanup
 
 jobs:
   seed:

@@ -2,11 +2,6 @@ name: Populate Translation Cache
 
 on:
   workflow_dispatch:
-    inputs:
-      batch_size:
-        description: "Items per batch (lower = safer rate limiting)"
-        required: false
-        default: "10"
 
 jobs:
   translate:
