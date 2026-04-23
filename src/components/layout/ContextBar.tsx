@@ -70,23 +70,8 @@ export function ContextBar() {
           <Filter className="h-3 w-3" />
           {t("matchAnalysis")}
         </span>
-        {myItems.length === 0 && (
-          <>
-            <span className="text-zinc-300 dark:text-zinc-600">|</span>
-            <Link
-              href="/objects/new"
-              className="font-semibold text-amber-600 dark:text-amber-400"
-            >
-              {t("addObjectFirst")}
-            </Link>
-          </>
-        )}
-        {myItems.length > 0 && (
-          <>
-            <span className="text-zinc-300 dark:text-zinc-600">|</span>
-            <span>{t("basedOnItems", { count: myItems.length })}</span>
-          </>
-        )}
+        <span className="text-zinc-300 dark:text-zinc-600">|</span>
+        <span>{t("basedOnItems", { count: myItems.length })}</span>
       </div>
     );
   } else if (pathname === "/chat" || pathname.startsWith("/chat")) {

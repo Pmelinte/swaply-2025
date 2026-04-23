@@ -3935,6 +3935,7 @@
     "mapTitle": "Matching map",
     "mapHint": "Click a pin to see item details. Green = high match, yellow = medium, grey = low.",
     "noPins": "No candidates to show on map yet",
+    "youAreHere": "You are here",
     "select": "Select",
     "aiTitle": "Let AI find matches you might have missed",
     "aiSubtitle": "AI uses broader criteria and semantic matching to surface hidden gems",
