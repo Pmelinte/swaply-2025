@@ -99,10 +99,11 @@ export function UnifiedSideDrawer() {
       />
       <aside
         role="dialog"
-        aria-modal="true"
+        aria-modal={open ? "true" : undefined}
+        aria-hidden={open ? undefined : "true"}
         aria-label="Side drawer"
         className={`fixed left-0 top-0 z-50 flex h-full w-[320px] max-w-full flex-col bg-white shadow-2xl transition-transform duration-300 ease-in-out dark:bg-zinc-900 ${
-          open ? "translate-x-0" : "-translate-x-full"
+          open ? "translate-x-0" : "-translate-x-full pointer-events-none"
         }`}
       >
         {effectiveVariant.type === "home" && <DrawerHome />}
