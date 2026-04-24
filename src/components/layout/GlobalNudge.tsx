@@ -20,10 +20,14 @@ export function GlobalNudge() {
   }
 
   // Matching page handles its own onboarding; no nudge needed.
-  // Objects page already exposes an Add-object CTA in its header, so
-  // suppress the global nudge there to avoid a duplicate prompt.
+  // Other listing pages (objects, properties, services, events) already
+  // expose their own Add CTA in the header, so we suppress the global
+  // nudge there to avoid a duplicate prompt.
   if (pathname === "/matching" || pathname.startsWith("/matching/")) return null;
   if (pathname === "/objects" || pathname.startsWith("/objects/")) return null;
+  if (pathname === "/properties" || pathname.startsWith("/properties/")) return null;
+  if (pathname === "/services" || pathname.startsWith("/services/")) return null;
+  if (pathname === "/events" || pathname.startsWith("/events/")) return null;
 
   type NudgeConfig = { message: string; href: string; label: string; color: string };
   let nudge: NudgeConfig | null = null;
