@@ -1,27 +1,22 @@
 export const revalidate = 0;
 import dynamic from "next/dynamic";
-import { getServerSupabase } from "@/lib/supabase/server";
+import { getTranslations } from "next-intl/server";
 
-const ChatClient = dynamic(() => import("./ChatClient").then((m) => m.ChatClient));
+const ChatInbox = dynamic(
+  () => import("@/components/chat/ChatInbox").then((m) => m.ChatInbox),
+);
 
-export default async function ChatPage({
-  searchParams,
-}: {
-  searchParams?: Promise<Record<string, string | string[] | undefined>>;
-}) {
-  const resolvedSearch = (await searchParams) ?? {};
-  const rawTo = resolvedSearch.to;
-  const rawConversation = resolvedSearch.conversation;
-  const to = Array.isArray(rawTo) ? rawTo[0] : rawTo ?? null;
-  const conversationId = Array.isArray(rawConversation) ? rawConversation[0] : rawConversation ?? null;
+export default async function ChatInboxPage() {
+  const t = await getTranslations("chat.inbox");
 
-  const supabase = await getServerSupabase();
-  let isAuthenticated = false;
-
-  if (supabase) {
-    const { data: { user } } = await supabase.auth.getUser();
-    isAuthenticated = !!user;
-  }
-
-  return <ChatClient to={to} conversationId={conversationId} serverAuthenticated={isAuthenticated} />;
+  return (
+    <div className="mx-auto w-full max-w-2xl">
+      <div className="border-b border-zinc-100 px-4 py-3 dark:border-zinc-800">
+        <h1 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+          {t("title")}
+        </h1>
+      </div>
+      <ChatInbox />
+    </div>
+  );
 }

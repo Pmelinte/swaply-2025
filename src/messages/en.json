@@ -1026,7 +1026,27 @@
     "attachAudio": "Attach audio",
     "attachVideo": "Attach video",
     "contactInfoWarning": "Swaply recommends keeping communication on the platform for your protection",
-    "verified": "Verified"
+    "verified": "Verified",
+    "inbox": {
+      "title": "Messages",
+      "empty": "No conversations yet",
+      "lastMessage": "Last message"
+    },
+    "page": {
+      "back": "Back",
+      "online": "Online",
+      "offline": "Offline"
+    },
+    "input": {
+      "placeholder": "Type a message...",
+      "send": "Send",
+      "loginRequired": "Sign in to send messages"
+    },
+    "message": {
+      "you": "You",
+      "read": "Read",
+      "delivered": "Delivered"
+    }
   },
   "change": {
     "title": "Exchange flow (Swaply)",

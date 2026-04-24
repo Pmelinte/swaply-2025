@@ -1,6 +1,4 @@
 export const revalidate = 0;
-import { getServerSupabase } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
 import dynamic from "next/dynamic";
 
 const ChatPage = dynamic(
@@ -12,15 +10,6 @@ interface Props {
 }
 
 export default async function ConversationPage({ params }: Props) {
-  const { conversationId, locale } = await params;
-
-  const supabase = await getServerSupabase();
-  if (supabase) {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      redirect(`/${locale}/login?returnTo=/${locale}/chat/${conversationId}`);
-    }
-  }
-
+  const { conversationId } = await params;
   return <ChatPage conversationId={conversationId} />;
 }
