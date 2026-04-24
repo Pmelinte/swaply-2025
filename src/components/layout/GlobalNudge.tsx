@@ -29,14 +29,8 @@ export function GlobalNudge() {
   let nudge: NudgeConfig | null = null;
 
   if (!user) {
-    if (pathname !== "/login") {
-      nudge = {
-        message: tc("nudgeSignIn"),
-        href: "/login",
-        label: tc("nudgeLogin"),
-        color: "border-blue-200 bg-blue-50/80 text-blue-800 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200",
-      };
-    }
+    // TopBar already shows a prominent Login button for signed-out users,
+    // so we skip this nudge to avoid a duplicate CTA.
   } else if (!user.location?.city) {
     if (pathname !== "/profile") {
       nudge = {
