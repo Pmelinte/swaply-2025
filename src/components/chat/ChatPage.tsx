@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { getSupabaseClient } from "@/lib/supabase/client";
@@ -11,7 +11,11 @@ import { ChatAgenda } from "./ChatAgenda";
 import { ChatSummary } from "./ChatSummary";
 import { ChatDrawer } from "./drawer/ChatDrawer";
 import { useDrawerStore } from "@/lib/state/drawerStore";
-import { subscribeToConversation, broadcastTyping, markConversationRead } from "@/lib/chat/chatRealtime";
+import {
+  subscribeToConversation,
+  broadcastTyping,
+  markConversationRead,
+} from "@/lib/chat/chatRealtime";
 import {
   buildInitialAgenda,
   setAgendaItemStatus,
@@ -41,6 +45,54 @@ interface ConversationMeta {
   haikuPayload?: HaikuSummaryPayload | null;
 }
 
+interface DemoFixture {
+  partnerUsername: string;
+  partnerAvatar: string | null;
+  itemA: string;
+  itemB: string;
+  messages: (RealtimeMessage & { content: string })[];
+}
+
+const DEMO_CONVERSATIONS: Record<string, DemoFixture> = {
+  "demo-1": {
+    partnerUsername: "demo_user",
+    partnerAvatar: null,
+    itemA: "Laptop",
+    itemB: "Bicycle",
+    messages: [],
+  },
+  "demo-2": {
+    partnerUsername: "alex_demo",
+    partnerAvatar: null,
+    itemA: "Bicicletă Trek",
+    itemB: "Laptop Dell",
+    messages: [],
+  },
+  "demo-3": {
+    partnerUsername: "maria_demo",
+    partnerAvatar: null,
+    itemA: "Cameră foto Canon",
+    itemB: "Telefon Samsung",
+    messages: [],
+  },
+};
+
+function isDemoConversation(id: string): boolean {
+  return id.startsWith("demo-");
+}
+
+function getDemoFixture(id: string): DemoFixture {
+  return (
+    DEMO_CONVERSATIONS[id] ?? {
+      partnerUsername: id.replace(/^demo-/, "") || "demo_user",
+      partnerAvatar: null,
+      itemA: "Item A",
+      itemB: "Item B",
+      messages: [],
+    }
+  );
+}
+
 interface Props {
   conversationId: string;
 }
@@ -49,22 +101,50 @@ export function ChatPage({ conversationId }: Props) {
   const t = useTranslations("chat");
   const { user } = useAppState();
 
+  const demoMode = isDemoConversation(conversationId);
+  const demo = useMemo(
+    () => (demoMode ? getDemoFixture(conversationId) : null),
+    [demoMode, conversationId],
+  );
+
   const [meta, setMeta] = useState<ConversationMeta | null>(null);
   const [messages, setMessages] = useState<(RealtimeMessage & { content: string })[]>([]);
   const [agendaState, setAgendaState] = useState<AgendaState>(buildInitialAgenda());
   const [summary, setSummary] = useState<SwapSummary | null>(null);
   const [haikuPayload, setHaikuPayload] = useState<HaikuSummaryPayload | null>(null);
   const [partnerTyping, setPartnerTyping] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!demoMode);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const myRole: "userA" | "userB" =
     meta && user ? (meta.participantIds[0] === user.id ? "userA" : "userB") : "userA";
 
-  // ── Load conversation + messages ──
+  // ── Demo fixtures: skip Supabase fetch, seed local state ──
 
   useEffect(() => {
+    if (!demoMode || !demo) return;
+    const meId = user?.id ?? "demo-me";
+    const partnerId = `demo-partner-${conversationId}`;
+    setMeta({
+      id: conversationId,
+      participantIds: [meId, partnerId] as [string, string],
+      partnerId,
+      partnerName: demo.partnerUsername,
+      partnerAvatarUrl: demo.partnerAvatar,
+      partnerVerified: false,
+      swapId: null,
+      itemATitle: demo.itemA,
+      itemBTitle: demo.itemB,
+    });
+    setMessages(demo.messages);
+    setLoading(false);
+  }, [demoMode, demo, conversationId, user]);
+
+  // ── Load conversation + messages (real, authenticated) ──
+
+  useEffect(() => {
+    if (demoMode) return;
     if (!user || !conversationId) return;
 
     const supabase = getSupabaseClient();
@@ -81,9 +161,8 @@ export function ChatPage({ conversationId }: Props) {
           .maybeSingle();
 
         if (conv) {
-          const partnerId = (conv.participant_ids as string[]).find(
-            (id: string) => id !== user!.id,
-          ) ?? "";
+          const partnerId =
+            (conv.participant_ids as string[]).find((id: string) => id !== user!.id) ?? "";
 
           const { data: profile } = await sb
             .from("profiles")
@@ -91,7 +170,9 @@ export function ChatPage({ conversationId }: Props) {
             .eq("user_id", partnerId)
             .maybeSingle();
 
-          const rawSummary = conv.summary as (SwapSummary & { haiku?: HaikuSummaryPayload }) | null;
+          const rawSummary = conv.summary as
+            | (SwapSummary & { haiku?: HaikuSummaryPayload })
+            | null;
 
           setMeta({
             id: conv.id,
@@ -128,17 +209,19 @@ export function ChatPage({ conversationId }: Props) {
           .limit(200);
 
         if (msgs) {
-          setMessages(msgs.map((m: Record<string, unknown>) => ({
-            id: m.id as string,
-            struct_conv_id: (m.struct_conv_id ?? m.conversation_id) as string,
-            sender_id: (m.sender_id ?? m.senderId) as string,
-            content: (m.content as string) ?? "",
-            message_type: (m.message_type as string) ?? "text",
-            media_url: m.media_url as string | null,
-            media_type: m.media_type as string | null,
-            created_at: (m.created_at as string) ?? "",
-            read_by: (m.read_by as string[]) ?? [],
-          })));
+          setMessages(
+            msgs.map((m: Record<string, unknown>) => ({
+              id: m.id as string,
+              struct_conv_id: (m.struct_conv_id ?? m.conversation_id) as string,
+              sender_id: (m.sender_id ?? m.senderId) as string,
+              content: (m.content as string) ?? "",
+              message_type: (m.message_type as string) ?? "text",
+              media_url: m.media_url as string | null,
+              media_type: m.media_type as string | null,
+              created_at: (m.created_at as string) ?? "",
+              read_by: (m.read_by as string[]) ?? [],
+            })),
+          );
         }
 
         await markConversationRead(sb, conversationId, user!.id);
@@ -148,11 +231,12 @@ export function ChatPage({ conversationId }: Props) {
     }
 
     void load();
-  }, [conversationId, user]);
+  }, [conversationId, user, demoMode]);
 
-  // ── Realtime subscription ──
+  // ── Realtime subscription (skip for demos) ──
 
   useEffect(() => {
+    if (demoMode) return;
     if (!user || !conversationId) return;
     const supabase = getSupabaseClient();
     if (!supabase) return;
@@ -177,99 +261,133 @@ export function ChatPage({ conversationId }: Props) {
     );
 
     return unsubscribe;
-  }, [conversationId, user]);
+  }, [conversationId, user, demoMode]);
 
   // ── Send message ──
 
-  const handleSend = useCallback(async (text: string, media: PendingMedia | null) => {
-    if (!user || !conversationId) return;
-    const supabase = getSupabaseClient();
-    if (!supabase) return;
+  const handleSend = useCallback(
+    async (text: string, media: PendingMedia | null) => {
+      if (!conversationId) return;
 
-    const messageType = media?.type ?? "text";
+      if (demoMode) {
+        const local: RealtimeMessage & { content: string } = {
+          id: `demo-${Date.now()}`,
+          struct_conv_id: conversationId,
+          sender_id: user?.id ?? "demo-me",
+          content: text,
+          message_type: media?.type ?? "text",
+          media_url: media?.previewUrl ?? null,
+          media_type: media?.type ?? null,
+          created_at: new Date().toISOString(),
+          read_by: [],
+        };
+        setMessages((prev) => [...prev, local]);
+        return;
+      }
 
-    const optimistic: RealtimeMessage & { content: string } = {
-      id: `opt-${Date.now()}`,
-      struct_conv_id: conversationId,
-      sender_id: user.id,
-      content: text,
-      message_type: messageType,
-      media_url: media?.previewUrl ?? null,
-      media_type: media?.type ?? null,
-      created_at: new Date().toISOString(),
-      read_by: [],
-    };
-    setMessages((prev) => [...prev, optimistic]);
+      if (!user) return;
+      const supabase = getSupabaseClient();
+      if (!supabase) return;
 
-    const { data, error } = await supabase.from("messages").insert({
-      conversation_id: conversationId,
-      struct_conv_id: conversationId,
-      sender_id: user.id,
-      content: text,
-      message_type: messageType,
-      media_url: media?.previewUrl ?? null,
-    }).select("*").maybeSingle();
+      const messageType = media?.type ?? "text";
 
-    if (error) {
-      setMessages((prev) => prev.filter((m) => m.id !== optimistic.id));
-      return;
-    }
+      const optimistic: RealtimeMessage & { content: string } = {
+        id: `opt-${Date.now()}`,
+        struct_conv_id: conversationId,
+        sender_id: user.id,
+        content: text,
+        message_type: messageType,
+        media_url: media?.previewUrl ?? null,
+        media_type: media?.type ?? null,
+        created_at: new Date().toISOString(),
+        read_by: [],
+      };
+      setMessages((prev) => [...prev, optimistic]);
 
-    if (data) {
-      setMessages((prev) =>
-        prev.map((m) =>
-          m.id === optimistic.id ? { ...data, content: data.content ?? "" } : m,
-        ),
-      );
-    }
-  }, [user, conversationId]);
+      const { data, error } = await supabase
+        .from("messages")
+        .insert({
+          conversation_id: conversationId,
+          struct_conv_id: conversationId,
+          sender_id: user.id,
+          content: text,
+          message_type: messageType,
+          media_url: media?.previewUrl ?? null,
+        })
+        .select("*")
+        .maybeSingle();
+
+      if (error) {
+        setMessages((prev) => prev.filter((m) => m.id !== optimistic.id));
+        return;
+      }
+
+      if (data) {
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === optimistic.id ? { ...data, content: data.content ?? "" } : m,
+          ),
+        );
+      }
+    },
+    [user, conversationId, demoMode],
+  );
 
   // ── Typing broadcast ──
 
-  const handleTyping = useCallback((isTyping: boolean) => {
-    if (!user || !conversationId) return;
-    const supabase = getSupabaseClient();
-    if (!supabase) return;
-    broadcastTyping(supabase, conversationId, user.id, isTyping);
-  }, [user, conversationId]);
+  const handleTyping = useCallback(
+    (isTyping: boolean) => {
+      if (demoMode) return;
+      if (!user || !conversationId) return;
+      const supabase = getSupabaseClient();
+      if (!supabase) return;
+      broadcastTyping(supabase, conversationId, user.id, isTyping);
+    },
+    [user, conversationId, demoMode],
+  );
 
-  // ── Agenda toggle (checkbox-style) ──
+  // ── Agenda toggle ──
 
-  const handleToggleAgenda = useCallback(async (key: string, nextStatus: AgendaStatus) => {
-    if (!user || !conversationId) return;
-    const supabase = getSupabaseClient();
-    if (!supabase) return;
+  const handleToggleAgenda = useCallback(
+    async (key: string, nextStatus: AgendaStatus) => {
+      const newState = setAgendaItemStatus(agendaState, key, myRole, nextStatus);
+      setAgendaState(newState);
 
-    const newState = setAgendaItemStatus(agendaState, key, myRole, nextStatus);
-    setAgendaState(newState);
+      if (demoMode || !user) return;
 
-    await supabase
-      .from("conversations")
-      .update({ agenda_state: newState })
-      .eq("id", conversationId);
+      const supabase = getSupabaseClient();
+      if (!supabase) return;
 
-    if (nextStatus === "agreed") {
-      await supabase.from("messages").insert({
-        conversation_id: conversationId,
-        struct_conv_id: conversationId,
-        sender_id: user.id,
-        content: `✅ ${key}`,
-        message_type: "agenda_update",
-      });
-    }
-  }, [agendaState, myRole, user, conversationId]);
+      await supabase
+        .from("conversations")
+        .update({ agenda_state: newState })
+        .eq("id", conversationId);
 
-  // ── Summary generation via Claude Haiku (with kill switch) ──
+      if (nextStatus === "agreed") {
+        await supabase.from("messages").insert({
+          conversation_id: conversationId,
+          struct_conv_id: conversationId,
+          sender_id: user.id,
+          content: `✅ ${key}`,
+          message_type: "agenda_update",
+        });
+      }
+    },
+    [agendaState, myRole, user, conversationId, demoMode],
+  );
+
+  // ── Summary generation ──
 
   const handleGenerateSummary = useCallback(async () => {
-    if (!meta || !user) throw new Error("missing_context");
+    if (!meta) throw new Error("missing_context");
 
-    const agreedPoints = AGENDA_ITEMS
-      .filter((def) => isItemAgreed(agendaState, def.key, myRole))
-      .map((def) => ({ key: def.key, label: def.labelKey }));
+    const agreedPoints = AGENDA_ITEMS.filter((def) =>
+      isItemAgreed(agendaState, def.key, myRole),
+    ).map((def) => ({ key: def.key, label: def.labelKey }));
 
-    const userALabel = myRole === "userA" ? (user.displayName ?? "You") : meta.partnerName;
-    const userBLabel = myRole === "userB" ? (user.displayName ?? "You") : meta.partnerName;
+    const meLabel = user?.displayName ?? "You";
+    const userALabel = myRole === "userA" ? meLabel : meta.partnerName;
+    const userBLabel = myRole === "userB" ? meLabel : meta.partnerName;
 
     const res = await fetch("/api/chat/summary", {
       method: "POST",
@@ -283,23 +401,25 @@ export function ChatPage({ conversationId }: Props) {
       }),
     });
 
-    if (!res.ok) {
-      throw new Error("upstream_error");
-    }
+    if (!res.ok) throw new Error("upstream_error");
 
-    const json = (await res.json()) as { disabled?: boolean; summary?: HaikuSummaryPayload };
-    if (json.disabled) {
-      throw new Error("disabled");
-    }
-    if (!json.summary) {
-      throw new Error("invalid_response");
-    }
+    const json = (await res.json()) as {
+      disabled?: boolean;
+      summary?: HaikuSummaryPayload;
+    };
+    if (json.disabled) throw new Error("disabled");
+    if (!json.summary) throw new Error("invalid_response");
 
     const haiku = json.summary;
+    const meId = user?.id ?? meta.participantIds[0];
     const base = buildSummary(
       agendaState,
-      { id: "a", title: meta.itemATitle ?? "Item A", ownerId: user.id } as Parameters<typeof buildSummary>[1],
-      { id: "b", title: meta.itemBTitle ?? "Item B", ownerId: meta.partnerId } as Parameters<typeof buildSummary>[2],
+      { id: "a", title: meta.itemATitle ?? "Item A", ownerId: meId } as Parameters<
+        typeof buildSummary
+      >[1],
+      { id: "b", title: meta.itemBTitle ?? "Item B", ownerId: meta.partnerId } as Parameters<
+        typeof buildSummary
+      >[2],
       userALabel,
       userBLabel,
       myRole,
@@ -308,6 +428,7 @@ export function ChatPage({ conversationId }: Props) {
     setSummary(base);
     setHaikuPayload(haiku);
 
+    if (demoMode) return;
     const supabase = getSupabaseClient();
     if (supabase) {
       await supabase
@@ -315,17 +436,21 @@ export function ChatPage({ conversationId }: Props) {
         .update({ summary: { ...base, haiku } })
         .eq("id", conversationId);
     }
-  }, [meta, user, agendaState, myRole, conversationId]);
+  }, [meta, user, agendaState, myRole, conversationId, demoMode]);
 
-  // ── Approve summary (bilateral → redirect to exchange) ──
+  // ── Approve summary ──
 
   const handleApproveSummary = useCallback(async () => {
-    if (!summary || !user || !meta) return;
+    if (!summary || !meta) return;
+    const approverId = user?.id ?? meta.participantIds[0];
+
+    const updated = approveSummary(summary, approverId);
+    setSummary(updated);
+
+    if (demoMode || !user) return;
+
     const supabase = getSupabaseClient();
     if (!supabase) return;
-
-    const updated = approveSummary(summary, user.id);
-    setSummary(updated);
 
     const bothApproved = meta.participantIds.every((id) => updated.approvedBy.includes(id));
 
@@ -337,138 +462,103 @@ export function ChatPage({ conversationId }: Props) {
         ...(bothApproved ? { status: "agreed" } : {}),
       })
       .eq("id", conversationId);
-  }, [summary, haikuPayload, user, meta, conversationId]);
+  }, [summary, haikuPayload, user, meta, conversationId, demoMode]);
 
-  // Unauthenticated: render a demo skeleton with disabled input
-  if (!user) {
-    const demoMessages: (RealtimeMessage & { content: string })[] = [
-      {
-        id: "demo-m1",
-        struct_conv_id: conversationId,
-        sender_id: "demo-partner",
-        content: t("guestMockMsg1"),
-        message_type: "text",
-        created_at: new Date(Date.now() - 1000 * 60 * 10).toISOString(),
-        read_by: [],
-      },
-      {
-        id: "demo-m2",
-        struct_conv_id: conversationId,
-        sender_id: "demo-me",
-        content: t("guestMockMsg2"),
-        message_type: "text",
-        created_at: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
-        read_by: [],
-      },
-      {
-        id: "demo-m3",
-        struct_conv_id: conversationId,
-        sender_id: "demo-partner",
-        content: t("guestMockMsg3"),
-        message_type: "text",
-        created_at: new Date(Date.now() - 1000 * 60).toISOString(),
-        read_by: [],
-      },
-    ];
+  // ── Header props ──
 
-    return (
-      <div className="flex h-[calc(100vh-4rem)] flex-col">
-        <ChatHeader
-          partnerName={t("guestMockUser1")}
-          partnerAvatarUrl={null}
-          isPartnerVerified={false}
-          onOpenDrawer={() => undefined}
-        />
-        <div className="flex flex-1 overflow-hidden">
-          <div className="flex flex-1 flex-col overflow-hidden">
-            <ChatMessages
-              messages={demoMessages}
-              currentUserId="demo-me"
-              partnerTyping={false}
-              partnerName={t("guestMockUser1")}
-              loading={false}
-            />
-            <ChatInput
-              onSend={() => undefined}
-              onTyping={() => undefined}
-              loginRequired
-            />
-          </div>
-        </div>
-      </div>
-    );
+  const headerPartnerName = meta?.partnerName ?? demo?.partnerUsername ?? "...";
+  const headerAvatar = meta?.partnerAvatarUrl ?? demo?.partnerAvatar ?? null;
+  const headerVerified = meta?.partnerVerified ?? false;
+
+  function handleOpenDrawer() {
+    setDrawerOpen(true);
+    if (!demoMode) {
+      useDrawerStore.getState().openWith({ type: "chat", conversationId });
+    }
   }
 
-  const partnerName = meta?.partnerName ?? "...";
+  // ── Render ──
+
   const canGenerate = allRequiredAgreed(agendaState);
 
-  return (
-    <div className="flex h-[calc(100vh-4rem)] flex-col">
-      {/* Header */}
-      <ChatHeader
-        partnerName={partnerName}
-        partnerAvatarUrl={meta?.partnerAvatarUrl}
-        isPartnerVerified={meta?.partnerVerified}
-        onOpenDrawer={() => {
-          setDrawerOpen(true);
-          useDrawerStore.getState().openWith({ type: "chat", conversationId });
-        }}
+  const summaryElement =
+    meta && (user || demoMode) ? (
+      <ChatSummary
+        summary={summary}
+        haikuPayload={haikuPayload}
+        currentUserId={user?.id ?? "demo-me"}
+        partnerName={headerPartnerName}
+        participantIds={meta.participantIds}
+        canGenerate={canGenerate}
+        swapId={meta.swapId ?? null}
+        onGenerate={handleGenerateSummary}
+        onApprove={handleApproveSummary}
       />
+    ) : null;
 
-      {/* Main content area */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Chat zone */}
-        <div className="flex flex-1 flex-col overflow-hidden">
-          <ChatMessages
-            messages={messages}
-            currentUserId={user.id}
-            partnerTyping={partnerTyping}
-            partnerName={partnerName}
-            loading={loading}
+  // Guest (no user, no demo fixture) — show login prompt inline, but keep layout
+  const isGuest = !user && !demoMode;
+
+  return (
+    <div className="flex h-[calc(100vh-4rem)] flex-col bg-zinc-50 dark:bg-zinc-950">
+      {/* Main row: chat column + agenda sidebar (+ optional drawer) */}
+      <div className="flex min-h-0 flex-1">
+        {/* Chat column */}
+        <div className="flex min-w-0 flex-1 flex-col">
+          <ChatHeader
+            partnerName={headerPartnerName}
+            partnerAvatarUrl={headerAvatar}
+            isPartnerVerified={headerVerified}
+            onOpenDrawer={handleOpenDrawer}
           />
 
-          {meta && (
-            <div className="border-t border-zinc-100 px-4 py-3 dark:border-zinc-800">
-              <ChatSummary
-                summary={summary}
-                haikuPayload={haikuPayload}
-                currentUserId={user.id}
-                partnerName={partnerName}
-                participantIds={meta.participantIds}
-                canGenerate={canGenerate}
-                swapId={meta.swapId ?? null}
-                onGenerate={handleGenerateSummary}
-                onApprove={handleApproveSummary}
-              />
+          {isGuest ? (
+            <div className="flex flex-1 flex-col items-center justify-center gap-3 p-8 text-center">
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                {t("signInRequired")}
+              </p>
             </div>
+          ) : (
+            <ChatMessages
+              messages={messages}
+              currentUserId={user?.id ?? "demo-me"}
+              partnerTyping={partnerTyping}
+              partnerName={headerPartnerName}
+              loading={loading}
+            />
           )}
 
-          <ChatInput onSend={handleSend} onTyping={handleTyping} />
+          <ChatInput
+            onSend={handleSend}
+            onTyping={handleTyping}
+            loginRequired={isGuest}
+          />
         </div>
 
         {/* Agenda sidebar (desktop only) */}
-        <div className="hidden w-72 shrink-0 overflow-y-auto border-l border-zinc-100 p-3 dark:border-zinc-800 lg:block">
+        <aside className="hidden w-80 shrink-0 border-l border-zinc-100 dark:border-zinc-800 lg:block">
           <ChatAgenda
+            variant="sidebar"
             agendaState={agendaState}
             myRole={myRole}
-            partnerName={partnerName}
+            partnerName={headerPartnerName}
             onToggle={handleToggleAgenda}
             onGenerateSummary={() => {
               void handleGenerateSummary().catch(() => {
-                /* ChatSummary surfaces errors to the user */
+                /* ChatSummary surfaces errors */
               });
             }}
-            defaultOpen
+            summarySlot={summaryElement}
           />
-        </div>
+        </aside>
 
-        {/* Drawer (inline right panel when opened) */}
-        {drawerOpen && meta && (
+        {/* Right-side drawer (inline panel on xl+) */}
+        {drawerOpen && meta && !demoMode && (
           <div className="hidden w-80 shrink-0 overflow-y-auto border-l border-zinc-100 dark:border-zinc-800 xl:block">
             <ChatDrawer
               conversationId={conversationId}
               partnerId={meta.partnerId}
-              partnerName={partnerName}
+              partnerName={headerPartnerName}
               messages={messages}
               agendaState={agendaState}
               myRole={myRole}
@@ -478,18 +568,20 @@ export function ChatPage({ conversationId }: Props) {
         )}
       </div>
 
-      {/* Agenda accordion (mobile) */}
-      <div className="border-t border-zinc-100 p-2 dark:border-zinc-800 lg:hidden">
+      {/* Agenda accordion (mobile only) — lives below the main row */}
+      <div className="shrink-0 border-t border-zinc-100 bg-white p-2 dark:border-zinc-800 dark:bg-zinc-900 lg:hidden">
         <ChatAgenda
+          variant="accordion"
           agendaState={agendaState}
           myRole={myRole}
-          partnerName={partnerName}
+          partnerName={headerPartnerName}
           onToggle={handleToggleAgenda}
           onGenerateSummary={() => {
             void handleGenerateSummary().catch(() => {
-              /* ChatSummary surfaces errors to the user */
+              /* ChatSummary surfaces errors */
             });
           }}
+          summarySlot={summaryElement}
           defaultOpen={false}
         />
       </div>
