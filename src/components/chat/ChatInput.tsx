@@ -11,10 +11,12 @@ interface Props {
   onSend: (text: string, media: PendingMedia | null) => void;
   onTyping: (isTyping: boolean) => void;
   disabled?: boolean;
+  loginRequired?: boolean;
 }
 
-export function ChatInput({ onSend, onTyping, disabled }: Props) {
+export function ChatInput({ onSend, onTyping, disabled, loginRequired }: Props) {
   const t = useTranslations("chat");
+  const tInput = useTranslations("chat.input");
   const [text, setText] = useState("");
   const [pendingMedia, setPendingMedia] = useState<PendingMedia | null>(null);
   const [warning, setWarning] = useState<string | null>(null);
@@ -54,6 +56,9 @@ export function ChatInput({ onSend, onTyping, disabled }: Props) {
     }
   }
 
+  const isDisabled = disabled || loginRequired;
+  const placeholder = loginRequired ? tInput("loginRequired") : tInput("placeholder");
+
   return (
     <div className="border-t border-zinc-100 bg-white px-3 py-2 dark:border-zinc-800 dark:bg-zinc-900">
       {/* Contact info warning */}
@@ -64,7 +69,7 @@ export function ChatInput({ onSend, onTyping, disabled }: Props) {
       )}
 
       <div className="flex items-end gap-2">
-        {/* Media buttons */}
+        {/* Media buttons (TODO: enable in PR 7B) */}
         <ChatMediaUpload
           pending={pendingMedia}
           onMediaSelected={setPendingMedia}
@@ -76,10 +81,11 @@ export function ChatInput({ onSend, onTyping, disabled }: Props) {
           value={text}
           onChange={handleTextChange}
           onKeyDown={handleKeyDown}
-          placeholder={t("writeMessage")}
-          disabled={disabled}
+          placeholder={placeholder}
+          disabled={isDisabled}
           rows={1}
-          className="flex-1 resize-none rounded-2xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-800 placeholder-zinc-400 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
+          aria-label={tInput("placeholder")}
+          className="flex-1 resize-none rounded-2xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-800 placeholder-zinc-400 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-200 disabled:cursor-not-allowed disabled:opacity-60 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
           style={{ maxHeight: 120, overflowY: "auto" }}
         />
 
@@ -87,7 +93,8 @@ export function ChatInput({ onSend, onTyping, disabled }: Props) {
         <button
           type="button"
           onClick={handleSend}
-          disabled={disabled || (!text.trim() && !pendingMedia)}
+          disabled={isDisabled || (!text.trim() && !pendingMedia)}
+          aria-label={tInput("send")}
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white shadow hover:bg-blue-700 disabled:opacity-40"
         >
           <Send className="h-4 w-4" />

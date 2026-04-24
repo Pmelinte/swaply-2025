@@ -271,10 +271,62 @@ export function ChatPage({ conversationId }: Props) {
     await supabase.from("conversations").update({ summary: updated, summary_approved_by: updated.approvedBy }).eq("id", conversationId);
   }, [summary, user, conversationId]);
 
+  // Unauthenticated: render a demo skeleton with disabled input
   if (!user) {
+    const demoMessages: (RealtimeMessage & { content: string })[] = [
+      {
+        id: "demo-m1",
+        struct_conv_id: conversationId,
+        sender_id: "demo-partner",
+        content: t("guestMockMsg1"),
+        message_type: "text",
+        created_at: new Date(Date.now() - 1000 * 60 * 10).toISOString(),
+        read_by: [],
+      },
+      {
+        id: "demo-m2",
+        struct_conv_id: conversationId,
+        sender_id: "demo-me",
+        content: t("guestMockMsg2"),
+        message_type: "text",
+        created_at: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
+        read_by: [],
+      },
+      {
+        id: "demo-m3",
+        struct_conv_id: conversationId,
+        sender_id: "demo-partner",
+        content: t("guestMockMsg3"),
+        message_type: "text",
+        created_at: new Date(Date.now() - 1000 * 60).toISOString(),
+        read_by: [],
+      },
+    ];
+
     return (
-      <div className="flex items-center justify-center py-20">
-        <p className="text-sm text-zinc-400">{t("signInRequired")}</p>
+      <div className="flex h-[calc(100vh-4rem)] flex-col">
+        <ChatHeader
+          partnerName={t("guestMockUser1")}
+          partnerAvatarUrl={null}
+          isPartnerVerified={false}
+          onOpenDrawer={() => undefined}
+        />
+        <div className="flex flex-1 overflow-hidden">
+          <div className="flex flex-1 flex-col overflow-hidden">
+            <ChatMessages
+              messages={demoMessages}
+              currentUserId="demo-me"
+              partnerTyping={false}
+              partnerName={t("guestMockUser1")}
+              loading={false}
+            />
+            <ChatInput
+              onSend={() => undefined}
+              onTyping={() => undefined}
+              loginRequired
+            />
+          </div>
+        </div>
       </div>
     );
   }
