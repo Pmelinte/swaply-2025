@@ -3,7 +3,7 @@
 import { Link, usePathname } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
-import { Plus, Filter, MessageCircle, ArrowRight, MessageSquare, Coins, Plug } from "lucide-react";
+import { Filter, MessageCircle, ArrowRight, MessageSquare, Coins, Plug } from "lucide-react";
 
 export function ContextBar() {
   const pathname = usePathname();
@@ -51,14 +51,6 @@ export function ContextBar() {
     content = (
       <div className="flex items-center gap-3">
         <span>{t("itemsActive", { count: myItems.length })}</span>
-        <span className="text-zinc-300 dark:text-zinc-600">|</span>
-        <Link
-          href="/objects/new"
-          className="inline-flex items-center gap-1 font-semibold text-blue-600 hover:text-blue-800 dark:text-blue-400"
-        >
-          <Plus className="h-3 w-3" />
-          {t("addObject")}
-        </Link>
       </div>
     );
   } else if (

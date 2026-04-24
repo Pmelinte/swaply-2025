@@ -19,8 +19,11 @@ export function GlobalNudge() {
     return <div className="mx-auto mb-2 h-10 max-w-6xl" />;
   }
 
-  // Matching page handles its own onboarding; no nudge needed
+  // Matching page handles its own onboarding; no nudge needed.
+  // Objects page already exposes an Add-object CTA in its header, so
+  // suppress the global nudge there to avoid a duplicate prompt.
   if (pathname === "/matching" || pathname.startsWith("/matching/")) return null;
+  if (pathname === "/objects" || pathname.startsWith("/objects/")) return null;
 
   type NudgeConfig = { message: string; href: string; label: string; color: string };
   let nudge: NudgeConfig | null = null;
