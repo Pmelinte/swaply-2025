@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Settings } from "lucide-react";
 import { useAppState } from "@/lib/state";
@@ -9,8 +9,8 @@ import { ExchangeSummary } from "./ExchangeSummary";
 import { ExchangeServices } from "./ExchangeServices";
 import { ExchangePDFGenerator } from "./ExchangePDFGenerator";
 import { ExchangeConfirmation } from "./ExchangeConfirmation";
-import { useDrawerStore } from "@/lib/state/drawerStore";
-import { upsertService, SERVICE_DEFS } from "@/lib/exchange/exchangeServices";
+import { ExchangeDrawer } from "./ExchangeDrawer";
+import { upsertService, removeService, SERVICE_DEFS } from "@/lib/exchange/exchangeServices";
 import type { ServiceType, SupportService } from "@/lib/exchange/exchangeServices";
 import type { ExchangeSwap } from "@/lib/exchange/exchangeQuery";
 import type { SwapSummary } from "@/lib/chat/chatSummary";
@@ -19,15 +19,43 @@ interface Props {
   swapId: string;
 }
 
+const DEMO_SUMMARY: SwapSummary = {
+  generatedAt: new Date().toISOString(),
+  swapTitle: "Vintage Leather Jacket ↔ Mountain Bike Frame",
+  itemA: { id: "a", title: "Vintage Leather Jacket", owner: "you" },
+  itemB: { id: "b", title: "Mountain Bike Frame", owner: "alex" },
+  agreedItems: ["exchange_mode", "location", "escrow"],
+  pendingItems: [],
+  services: { escrow: true, insurance: false },
+  logistics: { exchangeMode: true, location: true, inPerson: false, deliveryAddresses: true },
+  approvedBy: [],
+};
+
+const DEMO_SWAP: ExchangeSwap = {
+  id: "demo-swap",
+  requesterId: "demo-you",
+  responderId: "demo-partner",
+  status: "active",
+  exchangeData: {},
+  pdfUrl: null,
+  confirmedBy: [],
+  completedAt: null,
+  conversationId: null,
+  summary: DEMO_SUMMARY,
+  requesterName: "you",
+  responderName: "alex",
+};
+
 export function ExchangePage({ swapId }: Props) {
-  const t = useTranslations("exchangePage");
+  const t = useTranslations("exchange");
   const { user } = useAppState();
-  const openDrawer = useDrawerStore((s) => s.openWith);
 
   const [swap, setSwap] = useState<ExchangeSwap | null>(null);
   const [summary, setSummary] = useState<SwapSummary | null>(null);
   const [myServices, setMyServices] = useState<SupportService[]>([]);
+  const [partnerServiceTypes, setPartnerServiceTypes] = useState<Set<ServiceType>>(new Set());
   const [loading, setLoading] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   // ── Load swap + services ──
   useEffect(() => {
@@ -66,7 +94,6 @@ export function ExchangePage({ swapId }: Props) {
           (profiles ?? []).map((p: Record<string, unknown>) => [p.user_id as string, p]),
         );
 
-        // Fetch conversation summary separately (avoid join that fails silently)
         let swapSummary: SwapSummary | null = null;
         const conversationId = row.conversation_id as string | null;
         if (conversationId) {
@@ -97,21 +124,21 @@ export function ExchangePage({ swapId }: Props) {
           responderName: (byId[responderId]?.display_name as string) ?? responderId.slice(0, 8),
         });
 
-        // Load my services
-        const { data: services, error: servicesError } = await sb
+        // Load services for both participants (needed for bilateral matching)
+        const { data: services } = await sb
           .from("swap_support_services")
           .select("*")
-          .eq("swap_id", swapId)
-          .eq("user_id", user!.id);
-        if (servicesError) {
-          console.error("[exchange] services lookup failed:", servicesError);
-        }
+          .eq("swap_id", swapId);
 
-        setMyServices(
-          (services ?? []).map((s: Record<string, unknown>) => ({
+        const mine: SupportService[] = [];
+        const partnerTypes = new Set<ServiceType>();
+
+        for (const s of (services ?? []) as Array<Record<string, unknown>>) {
+          const userId = String(s.user_id ?? "");
+          const svc: SupportService = {
             id: String(s.id ?? ""),
             swapId: String(s.swap_id ?? ""),
-            userId: String(s.user_id ?? ""),
+            userId,
             serviceType: s.service_type as ServiceType,
             isBilateral: !!(s.is_bilateral),
             provider: (s.provider as string) ?? null,
@@ -119,8 +146,16 @@ export function ExchangePage({ swapId }: Props) {
             costEur: (s.cost_eur as number) ?? null,
             status: (s.status as SupportService["status"]) ?? "pending",
             createdAt: String(s.created_at ?? ""),
-          })),
-        );
+          };
+          if (userId === user!.id) {
+            mine.push(svc);
+          } else {
+            partnerTypes.add(svc.serviceType);
+          }
+        }
+
+        setMyServices(mine);
+        setPartnerServiceTypes(partnerTypes);
       } finally {
         setLoading(false);
       }
@@ -128,17 +163,30 @@ export function ExchangePage({ swapId }: Props) {
     void load();
   }, [swapId, user]);
 
-  // ── Derive active service types ──
-  const activeServices: ServiceType[] = myServices.map((s) => s.serviceType);
+  // ── Derive active/bilateral service types ──
+  const activeServices = useMemo(
+    () => myServices.map((s) => s.serviceType),
+    [myServices],
+  );
 
-  // Services that are bilateral (agreed in chat)
-  const bilateralActive: ServiceType[] = [];
-  if (summary?.services.escrow) bilateralActive.push("escrow");
-  if (summary?.services.insurance) bilateralActive.push("insurance");
+  const agreedBilateral = useMemo(() => {
+    const out: ServiceType[] = [];
+    for (const def of SERVICE_DEFS) {
+      if (!def.bilateral) continue;
+      if (activeServices.includes(def.key) && partnerServiceTypes.has(def.key)) {
+        out.push(def.key);
+      }
+    }
+    return out;
+  }, [activeServices, partnerServiceTypes]);
 
-  // All shown = my active + bilateral not yet added individually
+  // Combined list: bilateral agreed in chat (auto-shown) + my individual selections
+  const bilateralFromChat: ServiceType[] = [];
+  if (summary?.services.escrow) bilateralFromChat.push("escrow");
+  if (summary?.services.insurance) bilateralFromChat.push("insurance");
+
   const shownServices: ServiceType[] = [
-    ...bilateralActive.filter((k) => !activeServices.includes(k)),
+    ...bilateralFromChat.filter((k) => !activeServices.includes(k)),
     ...activeServices,
   ];
 
@@ -164,6 +212,40 @@ export function ExchangePage({ swapId }: Props) {
     }
   }, [user, swapId]);
 
+  // ── Toggle service from drawer ──
+  const handleToggleService = useCallback(async (type: ServiceType) => {
+    if (!user) return;
+    const alreadyActive = activeServices.includes(type);
+    if (alreadyActive) {
+      await removeService(swapId, user.id, type);
+      setMyServices((prev) => prev.filter((s) => s.serviceType !== type));
+    } else {
+      const def = SERVICE_DEFS.find((s) => s.key === type);
+      const result = await upsertService(swapId, user.id, type, {}, def?.bilateral ?? false);
+      if (result) setMyServices((prev) => [...prev, result]);
+    }
+  }, [user, swapId, activeServices]);
+
+  // ── Unauthenticated: demo view (no redirects, no side-effects) ──
+  if (!user) {
+    return (
+      <div className="mx-auto max-w-2xl space-y-6 px-4 py-6">
+        <div className="rounded-2xl border border-amber-200 bg-amber-50/40 px-4 py-3 text-sm text-amber-800 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-300">
+          {t("loginRequired")}
+        </div>
+        <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
+          🔄 {t("pageTitle")}
+        </h1>
+        <ExchangeSummary swap={DEMO_SWAP} summary={DEMO_SUMMARY} myRole="requester" />
+        <ExchangeServices
+          swapId={swapId}
+          activeServices={["escrow"] as ServiceType[]}
+          onSave={async () => undefined}
+        />
+      </div>
+    );
+  }
+
   if (loading) {
     return <div className="p-8 text-center text-zinc-400">{t("loadingSwap")}</div>;
   }
@@ -172,7 +254,7 @@ export function ExchangePage({ swapId }: Props) {
     return <div className="p-8 text-center text-zinc-400">{t("notFound")}</div>;
   }
 
-  if (!user || (swap.requesterId !== user.id && swap.responderId !== user.id)) {
+  if (swap.requesterId !== user.id && swap.responderId !== user.id) {
     return <div className="p-8 text-center text-zinc-400">{t("notParticipant")}</div>;
   }
 
@@ -180,43 +262,53 @@ export function ExchangePage({ swapId }: Props) {
   const partnerName = myRole === "requester" ? (swap.responderName ?? "") : (swap.requesterName ?? "");
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6 px-4 py-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
-          🔄 {t("pageTitle")}
-        </h1>
-        <button
-          type="button"
-          onClick={() => openDrawer({ type: "exchange", swapId })}
-          className="flex items-center gap-1.5 rounded-xl border border-zinc-200 px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-800"
-        >
-          <Settings className="h-4 w-4" />
-          {t("servicesTitle")}
-        </button>
+    <div className="mx-auto flex max-w-5xl gap-6 px-4 py-6">
+      <div className="min-w-0 flex-1 space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
+            🔄 {t("pageTitle")}
+          </h1>
+          <button
+            type="button"
+            onClick={() => setDrawerOpen((v) => !v)}
+            className="flex items-center gap-1.5 rounded-xl border border-zinc-200 px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-800"
+          >
+            <Settings className="h-4 w-4" />
+            {t("drawer.title")}
+          </button>
+        </div>
+
+        <ExchangeSummary swap={swap} summary={summary} myRole={myRole} />
+
+        <ExchangeServices
+          swapId={swapId}
+          activeServices={shownServices}
+          onSave={handleSave}
+        />
+
+        <ExchangePDFGenerator swapId={swapId} initialPdfUrl={swap.pdfUrl ?? null} />
+
+        <ExchangeConfirmation
+          swapId={swapId}
+          myUserId={user.id}
+          partnerName={partnerName}
+          confirmedBy={swap.confirmedBy}
+          participantIds={[swap.requesterId, swap.responderId]}
+        />
       </div>
 
-      {/* Summary */}
-      <ExchangeSummary swap={swap} summary={summary} myRole={myRole} />
-
-      {/* Services */}
-      <ExchangeServices
-        swapId={swapId}
-        activeServices={shownServices}
-        onSave={handleSave}
-      />
-
-      {/* PDF */}
-      <ExchangePDFGenerator swapId={swapId} />
-
-      {/* Confirmation + Feedback */}
-      <ExchangeConfirmation
-        swapId={swapId}
-        myUserId={user.id}
-        partnerName={partnerName}
-        confirmedBy={swap.confirmedBy}
-        participantIds={[swap.requesterId, swap.responderId]}
-      />
+      {/* Inline drawer (desktop only) */}
+      {drawerOpen && (
+        <aside className="hidden w-72 shrink-0 rounded-2xl border border-zinc-200 dark:border-zinc-700 lg:block">
+          <ExchangeDrawer
+            activeServices={activeServices}
+            agreedBilateral={agreedBilateral}
+            onToggle={handleToggleService}
+            onClose={() => setDrawerOpen(false)}
+          />
+        </aside>
+      )}
     </div>
   );
 }

@@ -35,6 +35,8 @@ function StarRating({ value, onChange }: { value: number; onChange: (v: number) 
   );
 }
 
+const RATING_FIELDS = ["overall", "communication", "accuracy", "promptness"] as const;
+
 export function ExchangeConfirmation({
   swapId,
   myUserId,
@@ -42,7 +44,7 @@ export function ExchangeConfirmation({
   confirmedBy,
   participantIds,
 }: Props) {
-  const t = useTranslations("exchangePage");
+  const t = useTranslations("exchange.confirmation");
   const router = useRouter();
 
   const alreadyConfirmed = confirmedBy.includes(myUserId);
@@ -51,7 +53,12 @@ export function ExchangeConfirmation({
   const [confirming, setConfirming] = useState(false);
   const [confirmed, setConfirmed] = useState(alreadyConfirmed);
 
-  const [ratings, setRatings] = useState({ overall: 0, communication: 0, accuracy: 0, punctuality: 0 });
+  const [ratings, setRatings] = useState<Record<(typeof RATING_FIELDS)[number], number>>({
+    overall: 0,
+    communication: 0,
+    accuracy: 0,
+    promptness: 0,
+  });
   const [comment, setComment] = useState("");
   const [submittingReview, setSubmittingReview] = useState(false);
   const [reviewDone, setReviewDone] = useState(false);
@@ -72,10 +79,15 @@ export function ExchangeConfirmation({
   async function handleSubmitReview() {
     if (!ratings.overall) return;
     setSubmittingReview(true);
-    await submitReview(swapId, myUserId, partnerId, ratings, comment);
+    await submitReview(swapId, myUserId, partnerId, {
+      overall: ratings.overall,
+      communication: ratings.communication,
+      accuracy: ratings.accuracy,
+      punctuality: ratings.promptness,
+    }, comment);
     setReviewDone(true);
     setSubmittingReview(false);
-    setTimeout(() => router.push("/profile"), 1500);
+    setTimeout(() => router.push("/profile?swap=completed"), 1500);
   }
 
   return (
@@ -83,11 +95,13 @@ export function ExchangeConfirmation({
       {/* Confirm section */}
       <div className="rounded-2xl border border-green-200 bg-green-50/40 p-5 dark:border-green-900/40 dark:bg-green-950/10">
         <h3 className="mb-3 flex items-center gap-2 font-semibold text-zinc-900 dark:text-zinc-50">
-          ✅ {t("confirmTitle")}
+          ✅ {t("title")}
         </h3>
 
         {confirmed ? (
-          <p className="text-sm font-medium text-green-700 dark:text-green-400">✅ {t("alreadyConfirmed")}</p>
+          <p className="text-sm font-medium text-green-700 dark:text-green-400">
+            ✅ {t("alreadyConfirmed")}
+          </p>
         ) : (
           <>
             <label className="mb-2 flex cursor-pointer items-start gap-2 text-sm text-zinc-700 dark:text-zinc-300">
@@ -97,7 +111,7 @@ export function ExchangeConfirmation({
                 onChange={(e) => setCheckedReceived(e.target.checked)}
                 className="mt-0.5"
               />
-              {t("confirmReceived")}
+              {t("received")}
             </label>
             <label className="mb-4 flex cursor-pointer items-start gap-2 text-sm text-zinc-700 dark:text-zinc-300">
               <input
@@ -106,7 +120,7 @@ export function ExchangeConfirmation({
                 onChange={(e) => setCheckedRead(e.target.checked)}
                 className="mt-0.5"
               />
-              {t("confirmRead")}
+              {t("accepted")}
             </label>
             <button
               type="button"
@@ -114,7 +128,7 @@ export function ExchangeConfirmation({
               disabled={!checkedReceived || !checkedRead || confirming}
               className="w-full rounded-xl bg-green-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-60"
             >
-              {confirming ? "…" : t("confirmButton")}
+              {confirming ? "…" : t("confirm")}
             </button>
           </>
         )}
@@ -127,13 +141,15 @@ export function ExchangeConfirmation({
         </h3>
 
         {reviewDone ? (
-          <p className="text-sm font-medium text-green-700 dark:text-green-400">✅ {t("reviewSubmitted")}</p>
+          <p className="text-sm font-medium text-green-700 dark:text-green-400">
+            ✅ {t("submitted")}
+          </p>
         ) : (
           <div className="space-y-3">
-            {(["overall", "communication", "accuracy", "punctuality"] as const).map((cat) => (
+            {RATING_FIELDS.map((cat) => (
               <div key={cat} className="flex items-center justify-between">
                 <span className="text-sm text-zinc-600 dark:text-zinc-300">
-                  {t(`rating${cat.charAt(0).toUpperCase()}${cat.slice(1)}` as Parameters<typeof t>[0])}
+                  {t(`rating.${cat}`)}
                 </span>
                 <StarRating
                   value={ratings[cat]}
@@ -158,7 +174,7 @@ export function ExchangeConfirmation({
               disabled={!ratings.overall || submittingReview}
               className="w-full rounded-xl bg-yellow-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-yellow-600 disabled:opacity-60"
             >
-              {submittingReview ? "…" : t("submitFeedback")}
+              {submittingReview ? "…" : `${t("submit")} →`}
             </button>
           </div>
         )}

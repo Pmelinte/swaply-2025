@@ -18,7 +18,7 @@ interface Props {
 }
 
 export function ExchangeServices({ swapId, activeServices, partnerCity, agreedDate, onSave }: Props) {
-  const t = useTranslations("exchangePage");
+  const t = useTranslations("exchange.services");
 
   if (activeServices.length === 0) {
     return (

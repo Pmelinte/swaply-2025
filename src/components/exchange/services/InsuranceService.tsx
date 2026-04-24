@@ -8,13 +8,13 @@ interface Props {
 }
 
 const PLANS = [
-  { key: "basic",    costEur: 1.99, coverageKey: "insuranceCoverageBasic" },
-  { key: "standard", costEur: 3.99, coverageKey: "insuranceCoverageStandard" },
-  { key: "premium",  costEur: 7.99, coverageKey: "insuranceCoveragePremium" },
+  { key: "basic",    costEur: 1.99, coverageKey: "coverageBasic" },
+  { key: "standard", costEur: 3.99, coverageKey: "coverageStandard" },
+  { key: "premium",  costEur: 7.99, coverageKey: "coveragePremium" },
 ];
 
 export function InsuranceService({ onSave }: Props) {
-  const t = useTranslations("exchangePage");
+  const t = useTranslations("exchange.insurance");
   const [value, setValue] = useState("");
   const [plan, setPlan] = useState("basic");
   const [saving, setSaving] = useState(false);
@@ -29,11 +29,11 @@ export function InsuranceService({ onSave }: Props) {
   return (
     <div className="space-y-4">
       <h3 className="flex items-center gap-2 font-semibold text-zinc-900 dark:text-zinc-50">
-        🛡️ {t("insuranceTitle")}
+        🛡️ {t("title")}
       </h3>
 
       <div>
-        <p className="mb-1 text-xs font-medium text-zinc-600 dark:text-zinc-300">{t("insuranceValue")}</p>
+        <p className="mb-1 text-xs font-medium text-zinc-600 dark:text-zinc-300">{t("value")}</p>
         <div className="flex items-center gap-2">
           <span className="text-sm text-zinc-500">€</span>
           <input
@@ -63,7 +63,7 @@ export function InsuranceService({ onSave }: Props) {
               {p.key.charAt(0).toUpperCase() + p.key.slice(1)} — €{p.costEur}
             </span>
             <span className="text-xs text-zinc-400">
-              {t(p.coverageKey as Parameters<typeof t>[0])}
+              {t(p.coverageKey)}
             </span>
           </button>
         ))}
@@ -75,7 +75,7 @@ export function InsuranceService({ onSave }: Props) {
         disabled={saving || !value}
         className="w-full rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
       >
-        {saving ? "…" : t("activateInsurance")}
+        {saving ? "…" : `${t("activate")} →`}
       </button>
     </div>
   );

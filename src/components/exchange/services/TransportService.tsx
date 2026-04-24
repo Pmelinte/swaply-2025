@@ -10,7 +10,7 @@ interface Props {
 const COURIERS = ["FanCourier", "DPD", "GLS", "Cargus", "Other"];
 
 export function TransportService({ onSave }: Props) {
-  const t = useTranslations("exchangePage");
+  const t = useTranslations("exchange.transport");
   const [courier, setCourier] = useState("FanCourier");
   const [pickup, setPickup] = useState("");
   const [delivery, setDelivery] = useState("");
@@ -25,7 +25,7 @@ export function TransportService({ onSave }: Props) {
   return (
     <div className="space-y-4">
       <h3 className="flex items-center gap-2 font-semibold text-zinc-900 dark:text-zinc-50">
-        🚚 {t("transportTitle")}
+        🚚 {t("title")}
       </h3>
 
       <div className="flex flex-wrap gap-2">
@@ -71,7 +71,7 @@ export function TransportService({ onSave }: Props) {
         disabled={saving || !pickup || !delivery}
         className="w-full rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
       >
-        {saving ? "…" : t("orderPickup")}
+        {saving ? "…" : `${t("orderPickup")} →`}
       </button>
     </div>
   );
