@@ -14,7 +14,8 @@ interface Props {
 }
 
 export default function DrawerExchange({ swapId }: Props) {
-  const t = useTranslations("exchangePage");
+  const t = useTranslations("exchange.drawer");
+  const tServices = useTranslations("exchange.services");
   const close = useDrawerStore((s) => s.close);
   const { user } = useAppState();
 
@@ -73,7 +74,7 @@ export default function DrawerExchange({ swapId }: Props) {
   );
 
   const groups = [
-    { key: "bilateral" as const, label: t("bilateral") },
+    { key: "bilateral" as const,  label: t("bilateral") },
     { key: "individual" as const, label: t("individual") },
     { key: "additional" as const, label: t("additional") },
   ];
@@ -82,7 +83,7 @@ export default function DrawerExchange({ swapId }: Props) {
     <>
       {/* Header */}
       <div className="flex items-center justify-between border-b border-zinc-100 px-4 py-3 dark:border-zinc-800">
-        <h2 className="text-sm font-bold text-zinc-900 dark:text-zinc-50">⚙️ {t("servicesTitle")}</h2>
+        <h2 className="text-sm font-bold text-zinc-900 dark:text-zinc-50">⚙️ {t("title")}</h2>
         <button
           type="button"
           onClick={close}
@@ -123,7 +124,7 @@ export default function DrawerExchange({ swapId }: Props) {
                             : "text-zinc-500"
                         }`}
                       >
-                        {t(svc.labelKey as Parameters<typeof t>[0])}
+                        {tServices(svc.labelKey)}
                       </span>
                       {isBilateralOn && (
                         <span className="ml-auto rounded-full bg-green-100 px-1.5 py-0.5 text-[9px] font-semibold text-green-700 dark:bg-green-900/30 dark:text-green-400">

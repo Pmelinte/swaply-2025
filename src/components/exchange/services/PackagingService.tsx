@@ -10,7 +10,8 @@ interface Props {
 const OPTIONS = ["standard", "premium", "original", "fragile"] as const;
 
 export function PackagingService({ onSave }: Props) {
-  const t = useTranslations("exchangePage");
+  const t = useTranslations("exchange.packaging");
+  const tCommon = useTranslations("common");
   const [option, setOption] = useState<string>("standard");
   const [dims, setDims] = useState({ l: "", w: "", h: "", kg: "" });
   const [notes, setNotes] = useState("");
@@ -25,7 +26,7 @@ export function PackagingService({ onSave }: Props) {
   return (
     <div className="space-y-4">
       <h3 className="flex items-center gap-2 font-semibold text-zinc-900 dark:text-zinc-50">
-        📦 {t("packagingTitle")}
+        📦 {t("title")}
       </h3>
 
       <div className="grid grid-cols-2 gap-2">
@@ -40,7 +41,7 @@ export function PackagingService({ onSave }: Props) {
                 : "border-zinc-200 text-zinc-500 hover:border-zinc-400 dark:border-zinc-700"
             }`}
           >
-            {t(`packaging${opt.charAt(0).toUpperCase()}${opt.slice(1)}` as Parameters<typeof t>[0])}
+            {t(opt)}
           </button>
         ))}
       </div>
@@ -84,7 +85,7 @@ export function PackagingService({ onSave }: Props) {
         disabled={saving}
         className="w-full rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
       >
-        {saving ? "…" : "💾 Save packaging"}
+        {saving ? "…" : `💾 ${tCommon("save")}`}
       </button>
     </div>
   );

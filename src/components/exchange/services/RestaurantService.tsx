@@ -9,7 +9,7 @@ interface Props {
 }
 
 export function RestaurantService({ partnerCity = "", agreedDate = "" }: Props) {
-  const t = useTranslations("exchangePage");
+  const t = useTranslations("exchange.restaurant");
   const [date, setDate] = useState(agreedDate ? agreedDate.slice(0, 10) : "");
   const [time, setTime] = useState("19:00");
   const [guests, setGuests] = useState("2");
@@ -20,7 +20,7 @@ export function RestaurantService({ partnerCity = "", agreedDate = "" }: Props) 
   return (
     <div className="space-y-4">
       <h3 className="flex items-center gap-2 font-semibold text-zinc-900 dark:text-zinc-50">
-        🍽️ {t("restaurantTitle")} {partnerCity && <span className="text-blue-600">{partnerCity}</span>}
+        🍽️ {t("title")} {partnerCity && <span className="text-blue-600">{partnerCity}</span>}
       </h3>
 
       <div className="grid grid-cols-3 gap-2">

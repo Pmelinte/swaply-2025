@@ -11,7 +11,7 @@ interface Props {
 }
 
 export function ExchangeSummary({ swap, summary, myRole }: Props) {
-  const t = useTranslations("exchangePage");
+  const t = useTranslations("exchange.summary");
 
   const myName = myRole === "requester" ? swap.requesterName : swap.responderName;
   const partnerName = myRole === "requester" ? swap.responderName : swap.requesterName;
@@ -71,6 +71,9 @@ export function ExchangeSummary({ swap, summary, myRole }: Props) {
       {/* Bilateral services */}
       {summary && (summary.services.escrow || summary.services.insurance) && (
         <div className="space-y-1">
+          <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-zinc-400">
+            {t("bilateralServices")}
+          </p>
           {summary.services.escrow && (
             <p className="flex items-center gap-1.5 text-sm text-green-700 dark:text-green-400">
               <span className="text-base">✅</span> {t("escrowAgreed")}

@@ -1,8 +1,7 @@
 export const dynamic = "force-dynamic";
 
-import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { Link } from "@/i18n/navigation";
+import { Link, redirect } from "@/i18n/navigation";
 import { getServerSupabase } from "@/lib/supabase/server";
 import { Sparkles, ArrowRight } from "lucide-react";
 
@@ -80,7 +79,6 @@ async function loadActiveSwaps(userId: string): Promise<ActiveSwap[]> {
     const resId = String(r.responder_id ?? "");
     const isRequester = reqId === userId;
     const partnerId = isRequester ? resId : reqId;
-    // Requester owns offered_item_id, responder owns requested_item_id.
     const myItemId = String((isRequester ? r.offered_item_id : r.requested_item_id) ?? "");
     const partnerItemId = String((isRequester ? r.requested_item_id : r.offered_item_id) ?? "");
     return {
@@ -94,35 +92,48 @@ async function loadActiveSwaps(userId: string): Promise<ActiveSwap[]> {
   });
 }
 
+const DEMO_SWAPS: ActiveSwap[] = [
+  {
+    id: "demo-swap-1",
+    status: "active",
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(),
+    partnerName: "alex",
+    myItemTitle: "Vintage Leather Jacket",
+    partnerItemTitle: "Mountain Bike Frame",
+  },
+  {
+    id: "demo-swap-2",
+    status: "pending",
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString(),
+    partnerName: "maria",
+    myItemTitle: "Acoustic Guitar",
+    partnerItemTitle: "DSLR Camera",
+  },
+];
+
 export default async function ExchangeIndexPage({
   params,
 }: {
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  const t = await getTranslations("exchange");
 
   const supabase = await getServerSupabase();
-  if (!supabase) {
-    redirect(`/${locale}/login?returnTo=/${locale}/exchange`);
+  let user: { id: string } | null = null;
+  if (supabase) {
+    const { data } = await supabase.auth.getUser();
+    user = data.user ? { id: data.user.id } : null;
   }
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const swaps = user ? await loadActiveSwaps(user.id) : DEMO_SWAPS;
 
-  if (!user) {
-    redirect(`/${locale}/login?returnTo=/${locale}/exchange`);
+  // Auto-navigate to single active swap for authenticated users
+  if (user && swaps.length === 1) {
+    redirect({ href: `/exchange/${swaps[0].id}`, locale });
   }
 
-  const swaps = await loadActiveSwaps(user.id);
-
-  if (swaps.length === 1) {
-    redirect(`/${locale}/exchange/${swaps[0].id}`);
-  }
-
-  const t = await getTranslations("exchangePage");
-
-  if (swaps.length === 0) {
+  if (user && swaps.length === 0) {
     return (
       <div className="mx-auto flex min-h-[50vh] max-w-2xl flex-col items-center justify-center gap-6 px-4 py-12 text-center">
         <div className="rounded-full bg-blue-100 p-5 dark:bg-blue-900/30">
@@ -150,6 +161,11 @@ export default async function ExchangeIndexPage({
       <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
         {t("listTitle")}
       </h1>
+      {!user && (
+        <p className="rounded-xl border border-blue-200 bg-blue-50/40 px-4 py-3 text-sm text-blue-800 dark:border-blue-900/40 dark:bg-blue-950/20 dark:text-blue-300">
+          {t("loginRequired")}
+        </p>
+      )}
       <ul className="space-y-3">
         {swaps.map((swap) => (
           <li key={swap.id}>
