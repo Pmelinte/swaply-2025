@@ -1024,7 +1024,110 @@
     "attachAudio": "Attach audio",
     "attachVideo": "Attach video",
     "contactInfoWarning": "Swaply recommends keeping communication on the platform for your protection",
-    "verified": "Verified"
+    "verified": "Verified",
+    "inbox": {
+      "title": "Mesaje",
+      "empty": "Nu ai conversații încă",
+      "lastMessage": "Ultimul mesaj"
+    },
+    "page": {
+      "back": "Înapoi",
+      "online": "Online",
+      "offline": "Offline"
+    },
+    "input": {
+      "placeholder": "Scrie un mesaj...",
+      "send": "Trimite",
+      "loginRequired": "Autentifică-te pentru a trimite mesaje"
+    },
+    "message": {
+      "you": "Tu",
+      "read": "Citit",
+      "delivered": "Livrat"
+    },
+    "agenda": {
+      "title": "Agendă schimb",
+      "you": "Tu",
+      "progress": "Progres",
+      "sections": {
+        "items": "Obiecte",
+        "exchange": "Schimb",
+        "bilateral": "Acord bilateral",
+        "individual": "Individual",
+        "final": "Detalii finale"
+      },
+      "status": {
+        "unchecked": "În așteptare",
+        "in_discussion": "În discuție",
+        "agreed": "Agreat"
+      },
+      "bilateral": {
+        "youAgreed": "Tu ai agreat",
+        "waitingFor": "Aștept"
+      },
+      "generateSummary": "Generează rezumat",
+      "generateSummaryHint": "Toate punctele obligatorii trebuie agreate mai întâi",
+      "summaryDisabled": "Generarea rezumatului este temporar dezactivată.",
+      "approveSummary": "Aprobă rezumatul",
+      "approved": "Tu ai aprobat",
+      "waitingApproval": "Așteptăm aprobarea",
+      "agendaItemADetails": "Detalii obiect A",
+      "agendaItemAMedia": "Fotografii/video obiect A",
+      "agendaItemBDetails": "Detalii obiect B",
+      "agendaItemBMedia": "Fotografii/video obiect B",
+      "agendaExchangeMode": "Modalitate schimb",
+      "agendaLocation": "Locație / metodă livrare",
+      "agendaPackaging": "Ambalare",
+      "agendaEscrow": "Escrow",
+      "agendaInsurance": "Asigurare",
+      "agendaTransportA": "Transport (tu)",
+      "agendaTransportB": "Transport (partener)",
+      "agendaAccommodationA": "Cazare (tu)",
+      "agendaAccommodationB": "Cazare (partener)",
+      "agendaRestaurant": "Rezervare restaurant",
+      "agendaInPerson": "Întâlnire în persoană",
+      "agendaDeliveryAddresses": "Adrese livrare"
+    },
+    "summary": {
+      "title": "Rezumat schimb",
+      "itemA": "Obiect A",
+      "itemB": "Obiect B",
+      "escrow": "Escrow",
+      "insurance": "Asigurare",
+      "inPerson": "În persoană",
+      "exchangeMode": "Modalitate schimb",
+      "location": "Locație",
+      "services": "Servicii",
+      "date": "Dată agreată",
+      "youApproved": "Tu ai aprobat",
+      "waitingYou": "Așteptăm aprobarea ta",
+      "approved": "a aprobat",
+      "approvedSuffix": "a aprobat",
+      "waitingPartner": "Așteptăm {name}",
+      "approve": "Aprobă și mergi la Exchange",
+      "goToExchange": "Ambii au aprobat — mergi la Exchange"
+    },
+    "drawer": {
+      "history": "Istoric",
+      "documents": "Documente",
+      "profile": "Profil",
+      "agreements": "Acorduri",
+      "progress": "{agreed} din {total} puncte agreate",
+      "noHistory": "Nu există conversații anterioare",
+      "withSameUser": "Cu același utilizator",
+      "otherConversations": "Alte conversații",
+      "noDocuments": "Nu ai fișiere partajate încă",
+      "images": "Imagini",
+      "audio": "Mesaje audio",
+      "video": "Videoclipuri",
+      "noProfile": "Profil indisponibil",
+      "verifications": "Verificări",
+      "phone": "Telefon",
+      "idVerified": "Identitate verificată",
+      "completedSwaps": "Schimburi finalizate",
+      "responseRate": "Rată de răspuns",
+      "noMessages": "Niciun mesaj încă"
+    }
   },
   "change": {
     "title": "Flux schimb (Swaply)",
