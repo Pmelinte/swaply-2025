@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { agendaProgress, AGENDA_ITEMS } from "@/lib/chat/chatAgenda";
-import type { AgendaState } from "@/lib/chat/chatAgenda";
+import type { AgendaState, AgendaStatus } from "@/lib/chat/chatAgenda";
 
 interface Props {
   agendaState: AgendaState;
@@ -10,14 +10,15 @@ interface Props {
   partnerName: string;
 }
 
-const STATUS_ICON: Record<string, string> = {
+const STATUS_ICON: Record<AgendaStatus, string> = {
   unchecked: "☐",
   in_discussion: "🔄",
   agreed: "✅",
 };
 
 export function ChatDrawerAgreements({ agendaState, myRole, partnerName }: Props) {
-  const t = useTranslations("chatAgenda");
+  const t = useTranslations("chat.agenda");
+  const tDrawer = useTranslations("chat.drawer");
   const { agreed, total } = agendaProgress(agendaState);
 
   const partnerRole = myRole === "userA" ? "userB" : "userA";
@@ -27,7 +28,9 @@ export function ChatDrawerAgreements({ agendaState, myRole, partnerName }: Props
       {/* Progress */}
       <div>
         <div className="mb-1 flex items-center justify-between text-sm">
-          <span className="font-medium text-zinc-700 dark:text-zinc-200">{t("progress")}</span>
+          <span className="font-medium text-zinc-700 dark:text-zinc-200">
+            {tDrawer("progress", { agreed, total })}
+          </span>
           <span className="font-bold text-blue-600">{agreed}/{total}</span>
         </div>
         <div className="h-2 w-full rounded-full bg-zinc-100 dark:bg-zinc-800">
@@ -52,11 +55,11 @@ export function ChatDrawerAgreements({ agendaState, myRole, partnerName }: Props
               className="flex items-center justify-between rounded-xl border border-zinc-100 px-3 py-1.5 dark:border-zinc-800"
             >
               <p className="text-xs text-zinc-700 dark:text-zinc-300">
-                {t(item.labelKey as keyof object)}
+                {t(item.labelKey)}
               </p>
               {item.bilateral ? (
                 <div className="flex items-center gap-1 text-[10px]">
-                  <span title="You">{STATUS_ICON[myStatus]}</span>
+                  <span title={t("you")}>{STATUS_ICON[myStatus]}</span>
                   <span className="text-zinc-300">|</span>
                   <span title={partnerName}>{STATUS_ICON[partnerStatus]}</span>
                 </div>

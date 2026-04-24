@@ -10,8 +10,8 @@ interface Props {
 }
 
 export function ChatDrawerHistory({ currentConversationId, partnerId }: Props) {
-  const t = useTranslations("chatDrawer");
-  const { conversations, user } = useAppState();
+  const t = useTranslations("chat.drawer");
+  const { conversations } = useAppState();
 
   // Conversations with same partner
   const samePartner = conversations.filter(
@@ -40,7 +40,7 @@ export function ChatDrawerHistory({ currentConversationId, partnerId }: Props) {
             {samePartner.map((conv) => (
               <Link
                 key={conv.id}
-                href={`/chat?conversation=${conv.id}`}
+                href={`/chat/${conv.id}`}
                 className="flex items-center justify-between rounded-xl border border-zinc-100 px-3 py-2 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800"
               >
                 <div>
@@ -66,7 +66,7 @@ export function ChatDrawerHistory({ currentConversationId, partnerId }: Props) {
             {others.slice(0, 5).map((conv) => (
               <Link
                 key={conv.id}
-                href={`/chat?conversation=${conv.id}`}
+                href={`/chat/${conv.id}`}
                 className="flex items-center gap-2 rounded-xl border border-zinc-100 px-3 py-2 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800"
               >
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-xs font-bold text-zinc-500 dark:bg-zinc-700">

@@ -22,7 +22,7 @@ interface Props {
 }
 
 export function ChatDrawerUserProfile({ partnerId, partnerName }: Props) {
-  const t = useTranslations("chatDrawer");
+  const t = useTranslations("chat.drawer");
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
 
