@@ -24,28 +24,30 @@ export type AgendaState = Record<string, AgendaItemState>;
 
 // ── Agenda definition ──
 
+export type AgendaGroup = "items" | "exchange" | "bilateral" | "individual" | "final";
+
 export const AGENDA_ITEMS: AgendaItemDef[] = [
-  // Group 1: Item details
-  { key: "item_a_details",  group: "items",    bilateral: false, labelKey: "agendaItemADetails" },
-  { key: "item_a_media",    group: "items",    bilateral: false, labelKey: "agendaItemAMedia" },
-  { key: "item_b_details",  group: "items",    bilateral: false, labelKey: "agendaItemBDetails" },
-  { key: "item_b_media",    group: "items",    bilateral: false, labelKey: "agendaItemBMedia" },
+  // Group 1: Items
+  { key: "item_a_details",  group: "items",      bilateral: false, labelKey: "agendaItemADetails" },
+  { key: "item_a_media",    group: "items",      bilateral: false, labelKey: "agendaItemAMedia" },
+  { key: "item_b_details",  group: "items",      bilateral: false, labelKey: "agendaItemBDetails" },
+  { key: "item_b_media",    group: "items",      bilateral: false, labelKey: "agendaItemBMedia" },
   // Group 2: Exchange
-  { key: "exchange_mode",   group: "exchange", bilateral: true,  labelKey: "agendaExchangeMode" },
-  { key: "location",        group: "exchange", bilateral: true,  labelKey: "agendaLocation" },
-  { key: "packaging",       group: "exchange", bilateral: true,  labelKey: "agendaPackaging" },
-  // Group 3: Services
-  { key: "escrow",          group: "services", bilateral: true,  labelKey: "agendaEscrow" },
-  { key: "insurance",       group: "services", bilateral: true,  labelKey: "agendaInsurance" },
-  // Group 4: Logistics (individual)
-  { key: "transport_a",     group: "logistics", bilateral: false, labelKey: "agendaTransportA" },
-  { key: "transport_b",     group: "logistics", bilateral: false, labelKey: "agendaTransportB" },
-  { key: "accommodation_a", group: "logistics", bilateral: false, labelKey: "agendaAccommodationA" },
-  { key: "accommodation_b", group: "logistics", bilateral: false, labelKey: "agendaAccommodationB" },
-  { key: "restaurant",      group: "logistics", bilateral: false, labelKey: "agendaRestaurant" },
-  // Group 5: Completion
-  { key: "in_person",       group: "completion", bilateral: true, labelKey: "agendaInPerson" },
-  { key: "delivery_addrs",  group: "completion", bilateral: true, labelKey: "agendaDeliveryAddresses" },
+  { key: "exchange_mode",   group: "exchange",   bilateral: true,  labelKey: "agendaExchangeMode" },
+  { key: "location",        group: "exchange",   bilateral: true,  labelKey: "agendaLocation" },
+  { key: "packaging",       group: "exchange",   bilateral: true,  labelKey: "agendaPackaging" },
+  // Group 3: Bilateral (both must agree)
+  { key: "escrow",          group: "bilateral",  bilateral: true,  labelKey: "agendaEscrow" },
+  { key: "insurance",       group: "bilateral",  bilateral: true,  labelKey: "agendaInsurance" },
+  // Group 4: Individual
+  { key: "transport_a",     group: "individual", bilateral: false, labelKey: "agendaTransportA" },
+  { key: "transport_b",     group: "individual", bilateral: false, labelKey: "agendaTransportB" },
+  { key: "accommodation_a", group: "individual", bilateral: false, labelKey: "agendaAccommodationA" },
+  { key: "accommodation_b", group: "individual", bilateral: false, labelKey: "agendaAccommodationB" },
+  { key: "restaurant",      group: "individual", bilateral: false, labelKey: "agendaRestaurant" },
+  // Group 5: Final
+  { key: "in_person",       group: "final",      bilateral: true,  labelKey: "agendaInPerson" },
+  { key: "delivery_addrs",  group: "final",      bilateral: true,  labelKey: "agendaDeliveryAddresses" },
 ];
 
 export const BILATERAL_REQUIRED = AGENDA_ITEMS
@@ -80,6 +82,18 @@ export function advanceAgendaItem(
     ...state,
     [key]: { ...current, [side]: nextStatus[current[side]] },
   };
+}
+
+/** Set an exact status value for an item/side (used for direct checkbox toggle). */
+export function setAgendaItemStatus(
+  state: AgendaState,
+  key: string,
+  side: "userA" | "userB",
+  status: AgendaStatus,
+): AgendaState {
+  const current = state[key];
+  if (!current) return state;
+  return { ...state, [key]: { ...current, [side]: status } };
 }
 
 /** Check if an item is fully agreed (both sides = agreed for bilateral, or side = agreed for unilateral). */

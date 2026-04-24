@@ -8,7 +8,7 @@ interface Props {
 }
 
 export function ChatDrawerDocuments({ messages }: Props) {
-  const t = useTranslations("chatDrawer");
+  const t = useTranslations("chat.drawer");
 
   const mediaMessages = messages.filter(
     (m) => m.message_type === "image" || m.message_type === "audio" || m.message_type === "video",

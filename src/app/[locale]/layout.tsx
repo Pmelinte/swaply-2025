@@ -9,7 +9,6 @@ import { TopBar } from "@/components/layout/TopBar";
 import { BranchBar } from "@/components/layout/BranchBar";
 import { ContextBar } from "@/components/layout/ContextBar";
 import { FooterNav } from "@/components/layout/FooterNav";
-import { GlobalNudge } from "@/components/layout/GlobalNudge";
 import { UnifiedSideDrawer } from "@/components/drawer/UnifiedSideDrawer";
 import { ClientOverlays } from "@/components/ClientOverlays";
 import { TokenToast } from "@/components/tokens/TokenToast";
@@ -170,7 +169,6 @@ export default async function LocaleLayout({ children, params }: Props) {
             <TopBar />
             <BranchBar />
             <ContextBar />
-            <GlobalNudge />
             <div className="mx-auto min-h-screen max-w-6xl px-4 pb-24 pt-4">
               {children}
             </div>

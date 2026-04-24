@@ -1,17 +1,26 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { X } from "lucide-react";
-import { useAppState } from "@/lib/state";
-import { useDrawerStore } from "@/lib/state/drawerStore";
-import { ChatDrawerHistory } from "@/components/chat/drawer/ChatDrawerHistory";
-import { ChatDrawerDocuments } from "@/components/chat/drawer/ChatDrawerDocuments";
-import { ChatDrawerUserProfile } from "@/components/chat/drawer/ChatDrawerUserProfile";
-import { ChatDrawerAgreements } from "@/components/chat/drawer/ChatDrawerAgreements";
+import { ChatDrawerHistory } from "./ChatDrawerHistory";
+import { ChatDrawerDocuments } from "./ChatDrawerDocuments";
+import { ChatDrawerUserProfile } from "./ChatDrawerUserProfile";
+import { ChatDrawerAgreements } from "./ChatDrawerAgreements";
 import type { AgendaState } from "@/lib/chat/chatAgenda";
+import type { RealtimeMessage } from "@/lib/chat/chatRealtime";
 
 type Tab = "history" | "documents" | "profile" | "agreements";
+
+interface Props {
+  conversationId: string;
+  partnerId: string;
+  partnerName: string;
+  messages: (RealtimeMessage & { content: string })[];
+  agendaState: AgendaState;
+  myRole: "userA" | "userB";
+  onClose?: () => void;
+}
 
 const TABS: { key: Tab; icon: string; labelKey: string }[] = [
   { key: "history",    icon: "💬", labelKey: "history" },
@@ -20,43 +29,35 @@ const TABS: { key: Tab; icon: string; labelKey: string }[] = [
   { key: "agreements", icon: "📋", labelKey: "agreements" },
 ];
 
-// Empty agenda used when agendaState is not available from the store yet.
-// Documents and agreements tabs are fully functional once the chat page
-// calls openWith({ type: "chat", conversationId }) and passes live state.
-const EMPTY_AGENDA: AgendaState = {};
-
-interface Props {
-  conversationId: string;
-}
-
-export default function DrawerChat({ conversationId }: Props) {
+export function ChatDrawer({
+  conversationId,
+  partnerId,
+  partnerName,
+  messages,
+  agendaState,
+  myRole,
+  onClose,
+}: Props) {
   const t = useTranslations("chat.drawer");
-  const close = useDrawerStore((s) => s.close);
-  const { conversations } = useAppState();
   const [activeTab, setActiveTab] = useState<Tab>("history");
 
-  // Derive partner info from the app-state conversation list so we don't
-  // need extra props beyond the conversationId that the store already holds.
-  const conversation = useMemo(
-    () => conversations.find((c) => c.id === conversationId),
-    [conversations, conversationId],
-  );
-
-  const partnerId = conversation?.participantId ?? "";
-  const partnerName = conversation?.participantName ?? "";
-
   return (
-    <>
+    <div className="flex h-full w-full flex-col bg-white dark:bg-zinc-900">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-zinc-100 px-4 py-3 dark:border-zinc-800">
-        <h2 className="text-sm font-bold text-zinc-900 dark:text-zinc-50">@{partnerName}</h2>
-        <button
-          type="button"
-          onClick={close}
-          className="rounded-full p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-        >
-          <X className="h-5 w-5 text-zinc-500" />
-        </button>
+        <h2 className="text-sm font-bold text-zinc-900 dark:text-zinc-50">
+          @{partnerName}
+        </h2>
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="rounded-full p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+          >
+            <X className="h-5 w-5 text-zinc-500" />
+          </button>
+        )}
       </div>
 
       {/* Tabs */}
@@ -78,7 +79,7 @@ export default function DrawerChat({ conversationId }: Props) {
         ))}
       </div>
 
-      {/* Tab content */}
+      {/* Content */}
       <div className="flex-1 overflow-y-auto p-4">
         {activeTab === "history" && (
           <ChatDrawerHistory
@@ -87,19 +88,19 @@ export default function DrawerChat({ conversationId }: Props) {
           />
         )}
         {activeTab === "documents" && (
-          <ChatDrawerDocuments messages={[]} />
+          <ChatDrawerDocuments messages={messages} />
         )}
         {activeTab === "profile" && (
           <ChatDrawerUserProfile partnerId={partnerId} partnerName={partnerName} />
         )}
         {activeTab === "agreements" && (
           <ChatDrawerAgreements
-            agendaState={EMPTY_AGENDA}
-            myRole="userA"
+            agendaState={agendaState}
+            myRole={myRole}
             partnerName={partnerName}
           />
         )}
       </div>
-    </>
+    </div>
   );
 }

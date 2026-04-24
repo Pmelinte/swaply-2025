@@ -5,40 +5,35 @@ import { useTranslations } from "next-intl";
 import { ChevronDown, ChevronUp, FileText } from "lucide-react";
 import { ChatAgendaItem } from "./ChatAgendaItem";
 import { agendaProgress, allRequiredAgreed, AGENDA_ITEMS } from "@/lib/chat/chatAgenda";
-import type { AgendaState } from "@/lib/chat/chatAgenda";
+import type { AgendaItemDef, AgendaState, AgendaStatus } from "@/lib/chat/chatAgenda";
+
+type Group = AgendaItemDef["group"];
 
 interface Props {
   agendaState: AgendaState;
   myRole: "userA" | "userB";
   partnerName: string;
-  onAdvance: (key: string) => void;
-  onGenerateSummary: () => void;
+  onToggle: (key: string, nextStatus: AgendaStatus) => void;
+  onGenerateSummary?: () => void;
   defaultOpen?: boolean;
+  showGenerateButton?: boolean;
 }
 
-const GROUP_LABELS: Record<string, string> = {
-  items:      "agendaGroupItems",
-  exchange:   "agendaGroupExchange",
-  services:   "agendaGroupServices",
-  logistics:  "agendaGroupLogistics",
-  completion: "agendaGroupCompletion",
-};
+const GROUP_ORDER: Group[] = ["items", "exchange", "bilateral", "individual", "final"];
 
 export function ChatAgenda({
   agendaState,
   myRole,
   partnerName,
-  onAdvance,
+  onToggle,
   onGenerateSummary,
   defaultOpen = false,
+  showGenerateButton = true,
 }: Props) {
-  const t = useTranslations("chatAgenda");
+  const t = useTranslations("chat.agenda");
   const [open, setOpen] = useState(defaultOpen);
   const { agreed, total } = agendaProgress(agendaState);
   const canGenerate = allRequiredAgreed(agendaState);
-
-  // Group items
-  const groups = Array.from(new Set(AGENDA_ITEMS.map((i) => i.group)));
 
   return (
     <div className="rounded-2xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
@@ -74,12 +69,13 @@ export function ChatAgenda({
 
           {/* Groups */}
           <div className="mt-3 space-y-3">
-            {groups.map((group) => {
+            {GROUP_ORDER.map((group) => {
               const items = AGENDA_ITEMS.filter((i) => i.group === group);
+              if (!items.length) return null;
               return (
                 <div key={group}>
                   <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-zinc-400">
-                    {t(GROUP_LABELS[group] as keyof object)}
+                    {t(`sections.${group}`)}
                   </p>
                   <div className="space-y-1">
                     {items.map((item) => (
@@ -89,7 +85,7 @@ export function ChatAgenda({
                         state={agendaState[item.key] ?? { userA: "unchecked", userB: "unchecked", bilateral: item.bilateral }}
                         myRole={myRole}
                         partnerName={partnerName}
-                        onAdvance={onAdvance}
+                        onToggle={onToggle}
                       />
                     ))}
                   </div>
@@ -99,16 +95,20 @@ export function ChatAgenda({
           </div>
 
           {/* Generate summary button */}
-          <button
-            type="button"
-            onClick={onGenerateSummary}
-            disabled={!canGenerate}
-            className="mt-4 w-full rounded-xl bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            📄 {t("generateSummary")}
-          </button>
-          {!canGenerate && (
-            <p className="mt-1 text-center text-[10px] text-zinc-400">{t("generateSummaryHint")}</p>
+          {showGenerateButton && onGenerateSummary && (
+            <>
+              <button
+                type="button"
+                onClick={onGenerateSummary}
+                disabled={!canGenerate}
+                className="mt-4 w-full rounded-xl bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                📄 {t("generateSummary")}
+              </button>
+              {!canGenerate && (
+                <p className="mt-1 text-center text-[10px] text-zinc-400">{t("generateSummaryHint")}</p>
+              )}
+            </>
           )}
         </div>
       )}
