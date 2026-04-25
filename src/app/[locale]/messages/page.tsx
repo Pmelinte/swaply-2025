@@ -1,10 +1,7 @@
-import { redirect } from "next/navigation";
+import { ChatPage } from '@/components/chat/ChatPage';
 
-export default async function MessagesPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  const { locale } = await params;
-  redirect(`/${locale}/chat`);
+console.log('[messages/page.tsx] module loaded — /[locale]/messages route');
+
+export default function MessagesRoute() {
+  return <ChatPage conversationId="demo-1" />;
 }
