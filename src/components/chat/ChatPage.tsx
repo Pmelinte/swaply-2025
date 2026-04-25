@@ -9,8 +9,7 @@ import { ChatMessages } from "./ChatMessages";
 import { ChatInput } from "./ChatInput";
 import { ChatAgenda } from "./ChatAgenda";
 import { ChatSummary } from "./ChatSummary";
-import { ChatDrawer } from "./drawer/ChatDrawer";
-import { useDrawerStore } from "@/lib/state/drawerStore";
+
 import {
   subscribeToConversation,
   broadcastTyping,
@@ -114,7 +113,6 @@ export function ChatPage({ conversationId }: Props) {
   const [haikuPayload, setHaikuPayload] = useState<HaikuSummaryPayload | null>(null);
   const [partnerTyping, setPartnerTyping] = useState(false);
   const [loading, setLoading] = useState(!demoMode);
-  const [drawerOpen, setDrawerOpen] = useState(false);
   const [agendaOpen, setAgendaOpen] = useState(false);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -471,13 +469,6 @@ export function ChatPage({ conversationId }: Props) {
   const headerAvatar = meta?.partnerAvatarUrl ?? demo?.partnerAvatar ?? null;
   const headerVerified = meta?.partnerVerified ?? false;
 
-  function handleOpenDrawer() {
-    setDrawerOpen(true);
-    if (!demoMode) {
-      useDrawerStore.getState().openWith({ type: "chat", conversationId });
-    }
-  }
-
   function handleToggleAgenda() {
     setAgendaOpen((prev) => !prev);
   }
@@ -558,20 +549,6 @@ export function ChatPage({ conversationId }: Props) {
           />
         </aside>
 
-        {/* Right-side drawer (inline panel on xl+) */}
-        {drawerOpen && meta && !demoMode && (
-          <div className="hidden w-80 shrink-0 overflow-y-auto border-l border-zinc-100 dark:border-zinc-800 xl:block">
-            <ChatDrawer
-              conversationId={conversationId}
-              partnerId={meta.partnerId}
-              partnerName={headerPartnerName}
-              messages={messages}
-              agendaState={agendaState}
-              myRole={myRole}
-              onClose={() => setDrawerOpen(false)}
-            />
-          </div>
-        )}
       </div>
 
       {/* Agenda accordion (mobile only) — lives below the main row */}
