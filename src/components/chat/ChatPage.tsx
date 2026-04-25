@@ -496,7 +496,7 @@ export function ChatPage({ conversationId }: Props) {
   const isGuest = !user && !demoMode;
 
   return (
-    <div className="flex flex-col h-dvh max-w-2xl mx-auto bg-white border-x border-gray-200 overflow-hidden">
+    <div className="flex flex-col h-dvh w-full bg-white border-x border-gray-200 overflow-hidden">
       {/* Main row: chat column + agenda sidebar (+ optional drawer) */}
       <div className="flex min-h-0 flex-1 overflow-hidden">
         {/* Chat column */}
