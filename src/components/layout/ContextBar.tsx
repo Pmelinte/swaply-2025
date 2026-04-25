@@ -17,7 +17,6 @@ export function ContextBar() {
 
   const myItems = items.filter((i) => i.ownerId === user.id && i.isActive);
   const activeSwaps = swaps.filter((s) => s.status !== "completed" && s.status !== "cancelled");
-  const unreadConvs = conversations.filter((c) => c.messages.length > 0);
   const unreadNotifs = notifications.filter((n) => !n.read).length;
 
   // Determine context based on current page
@@ -74,7 +73,7 @@ export function ContextBar() {
       <div className="flex items-center gap-3">
         <span className="inline-flex items-center gap-1">
           <MessageCircle className="h-3 w-3" />
-          {t("conversations", { count: unreadConvs.length })}
+          {t("conversations", { count: conversations.length })}
         </span>
         {activeSwaps.length > 0 && (
           <>

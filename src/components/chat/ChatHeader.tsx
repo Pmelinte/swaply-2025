@@ -9,10 +9,11 @@ interface Props {
   partnerName: string;
   partnerAvatarUrl?: string | null;
   isPartnerVerified?: boolean;
-  onOpenDrawer: () => void;
+  agendaOpen?: boolean;
+  onToggleAgenda: () => void;
 }
 
-export function ChatHeader({ partnerName, partnerAvatarUrl, isPartnerVerified, onOpenDrawer }: Props) {
+export function ChatHeader({ partnerName, partnerAvatarUrl, isPartnerVerified, agendaOpen, onToggleAgenda }: Props) {
   const t = useTranslations("chat");
   const router = useRouter();
 
@@ -47,14 +48,20 @@ export function ChatHeader({ partnerName, partnerAvatarUrl, isPartnerVerified, o
         )}
       </div>
 
-      {/* Drawer trigger */}
+      {/* Agenda toggle */}
       <button
         type="button"
-        onClick={onOpenDrawer}
-        className="rounded-full p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-        aria-label="Open drawer"
+        onClick={onToggleAgenda}
+        className={`flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs font-medium transition-colors ${
+          agendaOpen
+            ? "bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/40 dark:text-blue-300"
+            : "hover:bg-zinc-100 text-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-800"
+        }`}
+        aria-label="Toggle Exchange Agenda"
+        aria-expanded={agendaOpen}
       >
-        <Menu className="h-5 w-5 text-zinc-600 dark:text-zinc-300" />
+        <Menu className="h-4 w-4" />
+        <span className="hidden sm:inline">Agenda</span>
       </button>
     </div>
   );

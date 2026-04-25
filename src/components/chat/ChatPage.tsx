@@ -115,6 +115,7 @@ export function ChatPage({ conversationId }: Props) {
   const [partnerTyping, setPartnerTyping] = useState(false);
   const [loading, setLoading] = useState(!demoMode);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [agendaOpen, setAgendaOpen] = useState(false);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const myRole: "userA" | "userB" =
@@ -477,6 +478,10 @@ export function ChatPage({ conversationId }: Props) {
     }
   }
 
+  function handleToggleAgenda() {
+    setAgendaOpen((prev) => !prev);
+  }
+
   // ── Render ──
 
   const canGenerate = allRequiredAgreed(agendaState);
@@ -500,16 +505,17 @@ export function ChatPage({ conversationId }: Props) {
   const isGuest = !user && !demoMode;
 
   return (
-    <div className="flex flex-col h-screen max-w-2xl mx-auto bg-white border-x border-gray-200 overflow-hidden">
+    <div className="flex flex-col h-dvh max-w-2xl mx-auto bg-white border-x border-gray-200 overflow-hidden">
       {/* Main row: chat column + agenda sidebar (+ optional drawer) */}
-      <div className="flex min-h-0 flex-1">
+      <div className="flex min-h-0 flex-1 overflow-hidden">
         {/* Chat column */}
-        <div className="flex min-w-0 flex-1 flex-col">
+        <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
           <ChatHeader
             partnerName={headerPartnerName}
             partnerAvatarUrl={headerAvatar}
             isPartnerVerified={headerVerified}
-            onOpenDrawer={handleOpenDrawer}
+            agendaOpen={agendaOpen}
+            onToggleAgenda={handleToggleAgenda}
           />
 
           {isGuest ? (
@@ -535,8 +541,8 @@ export function ChatPage({ conversationId }: Props) {
           />
         </div>
 
-        {/* Agenda sidebar (desktop only) */}
-        <aside className="hidden w-80 shrink-0 border-l border-zinc-100 dark:border-zinc-800 lg:block">
+        {/* Agenda sidebar (desktop only, toggled via header button) */}
+        <aside className={agendaOpen ? "hidden w-80 shrink-0 border-l border-zinc-100 dark:border-zinc-800 lg:block" : "hidden"}>
           <ChatAgenda
             variant="sidebar"
             agendaState={agendaState}
