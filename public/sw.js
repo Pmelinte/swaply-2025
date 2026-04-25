@@ -1,5 +1,5 @@
-// Swaply Service Worker — push notifications + cache-first for static assets, network-first for API
-const CACHE_NAME = "swaply-v2";
+// Swaply Service Worker — push notifications + cache-first for static assets, network-first for HTML/API
+const CACHE_NAME = "swaply-v3";
 const OFFLINE_URL = "/";
 const STATIC_ASSETS = ["/", "/manifest.json", "/no-image.svg", "/icon-192.svg"];
 
@@ -40,7 +40,33 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Cache-first for static assets, with offline fallback
+  // Detect HTML/page navigations: navigation mode OR explicit Accept: text/html.
+  const isHtmlRequest =
+    event.request.mode === "navigate" ||
+    (event.request.headers.get("accept") || "").includes("text/html");
+
+  // Network-first for HTML pages — never serve a stale page from a previous deploy.
+  // Falls back to cache (and ultimately the offline shell) only if the network fails.
+  if (isHtmlRequest) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          if (response.ok && response.type === "basic") {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
+          return response;
+        })
+        .catch(() =>
+          caches.match(event.request).then(
+            (cached) => cached || caches.match(OFFLINE_URL),
+          ),
+        )
+    );
+    return;
+  }
+
+  // Cache-first for static assets (.js, .css, fonts, images), with offline fallback
   event.respondWith(
     caches.match(event.request).then((cached) => {
       if (cached) return cached;
@@ -53,10 +79,6 @@ self.addEventListener("fetch", (event) => {
           return response;
         })
         .catch(() => {
-          // For navigation requests, serve the offline page
-          if (event.request.mode === "navigate") {
-            return caches.match(OFFLINE_URL);
-          }
           return new Response("Offline", {
             status: 503,
             statusText: "Service Unavailable",
