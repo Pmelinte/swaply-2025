@@ -500,7 +500,7 @@ export function ChatPage({ conversationId }: Props) {
   const isGuest = !user && !demoMode;
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] flex-col bg-zinc-50 dark:bg-zinc-950">
+    <div className="flex flex-col h-screen max-w-2xl mx-auto bg-white border-x border-gray-200 overflow-hidden">
       {/* Main row: chat column + agenda sidebar (+ optional drawer) */}
       <div className="flex min-h-0 flex-1">
         {/* Chat column */}
