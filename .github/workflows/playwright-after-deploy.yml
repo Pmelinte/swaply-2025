@@ -14,6 +14,10 @@ jobs:
         with:
           node-version: 20
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
       - name: Install dependencies
         run: npm ci
 
@@ -21,13 +25,88 @@ jobs:
         run: npx playwright install chromium --with-deps
 
       - name: Run tests
+        id: tests
+        continue-on-error: true
         env:
           BASE_URL: ${{ github.event.deployment_status.target_url }}
           TEST_EMAIL: pmelinte+1@gmail.com
           TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
         run: npx playwright test tests/smoke.spec.ts
 
-      - name: Upload screenshots
+      - name: Upload screenshots to Cloudinary
+        if: always()
+        env:
+          CLOUDINARY_URL: ${{ secrets.CLOUDINARY_URL }}
+        run: |
+          if [ -z "${CLOUDINARY_URL:-}" ]; then
+            echo "CLOUDINARY_URL not set — skipping inline previews"
+            echo "{}" > cloudinary-urls.json
+            exit 0
+          fi
+          python -m pip install --quiet cloudinary
+          python - <<'PY'
+          import cloudinary, cloudinary.uploader, glob, json, os
+          urls = {}
+          for path in sorted(glob.glob("test-results/*.png")):
+              name = os.path.basename(path)
+              res = cloudinary.uploader.upload(
+                  path,
+                  folder=f"swaply-smoke/{os.environ['GITHUB_RUN_ID']}",
+                  public_id=name.removesuffix(".png"),
+                  overwrite=True,
+                  resource_type="image",
+              )
+              urls[name] = res["secure_url"]
+          with open("cloudinary-urls.json", "w") as f:
+              json.dump(urls, f)
+          print(json.dumps(urls, indent=2))
+          PY
+
+      - name: Post commit comment with previews
+        if: always()
+        uses: actions/github-script@v7
+        env:
+          TESTS_OUTCOME: ${{ steps.tests.outcome }}
+          DEPLOY_URL: ${{ github.event.deployment_status.target_url }}
+        with:
+          script: |
+            const fs = require('fs');
+            let urls = {};
+            try {
+              urls = JSON.parse(fs.readFileSync('cloudinary-urls.json', 'utf8'));
+            } catch {}
+
+            const sha = context.payload.deployment?.sha || context.sha;
+            const status = process.env.TESTS_OUTCOME === 'success' ? '✅' : '❌';
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+
+            const lines = [
+              `## ${status} Playwright smoke — \`${process.env.DEPLOY_URL}\``,
+              ``,
+              `**Run:** [#${context.runId}](${runUrl})  `,
+              `**Artifact:** \`screenshots-${context.runId}\` (download from the run page)`,
+              ``,
+            ];
+
+            const entries = Object.entries(urls);
+            if (entries.length === 0) {
+              lines.push('_No inline previews — set `CLOUDINARY_URL` repo secret to enable._');
+            } else {
+              for (const [name, url] of entries) {
+                lines.push(`### ${name.replace('.png','')}`);
+                lines.push(`![${name}](${url})`);
+                lines.push('');
+              }
+            }
+
+            await github.rest.repos.createCommitComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: sha,
+              body: lines.join('\n'),
+            });
+
+      - name: Upload screenshots artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
