@@ -14,6 +14,9 @@ export function BranchBar() {
   const t = useTranslations("branches");
   const pathname = usePathname();
 
+  // Hide on individual conversation pages — the chat layout owns the full viewport there
+  if (pathname.startsWith("/chat/")) return null;
+
   function isActive(href: string) {
     if (href === "/objects") {
       return pathname === "/" || pathname === "/objects" || pathname.startsWith("/objects/");

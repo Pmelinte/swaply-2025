@@ -68,7 +68,7 @@ export function ContextBar() {
         <span>{t("basedOnItems", { count: myItems.length })}</span>
       </div>
     );
-  } else if (pathname === "/chat" || pathname.startsWith("/chat")) {
+  } else if (pathname === "/chat") {
     content = (
       <div className="flex items-center gap-3">
         <span className="inline-flex items-center gap-1">
