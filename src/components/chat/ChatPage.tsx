@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import { useAppState } from "@/lib/state";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { ChatHeader } from "./ChatHeader";
@@ -9,6 +10,7 @@ import { ChatMessages } from "./ChatMessages";
 import { ChatInput } from "./ChatInput";
 import { ChatAgenda } from "./ChatAgenda";
 import { ChatSummary } from "./ChatSummary";
+import { ChatConversationHistory } from "./ChatConversationHistory";
 
 import {
   subscribeToConversation,
@@ -98,6 +100,7 @@ interface Props {
 
 export function ChatPage({ conversationId }: Props) {
   const t = useTranslations("chat");
+  const router = useRouter();
   const { user } = useAppState();
 
   const demoMode = isDemoConversation(conversationId);
@@ -114,12 +117,14 @@ export function ChatPage({ conversationId }: Props) {
   const [partnerTyping, setPartnerTyping] = useState(false);
   const [loading, setLoading] = useState(!demoMode);
   const [agendaOpen, setAgendaOpen] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [releaseModalOpen, setReleaseModalOpen] = useState(false);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const myRole: "userA" | "userB" =
     meta && user ? (meta.participantIds[0] === user.id ? "userA" : "userB") : "userA";
 
-  // ── Demo fixtures: skip Supabase fetch, seed local state ──
+  // ── Demo fixtures ──
 
   useEffect(() => {
     if (!demoMode || !demo) return;
@@ -140,7 +145,7 @@ export function ChatPage({ conversationId }: Props) {
     setLoading(false);
   }, [demoMode, demo, conversationId, user]);
 
-  // ── Load conversation + messages (real, authenticated) ──
+  // ── Load conversation + messages ──
 
   useEffect(() => {
     if (demoMode) return;
@@ -232,7 +237,7 @@ export function ChatPage({ conversationId }: Props) {
     void load();
   }, [conversationId, user, demoMode]);
 
-  // ── Realtime subscription (skip for demos) ──
+  // ── Realtime subscription ──
 
   useEffect(() => {
     if (demoMode) return;
@@ -463,7 +468,25 @@ export function ChatPage({ conversationId }: Props) {
       .eq("id", conversationId);
   }, [summary, haikuPayload, user, meta, conversationId, demoMode]);
 
-  // ── Header props ──
+  // ── Release item (Back to Matching) ──
+
+  const handleConfirmRelease = useCallback(async () => {
+    setReleaseModalOpen(false);
+
+    if (!demoMode && user && meta?.swapId) {
+      const supabase = getSupabaseClient();
+      if (supabase) {
+        await supabase
+          .from("swaps")
+          .update({ status: "cancelled" })
+          .eq("id", meta.swapId);
+      }
+    }
+
+    router.push("/matching");
+  }, [demoMode, user, meta, router]);
+
+  // ── Derived values ──
 
   const headerPartnerName = meta?.partnerName ?? demo?.partnerUsername ?? "...";
   const headerAvatar = meta?.partnerAvatarUrl ?? demo?.partnerAvatar ?? null;
@@ -471,11 +494,16 @@ export function ChatPage({ conversationId }: Props) {
 
   function handleToggleAgenda() {
     setAgendaOpen((prev) => !prev);
+    if (historyOpen) setHistoryOpen(false);
   }
 
-  // ── Render ──
+  function handleToggleHistory() {
+    setHistoryOpen((prev) => !prev);
+    if (agendaOpen) setAgendaOpen(false);
+  }
 
   const canGenerate = allRequiredAgreed(agendaState);
+  const isGuest = !user && !demoMode;
 
   const summaryElement =
     meta && (user || demoMode) ? (
@@ -492,82 +520,127 @@ export function ChatPage({ conversationId }: Props) {
       />
     ) : null;
 
-  // Guest (no user, no demo fixture) — show login prompt inline, but keep layout
-  const isGuest = !user && !demoMode;
+  // ── Render ──
 
   return (
-    <div className="flex flex-col h-dvh w-full bg-white border-x border-gray-200 overflow-hidden">
-      {/* Main row: chat column + agenda sidebar (+ optional drawer) */}
-      <div className="flex min-h-0 flex-1 overflow-hidden">
-        {/* Chat column */}
-        <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-          <ChatHeader
-            partnerName={headerPartnerName}
-            partnerAvatarUrl={headerAvatar}
-            isPartnerVerified={headerVerified}
-            agendaOpen={agendaOpen}
-            onToggleAgenda={handleToggleAgenda}
-          />
+    // Escape parent wrapper padding; fill viewport between TopBar (44px) and FooterNav (73px)
+    <div className="relative flex flex-col -mx-4 -mt-4 overflow-hidden bg-white border-x border-gray-200 h-[calc(100dvh-44px-73px)]">
 
-          {isGuest ? (
-            <div className="flex flex-1 flex-col items-center justify-center gap-3 p-8 text-center">
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                {t("signInRequired")}
-              </p>
-            </div>
-          ) : (
-            <ChatMessages
-              messages={messages}
-              currentUserId={user?.id ?? "demo-me"}
-              partnerTyping={partnerTyping}
-              partnerName={headerPartnerName}
-              loading={loading}
-            />
-          )}
+      {/* ── Drawer 2: Conversation History (left, 280px) ── */}
+      <ChatConversationHistory
+        open={historyOpen}
+        onClose={() => setHistoryOpen(false)}
+        userId={user?.id}
+        currentConversationId={conversationId}
+      />
 
-          <ChatInput
-            onSend={handleSend}
-            onTyping={handleTyping}
-            loginRequired={isGuest}
-          />
-        </div>
-
-        {/* Agenda sidebar (desktop only, toggled via header button) */}
-        <aside className={agendaOpen ? "hidden w-80 shrink-0 border-l border-zinc-100 dark:border-zinc-800 lg:block" : "hidden"}>
-          <ChatAgenda
-            variant="sidebar"
-            agendaState={agendaState}
-            myRole={myRole}
-            partnerName={headerPartnerName}
-            onToggle={handleAgendaItemStatus}
-            onGenerateSummary={() => {
-              void handleGenerateSummary().catch(() => {
-                /* ChatSummary surfaces errors */
-              });
-            }}
-            summarySlot={summaryElement}
-          />
-        </aside>
-
-      </div>
-
-      {/* Agenda accordion (mobile only) — lives below the main row */}
-      <div className="shrink-0 border-t border-zinc-100 bg-white p-2 dark:border-zinc-800 dark:bg-zinc-900 lg:hidden">
+      {/* ── Drawer 1: Agenda (right, 320px) ── */}
+      {agendaOpen && (
+        <div
+          className="absolute inset-0 z-40 bg-black/30"
+          onClick={() => setAgendaOpen(false)}
+        />
+      )}
+      <div
+        className={`absolute inset-y-0 right-0 z-50 flex w-[320px] flex-col bg-white shadow-xl transition-transform duration-300 ${
+          agendaOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
         <ChatAgenda
-          variant="accordion"
+          variant="sidebar"
           agendaState={agendaState}
           myRole={myRole}
           partnerName={headerPartnerName}
           onToggle={handleAgendaItemStatus}
           onGenerateSummary={() => {
-            void handleGenerateSummary().catch(() => {
-              /* ChatSummary surfaces errors */
-            });
+            void handleGenerateSummary().catch(() => {});
           }}
           summarySlot={summaryElement}
-          defaultOpen={false}
         />
       </div>
+
+      {/* ── Zone 0: Subheader / ChatHeader (53px) ── */}
+      <ChatHeader
+        partnerName={headerPartnerName}
+        partnerAvatarUrl={headerAvatar}
+        isPartnerVerified={headerVerified}
+        agendaOpen={agendaOpen}
+        historyOpen={historyOpen}
+        onToggleAgenda={handleToggleAgenda}
+        onToggleHistory={handleToggleHistory}
+      />
+
+      {/* ── Zone 1: Chat messages (flex-1, internal scroll) ── */}
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        {isGuest ? (
+          <div className="flex h-full flex-col items-center justify-center gap-3 p-8 text-center">
+            <p className="text-sm text-zinc-500">{t("signInRequired")}</p>
+          </div>
+        ) : (
+          <ChatMessages
+            messages={messages}
+            currentUserId={user?.id ?? "demo-me"}
+            partnerTyping={partnerTyping}
+            partnerName={headerPartnerName}
+            loading={loading}
+          />
+        )}
+      </div>
+
+      {/* ── Zone 2: Toolbar (~80px) ── */}
+      <ChatInput
+        onSend={handleSend}
+        onTyping={handleTyping}
+        loginRequired={isGuest}
+      />
+
+      {/* ── Zone 3: CTA (~72px) ── */}
+      <div className="flex shrink-0 items-center gap-2 border-t border-zinc-100 bg-white px-3 py-3">
+        <button
+          type="button"
+          onClick={() => router.push("/exchange")}
+          className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-blue-600 px-3 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
+        >
+          <span>→</span>
+          Go to Exchange
+        </button>
+        <button
+          type="button"
+          onClick={() => setReleaseModalOpen(true)}
+          className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-red-300 px-3 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50"
+        >
+          <span>←</span>
+          Back to Matching
+        </button>
+      </div>
+
+      {/* ── Release confirmation modal ── */}
+      {releaseModalOpen && (
+        <div className="absolute inset-0 z-[60] flex items-center justify-center bg-black/40 px-4">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-xl">
+            <p className="mb-1 text-base font-semibold text-zinc-900">Release this item?</p>
+            <p className="mb-5 text-sm text-zinc-500">
+              Releasing this item will remove it from this swap. Are you sure?
+            </p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setReleaseModalOpen(false)}
+                className="flex-1 rounded-xl border border-zinc-200 px-4 py-2.5 text-sm font-medium text-zinc-600 hover:bg-zinc-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => { void handleConfirmRelease(); }}
+                className="flex-1 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700"
+              >
+                Confirm &amp; Release
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
