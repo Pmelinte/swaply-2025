@@ -15,7 +15,38 @@ export function InstallPrompt() {
 
   useEffect(() => {
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/sw.js").catch(() => {});
+      // Snapshot whether a *previous* SW is currently controlling the page.
+      // If one was, we want the new SW to take over before the page keeps
+      // reading anything from cache — so we listen for controllerchange and
+      // reload exactly once when control flips. The `reloaded` guard keeps
+      // this from looping during ordinary first-install.
+      const hadOldController = !!navigator.serviceWorker.controller;
+      let reloaded = false;
+      const onControllerChange = () => {
+        if (!hadOldController || reloaded) return;
+        reloaded = true;
+        window.location.reload();
+      };
+      navigator.serviceWorker.addEventListener(
+        "controllerchange",
+        onControllerChange,
+      );
+
+      navigator.serviceWorker
+        .register("/sw.js")
+        .then(async (registration) => {
+          // If a fresh worker is already waiting (previous tab installed it),
+          // tell it to skip waiting so it activates and claims this page now.
+          if (registration.waiting) {
+            registration.waiting.postMessage({ type: "SKIP_WAITING" });
+          }
+          // Wait until the SW is fully active before this page relies on
+          // any cache lookups it will perform.
+          if (!navigator.serviceWorker.controller) {
+            await navigator.serviceWorker.ready;
+          }
+        })
+        .catch(() => {});
     }
 
     const handler = (e: Event) => {
