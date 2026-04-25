@@ -159,6 +159,20 @@ export default async function LocaleLayout({ children, params }: Props) {
             }),
           }}
         />
+        {/* Drop any stale service worker registration left over from a previous deploy. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+      for(let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+`,
+          }}
+        />
       </head>
       <body
         suppressHydrationWarning
