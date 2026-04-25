@@ -345,9 +345,9 @@ export function ChatPage({ conversationId }: Props) {
     [user, conversationId, demoMode],
   );
 
-  // ── Agenda toggle ──
+  // ── Agenda item status ──
 
-  const handleToggleAgenda = useCallback(
+  const handleAgendaItemStatus = useCallback(
     async (key: string, nextStatus: AgendaStatus) => {
       const newState = setAgendaItemStatus(agendaState, key, myRole, nextStatus);
       setAgendaState(newState);
@@ -539,7 +539,7 @@ export function ChatPage({ conversationId }: Props) {
             agendaState={agendaState}
             myRole={myRole}
             partnerName={headerPartnerName}
-            onToggle={handleToggleAgenda}
+            onToggle={handleAgendaItemStatus}
             onGenerateSummary={() => {
               void handleGenerateSummary().catch(() => {
                 /* ChatSummary surfaces errors */
@@ -558,7 +558,7 @@ export function ChatPage({ conversationId }: Props) {
           agendaState={agendaState}
           myRole={myRole}
           partnerName={headerPartnerName}
-          onToggle={handleToggleAgenda}
+          onToggle={handleAgendaItemStatus}
           onGenerateSummary={() => {
             void handleGenerateSummary().catch(() => {
               /* ChatSummary surfaces errors */
