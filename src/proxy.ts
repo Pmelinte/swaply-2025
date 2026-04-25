@@ -73,6 +73,49 @@ function isAdminRoute(barePath: string): boolean {
   );
 }
 
+/**
+ * Supabase SSR stores its session in cookies named:
+ *   sb-<project-ref>-auth-token         (single, ~legacy)
+ *   sb-<project-ref>-auth-token.0/.1…   (chunked, current default)
+ *   sb-access-token / sb-refresh-token  (older clients)
+ */
+function isSupabaseAuthCookie(name: string): boolean {
+  if (!name.startsWith("sb-")) return false;
+  return (
+    name.includes("auth-token") ||
+    name.includes("access-token") ||
+    name.includes("refresh-token")
+  );
+}
+
+function hasSessionCookie(request: NextRequest): boolean {
+  return request.cookies.getAll().some((c) => isSupabaseAuthCookie(c.name));
+}
+
+/** Set every Supabase auth cookie to "" with maxAge=0 so the browser drops it. */
+function clearSessionCookies(
+  response: NextResponse,
+  request: NextRequest,
+): void {
+  for (const c of request.cookies.getAll()) {
+    if (isSupabaseAuthCookie(c.name)) {
+      response.cookies.set(c.name, "", { maxAge: 0, path: "/" });
+    }
+  }
+}
+
+function redirectToLogin(
+  request: NextRequest,
+  pathname: string,
+  barePath: string,
+): NextResponse {
+  const loginUrl = request.nextUrl.clone();
+  const localePrefix = pathname.split("/")[1] || "en";
+  loginUrl.pathname = `/${localePrefix}/login`;
+  loginUrl.searchParams.set("returnTo", barePath);
+  return NextResponse.redirect(loginUrl);
+}
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -91,11 +134,13 @@ export async function proxy(request: NextRequest) {
   // ── Auth checks on locale-prefixed page routes ────────────────────
   const barePath = stripLocale(pathname);
 
+  // PUBLIC PAGE: never inspect cookies, never auth-redirect.
+  // Locale redirects from intlMiddleware are still allowed.
   if (!isProtectedRoute(barePath)) {
     return intlResponse;
   }
 
-  // Need auth — check Supabase session
+  // PROTECTED PAGE — without Supabase env vars we can't validate; let through.
   if (
     !process.env.NEXT_PUBLIC_SUPABASE_URL ||
     !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -103,6 +148,12 @@ export async function proxy(request: NextRequest) {
     return intlResponse;
   }
 
+  // Step 1 — no session cookie at all → redirect to login.
+  if (!hasSessionCookie(request)) {
+    return redirectToLogin(request, pathname, barePath);
+  }
+
+  // Step 2 — cookie present: try to validate it with Supabase.
   const { supabase, response: supaResponse } =
     createMiddlewareSupabase(request);
   // getUser() validates the token with Supabase Auth server AND triggers
@@ -113,16 +164,15 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Step 3 — cookie exists but is invalid/expired:
+  // wipe the bad cookies from the browser and let the request continue.
+  // The page itself decides what to show for an unauthenticated visitor.
   if (!user) {
-    const loginUrl = request.nextUrl.clone();
-    // Keep locale prefix in login redirect
-    const localePrefix = pathname.split("/")[1] || "en";
-    loginUrl.pathname = `/${localePrefix}/login`;
-    loginUrl.searchParams.set("returnTo", barePath);
-    return NextResponse.redirect(loginUrl);
+    clearSessionCookies(intlResponse, request);
+    return intlResponse;
   }
 
-  // Admin routes → verify admin role
+  // Step 4 — admin routes: verify role.
   if (isAdminRoute(barePath)) {
     const { data: profile } = await supabase
       .from("profiles")
