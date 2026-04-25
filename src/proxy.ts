@@ -9,11 +9,8 @@ const intlMiddleware = createIntlMiddleware(routing);
 // ── Routes that require authentication ──────────────────────────────
 const AUTH_ROUTES = [
   "/profile",
-  "/chat",
-  "/matching",
-  "/exchange",
-  // Legacy /match and /change are plain redirects — no auth required;
-  // they forward to /matching and /exchange which are protected here.
+  // /chat, /messages, /matching, /exchange are public — each page
+  // renders a guest-friendly demo state when there is no session.
   "/desk",
   "/my-objects",
   "/objects/new",
