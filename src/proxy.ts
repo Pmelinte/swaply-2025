@@ -131,6 +131,24 @@ export async function proxy(request: NextRequest) {
   // ── Run intl middleware (handles locale detection & redirect) ──────
   const intlResponse = intlMiddleware(request);
 
+  // ── Stale-cookie sweep (runs on EVERY page route) ─────────────────
+  // If the browser is carrying sb-* auth cookies but Supabase rejects
+  // the session, wipe those cookies from the response so the user
+  // doesn't stay locked in a bad-token state on public pages either.
+  if (
+    hasSessionCookie(request) &&
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  ) {
+    const { supabase } = createMiddlewareSupabase(request);
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      clearSessionCookies(intlResponse, request);
+    }
+  }
+
   // ── Auth checks on locale-prefixed page routes ────────────────────
   const barePath = stripLocale(pathname);
 
