@@ -12,6 +12,7 @@ import { ChatAgenda } from "./ChatAgenda";
 import { ChatSummary } from "./ChatSummary";
 import { ChatConversationHistory } from "./ChatConversationHistory";
 
+import { CAT, getListingCat } from "@/lib/categoryColors";
 import {
   subscribeToConversation,
   broadcastTyping,
@@ -119,6 +120,7 @@ export function ChatPage({ conversationId }: Props) {
   const [agendaOpen, setAgendaOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [releaseModalOpen, setReleaseModalOpen] = useState(false);
+  const [myListingType, setMyListingType] = useState<string | null>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const myRole: "userA" | "userB" =
@@ -226,6 +228,17 @@ export function ChatPage({ conversationId }: Props) {
               read_by: (m.read_by as string[]) ?? [],
             })),
           );
+        }
+
+        const itemIds = conv?.item_ids as string[] | null;
+        if (itemIds && user) {
+          const { data: myItemData } = await sb
+            .from("items")
+            .select("listing_type")
+            .eq("owner_id", user.id)
+            .in("id", itemIds)
+            .maybeSingle();
+          if (myItemData?.listing_type) setMyListingType(myItemData.listing_type as string);
         }
 
         await markConversationRead(sb, conversationId, user!.id);
@@ -524,7 +537,7 @@ export function ChatPage({ conversationId }: Props) {
 
   return (
     // Escape parent wrapper padding; fill viewport between TopBar (44px) and FooterNav (73px)
-    <div className="relative flex flex-col -mx-4 -mt-4 overflow-hidden bg-white border-x border-gray-200 h-[calc(100dvh-44px-73px)]">
+    <div className={`relative flex flex-col -mx-4 -mt-4 overflow-hidden bg-white border-x border-gray-200 h-[calc(100dvh-44px-73px)] ${CAT[getListingCat(myListingType)].leftBorder}`}>
 
       {/* ── Drawer 2: Conversation History (left, 280px) ── */}
       <ChatConversationHistory

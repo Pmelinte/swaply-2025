@@ -26,6 +26,7 @@ import {
   Bath,
   Maximize2,
 } from "lucide-react";
+import { CAT } from "@/lib/categoryColors";
 
 interface PropertyRow {
   id: string;
@@ -197,9 +198,9 @@ function PropertyCard({ row, mode }: { row: PropertyRow; mode: BrowseMode }) {
   return (
     <button
       onClick={() => router.push(`/properties/${row.id}`)}
-      className="item-card group flex w-full flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm transition hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800"
+      className={`item-card group flex w-full flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm transition hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800 ${CAT.properties.topBorder}`}
     >
-      <div className="item-card__image relative aspect-[4/3] w-full overflow-hidden bg-zinc-100 dark:bg-zinc-700">
+      <div className={`item-card__image relative aspect-[4/3] w-full overflow-hidden dark:bg-zinc-700 ${CAT.properties.placeholder}`}>
         <SafeImage
           src={photos[0] || NO_IMAGE_URL}
           alt={title}
@@ -209,7 +210,7 @@ function PropertyCard({ row, mode }: { row: PropertyRow; mode: BrowseMode }) {
           unoptimized={!photos[0]}
         />
         {propType && (
-          <span className="absolute left-2 top-2 rounded-full bg-purple-600/90 px-2 py-0.5 text-[10px] font-semibold text-white backdrop-blur">
+          <span className={`absolute left-2 top-2 rounded-full px-2 py-0.5 text-[10px] font-semibold backdrop-blur ${CAT.properties.badge}`}>
             <Home className="inline h-2.5 w-2.5 mr-0.5" />{propType}
           </span>
         )}
@@ -381,7 +382,7 @@ export default function PropertiesPage() {
           <div className="flex items-center gap-2">
             <Link
               href={user ? "/properties/new" : "/register?returnTo=/properties/new"}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-purple-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-700"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-cat-prop px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500"
             >
               <Plus className="h-4 w-4" />
               Add property
