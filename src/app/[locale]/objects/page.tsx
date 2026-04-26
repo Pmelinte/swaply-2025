@@ -37,6 +37,7 @@ import {
   Bell,
   Zap,
 } from "lucide-react";
+import { CAT, getListingCat } from "@/lib/categoryColors";
 
 const MAX_RIGHT_SWIPES = 3;
 
@@ -209,12 +210,13 @@ function ObjectCard({ item, mode }: { item: Item; mode: BrowseMode }) {
     );
   }
 
+  const cat = getListingCat(item.listingType);
   return (
     <button
       onClick={() => router.push(`/objects/${item.id}`)}
-      className="item-card group flex w-full flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm transition hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800"
+      className={`item-card group flex w-full flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm transition hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800 ${CAT[cat].topBorder}`}
     >
-      <div className="item-card__image relative aspect-[4/3] w-full overflow-hidden bg-zinc-100 dark:bg-zinc-700">
+      <div className={`item-card__image relative aspect-[4/3] w-full overflow-hidden dark:bg-zinc-700 ${CAT[cat].placeholder}`}>
         <SafeImage
           src={item.photos?.[0] || NO_IMAGE_URL}
           alt={item.title}
@@ -223,8 +225,8 @@ function ObjectCard({ item, mode }: { item: Item; mode: BrowseMode }) {
           sizes="100cqi"
           unoptimized={!item.photos?.[0]}
         />
-        <span className="item-card__badge absolute left-2 top-2 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-zinc-700 backdrop-blur dark:bg-zinc-900/80 dark:text-zinc-200">
-          {t("condition_" + normalizeCondition(item.condition))}
+        <span className={`item-card__badge absolute left-2 top-2 rounded-full px-2 py-0.5 text-[10px] font-semibold backdrop-blur ${CAT[cat].badge}`}>
+          {CAT[cat].icon}
         </span>
         {item.isBoosted && (
           <span className="absolute left-2 top-8 flex items-center gap-0.5 rounded-full bg-amber-500/90 px-2 py-0.5 text-[10px] font-bold text-white backdrop-blur">
@@ -232,20 +234,15 @@ function ObjectCard({ item, mode }: { item: Item; mode: BrowseMode }) {
             {t("promoted")}
           </span>
         )}
-        {item.listingType === "property" && (
-          <span className="absolute right-2 top-2 rounded-full bg-purple-600/90 px-2 py-0.5 text-[10px] font-semibold text-white backdrop-blur">
-            <Home className="inline h-2.5 w-2.5 mr-0.5" />{t("badgeProperty")}
-          </span>
-        )}
-        {item.listingType === "service" && (
-          <span className="absolute right-2 top-2 rounded-full bg-green-600/90 px-2 py-0.5 text-[10px] font-semibold text-white backdrop-blur">
-            <Wrench className="inline h-2.5 w-2.5 mr-0.5" />{t("badgeService")}
-          </span>
-        )}
+        <span className="absolute right-2 top-2 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-zinc-700 backdrop-blur dark:bg-zinc-900/80 dark:text-zinc-200">
+          {t("condition_" + normalizeCondition(item.condition))}
+        </span>
       </div>
       <div className="item-card__body flex flex-1 flex-col p-3">
         <h3 className="item-card__title truncate text-sm font-semibold text-zinc-900 dark:text-zinc-50">{translatedTitle}</h3>
-        <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">{tCat(normalizeCategory(item.category))}</p>
+        <p className="mt-0.5">
+          <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${CAT[cat].chip}`}>{tCat(normalizeCategory(item.category))}</span>
+        </p>
         {item.location && (
           <p className="item-card__location mt-1 flex items-center gap-0.5 text-xs text-zinc-400">
             <MapPin className="h-3 w-3" />
@@ -535,7 +532,7 @@ export default function ObjectsPage() {
           )}
           <Link
             href={user ? "/objects/new" : "/register?returnTo=/objects/new"}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-cat-obj px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-sky-500"
           >
             <Plus className="h-4 w-4" />
             {t("addObject")}

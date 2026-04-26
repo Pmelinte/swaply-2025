@@ -5,9 +5,10 @@ import { SafeImage } from "@/components/SafeImage";
 import { useTranslatedText } from "@/hooks/useTranslation";
 import { normalizeCategory, normalizeCondition } from "@/lib/normalize-i18n";
 import { NO_IMAGE_URL } from "@/lib/storage";
-import { MapPin, Zap, Home, Wrench } from "lucide-react";
+import { MapPin, Zap } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { Item } from "@/lib/types";
+import { CAT, getListingCat } from "@/lib/categoryColors";
 
 function TranslatedText({ text }: { text: string }) {
   const out = useTranslatedText(text);
@@ -53,7 +54,7 @@ export function ExploreItemCard({
             )}
           </p>
           <p className="mt-0.5 flex items-center gap-1.5 text-xs text-zinc-500">
-            <span className="rounded-full bg-zinc-100 px-2 py-0.5 dark:bg-zinc-700">
+            <span className={`rounded-full px-2 py-0.5 ${CAT[getListingCat(item.listingType)].chip}`}>
               {tCat(normalizeCategory(item.category) as Parameters<typeof tCat>[0])}
             </span>
             <span>{t(`condition_${normalizeCondition(item.condition)}` as Parameters<typeof t>[0])}</span>
@@ -70,13 +71,14 @@ export function ExploreItemCard({
   }
 
   // grid
+  const cat = getListingCat(item.listingType);
   return (
     <button
       type="button"
       onClick={() => router.push(`/objects/${item.id}`)}
-      className="group flex w-full flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm transition hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800"
+      className={`group flex w-full flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm transition hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800 ${CAT[cat].topBorder}`}
     >
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-zinc-100 dark:bg-zinc-700">
+      <div className={`relative aspect-[4/3] w-full overflow-hidden dark:bg-zinc-700 ${CAT[cat].placeholder}`}>
         <SafeImage
           src={item.photos?.[0] || NO_IMAGE_URL}
           alt={item.title}
@@ -85,24 +87,17 @@ export function ExploreItemCard({
           sizes="100cqi"
           unoptimized={!item.photos?.[0]}
         />
-        <span className="absolute left-2 top-2 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-zinc-700 backdrop-blur dark:bg-zinc-900/80 dark:text-zinc-200">
-          {t(`condition_${normalizeCondition(item.condition)}` as Parameters<typeof t>[0])}
+        <span className={`absolute left-2 top-2 rounded-full px-2 py-0.5 text-[10px] font-semibold backdrop-blur ${CAT[cat].badge}`}>
+          {CAT[cat].icon}
         </span>
         {item.isBoosted && (
           <span className="absolute left-2 top-8 flex items-center gap-0.5 rounded-full bg-amber-500/90 px-1.5 py-0.5 text-[10px] font-bold text-white">
             <Zap className="h-2.5 w-2.5" />
           </span>
         )}
-        {item.listingType === "property" && (
-          <span className="absolute right-2 top-2 rounded-full bg-purple-600/90 px-1.5 py-0.5 text-[10px] font-semibold text-white">
-            <Home className="inline h-2.5 w-2.5" />
-          </span>
-        )}
-        {item.listingType === "service" && (
-          <span className="absolute right-2 top-2 rounded-full bg-green-600/90 px-1.5 py-0.5 text-[10px] font-semibold text-white">
-            <Wrench className="inline h-2.5 w-2.5" />
-          </span>
-        )}
+        <span className="absolute right-2 top-2 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-zinc-700 backdrop-blur dark:bg-zinc-900/80 dark:text-zinc-200">
+          {t(`condition_${normalizeCondition(item.condition)}` as Parameters<typeof t>[0])}
+        </span>
       </div>
       <div className="flex flex-1 flex-col p-2.5">
         <p className="truncate text-xs font-semibold text-zinc-900 dark:text-zinc-50">{titleOut}</p>

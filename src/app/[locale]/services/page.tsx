@@ -26,6 +26,7 @@ import {
   Users,
   Star,
 } from "lucide-react";
+import { CAT } from "@/lib/categoryColors";
 
 interface ServiceRow {
   id: string;
@@ -136,7 +137,7 @@ function ServiceCard({ row, mode }: { row: ServiceRow; mode: BrowseMode }) {
           <h3 className="truncate font-semibold text-zinc-900 dark:text-zinc-50">{title}</h3>
           <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-zinc-500">
             {catL1 && (
-              <span className="rounded-full bg-green-100 px-2 py-0.5 font-medium text-green-700 dark:bg-green-900/30 dark:text-green-300">
+              <span className={`rounded-full px-2 py-0.5 font-medium ${CAT.services.chip}`}>
                 {catL1}
               </span>
             )}
@@ -172,9 +173,9 @@ function ServiceCard({ row, mode }: { row: ServiceRow; mode: BrowseMode }) {
   return (
     <button
       onClick={() => router.push(`/services/${row.id}`)}
-      className="item-card group flex w-full flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm transition hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800"
+      className={`item-card group flex w-full flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm transition hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800 ${CAT.services.topBorder}`}
     >
-      <div className="item-card__image relative aspect-[4/3] w-full overflow-hidden bg-zinc-100 dark:bg-zinc-700">
+      <div className={`item-card__image relative aspect-[4/3] w-full overflow-hidden dark:bg-zinc-700 ${CAT.services.placeholder}`}>
         <SafeImage
           src={photos[0] || NO_IMAGE_URL}
           alt={title}
@@ -184,7 +185,7 @@ function ServiceCard({ row, mode }: { row: ServiceRow; mode: BrowseMode }) {
           unoptimized={!photos[0]}
         />
         {catL1 && (
-          <span className="absolute left-2 top-2 rounded-full bg-green-600/90 px-2 py-0.5 text-[10px] font-semibold text-white backdrop-blur">
+          <span className={`absolute left-2 top-2 rounded-full px-2 py-0.5 text-[10px] font-semibold backdrop-blur ${CAT.services.badge}`}>
             <Wrench className="inline h-2.5 w-2.5 mr-0.5" />{catL1}
           </span>
         )}
@@ -349,7 +350,7 @@ export default function ServicesPage() {
           <div className="flex items-center gap-2">
             <Link
               href={user ? "/services/new" : "/register?returnTo=/services/new"}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-green-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-700"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-cat-svc px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-teal-500"
             >
               <Plus className="h-4 w-4" />
               Add service

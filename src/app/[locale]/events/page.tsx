@@ -25,6 +25,7 @@ import {
   Clock,
   Globe,
 } from "lucide-react";
+import { CAT } from "@/lib/categoryColors";
 
 interface EventRow {
   id: string;
@@ -115,7 +116,7 @@ function EventCard({ row, mode }: { row: EventRow; mode: BrowseMode }) {
           <h3 className="truncate font-semibold text-zinc-900 dark:text-zinc-50">{title}</h3>
           <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-zinc-500">
             {category && (
-              <span className="rounded-full bg-amber-100 px-2 py-0.5 font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
+              <span className={`rounded-full px-2 py-0.5 font-medium ${CAT.events.chip}`}>
                 {category}
               </span>
             )}
@@ -146,9 +147,9 @@ function EventCard({ row, mode }: { row: EventRow; mode: BrowseMode }) {
   return (
     <button
       onClick={() => router.push(`/events/${row.id}`)}
-      className="item-card group flex w-full flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm transition hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800"
+      className={`item-card group flex w-full flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm transition hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800 ${CAT.events.topBorder}`}
     >
-      <div className="item-card__image relative aspect-[4/3] w-full overflow-hidden bg-zinc-100 dark:bg-zinc-700">
+      <div className={`item-card__image relative aspect-[4/3] w-full overflow-hidden dark:bg-zinc-700 ${CAT.events.placeholder}`}>
         <SafeImage
           src={photos[0] || NO_IMAGE_URL}
           alt={title}
@@ -158,7 +159,7 @@ function EventCard({ row, mode }: { row: EventRow; mode: BrowseMode }) {
           unoptimized={!photos[0]}
         />
         {category && (
-          <span className="absolute left-2 top-2 rounded-full bg-amber-500/90 px-2 py-0.5 text-[10px] font-semibold text-white backdrop-blur">
+          <span className={`absolute left-2 top-2 rounded-full px-2 py-0.5 text-[10px] font-semibold backdrop-blur ${CAT.events.badge}`}>
             {category}
           </span>
         )}
@@ -279,7 +280,7 @@ export default function EventsPage() {
           <div className="flex items-center gap-2">
             <Link
               href={user ? "/events/new" : "/register?returnTo=/events/new"}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-amber-500 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-amber-600"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-cat-evt px-3.5 py-2 text-sm font-semibold text-cat-evt-ink shadow-sm hover:bg-yellow-400"
             >
               <Plus className="h-4 w-4" />
               Add event
