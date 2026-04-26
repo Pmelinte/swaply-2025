@@ -1,16 +1,28 @@
-name: Full i18n Audit
+name: Full audit (routes + screenshots)
 
 on:
   workflow_dispatch:
+    inputs:
+      base_url:
+        description: "Base URL to audit"
+        required: false
+        default: "https://www.swaply.world"
 
 jobs:
-  audit:
-    name: Run i18n Audit
+  full-audit:
+    name: Full route audit
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 30
+    permissions:
+      contents: write
+
     env:
-      SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
-      SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      BASE_URL: ${{ github.event.inputs.base_url || 'https://www.swaply.world' }}
+      PLAYWRIGHT_BASE_URL: ${{ github.event.inputs.base_url || 'https://www.swaply.world' }}
+      SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL || secrets.SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY || secrets.SUPABASE_ANON_KEY }}
+      PLAYWRIGHT_TEST_EMAIL: ${{ secrets.PLAYWRIGHT_TEST_EMAIL }}
+      PLAYWRIGHT_TEST_PASSWORD: ${{ secrets.PLAYWRIGHT_TEST_PASSWORD }}
 
     steps:
       - name: Checkout
@@ -20,13 +32,115 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
+          cache: "npm"
 
-      - name: Run full i18n audit
-        run: node scripts/full-i18n-audit.mjs
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
 
-      - name: Upload audit report
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install chromium --with-deps
+
+      - name: Prepare output directories
+        run: |
+          rm -rf audit-results playwright-report test-results
+          mkdir -p audit-results/full-audit/screenshots
+
+      - name: Run full route audit
+        id: audit
+        continue-on-error: true
+        run: npx playwright test tests/audit/full-audit.spec.ts --config=playwright.audit.config.ts
+
+      - name: Upload screenshots to Cloudinary
+        if: always()
+        env:
+          CLOUDINARY_URL: ${{ secrets.CLOUDINARY_URL }}
+        run: |
+          if [ -z "${CLOUDINARY_URL:-}" ]; then
+            echo "CLOUDINARY_URL not set — skipping inline previews"
+            echo "{}" > cloudinary-urls.json
+            exit 0
+          fi
+          python -m pip install --quiet cloudinary
+          python - <<'PY'
+          import cloudinary, cloudinary.uploader, glob, json, os
+          urls = {}
+          for path in sorted(glob.glob("audit-results/full-audit/screenshots/*.png")):
+              name = os.path.basename(path)
+              res = cloudinary.uploader.upload(
+                  path,
+                  folder=f"swaply-full-audit/{os.environ['GITHUB_RUN_ID']}",
+                  public_id=name.removesuffix(".png"),
+                  overwrite=True,
+                  resource_type="image",
+              )
+              urls[name] = res["secure_url"]
+          with open("cloudinary-urls.json", "w") as f:
+              json.dump(urls, f)
+          print(f"Uploaded {len(urls)} screenshots")
+          PY
+
+      - name: Generate audit-report.md
+        if: always()
+        run: node scripts/generate-audit-report.mjs
+
+      - name: Upload audit artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: i18n-audit-report
-          path: audit-reports/
-          retention-days: 90
+          name: full-audit-${{ github.run_id }}
+          path: |
+            audit-report.md
+            audit-results/
+            cloudinary-urls.json
+            playwright-report/
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Post commit comment with summary
+        if: always()
+        uses: actions/github-script@v7
+        env:
+          AUDIT_OUTCOME: ${{ steps.audit.outcome }}
+          DEPLOY_URL: ${{ env.BASE_URL }}
+        with:
+          script: |
+            const fs = require('fs');
+            let report = '';
+            try {
+              report = fs.readFileSync('audit-report.md', 'utf8');
+            } catch (err) {
+              report = `Could not read audit-report.md: ${err.message}`;
+            }
+
+            const status = process.env.AUDIT_OUTCOME === 'success' ? '✅' : '❌';
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const limit = 60_000;
+            const truncated = report.length > limit
+              ? report.slice(0, limit) + `\n\n_Report truncated — full version in artifact \`full-audit-${context.runId}\`._`
+              : report;
+
+            const body = [
+              `## ${status} Full audit — \`${process.env.DEPLOY_URL}\``,
+              ``,
+              `**Run:** [#${context.runId}](${runUrl})`,
+              `**Artifact:** \`full-audit-${context.runId}\``,
+              ``,
+              truncated,
+            ].join('\n');
+
+            await github.rest.repos.createCommitComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: context.sha,
+              body,
+            });
+
+      - name: Fail workflow if audit failed
+        if: steps.audit.outcome != 'success'
+        run: |
+          echo "Audit reported failures — see audit-report.md or commit comment."
+          exit 1
