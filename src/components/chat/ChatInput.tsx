@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Send, Camera, Mic, Globe, Shield } from "lucide-react";
+import { Send, Camera, Mic, Globe, Shield, MapPin, ImageIcon } from "lucide-react";
 import { ChatMediaUpload } from "./ChatMediaUpload";
 import { moderateMessageText } from "@/lib/chat/chatModeration";
 import type { PendingMedia } from "./ChatMediaUpload";
@@ -65,8 +65,17 @@ export function ChatInput({ onSend, onTyping, disabled, loginRequired }: Props) 
         </div>
       )}
 
-      {/* Row 1: Quick action icons + textarea + send */}
+      {/* Row 1: action icons + textarea + moderation icon + send */}
       <div className="flex items-center gap-1">
+        <button
+          type="button"
+          disabled={isDisabled}
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-zinc-500 hover:bg-zinc-100 disabled:opacity-40"
+          aria-label="Location"
+        >
+          <MapPin className="h-4 w-4" />
+        </button>
+
         <ChatMediaUpload
           pending={pendingMedia}
           onMediaSelected={setPendingMedia}
@@ -77,7 +86,16 @@ export function ChatInput({ onSend, onTyping, disabled, loginRequired }: Props) 
           type="button"
           disabled={isDisabled}
           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-zinc-500 hover:bg-zinc-100 disabled:opacity-40"
-          aria-label="Photo"
+          aria-label="Gallery"
+        >
+          <ImageIcon className="h-4 w-4" />
+        </button>
+
+        <button
+          type="button"
+          disabled={isDisabled}
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-zinc-500 hover:bg-zinc-100 disabled:opacity-40"
+          aria-label="Camera"
         >
           <Camera className="h-4 w-4" />
         </button>
@@ -89,15 +107,6 @@ export function ChatInput({ onSend, onTyping, disabled, loginRequired }: Props) 
           aria-label="Voice message"
         >
           <Mic className="h-4 w-4" />
-        </button>
-
-        <button
-          type="button"
-          disabled={isDisabled}
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-zinc-500 hover:bg-zinc-100 disabled:opacity-40"
-          aria-label="Translate"
-        >
-          <Globe className="h-4 w-4" />
         </button>
 
         <textarea
@@ -112,6 +121,17 @@ export function ChatInput({ onSend, onTyping, disabled, loginRequired }: Props) 
           style={{ maxHeight: 72, overflowY: "auto" }}
         />
 
+        {/* Moderation — icon only, muted orange */}
+        <button
+          type="button"
+          disabled={isDisabled}
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-orange-400 opacity-60 hover:bg-orange-50 hover:opacity-100 disabled:opacity-30"
+          aria-label="Request moderation"
+          title="Request moderation"
+        >
+          <Shield className="h-4 w-4" />
+        </button>
+
         <button
           type="button"
           onClick={handleSend}
@@ -123,15 +143,15 @@ export function ChatInput({ onSend, onTyping, disabled, loginRequired }: Props) 
         </button>
       </div>
 
-      {/* Row 2: Request moderation */}
-      <div className="mt-2">
+      {/* Row 2: Translate */}
+      <div className="mt-1.5">
         <button
           type="button"
           disabled={isDisabled}
-          className="flex w-full items-center justify-center gap-2 rounded-xl border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-50 disabled:opacity-40"
+          className="flex items-center gap-1.5 rounded-lg px-1 py-1 text-xs text-zinc-500 hover:text-zinc-800 disabled:opacity-40"
         >
-          <Shield className="h-3.5 w-3.5" />
-          Request moderation
+          <Globe className="h-3.5 w-3.5" />
+          Translate messages
         </button>
       </div>
     </div>

@@ -2,48 +2,34 @@
 
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
-import { ArrowLeft, Menu, MessageCircle } from "lucide-react";
+import { ArrowLeft, MessageCircle, Plus } from "lucide-react";
 import Image from "next/image";
 
 interface Props {
   partnerName: string;
   partnerAvatarUrl?: string | null;
   isPartnerVerified?: boolean;
-  agendaOpen?: boolean;
   historyOpen?: boolean;
-  onToggleAgenda: () => void;
+  sessionStatus?: string | null;
   onToggleHistory: () => void;
+  onNewSession?: () => void;
 }
 
 export function ChatHeader({
   partnerName,
   partnerAvatarUrl,
   isPartnerVerified,
-  agendaOpen,
   historyOpen,
-  onToggleAgenda,
+  sessionStatus,
   onToggleHistory,
+  onNewSession,
 }: Props) {
   const t = useTranslations("chat");
   const router = useRouter();
+  const canStartNewSession = sessionStatus === "paused" || sessionStatus === "completed";
 
   return (
     <div className="flex h-[53px] shrink-0 items-center gap-2 border-b border-zinc-100 bg-white px-3">
-      {/* Conversation history trigger */}
-      <button
-        type="button"
-        onClick={onToggleHistory}
-        className={`rounded-full p-1.5 transition-colors ${
-          historyOpen
-            ? "bg-blue-100 text-blue-700"
-            : "text-zinc-500 hover:bg-zinc-100"
-        }`}
-        aria-label="Conversation history"
-        aria-expanded={historyOpen}
-      >
-        <MessageCircle className="h-5 w-5" />
-      </button>
-
       {/* Back */}
       <button
         type="button"
@@ -73,20 +59,32 @@ export function ChatHeader({
         )}
       </div>
 
-      {/* Agenda toggle */}
+      {/* New Session button — only when paused/completed */}
+      {canStartNewSession && onNewSession && (
+        <button
+          type="button"
+          onClick={onNewSession}
+          className="flex items-center gap-1 rounded-full border border-zinc-200 px-2.5 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-50"
+          aria-label="New session"
+        >
+          <Plus className="h-3.5 w-3.5" />
+          <span className="hidden sm:inline">New session</span>
+        </button>
+      )}
+
+      {/* History drawer trigger */}
       <button
         type="button"
-        onClick={onToggleAgenda}
-        className={`flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs font-medium transition-colors ${
-          agendaOpen
-            ? "bg-blue-100 text-blue-700 hover:bg-blue-200"
-            : "text-zinc-600 hover:bg-zinc-100"
+        onClick={onToggleHistory}
+        className={`rounded-full p-1.5 transition-colors ${
+          historyOpen
+            ? "bg-blue-100 text-blue-700"
+            : "text-zinc-500 hover:bg-zinc-100"
         }`}
-        aria-label="Toggle Exchange Agenda"
-        aria-expanded={agendaOpen}
+        aria-label="Conversation history"
+        aria-expanded={historyOpen}
       >
-        <Menu className="h-4 w-4" />
-        <span className="hidden sm:inline">Agenda</span>
+        <MessageCircle className="h-5 w-5" />
       </button>
     </div>
   );
