@@ -8,11 +8,11 @@ import { getSupabaseClient } from "@/lib/supabase/client";
 import { ChatHeader } from "./ChatHeader";
 import { ChatMessages } from "./ChatMessages";
 import { ChatInput } from "./ChatInput";
-import { ChatAgenda } from "./ChatAgenda";
+import { SwapChecklist } from "./SwapChecklist";
 import { ChatSummary } from "./ChatSummary";
 import { ChatConversationHistory } from "./ChatConversationHistory";
-
 import { CAT, getListingCat } from "@/lib/categoryColors";
+
 import {
   subscribeToConversation,
   broadcastTyping,
@@ -117,10 +117,11 @@ export function ChatPage({ conversationId }: Props) {
   const [haikuPayload, setHaikuPayload] = useState<HaikuSummaryPayload | null>(null);
   const [partnerTyping, setPartnerTyping] = useState(false);
   const [loading, setLoading] = useState(!demoMode);
-  const [agendaOpen, setAgendaOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [releaseModalOpen, setReleaseModalOpen] = useState(false);
   const [myListingType, setMyListingType] = useState<string | null>(null);
+  const [partnerListingType, setPartnerListingType] = useState<string | null>(null);
+  const [sessionStatus, setSessionStatus] = useState<string | null>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const myRole: "userA" | "userB" =
@@ -196,6 +197,27 @@ export function ChatPage({ conversationId }: Props) {
           if (conv.agenda_state) setAgendaState(conv.agenda_state as AgendaState);
           if (rawSummary) setSummary(rawSummary);
           if (rawSummary?.haiku) setHaikuPayload(rawSummary.haiku);
+          setSessionStatus((conv.session_status as string) ?? "active");
+
+          // Detect listing types for category border
+          const itemIds = conv.item_ids as string[] | null;
+          if (itemIds && itemIds.length > 0) {
+            const { data: itemsData } = await sb
+              .from("items")
+              .select("id, listing_type, owner_id")
+              .in("id", itemIds)
+              .limit(2);
+            if (itemsData) {
+              const myItem = itemsData.find(
+                (it: Record<string, unknown>) => it.owner_id === user!.id,
+              );
+              const theirItem = itemsData.find(
+                (it: Record<string, unknown>) => it.owner_id !== user!.id,
+              );
+              if (myItem?.listing_type) setMyListingType(myItem.listing_type as string);
+              if (theirItem?.listing_type) setPartnerListingType(theirItem.listing_type as string);
+            }
+          }
         } else {
           const parts = conversationId.replace("dm:", "").split(":");
           const partnerId = parts.find((p) => p !== user!.id) ?? "";
@@ -228,17 +250,6 @@ export function ChatPage({ conversationId }: Props) {
               read_by: (m.read_by as string[]) ?? [],
             })),
           );
-        }
-
-        const itemIds = conv?.item_ids as string[] | null;
-        if (itemIds && user) {
-          const { data: myItemData } = await sb
-            .from("items")
-            .select("listing_type")
-            .eq("owner_id", user.id)
-            .in("id", itemIds)
-            .maybeSingle();
-          if (myItemData?.listing_type) setMyListingType(myItemData.listing_type as string);
         }
 
         await markConversationRead(sb, conversationId, user!.id);
@@ -393,6 +404,50 @@ export function ChatPage({ conversationId }: Props) {
     [agendaState, myRole, user, conversationId, demoMode],
   );
 
+  // ── Continue later (pause session) ──
+
+  const handleContinueLater = useCallback(async () => {
+    setSessionStatus("paused");
+    if (demoMode || !user) return;
+    const supabase = getSupabaseClient();
+    if (!supabase) return;
+    await supabase
+      .from("conversations")
+      .update({ session_status: "paused" })
+      .eq("id", conversationId);
+  }, [conversationId, demoMode, user]);
+
+  // ── New session ──
+
+  const handleNewSession = useCallback(async () => {
+    if (demoMode || !user || !meta) return;
+    const supabase = getSupabaseClient();
+    if (!supabase) return;
+
+    const { data: convData } = await supabase
+      .from("conversations")
+      .select("session_number")
+      .eq("id", conversationId)
+      .maybeSingle();
+    const nextSession = ((convData?.session_number as number) ?? 1) + 1;
+
+    const { data: newConv } = await supabase
+      .from("conversations")
+      .insert({
+        participant_ids: meta.participantIds,
+        swap_id: meta.swapId,
+        session_number: nextSession,
+        session_status: "active",
+        agenda_state: buildInitialAgenda(),
+      })
+      .select("id")
+      .maybeSingle();
+
+    if (newConv?.id) {
+      router.push(`/chat/${newConv.id as string}`);
+    }
+  }, [demoMode, user, meta, conversationId, router]);
+
   // ── Summary generation ──
 
   const handleGenerateSummary = useCallback(async () => {
@@ -504,19 +559,24 @@ export function ChatPage({ conversationId }: Props) {
   const headerPartnerName = meta?.partnerName ?? demo?.partnerUsername ?? "...";
   const headerAvatar = meta?.partnerAvatarUrl ?? demo?.partnerAvatar ?? null;
   const headerVerified = meta?.partnerVerified ?? false;
-
-  function handleToggleAgenda() {
-    setAgendaOpen((prev) => !prev);
-    if (historyOpen) setHistoryOpen(false);
-  }
-
-  function handleToggleHistory() {
-    setHistoryOpen((prev) => !prev);
-    if (agendaOpen) setAgendaOpen(false);
-  }
-
-  const canGenerate = allRequiredAgreed(agendaState);
   const isGuest = !user && !demoMode;
+  const canGenerate = allRequiredAgreed(agendaState);
+
+  // ── Category border style (gradient for cross-category) ──
+
+  const myCat = getListingCat(myListingType);
+  const partnerCat = getListingCat(partnerListingType);
+  const isCrossCategory = myListingType && partnerListingType && myCat !== partnerCat;
+  const borderStyle: React.CSSProperties = isCrossCategory
+    ? {
+        borderLeft: "4px solid transparent",
+        backgroundImage: `linear-gradient(white, white), linear-gradient(to bottom, ${CAT[myCat].hex}, ${CAT[partnerCat].hex})`,
+        backgroundOrigin: "border-box",
+        backgroundClip: "padding-box, border-box",
+      }
+    : {
+        borderLeft: `4px solid ${CAT[myCat].hex}`,
+      };
 
   const summaryElement =
     meta && (user || demoMode) ? (
@@ -537,9 +597,9 @@ export function ChatPage({ conversationId }: Props) {
 
   return (
     // Escape parent wrapper padding; fill viewport between TopBar (44px) and FooterNav (73px)
-    <div className={`relative flex flex-col -mx-4 -mt-4 overflow-hidden bg-white border-x border-gray-200 h-[calc(100dvh-44px-73px)] ${CAT[getListingCat(myListingType)].leftBorder}`}>
+    <div className="relative flex -mx-4 -mt-4 overflow-hidden bg-white h-[calc(100dvh-44px-73px)]">
 
-      {/* ── Drawer 2: Conversation History (left, 280px) ── */}
+      {/* ── Drawer: Conversation History (left overlay, 280px) ── */}
       <ChatConversationHistory
         open={historyOpen}
         onClose={() => setHistoryOpen(false)}
@@ -547,84 +607,83 @@ export function ChatPage({ conversationId }: Props) {
         currentConversationId={conversationId}
       />
 
-      {/* ── Drawer 1: Agenda (right, 320px) ── */}
-      {agendaOpen && (
-        <div
-          className="absolute inset-0 z-40 bg-black/30"
-          onClick={() => setAgendaOpen(false)}
-        />
-      )}
+      {/* ── Left column: main chat area ── */}
       <div
-        className={`absolute inset-y-0 right-0 z-50 flex w-[320px] flex-col bg-white shadow-xl transition-transform duration-300 ${
-          agendaOpen ? "translate-x-0" : "translate-x-full"
-        }`}
+        className="flex flex-col flex-1 min-w-0 overflow-hidden"
+        style={borderStyle}
       >
-        <ChatAgenda
-          variant="sidebar"
+        {/* Zone 0: Subheader / ChatHeader (53px) */}
+        <ChatHeader
+          partnerName={headerPartnerName}
+          partnerAvatarUrl={headerAvatar}
+          isPartnerVerified={headerVerified}
+          historyOpen={historyOpen}
+          sessionStatus={sessionStatus}
+          onToggleHistory={() => setHistoryOpen((prev) => !prev)}
+          onNewSession={handleNewSession}
+        />
+
+        {/* Zone 1: Chat messages (flex-1, internal scroll) */}
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+          {isGuest ? (
+            <div className="flex h-full flex-col items-center justify-center gap-3 p-8 text-center">
+              <p className="text-sm text-zinc-500">{t("signInRequired")}</p>
+            </div>
+          ) : (
+            <ChatMessages
+              messages={messages}
+              currentUserId={user?.id ?? "demo-me"}
+              partnerTyping={partnerTyping}
+              partnerName={headerPartnerName}
+              loading={loading}
+            />
+          )}
+        </div>
+
+        {/* Zone 2: Toolbar (~80px) */}
+        <ChatInput
+          onSend={handleSend}
+          onTyping={handleTyping}
+          loginRequired={isGuest}
+        />
+
+        {/* Zone 3: CTA (~72px) */}
+        <div className="flex shrink-0 items-center gap-2 border-t border-zinc-100 bg-white px-3 py-3">
+          <button
+            type="button"
+            onClick={() => router.push("/exchange")}
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-blue-600 px-3 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
+          >
+            <span>→</span>
+            Swaply
+          </button>
+          <button
+            type="button"
+            onClick={() => setReleaseModalOpen(true)}
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-red-300 px-3 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50"
+          >
+            <span>←</span>
+            Back to Matching
+          </button>
+        </div>
+      </div>
+
+      {/* ── Right column: Swap Checklist (fixed, hidden on mobile) ── */}
+      <div className="hidden lg:flex w-72 shrink-0 flex-col border-l border-zinc-100 overflow-hidden">
+        <SwapChecklist
           agendaState={agendaState}
           myRole={myRole}
           partnerName={headerPartnerName}
           onToggle={handleAgendaItemStatus}
-          onGenerateSummary={() => {
-            void handleGenerateSummary().catch(() => {});
-          }}
-          summarySlot={summaryElement}
+          onContinueLater={handleContinueLater}
+          onGoToExchange={() => router.push("/exchange")}
         />
-      </div>
-
-      {/* ── Zone 0: Subheader / ChatHeader (53px) ── */}
-      <ChatHeader
-        partnerName={headerPartnerName}
-        partnerAvatarUrl={headerAvatar}
-        isPartnerVerified={headerVerified}
-        agendaOpen={agendaOpen}
-        historyOpen={historyOpen}
-        onToggleAgenda={handleToggleAgenda}
-        onToggleHistory={handleToggleHistory}
-      />
-
-      {/* ── Zone 1: Chat messages (flex-1, internal scroll) ── */}
-      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-        {isGuest ? (
-          <div className="flex h-full flex-col items-center justify-center gap-3 p-8 text-center">
-            <p className="text-sm text-zinc-500">{t("signInRequired")}</p>
+        {/* Summary pinned below checklist if generated */}
+        {summaryElement && (
+          <div className="shrink-0 border-t border-zinc-100 p-3">
+            {summaryElement}
           </div>
-        ) : (
-          <ChatMessages
-            messages={messages}
-            currentUserId={user?.id ?? "demo-me"}
-            partnerTyping={partnerTyping}
-            partnerName={headerPartnerName}
-            loading={loading}
-          />
         )}
-      </div>
-
-      {/* ── Zone 2: Toolbar (~80px) ── */}
-      <ChatInput
-        onSend={handleSend}
-        onTyping={handleTyping}
-        loginRequired={isGuest}
-      />
-
-      {/* ── Zone 3: CTA (~72px) ── */}
-      <div className="flex shrink-0 items-center gap-2 border-t border-zinc-100 bg-white px-3 py-3">
-        <button
-          type="button"
-          onClick={() => router.push("/exchange")}
-          className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-blue-600 px-3 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
-        >
-          <span>→</span>
-          Go to Exchange
-        </button>
-        <button
-          type="button"
-          onClick={() => setReleaseModalOpen(true)}
-          className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-red-300 px-3 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50"
-        >
-          <span>←</span>
-          Back to Matching
-        </button>
       </div>
 
       {/* ── Release confirmation modal ── */}
@@ -633,7 +692,8 @@ export function ChatPage({ conversationId }: Props) {
           <div className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-xl">
             <p className="mb-1 text-base font-semibold text-zinc-900">Release this item?</p>
             <p className="mb-5 text-sm text-zinc-500">
-              Releasing this item will remove it from this swap. Are you sure?
+              Releasing this item will remove it from this swap and make it available again.
+              Are you sure?
             </p>
             <div className="flex gap-2">
               <button
