@@ -1,5 +1,10 @@
 import { redirect } from '@/i18n/navigation';
 
-export default function SettingsPage() {
-  redirect('/profile?tab=account-settings');
+type Props = {
+  params: Promise<{ locale: string }>;
+};
+
+export default async function SettingsPage({ params }: Props) {
+  const { locale } = await params;
+  redirect({ href: '/profile?tab=account-settings', locale });
 }
