@@ -55,6 +55,12 @@ interface PropertyRow {
   is_active?: boolean;
   wizard_type?: string;
   property_data?: Record<string, unknown>;
+  items?: {
+    title?: string;
+    image_url?: string | null;
+    images?: (string | { url?: string; order?: number })[] | null;
+    description?: string;
+  } | null;
 }
 
 type BrowseMode = "grid" | "list";
@@ -71,6 +77,14 @@ function getPhotos(row: PropertyRow): string[] {
     if (urls.length > 0) return urls;
   }
   if (row.image_url) return [row.image_url];
+  const it = row.items;
+  if (it?.image_url) return [it.image_url];
+  if (Array.isArray(it?.images)) {
+    const urls = (it.images as (string | { url?: string })[])
+      .map((p) => (typeof p === "string" ? p : p?.url))
+      .filter((u): u is string => typeof u === "string" && u.length > 0);
+    if (urls.length > 0) return urls;
+  }
   return [];
 }
 
@@ -133,6 +147,7 @@ function getArea(row: PropertyRow): number | null {
 
 function getTitle(row: PropertyRow): string {
   if (row.title) return row.title;
+  if (row.items?.title) return row.items.title;
   const type = getPropertyType(row);
   const loc = getLocation(row);
   if (type && loc) return `${type} in ${loc}`;
@@ -298,7 +313,7 @@ export default function PropertiesPage() {
       // Try dedicated properties table first
       const { data: propsData, error: propsError } = await supabase
         .from("properties")
-        .select("*")
+        .select("*, items(title, image_url, images, description)")
         .eq("status", "active")
         .order("created_at", { ascending: false })
         .limit(500);
