@@ -124,9 +124,10 @@ function shouldIgnoreEntry(text: string) {
   return ERROR_IGNORE_PATTERNS.some((pattern) => pattern.test(text));
 }
 
-// Set once in beforeAll, injected into each viewport context's localStorage.
+// Set once in beforeAll, injected as a cookie into each viewport context.
 let savedSession: Record<string, unknown> | null = null;
-let authStorageKey = "";
+let authCookieName = "";
+let authCookieDomain = "";
 
 function classifyRoute(result: Omit<RouteResult, "severity" | "severityReasons">) {
   const reasons: string[] = [];
@@ -340,8 +341,9 @@ test.describe("swaply.world full route audit", () => {
         savedSession = (await loginRes.json()) as Record<string, unknown>;
         const projectRef =
           SUPABASE_URL.match(/https?:\/\/([^.]+)\.supabase\.co/)?.[1] ?? "";
-        authStorageKey = projectRef ? `sb-${projectRef}-auth-token` : "sb-auth-token";
-        console.log(`✅ Logged in as ${TEST_EMAIL} (key: ${authStorageKey})`);
+        authCookieName = projectRef ? `sb-${projectRef}-auth-token` : "sb-auth-token";
+        authCookieDomain = new URL(BASE_URL).hostname;
+        console.log(`✅ Logged in as ${TEST_EMAIL} (cookie: ${authCookieName})`);
       } else {
         console.warn(`⚠️ Login failed (HTTP ${loginRes.status()}) — running as anonymous`);
       }
@@ -392,22 +394,25 @@ test.describe("swaply.world full route audit", () => {
           });
         });
 
-        // Inject fresh session (obtained once in beforeAll) into localStorage.
-        // No cached storageState file — token is always fresh for this run.
+        // Inject fresh session (obtained once in beforeAll) as a cookie so
+        // @supabase/ssr middleware can read it on the first SSR request.
         let loggedIn = false;
-        if (savedSession?.access_token && authStorageKey) {
+        if (savedSession?.access_token && authCookieName) {
           try {
-            await page.goto(BASE_URL, { waitUntil: "domcontentloaded", timeout: 20_000 });
-            await page.evaluate(
-              ({ key, value }: { key: string; value: string }) => {
-                localStorage.setItem(key, value);
+            await context.addCookies([
+              {
+                name: authCookieName,
+                value: JSON.stringify(savedSession),
+                domain: authCookieDomain,
+                path: "/",
+                httpOnly: false,
+                secure: true,
+                sameSite: "Lax",
               },
-              { key: authStorageKey, value: JSON.stringify(savedSession) }
-            );
-            await page.reload({ waitUntil: "domcontentloaded" });
+            ]);
             loggedIn = true;
           } catch (err) {
-            console.warn(`[auth] Session injection failed: ${(err as Error).message}`);
+            console.warn(`[auth] Cookie injection failed: ${(err as Error).message}`);
           }
         }
         if (viewportName === "desktop") authenticated = loggedIn;
