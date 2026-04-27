@@ -25,29 +25,35 @@ jobs:
         with:
           node-version: "20"
           cache: "npm"
+          # NOTE: only npm packages are cached here.
+          # Auth state (playwright/.auth/storage.json) is intentionally excluded
+          # and always regenerated fresh — see "Login" step below.
 
       - name: Install dependencies
-        run: |
-          if [ -f package-lock.json ]; then
-            npm ci
-          else
-            npm install
-          fi
+        run: npm ci
 
       - name: Ensure Playwright browsers are installed
         run: npx playwright install --with-deps chromium
 
       - name: Prepare output directories
         run: |
-          rm -rf test-results
-          rm -rf playwright-report
-          rm -rf audit-results
-          mkdir -p test-results
-          mkdir -p playwright-report
-          mkdir -p audit-results
+          rm -rf test-results playwright-report audit-results playwright/.auth
+          mkdir -p test-results playwright-report audit-results playwright/.auth
+
+      - name: Login – generate playwright/.auth/storage.json
+        # Runs tests/auth/setup.ts via the "login" project.
+        # Always deletes any stale storage.json first, then calls Supabase
+        # and saves a fresh storage state. Never reads from cache.
+        run: >
+          npx playwright test
+          --config=playwright.audit.config.ts
+          --project=login
 
       - name: Run Playwright authenticated audit suite
-        run: npx playwright test tests/audit.spec.ts --config=playwright.audit.config.ts
+        run: >
+          npx playwright test tests/audit.spec.ts
+          --config=playwright.audit.config.ts
+          --project=audit-chromium
 
       - name: Upload deep audit results
         if: always()
