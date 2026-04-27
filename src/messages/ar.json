@@ -710,7 +710,8 @@
     "nextPhoto": "الصورة التالية",
     "selectPhoto": "تحديد الصورة {number}",
     "reservedMessage": "هذا العنصر محجوز ولا يمكن تبديله الآن.",
-    "requestBetterTranslation": "طلب ترجمة أفضل"
+    "requestBetterTranslation": "طلب ترجمة أفضل",
+    "openLightbox": "Open in lightbox"
   },
   "objectEdit": {
     "loading": "جارٍ تحميل المحرر",

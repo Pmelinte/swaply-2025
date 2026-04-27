@@ -710,7 +710,8 @@
     "nextPhoto": "รูปภาพถัดไป",
     "selectPhoto": "เลือกรูปภาพ {number}",
     "reservedMessage": "รายการนี้ถูกสงวนไว้และไม่สามารถแลกเปลี่ยนได้ในขณะนี้",
-    "requestBetterTranslation": "ขอการแปลที่ดีขึ้น"
+    "requestBetterTranslation": "ขอการแปลที่ดีขึ้น",
+    "openLightbox": "Open in lightbox"
   },
   "objectEdit": {
     "loading": "กำลังโหลดตัวแก้ไข",

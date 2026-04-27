@@ -710,7 +710,8 @@
     "nextPhoto": "下一张照片",
     "selectPhoto": "选择照片 {number}",
     "reservedMessage": "此物品已被预留，目前无法交换。",
-    "requestBetterTranslation": "请求更好的翻译"
+    "requestBetterTranslation": "请求更好的翻译",
+    "openLightbox": "Open in lightbox"
   },
   "objectEdit": {
     "loading": "正在加载编辑器",

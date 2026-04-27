@@ -710,7 +710,8 @@
     "nextPhoto": "Επόμενη φωτογραφία",
     "selectPhoto": "Επιλέξτε φωτογραφία {number}",
     "reservedMessage": "Αυτό το είδος είναι κρατημένο και δεν μπορεί να ανταλλαχθεί αυτή τη στιγμή.",
-    "requestBetterTranslation": "Ζητήστε καλύτερη μετάφραση"
+    "requestBetterTranslation": "Ζητήστε καλύτερη μετάφραση",
+    "openLightbox": "Open in lightbox"
   },
   "objectEdit": {
     "loading": "Φόρτωση επεξεργαστή",

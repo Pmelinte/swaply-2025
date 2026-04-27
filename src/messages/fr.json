@@ -710,7 +710,8 @@
     "nextPhoto": "Suivant photo",
     "selectPhoto": "Sélectionner la photo {number}",
     "reservedMessage": "Cet article est réservé et ne peut pas être échangé en ce moment.",
-    "requestBetterTranslation": "Demander une meilleure traduction"
+    "requestBetterTranslation": "Demander une meilleure traduction",
+    "openLightbox": "Open in lightbox"
   },
   "objectEdit": {
     "loading": "Chargement de l'éditeur",

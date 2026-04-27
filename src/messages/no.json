@@ -710,7 +710,8 @@
     "nextPhoto": "Neste bilde",
     "selectPhoto": "Velg bilde {number}",
     "reservedMessage": "Denne gjenstanden er reservert og kan ikke byttes nå.",
-    "requestBetterTranslation": "Be om bedre oversettelse"
+    "requestBetterTranslation": "Be om bedre oversettelse",
+    "openLightbox": "Open in lightbox"
   },
   "objectEdit": {
     "loading": "Laster redigerer",

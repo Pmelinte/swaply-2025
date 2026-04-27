@@ -710,7 +710,8 @@
     "nextPhoto": "Sonraki fotoğraf",
     "selectPhoto": "Fotoğraf {number} seç",
     "reservedMessage": "Bu öğe rezerve edilmiş ve şu anda değiş tokuş edilemez.",
-    "requestBetterTranslation": "Daha iyi çeviri talep et"
+    "requestBetterTranslation": "Daha iyi çeviri talep et",
+    "openLightbox": "Open in lightbox"
   },
   "objectEdit": {
     "loading": "Düzenleyici yükleniyor",

@@ -739,7 +739,8 @@
     "nextPhoto": "נעקסטע פאטא",
     "selectPhoto": "ווילן פאטא {number}",
     "reservedMessage": "דער אייטעם איז רעזערווירט און קען נישט אויסגטוישט ווערן איצטער.",
-    "requestBetterTranslation": "בעטן בעסערע איבערזעצונג"
+    "requestBetterTranslation": "בעטן בעסערע איבערזעצונג",
+    "openLightbox": "Open in lightbox"
   },
   "objectEdit": {
     "loading": "לאדינג עדיטאר",

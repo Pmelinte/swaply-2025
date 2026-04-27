@@ -710,7 +710,8 @@
     "nextPhoto": "Kita nuotrauka",
     "selectPhoto": "Pasirinkti nuotrauką {number}",
     "reservedMessage": "Ši prekė yra rezervuota ir šiuo metu negali būti keičiama.",
-    "requestBetterTranslation": "Paprašyti geresnio vertimo"
+    "requestBetterTranslation": "Paprašyti geresnio vertimo",
+    "openLightbox": "Open in lightbox"
   },
   "objectEdit": {
     "loading": "Kraunamas redaktorius",

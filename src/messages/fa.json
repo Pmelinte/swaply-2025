@@ -710,7 +710,8 @@
     "nextPhoto": "عکس بعدی",
     "selectPhoto": "انتخاب عکس {number}",
     "reservedMessage": "این مورد رزرو شده است و در حال حاضر نمی‌تواند تبدیل شود.",
-    "requestBetterTranslation": "درخواست ترجمه بهتر"
+    "requestBetterTranslation": "درخواست ترجمه بهتر",
+    "openLightbox": "Open in lightbox"
   },
   "objectEdit": {
     "loading": "در حال بارگذاری ویرایشگر",

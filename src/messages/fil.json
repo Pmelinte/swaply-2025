@@ -710,7 +710,8 @@
     "nextPhoto": "Susunod na larawan",
     "selectPhoto": "Piliin ang larawan {number}",
     "reservedMessage": "Ang item na ito ay nakalaan at hindi maaaring maipagpalitan ngayon.",
-    "requestBetterTranslation": "Humiling ng mas magandang pagsasalin"
+    "requestBetterTranslation": "Humiling ng mas magandang pagsasalin",
+    "openLightbox": "Open in lightbox"
   },
   "objectEdit": {
     "loading": "Naglo-load ng editor",

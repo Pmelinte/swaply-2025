@@ -710,7 +710,8 @@
     "nextPhoto": "다음 사진",
     "selectPhoto": "사진 {number} 선택",
     "reservedMessage": "이 항목은 예약되어 있으며 현재 교환할 수 없습니다.",
-    "requestBetterTranslation": "더 나은 번역 요청"
+    "requestBetterTranslation": "더 나은 번역 요청",
+    "openLightbox": "Open in lightbox"
   },
   "objectEdit": {
     "loading": "편집기 로딩 중",

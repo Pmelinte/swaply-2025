@@ -710,7 +710,8 @@
     "nextPhoto": "Foto li jmiss",
     "selectPhoto": "Agħżel foto {number}",
     "reservedMessage": "Din l-oġġett hija riservata u ma tistax tinbidel issa.",
-    "requestBetterTranslation": "Trekwisti traduzzjoni aħjar"
+    "requestBetterTranslation": "Trekwisti traduzzjoni aħjar",
+    "openLightbox": "Open in lightbox"
   },
   "objectEdit": {
     "loading": "Qed jillowdja l-editur",

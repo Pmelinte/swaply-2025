@@ -710,7 +710,8 @@
     "nextPhoto": "পরবর্তী ফটো",
     "selectPhoto": "ফটো {number} নির্বাচন করুন",
     "reservedMessage": "এই আইটেমটি সংরক্ষিত এবং এখন বিনিময় করা যায় না।",
-    "requestBetterTranslation": "আরও ভাল অনুবাদ অনুরোধ করুন"
+    "requestBetterTranslation": "আরও ভাল অনুবাদ অনুরোধ করুন",
+    "openLightbox": "Open in lightbox"
   },
   "objectEdit": {
     "loading": "সম্পাদক লোড হচ্ছে",

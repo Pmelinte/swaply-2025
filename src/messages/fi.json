@@ -710,7 +710,8 @@
     "nextPhoto": "Seuraava kuva",
     "selectPhoto": "Valitse kuva {number}",
     "reservedMessage": "Tämä tuote on varattu eikä sitä voi vaihtaa juuri nyt.",
-    "requestBetterTranslation": "Pyydä parempaa käännöstä"
+    "requestBetterTranslation": "Pyydä parempaa käännöstä",
+    "openLightbox": "Open in lightbox"
   },
   "objectEdit": {
     "loading": "Ladataan muokkainta",

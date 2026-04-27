@@ -183,9 +183,9 @@ export default async function LocaleLayout({ children, params }: Props) {
             <TopBar />
             <BranchBar />
             <ContextBar />
-            <div className="mx-auto min-h-screen max-w-6xl px-4 pb-24 pt-4">
+            <main className="mx-auto min-h-screen max-w-6xl px-4 pb-24 pt-4">
               {children}
-            </div>
+            </main>
             <FooterNav />
             <UnifiedSideDrawer />
             <ClientOverlays />
