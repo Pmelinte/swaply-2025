@@ -710,7 +710,8 @@
     "nextPhoto": "Næste foto",
     "selectPhoto": "Vælg foto {number}",
     "reservedMessage": "Denne vare er reserveret og kan ikke byttes lige nu.",
-    "requestBetterTranslation": "Anmod om bedre oversættelse"
+    "requestBetterTranslation": "Anmod om bedre oversættelse",
+    "openLightbox": "Open in lightbox"
   },
   "objectEdit": {
     "loading": "Indlæser editor",

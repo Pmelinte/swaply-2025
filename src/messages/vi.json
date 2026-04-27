@@ -710,7 +710,8 @@
     "nextPhoto": "Ảnh tiếp theo",
     "selectPhoto": "Chọn ảnh {number}",
     "reservedMessage": "Mục này đã được đặt trước và không thể trao đổi ngay bây giờ.",
-    "requestBetterTranslation": "Yêu cầu dịch tốt hơn"
+    "requestBetterTranslation": "Yêu cầu dịch tốt hơn",
+    "openLightbox": "Open in lightbox"
   },
   "objectEdit": {
     "loading": "Đang tải trình chỉnh sửa",

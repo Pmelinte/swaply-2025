@@ -710,7 +710,8 @@
     "nextPhoto": "An grianghraf seo a leanas",
     "selectPhoto": "Roghnaigh grianghraf {number}",
     "reservedMessage": "Tá an mhír seo feistithe agus ní féidir í a mhalartú faoi láthair.",
-    "requestBetterTranslation": "Iarraidh aistriúchán níos fearr"
+    "requestBetterTranslation": "Iarraidh aistriúchán níos fearr",
+    "openLightbox": "Open in lightbox"
   },
   "objectEdit": {
     "loading": "Ag luchtú eagarthóra",

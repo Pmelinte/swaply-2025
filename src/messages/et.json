@@ -710,7 +710,8 @@
     "nextPhoto": "Järgmine foto",
     "selectPhoto": "Vali foto {number}",
     "reservedMessage": "See ese on reserveeritud ja seda pole hetkel võimalik vahetada.",
-    "requestBetterTranslation": "Palun paremat tõlget"
+    "requestBetterTranslation": "Palun paremat tõlget",
+    "openLightbox": "Open in lightbox"
   },
   "objectEdit": {
     "loading": "Redaktori laadimine",

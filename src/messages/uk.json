@@ -710,7 +710,8 @@
     "nextPhoto": "Наступна фотографія",
     "selectPhoto": "Виберіть фотографію {number}",
     "reservedMessage": "Цей товар зарезервований і зараз не може бути обміняний.",
-    "requestBetterTranslation": "Запросити кращий переклад"
+    "requestBetterTranslation": "Запросити кращий переклад",
+    "openLightbox": "Open in lightbox"
   },
   "objectEdit": {
     "loading": "Завантаження редактора",

@@ -710,7 +710,8 @@
     "nextPhoto": "अगली फोटो",
     "selectPhoto": "फोटो {number} चुनें",
     "reservedMessage": "यह वस्तु आरक्षित है और अभी विनिमय नहीं की जा सकती।",
-    "requestBetterTranslation": "बेहतर अनुवाद का अनुरोध करें"
+    "requestBetterTranslation": "बेहतर अनुवाद का अनुरोध करें",
+    "openLightbox": "Open in lightbox"
   },
   "objectEdit": {
     "loading": "संपादक लोड हो रहा है",

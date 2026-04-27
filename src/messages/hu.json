@@ -710,7 +710,8 @@
     "nextPhoto": "Következő fénykép",
     "selectPhoto": "Válassz fotót {number}",
     "reservedMessage": "Ez a tárgy foglalt, és jelenleg nem cserélhető.",
-    "requestBetterTranslation": "Jobb fordítást kérj"
+    "requestBetterTranslation": "Jobb fordítást kérj",
+    "openLightbox": "Open in lightbox"
   },
   "objectEdit": {
     "loading": "Szerkesztő betöltése",

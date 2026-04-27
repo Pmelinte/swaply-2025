@@ -710,7 +710,8 @@
     "nextPhoto": "Naslednja fotografija",
     "selectPhoto": "Izberi fotografijo {number}",
     "reservedMessage": "Ta predmet je rezerviran in ga trenutno ni mogoče zamenjati.",
-    "requestBetterTranslation": "Zahtevaj boljši prevod"
+    "requestBetterTranslation": "Zahtevaj boljši prevod",
+    "openLightbox": "Open in lightbox"
   },
   "objectEdit": {
     "loading": "Nalaganje urejevalnika",

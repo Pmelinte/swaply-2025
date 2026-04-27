@@ -710,7 +710,8 @@
     "nextPhoto": "Następne zdjęcie",
     "selectPhoto": "Wybierz zdjęcie {number}",
     "reservedMessage": "Ten przedmiot jest zarezerwowany i nie może być wymieniony teraz.",
-    "requestBetterTranslation": "Poproś o lepsze tłumaczenie"
+    "requestBetterTranslation": "Poproś o lepsze tłumaczenie",
+    "openLightbox": "Open in lightbox"
   },
   "objectEdit": {
     "loading": "Ładowanie edytora",

@@ -710,7 +710,8 @@
     "nextPhoto": "Foto berikutnya",
     "selectPhoto": "Pilih foto {number}",
     "reservedMessage": "Item ini sudah dipesan dan tidak dapat ditukar saat ini.",
-    "requestBetterTranslation": "Minta terjemahan yang lebih baik"
+    "requestBetterTranslation": "Minta terjemahan yang lebih baik",
+    "openLightbox": "Open in lightbox"
   },
   "objectEdit": {
     "loading": "Memuat editor",

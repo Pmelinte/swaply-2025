@@ -739,7 +739,8 @@
     "nextPhoto": "Fotografia următoare",
     "selectPhoto": "Selectează fotografia {number}",
     "reservedMessage": "Acest articol este rezervat și nu poate fi schimbat în acest moment.",
-    "requestBetterTranslation": "Solicită o traducere mai bună"
+    "requestBetterTranslation": "Solicită o traducere mai bună",
+    "openLightbox": "Open in lightbox"
   },
   "objectEdit": {
     "loading": "Se încarcă editorul",

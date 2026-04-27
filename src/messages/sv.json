@@ -1680,7 +1680,8 @@
     "nextPhoto": "Nästa foto",
     "selectPhoto": "Välj foto {number}",
     "reservedMessage": "Det här objektet är reserverat och kan inte bytas ut just nu.",
-    "requestBetterTranslation": "Begär bättre översättning"
+    "requestBetterTranslation": "Begär bättre översättning",
+    "openLightbox": "Open in lightbox"
   },
   "objectEdit": {
     "loading": "Laddar redigerare",

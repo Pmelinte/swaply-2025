@@ -710,7 +710,8 @@
     "nextPhoto": "Ďalšia fotografia",
     "selectPhoto": "Vybrať fotku {number}",
     "reservedMessage": "Tento predmet je rezervovaný a momentálne sa nedá vymeniť.",
-    "requestBetterTranslation": "Požiadať o lepší preklad"
+    "requestBetterTranslation": "Požiadať o lepší preklad",
+    "openLightbox": "Open in lightbox"
   },
   "objectEdit": {
     "loading": "Načítavanie editora",

@@ -710,7 +710,8 @@
     "nextPhoto": "Další foto",
     "selectPhoto": "Vybrat foto {number}",
     "reservedMessage": "Tato položka je rezervována a v tuto chvíli ji není možné vyměňovat.",
-    "requestBetterTranslation": "Požádat o lepší překlad"
+    "requestBetterTranslation": "Požádat o lepší překlad",
+    "openLightbox": "Open in lightbox"
   },
   "objectEdit": {
     "loading": "Načítání editoru",

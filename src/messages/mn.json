@@ -710,7 +710,8 @@
     "nextPhoto": "Дараагийн зураг",
     "selectPhoto": "{number} зурагыг сонгоно уу",
     "reservedMessage": "Энэ зүйл нь сомолоотой байгаа бөгөөд одоо солилцож болохгүй.",
-    "requestBetterTranslation": "Илүү сайн орчуулга хүсэх"
+    "requestBetterTranslation": "Илүү сайн орчуулга хүсэх",
+    "openLightbox": "Open in lightbox"
   },
   "objectEdit": {
     "loading": "Засварлагч ачааллаж байна",

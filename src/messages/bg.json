@@ -710,7 +710,8 @@
     "nextPhoto": "Следваща снимка",
     "selectPhoto": "Изберете снимка {number}",
     "reservedMessage": "Този предмет е резервиран и в момента не може да бъде разменен.",
-    "requestBetterTranslation": "Поискайте по-добър превод"
+    "requestBetterTranslation": "Поискайте по-добър превод",
+    "openLightbox": "Open in lightbox"
   },
   "objectEdit": {
     "loading": "Зареждане на редактора",

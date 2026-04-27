@@ -710,7 +710,8 @@
     "nextPhoto": "Nākamā fotogrāfija",
     "selectPhoto": "Atlasīt fotogrāfiju {number}",
     "reservedMessage": "Šis priekšmets ir rezervēts un šobrīd to nevar apmainīt.",
-    "requestBetterTranslation": "Pieprasīt labāku tulkojumu"
+    "requestBetterTranslation": "Pieprasīt labāku tulkojumu",
+    "openLightbox": "Open in lightbox"
   },
   "objectEdit": {
     "loading": "Ielādē redaktoru",

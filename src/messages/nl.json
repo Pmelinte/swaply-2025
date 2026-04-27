@@ -710,7 +710,8 @@
     "nextPhoto": "Volgende foto",
     "selectPhoto": "Foto {number} selecteren",
     "reservedMessage": "Dit item is gereserveerd en kan op dit moment niet worden uitgewisseld.",
-    "requestBetterTranslation": "Beter vertalingsvoorstel aanvragen"
+    "requestBetterTranslation": "Beter vertalingsvoorstel aanvragen",
+    "openLightbox": "Open in lightbox"
   },
   "objectEdit": {
     "loading": "Editor laden",
