@@ -51,13 +51,19 @@ interface EventRow {
   image_url?: string | null;
   capacity_available?: number;
   swap_wants_description?: string;
+  items?: {
+    title?: string;
+    image_url?: string | null;
+    images?: (string | { url?: string; order?: number })[] | null;
+    description?: string;
+  } | null;
   [key: string]: unknown;
 }
 
 type BrowseMode = "grid" | "list";
 
 function getTitle(row: EventRow): string {
-  return row.title || row.event_title || "Event listing";
+  return row.title || row.event_title || row.items?.title || "Event listing";
 }
 
 function getPhotos(row: EventRow): string[] {
@@ -65,6 +71,7 @@ function getPhotos(row: EventRow): string[] {
     const strings = row.photos.filter((p): p is string => typeof p === "string");
     if (strings.length > 0) return strings;
   }
+  // images[] on the row itself
   if (Array.isArray(row.images)) {
     const urls = row.images
       .map((p) => (typeof p === "string" ? p : p?.url))
@@ -72,6 +79,15 @@ function getPhotos(row: EventRow): string[] {
     if (urls.length > 0) return urls;
   }
   if (row.image_url) return [row.image_url];
+  // joined items row
+  const it = row.items;
+  if (it?.image_url) return [it.image_url];
+  if (Array.isArray(it?.images)) {
+    const urls = (it.images as (string | { url?: string })[])
+      .map((p) => (typeof p === "string" ? p : p?.url))
+      .filter((u): u is string => typeof u === "string" && u.length > 0);
+    if (urls.length > 0) return urls;
+  }
   return [];
 }
 
@@ -235,7 +251,7 @@ export default function EventsPage() {
 
       const { data, error } = await supabase
         .from("events_listings")
-        .select("*")
+        .select("*, items(title, image_url, images, description)")
         .eq("status", "active")
         .order("created_at", { ascending: false })
         .limit(500);

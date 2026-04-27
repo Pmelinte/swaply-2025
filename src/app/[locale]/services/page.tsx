@@ -60,6 +60,12 @@ interface ServiceRow {
     portfolio_images?: string[];
     availability_days?: string[];
   } | null;
+  items?: {
+    title?: string;
+    image_url?: string | null;
+    images?: (string | { url?: string; order?: number })[] | null;
+    description?: string;
+  } | null;
 }
 
 type BrowseMode = "grid" | "list";
@@ -76,6 +82,14 @@ function getPhotos(row: ServiceRow): string[] {
     if (urls.length > 0) return urls;
   }
   if (row.image_url) return [row.image_url];
+  const it = row.items;
+  if (it?.image_url) return [it.image_url];
+  if (Array.isArray(it?.images)) {
+    const urls = (it.images as (string | { url?: string; order?: number })[])
+      .map((p) => (typeof p === "string" ? p : p?.url))
+      .filter((u): u is string => typeof u === "string" && u.length > 0);
+    if (urls.length > 0) return urls;
+  }
   const sd = row.service_data;
   if (sd?.portfolio_images && Array.isArray(sd.portfolio_images)) return sd.portfolio_images;
   return [];
@@ -99,6 +113,7 @@ function getExperienceLevel(row: ServiceRow): string {
 
 function getTitle(row: ServiceRow): string {
   if (row.title) return row.title;
+  if (row.items?.title) return row.items.title;
   const sd = row.service_data;
   if (sd?.service_title) return sd.service_title;
   const cat = getCategoryL1(row);
@@ -265,7 +280,7 @@ export default function ServicesPage() {
       // Try dedicated services table first
       const { data: svcData, error: svcError } = await supabase
         .from("services")
-        .select("*")
+        .select("*, items(title, image_url, images, description)")
         .eq("status", "active")
         .order("created_at", { ascending: false })
         .limit(500);
