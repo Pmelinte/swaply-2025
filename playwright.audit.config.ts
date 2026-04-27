@@ -25,9 +25,8 @@ export default defineConfig({
       name: "audit-chromium",
       use: {
         ...devices["Desktop Chrome"],
-        // Storage state is generated fresh immediately before each run by
-        // tests/auth/generate-storage.mjs (see Login step in playwright-audit.yml).
-        storageState: "playwright/.auth/storage.json",
+        // No storageState here — each spec manages its own auth so that
+        // full-audit.spec.ts can fall back gracefully when the file is absent.
       },
       // Do not accidentally pick up the auth helper files.
       testIgnore: /tests\/auth\//,

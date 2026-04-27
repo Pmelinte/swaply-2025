@@ -46,8 +46,14 @@ jobs:
 
       - name: Prepare output directories
         run: |
-          rm -rf audit-results playwright-report test-results
-          mkdir -p audit-results/full-audit/screenshots
+          rm -rf audit-results playwright-report test-results playwright/.auth
+          mkdir -p audit-results/full-audit/screenshots playwright/.auth
+
+      - name: Login – generate playwright/.auth/storage.json
+        # If this fails (missing secrets, wrong creds) the audit still runs
+        # anonymously — full-audit.spec.ts falls back to inline auth.
+        continue-on-error: true
+        run: node tests/auth/generate-storage.mjs
 
       - name: Run full route audit
         id: audit
