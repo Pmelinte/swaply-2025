@@ -21,25 +21,16 @@ export default defineConfig({
   },
 
   projects: [
-    /**
-     * Login project — runs tests/auth/setup.ts to generate
-     * playwright/.auth/storage.json before the audit.
-     * storage.json is always deleted and recreated fresh (never cached).
-     */
-    {
-      name: "login",
-      testMatch: /tests\/auth\/setup\.ts$/,
-    },
-
-    /**
-     * Audit project — runs the actual audit suite.
-     * auth/setup.ts is excluded here; audit.spec.ts manages
-     * per-role auth inline so guest tests stay unauthenticated.
-     */
     {
       name: "audit-chromium",
-      use: { ...devices["Desktop Chrome"] },
-      testIgnore: /tests\/auth\/setup\.ts$/,
+      use: {
+        ...devices["Desktop Chrome"],
+        // Storage state is generated fresh immediately before each run by
+        // tests/auth/generate-storage.mjs (see Login step in playwright-audit.yml).
+        storageState: "playwright/.auth/storage.json",
+      },
+      // Do not accidentally pick up the auth helper files.
+      testIgnore: /tests\/auth\//,
     },
   ],
 });
