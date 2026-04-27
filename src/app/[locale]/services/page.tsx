@@ -37,7 +37,8 @@ interface ServiceRow {
   description?: string;
   location?: string;
   photos?: string[] | null;
-  images?: string[] | null;
+  images?: (string | { url?: string; order?: number })[] | null;
+  image_url?: string | null;
   // items table fields
   category?: string;
   is_active?: boolean;
@@ -64,8 +65,17 @@ interface ServiceRow {
 type BrowseMode = "grid" | "list";
 
 function getPhotos(row: ServiceRow): string[] {
-  const raw = row.photos ?? row.images;
-  if (Array.isArray(raw)) return raw.filter((p): p is string => typeof p === "string");
+  if (Array.isArray(row.photos)) {
+    const strings = row.photos.filter((p): p is string => typeof p === "string");
+    if (strings.length > 0) return strings;
+  }
+  if (Array.isArray(row.images)) {
+    const urls = row.images
+      .map((p) => (typeof p === "string" ? p : p?.url))
+      .filter((u): u is string => typeof u === "string" && u.length > 0);
+    if (urls.length > 0) return urls;
+  }
+  if (row.image_url) return [row.image_url];
   const sd = row.service_data;
   if (sd?.portfolio_images && Array.isArray(sd.portfolio_images)) return sd.portfolio_images;
   return [];

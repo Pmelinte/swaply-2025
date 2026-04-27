@@ -47,7 +47,8 @@ interface EventRow {
   description?: string;
   event_description?: string;
   photos?: string[] | null;
-  images?: string[] | null;
+  images?: (string | { url?: string; order?: number })[] | null;
+  image_url?: string | null;
   capacity_available?: number;
   swap_wants_description?: string;
   [key: string]: unknown;
@@ -60,8 +61,17 @@ function getTitle(row: EventRow): string {
 }
 
 function getPhotos(row: EventRow): string[] {
-  const raw = row.photos ?? row.images;
-  if (Array.isArray(raw)) return raw.filter((p): p is string => typeof p === "string");
+  if (Array.isArray(row.photos)) {
+    const strings = row.photos.filter((p): p is string => typeof p === "string");
+    if (strings.length > 0) return strings;
+  }
+  if (Array.isArray(row.images)) {
+    const urls = row.images
+      .map((p) => (typeof p === "string" ? p : p?.url))
+      .filter((u): u is string => typeof u === "string" && u.length > 0);
+    if (urls.length > 0) return urls;
+  }
+  if (row.image_url) return [row.image_url];
   return [];
 }
 

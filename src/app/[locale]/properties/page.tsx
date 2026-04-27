@@ -44,7 +44,8 @@ interface PropertyRow {
   bathrooms?: number;
   total_area_sqm?: number;
   photos?: string[] | null;
-  images?: string[] | null;
+  images?: (string | { url?: string; order?: number })[] | null;
+  image_url?: string | null;
   description?: string;
   exchange_type?: string;
   desired_exchange_description?: string;
@@ -59,8 +60,17 @@ interface PropertyRow {
 type BrowseMode = "grid" | "list";
 
 function getPhotos(row: PropertyRow): string[] {
-  const raw = row.photos ?? row.images;
-  if (Array.isArray(raw)) return raw.filter((p): p is string => typeof p === "string");
+  if (Array.isArray(row.photos)) {
+    const strings = row.photos.filter((p): p is string => typeof p === "string");
+    if (strings.length > 0) return strings;
+  }
+  if (Array.isArray(row.images)) {
+    const urls = row.images
+      .map((p) => (typeof p === "string" ? p : p?.url))
+      .filter((u): u is string => typeof u === "string" && u.length > 0);
+    if (urls.length > 0) return urls;
+  }
+  if (row.image_url) return [row.image_url];
   return [];
 }
 
