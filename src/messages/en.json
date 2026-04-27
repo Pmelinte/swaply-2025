@@ -82,6 +82,7 @@
     "settings": "Settings"
   },
   "notifications": {
+    "pageTitle": "Your Notifications",
     "title": "Notifications",
     "empty": "No notifications right now.",
     "clearAll": "Clear all",
@@ -147,6 +148,7 @@
     "integrations": "Integrations"
   },
   "login": {
+    "pageTitle": "Sign in to Swaply",
     "authentication": "Authentication",
     "registration": "Registration",
     "resetPassword": "Reset password",
@@ -205,6 +207,7 @@
     "comingSoon": "Coming soon"
   },
   "profile": {
+    "pageTitle": "Your Profile",
     "loading": "Loading profile…",
     "loadingDescription": "Checking your session.",
     "title": "Profile",
@@ -950,6 +953,7 @@
     "suggAvgPoints": "avg pts"
   },
   "chat": {
+    "pageTitle": "Your Messages",
     "title": "Secure chat",
     "description": "Translation (if on) + moderation + scanned attachments + CTA to Swaply",
     "confirmSwap": "Confirm swap",
@@ -3269,6 +3273,7 @@
     "platinum": "Platinum"
   },
   "explore": {
+    "pageTitle": "Explore — Swipe what you want",
     "wants": "Wants",
     "offers": "Offers",
     "myWants": "My Wants",
@@ -4016,6 +4021,7 @@
     "successMessage": "Redirecting to your event page..."
   },
   "matching": {
+    "pageTitle": "Your Matches",
     "title": "Your Matching",
     "filters": "Filters",
     "slot_add": "Add an item →",
@@ -4190,5 +4196,11 @@
       "submit": "Submit feedback",
       "submitted": "Feedback submitted — thank you!"
     }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you're looking for doesn't exist or has been moved.",
+    "backHome": "Back home",
+    "browseObjects": "Browse Objects"
   }
 }

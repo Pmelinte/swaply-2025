@@ -1,6 +1,6 @@
 import { getServerSupabase } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import MatchingPage from "@/components/matching/MatchingPage";
 
 export const revalidate = 0;
@@ -28,12 +28,16 @@ export default async function Page({
   const raw2 = sp.slot2;
   const slot1 = Array.isArray(raw1) ? (raw1[0] ?? null) : (raw1 ?? null);
   const slot2 = Array.isArray(raw2) ? (raw2[0] ?? null) : (raw2 ?? null);
+  const t = await getTranslations("matching");
 
   return (
-    <MatchingPage
-      userId={userId}
-      initialSlot1={slot1}
-      initialSlot2={slot2}
-    />
+    <>
+      <h1 className="sr-only">{t("pageTitle")}</h1>
+      <MatchingPage
+        userId={userId}
+        initialSlot1={slot1}
+        initialSlot2={slot2}
+      />
+    </>
   );
 }

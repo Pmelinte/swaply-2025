@@ -93,7 +93,8 @@
     "filterUnread": "未读",
     "filterSwaps": "交换",
     "filterMessages": "消息",
-    "filterAlerts": "提醒"
+    "filterAlerts": "提醒",
+    "pageTitle": "Your Notifications"
   },
   "contextBar": {
     "itemsActive": "{count}个活跃物品",
@@ -171,7 +172,8 @@
     "phoneLoginSuccess": "手机已验证。正在跳转...",
     "invalidPhone": "请输入有效的手机号（含国家代码）",
     "invalidCode": "验证码无效。请重试。",
-    "comingSoon": "即将推出"
+    "comingSoon": "即将推出",
+    "pageTitle": "Sign in to Swaply"
   },
   "profile": {
     "loading": "正在加载个人资料…",
@@ -452,7 +454,8 @@
     "countryRequired": "Country is required",
     "dateOfBirthRequired": "Date of birth is required",
     "displayNameRequired": "Display name is required (minimum 2 characters)",
-    "languageRequired": "Please select at least one language"
+    "languageRequired": "Please select at least one language",
+    "pageTitle": "Your Profile"
   },
   "home": {
     "welcome": "欢迎回来",
@@ -932,7 +935,8 @@
     "attachAudio": "Attach audio",
     "attachVideo": "Attach video",
     "contactInfoWarning": "Swaply recommends keeping communication on the platform for your protection",
-    "verified": "Verified"
+    "verified": "Verified",
+    "pageTitle": "Your Messages"
   },
   "change": {
     "title": "交换流程（Swaply）",
@@ -3230,7 +3234,8 @@
       "signInRequired": "Sign in to add items",
       "signIn": "Sign in"
     },
-    "objectWizard": {}
+    "objectWizard": {},
+    "pageTitle": "Explore — Swipe what you want"
   },
   "objectWizard": {
     "progressStep": "Step {current} of 5",
@@ -3959,7 +3964,8 @@
     "theyOffer": "They offer",
     "matchScore": "match",
     "refuse": "Refuse",
-    "goToChat": "Chat"
+    "goToChat": "Chat",
+    "pageTitle": "Your Matches"
   },
   "chatAgenda": {
     "title": "Swap Agenda",
@@ -4117,5 +4123,11 @@
     "listEmpty": "You don't have any active exchanges yet",
     "listEmptyCta": "Find a match",
     "listCardStatus": "Status"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you're looking for doesn't exist or has been moved.",
+    "backHome": "Back home",
+    "browseObjects": "Browse Objects"
   }
 }
