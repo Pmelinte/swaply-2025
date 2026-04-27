@@ -35,14 +35,8 @@ jobs:
 
       - name: Prepare output directories
         run: |
-          rm -rf test-results playwright-report audit-results playwright/.auth
-          mkdir -p test-results playwright-report audit-results playwright/.auth
-
-      - name: Login – generate playwright/.auth/storage.json
-        # Calls Supabase Auth REST API (POST /auth/v1/token?grant_type=password),
-        # writes a fresh storage state on disk. No browser, no cache.
-        # Falls back to the test-account credentials if secrets are absent.
-        run: node tests/auth/generate-storage.mjs
+          rm -rf test-results playwright-report audit-results
+          mkdir -p test-results playwright-report audit-results
 
       - name: Run Playwright authenticated audit suite
         run: npx playwright test tests/audit.spec.ts --config=playwright.audit.config.ts
