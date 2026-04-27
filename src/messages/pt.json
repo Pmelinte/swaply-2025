@@ -93,7 +93,8 @@
     "filterUnread": "Não lido",
     "filterSwaps": "Trocas",
     "filterMessages": "Mensagens",
-    "filterAlerts": "Alertas"
+    "filterAlerts": "Alertas",
+    "pageTitle": "Your Notifications"
   },
   "contextBar": {
     "itemsActive": "{count} itens ativos",
@@ -171,7 +172,8 @@
     "phoneLoginSuccess": "Telefone verificado. A redirecionar...",
     "invalidPhone": "Insira um número de telefone válido com indicativo do país",
     "invalidCode": "Código de verificação inválido. Tente novamente.",
-    "comingSoon": "Em breve"
+    "comingSoon": "Em breve",
+    "pageTitle": "Sign in to Swaply"
   },
   "profile": {
     "loading": "A carregar perfil…",
@@ -452,7 +454,8 @@
     "countryRequired": "Country is required",
     "dateOfBirthRequired": "Date of birth is required",
     "displayNameRequired": "Display name is required (minimum 2 characters)",
-    "languageRequired": "Please select at least one language"
+    "languageRequired": "Please select at least one language",
+    "pageTitle": "Your Profile"
   },
   "home": {
     "welcome": "Bem-vindo de volta",
@@ -932,7 +935,8 @@
     "attachAudio": "Attach audio",
     "attachVideo": "Attach video",
     "contactInfoWarning": "Swaply recommends keeping communication on the platform for your protection",
-    "verified": "Verified"
+    "verified": "Verified",
+    "pageTitle": "Your Messages"
   },
   "change": {
     "title": "Fluxo de troca (Swaply)",
@@ -3230,7 +3234,8 @@
       "signInRequired": "Sign in to add items",
       "signIn": "Sign in"
     },
-    "objectWizard": {}
+    "objectWizard": {},
+    "pageTitle": "Explore — Swipe what you want"
   },
   "objectWizard": {
     "progressStep": "Step {current} of 5",
@@ -3959,7 +3964,8 @@
     "theyOffer": "They offer",
     "matchScore": "match",
     "refuse": "Refuse",
-    "goToChat": "Chat"
+    "goToChat": "Chat",
+    "pageTitle": "Your Matches"
   },
   "chatAgenda": {
     "title": "Swap Agenda",
@@ -4117,5 +4123,11 @@
     "listEmpty": "You don't have any active exchanges yet",
     "listEmptyCta": "Find a match",
     "listCardStatus": "Status"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you're looking for doesn't exist or has been moved.",
+    "backHome": "Back home",
+    "browseObjects": "Browse Objects"
   }
 }

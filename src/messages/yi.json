@@ -93,7 +93,8 @@
     "filterUnread": "ומגעלעזן",
     "filterSwaps": "סווופס",
     "filterMessages": "מסכתנות",
-    "filterAlerts": "אַלערטס"
+    "filterAlerts": "אַלערטס",
+    "pageTitle": "Your Notifications"
   },
   "notificationSettings": {
     "tabLabel": "מודעות",
@@ -200,7 +201,8 @@
     "phoneLoginSuccess": "טעלעפאָן באַשטעטיקט. ווײַטערלײטן...",
     "invalidPhone": "אַרײַנגעבן אַ גילטיק טעלעפאָן נומער מיט לאַנד קאָד",
     "invalidCode": "אומגילטיק באַשטעטיקונג קאָד. ביטע פּרובירט נאָכאַמאָל.",
-    "comingSoon": "קומט באַלד"
+    "comingSoon": "קומט באַלד",
+    "pageTitle": "Sign in to Swaply"
   },
   "profile": {
     "loading": "לאָדינג פּראָפיל…",
@@ -481,7 +483,8 @@
     "countryRequired": "Country is required",
     "dateOfBirthRequired": "Date of birth is required",
     "displayNameRequired": "Display name is required (minimum 2 characters)",
-    "languageRequired": "Please select at least one language"
+    "languageRequired": "Please select at least one language",
+    "pageTitle": "Your Profile"
   },
   "home": {
     "welcome": "װילקום צוריק",
@@ -961,7 +964,8 @@
     "attachAudio": "Attach audio",
     "attachVideo": "Attach video",
     "contactInfoWarning": "Swaply recommends keeping communication on the platform for your protection",
-    "verified": "Verified"
+    "verified": "Verified",
+    "pageTitle": "Your Messages"
   },
   "change": {
     "title": "עקסטשיינדזש פלאָו (Swaply)",
@@ -3228,7 +3232,8 @@
       "signInRequired": "Sign in to add items",
       "signIn": "Sign in"
     },
-    "objectWizard": {}
+    "objectWizard": {},
+    "pageTitle": "Explore — Swipe what you want"
   },
   "objectWizard": {
     "progressStep": "Step {current} of 5",
@@ -3957,7 +3962,8 @@
     "theyOffer": "They offer",
     "matchScore": "match",
     "refuse": "Refuse",
-    "goToChat": "Chat"
+    "goToChat": "Chat",
+    "pageTitle": "Your Matches"
   },
   "chatAgenda": {
     "title": "Swap Agenda",
@@ -4115,5 +4121,11 @@
     "listEmpty": "You don't have any active exchanges yet",
     "listEmptyCta": "Find a match",
     "listCardStatus": "Status"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you're looking for doesn't exist or has been moved.",
+    "backHome": "Back home",
+    "browseObjects": "Browse Objects"
   }
 }

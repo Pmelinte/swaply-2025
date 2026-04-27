@@ -307,14 +307,17 @@ function LoginContent() {
 export default function LoginPage() {
   const t = useTranslations("login");
   return (
-    <Suspense
-      fallback={
-        <div className="rounded-2xl border border-zinc-200 bg-white/80 p-4 text-sm text-zinc-600 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/80">
-          {t("loadingForm")}
-        </div>
-      }
-    >
-      <LoginContent />
-    </Suspense>
+    <>
+      <h1 className="sr-only">{t("pageTitle")}</h1>
+      <Suspense
+        fallback={
+          <div className="rounded-2xl border border-zinc-200 bg-white/80 p-4 text-sm text-zinc-600 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/80">
+            {t("loadingForm")}
+          </div>
+        }
+      >
+        <LoginContent />
+      </Suspense>
+    </>
   );
 }

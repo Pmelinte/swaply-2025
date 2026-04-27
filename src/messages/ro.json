@@ -93,7 +93,8 @@
     "filterUnread": "Necitite",
     "filterSwaps": "Schimburi",
     "filterMessages": "Mesaje",
-    "filterAlerts": "Alerte"
+    "filterAlerts": "Alerte",
+    "pageTitle": "Your Notifications"
   },
   "notificationSettings": {
     "tabLabel": "Notificări",
@@ -200,7 +201,8 @@
     "phoneLoginSuccess": "Telefon verificat. Redirecționare...",
     "invalidPhone": "Introdu un număr de telefon valid cu prefix de țară",
     "invalidCode": "Cod de verificare invalid. Te rugăm să încerci din nou.",
-    "comingSoon": "În curând"
+    "comingSoon": "În curând",
+    "pageTitle": "Sign in to Swaply"
   },
   "profile": {
     "loading": "Se încarcă profilul…",
@@ -481,7 +483,8 @@
     "countryRequired": "Country is required",
     "dateOfBirthRequired": "Date of birth is required",
     "displayNameRequired": "Display name is required (minimum 2 characters)",
-    "languageRequired": "Please select at least one language"
+    "languageRequired": "Please select at least one language",
+    "pageTitle": "Your Profile"
   },
   "home": {
     "welcome": "Bine ai revenit",
@@ -1128,7 +1131,8 @@
       "completedSwaps": "Schimburi finalizate",
       "responseRate": "Rată de răspuns",
       "noMessages": "Niciun mesaj încă"
-    }
+    },
+    "pageTitle": "Your Messages"
   },
   "change": {
     "title": "Flux schimb (Swaply)",
@@ -3322,7 +3326,8 @@
       "signInRequired": "Sign in to add items",
       "signIn": "Sign in"
     },
-    "objectWizard": {}
+    "objectWizard": {},
+    "pageTitle": "Explore — Swipe what you want"
   },
   "objectWizard": {
     "progressStep": "Step {current} of 5",
@@ -4051,7 +4056,8 @@
     "theyOffer": "They offer",
     "matchScore": "match",
     "refuse": "Refuse",
-    "goToChat": "Chat"
+    "goToChat": "Chat",
+    "pageTitle": "Your Matches"
   },
   "chatAgenda": {
     "title": "Swap Agenda",
@@ -4209,5 +4215,11 @@
     "listEmpty": "You don't have any active exchanges yet",
     "listEmptyCta": "Find a match",
     "listCardStatus": "Status"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you're looking for doesn't exist or has been moved.",
+    "backHome": "Back home",
+    "browseObjects": "Browse Objects"
   }
 }
