@@ -7,21 +7,11 @@ const BASE_URL =
   process.env.BASE_URL ||
   "https://www.swaply.world";
 
-const SUPABASE_URL =
-  process.env.SUPABASE_URL ||
-  process.env.NEXT_PUBLIC_SUPABASE_URL ||
-  "";
-
-const SUPABASE_ANON_KEY =
-  process.env.SUPABASE_ANON_KEY ||
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-  "";
-
 const USER_EMAIL = process.env.PLAYWRIGHT_TEST_EMAIL || "";
 const USER_PASSWORD = process.env.PLAYWRIGHT_TEST_PASSWORD || "";
 
-const ADMIN_EMAIL = process.env.PLAYWRIGHT_ADMIN_EMAIL || "";
-const ADMIN_PASSWORD = process.env.PLAYWRIGHT_ADMIN_PASSWORD || "";
+const ADMIN_EMAIL = process.env.PLAYWRIGHT_ADMIN_EMAIL || USER_EMAIL;
+const ADMIN_PASSWORD = process.env.PLAYWRIGHT_ADMIN_PASSWORD || USER_PASSWORD;
 
 type AuditRole = "guest" | "user" | "admin";
 
@@ -158,75 +148,123 @@ async function collectAuthState(page: Page, context: BrowserContext) {
   };
 }
 
-async function authenticateWithSupabase(
+async function fillFirstVisible(page: Page, selectors: string[], value: string) {
+  for (const selector of selectors) {
+    const locator = page.locator(selector).first();
+    if ((await locator.count().catch(() => 0)) === 0) continue;
+    if (!(await locator.isVisible().catch(() => false))) continue;
+    await locator.fill(value);
+    return true;
+  }
+  return false;
+}
+
+async function clickFirstVisible(page: Page, selectors: string[]) {
+  for (const selector of selectors) {
+    const locator = page.locator(selector).first();
+    if ((await locator.count().catch(() => 0)) === 0) continue;
+    if (!(await locator.isVisible().catch(() => false))) continue;
+    await locator.click();
+    return true;
+  }
+  return false;
+}
+
+async function authenticateThroughLoginPage(
   page: Page,
+  context: BrowserContext,
   email: string,
   password: string
 ): Promise<boolean> {
   if (!email || !password) return false;
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return false;
 
   try {
-    const controller = new AbortController();
-    const authTimeout = setTimeout(() => controller.abort(), 10_000);
-    const response = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        apikey: SUPABASE_ANON_KEY,
-      },
-      body: JSON.stringify({ email, password }),
-      signal: controller.signal,
+    await context.clearCookies();
+    await page.goto(new URL("/en/login", BASE_URL).toString(), {
+      waitUntil: "domcontentloaded",
+      timeout: 20_000,
     });
-    clearTimeout(authTimeout);
 
-    if (!response.ok) return false;
+    await page.waitForLoadState("networkidle", { timeout: 5_000 }).catch(() => {});
 
-    const session = (await response.json()) as Record<string, unknown>;
-    const accessToken = session.access_token;
-    if (!accessToken) return false;
-
-    await page.goto(BASE_URL, { waitUntil: "domcontentloaded" });
-
-    const projectRef =
-      SUPABASE_URL.match(/https?:\/\/([^.]+)\.supabase\.co/)?.[1] ?? "";
-    const storageKey = projectRef ? `sb-${projectRef}-auth-token` : "sb-auth-token";
-
-    await page.evaluate(
-      ({ key, value }: { key: string; value: string }) => {
-        localStorage.setItem(key, value);
-      },
-      { key: storageKey, value: JSON.stringify(session) }
+    const emailFilled = await fillFirstVisible(
+      page,
+      [
+        'input[type="email"]',
+        'input[name="email"]',
+        'input[id*="email" i]',
+        'input[autocomplete="email"]',
+        'input[placeholder*="email" i]',
+      ],
+      email
     );
 
-    await page.reload({ waitUntil: "domcontentloaded" });
-    return true;
+    const passwordFilled = await fillFirstVisible(
+      page,
+      [
+        'input[type="password"]',
+        'input[name="password"]',
+        'input[id*="password" i]',
+        'input[autocomplete="current-password"]',
+        'input[placeholder*="password" i]',
+      ],
+      password
+    );
+
+    if (!emailFilled || !passwordFilled) return false;
+
+    const clicked = await clickFirstVisible(page, [
+      'button[type="submit"]',
+      'button:has-text("Sign in")',
+      'button:has-text("Log in")',
+      'button:has-text("Login")',
+      'button:has-text("Autentificare")',
+      'button:has-text("Conectare")',
+    ]);
+
+    if (!clicked) return false;
+
+    await page.waitForURL((url) => !url.pathname.includes("/login"), {
+      timeout: 15_000,
+    }).catch(() => {});
+
+    await page.waitForLoadState("domcontentloaded", { timeout: 10_000 }).catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5_000 }).catch(() => {});
+    await page.waitForTimeout(1000);
+
+    const authState = await collectAuthState(page, context);
+    return authState.detected && !page.url().includes("/login");
   } catch {
     return false;
   }
 }
 
-async function loginAsRole(page: Page, role: AuditRole, testInfo: TestInfo) {
+async function loginAsRole(
+  page: Page,
+  context: BrowserContext,
+  role: AuditRole,
+  testInfo: TestInfo
+) {
   if (role === "guest") {
     return { loginWorked: true, attempted: false };
   }
 
   if (role === "user") {
-    const ok = await authenticateWithSupabase(page, USER_EMAIL, USER_PASSWORD);
+    const ok = await authenticateThroughLoginPage(page, context, USER_EMAIL, USER_PASSWORD);
     if (!ok) {
       testInfo.annotations.push({
         type: "warning",
-        description: "User authentication failed or credentials are missing.",
+        description: "User UI authentication failed or credentials are missing.",
       });
     }
     return { loginWorked: ok, attempted: true };
   }
 
-  const ok = await authenticateWithSupabase(page, ADMIN_EMAIL, ADMIN_PASSWORD);
+  const ok = await authenticateThroughLoginPage(page, context, ADMIN_EMAIL, ADMIN_PASSWORD);
   if (!ok) {
     testInfo.annotations.push({
       type: "warning",
-      description: "Admin authentication failed or credentials are missing.",
+      description: "Admin UI authentication failed or credentials are missing.",
     });
   }
   return { loginWorked: ok, attempted: true };
@@ -273,7 +311,7 @@ test.describe("swaply.world authenticated deep audit", () => {
         });
       });
 
-      const { loginWorked } = await loginAsRole(page, role, testInfo);
+      const { loginWorked } = await loginAsRole(page, context, role, testInfo);
       const authState = await collectAuthState(page, context);
 
       if (role !== "guest") {
@@ -287,10 +325,12 @@ test.describe("swaply.world authenticated deep audit", () => {
         if (route.roles && !route.roles.includes(role)) continue;
 
         const targetUrl = new URL(route.path, BASE_URL).toString();
-        const response = await page.goto(targetUrl, {
-          waitUntil: "domcontentloaded",
-          timeout: 20_000,
-        }).catch(() => null);
+        const response = await page
+          .goto(targetUrl, {
+            waitUntil: "domcontentloaded",
+            timeout: 20_000,
+          })
+          .catch(() => null);
 
         await page.waitForLoadState("networkidle", { timeout: 5_000 }).catch(() => {});
         await page.waitForTimeout(1000);
@@ -312,19 +352,23 @@ test.describe("swaply.world authenticated deep audit", () => {
 
         if (route.forbiddenUrlIncludes?.length) {
           for (const forbidden of route.forbiddenUrlIncludes) {
-            expect.soft(
-              finalUrl.includes(forbidden),
-              `${route.path} should not end on ${forbidden} for ${role}`
-            ).toBeFalsy();
+            expect
+              .soft(
+                finalUrl.includes(forbidden),
+                `${route.path} should not end on ${forbidden} for ${role}`
+              )
+              .toBeFalsy();
           }
         }
 
         if (route.expectedUrlIncludes?.length) {
           for (const expected of route.expectedUrlIncludes) {
-            expect.soft(
-              finalUrl.includes(expected),
-              `${route.path} should include ${expected} for ${role}`
-            ).toBeTruthy();
+            expect
+              .soft(
+                finalUrl.includes(expected),
+                `${route.path} should include ${expected} for ${role}`
+              )
+              .toBeTruthy();
           }
         }
 
