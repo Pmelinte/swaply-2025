@@ -37,7 +37,6 @@ export default getRequestConfig(async ({ requestLocale }) => {
 
   const enMessages = (await import(`../messages/${defaultLocale}.json`))
     .default;
-
   let messages;
   if (locale === defaultLocale) {
     messages = enMessages;
@@ -55,6 +54,8 @@ export default getRequestConfig(async ({ requestLocale }) => {
   return {
     locale,
     messages,
+    now: new Date(),
+    timeZone: "UTC",
     onError() {
       // Suppress missing message errors
     },
