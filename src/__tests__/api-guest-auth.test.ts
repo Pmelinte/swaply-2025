@@ -59,7 +59,7 @@ describe("Guest auth: /api/chat/moderate", () => {
     );
     expect(res.status).toBe(401);
     const body = await res.json();
-    expect(body.reason ?? body.error).toMatch(/unauthorized/i);
+    expect(body.error).toMatch(/unauthorized/i);
   });
 });
 

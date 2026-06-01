@@ -24,11 +24,11 @@ const MAX_LENGTH = 4000;
 export async function POST(req: Request) {
   const supabase = await getServerSupabase();
   if (!supabase) {
-    return NextResponse.json({ allowed: false, reason: "unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    return NextResponse.json({ allowed: false, reason: "unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
   let body: RequestBody;
