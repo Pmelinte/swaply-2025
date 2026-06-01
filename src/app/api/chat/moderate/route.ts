@@ -11,6 +11,7 @@
 
 import { NextResponse } from "next/server";
 import { moderateMessageText } from "@/lib/chat/chatModeration";
+import { getServerSupabase } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 
@@ -21,6 +22,15 @@ interface RequestBody {
 const MAX_LENGTH = 4000;
 
 export async function POST(req: Request) {
+  const supabase = await getServerSupabase();
+  if (!supabase) {
+    return NextResponse.json({ allowed: false, reason: "unauthorized" }, { status: 401 });
+  }
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ allowed: false, reason: "unauthorized" }, { status: 401 });
+  }
+
   let body: RequestBody;
   try {
     body = (await req.json()) as RequestBody;
