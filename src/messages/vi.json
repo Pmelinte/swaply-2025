@@ -4129,5 +4129,131 @@
     "description": "The page you're looking for doesn't exist or has been moved.",
     "backHome": "Back home",
     "browseObjects": "Browse Objects"
+  },
+  "exchange": {
+    "pageTitle": "Exchange",
+    "loadingSwap": "Loading swap…",
+    "notFound": "Swap not found",
+    "notParticipant": "You are not a participant in this swap",
+    "listTitle": "Your active exchanges",
+    "listEmpty": "You don't have any active exchanges yet",
+    "listEmptyCta": "Find a match",
+    "listCardStatus": "Status",
+    "loginRequired": "Sign in to view and manage your exchange",
+    "summary": {
+      "title": "Confirmed Exchange",
+      "confirmedTitle": "CONFIRMED SWAP",
+      "swapId": "Swap ID",
+      "youOffer": "You offer",
+      "youReceive": "You receive",
+      "exchangeMode": "Exchange mode",
+      "simultaneous": "Simultaneous",
+      "location": "Location",
+      "courierDelivery": "Courier delivery",
+      "agreedDate": "Agreed date",
+      "bilateralServices": "Bilateral services",
+      "escrowAgreed": "Escrow: Agreed by both",
+      "insuranceAgreed": "Insurance: Agreed by both"
+    },
+    "drawer": {
+      "title": "Available Services",
+      "bilateral": "Bilateral",
+      "individual": "Individual",
+      "additional": "Additional",
+      "enable": "Enable",
+      "disable": "Disable",
+      "close": "Close"
+    },
+    "services": {
+      "escrow": "Escrow Protection",
+      "packaging": "Packaging",
+      "transport": "Transport",
+      "accommodation": "Accommodation",
+      "restaurant": "Restaurant",
+      "insurance": "Insurance",
+      "legal": "Legal assistance",
+      "aiValuation": "AI Valuation",
+      "noServicesSelected": "Select services from the drawer to configure them.",
+      "comingSoon": "Coming soon"
+    },
+    "escrow": {
+      "title": "Escrow Swaply — Swap protection",
+      "activate": "Activate Escrow",
+      "plans": {
+        "basic": "Basic - Free",
+        "plus": "Plus - €2.99",
+        "full": "Full - €4.99"
+      },
+      "how": "How it works",
+      "step1": "Both confirm item received",
+      "step2": "If dispute → Swaply mediation",
+      "step3": "Items released after confirmation"
+    },
+    "packaging": {
+      "title": "Packaging preference",
+      "standard": "Standard",
+      "premium": "Premium",
+      "original": "Original box",
+      "fragile": "Fragile — extra protection",
+      "dimensions": "Package dimensions (L × W × H cm)",
+      "weight": "Weight (kg)",
+      "specialNotes": "Special notes"
+    },
+    "transport": {
+      "title": "Preferred courier",
+      "pickupAddress": "Pickup address",
+      "deliveryAddress": "Delivery address",
+      "estimatedCost": "Estimated cost",
+      "orderPickup": "Order pickup"
+    },
+    "accommodation": {
+      "title": "Accommodation in",
+      "destinationPlaceholder": "Destination city",
+      "checkIn": "Check-in",
+      "checkOut": "Check-out",
+      "searchBooking": "Search on Booking.com",
+      "searchAirbnb": "Search on Airbnb"
+    },
+    "restaurant": {
+      "title": "Restaurant in",
+      "date": "Date",
+      "time": "Time",
+      "guests": "Persons",
+      "searchRestaurants": "Search restaurants"
+    },
+    "insurance": {
+      "title": "Transport insurance",
+      "value": "Declared item value (€)",
+      "plan": "Insurance plan",
+      "coverageBasic": "Up to €200",
+      "coverageStandard": "Up to €500",
+      "coveragePremium": "Up to €2000",
+      "activate": "Activate insurance"
+    },
+    "pdf": {
+      "title": "Exchange Document",
+      "description": "Common summary + your individual services",
+      "download": "Download PDF",
+      "generating": "Generating...",
+      "sendEmail": "Send by email",
+      "disclaimer": "Swaply.world facilitates the connection between users and selected service providers. Swaply assumes no responsibility for services provided by third parties."
+    },
+    "confirmation": {
+      "title": "Confirm Exchange",
+      "received": "I received the item and I am satisfied",
+      "accepted": "I have read and accept the exchange document",
+      "confirm": "Confirm completed exchange",
+      "alreadyConfirmed": "You have already confirmed this exchange",
+      "feedbackTitle": "Feedback for",
+      "rating": {
+        "overall": "Overall rating",
+        "communication": "Communication",
+        "accuracy": "Item accuracy",
+        "promptness": "Promptness"
+      },
+      "comment": "Comment (optional)",
+      "submit": "Submit feedback",
+      "submitted": "Feedback submitted — thank you!"
+    }
   }
 }
