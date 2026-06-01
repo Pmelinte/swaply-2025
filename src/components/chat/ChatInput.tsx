@@ -109,11 +109,11 @@ export function ChatInput({ onSend, onTyping, disabled, loginRequired }: Props) 
               type="button"
               disabled={isDisabled}
               className="flex flex-col items-center gap-1.5 rounded-xl p-3 text-xs text-zinc-600 hover:bg-white disabled:opacity-40"
-              aria-label="Request moderation"
-              title="Request moderation"
+              aria-label={t("moderation")}
+              title={t("moderation")}
             >
               <Shield className="h-5 w-5 text-orange-400" />
-              <span>Moderation</span>
+              <span>{t("moderation")}</span>
             </button>
           </div>
         </div>
