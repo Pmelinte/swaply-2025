@@ -48,7 +48,7 @@ function jsonRequest(url: string, body: object): Request {
 describe("Guest auth: /api/chat/moderate", () => {
   beforeEach(() => {
     vi.mocked(supabaseServer.getServerSupabase).mockResolvedValue(
-      guestSupabase() as ReturnType<typeof guestSupabase>,
+      guestSupabase(),
     );
   });
 
@@ -66,7 +66,7 @@ describe("Guest auth: /api/chat/moderate", () => {
 describe("Guest auth: /api/chat/summary", () => {
   beforeEach(() => {
     vi.mocked(supabaseServer.getServerSupabase).mockResolvedValue(
-      guestSupabase() as ReturnType<typeof guestSupabase>,
+      guestSupabase(),
     );
   });
 
@@ -87,7 +87,7 @@ describe("Guest auth: /api/chat/summary", () => {
 describe("Guest auth: /api/matching/ai", () => {
   beforeEach(() => {
     vi.mocked(supabaseServer.getServerSupabase).mockResolvedValue(
-      guestSupabase() as ReturnType<typeof guestSupabase>,
+      guestSupabase(),
     );
   });
 
@@ -108,7 +108,7 @@ describe("Guest auth: /api/matching/ai", () => {
 describe("Guest auth: /api/exchange/[swapId]/pdf", () => {
   beforeEach(() => {
     vi.mocked(supabaseServer.getServerSupabase).mockResolvedValue(
-      guestSupabase() as ReturnType<typeof guestSupabase>,
+      guestSupabase(),
     );
   });
 
