@@ -22,11 +22,11 @@ test("chat page renders (public demo)", async ({ page }) => {
   }
 });
 
-test("match page renders (public demo)", async ({ page }) => {
+test("matching page renders (public demo)", async ({ page }) => {
   try {
-    await page.goto(`${BASE_URL}/en/match`, { waitUntil: "networkidle" });
-    await expect(page).toHaveURL(/\/en\/match/);
+    await page.goto(`${BASE_URL}/en/matching`, { waitUntil: "networkidle" });
+    await expect(page).toHaveURL(/\/en\/matching/);
   } finally {
-    await page.screenshot({ path: "test-results/match.png", fullPage: true });
+    await page.screenshot({ path: "test-results/matching.png", fullPage: true });
   }
 });
