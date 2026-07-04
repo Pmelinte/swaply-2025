@@ -44,7 +44,13 @@ jobs:
         continue-on-error: true
         env:
           BASE_URL: "https://www.swaply.world"
-        run: npx playwright test --config playwright.audit.config.ts tests/smoke.spec.ts
+          SWAPLY_TEST_EMAIL: ${{ secrets.SWAPLY_TEST_EMAIL }}
+          SWAPLY_TEST_PASSWORD: ${{ secrets.SWAPLY_TEST_PASSWORD }}
+          SWAPLY_DEMO_OBJECT_ID: ${{ secrets.SWAPLY_DEMO_OBJECT_ID }}
+          SWAPLY_DEMO_PROFILE_ID: ${{ secrets.SWAPLY_DEMO_PROFILE_ID }}
+          SWAPLY_DEMO_CHAT_ID: ${{ secrets.SWAPLY_DEMO_CHAT_ID }}
+          SWAPLY_DEMO_EXCHANGE_ID: ${{ secrets.SWAPLY_DEMO_EXCHANGE_ID }}
+        run: npx playwright test --config playwright.audit.config.ts tests/smoke.spec.ts tests/authenticated-smoke.spec.ts
 
       - name: Upload screenshots to Cloudinary
         if: always()
