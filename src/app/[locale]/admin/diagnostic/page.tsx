@@ -1,63 +1,34 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useLocale } from "next-intl";
-import { useAppState } from "@/lib/state";
-import { getSupabaseClient } from "@/lib/supabase/client";
-import { AdminGuard } from "@/features/admin/AdminShell";
 import {
   Activity,
   AlertTriangle,
   CheckCircle2,
+  Clock,
   Database,
   Globe2,
   RefreshCw,
-  ShieldCheck,
+  Shield,
   XCircle,
 } from "lucide-react";
+import { AdminGuard } from "@/features/admin/AdminShell";
+import { useAppState } from "@/lib/state";
+import { getSupabaseClient } from "@/lib/supabase/client";
 
-type DiagnosticStatus = "ok" | "warn" | "fail";
+type DiagnosticStatus = "ok" | "warn" | "fail" | "info";
 
-interface DiagnosticCheck {
-  key: string;
-  label: string;
+type DiagnosticCheck = {
+  name: string;
   status: DiagnosticStatus;
   detail: string;
-}
+  meta?: string;
+};
 
-interface TableCheck {
+type TableCheck = DiagnosticCheck & {
   table: string;
-  status: DiagnosticStatus;
-  count: number | null;
-  detail: string;
-}
-
-interface RouteCheck {
-  path: string;
-  status: DiagnosticStatus;
-  httpStatus: number | null;
-  detail: string;
-}
-
-interface DiagnosticSnapshot {
-  generatedAt: string;
-  locale: string;
-  origin: string;
-  dataSource: string;
-  userRole: string;
-  checks: DiagnosticCheck[];
-  tables: TableCheck[];
-  routes: RouteCheck[];
-}
-
-const TABLES_TO_CHECK = [
-  "profiles",
-  "items",
-  "swaps",
-  "swap_messages",
-  "abuse_reports",
-  "notifications",
-] as const;
+  count?: number | null;
+};
 
 const CANONICAL_ROUTES = [
   "/",
@@ -70,304 +41,298 @@ const CANONICAL_ROUTES = [
   "/properties",
   "/services",
   "/events",
+  "/blog",
+  "/about",
+  "/contact",
   "/admin",
+  "/admin/diagnostic",
+];
+
+const TABLES_TO_CHECK = [
+  "profiles",
+  "items",
+  "swaps",
+  "swap_messages",
+  "abuse_reports",
+  "notifications",
+  "payments",
 ] as const;
 
-function shortError(error: unknown): string {
-  if (!error) return "No details";
-  if (error instanceof Error) return error.message.slice(0, 120);
-  if (typeof error === "string") return error.slice(0, 120);
-  return "Operation failed";
+function maskError(error: unknown): string {
+  if (!error) return "No error";
+  if (typeof error === "string") return error.slice(0, 180);
+  if (error instanceof Error) return error.message.slice(0, 180);
+  if (typeof error === "object" && error !== null && "message" in error) {
+    return String((error as { message?: unknown }).message ?? "Unknown error").slice(0, 180);
+  }
+  return "Unknown error";
 }
 
 function statusClasses(status: DiagnosticStatus): string {
-  if (status === "ok") {
-    return "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200";
+  switch (status) {
+    case "ok":
+      return "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200";
+    case "warn":
+      return "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200";
+    case "fail":
+      return "border-red-200 bg-red-50 text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200";
+    default:
+      return "border-blue-200 bg-blue-50 text-blue-800 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200";
   }
-  if (status === "warn") {
-    return "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200";
-  }
-  return "border-red-200 bg-red-50 text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200";
 }
 
 function StatusIcon({ status }: { status: DiagnosticStatus }) {
   if (status === "ok") return <CheckCircle2 className="h-4 w-4" />;
   if (status === "warn") return <AlertTriangle className="h-4 w-4" />;
-  return <XCircle className="h-4 w-4" />;
+  if (status === "fail") return <XCircle className="h-4 w-4" />;
+  return <Activity className="h-4 w-4" />;
 }
 
-function DiagnosticBadge({ status }: { status: DiagnosticStatus }) {
+function DiagnosticCard({ check }: { check: DiagnosticCheck }) {
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-xs font-semibold ${statusClasses(status)}`}>
-      <StatusIcon status={status} />
-      {status.toUpperCase()}
-    </span>
-  );
-}
-
-function Card({
-  title,
-  icon: Icon,
-  children,
-}: {
-  title: string;
-  icon: React.ComponentType<{ className?: string }>;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-      <div className="mb-4 flex items-center gap-2">
-        <Icon className="h-5 w-5 text-blue-600" />
-        <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-50">{title}</h2>
+    <div className={`rounded-xl border p-4 ${statusClasses(check.status)}`}>
+      <div className="flex items-start gap-3">
+        <StatusIcon status={check.status} />
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold">{check.name}</p>
+          <p className="mt-1 text-xs opacity-90">{check.detail}</p>
+          {check.meta ? <p className="mt-2 break-all text-[11px] opacity-70">{check.meta}</p> : null}
+        </div>
       </div>
-      {children}
-    </section>
+    </div>
   );
 }
 
-function AdminDiagnosticContent() {
-  const locale = useLocale();
-  const { user, dataSource, loading, lastError, items, matches, conversations, swaps } = useAppState();
-  const [snapshot, setSnapshot] = useState<DiagnosticSnapshot | null>(null);
-  const [running, setRunning] = useState(false);
+function DiagnosticContent() {
+  const app = useAppState();
+  const [loading, setLoading] = useState(false);
+  const [tableChecks, setTableChecks] = useState<TableCheck[]>([]);
+  const [lastRunAt, setLastRunAt] = useState<string | null>(null);
+  const [runtimeError, setRuntimeError] = useState<string | null>(null);
 
-  const publicEnv = useMemo(
-    () => ({
-      supabaseUrl: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL),
-      supabaseAnonKey: Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
-      appUrl: Boolean(process.env.NEXT_PUBLIC_APP_URL),
-    }),
-    [],
-  );
+  const envChecks = useMemo<DiagnosticCheck[]>(() => {
+    const hasSupabaseUrl = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL);
+    const hasSupabaseAnonKey = Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+    const hasSiteUrl = Boolean(process.env.NEXT_PUBLIC_SITE_URL);
+    const hasCloudName = Boolean(process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME);
 
-  const runDiagnostic = useCallback(async () => {
-    setRunning(true);
-    const origin = typeof window !== "undefined" ? window.location.origin : "unknown";
-    const supabase = getSupabaseClient();
-
-    const checks: DiagnosticCheck[] = [
+    return [
       {
-        key: "admin_guard",
-        label: "Admin access",
-        status: user?.role === "admin" || user?.role === "moderator" ? "ok" : "fail",
-        detail: user ? `role=${user.role ?? "unknown"}` : "No user in app state",
+        name: "Supabase URL",
+        status: hasSupabaseUrl ? "ok" : "fail",
+        detail: hasSupabaseUrl ? "Public Supabase URL is configured." : "Missing NEXT_PUBLIC_SUPABASE_URL.",
       },
       {
-        key: "app_state",
-        label: "App state loading",
-        status: loading.auth || loading.profile || loading.items ? "warn" : "ok",
-        detail: `auth=${loading.auth}; profile=${loading.profile}; items=${loading.items}; lastError=${lastError ? "present" : "none"}`,
+        name: "Supabase anon key",
+        status: hasSupabaseAnonKey ? "ok" : "fail",
+        detail: hasSupabaseAnonKey ? "Public anon key is present. Value is intentionally hidden." : "Missing NEXT_PUBLIC_SUPABASE_ANON_KEY.",
       },
       {
-        key: "supabase_client",
-        label: "Supabase client",
-        status: supabase ? "ok" : "fail",
-        detail: supabase ? "Browser client available" : "Browser client unavailable",
+        name: "Site URL",
+        status: hasSiteUrl ? "ok" : "warn",
+        detail: hasSiteUrl ? "NEXT_PUBLIC_SITE_URL is configured." : "NEXT_PUBLIC_SITE_URL is missing; fallback routing may still work.",
       },
       {
-        key: "public_env",
-        label: "Public env presence",
-        status: publicEnv.supabaseUrl && publicEnv.supabaseAnonKey ? "ok" : "fail",
-        detail: `supabaseUrl=${publicEnv.supabaseUrl}; anonKey=${publicEnv.supabaseAnonKey}; appUrl=${publicEnv.appUrl}`,
-      },
-      {
-        key: "client_counts",
-        label: "Client state counts",
-        status: "ok",
-        detail: `items=${items.length}; matches=${matches.length}; conversations=${conversations.length}; swaps=${swaps.length}`,
+        name: "Cloudinary public config",
+        status: hasCloudName ? "ok" : "warn",
+        detail: hasCloudName ? "Cloudinary public cloud name is configured." : "Cloudinary public cloud name is missing or not exposed.",
       },
     ];
+  }, []);
 
-    const tables: TableCheck[] = [];
-    if (supabase) {
-      for (const table of TABLES_TO_CHECK) {
-        try {
-          const { count, error } = await supabase
-            .from(table)
-            .select("id", { count: "exact", head: true });
+  const appChecks = useMemo<DiagnosticCheck[]>(() => {
+    return [
+      {
+        name: "Admin access",
+        status: app.user?.role === "admin" || app.user?.role === "moderator" ? "ok" : "fail",
+        detail: app.user ? `Current role: ${app.user.role ?? "unknown"}` : "No authenticated user in app state.",
+      },
+      {
+        name: "Data source",
+        status: app.dataSource === "supabase" ? "ok" : "warn",
+        detail: `Current app data source: ${app.dataSource}`,
+      },
+      {
+        name: "Auth loading",
+        status: app.loading.auth ? "warn" : "ok",
+        detail: app.loading.auth ? "Auth state is still loading." : "Auth state is settled.",
+      },
+      {
+        name: "Profile loading",
+        status: app.loading.profile ? "warn" : "ok",
+        detail: app.loading.profile ? "Profile state is still loading." : "Profile state is settled.",
+      },
+      {
+        name: "Items loading",
+        status: app.loading.items ? "warn" : "ok",
+        detail: app.loading.items ? "Items are still loading." : "Items state is settled.",
+      },
+      {
+        name: "Last app error",
+        status: app.lastError ? "fail" : "ok",
+        detail: app.lastError ? app.lastError.slice(0, 180) : "No app-level error currently reported.",
+      },
+      {
+        name: "Client state counters",
+        status: "info",
+        detail: "Non-sensitive counts from in-memory app state.",
+        meta: `items=${app.items.length}; matches=${app.matches.length}; conversations=${app.conversations.length}; swaps=${app.swaps.length}; notifications=${app.notifications.length}`,
+      },
+    ];
+  }, [app]);
 
-          tables.push({
-            table,
-            status: error ? "fail" : "ok",
-            count: count ?? null,
-            detail: error ? shortError(error.message) : "Readable with current policies",
-          });
-        } catch (error) {
-          tables.push({
-            table,
-            status: "fail",
-            count: null,
-            detail: shortError(error),
-          });
-        }
-      }
-    } else {
-      for (const table of TABLES_TO_CHECK) {
-        tables.push({
-          table,
+  const routeChecks = useMemo<DiagnosticCheck[]>(() => {
+    return CANONICAL_ROUTES.map((route) => ({
+      name: route,
+      status: "info",
+      detail: "Canonical route listed for smoke/audit coverage. Runtime navigation is tested by Playwright.",
+    }));
+  }, []);
+
+  const runDatabaseChecks = useCallback(async () => {
+    setLoading(true);
+    setRuntimeError(null);
+    setLastRunAt(new Date().toISOString());
+
+    const supabase = getSupabaseClient();
+    if (!supabase) {
+      setTableChecks([
+        {
+          table: "supabase-client",
+          name: "Supabase client",
           status: "fail",
-          count: null,
-          detail: "Supabase client unavailable",
-        });
-      }
+          detail: "Supabase browser client could not be created. Check public env vars.",
+        },
+      ]);
+      setLoading(false);
+      return;
     }
 
-    const routes: RouteCheck[] = [];
-    for (const path of CANONICAL_ROUTES) {
-      const localizedPath = `/${locale}${path === "/" ? "" : path}`;
-      try {
-        const response = await fetch(localizedPath, {
-          method: "GET",
-          credentials: "same-origin",
-          cache: "no-store",
-        });
-        routes.push({
-          path: localizedPath,
-          httpStatus: response.status,
-          status: response.ok || response.status === 401 || response.status === 403 ? "ok" : "fail",
-          detail: response.ok ? "Route responded" : `HTTP ${response.status}`,
-        });
-      } catch (error) {
-        routes.push({
-          path: localizedPath,
-          httpStatus: null,
-          status: "fail",
-          detail: shortError(error),
-        });
-      }
-    }
+    try {
+      const checks = await Promise.all(
+        TABLES_TO_CHECK.map(async (table) => {
+          const started = performance.now();
+          const response = await supabase.from(table).select("id", { count: "exact", head: true });
+          const elapsed = Math.round(performance.now() - started);
 
-    setSnapshot({
-      generatedAt: new Date().toISOString(),
-      locale,
-      origin,
-      dataSource,
-      userRole: user?.role ?? "anonymous",
-      checks,
-      tables,
-      routes,
-    });
-    setRunning(false);
-  }, [conversations.length, dataSource, items.length, lastError, loading.auth, loading.items, loading.profile, locale, matches.length, publicEnv.appUrl, publicEnv.supabaseAnonKey, publicEnv.supabaseUrl, swaps.length, user]);
+          if (response.error) {
+            return {
+              table,
+              name: `Table: ${table}`,
+              status: "fail" as const,
+              detail: maskError(response.error),
+              meta: `latency=${elapsed}ms`,
+              count: null,
+            };
+          }
+
+          return {
+            table,
+            name: `Table: ${table}`,
+            status: "ok" as const,
+            detail: "Readable with current session and RLS policies.",
+            meta: `count=${response.count ?? "unknown"}; latency=${elapsed}ms`,
+            count: response.count,
+          };
+        }),
+      );
+
+      setTableChecks(checks);
+    } catch (error) {
+      setRuntimeError(maskError(error));
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => runDiagnostic(), 0);
-    return () => clearTimeout(timer);
-  }, [runDiagnostic]);
+    void runDatabaseChecks();
+  }, [runDatabaseChecks]);
 
-  const summaryStatus: DiagnosticStatus = useMemo(() => {
-    if (!snapshot) return "warn";
-    const allStatuses = [
-      ...snapshot.checks.map((item) => item.status),
-      ...snapshot.tables.map((item) => item.status),
-      ...snapshot.routes.map((item) => item.status),
-    ];
-    if (allStatuses.includes("fail")) return "fail";
-    if (allStatuses.includes("warn")) return "warn";
+  const overallStatus = useMemo<DiagnosticStatus>(() => {
+    const all = [...envChecks, ...appChecks, ...tableChecks];
+    if (all.some((check) => check.status === "fail")) return "fail";
+    if (all.some((check) => check.status === "warn")) return "warn";
     return "ok";
-  }, [snapshot]);
+  }, [appChecks, envChecks, tableChecks]);
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="flex items-center gap-2 text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-            <Activity className="h-5 w-5 text-blue-600" />
-            Swaply diagnostic
-          </h2>
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            Safe production diagnostics for auth, routes, Supabase access and app state. No private records are displayed.
-          </p>
+      <div className={`rounded-2xl border p-5 ${statusClasses(overallStatus)}`}>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-3">
+            <Shield className="mt-0.5 h-6 w-6" />
+            <div>
+              <h2 className="text-lg font-bold">Swaply diagnostic</h2>
+              <p className="mt-1 text-sm opacity-90">
+                Protected operational view. Secrets, tokens, email addresses, and personal data are intentionally hidden.
+              </p>
+              {lastRunAt ? <p className="mt-2 text-xs opacity-70">Last run: {lastRunAt}</p> : null}
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={runDatabaseChecks}
+            disabled={loading}
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800 disabled:opacity-50 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100"
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+            Refresh checks
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={runDiagnostic}
-          disabled={running}
-          className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
-        >
-          <RefreshCw className={`h-4 w-4 ${running ? "animate-spin" : ""}`} />
-          {running ? "Running..." : "Run diagnostic"}
-        </button>
       </div>
 
-      <Card title="System summary" icon={ShieldCheck}>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-xl border border-zinc-200 p-3 dark:border-zinc-800">
-            <p className="text-xs text-zinc-500">Overall status</p>
-            <div className="mt-2"><DiagnosticBadge status={summaryStatus} /></div>
-          </div>
-          <div className="rounded-xl border border-zinc-200 p-3 dark:border-zinc-800">
-            <p className="text-xs text-zinc-500">Generated at</p>
-            <p className="mt-2 text-sm font-medium text-zinc-900 dark:text-zinc-50">{snapshot?.generatedAt ?? "Pending"}</p>
-          </div>
-          <div className="rounded-xl border border-zinc-200 p-3 dark:border-zinc-800">
-            <p className="text-xs text-zinc-500">Origin</p>
-            <p className="mt-2 break-all text-sm font-medium text-zinc-900 dark:text-zinc-50">{snapshot?.origin ?? "Pending"}</p>
-          </div>
-          <div className="rounded-xl border border-zinc-200 p-3 dark:border-zinc-800">
-            <p className="text-xs text-zinc-500">Role / source</p>
-            <p className="mt-2 text-sm font-medium text-zinc-900 dark:text-zinc-50">{snapshot?.userRole ?? "Pending"} / {snapshot?.dataSource ?? dataSource}</p>
-          </div>
-        </div>
-      </Card>
+      {runtimeError ? (
+        <DiagnosticCard
+          check={{
+            name: "Diagnostic runtime error",
+            status: "fail",
+            detail: runtimeError,
+          }}
+        />
+      ) : null}
 
-      <Card title="Core checks" icon={Activity}>
-        <div className="space-y-2">
-          {(snapshot?.checks ?? []).map((check) => (
-            <div key={check.key} className="rounded-xl border border-zinc-200 p-3 dark:border-zinc-800">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                  <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">{check.label}</p>
-                  <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{check.detail}</p>
-                </div>
-                <DiagnosticBadge status={check.status} />
-              </div>
+      <section className="space-y-3">
+        <div className="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+          <Activity className="h-4 w-4" /> App state
+        </div>
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {appChecks.map((check) => <DiagnosticCard key={check.name} check={check} />)}
+        </div>
+      </section>
+
+      <section className="space-y-3">
+        <div className="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+          <Database className="h-4 w-4" /> Database / RLS checks
+        </div>
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {tableChecks.length === 0 && loading ? (
+            <div className="rounded-xl border border-zinc-200 bg-white p-4 text-sm text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900">
+              Running database checks...
             </div>
-          ))}
-          {!snapshot && <p className="text-sm text-zinc-500">Diagnostic pending...</p>}
+          ) : (
+            tableChecks.map((check) => <DiagnosticCard key={check.table} check={check} />)
+          )}
         </div>
-      </Card>
+      </section>
 
-      <Card title="Supabase tables" icon={Database}>
-        <div className="overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-800">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-zinc-50 text-xs uppercase text-zinc-500 dark:bg-zinc-800/60">
-              <tr>
-                <th className="px-3 py-2">Table</th>
-                <th className="px-3 py-2">Count</th>
-                <th className="px-3 py-2">Status</th>
-                <th className="px-3 py-2">Detail</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
-              {(snapshot?.tables ?? []).map((table) => (
-                <tr key={table.table}>
-                  <td className="px-3 py-2 font-medium text-zinc-900 dark:text-zinc-50">{table.table}</td>
-                  <td className="px-3 py-2 text-zinc-600 dark:text-zinc-300">{table.count ?? "n/a"}</td>
-                  <td className="px-3 py-2"><DiagnosticBadge status={table.status} /></td>
-                  <td className="px-3 py-2 text-xs text-zinc-500 dark:text-zinc-400">{table.detail}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <section className="space-y-3">
+        <div className="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+          <Globe2 className="h-4 w-4" /> Public environment
         </div>
-      </Card>
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          {envChecks.map((check) => <DiagnosticCard key={check.name} check={check} />)}
+        </div>
+      </section>
 
-      <Card title="Canonical routes" icon={Globe2}>
-        <div className="grid gap-2 sm:grid-cols-2">
-          {(snapshot?.routes ?? []).map((route) => (
-            <div key={route.path} className="rounded-xl border border-zinc-200 p-3 dark:border-zinc-800">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-sm font-medium text-zinc-900 dark:text-zinc-50">{route.path}</p>
-                  <p className="text-xs text-zinc-500">HTTP {route.httpStatus ?? "n/a"} · {route.detail}</p>
-                </div>
-                <DiagnosticBadge status={route.status} />
-              </div>
-            </div>
-          ))}
+      <section className="space-y-3">
+        <div className="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+          <Clock className="h-4 w-4" /> Canonical route inventory
         </div>
-      </Card>
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {routeChecks.map((check) => <DiagnosticCard key={check.name} check={check} />)}
+        </div>
+      </section>
     </div>
   );
 }
@@ -377,7 +342,7 @@ export default function AdminDiagnosticPage() {
 
   return (
     <AdminGuard user={user}>
-      <AdminDiagnosticContent />
+      <DiagnosticContent />
     </AdminGuard>
   );
 }
