@@ -13,6 +13,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { AdminGuard } from "@/features/admin/AdminShell";
+import { CANONICAL_ROUTES } from "@/lib/canonical";
 import { useAppState } from "@/lib/state";
 import { getSupabaseClient } from "@/lib/supabase/client";
 
@@ -29,24 +30,6 @@ type TableCheck = DiagnosticCheck & {
   table: string;
   count?: number | null;
 };
-
-const CANONICAL_ROUTES = [
-  "/",
-  "/objects",
-  "/explore",
-  "/matching",
-  "/messages",
-  "/exchange",
-  "/chat",
-  "/properties",
-  "/services",
-  "/events",
-  "/blog",
-  "/about",
-  "/contact",
-  "/admin",
-  "/admin/diagnostic",
-];
 
 const TABLES_TO_CHECK = [
   "profiles",
@@ -183,9 +166,9 @@ function DiagnosticContent() {
 
   const routeChecks = useMemo<DiagnosticCheck[]>(() => {
     return CANONICAL_ROUTES.map((route) => ({
-      name: route,
-      status: "info",
-      detail: "Canonical route listed for smoke/audit coverage. Runtime navigation is tested by Playwright.",
+      name: route.path,
+      status: "info" as const,
+      detail: `${route.label} · ${route.area}`,
     }));
   }, []);
 
