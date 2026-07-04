@@ -2,6 +2,7 @@
 
 import { Link, usePathname } from "@/i18n/navigation";
 import {
+  Activity,
   LayoutDashboard,
   Flag,
   Users,
@@ -19,6 +20,7 @@ export function AdminNav() {
     { href: "/admin/reports", label: t("reports"), icon: Flag },
     { href: "/admin/users", label: t("users"), icon: Users },
     { href: "/admin/items", label: t("items"), icon: Package },
+    { href: "/admin/diagnostic", label: "Diagnostic", icon: Activity },
   ] as const;
 
   return (
