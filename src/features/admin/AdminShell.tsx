@@ -3,6 +3,7 @@
 import { Link, usePathname } from "@/i18n/navigation";
 import {
   Activity,
+  BookOpen,
   LayoutDashboard,
   Flag,
   Users,
@@ -21,6 +22,7 @@ export function AdminNav() {
     { href: "/admin/users", label: t("users"), icon: Users },
     { href: "/admin/items", label: t("items"), icon: Package },
     { href: "/admin/diagnostic", label: "Diagnostic", icon: Activity },
+    { href: "/admin/canonical", label: "Canonical", icon: BookOpen },
   ] as const;
 
   return (
