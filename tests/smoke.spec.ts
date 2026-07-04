@@ -30,3 +30,13 @@ test("matching page renders (public demo)", async ({ page }) => {
     await page.screenshot({ path: "test-results/matching.png", fullPage: true });
   }
 });
+
+test("admin diagnostic route is protected but reachable", async ({ page }) => {
+  try {
+    await page.goto(`${BASE_URL}/en/admin/diagnostic`, { waitUntil: "networkidle" });
+    await expect(page).toHaveURL(/\/en\/admin\/diagnostic|\/en\/login/);
+    await expect(page.getByText(/authenticate|access restricted|auth required|login|sign in/i).first()).toBeVisible({ timeout: 10_000 });
+  } finally {
+    await page.screenshot({ path: "test-results/admin-diagnostic.png", fullPage: true });
+  }
+});
