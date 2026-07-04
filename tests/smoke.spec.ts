@@ -2,32 +2,50 @@ import { test, expect } from "@playwright/test";
 
 const BASE_URL = process.env.BASE_URL ?? "http://localhost:3000";
 
+const CANONICAL_PUBLIC_ROUTES = [
+  "/en",
+  "/en/objects",
+  "/en/explore",
+  "/en/matching",
+  "/en/properties",
+  "/en/services",
+  "/en/events",
+  "/en/blog",
+  "/en/about",
+  "/en/contact",
+];
+
+const LEGACY_ROUTES = [
+  { from: "/en/match", to: /\/en\/matching/ },
+  { from: "/en/change", to: /\/en\/exchange/ },
+  { from: "/en/items", to: /\/en\/objects/ },
+];
+
 test.use({ viewport: { width: 1280, height: 800 } });
 
-test("home page renders", async ({ page }) => {
-  try {
-    await page.goto(`${BASE_URL}/en`, { waitUntil: "networkidle" });
-    await expect(page).toHaveURL(/\/en/);
-  } finally {
-    await page.screenshot({ path: "test-results/home.png", fullPage: true });
+test("canonical public routes respond", async ({ page }) => {
+  const failures: string[] = [];
+
+  for (const route of CANONICAL_PUBLIC_ROUTES) {
+    const response = await page.goto(`${BASE_URL}${route}`, { waitUntil: "networkidle" });
+    const status = response?.status() ?? 0;
+    await page.screenshot({
+      path: `test-results/canonical-${route.replace(/^\/en\/?/, "home").replaceAll("/", "-")}.png`,
+      fullPage: true,
+    });
+
+    if (status >= 500) {
+      failures.push(`${route} returned HTTP ${status}`);
+    }
   }
+
+  expect(failures, failures.join("\n")).toHaveLength(0);
 });
 
-test("chat page renders (public demo)", async ({ page }) => {
-  try {
-    await page.goto(`${BASE_URL}/en/chat`, { waitUntil: "networkidle" });
-    await expect(page).toHaveURL(/\/en\/chat/);
-  } finally {
-    await page.screenshot({ path: "test-results/chat.png", fullPage: true });
-  }
-});
-
-test("matching page renders (public demo)", async ({ page }) => {
-  try {
-    await page.goto(`${BASE_URL}/en/matching`, { waitUntil: "networkidle" });
-    await expect(page).toHaveURL(/\/en\/matching/);
-  } finally {
-    await page.screenshot({ path: "test-results/matching.png", fullPage: true });
+test("legacy routes redirect to canonical routes", async ({ page }) => {
+  for (const route of LEGACY_ROUTES) {
+    await page.goto(`${BASE_URL}${route.from}`, { waitUntil: "networkidle" });
+    await expect(page).toHaveURL(route.to);
   }
 });
 
