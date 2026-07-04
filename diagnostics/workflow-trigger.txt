@@ -1,0 +1,2 @@
+Playwright workflow trigger diagnostic.
+Generated on 2026-07-04.
