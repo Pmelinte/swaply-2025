@@ -39,3 +39,12 @@ test("admin canonical page has a response", async ({ page }) => {
     await page.screenshot({ path: "test-results/admin-canonical.png", fullPage: true });
   }
 });
+
+test("admin flows page has a response", async ({ page }) => {
+  try {
+    const response = await page.goto(`${BASE_URL}/en/admin/flows`, { waitUntil: "networkidle" });
+    expect(response?.status() ?? 0).toBeLessThan(500);
+  } finally {
+    await page.screenshot({ path: "test-results/admin-flows.png", fullPage: true });
+  }
+});
