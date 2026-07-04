@@ -57,3 +57,12 @@ test("admin live data page has a response", async ({ page }) => {
     await page.screenshot({ path: "test-results/admin-live-data.png", fullPage: true });
   }
 });
+
+test("admin matching engine page has a response", async ({ page }) => {
+  try {
+    const response = await page.goto(`${BASE_URL}/en/admin/matching-engine`, { waitUntil: "networkidle" });
+    expect(response?.status() ?? 0).toBeLessThan(500);
+  } finally {
+    await page.screenshot({ path: "test-results/admin-matching-engine.png", fullPage: true });
+  }
+});

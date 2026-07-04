@@ -4,6 +4,7 @@ import { Link, usePathname } from "@/i18n/navigation";
 import {
   Activity,
   BookOpen,
+  BrainCircuit,
   Database,
   GitBranch,
   LayoutDashboard,
@@ -27,6 +28,7 @@ export function AdminNav() {
     { href: "/admin/canonical", label: "Canonical", icon: BookOpen },
     { href: "/admin/flows", label: "Flows", icon: GitBranch },
     { href: "/admin/live-data", label: "Live Data", icon: Database },
+    { href: "/admin/matching-engine", label: "Matching Engine", icon: BrainCircuit },
   ] as const;
 
   return (
