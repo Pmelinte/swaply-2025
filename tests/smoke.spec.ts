@@ -30,3 +30,12 @@ test("matching page renders (public demo)", async ({ page }) => {
     await page.screenshot({ path: "test-results/matching.png", fullPage: true });
   }
 });
+
+test("admin canonical page has a response", async ({ page }) => {
+  try {
+    const response = await page.goto(`${BASE_URL}/en/admin/canonical`, { waitUntil: "networkidle" });
+    expect(response?.status() ?? 0).toBeLessThan(500);
+  } finally {
+    await page.screenshot({ path: "test-results/admin-canonical.png", fullPage: true });
+  }
+});
