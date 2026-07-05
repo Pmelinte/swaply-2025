@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { moderateText } from "@/lib/moderation/moderationEngine";
 
 export type ConversationRow = {
   id: string;
@@ -77,6 +78,12 @@ export async function sendConversationMessage(
   const recipientId = input.conversation.participant_ids.find((id) => id !== input.senderId);
   if (!recipientId || !input.conversation.swap_id || input.content.trim().length === 0) return null;
 
+  const moderation = moderateText(input.content);
+  if (moderation.recommended_action === "block") {
+    console.error("Blocked moderated message", moderation);
+    return null;
+  }
+
   const { data, error } = await supabase
     .from("messages")
     .insert({
@@ -88,6 +95,7 @@ export async function sendConversationMessage(
       message_type: "text",
       metadata: {
         source: "chat_page",
+        moderation,
       },
       is_read: false,
     })
@@ -108,18 +116,35 @@ export async function sendConversationMessage(
 
   await supabase.from("notifications").insert({
     user_id: recipientId,
-    type: "message",
-    title: "New Swaply message",
+    type: moderation.risk_score >= 30 ? "message_flagged" : "message",
+    title: moderation.risk_score >= 30 ? "Potentially risky message" : "New Swaply message",
     body: input.content.trim().slice(0, 140),
     data: {
       conversation_id: input.conversation.id,
       swap_id: input.conversation.swap_id,
       message_id: data.id,
+      moderation,
     },
     read: false,
     is_read: false,
-    priority: "normal",
+    priority: moderation.risk_score >= 50 ? "high" : "normal",
   });
+
+  if (moderation.risk_score >= 50) {
+    await supabase.from("notifications").insert({
+      user_id: input.senderId,
+      type: "trust_warning",
+      title: "Message flagged by safety systems",
+      body: "Your recent message triggered Swaply safety checks.",
+      data: {
+        conversation_id: input.conversation.id,
+        moderation,
+      },
+      read: false,
+      is_read: false,
+      priority: "high",
+    });
+  }
 
   return data as MessageRow;
 }
