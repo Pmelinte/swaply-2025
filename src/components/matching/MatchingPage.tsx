@@ -203,7 +203,7 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
           item: candidate.item,
           score: candidate.score,
           matchId: persisted?.id,
-        } as SelectedMatch & { matchId?: string },
+        },
       ];
     });
     setPersistingIds((prev) => {
@@ -216,6 +216,20 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
 
   function declineSelected(itemId: string) {
     setSelected((prev) => prev.filter((p) => p.itemId !== itemId));
+  }
+
+  function markConverted(itemId: string, result: { swapId: string; conversationId: string }) {
+    setSelected((prev) =>
+      prev.map((entry) =>
+        entry.itemId === itemId
+          ? {
+              ...entry,
+              swapId: result.swapId,
+              conversationId: result.conversationId,
+            }
+          : entry,
+      ),
+    );
   }
 
   return (
@@ -272,7 +286,11 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
             }}
           />
 
-          <MatchingSelected selected={selected} onDecline={declineSelected} />
+          <MatchingSelected
+            selected={selected}
+            onDecline={declineSelected}
+            onConverted={markConverted}
+          />
         </div>
       </div>
 
