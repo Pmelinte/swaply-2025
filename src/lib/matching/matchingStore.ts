@@ -5,6 +5,9 @@ export type SelectedMatch = {
   ownerId: string;
   item: MatchingItemRow;
   score: number;
+  matchId?: string;
+  swapId?: string;
+  conversationId?: string;
 };
 
 export type MatchingFilters = {
