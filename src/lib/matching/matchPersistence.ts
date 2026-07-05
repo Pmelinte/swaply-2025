@@ -62,10 +62,57 @@ function buildReasoning(candidate: PersistableMatchCandidate): string {
   return parts.join("; ");
 }
 
+async function findExistingMatch(
+  supabase: SupabaseClient,
+  input: PersistMatchInput,
+): Promise<PersistedMatch | null> {
+  const query = supabase
+    .from("matches")
+    .select("id, status, converted_swap_id")
+    .eq("initiator_id", input.userId)
+    .eq("target_user_id", input.candidate.item.owner_id)
+    .eq("target_item_id", input.candidate.item.id)
+    .in("status", ["pending_chat", "converted_to_swap", "accepted"])
+    .order("created_at", { ascending: false })
+    .limit(1);
+
+  const { data, error } = input.sourceItem?.id
+    ? await query.eq("initiator_item_id", input.sourceItem.id).maybeSingle()
+    : await query.is("initiator_item_id", null).maybeSingle();
+
+  if (error || !data) return null;
+  return data as PersistedMatch;
+}
+
+async function hasActiveSwapForItems(
+  supabase: SupabaseClient,
+  offeredItemId: string,
+  requestedItemId: string,
+): Promise<boolean> {
+  const { data, error } = await supabase
+    .from("swaps")
+    .select("id")
+    .or(
+      `and(offered_item_id.eq.${offeredItemId},requested_item_id.eq.${requestedItemId}),and(offered_item_id.eq.${requestedItemId},requested_item_id.eq.${offeredItemId})`,
+    )
+    .in("status", ["pending", "accepted", "in_progress", "completed"])
+    .limit(1);
+
+  if (error) {
+    console.error("hasActiveSwapForItems failed", error);
+    return true;
+  }
+
+  return (data ?? []).length > 0;
+}
+
 export async function persistMatchCandidate(
   supabase: SupabaseClient,
   input: PersistMatchInput,
 ): Promise<PersistedMatch | null> {
+  const existing = await findExistingMatch(supabase, input);
+  if (existing) return existing;
+
   const payload = {
     initiator_id: input.userId,
     target_user_id: input.candidate.item.owner_id,
@@ -127,10 +174,18 @@ export async function convertMatchToSwap(
 
   const row = match as MatchRow;
   if (row.converted_swap_id) {
+    const { data: conversation } = await supabase
+      .from("conversations")
+      .select("id")
+      .eq("swap_id", row.converted_swap_id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
     return {
       matchId: row.id,
       swapId: row.converted_swap_id,
-      conversationId: "",
+      conversationId: (conversation as { id?: string } | null)?.id ?? "",
     };
   }
 
@@ -141,6 +196,22 @@ export async function convertMatchToSwap(
 
   if (!row.initiator_item_id) {
     console.error("convertMatchToSwap requires an initiator item");
+    return null;
+  }
+
+  const hasExistingSwap = await hasActiveSwapForItems(
+    supabase,
+    row.initiator_item_id,
+    row.target_item_id,
+  );
+  if (hasExistingSwap) {
+    await supabase
+      .from("matches")
+      .update({
+        status: "blocked_duplicate_swap",
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", row.id);
     return null;
   }
 
@@ -206,6 +277,11 @@ export async function convertMatchToSwap(
       updated_at: new Date().toISOString(),
     })
     .eq("id", row.id);
+
+  await supabase
+    .from("items")
+    .update({ status: "reserved", updated_at: new Date().toISOString() })
+    .in("id", [row.initiator_item_id, row.target_item_id]);
 
   await supabase.from("notifications").insert([
     {
