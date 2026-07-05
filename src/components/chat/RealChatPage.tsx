@@ -33,6 +33,8 @@ export function RealChatPage({ conversationId }: Props) {
   const [draft, setDraft] = useState("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [deciding, setDeciding] = useState(false);
+  const [decisionStatus, setDecisionStatus] = useState<string | null>(null);
 
   const activeConversation = useMemo(
     () => conversations.find((conversation) => conversation.id === activeId) ?? null,
@@ -110,6 +112,30 @@ export function RealChatPage({ conversationId }: Props) {
     setSending(false);
   }
 
+  async function decide(decision: "accepted" | "rejected") {
+    if (!activeConversation?.swap_id || deciding) return;
+
+    setDeciding(true);
+    const response = await fetch(`/api/swaps/${activeConversation.swap_id}/decision`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ decision }),
+    });
+
+    if (response.ok) {
+      const result = (await response.json()) as { status: string };
+      setDecisionStatus(result.status);
+      setConversations((prev) =>
+        prev.map((conversation) =>
+          conversation.id === activeConversation.id
+            ? { ...conversation, status: result.status, updated_at: new Date().toISOString() }
+            : conversation,
+        ),
+      );
+    }
+    setDeciding(false);
+  }
+
   if (!user) {
     return (
       <div className="mx-auto max-w-3xl rounded-2xl border border-amber-200 bg-amber-50 p-6 text-amber-900">
@@ -154,14 +180,39 @@ export function RealChatPage({ conversationId }: Props) {
 
       <section className="flex min-h-[70vh] flex-col rounded-2xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
         <div className="border-b border-zinc-200 p-4 dark:border-zinc-800">
-          <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-50">
-            {activeConversation ? "Swap conversation" : "Select a conversation"}
-          </h2>
-          {activeConversation && (
-            <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-              Swap: {activeConversation.swap_id ?? "not linked"}
-            </p>
-          )}
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-50">
+                {activeConversation ? "Swap conversation" : "Select a conversation"}
+              </h2>
+              {activeConversation && (
+                <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                  Swap: {activeConversation.swap_id ?? "not linked"} · Status: {decisionStatus ?? activeConversation.status ?? "active"}
+                </p>
+              )}
+            </div>
+
+            {activeConversation?.swap_id && (
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  disabled={deciding}
+                  onClick={() => void decide("rejected")}
+                  className="rounded-xl border border-red-200 px-3 py-2 text-xs font-semibold text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-900 dark:text-red-300"
+                >
+                  Reject
+                </button>
+                <button
+                  type="button"
+                  disabled={deciding}
+                  onClick={() => void decide("accepted")}
+                  className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-zinc-400"
+                >
+                  Accept swap
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="flex-1 space-y-3 overflow-y-auto p-4">
