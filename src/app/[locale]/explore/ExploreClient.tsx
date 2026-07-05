@@ -7,6 +7,7 @@ import { GuestBanner } from "@/components/GuestBanner";
 import { WantsZone } from "@/components/explore/WantsZone";
 import { OffersZone } from "@/components/explore/OffersZone";
 import { MapSection } from "@/components/explore/MapSection";
+import { TrendingFeed } from "@/components/explore/TrendingFeed";
 import { CategoryPickerSheet } from "@/components/explore/CategoryPickerSheet";
 import {
   EXPLORE_APPLY_EVENT,
@@ -21,7 +22,6 @@ export function ExploreClient() {
   const [addWantOpen, setAddWantOpen] = useState(false);
   const [addOfferOpen, setAddOfferOpen] = useState(false);
 
-  // Apply filters when DrawerExplore dispatches the event
   useEffect(() => {
     const handler = (e: Event) => {
       const filters = (e as CustomEvent<ExploreFilters>).detail;
@@ -38,10 +38,11 @@ export function ExploreClient() {
       {!user && <GuestBanner />}
 
       <div className="mx-auto max-w-6xl space-y-4 px-4 py-4">
-
         <WantsZone onAddWant={() => setAddWantOpen(true)} />
 
         <MapSection />
+
+        <TrendingFeed />
 
         <OffersZone onAddOffer={() => setAddOfferOpen(true)} />
       </div>
