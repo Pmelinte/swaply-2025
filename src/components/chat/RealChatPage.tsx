@@ -34,12 +34,15 @@ export function RealChatPage({ conversationId }: Props) {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [deciding, setDeciding] = useState(false);
+  const [completing, setCompleting] = useState(false);
   const [decisionStatus, setDecisionStatus] = useState<string | null>(null);
 
   const activeConversation = useMemo(
     () => conversations.find((conversation) => conversation.id === activeId) ?? null,
     [conversations, activeId],
   );
+
+  const visibleStatus = decisionStatus ?? activeConversation?.status ?? "active";
 
   useEffect(() => {
     const supabase = getSupabaseClient();
@@ -136,6 +139,28 @@ export function RealChatPage({ conversationId }: Props) {
     setDeciding(false);
   }
 
+  async function completeActiveSwap() {
+    if (!activeConversation?.swap_id || completing) return;
+
+    setCompleting(true);
+    const response = await fetch(`/api/swaps/${activeConversation.swap_id}/complete`, {
+      method: "POST",
+    });
+
+    if (response.ok) {
+      const result = (await response.json()) as { status: string };
+      setDecisionStatus(result.status);
+      setConversations((prev) =>
+        prev.map((conversation) =>
+          conversation.id === activeConversation.id
+            ? { ...conversation, status: result.status, updated_at: new Date().toISOString() }
+            : conversation,
+        ),
+      );
+    }
+    setCompleting(false);
+  }
+
   if (!user) {
     return (
       <div className="mx-auto max-w-3xl rounded-2xl border border-amber-200 bg-amber-50 p-6 text-amber-900">
@@ -187,16 +212,16 @@ export function RealChatPage({ conversationId }: Props) {
               </h2>
               {activeConversation && (
                 <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                  Swap: {activeConversation.swap_id ?? "not linked"} · Status: {decisionStatus ?? activeConversation.status ?? "active"}
+                  Swap: {activeConversation.swap_id ?? "not linked"} · Status: {visibleStatus}
                 </p>
               )}
             </div>
 
             {activeConversation?.swap_id && (
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
-                  disabled={deciding}
+                  disabled={deciding || visibleStatus === "completed"}
                   onClick={() => void decide("rejected")}
                   className="rounded-xl border border-red-200 px-3 py-2 text-xs font-semibold text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-900 dark:text-red-300"
                 >
@@ -204,11 +229,19 @@ export function RealChatPage({ conversationId }: Props) {
                 </button>
                 <button
                   type="button"
-                  disabled={deciding}
+                  disabled={deciding || visibleStatus === "completed"}
                   onClick={() => void decide("accepted")}
                   className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-zinc-400"
                 >
                   Accept swap
+                </button>
+                <button
+                  type="button"
+                  disabled={completing || visibleStatus === "completed"}
+                  onClick={() => void completeActiveSwap()}
+                  className="rounded-xl bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-zinc-400"
+                >
+                  {visibleStatus === "completed" ? "Completed" : completing ? "Completing..." : "Complete swap"}
                 </button>
               </div>
             )}
