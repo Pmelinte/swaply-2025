@@ -27,6 +27,19 @@ function formatTime(value: string | null | undefined): string {
   }).format(new Date(value));
 }
 
+function getModerationMeta(message: MessageRow): {
+  risk: number;
+  action: string;
+} | null {
+  const moderation = message.metadata?.moderation;
+  if (!moderation || typeof moderation !== "object") return null;
+
+  return {
+    risk: Number((moderation as Record<string, unknown>).risk_score ?? 0),
+    action: String((moderation as Record<string, unknown>).recommended_action ?? "allow"),
+  };
+}
+
 export function RealChatPage({ conversationId }: Props) {
   const { user } = useAppState();
   const [conversations, setConversations] = useState<ConversationRow[]>([]);
@@ -218,35 +231,6 @@ export function RealChatPage({ conversationId }: Props) {
                 </p>
               )}
             </div>
-
-            {activeConversation?.swap_id && (
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  disabled={deciding || visibleStatus === "completed"}
-                  onClick={() => void decide("rejected")}
-                  className="rounded-xl border border-red-200 px-3 py-2 text-xs font-semibold text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-900 dark:text-red-300"
-                >
-                  Reject
-                </button>
-                <button
-                  type="button"
-                  disabled={deciding || visibleStatus === "completed"}
-                  onClick={() => void decide("accepted")}
-                  className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-zinc-400"
-                >
-                  Accept swap
-                </button>
-                <button
-                  type="button"
-                  disabled={completing || visibleStatus === "completed"}
-                  onClick={() => void completeActiveSwap()}
-                  className="rounded-xl bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-zinc-400"
-                >
-                  {visibleStatus === "completed" ? "Completed" : completing ? "Completing..." : "Complete swap"}
-                </button>
-              </div>
-            )}
           </div>
         </div>
 
@@ -265,6 +249,8 @@ export function RealChatPage({ conversationId }: Props) {
           ) : (
             messages.map((message) => {
               const own = message.sender_id === user.id;
+              const moderation = getModerationMeta(message);
+
               return (
                 <div key={message.id} className={`flex ${own ? "justify-end" : "justify-start"}`}>
                   <div
@@ -275,6 +261,13 @@ export function RealChatPage({ conversationId }: Props) {
                     }`}
                   >
                     <p>{message.content}</p>
+
+                    {moderation && moderation.risk >= 30 && (
+                      <div className="mt-2 rounded-lg bg-amber-500/20 px-2 py-1 text-[10px] font-semibold text-amber-100">
+                        Safety flag · Risk {moderation.risk}% · {moderation.action}
+                      </div>
+                    )}
+
                     <p className={`mt-1 text-[10px] ${own ? "text-blue-100" : "text-zinc-500"}`}>
                       {formatTime(message.created_at)}
                     </p>
