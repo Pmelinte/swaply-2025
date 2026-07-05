@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { CTAButton, NextStepRecommendation, SectionCard, StateShowcase } from "@/components/ui-custom";
+import { TrustProfileCard } from "@/components/trust/TrustProfileCard";
 import type { UserProfile } from "@/lib/types";
 import ProfileTab from "./_components/ProfileTab";
 import PropertiesTab from "./_components/PropertiesTab";
@@ -41,7 +42,6 @@ export function ProfileClient() {
     { key: "verificare" as const, label: t("verificationTitle") },
   ];
 
-  // Sync draft with user during render
   if (user && !draft) {
     setDraft(user);
   }
@@ -111,7 +111,6 @@ export function ProfileClient() {
     void updateProfile(next, { persist: false });
   };
 
-  // Profile completeness
   const completenessChecks = [
     !!draft.displayName, !!draft.avatarUrl,
     !!draft.bio && draft.bio.length >= 10,
@@ -123,7 +122,18 @@ export function ProfileClient() {
 
   return (
     <div className="space-y-4">
-      {/* Profile completeness bar */}
+      <TrustProfileCard
+        profile={{
+          full_name: draft.displayName,
+          username: draft.username,
+          rating: draft.stats.rating,
+          rating_count: draft.stats.ratingCount,
+          trust_score: draft.stats.trustScore,
+          completion_rate: draft.stats.completionRate,
+          completed_swaps: draft.stats.completedSwaps,
+        }}
+      />
+
       <div className="rounded-xl border border-zinc-200 bg-white/80 p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/80">
         <div className="flex items-center justify-between">
           <span className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">{t("profileCompleteness")}</span>
@@ -140,7 +150,6 @@ export function ProfileClient() {
         )}
       </div>
 
-      {/* Tab navigation */}
       <nav aria-label={t("profileNavigation")}>
         <div className="flex flex-wrap gap-2">
           {profileTabs.map((tab) => (
@@ -161,7 +170,6 @@ export function ProfileClient() {
         </div>
       </nav>
 
-      {/* Tab content */}
       {activeTab === "profil" && <ProfileTab draft={draft} update={update} userId={user.id} />}
       {activeTab === "proprietati" && (
         <PropertiesTab
@@ -199,7 +207,6 @@ export function ProfileClient() {
         />
       )}
 
-      {/* Save button (always visible) */}
       <SectionCard title={t("saveProfile")} description={t("saveDescription")}>
         <div className="flex flex-wrap items-center gap-2">
           <button type="button" disabled={saving}
