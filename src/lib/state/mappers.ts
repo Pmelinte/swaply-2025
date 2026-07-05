@@ -24,9 +24,50 @@ import {
 
 type MutableRef<T> = { current: T };
 
+type TrustStats = UserProfile["stats"] & {
+  rating?: number;
+  ratingCount?: number;
+  trustScore?: number;
+  completionRate?: number;
+};
+
+function safeNumber(...values: unknown[]): number {
+  for (const value of values) {
+    if (typeof value === "number" && Number.isFinite(value)) return value;
+    if (typeof value === "string" && value.trim() !== "") {
+      const parsed = Number(value);
+      if (Number.isFinite(parsed)) return parsed;
+    }
+  }
+  return 0;
+}
+
 export function createMapProfile(userRef: MutableRef<UserProfile | null>) {
   return (data: Partial<UserProfile> & Record<string, unknown>): UserProfile => {
     const currentUser = userRef.current;
+    const defaultStats: UserProfile["stats"] = currentUser?.stats ?? {
+      tokens: 0,
+      reputation: "starter",
+      completedSwaps: 0,
+      activeListings: 0,
+    };
+    const statsRaw = safeObject(data.stats, defaultStats) as TrustStats;
+    const completedSwaps = safeNumber(data.completed_swaps, statsRaw.completedSwaps);
+    const completionRate = safeNumber(
+      data.completion_rate,
+      data.completionRate,
+      statsRaw.completionRate,
+      currentUser?.completionRate,
+    );
+    const enrichedStats = {
+      ...statsRaw,
+      completedSwaps,
+      rating: safeNumber(data.rating, statsRaw.rating),
+      ratingCount: safeNumber(data.rating_count, statsRaw.ratingCount),
+      trustScore: safeNumber(data.trust_score, statsRaw.trustScore),
+      completionRate,
+    } as UserProfile["stats"];
+
     return {
       id: safeString(
         data.id,
@@ -103,16 +144,11 @@ export function createMapProfile(userRef: MutableRef<UserProfile | null>) {
             passkeysEnabled: false,
           },
         ) as UserProfile["security"],
-      stats:
-        safeObject(
-          data.stats,
-          currentUser?.stats ?? {
-            tokens: 0,
-            reputation: "starter",
-            completedSwaps: 0,
-            activeListings: 0,
-          },
-        ) as UserProfile["stats"],
+      stats: enrichedStats,
+      responseRate: safeNumber(data.response_rate, data.responseRate, currentUser?.responseRate),
+      completionRate,
+      noShowCount: safeNumber(data.no_show_count, data.noShowCount, currentUser?.noShowCount),
+      disputeRate: safeNumber(data.dispute_rate, data.disputeRate, currentUser?.disputeRate),
       createdAt: safeString(data.created_at, safeString(data.createdAt as string | undefined)),
     };
   };
