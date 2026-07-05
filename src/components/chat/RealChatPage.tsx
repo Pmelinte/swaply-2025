@@ -17,6 +17,13 @@ interface Props {
   conversationId?: string | null;
 }
 
+type VisibleTranslation = {
+  target_language: string;
+  translated_text: string;
+  source_language: string;
+  provider: string;
+};
+
 function formatTime(value: string | null | undefined): string {
   if (!value) return "";
   return new Intl.DateTimeFormat("ro-RO", {
@@ -40,6 +47,14 @@ function getModerationMeta(message: MessageRow): {
   };
 }
 
+function getCachedVisibleTranslation(message: MessageRow, targetLanguage: string): VisibleTranslation | null {
+  const translations = message.metadata?.translations;
+  if (!translations || typeof translations !== "object") return null;
+  const translation = (translations as Record<string, unknown>)[targetLanguage];
+  if (!translation || typeof translation !== "object") return null;
+  return translation as VisibleTranslation;
+}
+
 export function RealChatPage({ conversationId }: Props) {
   const { user } = useAppState();
   const [conversations, setConversations] = useState<ConversationRow[]>([]);
@@ -51,6 +66,9 @@ export function RealChatPage({ conversationId }: Props) {
   const [deciding, setDeciding] = useState(false);
   const [completing, setCompleting] = useState(false);
   const [decisionStatus, setDecisionStatus] = useState<string | null>(null);
+  const [targetLanguage, setTargetLanguage] = useState("en");
+  const [visibleTranslations, setVisibleTranslations] = useState<Record<string, VisibleTranslation>>({});
+  const [translatingId, setTranslatingId] = useState<string | null>(null);
 
   const activeConversation = useMemo(
     () => conversations.find((conversation) => conversation.id === activeId) ?? null,
@@ -128,6 +146,47 @@ export function RealChatPage({ conversationId }: Props) {
       setDraft("");
     }
     setSending(false);
+  }
+
+  async function handleTranslate(message: MessageRow) {
+    const cached = getCachedVisibleTranslation(message, targetLanguage);
+    if (cached) {
+      setVisibleTranslations((prev) => ({ ...prev, [message.id]: cached }));
+      return;
+    }
+
+    setTranslatingId(message.id);
+    const response = await fetch(`/api/messages/${message.id}/translate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ targetLanguage }),
+    });
+
+    if (response.ok) {
+      const payload = (await response.json()) as { translation: VisibleTranslation };
+      setVisibleTranslations((prev) => ({ ...prev, [message.id]: payload.translation }));
+      setMessages((prev) =>
+        prev.map((entry) => {
+          if (entry.id !== message.id) return entry;
+          const translations =
+            entry.metadata?.translations && typeof entry.metadata.translations === "object"
+              ? (entry.metadata.translations as Record<string, VisibleTranslation>)
+              : {};
+          return {
+            ...entry,
+            metadata: {
+              ...(entry.metadata ?? {}),
+              detected_language: payload.translation.source_language,
+              translations: {
+                ...translations,
+                [payload.translation.target_language]: payload.translation,
+              },
+            },
+          };
+        }),
+      );
+    }
+    setTranslatingId(null);
   }
 
   async function decide(decision: "accepted" | "rejected") {
@@ -231,6 +290,21 @@ export function RealChatPage({ conversationId }: Props) {
                 </p>
               )}
             </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Translate to</span>
+              <select
+                value={targetLanguage}
+                onChange={(event) => setTargetLanguage(event.target.value)}
+                className="rounded-xl border border-zinc-300 bg-white px-2 py-1 text-xs dark:border-zinc-700 dark:bg-zinc-950"
+              >
+                <option value="en">EN</option>
+                <option value="ro">RO</option>
+                <option value="fr">FR</option>
+                <option value="es">ES</option>
+                <option value="de">DE</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -250,6 +324,7 @@ export function RealChatPage({ conversationId }: Props) {
             messages.map((message) => {
               const own = message.sender_id === user.id;
               const moderation = getModerationMeta(message);
+              const translation = visibleTranslations[message.id];
 
               return (
                 <div key={message.id} className={`flex ${own ? "justify-end" : "justify-start"}`}>
@@ -262,15 +337,32 @@ export function RealChatPage({ conversationId }: Props) {
                   >
                     <p>{message.content}</p>
 
+                    {translation && (
+                      <div className="mt-2 rounded-xl bg-white/20 p-2 text-xs">
+                        <p className="font-semibold opacity-80">
+                          Translation {translation.source_language} → {translation.target_language}
+                        </p>
+                        <p className="mt-1">{translation.translated_text}</p>
+                      </div>
+                    )}
+
                     {moderation && moderation.risk >= 30 && (
                       <div className="mt-2 rounded-lg bg-amber-500/20 px-2 py-1 text-[10px] font-semibold text-amber-100">
                         Safety flag · Risk {moderation.risk}% · {moderation.action}
                       </div>
                     )}
 
-                    <p className={`mt-1 text-[10px] ${own ? "text-blue-100" : "text-zinc-500"}`}>
-                      {formatTime(message.created_at)}
-                    </p>
+                    <div className={`mt-2 flex items-center justify-between gap-2 text-[10px] ${own ? "text-blue-100" : "text-zinc-500"}`}>
+                      <span>{formatTime(message.created_at)}</span>
+                      <button
+                        type="button"
+                        onClick={() => void handleTranslate(message)}
+                        disabled={translatingId === message.id}
+                        className="rounded-full bg-white/20 px-2 py-1 font-semibold hover:bg-white/30 disabled:opacity-60"
+                      >
+                        {translatingId === message.id ? "Translating..." : translation ? "Translated" : "Translate"}
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
