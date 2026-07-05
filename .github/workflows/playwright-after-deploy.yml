@@ -69,21 +69,34 @@ jobs:
           const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
           const failures = [];
 
+          async function settlePage() {
+            await page.waitForLoadState('networkidle', { timeout: 10_000 }).catch(() => {});
+            await page.locator('button:has-text("Reject non-essential")').click({ timeout: 2_500 }).catch(() => {});
+            await page.locator('button:has-text("Accept all")').waitFor({ state: 'hidden', timeout: 2_500 }).catch(() => {});
+            await page.waitForTimeout(3_000);
+          }
+
           for (const route of routes) {
             const url = new URL(route, baseUrl).toString();
             const name = route.replace(/^\/en\/?/, '') || 'home';
             const safeName = name.replaceAll('/', '-') || 'home';
 
             try {
-              const response = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45000 });
-              await page.waitForTimeout(1000);
+              const response = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45_000 });
+              await settlePage();
               await page.screenshot({ path: `test-results/${safeName}.png`, fullPage: true });
 
               const status = response?.status() ?? 0;
-              console.log(`${route} -> HTTP ${status} -> ${page.url()}`);
+              const finalUrl = page.url();
+              const visibleText = await page.locator('body').innerText({ timeout: 5_000 }).catch(() => '');
+              console.log(`${route} -> HTTP ${status} -> ${finalUrl}`);
 
               if (status === 0 || status >= 500) {
                 failures.push(`${route} returned HTTP ${status}`);
+              }
+
+              if (visibleText.includes('Application error') || visibleText.includes('Internal Server Error')) {
+                failures.push(`${route} rendered an application error`);
               }
             } catch (error) {
               failures.push(`${route}: ${error instanceof Error ? error.message : String(error)}`);
