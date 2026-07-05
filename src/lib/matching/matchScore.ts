@@ -1,3 +1,6 @@
+import { scoreItemPair } from "@/lib/matching-engine";
+import type { Item } from "@/lib/types";
+
 export type ScoreBreakdown = {
   categoryMatch: number;
   valueMatch: number;
@@ -8,59 +11,120 @@ export type ScoreBreakdown = {
   total: number;
 };
 
+function toText(value: unknown, fallback = ""): string {
+  return typeof value === "string" && value.trim().length > 0 ? value : fallback;
+}
+
+function toBoolean(value: unknown, fallback = true): boolean {
+  return typeof value === "boolean" ? value : fallback;
+}
+
+function toPhotos(value: unknown): string[] | null {
+  return Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === "string") : null;
+}
+
+function toCondition(value: unknown): Item["condition"] {
+  if (value === "new" || value === "good" || value === "used" || value === "used_good") return value;
+  return "good";
+}
+
+function toPerceivedValue(value: unknown): Item["perceivedValue"] {
+  if (value === "small" || value === "medium" || value === "large" || value === "sentimental") return value;
+  if (value === "special") return "sentimental";
+  return "medium";
+}
+
+function rowToItem(row: any): Item {
+  return {
+    id: toText(row?.id, "unknown"),
+    ownerId: toText(row?.owner_id, "unknown-owner"),
+    title: toText(row?.title, "Untitled object"),
+    category: toText(row?.category, "other"),
+    condition: toCondition(row?.condition),
+    description: toText(row?.description, ""),
+    wishlist: toText(row?.swap_wants_category_l1, ""),
+    status: row?.status === "active" ? "active" : "paused",
+    isActive: toBoolean(row?.is_active, true),
+    createdAt: toText(row?.created_at, new Date().toISOString()),
+    location: toText(row?.location_city, toText(row?.address_city, "")),
+    photos: toPhotos(row?.photos),
+    listingType: row?.item_type === "property" || row?.item_type === "service" ? row.item_type : "object",
+    perceivedValue: toPerceivedValue(row?.perceived_value_tier),
+    subcategorySlug: toText(row?.subcategory, ""),
+    acceptsBundle: Array.isArray(row?.swap_open_to) && row.swap_open_to.length > 1,
+  };
+}
+
+function profileGeoScore(myProfile: any, theirProfile: any): number {
+  const myLat = myProfile?.address_lat ?? myProfile?.location?.lat;
+  const myLon = myProfile?.address_lon ?? myProfile?.location?.lon;
+  const theirLat = theirProfile?.address_lat ?? theirProfile?.location?.lat;
+  const theirLon = theirProfile?.address_lon ?? theirProfile?.location?.lon;
+
+  if (!myLat || !myLon || !theirLat || !theirLon) return 50;
+
+  const R = 6371;
+  const dLat = ((theirLat - myLat) * Math.PI) / 180;
+  const dLon = ((theirLon - myLon) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((myLat * Math.PI) / 180) *
+      Math.cos((theirLat * Math.PI) / 180) *
+      Math.sin(dLon / 2) ** 2;
+  const distKm = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  if (distKm < 50) return 100;
+  if (distKm < 300) return 80;
+  if (distKm < 1000) return 60;
+  return 30;
+}
+
+function profileTrustScore(theirProfile: any): number {
+  return Math.min(100, Math.max(0, theirProfile?.trust_score ?? 0));
+}
+
+function profileActivityScore(theirProfile: any): number {
+  const lastActive = theirProfile?.last_active_at;
+  if (!lastActive) return 0;
+  const daysSince = (Date.now() - new Date(lastActive).getTime()) / 86_400_000;
+  return Math.round(Math.max(0, Math.min(100, 100 - daysSince * 5)));
+}
+
+function factorScore(candidate: ReturnType<typeof scoreItemPair>, key: string): number {
+  const factor = candidate.weightedScore?.factors.find((entry) => entry.key === key);
+  return factor?.raw ?? 0;
+}
+
 export function calculateMatchScore(
   myItem: any,
   theirItem: any,
   myProfile: any,
   theirProfile: any,
 ): ScoreBreakdown {
-  const categoryMatch = myItem.swap_wants_category_l1
-    ? theirItem.category === myItem.swap_wants_category_l1
-      ? 100
-      : 20
-    : 60;
+  const engineCandidate = scoreItemPair(toItemWithProfile(myItem, myProfile), toItemWithProfile(theirItem, theirProfile));
+  const geoScore = profileGeoScore(myProfile, theirProfile);
+  const trustScore = profileTrustScore(theirProfile);
+  const activityScore = profileActivityScore(theirProfile);
 
-  const tierMap: Record<string, number> = { small: 1, medium: 2, large: 3, special: 4 };
-  const myTier = tierMap[myItem.perceived_value_tier] ?? 2;
-  const theirTier = tierMap[theirItem.perceived_value_tier] ?? 2;
-  const valueMatch = Math.max(0, 100 - Math.abs(myTier - theirTier) * 30);
+  const objectScore = engineCandidate.compatibilityScore;
+  const userScore = Math.round(geoScore * 0.45 + trustScore * 0.35 + activityScore * 0.2);
+  const total = Math.round(objectScore * 0.75 + userScore * 0.25);
 
-  const typeMatch =
-    Array.isArray(theirItem.swap_open_to) && theirItem.swap_open_to.includes(myItem.item_type)
-      ? 100
-      : 0;
+  return {
+    categoryMatch: factorScore(engineCandidate, "category"),
+    valueMatch: factorScore(engineCandidate, "value"),
+    typeMatch: factorScore(engineCandidate, "wishlist"),
+    geoScore,
+    trustScore,
+    activityScore,
+    total,
+  };
+}
 
-  const object_score = categoryMatch * 0.5 + valueMatch * 0.3 + typeMatch * 0.2;
-
-  const myLat = myProfile?.address_lat ?? (myProfile?.location as any)?.lat;
-  const myLon = myProfile?.address_lon ?? (myProfile?.location as any)?.lon;
-  const theirLat = theirProfile?.address_lat ?? (theirProfile?.location as any)?.lat;
-  const theirLon = theirProfile?.address_lon ?? (theirProfile?.location as any)?.lon;
-
-  let geoScore = 50;
-  if (myLat && theirLat) {
-    const R = 6371;
-    const dLat = ((theirLat - myLat) * Math.PI) / 180;
-    const dLon = ((theirLon - myLon) * Math.PI) / 180;
-    const a =
-      Math.sin(dLat / 2) ** 2 +
-      Math.cos((myLat * Math.PI) / 180) *
-        Math.cos((theirLat * Math.PI) / 180) *
-        Math.sin(dLon / 2) ** 2;
-    const distKm = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    geoScore = distKm < 50 ? 100 : distKm < 300 ? 80 : distKm < 1000 ? 60 : 30;
-  }
-
-  const trustScore = Math.min(100, (theirProfile?.trust_score ?? 0) / 10);
-
-  const lastActive = theirProfile?.last_active_at;
-  const daysSince = lastActive
-    ? (Date.now() - new Date(lastActive).getTime()) / (1000 * 60 * 60 * 24)
-    : 999;
-  const activityScore = Math.max(0, 100 - daysSince * 5);
-
-  const user_score = geoScore * 0.5 + trustScore * 0.3 + activityScore * 0.2;
-  const total = Math.round(object_score * 0.7 + user_score * 0.3);
-
-  return { categoryMatch, valueMatch, typeMatch, geoScore, trustScore, activityScore, total };
+function toItemWithProfile(row: any, profile: any): Item {
+  const item = rowToItem(row);
+  return {
+    ...item,
+    location: item.location || toText(profile?.address_city, ""),
+  };
 }
