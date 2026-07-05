@@ -1,6 +1,21 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { ScoredCandidate } from "@/components/matching/MatchingPage";
 import type { MatchingItemRow } from "@/lib/matching/matchQueries";
+
+export type MatchScoreBreakdown = {
+  categoryMatch: number;
+  valueMatch: number;
+  typeMatch: number;
+  geoScore: number;
+  trustScore: number;
+  activityScore: number;
+  total: number;
+};
+
+export type PersistableMatchCandidate = {
+  item: MatchingItemRow;
+  score: number;
+  breakdown: MatchScoreBreakdown;
+};
 
 export type PersistedMatch = {
   id: string;
@@ -11,11 +26,11 @@ export type PersistedMatch = {
 export type PersistMatchInput = {
   userId: string;
   sourceItem: MatchingItemRow | null;
-  candidate: ScoredCandidate;
+  candidate: PersistableMatchCandidate;
   slotPosition?: number | null;
 };
 
-function buildReasoning(candidate: ScoredCandidate): string {
+function buildReasoning(candidate: PersistableMatchCandidate): string {
   const parts = [
     `score=${candidate.score}`,
     `category=${candidate.breakdown.categoryMatch}`,
