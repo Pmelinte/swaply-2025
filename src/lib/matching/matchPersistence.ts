@@ -48,6 +48,9 @@ type MatchRow = {
   status: string;
 };
 
+const ACTIVE_MATCH_STATUSES = ["pending_chat", "converted_to_swap", "accepted"];
+const ACTIVE_SWAP_STATUSES = ["pending", "proposed", "accepted"];
+
 function buildReasoning(candidate: PersistableMatchCandidate): string {
   const parts = [
     `score=${candidate.score}`,
@@ -62,10 +65,62 @@ function buildReasoning(candidate: PersistableMatchCandidate): string {
   return parts.join("; ");
 }
 
+async function findExistingMatch(
+  supabase: SupabaseClient,
+  input: PersistMatchInput,
+): Promise<PersistedMatch | null> {
+  if (!input.sourceItem?.id) return null;
+
+  const { data, error } = await supabase
+    .from("matches")
+    .select("id, status, converted_swap_id")
+    .eq("initiator_id", input.userId)
+    .eq("target_user_id", input.candidate.item.owner_id)
+    .eq("initiator_item_id", input.sourceItem.id)
+    .eq("target_item_id", input.candidate.item.id)
+    .in("status", ACTIVE_MATCH_STATUSES)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    console.error("findExistingMatch failed", error);
+    return null;
+  }
+
+  return data as PersistedMatch | null;
+}
+
+async function findExistingSwap(
+  supabase: SupabaseClient,
+  offeredItemId: string,
+  requestedItemId: string,
+): Promise<{ id: string; conversation_id: string | null } | null> {
+  const { data, error } = await supabase
+    .from("swaps")
+    .select("id, conversation_id")
+    .eq("offered_item_id", offeredItemId)
+    .eq("requested_item_id", requestedItemId)
+    .in("status", ACTIVE_SWAP_STATUSES)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    console.error("findExistingSwap failed", error);
+    return null;
+  }
+
+  return data as { id: string; conversation_id: string | null } | null;
+}
+
 export async function persistMatchCandidate(
   supabase: SupabaseClient,
   input: PersistMatchInput,
 ): Promise<PersistedMatch | null> {
+  const existing = await findExistingMatch(supabase, input);
+  if (existing) return existing;
+
   const payload = {
     initiator_id: input.userId,
     target_user_id: input.candidate.item.owner_id,
@@ -127,10 +182,16 @@ export async function convertMatchToSwap(
 
   const row = match as MatchRow;
   if (row.converted_swap_id) {
+    const { data: existingSwap } = await supabase
+      .from("swaps")
+      .select("id, conversation_id")
+      .eq("id", row.converted_swap_id)
+      .maybeSingle();
+
     return {
       matchId: row.id,
       swapId: row.converted_swap_id,
-      conversationId: "",
+      conversationId: (existingSwap as { conversation_id?: string | null } | null)?.conversation_id ?? "",
     };
   }
 
@@ -142,6 +203,24 @@ export async function convertMatchToSwap(
   if (!row.initiator_item_id) {
     console.error("convertMatchToSwap requires an initiator item");
     return null;
+  }
+
+  const existingSwap = await findExistingSwap(supabase, row.initiator_item_id, row.target_item_id);
+  if (existingSwap) {
+    await supabase
+      .from("matches")
+      .update({
+        status: "converted_to_swap",
+        converted_swap_id: existingSwap.id,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", row.id);
+
+    return {
+      matchId: row.id,
+      swapId: existingSwap.id,
+      conversationId: existingSwap.conversation_id ?? "",
+    };
   }
 
   const { data: swap, error: swapError } = await supabase
