@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useAppState } from "@/lib/state";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { ExchangeLogisticsPanel } from "@/components/exchange/ExchangeLogisticsPanel";
+import { SwapFeedbackPanel } from "@/components/feedback/SwapFeedbackPanel";
 import {
   fetchConversationMessages,
   fetchUserConversations,
@@ -250,8 +251,9 @@ export function RealChatPage({ conversationId }: Props) {
         </div>
 
         {activeConversation?.swap_id && (
-          <div className="border-b border-zinc-200 p-4 dark:border-zinc-800">
+          <div className="space-y-4 border-b border-zinc-200 p-4 dark:border-zinc-800">
             <ExchangeLogisticsPanel swapId={activeConversation.swap_id} />
+            <SwapFeedbackPanel swapId={activeConversation.swap_id} visible={visibleStatus === "completed"} />
           </div>
         )}
 
