@@ -75,13 +75,14 @@ export async function persistMatchCandidate(
     user_id: input.candidate.item.owner_id,
     type: "match_new",
     title: "New Swaply match",
-    message: "Someone expressed interest in your item.",
+    body: "Someone expressed interest in your item.",
     data: {
       match_id: data.id,
       item_id: input.candidate.item.id,
       score: input.candidate.score,
     },
     read: false,
+    is_read: false,
     priority: "normal",
   });
 
