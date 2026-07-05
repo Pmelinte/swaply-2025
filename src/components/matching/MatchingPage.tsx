@@ -12,6 +12,7 @@ import {
   type MatchingProfileRow,
 } from "@/lib/matching/matchQueries";
 import { calculateMatchScore } from "@/lib/matching/matchScore";
+import { persistMatchCandidate } from "@/lib/matching/matchPersistence";
 import {
   DEFAULT_FILTERS,
   type MatchingFilters,
@@ -54,6 +55,7 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
     new Map(),
   );
   const [loading, setLoading] = useState(false);
+  const [persistingIds, setPersistingIds] = useState<Set<string>>(new Set());
 
   const [selected, setSelected] = useState<SelectedMatch[]>([]);
   const [sort, setSort] = useState<SortOrder>("relevant");
@@ -61,7 +63,6 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [drawerItem, setDrawerItem] = useState<ScoredCandidate | null>(null);
 
-  // Load user's profile once.
   useEffect(() => {
     const supabase = getSupabaseClient();
     if (!supabase) return;
@@ -74,7 +75,6 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
     };
   }, [userId]);
 
-  // Load slot items when their IDs change.
   useEffect(() => {
     const supabase = getSupabaseClient();
     if (!supabase) return;
@@ -107,7 +107,6 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
     };
   }, [slot2Id]);
 
-  // Load candidates and their profiles.
   useEffect(() => {
     const supabase = getSupabaseClient();
     if (!supabase) return;
@@ -177,7 +176,22 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
     return Math.round(sum / filtered.length);
   }, [filtered, activeSlotItems]);
 
-  function expressInterest(candidate: ScoredCandidate) {
+  async function expressInterest(candidate: ScoredCandidate) {
+    if (persistingIds.has(candidate.item.id)) return;
+
+    const sourceItem = activeSlotItems[0] ?? null;
+    const supabase = getSupabaseClient();
+    setPersistingIds((prev) => new Set(prev).add(candidate.item.id));
+
+    const persisted = supabase
+      ? await persistMatchCandidate(supabase, {
+          userId,
+          sourceItem,
+          candidate,
+          slotPosition: selected.length + 1,
+        })
+      : null;
+
     setSelected((prev) => {
       if (prev.length >= 2) return prev;
       if (prev.some((p) => p.itemId === candidate.item.id)) return prev;
@@ -188,8 +202,14 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
           ownerId: candidate.item.owner_id,
           item: candidate.item,
           score: candidate.score,
-        },
+          matchId: persisted?.id,
+        } as SelectedMatch & { matchId?: string },
       ];
+    });
+    setPersistingIds((prev) => {
+      const next = new Set(prev);
+      next.delete(candidate.item.id);
+      return next;
     });
     setDrawerItem(null);
   }
@@ -232,10 +252,10 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
             onSuggestion={(item, score) => {
               const existing = filtered.find((f) => f.item.id === item.id);
               if (existing) {
-                expressInterest(existing);
+                void expressInterest(existing);
                 return;
               }
-              expressInterest({
+              void expressInterest({
                 item,
                 profile: null,
                 score,
@@ -267,7 +287,7 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
       <MatchingItemDrawer
         candidate={drawerItem}
         onClose={() => setDrawerItem(null)}
-        onExpressInterest={expressInterest}
+        onExpressInterest={(candidate) => void expressInterest(candidate)}
         onFillSlot={(id) => {
           if (!slot1Id) {
             setSlot1(id);
