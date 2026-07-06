@@ -92,24 +92,85 @@ async function loadActiveSwaps(userId: string): Promise<ActiveSwap[]> {
   });
 }
 
-const DEMO_SWAPS: ActiveSwap[] = [
+const previewSteps = [
   {
-    id: "demo-swap-1",
-    status: "active",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(),
-    partnerName: "alex",
-    myItemTitle: "Vintage Leather Jacket",
-    partnerItemTitle: "Mountain Bike Frame",
+    label: "1. Confirm intent",
+    title: "Both sides accept the proposed swap",
+    text: "Swaply keeps the deal structured: what each person gives, what they receive, and which conditions are still open.",
   },
   {
-    id: "demo-swap-2",
-    status: "pending",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString(),
-    partnerName: "maria",
-    myItemTitle: "Acoustic Guitar",
-    partnerItemTitle: "DSLR Camera",
+    label: "2. Choose logistics",
+    title: "Local handover, courier, vacation handover or service delivery",
+    text: "The exchange workspace keeps delivery method, timing, packaging and handover notes in one place.",
+  },
+  {
+    label: "3. Share details safely",
+    title: "Locations and contact details unlock only after consent",
+    text: "Users can agree step by step before revealing exact address, pickup point or sensitive travel data.",
+  },
+  {
+    label: "4. Close and review",
+    title: "Completion, feedback and trust score",
+    text: "After both sides confirm completion, items can be closed and the trust profile is updated.",
   },
 ];
+
+function PublicExchangePreview({ locale, title }: { locale: string; title: string }) {
+  const loginUrl = `/${locale}/login?returnTo=/${locale}/exchange`;
+
+  return (
+    <div className="space-y-6">
+      <h1 className="sr-only">{title}</h1>
+
+      <section className="rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-blue-50 p-6 shadow-sm dark:border-emerald-900 dark:from-emerald-950/30 dark:via-zinc-950 dark:to-blue-950/30 md:p-8">
+        <div className="max-w-3xl space-y-4">
+          <p className="inline-flex rounded-full bg-white px-3 py-1 text-xs font-bold uppercase tracking-wide text-emerald-700 shadow-sm dark:bg-zinc-900 dark:text-emerald-200">
+            Public preview
+          </p>
+          <h2 className="text-3xl font-black tracking-tight text-zinc-950 dark:text-zinc-50 md:text-5xl">
+            Manage the exchange after both sides agree
+          </h2>
+          <p className="text-base leading-7 text-zinc-600 dark:text-zinc-300 md:text-lg">
+            The exchange workspace turns a match into a safe handover: checklist, logistics, packaging, consent-based location sharing and final feedback.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <a href={loginUrl} className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-3 text-sm font-bold text-white shadow-sm hover:bg-emerald-700">
+              Sign in to manage exchanges
+            </a>
+            <a href={`/${locale}/messages`} className="inline-flex items-center justify-center rounded-full border border-zinc-200 bg-white px-5 py-3 text-sm font-bold text-zinc-800 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800">
+              See messages preview
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-4 md:grid-cols-2">
+        {previewSteps.map((step) => (
+          <article key={step.label} className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+            <p className="text-xs font-bold uppercase tracking-wide text-emerald-600 dark:text-emerald-300">{step.label}</p>
+            <h3 className="mt-2 text-lg font-black text-zinc-950 dark:text-zinc-50">{step.title}</h3>
+            <p className="mt-3 text-sm leading-6 text-zinc-600 dark:text-zinc-300">{step.text}</p>
+          </article>
+        ))}
+      </section>
+
+      <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+        <div className="grid gap-4 md:grid-cols-3">
+          {[
+            ["Checklist", "What is still pending before handover."],
+            ["Packaging", "Photos, fragile item notes and courier preparation."],
+            ["Feedback", "Closure, rating and trust profile update."],
+          ].map(([heading, text]) => (
+            <div key={heading} className="rounded-2xl bg-zinc-50 p-4 dark:bg-zinc-800">
+              <h3 className="text-sm font-black text-zinc-950 dark:text-zinc-50">{heading}</h3>
+              <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-300">{text}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
 
 export default async function ExchangeIndexPage({
   params,
@@ -126,14 +187,18 @@ export default async function ExchangeIndexPage({
     user = data.user ? { id: data.user.id } : null;
   }
 
-  const swaps = user ? await loadActiveSwaps(user.id) : DEMO_SWAPS;
+  if (!user) {
+    return <PublicExchangePreview locale={locale} title={t("listTitle")} />;
+  }
+
+  const swaps = await loadActiveSwaps(user.id);
 
   // Auto-navigate to single active swap for authenticated users
-  if (user && swaps.length === 1) {
+  if (swaps.length === 1) {
     redirect({ href: `/exchange/${swaps[0].id}`, locale });
   }
 
-  if (user && swaps.length === 0) {
+  if (swaps.length === 0) {
     return (
       <div className="mx-auto flex min-h-[50vh] max-w-2xl flex-col items-center justify-center gap-6 px-4 py-12 text-center">
         <div className="rounded-full bg-blue-100 p-5 dark:bg-blue-900/30">
@@ -161,11 +226,6 @@ export default async function ExchangeIndexPage({
       <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
         {t("listTitle")}
       </h1>
-      {!user && (
-        <p className="rounded-xl border border-blue-200 bg-blue-50/40 px-4 py-3 text-sm text-blue-800 dark:border-blue-900/40 dark:bg-blue-950/20 dark:text-blue-300">
-          {t("loginRequired")}
-        </p>
-      )}
       <ul className="space-y-3">
         {swaps.map((swap) => (
           <li key={swap.id}>
