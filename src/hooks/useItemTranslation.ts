@@ -23,9 +23,16 @@ interface UseItemTranslationResult {
   toggleOriginal: () => void;
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function isDatabaseItemId(itemId: string) {
+  return UUID_RE.test(itemId);
+}
+
 /**
  * Hook that auto-translates item title/description when locale !== "ro".
  * Fetches from /api/translate/item which uses DB cache + DeepL/Google.
+ * Demo/local items do not exist in the DB, so they intentionally keep original text.
  */
 export function useItemTranslation(
   itemId: string,
@@ -33,14 +40,17 @@ export function useItemTranslation(
   originalDescription: string,
 ): UseItemTranslationResult {
   const locale = useLocale();
-  const needsTranslation = locale !== "ro" && !!itemId;
+  const canRequestTranslation = locale !== "ro" && !!itemId && isDatabaseItemId(itemId);
   const [translation, setTranslation] = useState<ItemTranslation | null>(null);
-  const [isLoading, setIsLoading] = useState(needsTranslation);
+  const [isLoading, setIsLoading] = useState(canRequestTranslation);
   const [showingOriginal, setShowingOriginal] = useState(false);
 
   useEffect(() => {
-    // Don't translate if already Romanian or no itemId
-    if (!needsTranslation) return;
+    setTranslation(null);
+    setIsLoading(canRequestTranslation);
+
+    // Don't translate Romanian, missing ids, or local/demo ids that cannot exist in the DB.
+    if (!canRequestTranslation) return;
 
     let cancelled = false;
 
@@ -65,7 +75,7 @@ export function useItemTranslation(
     return () => {
       cancelled = true;
     };
-  }, [itemId, locale, needsTranslation]);
+  }, [itemId, locale, canRequestTranslation]);
 
   const toggleOriginal = useCallback(() => {
     setShowingOriginal((prev) => !prev);
