@@ -120,8 +120,98 @@ export function ProfileClient() {
   ];
   const completenessPercent = Math.round((completenessChecks.filter(Boolean).length / completenessChecks.length) * 100);
 
+  const activePanel = (
+    <div className="min-w-0 space-y-4">
+      {activeTab === "profil" && <ProfileTab draft={draft} update={update} userId={user.id} />}
+      {activeTab === "proprietati" && (
+        <PropertiesTab
+          user={user}
+          updateHouseProfile={updateHouseProfile}
+          addServiceProfile={addServiceProfile}
+          removeServiceProfile={removeServiceProfile}
+        />
+      )}
+      {activeTab === "cont" && (
+        <AccountTab
+          user={user} draft={draft} update={update}
+          changeEmail={changeEmail} changePassword={changePassword}
+          deleteAccount={deleteAccount} exportUserData={exportUserData}
+          accountStatus={accountStatus} pauseAccount={pauseAccount} resumeAccount={resumeAccount}
+        />
+      )}
+      {activeTab === "reputatie" && (
+        <ReputationTab
+          draft={draft} achievements={achievements}
+          shopItems={shopItems} tokenLedger={tokenLedger}
+          purchaseShopItem={purchaseShopItem}
+        />
+      )}
+      {activeTab === "alerte" && <AlertsTab userId={user.id} />}
+      {activeTab === "notificari" && <NotificationSettingsTab userId={user.id} />}
+      {activeTab === "verificare" && (
+        <ProfileVerification
+          user={user}
+          badges={verificationBadges}
+          onRequestPhoneVerification={requestPhoneVerification}
+          onVerifyPhoneCode={verifyPhoneCode}
+          onSubmitIdDocument={submitIdDocument}
+          onSubmitSelfie={submitSelfie}
+        />
+      )}
+    </div>
+  );
+
+  const sidePanel = (
+    <aside className="space-y-4 xl:sticky xl:top-24 xl:self-start">
+      <SectionCard title={t("saveProfile")} description={t("saveDescription")}>
+        <div className="flex flex-wrap items-center gap-2">
+          <button type="button" disabled={saving}
+            onClick={async () => {
+              setSaveMessage(null); setSaving(true);
+              try { await updateProfile(draft, { persist: true }); setSaveMessage(t("profileSaved")); }
+              catch { setSaveMessage(t("saveError")); }
+              finally { setSaving(false); }
+            }}
+            className="rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+          >
+            {saving ? (
+              <span className="inline-flex items-center gap-2">
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                {t("saving")}
+              </span>
+            ) : t("saveProfile")}
+          </button>
+        </div>
+        {saveMessage && (
+          <div role="alert" className={`rounded-xl p-3 text-sm font-medium ${lastError ? "bg-red-50 text-red-900 dark:bg-red-900/40 dark:text-red-100" : "bg-green-50 text-green-900 dark:bg-green-900/40 dark:text-green-100"}`}>
+            {lastError ? t("errorMessage", { error: lastError }) : saveMessage}
+          </div>
+        )}
+      </SectionCard>
+
+      <NextStepRecommendation
+        title={tc("nextStepRecommended")}
+        steps={[
+          { label: t("addObjects"), href: "/objects/new", description: t("addObjectsDescription") },
+          { label: t("findMatches"), href: "/matching", description: t("findMatchesDescription") },
+          { label: tc("myDesk"), href: "/desk", description: tc("myDeskDescription") },
+          { label: t("badgeBenefits"), href: "/info#monetizare", description: t("badgeBenefitsDescription") },
+        ]}
+      />
+
+      <StateShowcase
+        title="PROFILE States"
+        states={[
+          { key: "loading", title: "Loading profile", description: "Placeholder skeleton for fields + badge visible until user payload arrives." },
+          { key: "empty", title: "Incomplete profile", description: "Warning for missing location and save CTA. Missing data does not block the page." },
+          { key: "error", title: "Save error", description: "Dedicated message + retry recommendation; form values are not lost." },
+        ]}
+      />
+    </aside>
+  );
+
   return (
-    <div className="space-y-4">
+    <div className="mx-auto w-full max-w-7xl space-y-4">
       <TrustProfileCard
         profile={{
           full_name: draft.displayName,
@@ -170,87 +260,10 @@ export function ProfileClient() {
         </div>
       </nav>
 
-      {activeTab === "profil" && <ProfileTab draft={draft} update={update} userId={user.id} />}
-      {activeTab === "proprietati" && (
-        <PropertiesTab
-          user={user}
-          updateHouseProfile={updateHouseProfile}
-          addServiceProfile={addServiceProfile}
-          removeServiceProfile={removeServiceProfile}
-        />
-      )}
-      {activeTab === "cont" && (
-        <AccountTab
-          user={user} draft={draft} update={update}
-          changeEmail={changeEmail} changePassword={changePassword}
-          deleteAccount={deleteAccount} exportUserData={exportUserData}
-          accountStatus={accountStatus} pauseAccount={pauseAccount} resumeAccount={resumeAccount}
-        />
-      )}
-      {activeTab === "reputatie" && (
-        <ReputationTab
-          draft={draft} achievements={achievements}
-          shopItems={shopItems} tokenLedger={tokenLedger}
-          purchaseShopItem={purchaseShopItem}
-        />
-      )}
-      {activeTab === "alerte" && <AlertsTab userId={user.id} />}
-      {activeTab === "notificari" && <NotificationSettingsTab userId={user.id} />}
-      {activeTab === "verificare" && (
-        <ProfileVerification
-          user={user}
-          badges={verificationBadges}
-          onRequestPhoneVerification={requestPhoneVerification}
-          onVerifyPhoneCode={verifyPhoneCode}
-          onSubmitIdDocument={submitIdDocument}
-          onSubmitSelfie={submitSelfie}
-        />
-      )}
-
-      <SectionCard title={t("saveProfile")} description={t("saveDescription")}>
-        <div className="flex flex-wrap items-center gap-2">
-          <button type="button" disabled={saving}
-            onClick={async () => {
-              setSaveMessage(null); setSaving(true);
-              try { await updateProfile(draft, { persist: true }); setSaveMessage(t("profileSaved")); }
-              catch { setSaveMessage(t("saveError")); }
-              finally { setSaving(false); }
-            }}
-            className="rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
-          >
-            {saving ? (
-              <span className="inline-flex items-center gap-2">
-                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                {t("saving")}
-              </span>
-            ) : t("saveProfile")}
-          </button>
-        </div>
-        {saveMessage && (
-          <div role="alert" className={`rounded-xl p-3 text-sm font-medium ${lastError ? "bg-red-50 text-red-900 dark:bg-red-900/40 dark:text-red-100" : "bg-green-50 text-green-900 dark:bg-green-900/40 dark:text-green-100"}`}>
-            {lastError ? t("errorMessage", { error: lastError }) : saveMessage}
-          </div>
-        )}
-      </SectionCard>
-
-      <NextStepRecommendation
-        title={tc("nextStepRecommended")}
-        steps={[
-          { label: t("addObjects"), href: "/objects/new", description: t("addObjectsDescription") },
-          { label: t("findMatches"), href: "/matching", description: t("findMatchesDescription") },
-          { label: tc("myDesk"), href: "/desk", description: tc("myDeskDescription") },
-          { label: t("badgeBenefits"), href: "/info#monetizare", description: t("badgeBenefitsDescription") },
-        ]}
-      />
-
-      <StateShowcase
-        title="PROFILE States"
-        states={[
-          { key: "loading", title: "Loading profile", description: "Placeholder skeleton for fields + badge visible until user payload arrives." },
-          { key: "empty", title: "Incomplete profile", description: "Warning for missing location and save CTA. Missing data does not block the page." },
-          { key: "error", title: "Save error", description: "Dedicated message + retry recommendation; form values are not lost." },
-        ]}
-      />
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
+        {activePanel}
+        {sidePanel}
+      </div>
     </div>
   );
 }
