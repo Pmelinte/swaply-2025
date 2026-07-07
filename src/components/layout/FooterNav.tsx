@@ -39,8 +39,8 @@ export function FooterNav() {
   ];
 
   return (
-    <nav aria-label="Main navigation" className="sticky bottom-0 z-20 border-t border-zinc-200 bg-white/90 backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/80 md:hidden">
-      <div className="mx-auto grid max-w-6xl grid-cols-5 gap-1 px-2 py-2 text-xs font-semibold text-zinc-600 dark:text-zinc-300">
+    <nav aria-label="Main navigation" className="sticky bottom-0 z-20 border-t border-zinc-200 bg-white/90 backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/80">
+      <div className="mx-auto grid max-w-6xl grid-cols-5 gap-1 px-2 py-2 text-xs font-semibold text-zinc-600 dark:text-zinc-300 md:px-4">
         {links.map((link) => {
           const Icon = link.icon;
           const active =
