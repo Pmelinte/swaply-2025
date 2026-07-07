@@ -14,6 +14,61 @@ type ActiveSwap = {
   partnerItemTitle: string;
 };
 
+type ExchangePreviewCopy = {
+  badge: string;
+  heading: string;
+  description: string;
+  signin: string;
+  messagesPreview: string;
+  steps: Array<{ label: string; title: string; text: string }>;
+  cards: Array<[heading: string, text: string]>;
+};
+
+const exchangePreviewCopy: Record<"en" | "ro", ExchangePreviewCopy> = {
+  en: {
+    badge: "Public preview",
+    heading: "Manage the exchange after both sides agree",
+    description:
+      "The exchange workspace turns a match into a clear handover: checklist, logistics, shared details and final feedback.",
+    signin: "Sign in to manage exchanges",
+    messagesPreview: "See messages preview",
+    steps: [
+      { label: "1. Confirm intent", title: "Both sides accept the swap", text: "Each person confirms what they offer and what they expect to receive." },
+      { label: "2. Choose logistics", title: "Pick the exchange method", text: "Local handover, courier, vacation handover or service delivery can be coordinated in one place." },
+      { label: "3. Prepare handover", title: "Use a shared checklist", text: "The workspace keeps the next steps clear before completion." },
+      { label: "4. Close and review", title: "Completion and trust score", text: "After both sides confirm completion, feedback updates the trust profile." },
+    ],
+    cards: [
+      ["Checklist", "See what is still pending before handover."],
+      ["Logistics", "Keep timing and delivery notes together."],
+      ["Feedback", "Close the swap and update trust signals."],
+    ],
+  },
+  ro: {
+    badge: "Previzualizare publica",
+    heading: "Gestioneaza schimbul dupa acordul ambelor parti",
+    description:
+      "Spatiul Exchange transforma o potrivire intr-o predare clara: checklist, logistica, detalii comune si feedback final.",
+    signin: "Autentifica-te pentru schimburi",
+    messagesPreview: "Vezi previzualizarea Messages",
+    steps: [
+      { label: "1. Confirmare intentie", title: "Ambele parti accepta schimbul", text: "Fiecare persoana confirma ce ofera si ce asteapta sa primeasca." },
+      { label: "2. Alegere logistica", title: "Alege metoda de schimb", text: "Predarea locala, curierul, predarea in vacanta sau serviciile pot fi coordonate intr-un singur loc." },
+      { label: "3. Pregatire predare", title: "Foloseste un checklist comun", text: "Spatiul pastreaza pasii urmatori clari pana la finalizare." },
+      { label: "4. Inchidere si review", title: "Finalizare si scor de incredere", text: "Dupa confirmarea ambelor parti, feedbackul actualizeaza profilul de incredere." },
+    ],
+    cards: [
+      ["Checklist", "Vezi ce mai este de facut inainte de predare."],
+      ["Logistica", "Pastreaza impreuna data, ora si notele de livrare."],
+      ["Feedback", "Inchide schimbul si actualizeaza semnalele de incredere."],
+    ],
+  },
+};
+
+function getExchangePreviewCopy(locale: string) {
+  return locale.startsWith("ro") ? exchangePreviewCopy.ro : exchangePreviewCopy.en;
+}
+
 async function loadActiveSwaps(userId: string): Promise<ActiveSwap[]> {
   const supabase = await getServerSupabase();
   if (!supabase) return [];
@@ -92,31 +147,9 @@ async function loadActiveSwaps(userId: string): Promise<ActiveSwap[]> {
   });
 }
 
-const previewSteps = [
-  {
-    label: "1. Confirm intent",
-    title: "Both sides accept the proposed swap",
-    text: "Swaply keeps the deal structured: what each person gives, what they receive, and which conditions are still open.",
-  },
-  {
-    label: "2. Choose logistics",
-    title: "Local handover, courier, vacation handover or service delivery",
-    text: "The exchange workspace keeps delivery method, timing, packaging and handover notes in one place.",
-  },
-  {
-    label: "3. Share details safely",
-    title: "Locations and contact details unlock only after consent",
-    text: "Users can agree step by step before revealing exact address, pickup point or sensitive travel data.",
-  },
-  {
-    label: "4. Close and review",
-    title: "Completion, feedback and trust score",
-    text: "After both sides confirm completion, items can be closed and the trust profile is updated.",
-  },
-];
-
 function PublicExchangePreview({ locale, title }: { locale: string; title: string }) {
   const loginUrl = `/${locale}/login?returnTo=/${locale}/exchange`;
+  const copy = getExchangePreviewCopy(locale);
 
   return (
     <div className="space-y-6">
@@ -125,27 +158,27 @@ function PublicExchangePreview({ locale, title }: { locale: string; title: strin
       <section className="rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-blue-50 p-6 shadow-sm dark:border-emerald-900 dark:from-emerald-950/30 dark:via-zinc-950 dark:to-blue-950/30 md:p-8">
         <div className="max-w-3xl space-y-4">
           <p className="inline-flex rounded-full bg-white px-3 py-1 text-xs font-bold uppercase tracking-wide text-emerald-700 shadow-sm dark:bg-zinc-900 dark:text-emerald-200">
-            Public preview
+            {copy.badge}
           </p>
           <h2 className="text-3xl font-black tracking-tight text-zinc-950 dark:text-zinc-50 md:text-5xl">
-            Manage the exchange after both sides agree
+            {copy.heading}
           </h2>
           <p className="text-base leading-7 text-zinc-600 dark:text-zinc-300 md:text-lg">
-            The exchange workspace turns a match into a safe handover: checklist, logistics, packaging, consent-based location sharing and final feedback.
+            {copy.description}
           </p>
           <div className="flex flex-wrap gap-3">
             <a href={loginUrl} className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-3 text-sm font-bold text-white shadow-sm hover:bg-emerald-700">
-              Sign in to manage exchanges
+              {copy.signin}
             </a>
             <a href={`/${locale}/messages`} className="inline-flex items-center justify-center rounded-full border border-zinc-200 bg-white px-5 py-3 text-sm font-bold text-zinc-800 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800">
-              See messages preview
+              {copy.messagesPreview}
             </a>
           </div>
         </div>
       </section>
 
       <section className="grid gap-4 md:grid-cols-2">
-        {previewSteps.map((step) => (
+        {copy.steps.map((step) => (
           <article key={step.label} className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
             <p className="text-xs font-bold uppercase tracking-wide text-emerald-600 dark:text-emerald-300">{step.label}</p>
             <h3 className="mt-2 text-lg font-black text-zinc-950 dark:text-zinc-50">{step.title}</h3>
@@ -156,11 +189,7 @@ function PublicExchangePreview({ locale, title }: { locale: string; title: strin
 
       <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
         <div className="grid gap-4 md:grid-cols-3">
-          {[
-            ["Checklist", "What is still pending before handover."],
-            ["Packaging", "Photos, fragile item notes and courier preparation."],
-            ["Feedback", "Closure, rating and trust profile update."],
-          ].map(([heading, text]) => (
+          {copy.cards.map(([heading, text]) => (
             <div key={heading} className="rounded-2xl bg-zinc-50 p-4 dark:bg-zinc-800">
               <h3 className="text-sm font-black text-zinc-950 dark:text-zinc-50">{heading}</h3>
               <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-300">{text}</p>
