@@ -1,5 +1,6 @@
 import { Link } from "@/i18n/navigation";
 import { getPublicFoundationStackTracksForPage } from "@/lib/public-foundation-stack/publicFoundationStackContent";
+import { getRequiredFoundationStackTrackIdsForPage } from "@/lib/public-foundation-stack/publicFoundationStackRoutePolicy";
 import type { PublicFoundationStackTrack } from "@/lib/public-foundation-stack/publicFoundationStackTypes";
 import type { PublicExperiencePage } from "@/lib/public-pages/publicPageExperienceConfig";
 
@@ -13,6 +14,9 @@ function FoundationStackCard({ track }: { track: PublicFoundationStackTrack }) {
   return (
     <article
       data-testid="foundation-stack-card"
+      data-track-id={track.id}
+      data-login-required={track.requiresLoginForRealAction ? "true" : "false"}
+      aria-label={`${track.badge}: ${track.title}`}
       className="flex h-full flex-col rounded-xl border border-zinc-100 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950/60"
     >
       <div className="flex flex-wrap items-center gap-2">
@@ -26,9 +30,12 @@ function FoundationStackCard({ track }: { track: PublicFoundationStackTrack }) {
         )}
       </div>
 
+      <span className="sr-only">Foundation track: {track.id}</span>
       <h3 className="mt-3 text-sm font-bold text-zinc-950 dark:text-zinc-50">{track.title}</h3>
       <p className="mt-1 text-sm leading-6 text-zinc-600 dark:text-zinc-300">{track.summary}</p>
-      <p className="mt-2 text-xs leading-5 text-zinc-500 dark:text-zinc-400">{track.publicPromise}</p>
+      <p className="mt-2 text-xs leading-5 text-zinc-500 dark:text-zinc-400">
+        <span className="font-semibold text-zinc-700 dark:text-zinc-300">Public promise:</span> {track.publicPromise}
+      </p>
 
       <Link
         href={track.ctaHref}
@@ -46,12 +53,15 @@ export function PublicFoundationStackSection({
   className = "",
 }: PublicFoundationStackSectionProps) {
   const tracks = getPublicFoundationStackTracksForPage(page, limit);
+  const requiredTrackIds = getRequiredFoundationStackTrackIdsForPage(page);
+  const visibleRequiredTrackCount = tracks.filter((track) => requiredTrackIds.includes(track.id)).length;
 
   if (tracks.length === 0) return null;
 
   return (
     <section
       data-testid="foundation-stack-section"
+      data-foundation-page={page}
       className={`rounded-2xl border border-blue-100 bg-blue-50/60 p-4 dark:border-blue-950 dark:bg-blue-950/20 ${className}`}
     >
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
@@ -64,6 +74,12 @@ export function PublicFoundationStackSection({
           </h2>
           <p className="mt-1 max-w-2xl text-sm leading-6 text-zinc-600 dark:text-zinc-300">
             Public visitors can now see how AI, tokens, rank, language fallback and exchange safety work before they start a real action.
+          </p>
+          <p
+            data-testid="foundation-stack-route-coverage"
+            className="mt-2 text-xs leading-5 text-blue-800 dark:text-blue-200"
+          >
+            {visibleRequiredTrackCount} route guardrails visible here; real proposals, chat and exchange confirmations stay after login.
           </p>
         </div>
       </div>
