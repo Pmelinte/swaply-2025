@@ -52,19 +52,21 @@ export function PublicGuestExperienceSlot() {
   const pathname = usePathname();
   const { user } = useAppState();
 
-  if (user) return null;
-
   const route = stripLocaleFromPathname(pathname ?? "/");
   const config = ROUTE_TO_GUEST_PAGE.find((entry) => entry.match(route));
 
   if (!config) return null;
+
+  const ctaHref = user
+    ? config.ctaHref
+    : `/register?returnTo=${encodeURIComponent(config.ctaHref)}`;
 
   return (
     <GuestExperienceSection
       page={config.page}
       title={config.title}
       subtitle={config.subtitle}
-      ctaHref={`/register?returnTo=${encodeURIComponent(config.ctaHref)}`}
+      ctaHref={ctaHref}
       ctaLabel={config.ctaLabel}
       className="mb-6"
     />
