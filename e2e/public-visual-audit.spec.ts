@@ -1,7 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { mkdirSync } from "node:fs";
 import path from "node:path";
-import { getFoundationStackLocalizedRoutes } from "../src/lib/public-foundation-stack/publicFoundationStackRoutePolicy";
 import { FORBIDDEN_PUBLIC_LOGIN_WALL_PATTERNS } from "../src/lib/public-pages/loginWallGuards";
 import {
   getPublicDrawerAuditRoutes,
@@ -25,7 +24,17 @@ const guestExperienceRoutes = new Set([
   "/en/exchange",
 ]);
 
-const foundationStackRoutes = new Set(getFoundationStackLocalizedRoutes("en"));
+const foundationStackRoutes = new Set([
+  "/en",
+  "/en/objects",
+  "/en/properties",
+  "/en/services",
+  "/en/events",
+  "/en/explore",
+  "/en/matching",
+  "/en/messages",
+  "/en/exchange",
+]);
 
 const contextualCopyRoutes = new Set([
   "/en/objects",
