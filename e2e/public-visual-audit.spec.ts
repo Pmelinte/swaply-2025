@@ -18,6 +18,22 @@ const guestExperienceRoutes = new Set([
   "/en/properties",
   "/en/services",
   "/en/events",
+  "/en/explore",
+  "/en/matching",
+  "/en/messages",
+  "/en/exchange",
+]);
+
+const foundationStackRoutes = new Set([
+  "/en",
+  "/en/objects",
+  "/en/properties",
+  "/en/services",
+  "/en/events",
+  "/en/explore",
+  "/en/matching",
+  "/en/messages",
+  "/en/exchange",
 ]);
 
 const contextualCopyRoutes = new Set([
@@ -80,6 +96,19 @@ async function assertGuestExperienceIsVisible(page: Page, route: string) {
   await expect(page.getByTestId("guest-proof-card").first(), `${route} must show at least one guest proof card`).toBeVisible();
 }
 
+async function assertFoundationStackIsVisible(page: Page, route: string) {
+  if (!foundationStackRoutes.has(route)) return;
+
+  await expect(
+    page.getByTestId("foundation-stack-section").first(),
+    `${route} must explain the Batch 8-17 foundation stack publicly`,
+  ).toBeVisible();
+  await expect(
+    page.getByTestId("foundation-stack-card").first(),
+    `${route} must show at least one public foundation stack card`,
+  ).toBeVisible();
+}
+
 async function assertDrawerIsHealthy(page: Page, route: string) {
   const drawer = page.getByRole("dialog", { name: /side drawer/i });
   await expect(drawer, `${route} drawer must be visible after hamburger click`).toBeVisible();
@@ -108,6 +137,7 @@ test.describe("Swaply public visual audit", () => {
         test(`renders ${route}`, async ({ page }, testInfo) => {
           await assertPublicPageIsHealthy(page, route);
           await assertGuestExperienceIsVisible(page, route);
+          await assertFoundationStackIsVisible(page, route);
 
           const filePath = screenshotPath(viewport.name, route);
           await page.screenshot({ path: filePath, fullPage: true, animations: "disabled" });
