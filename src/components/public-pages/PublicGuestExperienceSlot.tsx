@@ -46,6 +46,38 @@ const ROUTE_TO_GUEST_PAGE: Array<{
     ctaHref: "/events/new",
     ctaLabel: "Add an event",
   },
+  {
+    match: (pathname) => pathname === "/explore",
+    page: "explore",
+    title: "Explore previews across domains",
+    subtitle: "Browse global examples and understand AI-assisted discovery before saving searches or contacting people.",
+    ctaHref: "/objects",
+    ctaLabel: "Explore objects",
+  },
+  {
+    match: (pathname) => pathname === "/matching",
+    page: "matching",
+    title: "Matching foundation preview",
+    subtitle: "See how AI explanations, advanced swap modes and consent gates are prepared before real proposals start.",
+    ctaHref: "/matching",
+    ctaLabel: "See AI matches",
+  },
+  {
+    match: (pathname) => pathname === "/messages",
+    page: "messages",
+    title: "Messaging safety preview",
+    subtitle: "Understand guided chat, translation fallback and exact-location protection before opening real conversations.",
+    ctaHref: "/messages",
+    ctaLabel: "Open messages",
+  },
+  {
+    match: (pathname) => pathname === "/exchange",
+    page: "exchange",
+    title: "Exchange safety preview",
+    subtitle: "Review checklist, confirmation, feedback and story gates before completing any real exchange.",
+    ctaHref: "/exchange",
+    ctaLabel: "Start exchange",
+  },
 ];
 
 export function PublicGuestExperienceSlot() {
