@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { mkdirSync } from "node:fs";
 import path from "node:path";
+import { FORBIDDEN_PUBLIC_LOGIN_WALL_PATTERNS } from "../src/lib/public-pages/loginWallGuards";
 import {
   getPublicDrawerAuditRoutes,
   getPublicVisualAuditRoutes,
@@ -45,16 +46,22 @@ async function assertPublicPageIsHealthy(page: Page, route: string) {
 
   await page.waitForLoadState("networkidle", { timeout: 5_000 }).catch(() => undefined);
 
-  await expect(page.locator("body"), `${route} body must be visible`).toBeVisible();
-  await expect(page.locator("body"), `${route} must not render the Next.js 404`).not.toContainText(
+  const body = page.locator("body");
+  await expect(body, `${route} body must be visible`).toBeVisible();
+  await expect(body, `${route} must not render the Next.js 404`).not.toContainText(
     "This page could not be found",
   );
-  await expect(page.locator("body"), `${route} must not render a generic application error`).not.toContainText(
+  await expect(body, `${route} must not render a generic application error`).not.toContainText(
     "Application error",
   );
-  await expect(page.locator("body"), `${route} must not render a runtime error`).not.toContainText(
+  await expect(body, `${route} must not render a runtime error`).not.toContainText(
     "Unhandled Runtime Error",
   );
+
+  const bodyText = await body.innerText();
+  for (const pattern of FORBIDDEN_PUBLIC_LOGIN_WALL_PATTERNS) {
+    expect(pattern.test(bodyText), `${route} must not be a blank login wall matching ${pattern}`).toBe(false);
+  }
 }
 
 async function assertDrawerIsHealthy(page: Page, route: string) {
