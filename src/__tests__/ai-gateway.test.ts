@@ -1,9 +1,18 @@
-// @vitest-environment node
-
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { AIGateway, type AIProvider } from "@/lib/ai/gateway";
 import { AI_TASK_TYPES } from "@/lib/ai/taskTypes";
 import { selectModelsForTask } from "@/lib/ai/model-registry";
+
+async function runAsServerSide<T>(callback: () => Promise<T>) {
+  const originalWindow = globalThis.window;
+  vi.stubGlobal("window", undefined);
+
+  try {
+    return await callback();
+  } finally {
+    vi.stubGlobal("window", originalWindow);
+  }
+}
 
 describe("AI gateway foundation", () => {
   it("defines the Swaply task types from the product memory", () => {
@@ -46,12 +55,14 @@ describe("AI gateway foundation", () => {
       },
     });
 
-    const result = await gateway.run({
-      taskType: "translate",
-      input: { text: "hello" },
-      sourceLocale: "en",
-      targetLocale: "fr",
-    });
+    const result = await runAsServerSide(() =>
+      gateway.run({
+        taskType: "translate",
+        input: { text: "hello" },
+        sourceLocale: "en",
+        targetLocale: "fr",
+      }),
+    );
 
     expect(result.status).toBe("fallback");
     expect(result.provider).toBe("fallback");
@@ -67,7 +78,7 @@ describe("AI gateway foundation", () => {
     };
 
     const gateway = new AIGateway({ providers: [provider] });
-    const result = await gateway.run({ taskType: "match", input: {} });
+    const result = await runAsServerSide(() => gateway.run({ taskType: "match", input: {} }));
 
     expect(result.status).toBe("error");
     expect(result.errorCode).toBe("no_provider");
