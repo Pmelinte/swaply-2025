@@ -9,6 +9,7 @@ import DrawerChat from "./variants/DrawerChat";
 import DrawerExplore from "./variants/DrawerExplore";
 import DrawerMatching from "./variants/DrawerMatching";
 import DrawerExchange from "./variants/DrawerExchange";
+import DrawerContextualPage from "./variants/DrawerContextualPage";
 
 /**
  * Defensive locale strip. next-intl's usePathname from our wrapper is
@@ -34,19 +35,47 @@ function stripLocale(p: string): string {
  * Derives a fallback drawer variant from the current pathname so the drawer
  * shows sensible content even if a page opened it without calling openWith().
  *
- * Fallbacks never set ids we can't recover from the path alone — `/chat/[id]`
- * and `/exchange/[id]` fall back to `home` because the drawer cannot safely
- * render a variant that needs those ids. Pages that want the chat/exchange
- * variants must call openWith({...}) themselves.
+ * Conversation/exchange detail pages may still pass richer variants with ids.
+ * Major public pages get contextual variants so the hamburger is not a
+ * duplicated global navigation menu.
  */
 function variantFromPath(rawPath: string): DrawerVariant {
   const pathname = stripLocale(rawPath);
+
+  if (pathname === "/objects" || pathname.startsWith("/objects/")) {
+    return { type: "contextual", page: "objects" };
+  }
+  if (pathname === "/properties" || pathname.startsWith("/properties/")) {
+    return { type: "contextual", page: "properties" };
+  }
+  if (pathname === "/services" || pathname.startsWith("/services/")) {
+    return { type: "contextual", page: "services" };
+  }
+  if (pathname === "/events" || pathname.startsWith("/events/")) {
+    return { type: "contextual", page: "events" };
+  }
   if (pathname === "/matching" || pathname.startsWith("/matching/")) {
     return { type: "matching" };
+  }
+  if (pathname === "/messages" || pathname.startsWith("/messages/")) {
+    return { type: "contextual", page: "messages" };
+  }
+  if (pathname === "/chat" || pathname.startsWith("/chat/")) {
+    return { type: "contextual", page: "chat" };
+  }
+  if (pathname === "/exchange") {
+    return { type: "contextual", page: "exchange" };
   }
   if (pathname === "/explore" || pathname.startsWith("/explore/")) {
     return { type: "explore" };
   }
+  if (pathname === "/blog" || pathname.startsWith("/blog/")) {
+    return { type: "contextual", page: "blog" };
+  }
+  if (pathname === "/stories" || pathname.startsWith("/stories/")) {
+    return { type: "contextual", page: "stories" };
+  }
+
   return { type: "home" };
 }
 
@@ -62,8 +91,7 @@ export function UnifiedSideDrawer() {
     if (storedVariant?.type === "chat" || storedVariant?.type === "exchange") {
       return storedVariant;
     }
-    // For every other case the current path determines which drawer to show:
-    // /explore → filter drawer, /matching → matching drawer, else → home drawer.
+    // For every other case the current path determines which drawer to show.
     return variantFromPath(pathname);
   }, [storedVariant, pathname]);
 
@@ -102,7 +130,7 @@ export function UnifiedSideDrawer() {
         aria-modal={open ? "true" : undefined}
         aria-hidden={open ? undefined : "true"}
         aria-label="Side drawer"
-        className={`fixed left-0 top-0 z-50 flex h-full w-[320px] max-w-full flex-col bg-white shadow-2xl transition-transform duration-300 ease-in-out dark:bg-zinc-900 ${
+        className={`fixed left-0 top-0 z-50 flex h-full w-[320px] max-w-full flex-col bg-white shadow-2xl transition-transform duration-300 ease-in-out dark:bg-zinc-900 sm:w-[380px] ${
           open ? "translate-x-0 pointer-events-auto" : "-translate-x-full pointer-events-none"
         }`}
       >
@@ -114,6 +142,9 @@ export function UnifiedSideDrawer() {
         {effectiveVariant.type === "matching" && <DrawerMatching />}
         {effectiveVariant.type === "exchange" && (
           <DrawerExchange swapId={effectiveVariant.swapId} />
+        )}
+        {effectiveVariant.type === "contextual" && (
+          <DrawerContextualPage page={effectiveVariant.page} />
         )}
       </aside>
     </>
