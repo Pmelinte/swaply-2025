@@ -7,7 +7,6 @@ import type {
 } from "./publicFoundationStackTypes";
 
 const DOMAIN_PAGES = ["objects", "properties", "services", "events"] as const satisfies readonly PublicExperiencePage[];
-const WORKFLOW_PAGES = ["explore", "matching", "messages", "chat", "exchange", "profile"] as const satisfies readonly PublicExperiencePage[];
 const ALL_PUBLIC_PAGES = PUBLIC_EXPERIENCE_PAGES;
 
 export const REQUIRED_PUBLIC_FOUNDATION_TRACKS = [
