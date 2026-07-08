@@ -43,7 +43,7 @@ export const PUBLIC_FOUNDATION_STACK_TRACKS = [
     relatedAreas: ["advanced_swap_modes"],
     auditCheckIds: ["audit-advanced-swaps-consent"],
     pages: ["home", ...DOMAIN_PAGES, "explore", "matching", "exchange"],
-    priority: 25,
+    priority: 11,
     requiresLoginForRealAction: true,
   },
   {
@@ -127,7 +127,7 @@ export const PUBLIC_FOUNDATION_STACK_TRACKS = [
     relatedAreas: ["blog_suggestions"],
     auditCheckIds: ["audit-blog-structured-only"],
     pages: ["home", ...DOMAIN_PAGES, "explore", "profile"],
-    priority: 8,
+    priority: 40,
     requiresLoginForRealAction: true,
   },
   {
@@ -148,23 +148,25 @@ export const PUBLIC_FOUNDATION_STACK_TRACKS = [
 
 export function getPublicFoundationStackTracksForPage(
   page: PublicExperiencePage,
-  limit = 4,
+  limit = 5,
 ): readonly PublicFoundationStackTrack[] {
-  return PUBLIC_FOUNDATION_STACK_TRACKS.filter((track) => track.pages.includes(page))
+  return PUBLIC_FOUNDATION_STACK_TRACKS.filter((track) =>
+    (track.pages as readonly PublicExperiencePage[]).includes(page),
+  )
     .sort((a, b) => a.priority - b.priority)
     .slice(0, limit);
 }
 
 export function getPublicFoundationStackTrackIdsForPage(
   page: PublicExperiencePage,
-  limit = 4,
+  limit = 5,
 ): readonly PublicFoundationStackTrackId[] {
   return getPublicFoundationStackTracksForPage(page, limit).map((track) => track.id);
 }
 
 export function getPublicFoundationStackSummaryForPage(
   page: PublicExperiencePage,
-  limit = 4,
+  limit = 5,
 ): PublicFoundationStackSummary {
   return {
     page,
@@ -176,7 +178,7 @@ export function getPublicFoundationStackSummaryForPage(
 
 export function getMissingRequiredPublicFoundationTrackIds(
   page: PublicExperiencePage,
-  limit = 4,
+  limit = 5,
 ): readonly PublicFoundationStackTrackId[] {
   const ids = new Set(getPublicFoundationStackTrackIdsForPage(page, limit));
   return REQUIRED_PUBLIC_FOUNDATION_TRACKS.filter((id) => !ids.has(id));
@@ -185,7 +187,7 @@ export function getMissingRequiredPublicFoundationTrackIds(
 export function hasPublicFoundationStackTrack(
   page: PublicExperiencePage,
   trackId: PublicFoundationStackTrackId,
-  limit = 4,
+  limit = 5,
 ): boolean {
   return getPublicFoundationStackTrackIdsForPage(page, limit).includes(trackId);
 }
