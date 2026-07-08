@@ -7,8 +7,9 @@ import type {
 
 const SENSITIVE_DETAIL_PATTERNS = [
   /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/iu,
-  /\b(?:\+?\d[\s.-]?){8,}\b/u,
+  /(?<!\d)(?:\+?\d[\s.-]?){8,}(?!\d)/u,
   /\b(strada|street|st\.?|avenue|bulevardul|bd\.?|road|rd\.?)\s+[\p{L}0-9 .'-]+\s+\d+\b/iu,
+  /\b\d{1,5}\s+[\p{L}0-9 .'-]+\s+(street|st\.?|road|rd\.?|avenue|ave\.?|bulevardul|bd\.?)\b/iu,
   /\b\d{2}\.\d{4,},\s*\d{2}\.\d{4,}\b/u,
 ] as const;
 
