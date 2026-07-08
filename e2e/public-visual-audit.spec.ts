@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { mkdirSync } from "node:fs";
 import path from "node:path";
+import { getFoundationStackLocalizedRoutes } from "../src/lib/public-foundation-stack/publicFoundationStackRoutePolicy";
 import { FORBIDDEN_PUBLIC_LOGIN_WALL_PATTERNS } from "../src/lib/public-pages/loginWallGuards";
 import {
   getPublicDrawerAuditRoutes,
@@ -24,17 +25,7 @@ const guestExperienceRoutes = new Set([
   "/en/exchange",
 ]);
 
-const foundationStackRoutes = new Set([
-  "/en",
-  "/en/objects",
-  "/en/properties",
-  "/en/services",
-  "/en/events",
-  "/en/explore",
-  "/en/matching",
-  "/en/messages",
-  "/en/exchange",
-]);
+const foundationStackRoutes = new Set(getFoundationStackLocalizedRoutes("en"));
 
 const contextualCopyRoutes = new Set([
   "/en/objects",
@@ -99,14 +90,24 @@ async function assertGuestExperienceIsVisible(page: Page, route: string) {
 async function assertFoundationStackIsVisible(page: Page, route: string) {
   if (!foundationStackRoutes.has(route)) return;
 
-  await expect(
-    page.getByTestId("foundation-stack-section").first(),
-    `${route} must explain the Batch 8-17 foundation stack publicly`,
-  ).toBeVisible();
+  const section = page.getByTestId("foundation-stack-section").first();
+  await expect(section, `${route} must explain the Batch 8-17 foundation stack publicly`).toBeVisible();
   await expect(
     page.getByTestId("foundation-stack-card").first(),
     `${route} must show at least one public foundation stack card`,
   ).toBeVisible();
+  await expect(
+    section.locator('[data-track-id="ai_advisory"]').first(),
+    `${route} must show that AI remains advisory`,
+  ).toBeVisible();
+  await expect(
+    section.locator('[data-login-required="true"]').first(),
+    `${route} must show that real actions stay login-gated`,
+  ).toBeVisible();
+  await expect(
+    page.getByTestId("foundation-stack-route-coverage").first(),
+    `${route} must explain route-level guardrail coverage`,
+  ).toContainText(/route guardrails visible/i);
 }
 
 async function assertDrawerIsHealthy(page: Page, route: string) {
