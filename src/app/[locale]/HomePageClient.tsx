@@ -11,6 +11,7 @@ import {
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { LazyMapPreview } from "@/components/LazyMapPreview";
+import { GuestExperienceSection } from "@/components/public-pages/GuestExperienceSection";
 
 const BENEFITS_KEYS = [
   "directSwap",
@@ -76,6 +77,16 @@ export default function HomePageClient() {
           </ViewTransitionLink>
         ))}
       </section>
+
+      {!user && (
+        <GuestExperienceSection
+          page="home"
+          title="See what Swaply can combine"
+          subtitle="Public visitors can understand mixed exchanges across objects, services, properties and events before creating an account. Real proposals and chat still require login."
+          ctaHref="/register"
+          ctaLabel={tGuest("bannerCta")}
+        />
+      )}
 
       {/* ── 3. Benefits Banner (guest only) ── */}
       {!user && (
