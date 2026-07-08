@@ -1,4 +1,4 @@
-# Batch 19 — Public foundation stack route guardrails
+# Batch 19 — Public foundation stack UI guardrails
 
 ## Goal
 
@@ -17,43 +17,41 @@ The work is intentionally small and safe: it strengthens the public UI contract 
 - No public free-text comments.
 - No real action without login.
 - No duplicate nav/drawer work.
+- No new server/runtime policy module.
 
 ## 10 actions included
 
 1. Start Batch 19 from the Batch 18 branch.
-2. Add a route policy for the public foundation stack.
-3. Define the public routes that must render the foundation stack.
-4. Define the page-level guardrails that must stay visible inside the default card limit.
-5. Add localized route helpers so Playwright does not duplicate route lists manually.
-6. Add UI metadata for each visible card through stable `data-*` attributes.
-7. Add route-level coverage copy inside the public section.
-8. Extend unit tests for route policy, required guardrails and public audit alignment.
-9. Extend the public visual audit to verify AI advisory and login-gated action markers.
+2. Keep the foundation stack visible on the same public routes introduced in Batch 18.
+3. Add stable `data-track-id` metadata for each public foundation card.
+4. Add stable `data-login-required` metadata for login-gated foundation cards.
+5. Add stable `data-foundation-page` metadata for the section.
+6. Add route-level guardrail coverage copy inside the public section.
+7. Extend unit tests for advisory AI, internal CTAs, language fallback and visible safety cards.
+8. Extend the public visual audit to verify advisory AI markers.
+9. Extend the public visual audit to verify login-gated action markers and route coverage copy.
 10. Document the batch and its safety limits.
 
-## Public routes covered
+## Public routes covered by audit
 
-- `/`
-- `/objects`
-- `/properties`
-- `/services`
-- `/events`
-- `/explore`
-- `/matching`
-- `/messages`
-- `/exchange`
+- `/en`
+- `/en/objects`
+- `/en/properties`
+- `/en/services`
+- `/en/events`
+- `/en/explore`
+- `/en/matching`
+- `/en/messages`
+- `/en/exchange`
 
-The localized audit currently checks the English routes through `/en/...`, but the route helper supports other locales.
+## Guardrails kept visible
 
-## Required guardrails by page
-
-- Home: advisory AI, token/rank separation, language fallback, exchange safety.
-- Objects: advisory AI, language fallback, advanced swaps, exchange safety, photo discovery.
-- Properties/services/events: advisory AI, language fallback, advanced swaps, exchange safety.
-- Explore: advisory AI, language fallback, advanced swaps, photo discovery.
-- Matching: advisory AI, language fallback, advanced swaps, token/rank separation, exchange safety.
-- Messages: advisory AI, language fallback, guided chat, exchange safety.
-- Exchange: advisory AI, language fallback, advanced swaps, token/rank separation, exchange safety.
+- AI remains advisory.
+- Real actions remain after login.
+- Language fallback stays visible on the default public foundation pages.
+- Token/rank separation remains visible where it matters most.
+- Exchange safety remains explained before real confirmation flows.
+- Public cards use internal CTAs only.
 
 ## What this batch does not do
 
