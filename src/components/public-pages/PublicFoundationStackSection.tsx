@@ -1,8 +1,6 @@
 import { Link } from "@/i18n/navigation";
-import {
-  getPublicFoundationStackTracksForPage,
-  type PublicFoundationStackTrack,
-} from "@/lib/public-foundation-stack/publicFoundationStackContent";
+import { getPublicFoundationStackTracksForPage } from "@/lib/public-foundation-stack/publicFoundationStackContent";
+import type { PublicFoundationStackTrack } from "@/lib/public-foundation-stack/publicFoundationStackTypes";
 import type { PublicExperiencePage } from "@/lib/public-pages/publicPageExperienceConfig";
 
 interface PublicFoundationStackSectionProps {
