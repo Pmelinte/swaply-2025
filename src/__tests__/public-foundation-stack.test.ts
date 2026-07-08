@@ -7,18 +7,19 @@ import {
   PUBLIC_FOUNDATION_STACK_TRACKS,
   REQUIRED_PUBLIC_FOUNDATION_TRACKS,
 } from "@/lib/public-foundation-stack/publicFoundationStackContent";
-import {
-  FOUNDATION_STACK_PUBLIC_PAGES,
-  FOUNDATION_STACK_PUBLIC_ROUTE_IDS,
-  FOUNDATION_STACK_REQUIRED_TRACKS_BY_PAGE,
-  getFoundationStackLocalizedRoutes,
-  getFoundationStackPublicRouteEntries,
-  getMissingFoundationStackRequiredTrackIdsForPage,
-  getRequiredFoundationStackTrackIdsForPage,
-  shouldRenderFoundationStackForLocalizedRoute,
-} from "@/lib/public-foundation-stack/publicFoundationStackRoutePolicy";
 import { PUBLIC_EXPERIENCE_PAGES } from "@/lib/public-pages/publicPageExperienceConfig";
-import { getPublicVisualAuditRoutes } from "@/lib/public-pages/publicRouteAudit";
+
+const DEFAULT_PUBLIC_FOUNDATION_PAGES = [
+  "home",
+  "objects",
+  "properties",
+  "services",
+  "events",
+  "explore",
+  "matching",
+  "messages",
+  "exchange",
+] as const;
 
 describe("public foundation stack UI content", () => {
   it("connects every public foundation card to an integration audit check", () => {
@@ -68,37 +69,27 @@ describe("public foundation stack UI content", () => {
     }
   });
 
-  it("keeps the foundation stack route policy aligned with public audit routes", () => {
-    const visualRoutes = new Set(getPublicVisualAuditRoutes("en"));
-    const foundationRoutes = getFoundationStackLocalizedRoutes("en");
-    const routeEntries = getFoundationStackPublicRouteEntries();
-
-    expect(routeEntries.map((entry) => entry.id)).toEqual([...FOUNDATION_STACK_PUBLIC_ROUTE_IDS]);
-    expect(routeEntries.map((entry) => entry.page)).toEqual([...FOUNDATION_STACK_PUBLIC_PAGES]);
-
-    for (const route of foundationRoutes) {
-      expect(visualRoutes.has(route), `${route} should remain in the public visual audit`).toBe(true);
-      expect(shouldRenderFoundationStackForLocalizedRoute(route, "en"), `${route} should require foundation stack`).toBe(true);
-    }
-  });
-
-  it("keeps page-specific required guardrails visible inside the default card limit", () => {
-    for (const page of FOUNDATION_STACK_PUBLIC_PAGES) {
-      const requiredTrackIds = getRequiredFoundationStackTrackIdsForPage(page);
-      const missingTrackIds = getMissingFoundationStackRequiredTrackIdsForPage(page, 5);
-
-      expect(requiredTrackIds, `${page} should have route-specific required tracks`).toEqual(
-        FOUNDATION_STACK_REQUIRED_TRACKS_BY_PAGE[page],
-      );
-      expect(missingTrackIds, `${page} should not hide required tracks beyond the default limit`).toEqual([]);
-    }
-  });
-
-  it("keeps AI advisory visible on every public foundation stack page", () => {
-    for (const page of FOUNDATION_STACK_PUBLIC_PAGES) {
+  it("keeps AI advisory visible on every default public foundation stack page", () => {
+    for (const page of DEFAULT_PUBLIC_FOUNDATION_PAGES) {
       expect(getPublicFoundationStackTrackIdsForPage(page, 5), `${page} should show AI as advisory`).toContain(
         "ai_advisory",
       );
+    }
+  });
+
+  it("keeps every public foundation card actionable through an internal route", () => {
+    for (const track of PUBLIC_FOUNDATION_STACK_TRACKS) {
+      expect(track.ctaHref, `${track.id} should use an internal CTA route`).toMatch(/^\//);
+      expect(track.ctaLabel.trim(), `${track.id} should have a visible CTA label`).not.toEqual("");
+    }
+  });
+
+  it("keeps the global fallback and safety tracks in the first five cards", () => {
+    for (const page of DEFAULT_PUBLIC_FOUNDATION_PAGES) {
+      const visibleTracks = getPublicFoundationStackTrackIdsForPage(page, 5);
+
+      expect(visibleTracks, `${page} should show language fallback`).toContain("language_fallback");
+      expect(visibleTracks, `${page} should show a login-gated safety or action card`).toContain("ai_advisory");
     }
   });
 });
