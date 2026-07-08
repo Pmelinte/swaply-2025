@@ -22,7 +22,7 @@ describe("public foundation stack UI content", () => {
   });
 
   it("keeps the required public explanation tracks visible on the home page", () => {
-    const missing = getMissingRequiredPublicFoundationTrackIds("home", 8);
+    const missing = getMissingRequiredPublicFoundationTrackIds("home", 5);
 
     expect(REQUIRED_PUBLIC_FOUNDATION_TRACKS).toEqual([
       "ai_advisory",
@@ -34,7 +34,7 @@ describe("public foundation stack UI content", () => {
   });
 
   it("prioritizes matching around AI, advanced modes and consent", () => {
-    const matchingTracks = getPublicFoundationStackTrackIdsForPage("matching", 4);
+    const matchingTracks = getPublicFoundationStackTrackIdsForPage("matching", 5);
 
     expect(matchingTracks).toContain("ai_advisory");
     expect(matchingTracks).toContain("advanced_swaps");
@@ -42,7 +42,7 @@ describe("public foundation stack UI content", () => {
   });
 
   it("prioritizes messages around guided chat and language fallback", () => {
-    const messageTracks = getPublicFoundationStackTrackIdsForPage("messages", 4);
+    const messageTracks = getPublicFoundationStackTrackIdsForPage("messages", 5);
 
     expect(messageTracks).toContain("guided_chat");
     expect(messageTracks).toContain("language_fallback");
@@ -50,7 +50,7 @@ describe("public foundation stack UI content", () => {
 
   it("keeps real actions login-gated while public explanations remain visible", () => {
     for (const page of PUBLIC_EXPERIENCE_PAGES) {
-      const summary = getPublicFoundationStackSummaryForPage(page, 4);
+      const summary = getPublicFoundationStackSummaryForPage(page, 5);
 
       expect(summary.loginRequiredOnlyForRealActions).toBe(true);
       expect(summary.tracks.length, `${page} should expose at least one public foundation card`).toBeGreaterThan(0);
