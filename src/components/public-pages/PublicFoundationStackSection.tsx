@@ -42,7 +42,7 @@ function FoundationStackCard({ track }: { track: PublicFoundationStackTrack }) {
 
 export function PublicFoundationStackSection({
   page,
-  limit = 4,
+  limit = 5,
   className = "",
 }: PublicFoundationStackSectionProps) {
   const tracks = getPublicFoundationStackTracksForPage(page, limit);
@@ -68,7 +68,7 @@ export function PublicFoundationStackSection({
         </div>
       </div>
 
-      <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+      <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
         {tracks.map((track) => (
           <FoundationStackCard key={track.id} track={track} />
         ))}
