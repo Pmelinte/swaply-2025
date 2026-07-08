@@ -26,8 +26,8 @@ describe("route to drawer variant resolver", () => {
   });
 
   it("maps workflow routes to their drawer variants", () => {
-    expect(getDrawerVariantForPathname("/matching")).toEqual({ type: "matching" });
-    expect(getDrawerVariantForPathname("/matches/item-one")).toEqual({ type: "matching" });
+    expect(getDrawerVariantForPathname("/matching")).toEqual({ type: "contextual", page: "matching" });
+    expect(getDrawerVariantForPathname("/matches/item-one")).toEqual({ type: "contextual", page: "matching" });
     expect(getDrawerVariantForPathname("/messages")).toEqual({ type: "contextual", page: "messages" });
     expect(getDrawerVariantForPathname("/chat/item-one")).toEqual({ type: "contextual", page: "chat" });
     expect(getDrawerVariantForPathname("/exchange/item-one")).toEqual({ type: "contextual", page: "exchange" });
