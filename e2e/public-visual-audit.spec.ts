@@ -1,44 +1,22 @@
 import { expect, test, type Page } from "@playwright/test";
 import { mkdirSync } from "node:fs";
 import path from "node:path";
+import {
+  getPublicDrawerAuditRoutes,
+  getPublicVisualAuditRoutes,
+} from "../src/lib/public-pages/publicRouteAudit";
 
 const screenshotRoot = path.join(process.cwd(), "playwright-audit-screenshots");
 
-const publicRoutes = [
-  "/en",
-  "/en/objects",
-  "/en/explore",
-  "/en/matching",
-  "/en/messages",
-  "/en/exchange",
-  "/en/properties",
-  "/en/services",
-  "/en/events",
-  "/en/blog",
-  "/en/about",
-  "/en/contact",
-  "/en/terms",
-  "/en/privacy",
-  "/en/safety",
-];
-
-const contextualDrawerRoutes = [
-  "/en/objects",
-  "/en/properties",
-  "/en/services",
-  "/en/events",
-  "/en/explore",
-  "/en/matching",
-  "/en/messages",
-  "/en/exchange",
-  "/en/blog",
-];
+const publicRoutes = getPublicVisualAuditRoutes("en");
+const drawerAuditRoutes = getPublicDrawerAuditRoutes("en");
 
 const contextualCopyRoutes = new Set([
   "/en/objects",
   "/en/properties",
   "/en/services",
   "/en/events",
+  "/en/matching",
   "/en/messages",
   "/en/exchange",
   "/en/blog",
@@ -121,7 +99,7 @@ test.describe("Swaply public visual audit", () => {
   test.describe("drawers", () => {
     test.use({ viewport: { width: 1440, height: 1100 } });
 
-    for (const route of contextualDrawerRoutes) {
+    for (const route of drawerAuditRoutes) {
       test(`opens route-specific drawer on ${route}`, async ({ page }, testInfo) => {
         await assertPublicPageIsHealthy(page, route);
         await page.getByLabel("Open menu").first().click();
