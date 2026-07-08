@@ -77,7 +77,7 @@ export class AIGateway {
 
     const candidates = this.providers.filter((provider) => provider.supports(request.taskType));
     if (candidates.length === 0) {
-      return this.buildErrorResult(request, "none", "no_provider", 0);
+      return this.buildErrorResult<TOutput>(request, "none", "no_provider", 0);
     }
 
     let lastErrorCode: string | null = null;
@@ -120,7 +120,12 @@ export class AIGateway {
       }
     }
 
-    return this.buildErrorResult(request, candidates.at(-1)?.id ?? "none", lastErrorCode ?? "provider_failed", 0);
+    return this.buildErrorResult<TOutput>(
+      request,
+      candidates.at(-1)?.id ?? "none",
+      lastErrorCode ?? "provider_failed",
+      0,
+    );
   }
 
   private async log<TOutput>(request: AIGatewayInput, result: AIGatewayResult<TOutput>) {
@@ -140,13 +145,13 @@ export class AIGateway {
     });
   }
 
-  private async buildErrorResult(
+  private async buildErrorResult<TOutput = unknown>(
     request: AIGatewayInput,
     provider: string,
     errorCode: string,
     latencyMs: number,
-  ): Promise<AIGatewayResult> {
-    const result: AIGatewayResult = {
+  ): Promise<AIGatewayResult<TOutput>> {
+    const result: AIGatewayResult<TOutput> = {
       status: "error",
       taskType: request.taskType,
       provider,
