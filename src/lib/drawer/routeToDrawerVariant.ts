@@ -35,11 +35,11 @@ const ROUTE_ALIASES: Array<{
   },
   {
     match: (pathname) => pathname === "/matching" || pathname.startsWith("/matching/"),
-    variant: { type: "matching" },
+    variant: { type: "contextual", page: "matching" },
   },
   {
     match: (pathname) => pathname === "/matches" || pathname.startsWith("/matches/"),
-    variant: { type: "matching" },
+    variant: { type: "contextual", page: "matching" },
   },
   {
     match: (pathname) => pathname === "/messages" || pathname.startsWith("/messages/"),
