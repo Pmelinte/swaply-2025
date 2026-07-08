@@ -1,7 +1,14 @@
 name: CI
 
 on:
+  pull_request:
+  push:
+    branches:
+      - main
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -9,9 +16,9 @@ concurrency:
 
 env:
   NODE_VERSION: "22"
+  NEXT_TELEMETRY_DISABLED: "1"
 
 jobs:
-  # ── Lint + TypeCheck in a single job (saves one full npm ci) ──
   checks:
     name: Lint & Type Check
     runs-on: ubuntu-latest
@@ -33,7 +40,7 @@ jobs:
         run: npm run lint & npm run typecheck & wait
 
   test:
-    name: Test
+    name: Unit Tests
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -49,7 +56,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run tests
+      - name: Run Vitest
         run: npm run test
 
   build:
@@ -88,3 +95,54 @@ jobs:
           name: nextjs-build
           path: .next/
           retention-days: 7
+
+  visual-audit:
+    name: Public Visual Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run public visual audit
+        run: npm run test:e2e:public
+
+      - name: Upload visual audit screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: swaply-public-visual-audit-screenshots
+          path: playwright-audit-screenshots/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: swaply-public-visual-audit-report
+          path: playwright-report/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload Playwright test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: swaply-public-visual-audit-test-results
+          path: test-results/
+          if-no-files-found: warn
+          retention-days: 14
