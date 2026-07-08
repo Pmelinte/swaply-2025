@@ -83,7 +83,7 @@ export const contextualDrawerConfigs: Record<ContextualDrawerPage, ContextualDra
         id: "quick_actions",
         titleKey: "nav.quickNav",
         items: [
-          { id: "add-object", labelKey: "nav.addObject", icon: "plus", href: "/objects/add" },
+          { id: "add-object", labelKey: "nav.addObject", icon: "plus", href: "/objects/new" },
           { id: "view-objects", labelKey: "nav.viewObjects", icon: "activity" },
         ],
       },
@@ -110,7 +110,7 @@ export const contextualDrawerConfigs: Record<ContextualDrawerPage, ContextualDra
       {
         id: "quick_actions",
         titleKey: "nav.quickNav",
-        items: [{ id: "add-property", labelKey: "common.add", icon: "plus", href: "/explore/add/property" }],
+        items: [{ id: "add-property", labelKey: "common.add", icon: "plus", disabled: true }],
       },
       {
         id: "ai_recommendations",
@@ -135,7 +135,7 @@ export const contextualDrawerConfigs: Record<ContextualDrawerPage, ContextualDra
       {
         id: "quick_actions",
         titleKey: "nav.quickNav",
-        items: [{ id: "add-service", labelKey: "common.add", icon: "plus", href: "/explore/add/service" }],
+        items: [{ id: "add-service", labelKey: "common.add", icon: "plus", disabled: true }],
       },
       {
         id: "ai_recommendations",
@@ -160,7 +160,7 @@ export const contextualDrawerConfigs: Record<ContextualDrawerPage, ContextualDra
       {
         id: "quick_actions",
         titleKey: "nav.quickNav",
-        items: [{ id: "add-event", labelKey: "common.add", icon: "plus", href: "/explore/add/event" }],
+        items: [{ id: "add-event", labelKey: "common.add", icon: "plus", disabled: true }],
       },
       {
         id: "ai_recommendations",
