@@ -1,6 +1,5 @@
 import { Link } from "@/i18n/navigation";
 import { getPublicFoundationStackTracksForPage } from "@/lib/public-foundation-stack/publicFoundationStackContent";
-import { getRequiredFoundationStackTrackIdsForPage } from "@/lib/public-foundation-stack/publicFoundationStackRoutePolicy";
 import type { PublicFoundationStackTrack } from "@/lib/public-foundation-stack/publicFoundationStackTypes";
 import type { PublicExperiencePage } from "@/lib/public-pages/publicPageExperienceConfig";
 
@@ -53,8 +52,6 @@ export function PublicFoundationStackSection({
   className = "",
 }: PublicFoundationStackSectionProps) {
   const tracks = getPublicFoundationStackTracksForPage(page, limit);
-  const requiredTrackIds = getRequiredFoundationStackTrackIdsForPage(page);
-  const visibleRequiredTrackCount = tracks.filter((track) => requiredTrackIds.includes(track.id)).length;
 
   if (tracks.length === 0) return null;
 
@@ -79,7 +76,7 @@ export function PublicFoundationStackSection({
             data-testid="foundation-stack-route-coverage"
             className="mt-2 text-xs leading-5 text-blue-800 dark:text-blue-200"
           >
-            {visibleRequiredTrackCount} route guardrails visible here; real proposals, chat and exchange confirmations stay after login.
+            Route guardrails visible here; real proposals, chat and exchange confirmations stay after login.
           </p>
         </div>
       </div>
