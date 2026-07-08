@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, type ComponentType } from "react";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import {
@@ -27,7 +27,7 @@ import {
   type ContextualDrawerPage,
 } from "@/lib/drawer/contextualDrawerConfig";
 
-const iconMap: Record<ContextualDrawerIcon, React.ComponentType<{ className?: string }>> = {
+const iconMap: Record<ContextualDrawerIcon, ComponentType<{ className?: string }>> = {
   activity: Activity,
   book: BookOpen,
   calendar: CalendarDays,
