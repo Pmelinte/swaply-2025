@@ -1,3 +1,5 @@
+// @vitest-environment node
+
 import { describe, expect, it } from "vitest";
 import { AIGateway, type AIProvider } from "@/lib/ai/gateway";
 import { AI_TASK_TYPES } from "@/lib/ai/taskTypes";
