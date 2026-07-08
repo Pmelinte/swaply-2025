@@ -78,15 +78,13 @@ export default function HomePageClient() {
         ))}
       </section>
 
-      {!user && (
-        <GuestExperienceSection
-          page="home"
-          title="See what Swaply can combine"
-          subtitle="Public visitors can understand mixed exchanges across objects, services, properties and events before creating an account. Real proposals and chat still require login."
-          ctaHref="/register"
-          ctaLabel={tGuest("bannerCta")}
-        />
-      )}
+      <GuestExperienceSection
+        page="home"
+        title="See what Swaply can combine"
+        subtitle="Public visitors can understand mixed exchanges across objects, services, properties and events before creating an account. Real proposals and chat still require login."
+        ctaHref={user ? "/objects" : "/register"}
+        ctaLabel={user ? tBranch("objects") : tGuest("bannerCta")}
+      />
 
       {/* ── 3. Benefits Banner (guest only) ── */}
       {!user && (
