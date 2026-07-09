@@ -170,8 +170,8 @@ test.describe("mobile public shell contract", () => {
       screenshotName("mobile-shell", "/en"),
     );
 
-    expect(status, "/en returned HTTP ${status}").toBeGreaterThanOrEqual(200);
-    expect(status, "/en returned HTTP ${status}").toBeLessThan(400);
+    expect(status, `/en returned HTTP ${status}`).toBeGreaterThanOrEqual(200);
+    expect(status, `/en returned HTTP ${status}`).toBeLessThan(400);
 
     await expectPublicShell(page);
   });
