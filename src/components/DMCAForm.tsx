@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { Send, CheckCircle2, AlertTriangle } from "lucide-react";
+import { SWAPLY_PUBLIC_BASE_URL, normalizePublicLegalCopy } from "@/lib/legal-copy";
 
 export function DMCAForm() {
   const t = useTranslations("legal");
@@ -55,9 +56,9 @@ export function DMCAForm() {
       <div className="flex flex-col items-center gap-3 py-8 text-center">
         <CheckCircle2 className="h-10 w-10 text-green-500" />
         <p className="text-sm font-semibold text-green-700 dark:text-green-300">
-          {t("dmcaFormSent")}
+          {normalizePublicLegalCopy(t("dmcaFormSent"))}
         </p>
-        <p className="text-xs text-zinc-500">{t("dmcaFormSentDesc")}</p>
+        <p className="text-xs text-zinc-500">{normalizePublicLegalCopy(t("dmcaFormSentDesc"))}</p>
       </div>
     );
   }
@@ -66,19 +67,19 @@ export function DMCAForm() {
     <div className="space-y-4">
       {/* Full Name */}
       <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">
-        {t("dmcaFieldName")}
+        {normalizePublicLegalCopy(t("dmcaFieldName"))}
         <input
           type="text"
           value={form.fullName}
           onChange={(e) => update("fullName", e.target.value)}
-          placeholder={t("dmcaFieldNamePlaceholder")}
+          placeholder={normalizePublicLegalCopy(t("dmcaFieldNamePlaceholder"))}
           className={`mt-1 ${inputCls}`}
         />
       </label>
 
       {/* Email */}
       <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">
-        {t("dmcaFieldEmail")}
+        {normalizePublicLegalCopy(t("dmcaFieldEmail"))}
         <input
           type="email"
           value={form.email}
@@ -90,23 +91,23 @@ export function DMCAForm() {
 
       {/* Infringing URL */}
       <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">
-        {t("dmcaFieldInfringingUrl")}
+        {normalizePublicLegalCopy(t("dmcaFieldInfringingUrl"))}
         <input
           type="url"
           value={form.infringingUrl}
           onChange={(e) => update("infringingUrl", e.target.value)}
-          placeholder="https://swaply.io/en/objects/..."
+          placeholder={`${SWAPLY_PUBLIC_BASE_URL}/en/objects/...`}
           className={`mt-1 ${inputCls}`}
         />
       </label>
 
       {/* Original Work Description */}
       <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">
-        {t("dmcaFieldOriginalWork")}
+        {normalizePublicLegalCopy(t("dmcaFieldOriginalWork"))}
         <textarea
           value={form.originalWorkDescription}
           onChange={(e) => update("originalWorkDescription", e.target.value)}
-          placeholder={t("dmcaFieldOriginalWorkPlaceholder")}
+          placeholder={normalizePublicLegalCopy(t("dmcaFieldOriginalWorkPlaceholder"))}
           rows={3}
           className={`mt-1 ${inputCls}`}
         />
@@ -114,7 +115,7 @@ export function DMCAForm() {
 
       {/* Original Work URL */}
       <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">
-        {t("dmcaFieldOriginalUrl")}
+        {normalizePublicLegalCopy(t("dmcaFieldOriginalUrl"))}
         <input
           type="url"
           value={form.originalWorkUrl}
@@ -122,7 +123,7 @@ export function DMCAForm() {
           placeholder="https://..."
           className={`mt-1 ${inputCls}`}
         />
-        <p className="mt-0.5 text-xs text-zinc-400">{t("dmcaFieldOptional")}</p>
+        <p className="mt-0.5 text-xs text-zinc-400">{normalizePublicLegalCopy(t("dmcaFieldOptional"))}</p>
       </label>
 
       {/* Perjury Declaration */}
@@ -133,7 +134,7 @@ export function DMCAForm() {
           onChange={(e) => update("perjuryDeclaration", e.target.checked)}
           className="mt-1 rounded"
         />
-        <span>{t("dmcaDeclarationPerjury")}</span>
+        <span>{normalizePublicLegalCopy(t("dmcaDeclarationPerjury"))}</span>
       </label>
 
       {/* Owner Declaration */}
@@ -144,7 +145,7 @@ export function DMCAForm() {
           onChange={(e) => update("ownerDeclaration", e.target.checked)}
           className="mt-1 rounded"
         />
-        <span>{t("dmcaDeclarationOwner")}</span>
+        <span>{normalizePublicLegalCopy(t("dmcaDeclarationOwner"))}</span>
       </label>
 
       {/* Submit */}
@@ -156,12 +157,14 @@ export function DMCAForm() {
           className="inline-flex items-center gap-2 rounded-full bg-red-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50"
         >
           <Send className="h-4 w-4" />
-          {status === "sending" ? t("dmcaFormSending") : t("dmcaFormSubmit")}
+          {status === "sending"
+            ? normalizePublicLegalCopy(t("dmcaFormSending"))
+            : normalizePublicLegalCopy(t("dmcaFormSubmit"))}
         </button>
         {status === "error" && (
           <span className="flex items-center gap-1 text-xs text-red-600">
             <AlertTriangle className="h-3.5 w-3.5" />
-            {t("dmcaFormError")}
+            {normalizePublicLegalCopy(t("dmcaFormError"))}
           </span>
         )}
       </div>
