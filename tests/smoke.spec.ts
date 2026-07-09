@@ -1,68 +1,94 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 
 const BASE_URL = process.env.BASE_URL ?? "http://localhost:3000";
 
+const PUBLIC_CANONICAL_ROUTES = [
+  { label: "home", path: "/en" },
+  { label: "objects", path: "/en/objects" },
+  { label: "explore", path: "/en/explore" },
+  { label: "matching", path: "/en/matching" },
+  { label: "messages", path: "/en/messages" },
+  { label: "exchange", path: "/en/exchange" },
+  { label: "chat", path: "/en/chat" },
+  { label: "properties", path: "/en/properties" },
+  { label: "services", path: "/en/services" },
+  { label: "events", path: "/en/events" },
+  { label: "blog", path: "/en/blog" },
+  { label: "about", path: "/en/about" },
+  { label: "contact", path: "/en/contact" },
+] as const;
+
+const LEGACY_ROUTE_REDIRECTS = [
+  { label: "match", from: "/en/match", to: /\/en\/matching(?:[/?#]|$)/ },
+  { label: "change", from: "/en/change", to: /\/en\/exchange(?:[/?#]|$)/ },
+] as const;
+
+const ADMIN_ROUTES = [
+  { label: "canonical", path: "/en/admin/canonical" },
+  { label: "flows", path: "/en/admin/flows" },
+  { label: "live-data", path: "/en/admin/live-data" },
+  { label: "matching-engine", path: "/en/admin/matching-engine" },
+] as const;
+
+function screenshotName(prefix: string, routePath: string) {
+  const routeLabel = routePath.replace(/^\/en\/?/, "") || "home";
+  return `test-results/${prefix}-${routeLabel.replaceAll("/", "-")}.png`;
+}
+
+async function gotoAndCapture(page: Page, routePath: string, screenshotPath: string) {
+  let status = 0;
+
+  try {
+    const response = await page.goto(`${BASE_URL}${routePath}`, { waitUntil: "domcontentloaded" });
+    status = response?.status() ?? 0;
+  } finally {
+    await page.screenshot({ path: screenshotPath, fullPage: true });
+  }
+
+  return status;
+}
+
 test.use({ viewport: { width: 1280, height: 800 } });
 
-test("home page renders", async ({ page }) => {
-  try {
-    await page.goto(`${BASE_URL}/en`, { waitUntil: "networkidle" });
-    await expect(page).toHaveURL(/\/en/);
-  } finally {
-    await page.screenshot({ path: "test-results/home.png", fullPage: true });
+test.describe("public route contract", () => {
+  for (const route of PUBLIC_CANONICAL_ROUTES) {
+    test(`${route.label} responds below 400`, async ({ page }) => {
+      const status = await gotoAndCapture(
+        page,
+        route.path,
+        screenshotName("public", route.path),
+      );
+
+      expect(status, `${route.path} returned HTTP ${status}`).toBeGreaterThanOrEqual(200);
+      expect(status, `${route.path} returned HTTP ${status}`).toBeLessThan(400);
+    });
   }
 });
 
-test("chat page renders (public demo)", async ({ page }) => {
-  try {
-    await page.goto(`${BASE_URL}/en/chat`, { waitUntil: "networkidle" });
-    await expect(page).toHaveURL(/\/en\/chat/);
-  } finally {
-    await page.screenshot({ path: "test-results/chat.png", fullPage: true });
+test.describe("legacy route redirect contract", () => {
+  for (const route of LEGACY_ROUTE_REDIRECTS) {
+    test(`${route.label} redirects to canonical route`, async ({ page }) => {
+      await gotoAndCapture(page, route.from, screenshotName("legacy", route.from));
+      await expect(page).toHaveURL(route.to, { timeout: 10_000 });
+    });
   }
+
+  test.fixme("/en/items should redirect to /en/objects", async ({ page }) => {
+    await gotoAndCapture(page, "/en/items", screenshotName("legacy-known-gap", "/en/items"));
+    await expect(page).toHaveURL(/\/en\/objects(?:[/?#]|$)/);
+  });
 });
 
-test("matching page renders (public demo)", async ({ page }) => {
-  try {
-    await page.goto(`${BASE_URL}/en/matching`, { waitUntil: "networkidle" });
-    await expect(page).toHaveURL(/\/en\/matching/);
-  } finally {
-    await page.screenshot({ path: "test-results/matching.png", fullPage: true });
-  }
-});
+test.describe("admin route guardrails", () => {
+  for (const route of ADMIN_ROUTES) {
+    test(`${route.label} does not server-error`, async ({ page }) => {
+      const status = await gotoAndCapture(
+        page,
+        route.path,
+        screenshotName("admin", route.path),
+      );
 
-test("admin canonical page has a response", async ({ page }) => {
-  try {
-    const response = await page.goto(`${BASE_URL}/en/admin/canonical`, { waitUntil: "networkidle" });
-    expect(response?.status() ?? 0).toBeLessThan(500);
-  } finally {
-    await page.screenshot({ path: "test-results/admin-canonical.png", fullPage: true });
-  }
-});
-
-test("admin flows page has a response", async ({ page }) => {
-  try {
-    const response = await page.goto(`${BASE_URL}/en/admin/flows`, { waitUntil: "networkidle" });
-    expect(response?.status() ?? 0).toBeLessThan(500);
-  } finally {
-    await page.screenshot({ path: "test-results/admin-flows.png", fullPage: true });
-  }
-});
-
-test("admin live data page has a response", async ({ page }) => {
-  try {
-    const response = await page.goto(`${BASE_URL}/en/admin/live-data`, { waitUntil: "networkidle" });
-    expect(response?.status() ?? 0).toBeLessThan(500);
-  } finally {
-    await page.screenshot({ path: "test-results/admin-live-data.png", fullPage: true });
-  }
-});
-
-test("admin matching engine page has a response", async ({ page }) => {
-  try {
-    const response = await page.goto(`${BASE_URL}/en/admin/matching-engine`, { waitUntil: "networkidle" });
-    expect(response?.status() ?? 0).toBeLessThan(500);
-  } finally {
-    await page.screenshot({ path: "test-results/admin-matching-engine.png", fullPage: true });
+      expect(status, `${route.path} returned HTTP ${status}`).toBeLessThan(500);
+    });
   }
 });
