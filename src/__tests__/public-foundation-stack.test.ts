@@ -9,6 +9,18 @@ import {
 } from "@/lib/public-foundation-stack/publicFoundationStackContent";
 import { PUBLIC_EXPERIENCE_PAGES } from "@/lib/public-pages/publicPageExperienceConfig";
 
+const DEFAULT_PUBLIC_FOUNDATION_PAGES = [
+  "home",
+  "objects",
+  "properties",
+  "services",
+  "events",
+  "explore",
+  "matching",
+  "messages",
+  "exchange",
+] as const;
+
 describe("public foundation stack UI content", () => {
   it("connects every public foundation card to an integration audit check", () => {
     const checkIds = new Set(INTEGRATION_AUDIT_V2_CHECKS.map((check) => check.id));
@@ -54,6 +66,30 @@ describe("public foundation stack UI content", () => {
 
       expect(summary.loginRequiredOnlyForRealActions).toBe(true);
       expect(summary.tracks.length, `${page} should expose at least one public foundation card`).toBeGreaterThan(0);
+    }
+  });
+
+  it("keeps AI advisory visible on every default public foundation stack page", () => {
+    for (const page of DEFAULT_PUBLIC_FOUNDATION_PAGES) {
+      expect(getPublicFoundationStackTrackIdsForPage(page, 5), `${page} should show AI as advisory`).toContain(
+        "ai_advisory",
+      );
+    }
+  });
+
+  it("keeps every public foundation card actionable through an internal route", () => {
+    for (const track of PUBLIC_FOUNDATION_STACK_TRACKS) {
+      expect(track.ctaHref, `${track.id} should use an internal CTA route`).toMatch(/^\//);
+      expect(track.ctaLabel.trim(), `${track.id} should have a visible CTA label`).not.toEqual("");
+    }
+  });
+
+  it("keeps the global fallback and safety tracks in the first five cards", () => {
+    for (const page of DEFAULT_PUBLIC_FOUNDATION_PAGES) {
+      const visibleTracks = getPublicFoundationStackTrackIdsForPage(page, 5);
+
+      expect(visibleTracks, `${page} should show language fallback`).toContain("language_fallback");
+      expect(visibleTracks, `${page} should show a login-gated safety or action card`).toContain("ai_advisory");
     }
   });
 });

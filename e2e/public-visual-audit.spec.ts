@@ -99,14 +99,24 @@ async function assertGuestExperienceIsVisible(page: Page, route: string) {
 async function assertFoundationStackIsVisible(page: Page, route: string) {
   if (!foundationStackRoutes.has(route)) return;
 
-  await expect(
-    page.getByTestId("foundation-stack-section").first(),
-    `${route} must explain the Batch 8-17 foundation stack publicly`,
-  ).toBeVisible();
+  const section = page.getByTestId("foundation-stack-section").first();
+  await expect(section, `${route} must explain the Batch 8-17 foundation stack publicly`).toBeVisible();
   await expect(
     page.getByTestId("foundation-stack-card").first(),
     `${route} must show at least one public foundation stack card`,
   ).toBeVisible();
+  await expect(
+    section.locator('[data-track-id="ai_advisory"]').first(),
+    `${route} must show that AI remains advisory`,
+  ).toBeVisible();
+  await expect(
+    section.locator('[data-login-required="true"]').first(),
+    `${route} must show that real actions stay login-gated`,
+  ).toBeVisible();
+  await expect(
+    page.getByTestId("foundation-stack-route-coverage").first(),
+    `${route} must explain route-level guardrail coverage`,
+  ).toContainText(/route guardrails visible/i);
 }
 
 async function assertDrawerIsHealthy(page: Page, route: string) {
