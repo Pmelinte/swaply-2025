@@ -17,6 +17,11 @@ import Script from "next/script";
 import { CookieConsent } from "@/components/CookieConsent";
 import { ConditionalAnalytics } from "@/components/ConditionalAnalytics";
 import { SWAPLY_PUBLIC_SUPPORT_EMAIL } from "@/lib/legal-copy";
+import {
+  SWAPLY_PUBLIC_BASE_URL,
+  buildPublicHreflangLanguages,
+  toSwaplyLocalizedPublicUrl,
+} from "@/lib/public-site";
 
 // ── Generate static params for top 5 locales only ──────────────────
 // Remaining locales are generated on-demand and cached via ISR.
@@ -30,15 +35,9 @@ export const dynamicParams = true;
 
 // ── Build hreflang alternates for every locale ──────────────────────
 function buildHreflangAlternates(locale: string, path: string) {
-  const baseUrl = "https://www.swaply.world";
-  const languages: Record<string, string> = {};
-  for (const loc of locales) {
-    languages[loc] = `${baseUrl}/${loc}${path}`;
-  }
-  languages["x-default"] = `${baseUrl}/en${path}`;
   return {
-    canonical: `${baseUrl}/${locale}${path}`,
-    languages,
+    canonical: toSwaplyLocalizedPublicUrl(locale, path),
+    languages: buildPublicHreflangLanguages(locales, path),
   };
 }
 
@@ -50,7 +49,7 @@ export const metadata: Metadata = {
   description:
     "Swaply connects people who want to swap objects, without money. Simple, local, transparent. AI matching, secure chat, complete swap flow.",
   manifest: "/manifest.json",
-  metadataBase: new URL("https://swaply.world"),
+  metadataBase: new URL(SWAPLY_PUBLIC_BASE_URL),
   openGraph: {
     type: "website",
     siteName: "Swaply",
@@ -132,8 +131,8 @@ export default async function LocaleLayout({ children, params }: Props) {
               "@context": "https://schema.org",
               "@type": "Organization",
               name: "Swaply",
-              url: "https://www.swaply.world",
-              logo: "https://www.swaply.world/logo-swaply.svg",
+              url: SWAPLY_PUBLIC_BASE_URL,
+              logo: `${SWAPLY_PUBLIC_BASE_URL}/logo-swaply.svg`,
               description:
                 "Global barter platform available in 43 languages. Swap objects, services and homes without money — locally or internationally.",
               areaServed: "Worldwide",
