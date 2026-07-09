@@ -1,4 +1,4 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect, type Locator, type Page } from "@playwright/test";
 
 const BASE_URL = process.env.BASE_URL ?? "http://localhost:3000";
 
@@ -51,7 +51,7 @@ async function gotoAndCapture(page: Page, routePath: string, screenshotPath: str
   return status;
 }
 
-async function isVisible(locator: ReturnType<Page["getByText"]>) {
+async function isVisible(locator: Locator) {
   return locator.first().isVisible({ timeout: 10_000 }).catch(() => false);
 }
 
