@@ -7,6 +7,7 @@ import {
   type GuestProofRegion,
 } from "@/lib/public-pages/publicGuestProof";
 import type { PublicExperiencePage } from "@/lib/public-pages/publicPageExperienceConfig";
+import { PublicFoundationStackSection } from "./PublicFoundationStackSection";
 
 const REGION_LABELS: Record<GuestProofRegion, string> = {
   europe: "Europe",
@@ -102,6 +103,8 @@ export function GuestExperienceSection({
           </article>
         ))}
       </div>
+
+      <PublicFoundationStackSection page={page} className="mt-5" />
     </section>
   );
 }
