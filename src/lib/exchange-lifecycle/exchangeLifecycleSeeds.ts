@@ -1,0 +1,100 @@
+import type { ExchangeLifecycleSnapshot } from "./exchangeLifecycleTypes";
+
+export const EXCHANGE_LIFECYCLE_EXAMPLES = [
+  {
+    exchangeId: "exchange-ready-to-complete",
+    status: "received",
+    logisticsMode: "national_courier",
+    participantConfirmations: [
+      {
+        userId: "demo-user-a",
+        acceptedTerms: true,
+        confirmedCondition: true,
+        confirmedLogistics: true,
+        confirmedReceived: true,
+        submittedFeedback: false,
+      },
+      {
+        userId: "demo-user-b",
+        acceptedTerms: true,
+        confirmedCondition: true,
+        confirmedLogistics: true,
+        confirmedReceived: true,
+        submittedFeedback: false,
+      },
+    ],
+    checklist: [
+      { key: "condition_confirmed", status: "confirmed", confirmedByUserIds: ["demo-user-a", "demo-user-b"] },
+      { key: "packaging_confirmed", status: "confirmed", confirmedByUserIds: ["demo-user-a"] },
+      { key: "handoff_or_shipment_confirmed", status: "confirmed", confirmedByUserIds: ["demo-user-a"] },
+      { key: "received_confirmed", status: "confirmed", confirmedByUserIds: ["demo-user-b"] },
+      { key: "feedback_requested", status: "pending", confirmedByUserIds: [] },
+    ],
+    itemIds: ["item-camera", "item-headphones"],
+    storyStatus: "not_started",
+  },
+  {
+    exchangeId: "exchange-missing-received",
+    status: "shipped",
+    logisticsMode: "international_courier",
+    participantConfirmations: [
+      {
+        userId: "demo-user-a",
+        acceptedTerms: true,
+        confirmedCondition: true,
+        confirmedLogistics: true,
+        confirmedReceived: false,
+        submittedFeedback: false,
+      },
+      {
+        userId: "demo-user-b",
+        acceptedTerms: true,
+        confirmedCondition: true,
+        confirmedLogistics: true,
+        confirmedReceived: false,
+        submittedFeedback: false,
+      },
+    ],
+    checklist: [
+      { key: "condition_confirmed", status: "confirmed", confirmedByUserIds: ["demo-user-a", "demo-user-b"] },
+      { key: "packaging_confirmed", status: "confirmed", confirmedByUserIds: ["demo-user-a"] },
+      { key: "handoff_or_shipment_confirmed", status: "confirmed", confirmedByUserIds: ["demo-user-a"] },
+      { key: "received_confirmed", status: "pending", confirmedByUserIds: [] },
+      { key: "feedback_requested", status: "pending", confirmedByUserIds: [] },
+    ],
+    itemIds: ["item-tablet", "item-lamp"],
+    storyStatus: "not_started",
+  },
+  {
+    exchangeId: "exchange-disputed-story-suspended",
+    status: "disputed",
+    logisticsMode: "local_handover",
+    participantConfirmations: [
+      {
+        userId: "demo-user-a",
+        acceptedTerms: true,
+        confirmedCondition: true,
+        confirmedLogistics: true,
+        confirmedReceived: false,
+        submittedFeedback: false,
+      },
+      {
+        userId: "demo-user-b",
+        acceptedTerms: true,
+        confirmedCondition: false,
+        confirmedLogistics: true,
+        confirmedReceived: false,
+        submittedFeedback: false,
+      },
+    ],
+    checklist: [
+      { key: "condition_confirmed", status: "pending", confirmedByUserIds: ["demo-user-a"] },
+      { key: "packaging_confirmed", status: "not_applicable", confirmedByUserIds: [] },
+      { key: "handoff_or_shipment_confirmed", status: "confirmed", confirmedByUserIds: ["demo-user-a", "demo-user-b"] },
+      { key: "received_confirmed", status: "pending", confirmedByUserIds: [] },
+      { key: "feedback_requested", status: "pending", confirmedByUserIds: [] },
+    ],
+    itemIds: ["item-chair", "item-toolbox"],
+    storyStatus: "suspended",
+  },
+] as const satisfies readonly ExchangeLifecycleSnapshot[];
