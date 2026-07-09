@@ -1,4 +1,8 @@
 import { describe, expect, it } from "vitest";
+import {
+  normalizePublicFoundationStackLocale,
+  resolvePublicFoundationStackCopyFallback,
+} from "@/lib/public-foundation-stack/publicFoundationStackCopyFallback";
 import { PUBLIC_FOUNDATION_STACK_TRACKS } from "@/lib/public-foundation-stack/publicFoundationStackContent";
 import type { PublicFoundationStackTrackId } from "@/lib/public-foundation-stack/publicFoundationStackTypes";
 
@@ -24,22 +28,18 @@ function getDefaultCopyTable(): CopyTable {
   }, {} as CopyTable);
 }
 
-function normalizeLocale(locale?: string | null) {
-  return locale?.toLowerCase().split("-")[0] || DEFAULT_LOCALE;
-}
-
 function resolveDiagnosticCopy(
   trackId: PublicFoundationStackTrackId,
   locale: string | null | undefined,
   localizedCopyByLocale: Record<string, PartialLocalizedCopyTable>,
 ): TrackCopy {
   const defaultCopyTable = getDefaultCopyTable();
-  const normalizedLocale = normalizeLocale(locale);
+  const normalizedLocale = normalizePublicFoundationStackLocale(locale);
 
-  return {
-    ...defaultCopyTable[trackId],
-    ...localizedCopyByLocale[normalizedLocale]?.[trackId],
-  };
+  return resolvePublicFoundationStackCopyFallback(
+    defaultCopyTable[trackId],
+    localizedCopyByLocale[normalizedLocale]?.[trackId],
+  );
 }
 
 describe("public foundation stack copy fallback diagnostic", () => {
@@ -55,6 +55,12 @@ describe("public foundation stack copy fallback diagnostic", () => {
         expect(defaultCopyTable[track.id][field].trim(), `${track.id}.${field} should not be blank`).not.toEqual("");
       }
     }
+  });
+
+  it("normalizes missing and regional locales to the fallback lookup key", () => {
+    expect(normalizePublicFoundationStackLocale()).toBe(DEFAULT_LOCALE);
+    expect(normalizePublicFoundationStackLocale("ro-RO")).toBe("ro");
+    expect(normalizePublicFoundationStackLocale("  DE-de  ")).toBe("de");
   });
 
   it("falls back field-by-field when a locale is incomplete", () => {
