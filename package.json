@@ -11,6 +11,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "test:e2e:public": "playwright test e2e/public-visual-audit.spec.ts --project=chromium",
+    "ci:quality": "npm run typecheck && npm run lint && npm run test && npm run build",
     "i18n:check": "node scripts/check-i18n-keys.mjs && node scripts/check-i18n-usage.mjs",
     "release:env": "node scripts/check-release-env.mjs",
     "update:images": "npx tsx scripts/update-demo-images.ts",
