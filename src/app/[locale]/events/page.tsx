@@ -222,7 +222,7 @@ export default function EventsPage() {
   const { favoriteIds: favorites, toggleFavorite } = useFavorites(user?.id);
   const t = useTranslations("objects");
   const tb = useTranslations("branches");
-  const te = useTranslations("events");
+  const tc = useTranslations("common");
 
   const [browseMode, setBrowseMode] = useState<BrowseMode>("grid");
   const [search, setSearch] = useState("");
@@ -288,6 +288,9 @@ export default function EventsPage() {
   }, [events, search, locationFilter]);
 
   const hasFilters = !!search || !!locationFilter;
+  const eventLabel = tb("events");
+  const addEventLabel = `${tc("add")} ${eventLabel}`;
+  const searchEventsPlaceholder = `${tc("search")} ${eventLabel}…`;
 
   return (
     <div>
@@ -299,7 +302,7 @@ export default function EventsPage() {
           <div>
             <div className="flex items-center gap-2">
               <CalendarDays className="h-6 w-6 text-amber-500" />
-              <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{tb("events")}</h1>
+              <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{eventLabel}</h1>
             </div>
             <p className="text-sm text-zinc-500 dark:text-zinc-400">{tb("eventsDesc")}</p>
           </div>
@@ -309,7 +312,7 @@ export default function EventsPage() {
               className="inline-flex items-center gap-1.5 rounded-xl bg-cat-evt px-3.5 py-2 text-sm font-semibold text-cat-evt-ink shadow-sm hover:bg-yellow-400"
             >
               <Plus className="h-4 w-4" />
-              Add event
+              {addEventLabel}
             </Link>
           </div>
         </div>
@@ -337,7 +340,7 @@ export default function EventsPage() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by title, category, location…"
+              placeholder={searchEventsPlaceholder}
               className="w-full rounded-xl border border-zinc-200 bg-white py-2 pl-10 pr-4 text-sm outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
             />
             {search && (
@@ -415,7 +418,7 @@ export default function EventsPage() {
 
         {!loading && (
           <p className="mb-3 text-xs text-zinc-400">
-            {filtered.length} events found
+            {filtered.length} {eventLabel}
           </p>
         )}
 
@@ -425,10 +428,10 @@ export default function EventsPage() {
               <>
                 <CalendarDays className="mb-4 h-12 w-12 text-zinc-300 dark:text-zinc-600" />
                 <p className="mb-1 text-base font-semibold text-zinc-700 dark:text-zinc-200">
-                  {t("emptyLoggedTitle")}
+                  {hasFilters ? t("emptyLoggedTitle") : eventLabel}
                 </p>
                 <p className="mb-4 max-w-sm text-center text-sm text-zinc-500 dark:text-zinc-400">
-                  {hasFilters ? t("emptyLoggedSubFilters") : t("emptyLoggedSub")}
+                  {hasFilters ? t("emptyLoggedSubFilters") : tb("eventsDesc")}
                 </p>
                 <div className="flex flex-wrap items-center gap-3">
                   {hasFilters && (
@@ -444,7 +447,7 @@ export default function EventsPage() {
                     className="inline-flex items-center gap-1.5 rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-600"
                   >
                     <Plus className="h-4 w-4" />
-                    Add event
+                    {addEventLabel}
                   </Link>
                 </div>
               </>
@@ -452,10 +455,10 @@ export default function EventsPage() {
               <>
                 <span className="mb-4 text-5xl">🎫</span>
                 <p className="mb-1 text-base font-semibold text-zinc-700 dark:text-zinc-200">
-                  {hasFilters ? t("emptyGuestTitleFiltered") : te("noEvents")}
+                  {hasFilters ? t("emptyGuestTitleFiltered") : eventLabel}
                 </p>
                 <p className="mb-5 max-w-sm text-center text-sm text-zinc-500 dark:text-zinc-400">
-                  {te("noEventsDesc")}
+                  {tb("eventsDesc")}
                 </p>
                 <Link
                   href="/register"
