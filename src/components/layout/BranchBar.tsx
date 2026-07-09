@@ -32,6 +32,7 @@ export function BranchBar() {
       <div className="mx-auto flex h-full max-w-6xl items-stretch px-2 sm:px-4">
         {TABS.map(({ href, emoji, labelKey, descKey, beta, activeClass, betaBg }) => {
           const active = isActive(href);
+          const label = t(labelKey);
           return (
             <Link
               key={href}
@@ -46,13 +47,13 @@ export function BranchBar() {
               <span className="text-base leading-none sm:text-lg" aria-hidden="true">
                 {emoji}
               </span>
-              <span className="hidden sm:inline">{t(labelKey)}</span>
-              {active && (
-                <span className="text-[10px] leading-none sm:hidden">{t(labelKey)}</span>
-              )}
+              <span className="hidden sm:inline">{label}</span>
+              <span className="text-[10px] leading-none sm:hidden">
+                {beta ? `${label} · Beta` : label}
+              </span>
               {beta && (
                 <span
-                  className={`rounded px-1 py-0.5 text-[9px] font-semibold uppercase leading-none ${
+                  className={`hidden rounded px-1 py-0.5 text-[9px] font-semibold uppercase leading-none sm:inline-flex ${
                     active ? betaBg : "bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-500"
                   }`}
                 >
