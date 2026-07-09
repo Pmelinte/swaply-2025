@@ -4,6 +4,7 @@ import Script from "next/script";
 import { getServerSupabase } from "@/lib/supabase/server";
 import { getTranslations } from "next-intl/server";
 import { translateFields, translateOnDemand } from "@/lib/translate-on-demand";
+import { getItemImageUrls } from "@/lib/item-image-src";
 import ObjectDetailClient from "./ObjectDetailClient";
 
 export const revalidate = 300;
@@ -66,8 +67,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const title = `${tTitle} — Swaply`;
   const description = tDesc;
-  const photos = item.images as string[] | null;
-  const image = photos?.[0] || undefined;
+  const image = getItemImageUrls(item.images)[0];
 
   return {
     title,
@@ -76,7 +76,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
       type: "website",
-      ...(image ? { images: [{ url: image, width: 1200, height: 630, alt: item.title as string }] } : {}),
+      ...(image ? { images: [{ url: image, width: 1200, height: 630, alt: String(item.title ?? "Swaply item") }] } : {}),
     },
     twitter: {
       card: image ? "summary_large_image" : "summary",
@@ -104,6 +104,7 @@ export default async function ObjectDetailPage({ params }: Props) {
   // Translate title + description for JSON-LD
   const tName = item ? await translateOnDemand(String(item.title ?? ""), locale, sourceLang) : "";
   const tDescription = item ? await translateOnDemand(String(item.description ?? "").slice(0, 500), locale, sourceLang) : "";
+  const images = item ? getItemImageUrls(item.images) : [];
 
   // JSON-LD structured data for SEO
   const jsonLd = item
@@ -113,7 +114,7 @@ export default async function ObjectDetailPage({ params }: Props) {
         name: tName,
         description: tDescription,
         category: item.category as string,
-        image: (item.images as string[] | null)?.[0] || undefined,
+        image: images[0] || undefined,
         offers: {
           "@type": "Offer",
           availability: "https://schema.org/InStock",
