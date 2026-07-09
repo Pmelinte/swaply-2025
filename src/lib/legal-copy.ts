@@ -1,4 +1,7 @@
-export const SWAPLY_PUBLIC_BASE_URL = "https://www.swaply.world";
+import { SWAPLY_PUBLIC_BASE_URL, SWAPLY_PUBLIC_DOMAIN } from "./public-site";
+
+export { SWAPLY_PUBLIC_BASE_URL, SWAPLY_PUBLIC_DOMAIN } from "./public-site";
+
 export const SWAPLY_PUBLIC_SUPPORT_EMAIL = "support@swaply.world";
 export const SWAPLY_PUBLIC_PRIVACY_EMAIL = "privacy@swaply.world";
 export const SWAPLY_PUBLIC_DPO_EMAIL = "dpo@swaply.world";
@@ -15,7 +18,7 @@ const PUBLIC_LEGAL_COPY_REPLACEMENTS = [
   ["legal@swaply.app", SWAPLY_PUBLIC_LEGAL_EMAIL],
   ["https://www.swaply.io", SWAPLY_PUBLIC_BASE_URL],
   ["https://swaply.io", SWAPLY_PUBLIC_BASE_URL],
-  ["www.swaply.io", "www.swaply.world"],
+  ["www.swaply.io", SWAPLY_PUBLIC_DOMAIN],
   ["swaply.io", "swaply.world"],
 ] as const;
 
