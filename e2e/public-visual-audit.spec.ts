@@ -12,6 +12,14 @@ const screenshotRoot = path.join(process.cwd(), "playwright-audit-screenshots");
 const publicRoutes = getPublicVisualAuditRoutes("en");
 const drawerAuditRoutes = getPublicDrawerAuditRoutes("en");
 
+const guestExperienceRoutes = new Set([
+  "/en",
+  "/en/objects",
+  "/en/properties",
+  "/en/services",
+  "/en/events",
+]);
+
 const contextualCopyRoutes = new Set([
   "/en/objects",
   "/en/properties",
@@ -64,6 +72,14 @@ async function assertPublicPageIsHealthy(page: Page, route: string) {
   }
 }
 
+async function assertGuestExperienceIsVisible(page: Page, route: string) {
+  if (!guestExperienceRoutes.has(route)) return;
+
+  const guestSection = page.getByText("Guest experience").first();
+  await expect(guestSection, `${route} must render public guest proof examples`).toBeVisible();
+  await expect(page.getByTestId("guest-proof-card").first(), `${route} must show at least one guest proof card`).toBeVisible();
+}
+
 async function assertDrawerIsHealthy(page: Page, route: string) {
   const drawer = page.getByRole("dialog", { name: /side drawer/i });
   await expect(drawer, `${route} drawer must be visible after hamburger click`).toBeVisible();
@@ -91,6 +107,7 @@ test.describe("Swaply public visual audit", () => {
       for (const route of publicRoutes) {
         test(`renders ${route}`, async ({ page }, testInfo) => {
           await assertPublicPageIsHealthy(page, route);
+          await assertGuestExperienceIsVisible(page, route);
 
           const filePath = screenshotPath(viewport.name, route);
           await page.screenshot({ path: filePath, fullPage: true, animations: "disabled" });
