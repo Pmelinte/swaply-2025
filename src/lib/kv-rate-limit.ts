@@ -19,6 +19,29 @@ interface RateLimitResult {
   remaining: number;
 }
 
+const REQUIRED_KV_ENV_KEYS = ["KV_REST_API_URL", "KV_REST_API_TOKEN"] as const;
+let hasWarnedKvRuntimeFailure = false;
+
+function isKvConfigured(): boolean {
+  return REQUIRED_KV_ENV_KEYS.every((key) => Boolean(process.env[key]));
+}
+
+function shouldUseKv(): boolean {
+  // Vitest mocks @vercel/kv without real env vars. Keep that path active in tests.
+  return process.env.NODE_ENV === "test" || isKvConfigured();
+}
+
+function inMemoryResult(
+  identifier: string,
+  { limit, windowSeconds }: Required<RateLimitOptions>,
+): RateLimitResult {
+  const { allowed, remaining } = inMemoryRateLimit(identifier, {
+    limit,
+    windowMs: windowSeconds * 1000,
+  });
+  return { success: allowed, remaining };
+}
+
 /**
  * Check and update the rate limit for the given identifier.
  *
@@ -29,6 +52,12 @@ export async function kvRateLimit(
   identifier: string,
   { limit = 20, windowSeconds = 60 }: RateLimitOptions = {},
 ): Promise<RateLimitResult> {
+  const resolvedOptions = { limit, windowSeconds };
+
+  if (!shouldUseKv()) {
+    return inMemoryResult(identifier, resolvedOptions);
+  }
+
   try {
     const key = `rl:${identifier}`;
 
@@ -43,13 +72,12 @@ export async function kvRateLimit(
     const remaining = Math.max(0, limit - count);
     return { success: count <= limit, remaining };
   } catch (err) {
-    // KV unavailable (local dev, misconfigured, etc.) — fall back to in-memory
-    console.warn("[kv-rate-limit] KV unavailable, using in-memory fallback:", (err as Error).message);
-    const { allowed, remaining } = inMemoryRateLimit(identifier, {
-      limit,
-      windowMs: windowSeconds * 1000,
-    });
-    return { success: allowed, remaining };
+    // KV runtime failure — fall back to in-memory and warn only once to avoid log spam.
+    if (!hasWarnedKvRuntimeFailure) {
+      console.warn("[kv-rate-limit] KV unavailable, using in-memory fallback:", (err as Error).message);
+      hasWarnedKvRuntimeFailure = true;
+    }
+    return inMemoryResult(identifier, resolvedOptions);
   }
 }
 

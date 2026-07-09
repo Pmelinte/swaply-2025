@@ -94,7 +94,6 @@ export async function translateText(
   // (and they are part of the public contract tested in translate.test.ts).
   if (!text.trim()) return null;
   if (targetLang === sourceLang) return text;
-  console.warn("[translate] disabled");
   return null;
 }
 
