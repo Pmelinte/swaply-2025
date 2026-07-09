@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import type { ReactNode } from "react";
 import { buildRouteAlternates } from "@/lib/seo/route-alternates";
 
 type Props = {
-  children: ReactNode;
+  children: React.ReactNode;
   params: Promise<{ locale: string }>;
 };
 
@@ -11,12 +10,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
 
   return {
-    title: "Matching — Swaply",
-    description: "Find your perfect swap partners",
-    alternates: buildRouteAlternates(locale, "/matching"),
+    alternates: buildRouteAlternates(locale, "/services"),
   };
 }
 
-export default function MatchingLayout({ children }: Props) {
-  return <>{children}</>;
+export default function ServicesLayout({ children }: Props) {
+  return children;
 }
