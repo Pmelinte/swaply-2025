@@ -3,6 +3,7 @@ import { getAllPosts } from "@/lib/blog";
 import { getServiceSupabase } from "@/lib/supabase/service";
 import { locales } from "@/i18n/config";
 import { SEO_CITIES, SEO_CATEGORIES } from "@/lib/seo-data";
+import { getPublicSitemapAuditEntries, toSitemapPath } from "@/lib/public-pages/publicRouteAudit";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 3600; // re-generate at most every hour
@@ -33,20 +34,12 @@ function localizedEntry(
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const staticHigh = [
-    ...localizedEntry("", { changeFrequency: "daily", priority: 1 }),
-    ...localizedEntry("/about", { changeFrequency: "monthly", priority: 1 }),
-    ...localizedEntry("/pricing", { changeFrequency: "monthly", priority: 1 }),
-    ...localizedEntry("/info", { changeFrequency: "weekly", priority: 1 }),
-    ...localizedEntry("/blog", { changeFrequency: "weekly", priority: 1 }),
-  ];
-
-  const staticMedium = [
-    ...localizedEntry("/terms", { changeFrequency: "monthly", priority: 0.8 }),
-    ...localizedEntry("/privacy", { changeFrequency: "monthly", priority: 0.8 }),
-    ...localizedEntry("/safety", { changeFrequency: "monthly", priority: 0.8 }),
-    ...localizedEntry("/cookies", { changeFrequency: "monthly", priority: 0.8 }),
-  ];
+  const staticPublicRoutes = getPublicSitemapAuditEntries().flatMap((entry) =>
+    localizedEntry(toSitemapPath(entry.path), {
+      changeFrequency: entry.sitemapChangeFrequency,
+      priority: entry.sitemapPriority,
+    }),
+  );
 
   // Blog posts from MDX files
   const blogPosts = getAllPosts().flatMap((post) =>
@@ -145,8 +138,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   return [
-    ...staticHigh,
-    ...staticMedium,
+    ...staticPublicRoutes,
     ...categoryPages,
     ...cityPages,
     ...categoryCityPages,
