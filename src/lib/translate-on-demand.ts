@@ -4,6 +4,11 @@ import "server-only";
 // (21M tokens / ~$76 spike Apr 8-11). Re-enable only after RCA.
 // Original implementation (with Claude Haiku translation + Supabase
 // cache) preserved in git history — revert this commit to restore.
+//
+// Runtime note:
+// This fallback must stay silent. It can be called many times while
+// rendering localized public pages, so logging the intentionally disabled
+// state creates noisy Vercel warnings even though the page is healthy.
 
 export async function translateOnDemand(
   text: string,
@@ -13,7 +18,9 @@ export async function translateOnDemand(
   // Short-circuits that never hit the API are preserved.
   if (!text.trim()) return text;
   if (targetLang === sourceLang) return text;
-  console.warn("[translate-on-demand] disabled");
+
+  // Translation is intentionally disabled. Return the original text as the
+  // safe fallback without emitting runtime warnings.
   return text;
 }
 
