@@ -23,11 +23,28 @@ const publicRoutes = [
 ];
 
 const contextualDrawerRoutes = [
+  "/en/objects",
+  "/en/properties",
+  "/en/services",
+  "/en/events",
   "/en/explore",
   "/en/matching",
   "/en/messages",
   "/en/exchange",
+  "/en/blog",
 ];
+
+const contextualCopyRoutes = new Set([
+  "/en/objects",
+  "/en/properties",
+  "/en/services",
+  "/en/events",
+  "/en/messages",
+  "/en/exchange",
+  "/en/blog",
+]);
+
+const bottomNavHrefs = new Set(["/en", "/en/explore", "/en/matching", "/en/messages", "/en/exchange"]);
 
 const viewports = [
   { name: "desktop", width: 1440, height: 1100 },
@@ -62,6 +79,25 @@ async function assertPublicPageIsHealthy(page: Page, route: string) {
   );
 }
 
+async function assertDrawerIsHealthy(page: Page, route: string) {
+  const drawer = page.getByRole("dialog", { name: /side drawer/i });
+  await expect(drawer, `${route} drawer must be visible after hamburger click`).toBeVisible();
+
+  if (contextualCopyRoutes.has(route)) {
+    await expect(drawer, `${route} drawer must expose contextual menu copy`).toContainText(/Context Menu|Menu contextual/i);
+  }
+
+  const drawerLinks = await drawer.locator("a[href]").evaluateAll((links) =>
+    links
+      .map((link) => link.getAttribute("href"))
+      .filter((href): href is string => Boolean(href)),
+  );
+
+  for (const href of drawerLinks) {
+    expect(bottomNavHrefs.has(href), `${route} drawer must not duplicate bottom nav href ${href}`).toBe(false);
+  }
+}
+
 test.describe("Swaply public visual audit", () => {
   for (const viewport of viewports) {
     test.describe(viewport.name, () => {
@@ -82,16 +118,14 @@ test.describe("Swaply public visual audit", () => {
     });
   }
 
-  test.describe("contextual drawers", () => {
+  test.describe("drawers", () => {
     test.use({ viewport: { width: 1440, height: 1100 } });
 
     for (const route of contextualDrawerRoutes) {
-      test(`opens drawer on ${route}`, async ({ page }, testInfo) => {
+      test(`opens route-specific drawer on ${route}`, async ({ page }, testInfo) => {
         await assertPublicPageIsHealthy(page, route);
         await page.getByLabel("Open menu").first().click();
-
-        const drawer = page.getByRole("dialog", { name: /side drawer/i });
-        await expect(drawer, `${route} drawer must be visible after hamburger click`).toBeVisible();
+        await assertDrawerIsHealthy(page, route);
 
         const filePath = screenshotPath("drawer", route);
         await page.screenshot({ path: filePath, fullPage: true, animations: "disabled" });

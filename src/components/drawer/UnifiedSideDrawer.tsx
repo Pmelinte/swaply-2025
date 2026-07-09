@@ -2,82 +2,14 @@
 
 import { useEffect, useMemo } from "react";
 import { usePathname } from "@/i18n/navigation";
-import { locales } from "@/i18n/config";
 import { useDrawerStore, type DrawerVariant } from "@/lib/state/drawerStore";
+import { getDrawerVariantForPathname } from "@/lib/drawer/routeToDrawerVariant";
 import DrawerHome from "./variants/DrawerHome";
 import DrawerChat from "./variants/DrawerChat";
 import DrawerExplore from "./variants/DrawerExplore";
 import DrawerMatching from "./variants/DrawerMatching";
 import DrawerExchange from "./variants/DrawerExchange";
 import DrawerContextualPage from "./variants/DrawerContextualPage";
-
-/**
- * Defensive locale strip. next-intl's usePathname from our wrapper is
- * supposed to return a pathname without the locale prefix, but different
- * combinations of next-intl / next versions have been observed leaking it
- * through. This keeps the matcher correct regardless of which shape we get.
- *
- * Uses the declared locales list (handles 2-char AND 3-char locales like `fil`).
- */
-function stripLocale(p: string): string {
-  const segments = p.split("/");
-  if (
-    segments.length > 1 &&
-    (locales as readonly string[]).includes(segments[1])
-  ) {
-    const rest = "/" + segments.slice(2).join("/");
-    return rest === "/" ? "/" : rest;
-  }
-  return p;
-}
-
-/**
- * Derives a fallback drawer variant from the current pathname so the drawer
- * shows sensible content even if a page opened it without calling openWith().
- *
- * Conversation/exchange detail pages may still pass richer variants with ids.
- * Major public pages get contextual variants so the hamburger is not a
- * duplicated global navigation menu.
- */
-function variantFromPath(rawPath: string): DrawerVariant {
-  const pathname = stripLocale(rawPath);
-
-  if (pathname === "/objects" || pathname.startsWith("/objects/")) {
-    return { type: "contextual", page: "objects" };
-  }
-  if (pathname === "/properties" || pathname.startsWith("/properties/")) {
-    return { type: "contextual", page: "properties" };
-  }
-  if (pathname === "/services" || pathname.startsWith("/services/")) {
-    return { type: "contextual", page: "services" };
-  }
-  if (pathname === "/events" || pathname.startsWith("/events/")) {
-    return { type: "contextual", page: "events" };
-  }
-  if (pathname === "/matching" || pathname.startsWith("/matching/")) {
-    return { type: "matching" };
-  }
-  if (pathname === "/messages" || pathname.startsWith("/messages/")) {
-    return { type: "contextual", page: "messages" };
-  }
-  if (pathname === "/chat" || pathname.startsWith("/chat/")) {
-    return { type: "contextual", page: "chat" };
-  }
-  if (pathname === "/exchange") {
-    return { type: "contextual", page: "exchange" };
-  }
-  if (pathname === "/explore" || pathname.startsWith("/explore/")) {
-    return { type: "explore" };
-  }
-  if (pathname === "/blog" || pathname.startsWith("/blog/")) {
-    return { type: "contextual", page: "blog" };
-  }
-  if (pathname === "/stories" || pathname.startsWith("/stories/")) {
-    return { type: "contextual", page: "stories" };
-  }
-
-  return { type: "home" };
-}
 
 export function UnifiedSideDrawer() {
   const pathname = usePathname();
@@ -91,8 +23,8 @@ export function UnifiedSideDrawer() {
     if (storedVariant?.type === "chat" || storedVariant?.type === "exchange") {
       return storedVariant;
     }
-    // For every other case the current path determines which drawer to show.
-    return variantFromPath(pathname);
+
+    return getDrawerVariantForPathname(pathname);
   }, [storedVariant, pathname]);
 
   // Close on Escape

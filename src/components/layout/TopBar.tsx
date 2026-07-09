@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { ChevronDown, LogOut, Globe, Search, User, Settings, Menu } from "lucide-react";
 import { useDrawerStore } from "@/lib/state/drawerStore";
+import { getDrawerVariantForPathname } from "@/lib/drawer/routeToDrawerVariant";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -44,6 +45,10 @@ export function TopBar() {
   const [langOpen, setLangOpen] = useState(false);
   const [langSearch, setLangSearch] = useState("");
   const langRef = useRef<HTMLDivElement>(null);
+
+  const openContextualDrawer = useCallback(() => {
+    useDrawerStore.getState().openWith(getDrawerVariantForPathname(pathname));
+  }, [pathname]);
 
   // Country state – persisted independently of locale
   const [country, setCountryState] = useState<string>(() => {
@@ -143,7 +148,7 @@ export function TopBar() {
       const deltaX = e.changedTouches[0].clientX - startX;
       const deltaY = e.changedTouches[0].clientY - startY;
       if (startX < 20 && deltaX > 60 && Math.abs(deltaX) > Math.abs(deltaY)) {
-        useDrawerStore.getState().openWith({ type: "home" });
+        useDrawerStore.getState().openWith(getDrawerVariantForPathname(pathname));
       }
     };
 
@@ -154,7 +159,7 @@ export function TopBar() {
       document.removeEventListener("touchstart", onTouchStart);
       document.removeEventListener("touchend", onTouchEnd);
     };
-  }, []);
+  }, [pathname]);
 
   return (
     <>
@@ -164,7 +169,7 @@ export function TopBar() {
         <div className="flex items-center gap-3">
           <button
             type="button"
-            onClick={() => useDrawerStore.getState().openWith({ type: "home" })}
+            onClick={openContextualDrawer}
             className="inline-flex items-center justify-center rounded-lg p-1.5 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
             aria-label="Open menu"
           >
