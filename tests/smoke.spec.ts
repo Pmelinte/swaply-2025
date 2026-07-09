@@ -1,4 +1,4 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect, type Locator, type Page } from "@playwright/test";
 
 const BASE_URL = process.env.BASE_URL ?? "http://localhost:3000";
 
@@ -31,6 +31,8 @@ const ADMIN_ROUTES = [
   { label: "matching-engine", path: "/en/admin/matching-engine" },
 ] as const;
 
+const ADMIN_DIAGNOSTIC_ROUTE = { label: "diagnostic", path: "/en/admin/diagnostic" } as const;
+
 function screenshotName(prefix: string, routePath: string) {
   const routeLabel = routePath.replace(/^\/en\/?/, "") || "home";
   return `test-results/${prefix}-${routeLabel.replaceAll("/", "-")}.png`;
@@ -47,6 +49,10 @@ async function gotoAndCapture(page: Page, routePath: string, screenshotPath: str
   }
 
   return status;
+}
+
+async function isVisible(locator: Locator) {
+  return locator.first().isVisible({ timeout: 10_000 }).catch(() => false);
 }
 
 test.use({ viewport: { width: 1280, height: 800 } });
@@ -87,4 +93,32 @@ test.describe("admin route guardrails", () => {
       expect(status, `${route.path} returned HTTP ${status}`).toBeLessThan(500);
     });
   }
+});
+
+test.describe("admin diagnostic route contract", () => {
+  test("diagnostic is reachable or safely guarded", async ({ page }) => {
+    const status = await gotoAndCapture(
+      page,
+      ADMIN_DIAGNOSTIC_ROUTE.path,
+      screenshotName("admin", ADMIN_DIAGNOSTIC_ROUTE.path),
+    );
+
+    expect(
+      status,
+      `${ADMIN_DIAGNOSTIC_ROUTE.path} returned HTTP ${status}`,
+    ).toBeGreaterThanOrEqual(200);
+    expect(status, `${ADMIN_DIAGNOSTIC_ROUTE.path} returned HTTP ${status}`).toBeLessThan(500);
+
+    await expect(page).toHaveURL(/\/en\/(?:admin\/diagnostic|login)(?:[/?#]|$)/, { timeout: 10_000 });
+
+    const diagnosticVisible = await isVisible(page.getByText("Swaply diagnostic"));
+    const guardVisible = await isVisible(
+      page.getByText(/authenticate|access restricted|auth required|login|sign in/i),
+    );
+
+    expect(
+      diagnosticVisible || guardVisible,
+      "admin diagnostic must render either the diagnostic dashboard or a safe auth/access guard",
+    ).toBe(true);
+  });
 });
