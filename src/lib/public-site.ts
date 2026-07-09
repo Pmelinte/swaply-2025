@@ -1,5 +1,6 @@
 export const SWAPLY_PUBLIC_DOMAIN = "www.swaply.world";
 export const SWAPLY_PUBLIC_BASE_URL = `https://${SWAPLY_PUBLIC_DOMAIN}`;
+export const SWAPLY_PUBLIC_DEFAULT_LOCALE = "en";
 
 export function normalizePublicPath(path = "") {
   if (path === "" || path === "/") return path === "/" ? "/" : "";
@@ -17,12 +18,19 @@ export function toSwaplyLocalizedPublicUrl(locale: string, path = "") {
   return `${SWAPLY_PUBLIC_BASE_URL}/${locale}${localizedPath}`;
 }
 
+export function toSwaplyXDefaultPublicUrl(path = "") {
+  const normalizedPath = normalizePublicPath(path);
+  return toSwaplyPublicUrl(normalizedPath);
+}
+
 export function buildPublicHreflangLanguages(locales: readonly string[], path = "") {
   const normalizedPath = normalizePublicPath(path);
   const localizedPath = normalizedPath === "/" ? "" : normalizedPath;
 
   return Object.fromEntries([
     ...locales.map((locale) => [locale, toSwaplyLocalizedPublicUrl(locale, localizedPath)]),
-    ["x-default", toSwaplyLocalizedPublicUrl("en", localizedPath)],
+    // x-default is the public fallback URL without a locale prefix.
+    // The locale middleware then routes visitors to the best localized page.
+    ["x-default", toSwaplyXDefaultPublicUrl(localizedPath)],
   ]);
 }
