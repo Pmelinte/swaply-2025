@@ -7,6 +7,15 @@ import {
   PUBLIC_FOUNDATION_STACK_TRACKS,
   REQUIRED_PUBLIC_FOUNDATION_TRACKS,
 } from "@/lib/public-foundation-stack/publicFoundationStackContent";
+import {
+  getPublicFoundationStackCopyStatus,
+  getPublicFoundationStackCopyStatuses,
+  getPublicFoundationStackTrackCopy,
+  PUBLIC_FOUNDATION_STACK_COPY_FIELDS,
+  PUBLIC_FOUNDATION_STACK_DEFAULT_COPY,
+  PUBLIC_FOUNDATION_STACK_DEFAULT_LOCALE,
+} from "@/lib/public-foundation-stack/publicFoundationStackCopy";
+import type { PublicFoundationStackTrackId } from "@/lib/public-foundation-stack/publicFoundationStackTypes";
 import { PUBLIC_EXPERIENCE_PAGES } from "@/lib/public-pages/publicPageExperienceConfig";
 
 const DEFAULT_PUBLIC_FOUNDATION_PAGES = [
@@ -90,6 +99,43 @@ describe("public foundation stack UI content", () => {
 
       expect(visibleTracks, `${page} should show language fallback`).toContain("language_fallback");
       expect(visibleTracks, `${page} should show a login-gated safety or action card`).toContain("ai_advisory");
+    }
+  });
+
+  it("keeps every foundation track connected to default copy", () => {
+    const trackIds = new Set(PUBLIC_FOUNDATION_STACK_TRACKS.map((track) => track.id));
+    const copyIds = new Set(Object.keys(PUBLIC_FOUNDATION_STACK_DEFAULT_COPY));
+
+    expect(copyIds).toEqual(trackIds);
+
+    for (const trackId of trackIds) {
+      const copy = getPublicFoundationStackTrackCopy(trackId as PublicFoundationStackTrackId);
+
+      for (const field of PUBLIC_FOUNDATION_STACK_COPY_FIELDS) {
+        expect(copy[field].trim(), `${trackId}.${field} should have fallback copy`).not.toEqual("");
+      }
+    }
+  });
+
+  it("falls back to English copy when a requested locale is not ready", () => {
+    for (const track of PUBLIC_FOUNDATION_STACK_TRACKS) {
+      const defaultCopy = getPublicFoundationStackTrackCopy(track.id, PUBLIC_FOUNDATION_STACK_DEFAULT_LOCALE);
+      const romanianFallbackCopy = getPublicFoundationStackTrackCopy(track.id, "ro-RO");
+      const romanianFallbackStatus = getPublicFoundationStackCopyStatus(track.id, "ro-RO");
+
+      expect(romanianFallbackCopy).toEqual(defaultCopy);
+      expect(romanianFallbackStatus.usesDefaultFallback).toBe(true);
+      expect(romanianFallbackStatus.missingFields).toEqual([...PUBLIC_FOUNDATION_STACK_COPY_FIELDS]);
+    }
+  });
+
+  it("reports no missing copy fields for the default locale", () => {
+    const statuses = getPublicFoundationStackCopyStatuses(PUBLIC_FOUNDATION_STACK_DEFAULT_LOCALE);
+
+    expect(statuses).toHaveLength(PUBLIC_FOUNDATION_STACK_TRACKS.length);
+    for (const status of statuses) {
+      expect(status.usesDefaultFallback).toBe(false);
+      expect(status.missingFields).toEqual([]);
     }
   });
 });
