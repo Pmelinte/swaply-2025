@@ -18,6 +18,8 @@ const PUBLIC_CANONICAL_ROUTES = [
   { label: "contact", path: "/en/contact" },
 ] as const;
 
+const PUBLIC_SHELL_ROUTES = PUBLIC_CANONICAL_ROUTES;
+
 const LEGACY_ROUTE_REDIRECTS = [
   { label: "match", from: "/en/match", to: /\/en\/matching(?:[/?#]|$)/ },
   { label: "change", from: "/en/change", to: /\/en\/exchange(?:[/?#]|$)/ },
@@ -32,6 +34,27 @@ const ADMIN_ROUTES = [
 ] as const;
 
 const ADMIN_DIAGNOSTIC_ROUTE = { label: "diagnostic", path: "/en/admin/diagnostic" } as const;
+
+const BRANCH_NAV_LINKS = [
+  { label: "objects", href: "/en/objects", name: /Objects/i },
+  { label: "properties", href: "/en/properties", name: /Properties/i },
+  { label: "services", href: "/en/services", name: /Services/i },
+  { label: "events", href: "/en/events", name: /Events/i },
+] as const;
+
+const BOTTOM_NAV_LINKS = [
+  { label: "home", href: "/en", name: /Home/i },
+  { label: "explore", href: "/en/explore", name: /Explore/i },
+  { label: "matching", href: "/en/matching", name: /Matching/i },
+  { label: "messages", href: "/en/messages", name: /Messages/i },
+  { label: "exchange", href: "/en/exchange", name: /Exchange/i },
+] as const;
+
+const DRAWER_INFO_LINKS = [
+  { label: "about", href: "/en/about", name: /About Swaply/i },
+  { label: "blog", href: "/en/blog", name: /Blog/i },
+  { label: "contact", href: "/en/contact", name: /Contact/i },
+] as const;
 
 function screenshotName(prefix: string, routePath: string) {
   const routeLabel = routePath.replace(/^\/en\/?/, "") || "home";
@@ -55,6 +78,54 @@ async function isVisible(locator: Locator) {
   return locator.first().isVisible({ timeout: 10_000 }).catch(() => false);
 }
 
+type LocatorScope = Page | Locator;
+
+function linkByHref(scope: LocatorScope, href: string) {
+  return scope.locator(`a[href="${href}"]`);
+}
+
+async function expectVisibleLink(scope: LocatorScope, href: string, name: RegExp, label: string) {
+  const link = linkByHref(scope, href).filter({ hasText: name }).first();
+  await expect(link, `${label} link (${href}) should be visible`).toBeVisible({ timeout: 10_000 });
+}
+
+async function expectPublicShell(page: Page) {
+  await expect(
+    page.locator('a[href="/en"][title="Swaply"]').first(),
+    "Swaply top-logo home link should be visible",
+  ).toBeVisible({ timeout: 10_000 });
+
+  const drawerTrigger = page.getByRole("button", { name: "Open menu" });
+  await expect(drawerTrigger, "drawer trigger should be visible").toBeVisible({ timeout: 10_000 });
+
+  await expect(
+    page.getByRole("link", { name: "Login" }).first(),
+    "logged-out login CTA should be visible",
+  ).toBeVisible({ timeout: 10_000 });
+
+  const branchNav = page.getByRole("navigation", { name: "Branch navigation" });
+  await expect(branchNav, "branch navigation should be visible").toBeVisible({ timeout: 10_000 });
+
+  for (const link of BRANCH_NAV_LINKS) {
+    await expectVisibleLink(branchNav, link.href, link.name, `branch nav ${link.label}`);
+  }
+
+  const bottomNav = page.getByRole("navigation", { name: "Main navigation" });
+  await expect(bottomNav, "bottom navigation should be visible").toBeVisible({ timeout: 10_000 });
+
+  for (const link of BOTTOM_NAV_LINKS) {
+    await expectVisibleLink(bottomNav, link.href, link.name, `bottom nav ${link.label}`);
+  }
+
+  await drawerTrigger.click();
+  const drawer = page.getByRole("dialog", { name: "Side drawer" });
+  await expect(drawer, "side drawer should open").toBeVisible({ timeout: 10_000 });
+
+  for (const link of DRAWER_INFO_LINKS) {
+    await expectVisibleLink(drawer, link.href, link.name, `drawer ${link.label}`);
+  }
+}
+
 test.use({ viewport: { width: 1280, height: 800 } });
 
 test.describe("public route contract", () => {
@@ -68,6 +139,23 @@ test.describe("public route contract", () => {
 
       expect(status, `${route.path} returned HTTP ${status}`).toBeGreaterThanOrEqual(200);
       expect(status, `${route.path} returned HTTP ${status}`).toBeLessThan(400);
+    });
+  }
+});
+
+test.describe("public shell contract", () => {
+  for (const route of PUBLIC_SHELL_ROUTES) {
+    test(`${route.label} renders global shell`, async ({ page }) => {
+      const status = await gotoAndCapture(
+        page,
+        route.path,
+        screenshotName("shell", route.path),
+      );
+
+      expect(status, `${route.path} returned HTTP ${status}`).toBeGreaterThanOrEqual(200);
+      expect(status, `${route.path} returned HTTP ${status}`).toBeLessThan(400);
+
+      await expectPublicShell(page);
     });
   }
 });
