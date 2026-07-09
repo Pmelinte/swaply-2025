@@ -1,17 +1,20 @@
 import { describe, expect, it } from "vitest";
 import {
   SWAPLY_PUBLIC_BASE_URL,
+  SWAPLY_PUBLIC_DEFAULT_LOCALE,
   SWAPLY_PUBLIC_DOMAIN,
   buildPublicHreflangLanguages,
   normalizePublicPath,
   toSwaplyLocalizedPublicUrl,
   toSwaplyPublicUrl,
+  toSwaplyXDefaultPublicUrl,
 } from "@/lib/public-site";
 
 describe("canonical public site helpers", () => {
   it("keeps the canonical public domain on www.swaply.world", () => {
     expect(SWAPLY_PUBLIC_DOMAIN).toBe("www.swaply.world");
     expect(SWAPLY_PUBLIC_BASE_URL).toBe("https://www.swaply.world");
+    expect(SWAPLY_PUBLIC_DEFAULT_LOCALE).toBe("en");
   });
 
   it("normalizes public paths without duplicating slashes", () => {
@@ -36,11 +39,18 @@ describe("canonical public site helpers", () => {
     expect(toSwaplyLocalizedPublicUrl("de", "/privacy")).toBe("https://www.swaply.world/de/privacy");
   });
 
-  it("builds hreflang language maps with x-default", () => {
+  it("builds non-localized x-default public URLs", () => {
+    expect(toSwaplyXDefaultPublicUrl()).toBe("https://www.swaply.world");
+    expect(toSwaplyXDefaultPublicUrl("/")).toBe("https://www.swaply.world");
+    expect(toSwaplyXDefaultPublicUrl("objects")).toBe("https://www.swaply.world/objects");
+    expect(toSwaplyXDefaultPublicUrl("/privacy")).toBe("https://www.swaply.world/privacy");
+  });
+
+  it("builds hreflang language maps with a non-localized x-default fallback", () => {
     expect(buildPublicHreflangLanguages(["en", "ro"], "/privacy")).toEqual({
       en: "https://www.swaply.world/en/privacy",
       ro: "https://www.swaply.world/ro/privacy",
-      "x-default": "https://www.swaply.world/en/privacy",
+      "x-default": "https://www.swaply.world/privacy",
     });
   });
 });
