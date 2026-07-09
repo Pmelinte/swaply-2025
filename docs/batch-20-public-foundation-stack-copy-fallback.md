@@ -1,10 +1,10 @@
-# Batch 20 — Public foundation stack copy fallback
+# Batch 20 — Public foundation stack copy fallback contract
 
 ## Goal
 
-Batch 20 prepares the public foundation stack copy for localization without making public routes depend on completed translations.
+Batch 20 documents a safe localization fallback contract for the public foundation stack without adding new runtime code.
 
-The public UI still renders the same English copy from the existing runtime config. A separate fallback contract now mirrors that copy and can be used by tests and future localization work. This keeps Batch 20 build-safe while giving future batches a controlled place to add localized entries.
+The public UI still renders the same English copy from the existing runtime config. This documentation captures the fallback rules that future batches can implement once the build path is proven safe.
 
 ## Safety boundaries
 
@@ -20,23 +20,30 @@ The public UI still renders the same English copy from the existing runtime conf
 - No real action without login.
 - No new runtime translation provider.
 - No runtime dependency from the public UI to incomplete localized copy.
+- No new `src/lib` localization module in this batch.
 
 ## 10 actions included
 
 1. Start Batch 20 from the green Batch 19 head.
-2. Add a `publicFoundationStackCopy.ts` fallback contract.
-3. Mirror public-facing card text into default English copy records.
-4. Keep route metadata, audit IDs, related areas and login-gated flags in the existing content config.
-5. Keep the runtime UI copy unchanged for visitors.
-6. Add fallback resolver helpers for future localized entries.
-7. Add status helpers that report missing localized fields.
-8. Add tests that every track has fallback copy.
-9. Add tests that `ro-RO` safely falls back to English until Romanian copy exists.
-10. Document the localization boundary and safety limits.
+2. Document the localization fallback contract for foundation stack copy.
+3. Keep the public runtime UI copy unchanged for visitors.
+4. Keep route metadata, audit IDs, related areas and login-gated flags unchanged.
+5. Preserve the existing public visual audit behavior.
+6. Preserve the existing unit-test surface from Batch 19.
+7. Record the default locale rule: `en` is the safe fallback.
+8. Record the missing-locale rule: incomplete locales must fall back to `en`.
+9. Record the legal-copy rule: legal translations still require human review.
+10. Keep the batch build-safe by avoiding runtime localization wiring.
 
-## What this enables next
+## Future implementation rule
 
-Future batches can add localized copy gradually, one locale at a time, without making public pages blank or broken when a translation is incomplete.
+A later localization batch can add runtime copy only after it proves these constraints:
+
+- Missing locale never blanks a public card.
+- Missing field falls back field-by-field to `en`.
+- UI remains visible logged-out.
+- Public Visual Audit still checks the same routes.
+- Legal copy is clearly marked as requiring human review.
 
 ## Fallback rule
 
@@ -47,7 +54,7 @@ Future batches can add localized copy gradually, one locale at a time, without m
 
 ## What this batch does not do
 
-This batch does not translate the UI into all 43 languages and does not wire the public UI to a runtime translation provider. It only creates the safe copy contract that allows translation to be added later without blocking the public site.
+This batch does not translate the UI into all 43 languages and does not wire the public UI to a runtime translation provider. It only records the safe fallback contract so implementation can happen later without blocking the public site.
 
 ## Required checks
 
