@@ -4,11 +4,13 @@ import { getServiceSupabase } from "@/lib/supabase/service";
 import { locales } from "@/i18n/config";
 import { SEO_CITIES, SEO_CATEGORIES } from "@/lib/seo-data";
 import { getPublicSitemapAuditEntries, toSitemapPath } from "@/lib/public-pages/publicRouteAudit";
+import {
+  buildPublicHreflangLanguages,
+  toSwaplyLocalizedPublicUrl,
+} from "@/lib/public-site";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 3600; // re-generate at most every hour
-
-const BASE_URL = "https://www.swaply.world";
 
 /** Create a sitemap entry for each locale variant of a path */
 function localizedEntry(
@@ -20,15 +22,12 @@ function localizedEntry(
   } = {},
 ): MetadataRoute.Sitemap {
   return locales.map((locale) => ({
-    url: `${BASE_URL}/${locale}${path}`,
+    url: toSwaplyLocalizedPublicUrl(locale, path),
     changeFrequency: opts.changeFrequency,
     priority: opts.priority,
     lastModified: opts.lastModified,
     alternates: {
-      languages: Object.fromEntries([
-        ...locales.map((loc) => [loc, `${BASE_URL}/${loc}${path}`]),
-        ["x-default", `${BASE_URL}/en${path}`],
-      ]),
+      languages: buildPublicHreflangLanguages(locales, path),
     },
   }));
 }
@@ -50,77 +49,84 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }),
   );
 
-  // Dynamic data from Supabase
+  // Dynamic data from Supabase. Dynamic sitemap pages are best-effort only:
+  // the static public sitemap must still render if Supabase is unavailable.
   const supabase = getServiceSupabase();
   let cityPages: MetadataRoute.Sitemap = [];
   let categoryPages: MetadataRoute.Sitemap = [];
   let objectPages: MetadataRoute.Sitemap = [];
 
-  if (supabase) {
-    const [citiesResult, categoriesResult, itemsResult] = await Promise.all([
-      supabase
-        .from("items")
-        .select("location")
-        .eq("status", "active")
-        .eq("is_active", true)
-        .not("location", "is", null),
-      supabase
-        .from("items")
-        .select("category")
-        .eq("status", "active")
-        .eq("is_active", true)
-        .not("category", "is", null),
-      supabase
-        .from("items")
-        .select("id, updated_at")
-        .eq("status", "active")
-        .eq("is_active", true)
-        .order("updated_at", { ascending: false })
-        .limit(5000),
-    ]);
+  try {
+    if (supabase) {
+      const [citiesResult, categoriesResult, itemsResult] = await Promise.all([
+        supabase
+          .from("items")
+          .select("location")
+          .eq("status", "active")
+          .eq("is_active", true)
+          .not("location", "is", null),
+        supabase
+          .from("items")
+          .select("category")
+          .eq("status", "active")
+          .eq("is_active", true)
+          .not("category", "is", null),
+        supabase
+          .from("items")
+          .select("id, updated_at")
+          .eq("status", "active")
+          .eq("is_active", true)
+          .order("updated_at", { ascending: false })
+          .limit(5000),
+      ]);
 
-    // Unique cities with at least 1 active object
-    if (citiesResult.data) {
-      const uniqueCities = new Set<string>();
-      for (const row of citiesResult.data) {
-        const city = (row.location as string)?.trim();
-        if (city) uniqueCities.add(city);
+      // Unique cities with at least 1 active object
+      if (citiesResult.data) {
+        const uniqueCities = new Set<string>();
+        for (const row of citiesResult.data) {
+          const city = (row.location as string)?.trim();
+          if (city) uniqueCities.add(city);
+        }
+        cityPages = Array.from(uniqueCities).flatMap((city) =>
+          localizedEntry(
+            `/objects/city/${encodeURIComponent(city.toLowerCase().replace(/\s+/g, "-"))}`,
+            { changeFrequency: "weekly", priority: 0.9 },
+          ),
+        );
       }
-      cityPages = Array.from(uniqueCities).flatMap((city) =>
-        localizedEntry(
-          `/objects/city/${encodeURIComponent(city.toLowerCase().replace(/\s+/g, "-"))}`,
-          { changeFrequency: "weekly", priority: 0.9 },
-        ),
-      );
-    }
 
-    // Unique categories with at least 1 active object
-    if (categoriesResult.data) {
-      const uniqueCategories = new Set<string>();
-      for (const row of categoriesResult.data) {
-        const cat = (row.category as string)?.trim();
-        if (cat) uniqueCategories.add(cat);
+      // Unique categories with at least 1 active object
+      if (categoriesResult.data) {
+        const uniqueCategories = new Set<string>();
+        for (const row of categoriesResult.data) {
+          const cat = (row.category as string)?.trim();
+          if (cat) uniqueCategories.add(cat);
+        }
+        categoryPages = Array.from(uniqueCategories).flatMap((cat) =>
+          localizedEntry(
+            `/objects/category/${encodeURIComponent(cat.toLowerCase().replace(/\s+/g, "-"))}`,
+            { changeFrequency: "weekly", priority: 0.9 },
+          ),
+        );
       }
-      categoryPages = Array.from(uniqueCategories).flatMap((cat) =>
-        localizedEntry(
-          `/objects/category/${encodeURIComponent(cat.toLowerCase().replace(/\s+/g, "-"))}`,
-          { changeFrequency: "weekly", priority: 0.9 },
-        ),
-      );
-    }
 
-    // Individual active objects
-    if (itemsResult.data) {
-      objectPages = itemsResult.data.flatMap((item) =>
-        localizedEntry(`/objects/${item.id}`, {
-          changeFrequency: "weekly",
-          priority: 0.7,
-          lastModified: item.updated_at
-            ? new Date(item.updated_at)
-            : undefined,
-        }),
-      );
+      // Individual active objects
+      if (itemsResult.data) {
+        objectPages = itemsResult.data.flatMap((item) =>
+          localizedEntry(`/objects/${item.id}`, {
+            changeFrequency: "weekly",
+            priority: 0.7,
+            lastModified: item.updated_at
+              ? new Date(item.updated_at)
+              : undefined,
+          }),
+        );
+      }
     }
+  } catch {
+    cityPages = [];
+    categoryPages = [];
+    objectPages = [];
   }
 
   // Category + City intersection pages (programmatic SEO)
