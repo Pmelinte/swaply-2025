@@ -283,6 +283,7 @@ export default function PropertiesPage() {
   const { favoriteIds: favorites, toggleFavorite } = useFavorites(user?.id);
   const t = useTranslations("objects");
   const tb = useTranslations("branches");
+  const tc = useTranslations("common");
 
   const [browseMode, setBrowseMode] = useState<BrowseMode>("grid");
   const [search, setSearch] = useState("");
@@ -392,6 +393,9 @@ export default function PropertiesPage() {
 
   const hasFilters = !!search || !!locationFilter;
   const isLoading = loadingProps && stateLoading.items;
+  const propertyLabel = tb("properties");
+  const addPropertyLabel = `${tc("add")} ${propertyLabel}`;
+  const searchPropertiesPlaceholder = `${tc("search")} ${propertyLabel}…`;
 
   return (
     <div>
@@ -401,7 +405,7 @@ export default function PropertiesPage() {
         {/* Header */}
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{tb("properties")}</h1>
+            <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{propertyLabel}</h1>
             <p className="text-sm text-zinc-500 dark:text-zinc-400">{tb("propertiesDesc")}</p>
           </div>
           <div className="flex items-center gap-2">
@@ -410,7 +414,7 @@ export default function PropertiesPage() {
               className="inline-flex items-center gap-1.5 rounded-xl bg-cat-prop px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500"
             >
               <Plus className="h-4 w-4" />
-              Add property
+              {addPropertyLabel}
             </Link>
           </div>
         </div>
@@ -438,7 +442,7 @@ export default function PropertiesPage() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by title, city, type…"
+              placeholder={searchPropertiesPlaceholder}
               className="w-full rounded-xl border border-zinc-200 bg-white py-2 pl-10 pr-4 text-sm outline-none focus:border-purple-400 focus:ring-1 focus:ring-purple-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
             />
             {search && (
@@ -516,7 +520,7 @@ export default function PropertiesPage() {
 
         {!isLoading && (
           <p className="mb-3 text-xs text-zinc-400">
-            {filtered.length} properties found
+            {filtered.length} {propertyLabel}
           </p>
         )}
 
@@ -526,10 +530,10 @@ export default function PropertiesPage() {
               <>
                 <Home className="mb-4 h-12 w-12 text-zinc-300 dark:text-zinc-600" />
                 <p className="mb-1 text-base font-semibold text-zinc-700 dark:text-zinc-200">
-                  {t("emptyLoggedTitle")}
+                  {hasFilters ? t("emptyLoggedTitle") : propertyLabel}
                 </p>
                 <p className="mb-4 max-w-sm text-center text-sm text-zinc-500 dark:text-zinc-400">
-                  {hasFilters ? t("emptyLoggedSubFilters") : t("emptyLoggedSub")}
+                  {hasFilters ? t("emptyLoggedSubFilters") : tb("propertiesDesc")}
                 </p>
                 <div className="flex flex-wrap items-center gap-3">
                   {hasFilters && (
@@ -545,7 +549,7 @@ export default function PropertiesPage() {
                     className="inline-flex items-center gap-1.5 rounded-lg bg-purple-600 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-700"
                   >
                     <Plus className="h-4 w-4" />
-                    Add property
+                    {addPropertyLabel}
                   </Link>
                 </div>
               </>
@@ -553,10 +557,10 @@ export default function PropertiesPage() {
               <>
                 <span className="mb-4 text-5xl">🏠</span>
                 <p className="mb-1 text-base font-semibold text-zinc-700 dark:text-zinc-200">
-                  {hasFilters ? t("emptyGuestTitleFiltered") : "No properties available right now"}
+                  {hasFilters ? t("emptyGuestTitleFiltered") : propertyLabel}
                 </p>
                 <p className="mb-5 max-w-sm text-center text-sm text-zinc-500 dark:text-zinc-400">
-                  {t("emptyGuestSub")}
+                  {tb("propertiesDesc")}
                 </p>
                 <Link
                   href="/register"
