@@ -5,7 +5,6 @@ import { locales } from "@/i18n/config";
 import { SEO_CITIES, SEO_CATEGORIES } from "@/lib/seo-data";
 import { getPublicSitemapAuditEntries, toSitemapPath } from "@/lib/public-pages/publicRouteAudit";
 import {
-  SWAPLY_PUBLIC_BASE_URL,
   buildPublicHreflangLanguages,
   toSwaplyLocalizedPublicUrl,
 } from "@/lib/public-site";
@@ -153,5 +152,3 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...blogPosts,
   ];
 }
-
-export { SWAPLY_PUBLIC_BASE_URL };
