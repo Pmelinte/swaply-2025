@@ -21,6 +21,7 @@ const PUBLIC_CANONICAL_ROUTES = [
 const LEGACY_ROUTE_REDIRECTS = [
   { label: "match", from: "/en/match", to: /\/en\/matching(?:[/?#]|$)/ },
   { label: "change", from: "/en/change", to: /\/en\/exchange(?:[/?#]|$)/ },
+  { label: "items", from: "/en/items", to: /\/en\/objects(?:[/?#]|$)/ },
 ] as const;
 
 const ADMIN_ROUTES = [
@@ -72,11 +73,6 @@ test.describe("legacy route redirect contract", () => {
       await expect(page).toHaveURL(route.to, { timeout: 10_000 });
     });
   }
-
-  test.fixme("/en/items should redirect to /en/objects", async ({ page }) => {
-    await gotoAndCapture(page, "/en/items", screenshotName("legacy-known-gap", "/en/items"));
-    await expect(page).toHaveURL(/\/en\/objects(?:[/?#]|$)/);
-  });
 });
 
 test.describe("admin route guardrails", () => {
