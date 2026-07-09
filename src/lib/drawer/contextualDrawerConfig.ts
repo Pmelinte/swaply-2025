@@ -255,12 +255,12 @@ export const contextualDrawerConfigs: Record<ContextualDrawerPage, ContextualDra
   },
   blog: {
     page: "blog",
-    titleKey: "about.blog",
+    titleKey: "blog.pageTitle",
     sections: [
       {
         id: "page_context",
         titleKey: "nav.info",
-        items: [{ id: "blog-guides", labelKey: "about.blog", icon: "book" }],
+        items: [{ id: "blog-guides", labelKey: "blog.allArticles", icon: "book" }],
       },
       {
         id: "quick_actions",
