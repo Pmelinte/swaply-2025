@@ -321,7 +321,7 @@ export function getPublicLegalAuditRoutes(locale = "en") {
   return PUBLIC_ROUTE_AUDIT_ENTRIES.filter((entry) => entry.legalAudit).map((entry) => toLocalizedRoute(entry.path, locale));
 }
 
-export function getPublicSitemapAuditEntries() {
+export function getPublicSitemapAuditEntries(): readonly PublicRouteAuditEntry[] {
   return PUBLIC_ROUTE_AUDIT_ENTRIES.filter((entry) => entry.sitemapAudit);
 }
 
