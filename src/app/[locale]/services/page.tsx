@@ -251,6 +251,7 @@ export default function ServicesPage() {
   const { favoriteIds: favorites, toggleFavorite } = useFavorites(user?.id);
   const t = useTranslations("objects");
   const tb = useTranslations("branches");
+  const tc = useTranslations("common");
 
   const [browseMode, setBrowseMode] = useState<BrowseMode>("grid");
   const [search, setSearch] = useState("");
@@ -360,6 +361,9 @@ export default function ServicesPage() {
 
   const hasFilters = !!search || !!locationFilter;
   const isLoading = loadingServices && stateLoading.items;
+  const serviceLabel = tb("services");
+  const addServiceLabel = `${tc("add")} ${serviceLabel}`;
+  const searchServicesPlaceholder = `${tc("search")} ${serviceLabel}…`;
 
   return (
     <div>
@@ -369,7 +373,7 @@ export default function ServicesPage() {
         {/* Header */}
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{tb("services")}</h1>
+            <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{serviceLabel}</h1>
             <p className="text-sm text-zinc-500 dark:text-zinc-400">{tb("servicesDesc")}</p>
           </div>
           <div className="flex items-center gap-2">
@@ -378,7 +382,7 @@ export default function ServicesPage() {
               className="inline-flex items-center gap-1.5 rounded-xl bg-cat-svc px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-teal-500"
             >
               <Plus className="h-4 w-4" />
-              Add service
+              {addServiceLabel}
             </Link>
           </div>
         </div>
@@ -406,7 +410,7 @@ export default function ServicesPage() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by title, category, location…"
+              placeholder={searchServicesPlaceholder}
               className="w-full rounded-xl border border-zinc-200 bg-white py-2 pl-10 pr-4 text-sm outline-none focus:border-green-400 focus:ring-1 focus:ring-green-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
             />
             {search && (
@@ -484,7 +488,7 @@ export default function ServicesPage() {
 
         {!isLoading && (
           <p className="mb-3 text-xs text-zinc-400">
-            {filtered.length} services found
+            {filtered.length} {serviceLabel}
           </p>
         )}
 
@@ -494,10 +498,10 @@ export default function ServicesPage() {
               <>
                 <Wrench className="mb-4 h-12 w-12 text-zinc-300 dark:text-zinc-600" />
                 <p className="mb-1 text-base font-semibold text-zinc-700 dark:text-zinc-200">
-                  {t("emptyLoggedTitle")}
+                  {hasFilters ? t("emptyLoggedTitle") : serviceLabel}
                 </p>
                 <p className="mb-4 max-w-sm text-center text-sm text-zinc-500 dark:text-zinc-400">
-                  {hasFilters ? t("emptyLoggedSubFilters") : t("emptyLoggedSub")}
+                  {hasFilters ? t("emptyLoggedSubFilters") : tb("servicesDesc")}
                 </p>
                 <div className="flex flex-wrap items-center gap-3">
                   {hasFilters && (
@@ -513,7 +517,7 @@ export default function ServicesPage() {
                     className="inline-flex items-center gap-1.5 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700"
                   >
                     <Plus className="h-4 w-4" />
-                    Add service
+                    {addServiceLabel}
                   </Link>
                 </div>
               </>
@@ -521,10 +525,10 @@ export default function ServicesPage() {
               <>
                 <span className="mb-4 text-5xl">🔧</span>
                 <p className="mb-1 text-base font-semibold text-zinc-700 dark:text-zinc-200">
-                  {hasFilters ? t("emptyGuestTitleFiltered") : "No services available right now"}
+                  {hasFilters ? t("emptyGuestTitleFiltered") : serviceLabel}
                 </p>
                 <p className="mb-5 max-w-sm text-center text-sm text-zinc-500 dark:text-zinc-400">
-                  {t("emptyGuestSub")}
+                  {tb("servicesDesc")}
                 </p>
                 <Link
                   href="/register"
