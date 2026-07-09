@@ -4,10 +4,10 @@ import { Link, usePathname } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 
 const TABS = [
-  { href: "/objects",    emoji: "📦", labelKey: "objects",    descKey: "objectsDesc",    beta: false, activeClass: "bg-cat-obj text-white",      betaBg: "bg-sky-500 text-sky-100" },
-  { href: "/properties", emoji: "🏠", labelKey: "properties", descKey: "propertiesDesc", beta: true,  activeClass: "bg-cat-prop text-white",     betaBg: "bg-violet-500 text-violet-100" },
-  { href: "/services",   emoji: "🔧", labelKey: "services",   descKey: "servicesDesc",   beta: true,  activeClass: "bg-cat-svc text-white",      betaBg: "bg-teal-500 text-teal-100" },
-  { href: "/events",     emoji: "🎫", labelKey: "events",     descKey: "eventsDesc",     beta: true,  activeClass: "bg-cat-evt text-cat-evt-ink", betaBg: "bg-yellow-400 text-yellow-900" },
+  { href: "/objects",    emoji: "📦", labelKey: "objects",    descKey: "objectsDesc",    activeClass: "bg-cat-obj text-white" },
+  { href: "/properties", emoji: "🏠", labelKey: "properties", descKey: "propertiesDesc", activeClass: "bg-cat-prop text-white" },
+  { href: "/services",   emoji: "🔧", labelKey: "services",   descKey: "servicesDesc",   activeClass: "bg-cat-svc text-white" },
+  { href: "/events",     emoji: "🎫", labelKey: "events",     descKey: "eventsDesc",     activeClass: "bg-cat-evt text-cat-evt-ink" },
 ] as const;
 
 export function BranchBar() {
@@ -30,8 +30,9 @@ export function BranchBar() {
       className="sticky top-[53px] z-10 h-[44px] border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900"
     >
       <div className="mx-auto flex h-full max-w-6xl items-stretch px-2 sm:px-4">
-        {TABS.map(({ href, emoji, labelKey, descKey, beta, activeClass, betaBg }) => {
+        {TABS.map(({ href, emoji, labelKey, descKey, activeClass }) => {
           const active = isActive(href);
+          const label = t(labelKey);
           return (
             <Link
               key={href}
@@ -46,19 +47,8 @@ export function BranchBar() {
               <span className="text-base leading-none sm:text-lg" aria-hidden="true">
                 {emoji}
               </span>
-              <span className="hidden sm:inline">{t(labelKey)}</span>
-              {active && (
-                <span className="text-[10px] leading-none sm:hidden">{t(labelKey)}</span>
-              )}
-              {beta && (
-                <span
-                  className={`rounded px-1 py-0.5 text-[9px] font-semibold uppercase leading-none ${
-                    active ? betaBg : "bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-500"
-                  }`}
-                >
-                  Beta
-                </span>
-              )}
+              <span className="hidden sm:inline">{label}</span>
+              <span className="text-[10px] leading-none sm:hidden">{label}</span>
             </Link>
           );
         })}

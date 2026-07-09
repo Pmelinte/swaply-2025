@@ -160,6 +160,23 @@ test.describe("public shell contract", () => {
   }
 });
 
+test.describe("mobile public shell contract", () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test("home keeps branch, bottom nav and drawer labels visible", async ({ page }) => {
+    const status = await gotoAndCapture(
+      page,
+      "/en",
+      screenshotName("mobile-shell", "/en"),
+    );
+
+    expect(status, `/en returned HTTP ${status}`).toBeGreaterThanOrEqual(200);
+    expect(status, `/en returned HTTP ${status}`).toBeLessThan(400);
+
+    await expectPublicShell(page);
+  });
+});
+
 test.describe("legacy route redirect contract", () => {
   for (const route of LEGACY_ROUTE_REDIRECTS) {
     test(`${route.label} redirects to canonical route`, async ({ page }) => {
