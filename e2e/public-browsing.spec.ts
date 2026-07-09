@@ -79,6 +79,8 @@ test.describe("Public browsing — objects", () => {
     { path: "/privacy", title: "Swaply" },
     { path: "/cookies", title: "Swaply" },
     { path: "/safety", title: "Swaply" },
+    { path: "/dmca", title: "Swaply" },
+    { path: "/copyright", title: "Swaply" },
   ];
 
   for (const { path, title } of legalPages) {
