@@ -3,6 +3,7 @@ import { Link } from "@/i18n/navigation";
 import { Rss } from "lucide-react";
 import { getAllCategoriesDB, getAllPostsDB } from "@/lib/blog-db";
 import { BlogSearch } from "@/components/blog/BlogSearch";
+import { buildRouteAlternates } from "@/lib/seo/route-alternates";
 import { translateOnDemand } from "@/lib/translate-on-demand";
 import { getTranslations } from "next-intl/server";
 
@@ -24,6 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: "website",
     },
     alternates: {
+      ...buildRouteAlternates(locale, "/blog"),
       types: { "application/rss+xml": "/blog/feed.xml" },
     },
   };
