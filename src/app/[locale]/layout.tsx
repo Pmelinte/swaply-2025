@@ -16,6 +16,7 @@ import { PublicGuestExperienceSlot } from "@/components/public-pages/PublicGuest
 import Script from "next/script";
 import { CookieConsent } from "@/components/CookieConsent";
 import { ConditionalAnalytics } from "@/components/ConditionalAnalytics";
+import { SWAPLY_PUBLIC_SUPPORT_EMAIL } from "@/lib/legal-copy";
 
 // ── Generate static params for top 5 locales only ──────────────────
 // Remaining locales are generated on-demand and cached via ISR.
@@ -138,7 +139,7 @@ export default async function LocaleLayout({ children, params }: Props) {
               areaServed: "Worldwide",
               contactPoint: {
                 "@type": "ContactPoint",
-                email: "support@swaply.app",
+                email: SWAPLY_PUBLIC_SUPPORT_EMAIL,
               },
             }),
           }}
