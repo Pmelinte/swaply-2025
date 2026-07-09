@@ -1,44 +1,23 @@
 import { expect, test, type Page } from "@playwright/test";
 import { mkdirSync } from "node:fs";
 import path from "node:path";
+import { FORBIDDEN_PUBLIC_LOGIN_WALL_PATTERNS } from "../src/lib/public-pages/loginWallGuards";
+import {
+  getPublicDrawerAuditRoutes,
+  getPublicVisualAuditRoutes,
+} from "../src/lib/public-pages/publicRouteAudit";
 
 const screenshotRoot = path.join(process.cwd(), "playwright-audit-screenshots");
 
-const publicRoutes = [
-  "/en",
-  "/en/objects",
-  "/en/explore",
-  "/en/matching",
-  "/en/messages",
-  "/en/exchange",
-  "/en/properties",
-  "/en/services",
-  "/en/events",
-  "/en/blog",
-  "/en/about",
-  "/en/contact",
-  "/en/terms",
-  "/en/privacy",
-  "/en/safety",
-];
-
-const contextualDrawerRoutes = [
-  "/en/objects",
-  "/en/properties",
-  "/en/services",
-  "/en/events",
-  "/en/explore",
-  "/en/matching",
-  "/en/messages",
-  "/en/exchange",
-  "/en/blog",
-];
+const publicRoutes = getPublicVisualAuditRoutes("en");
+const drawerAuditRoutes = getPublicDrawerAuditRoutes("en");
 
 const contextualCopyRoutes = new Set([
   "/en/objects",
   "/en/properties",
   "/en/services",
   "/en/events",
+  "/en/matching",
   "/en/messages",
   "/en/exchange",
   "/en/blog",
@@ -67,16 +46,22 @@ async function assertPublicPageIsHealthy(page: Page, route: string) {
 
   await page.waitForLoadState("networkidle", { timeout: 5_000 }).catch(() => undefined);
 
-  await expect(page.locator("body"), `${route} body must be visible`).toBeVisible();
-  await expect(page.locator("body"), `${route} must not render the Next.js 404`).not.toContainText(
+  const body = page.locator("body");
+  await expect(body, `${route} body must be visible`).toBeVisible();
+  await expect(body, `${route} must not render the Next.js 404`).not.toContainText(
     "This page could not be found",
   );
-  await expect(page.locator("body"), `${route} must not render a generic application error`).not.toContainText(
+  await expect(body, `${route} must not render a generic application error`).not.toContainText(
     "Application error",
   );
-  await expect(page.locator("body"), `${route} must not render a runtime error`).not.toContainText(
+  await expect(body, `${route} must not render a runtime error`).not.toContainText(
     "Unhandled Runtime Error",
   );
+
+  const bodyText = await body.innerText();
+  for (const pattern of FORBIDDEN_PUBLIC_LOGIN_WALL_PATTERNS) {
+    expect(pattern.test(bodyText), `${route} must not be a blank login wall matching ${pattern}`).toBe(false);
+  }
 }
 
 async function assertDrawerIsHealthy(page: Page, route: string) {
@@ -121,7 +106,7 @@ test.describe("Swaply public visual audit", () => {
   test.describe("drawers", () => {
     test.use({ viewport: { width: 1440, height: 1100 } });
 
-    for (const route of contextualDrawerRoutes) {
+    for (const route of drawerAuditRoutes) {
       test(`opens route-specific drawer on ${route}`, async ({ page }, testInfo) => {
         await assertPublicPageIsHealthy(page, route);
         await page.getByLabel("Open menu").first().click();
