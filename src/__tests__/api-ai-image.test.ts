@@ -14,11 +14,13 @@ function makeRequest(body: object, ip: string = "test-ip") {
 
 describe("POST /api/ai/image", () => {
   beforeEach(() => {
+    vi.restoreAllMocks();
     vi.unstubAllEnvs();
     vi.stubEnv("GROQ_API_KEY", "");
     vi.stubEnv("GEMINI_API_KEY", "");
     vi.stubEnv("HUGGINGFACE_API_KEY", "");
     vi.stubEnv("NEXT_PUBLIC_HF_ENABLED", "false");
+    vi.stubEnv("AI_IMAGE_ALLOWED_HOSTS", "");
     vi.resetModules();
   });
 
@@ -81,14 +83,41 @@ describe("POST /api/ai/image", () => {
     expect(res.status).toBe(400);
   });
 
-  it("returns fallback from URL filename when all AI unavailable", async () => {
-    // Mock fetch to simulate failed image download
-    vi.spyOn(global, "fetch").mockRejectedValue(new Error("network error"));
-    const res = await POST(makeRequest({ imageUrl: "https://example.com/photos/laptop-dell-2024.jpg" }, "fallback-url"));
+  it("blocks public image hosts that are not explicitly allowlisted", async () => {
+    const fetchSpy = vi.spyOn(global, "fetch");
+    const res = await POST(
+      makeRequest(
+        { imageUrl: "https://untrusted.example/photos/laptop-dell-2024.jpg" },
+        "untrusted-public-host",
+      ),
+    );
+
+    expect(res.status).toBe(400);
     const data = await res.json();
+    expect(data.status).toBe("error");
+    expect(data.message).toContain("blocat");
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it("returns fallback from URL filename when an allowlisted image download fails", async () => {
+    vi.stubEnv("AI_IMAGE_ALLOWED_HOSTS", "example.com");
+    vi.spyOn(global, "fetch").mockRejectedValue(new Error("network error"));
+
+    const res = await POST(
+      makeRequest(
+        { imageUrl: "https://example.com/photos/laptop-dell-2024.jpg" },
+        "fallback-url",
+      ),
+    );
+    const data = await res.json();
+
+    expect(res.status).toBe(200);
     expect(data.status).toBe("fallback");
-    expect(data.attempted).toBeInstanceOf(Array);
-    vi.restoreAllMocks();
+    expect(data.title).toBe("Laptop dell");
+    expect(data.caption).toContain("Laptop dell");
+    expect(data.attempted).toEqual(
+      expect.arrayContaining([expect.stringContaining("fetch-url")]),
+    );
   });
 
   it("handles base64 image with data URI prefix", async () => {
