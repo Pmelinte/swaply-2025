@@ -1,65 +1,53 @@
 -- ============================================================
--- HOTFIX: Fix "Database error querying schema" on login
--- Problem 1: seed.sql created auth.users but NOT auth.identities
--- Problem 2: GoTrue Go SQL scanner cannot handle NULL in string
---   columns (confirmation_token, recovery_token, etc.)
---   Error: "Scan error on column index 3, name confirmation_token:
---           converting NULL to string is unsupported"
---
--- Run this in Supabase SQL Editor (as postgres).
+-- SECURITY REPLACEMENT: quarantine demo Auth identities
 -- ============================================================
+--
+-- The former version set every @swaply.test user to the same password,
+-- which was committed to Git history. Never restore a deterministic or
+-- shared password for demo accounts.
+--
+-- This script preserves auth.users rows, profiles, items and identities,
+-- while preventing the demo identities from being used for login.
+-- Run as postgres / through the Supabase SQL Editor only.
 
--- 1) Fix encrypted_password with valid bcrypt for "DemoSwap2025!"
+BEGIN;
+
+-- Revoke active sessions first. auth.refresh_tokens.user_id is text in the
+-- current GoTrue schema, while auth.sessions.user_id is uuid.
+DELETE FROM auth.refresh_tokens
+WHERE user_id IN (
+  SELECT id::text
+  FROM auth.users
+  WHERE email ~ '^demo[0-9]+@swaply\.test$'
+);
+
+DELETE FROM auth.sessions
+WHERE user_id IN (
+  SELECT id
+  FROM auth.users
+  WHERE email ~ '^demo[0-9]+@swaply\.test$'
+);
+
+-- Give every demo identity an independent, unknown random password and ban
+-- interactive login. Profiles and public demo listings remain untouched.
 UPDATE auth.users
-SET encrypted_password = crypt('DemoSwap2025!', gen_salt('bf', 10))
-WHERE email LIKE '%@swaply.test';
+SET
+  encrypted_password = crypt(encode(gen_random_bytes(32), 'hex'), gen_salt('bf', 10)),
+  banned_until = '2099-12-31 23:59:59+00'::timestamptz,
+  updated_at = now()
+WHERE email ~ '^demo[0-9]+@swaply\.test$';
 
--- 2) Fix NULL token columns → empty strings (GoTrue requirement)
-UPDATE auth.users SET
-  confirmation_token = COALESCE(confirmation_token, ''),
-  recovery_token = COALESCE(recovery_token, ''),
-  email_change_token_new = COALESCE(email_change_token_new, ''),
-  email_change = COALESCE(email_change, ''),
-  email_change_token_current = COALESCE(email_change_token_current, ''),
-  reauthentication_token = COALESCE(reauthentication_token, ''),
-  phone_change = COALESCE(phone_change, ''),
-  phone_change_token = COALESCE(phone_change_token, ''),
-  raw_user_meta_data = json_build_object(
-    'sub', id::text,
-    'email', email,
-    'email_verified', true,
-    'phone_verified', false
-  )::jsonb
-WHERE email LIKE '%@swaply.test';
+COMMIT;
 
--- 3) Create missing auth.identities entries
-INSERT INTO auth.identities (
-  id, user_id, identity_data, provider, provider_id,
-  last_sign_in_at, created_at, updated_at
-)
+-- Verification: public shared password must match zero users and every demo
+-- account must be banned.
 SELECT
-  gen_random_uuid() AS id,
-  u.id AS user_id,
-  json_build_object(
-    'sub', u.id::text,
-    'email', u.email,
-    'email_verified', true,
-    'phone_verified', false
-  )::jsonb AS identity_data,
-  'email' AS provider,
-  u.id::text AS provider_id,
-  NOW() AS last_sign_in_at,
-  u.created_at,
-  u.updated_at
-FROM auth.users u
-WHERE u.email LIKE '%@swaply.test'
-  AND NOT EXISTS (
-    SELECT 1 FROM auth.identities i
-    WHERE i.user_id = u.id AND i.provider = 'email'
-  );
-
--- Verify: should show 100 rows
-SELECT COUNT(*) AS identities_created
-FROM auth.identities i
-JOIN auth.users u ON u.id = i.user_id
-WHERE u.email LIKE '%@swaply.test';
+  count(*)::int AS demo_users,
+  count(*) FILTER (
+    WHERE encrypted_password = crypt('DemoSwap2025!', encrypted_password)
+  )::int AS public_password_still_valid,
+  count(*) FILTER (
+    WHERE banned_until IS NOT NULL AND banned_until > now()
+  )::int AS banned_demo_users
+FROM auth.users
+WHERE email ~ '^demo[0-9]+@swaply\.test$';
