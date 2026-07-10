@@ -17,12 +17,16 @@ export function toSwaplyLocalizedPublicUrl(locale: string, path = "") {
   return `${SWAPLY_PUBLIC_BASE_URL}/${locale}${localizedPath}`;
 }
 
+export function toSwaplyXDefaultPublicUrl(path = "") {
+  return toSwaplyPublicUrl(normalizePublicPath(path));
+}
+
 export function buildPublicHreflangLanguages(locales: readonly string[], path = "") {
   const normalizedPath = normalizePublicPath(path);
   const localizedPath = normalizedPath === "/" ? "" : normalizedPath;
 
   return Object.fromEntries([
     ...locales.map((locale) => [locale, toSwaplyLocalizedPublicUrl(locale, localizedPath)]),
-    ["x-default", toSwaplyLocalizedPublicUrl("en", localizedPath)],
+    ["x-default", toSwaplyXDefaultPublicUrl(localizedPath)],
   ]);
 }

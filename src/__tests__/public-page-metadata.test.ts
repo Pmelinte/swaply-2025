@@ -5,6 +5,10 @@ import {
   getPublicPageMetadataEntry,
 } from "@/lib/public-pages/publicPageMetadata";
 import { getPublicSeoAuditRoutes } from "@/lib/public-pages/publicRouteAudit";
+import {
+  toSwaplyLocalizedPublicUrl,
+  toSwaplyXDefaultPublicUrl,
+} from "@/lib/public-site";
 
 const GENERIC_HOME_TITLE = "Swaply — Swap objects without money";
 
@@ -45,7 +49,22 @@ describe("public per-page metadata", () => {
     expect(metadata.alternates?.languages).toMatchObject({
       en: "https://www.swaply.world/en/privacy",
       ro: "https://www.swaply.world/ro/privacy",
-      "x-default": "https://www.swaply.world/en/privacy",
+      "x-default": "https://www.swaply.world/privacy",
     });
+  });
+
+  it("keeps canonical localized and x-default unlocalized for every public page", () => {
+    for (const entry of PUBLIC_PAGE_METADATA) {
+      const metadata = buildPublicPageMetadata("ro", entry.id);
+
+      expect(metadata.alternates?.canonical).toBe(
+        toSwaplyLocalizedPublicUrl("ro", entry.path),
+      );
+      expect(metadata.alternates?.languages).toMatchObject({
+        ro: toSwaplyLocalizedPublicUrl("ro", entry.path),
+        en: toSwaplyLocalizedPublicUrl("en", entry.path),
+        "x-default": toSwaplyXDefaultPublicUrl(entry.path),
+      });
+    }
   });
 });
