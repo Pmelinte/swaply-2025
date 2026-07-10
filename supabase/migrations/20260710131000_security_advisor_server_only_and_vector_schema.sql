@@ -81,5 +81,5 @@ begin
   ) then
     execute 'alter extension vector set schema extensions';
   end if;
-end
+end;
 $migration$;
