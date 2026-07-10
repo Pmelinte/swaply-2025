@@ -13,7 +13,6 @@ interface ProfileData {
   phoneVerified: boolean;
   idVerified: boolean;
   responseRate: number;
-  completionRate: number;
 }
 
 interface Props {
@@ -31,8 +30,8 @@ export function ChatDrawerUserProfile({ partnerId, partnerName }: Props) {
     if (!supabase || !partnerId) { setLoading(false); return; }
 
     supabase
-      .from("profiles")
-      .select("display_name, avatar_url, reputation, completed_swaps, phone_verified, id_verified, response_rate, completion_rate")
+      .from("public_profiles")
+      .select("display_name, avatar_url, trust_level, swaps_completed, phone_verified, id_verified, response_rate_pct")
       .eq("user_id", partnerId)
       .maybeSingle()
       .then(({ data }) => {
@@ -40,12 +39,11 @@ export function ChatDrawerUserProfile({ partnerId, partnerName }: Props) {
           setProfile({
             displayName: (data.display_name as string) ?? partnerName,
             avatarUrl: data.avatar_url as string | null,
-            reputation: (data.reputation as string) ?? "starter",
-            completedSwaps: (data.completed_swaps as number) ?? 0,
+            reputation: (data.trust_level as string) ?? "starter",
+            completedSwaps: (data.swaps_completed as number) ?? 0,
             phoneVerified: !!(data.phone_verified),
             idVerified: !!(data.id_verified),
-            responseRate: (data.response_rate as number) ?? 50,
-            completionRate: (data.completion_rate as number) ?? 50,
+            responseRate: (data.response_rate_pct as number) ?? 50,
           });
         }
         setLoading(false);
