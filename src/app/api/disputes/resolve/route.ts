@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     : userClient;
 
   // Verify admin
-  const { data: profile } = await db.from("profiles").select("role").eq("id", user.id).maybeSingle();
+  const { data: profile } = await db.from("profiles").select("role").eq("user_id", user.id).maybeSingle();
   if (profile?.role !== "admin" && profile?.role !== "moderator") {
     return NextResponse.json({ error: "Only admins can resolve disputes" }, { status: 403 });
   }
