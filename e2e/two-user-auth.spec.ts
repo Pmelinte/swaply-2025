@@ -62,7 +62,9 @@ test.describe("Train C two-user authenticated baseline", () => {
     await expect(page.getByRole("button", { name: /save profile/i })).toHaveCount(0);
   });
 
-  test("authenticated user can log out and returns to the login page", async ({ browser }) => {
+  test("authenticated user can log out and loses protected access", async ({ browser }) => {
+    test.setTimeout(60_000);
+
     const context = await browser.newContext({ storageState: userAAuthFile });
     const page = await context.newPage();
 
@@ -72,7 +74,15 @@ test.describe("Train C two-user authenticated baseline", () => {
     await page.getByRole("button", { name: "Profile & Settings", exact: true }).click();
     await page.getByRole("menuitem", { name: "Logout", exact: true }).click();
 
-    await expect(page).toHaveURL(/\/en\/login/);
+    await expect(page.getByRole("link", { name: "Login", exact: true })).toBeVisible();
+    await expect
+      .poll(async () => (await context.request.get("/api/tokens/balance")).status(), {
+        timeout: 30_000,
+      })
+      .toBe(401);
+
+    await page.goto("/en/profile", { waitUntil: "networkidle" });
+    await expect(page).toHaveURL(/\/en\/login\?returnTo=%2Fprofile/);
     await expect(page.locator('input[type="email"]')).toBeVisible();
 
     await context.close();
