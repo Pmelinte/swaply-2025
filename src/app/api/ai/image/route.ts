@@ -78,9 +78,33 @@ export async function POST(request: Request) {
           const fallback = fallbackFromUrl(imageUrl);
           return NextResponse.json({ status: "fallback", ...fallback, attempted });
         }
+        const contentType = imgRes.headers.get("content-type") || "";
+        const contentLength = Number(imgRes.headers.get("content-length") || "0");
+        const maxImageBytes = 10 * 1024 * 1024;
+
+        if (!contentType.toLowerCase().startsWith("image/")) {
+          return NextResponse.json(
+            { status: "error", message: "URL-ul nu indică o imagine validă." },
+            { status: 400 },
+          );
+        }
+        if (contentLength > maxImageBytes) {
+          return NextResponse.json(
+            { status: "error", message: "Imaginea depășește limita de 10 MB." },
+            { status: 413 },
+          );
+        }
+
         const buffer = Buffer.from(await imgRes.arrayBuffer());
+        if (buffer.byteLength > maxImageBytes) {
+          return NextResponse.json(
+            { status: "error", message: "Imaginea depășește limita de 10 MB." },
+            { status: 413 },
+          );
+        }
+
         base64Data = buffer.toString("base64");
-        mimeType = imgRes.headers.get("content-type") || "image/jpeg";
+        mimeType = contentType;
       } catch (fetchErr) {
         attempted.push(`fetch-url: ${String(fetchErr).slice(0, 100)}`);
         const fallback = fallbackFromUrl(imageUrl);
