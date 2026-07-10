@@ -69,7 +69,7 @@ test.describe("Train C two-user authenticated baseline", () => {
     await page.goto("/en/profile", { waitUntil: "networkidle" });
     await expect(page).toHaveURL(/\/en\/profile/);
 
-    await page.locator('button[aria-label="Profile"]').click();
+    await page.getByRole("button", { name: "Profile & Settings", exact: true }).click();
     await page.getByRole("menuitem", { name: "Logout", exact: true }).click();
 
     await expect(page).toHaveURL(/\/en\/login/);
