@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useAppState } from "@/lib/state";
-import { getSupabaseClient } from "@/lib/supabase/client";
 import { AdminGuard, StatCard } from "@/features/admin/AdminShell";
 import { ProductControl } from "@/features/admin/ProductControl";
 import {
@@ -31,42 +30,14 @@ function AdminOverview() {
   const [showProductControl, setShowProductControl] = useState(false);
 
   const fetchStats = useCallback(async () => {
-    const supabase = getSupabaseClient();
-    if (!supabase) return;
-
     setLoading(true);
 
-    const [usersRes, itemsRes, swapsRes, reportsRes] = await Promise.all([
-      supabase
-        .from("profiles")
-        .select("id", { count: "exact", head: true })
-        .eq("account_status", "active"),
-      supabase
-        .from("items")
-        .select("id", { count: "exact", head: true })
-        .eq("status", "active")
-        .eq("is_active", true),
-      supabase
-        .from("swaps")
-        .select("id", { count: "exact", head: true })
-        .in("status", ["pending", "accepted"]),
-      supabase
-        .from("abuse_reports")
-        .select("id", { count: "exact", head: true })
-        .eq("status", "pending"),
-    ]);
+    const response = await fetch("/api/admin/stats");
+    const result = (await response.json().catch(() => null)) as
+      | OverviewStats
+      | null;
 
-    if (usersRes.error) console.error("[admin] users count failed:", usersRes.error);
-    if (itemsRes.error) console.error("[admin] items count failed:", itemsRes.error);
-    if (swapsRes.error) console.error("[admin] swaps count failed:", swapsRes.error);
-    if (reportsRes.error) console.error("[admin] reports count failed:", reportsRes.error);
-
-    setStats({
-      totalUsers: usersRes.count ?? 0,
-      activeItems: itemsRes.count ?? 0,
-      activeSwaps: swapsRes.count ?? 0,
-      openReports: reportsRes.count ?? 0,
-    });
+    setStats(response.ok ? result : null);
     setLoading(false);
   }, []);
 
