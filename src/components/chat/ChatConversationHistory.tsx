@@ -88,7 +88,7 @@ export function ChatConversationHistory({ open, onClose, userId, currentConversa
             const partnerId = participantIds.find((id) => id !== userId) ?? "";
 
             const { data: profile } = await sb
-              .from("profiles")
+              .from("public_profiles")
               .select("display_name")
               .eq("user_id", partnerId)
               .maybeSingle();
