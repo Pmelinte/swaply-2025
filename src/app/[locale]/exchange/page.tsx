@@ -107,7 +107,7 @@ async function loadActiveSwaps(userId: string): Promise<ActiveSwap[]> {
       : Promise.resolve({ data: [] as Array<Record<string, unknown>>, error: null }),
     partnerIds.size
       ? supabase
-          .from("profiles")
+          .from("public_profiles")
           .select("user_id, display_name")
           .in("user_id", [...partnerIds])
       : Promise.resolve({ data: [] as Array<Record<string, unknown>>, error: null }),
