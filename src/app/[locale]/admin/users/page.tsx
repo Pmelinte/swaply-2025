@@ -3,7 +3,6 @@
 import { useCallback, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useAppState } from "@/lib/state";
-import { getSupabaseClient } from "@/lib/supabase/client";
 import { AdminGuard } from "@/features/admin/AdminShell";
 import { useAdminActions } from "@/features/admin/useAdminActions";
 import {
@@ -16,14 +15,13 @@ import {
 } from "lucide-react";
 
 interface AdminUser {
-  id: string;
   user_id: string;
   username: string;
   email: string;
   display_name: string;
   avatar_url: string | null;
   badge: string;
-  account_status: string;
+  is_banned: boolean;
   is_suspended: boolean;
   suspended_until: string | null;
   rating: number;
@@ -51,23 +49,16 @@ function UsersContent() {
 
   const handleSearch = useCallback(async () => {
     if (!searchQuery.trim()) return;
-    const supabase = getSupabaseClient();
-    if (!supabase) return;
-
     setLoading(true);
 
-    const { data } = await supabase
-      .from("profiles")
-      .select(
-        "id, user_id, username, email, display_name, avatar_url, badge, account_status, is_suspended, suspended_until, rating, rating_count, created_at, stats",
-      )
-      .or(
-        `email.ilike.%${searchQuery}%,username.ilike.%${searchQuery}%,display_name.ilike.%${searchQuery}%`,
-      )
-      .order("created_at", { ascending: false })
-      .limit(50);
+    const response = await fetch(
+      `/api/admin/users?q=${encodeURIComponent(searchQuery.trim())}`,
+    );
+    const result = (await response.json().catch(() => ({}))) as {
+      users?: AdminUser[];
+    };
 
-    setUsers((data as AdminUser[]) ?? []);
+    setUsers(response.ok ? (result.users ?? []) : []);
     setLoading(false);
   }, [searchQuery]);
 
@@ -80,7 +71,7 @@ function UsersContent() {
       } else {
         setUsers((prev) =>
           prev.map((u) =>
-            u.id === userId ? { ...u, badge: newBadge } : u,
+            u.user_id === userId ? { ...u, badge: newBadge } : u,
           ),
         );
       }
@@ -100,7 +91,7 @@ function UsersContent() {
       } else {
         setUsers((prev) =>
           prev.map((u) =>
-            u.id === userId
+            u.user_id === userId
               ? { ...u, is_suspended: true, suspended_until: new Date(Date.now() + 7 * 86400000).toISOString() }
               : u,
           ),
@@ -123,7 +114,7 @@ function UsersContent() {
       } else {
         setUsers((prev) =>
           prev.map((u) =>
-            u.id === userId ? { ...u, account_status: "deleted" } : u,
+            u.user_id === userId ? { ...u, is_banned: true } : u,
           ),
         );
       }
@@ -141,8 +132,8 @@ function UsersContent() {
       } else {
         setUsers((prev) =>
           prev.map((u) =>
-            u.id === userId
-              ? { ...u, account_status: "active", is_suspended: false, suspended_until: null }
+            u.user_id === userId
+              ? { ...u, is_banned: false, is_suspended: false, suspended_until: null }
               : u,
           ),
         );
@@ -204,12 +195,12 @@ function UsersContent() {
       ) : (
         <div className="space-y-2">
           {users.map((u) => {
-            const isLoading = actionLoading === u.id;
-            const isSuspended = u.is_suspended || u.account_status === "deleted";
+            const isLoading = actionLoading === u.user_id;
+            const isSuspended = u.is_suspended || u.is_banned;
 
             return (
               <div
-                key={u.id}
+                key={u.user_id}
                 className={`rounded-xl border bg-white p-4 dark:bg-zinc-900 ${
                   isSuspended
                     ? "border-red-200 dark:border-red-900"
@@ -243,9 +234,7 @@ function UsersContent() {
                       </span>
                       {isSuspended && (
                         <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-medium text-red-700 dark:bg-red-900/40 dark:text-red-300">
-                          {u.account_status === "deleted"
-                            ? "BANNED"
-                            : "SUSPENDED"}
+                          {u.is_banned ? "BANNED" : "SUSPENDED"}
                         </span>
                       )}
                     </div>
@@ -272,12 +261,13 @@ function UsersContent() {
                     <select
                       value={u.badge}
                       onChange={(e) =>
-                        handleBadgeChange(u.id, e.target.value)
+                        handleBadgeChange(u.user_id, e.target.value)
                       }
                       disabled={isLoading}
                       className="rounded-lg border border-zinc-200 bg-white px-2 py-1.5 text-xs dark:border-zinc-700 dark:bg-zinc-800"
                     >
                       <option value="free">Free</option>
+                      <option value="gold">Gold</option>
                       <option value="premium">Premium</option>
                       <option value="platinum">Platinum</option>
                     </select>
@@ -287,7 +277,7 @@ function UsersContent() {
                         <button
                           type="button"
                           disabled={isLoading}
-                          onClick={() => handleSuspend(u.id)}
+                          onClick={() => handleSuspend(u.user_id)}
                           className="rounded-lg border border-amber-200 p-1.5 text-amber-600 hover:bg-amber-50 disabled:opacity-50 dark:border-amber-800 dark:hover:bg-amber-950/30"
                           title={t("suspend7Days")}
                         >
@@ -296,7 +286,7 @@ function UsersContent() {
                         <button
                           type="button"
                           disabled={isLoading}
-                          onClick={() => handleBan(u.id)}
+                          onClick={() => handleBan(u.user_id)}
                           className="rounded-lg border border-red-200 p-1.5 text-red-600 hover:bg-red-50 disabled:opacity-50 dark:border-red-800 dark:hover:bg-red-950/30"
                           title={t("permanentBan")}
                         >
@@ -307,7 +297,7 @@ function UsersContent() {
                       <button
                         type="button"
                         disabled={isLoading}
-                        onClick={() => handleUnban(u.id)}
+                        onClick={() => handleUnban(u.user_id)}
                         className="rounded-lg border border-emerald-200 p-1.5 text-emerald-600 hover:bg-emerald-50 disabled:opacity-50 dark:border-emerald-800 dark:hover:bg-emerald-950/30"
                         title={t("unblock")}
                       >
