@@ -37,6 +37,7 @@ const AUTH_API_ROUTES = [
   "/api/verify",
   "/api/embeddings",
   "/api/analyze-image",
+  "/api/onboarding",
 ];
 
 // ── API routes that are always public ───────────────────────────────
