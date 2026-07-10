@@ -110,7 +110,7 @@ export async function PATCH(request: NextRequest) {
 
   const input = parsed.data;
   let update: Record<string, unknown>;
-  let moderationAction: string;
+  let moderationAction: string = input.action;
   let reason = "Administrative action";
 
   switch (input.action) {
