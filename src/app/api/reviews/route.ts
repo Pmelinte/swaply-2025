@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServiceSupabase as createServiceClient } from "@/lib/supabase/service";
+import { getServerSupabase } from "@/lib/supabase/server";
 import { z } from "zod";
 
 const reviewSchema = z.object({
@@ -13,6 +14,17 @@ const reviewSchema = z.object({
 
 /** POST — submit a review */
 export async function POST(req: NextRequest) {
+  const session = await getServerSupabase();
+  const {
+    data: { user },
+  } = session
+    ? await session.auth.getUser()
+    : { data: { user: null } };
+
+  if (!user) {
+    return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+  }
+
   const supabase = createServiceClient();
   if (!supabase) {
     return NextResponse.json({ error: "Service unavailable" }, { status: 503 });
@@ -28,10 +40,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
   }
 
-  const reviewerId = req.headers.get("x-user-id");
-  if (!reviewerId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const reviewerId = user.id;
 
   // Verify the swap exists and is completed
   const { data: swap } = await supabase
@@ -48,6 +57,15 @@ export async function POST(req: NextRequest) {
   }
   if (swap.requester_id !== reviewerId && swap.responder_id !== reviewerId) {
     return NextResponse.json({ error: "Not a participant" }, { status: 403 });
+  }
+
+  const counterpartyId =
+    swap.requester_id === reviewerId ? swap.responder_id : swap.requester_id;
+  if (parsed.data.reviewed_id !== counterpartyId) {
+    return NextResponse.json(
+      { error: "A review can only target the swap counterparty" },
+      { status: 400 },
+    );
   }
 
   const { data, error } = await supabase
