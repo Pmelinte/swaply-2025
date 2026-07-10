@@ -19,7 +19,7 @@ export function useChatActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
       let participantBadge: UserProfile["badge"] = "free";
 
       if (dataSource === "supabase" && supabase) {
-        const { data, error } = await supabase.from("profiles")
+        const { data, error } = await supabase.from("public_profiles")
           .select("user_id, display_name, badge").eq("user_id", participantId).maybeSingle();
         if (error) setLastError(error.message);
         else if (data) {

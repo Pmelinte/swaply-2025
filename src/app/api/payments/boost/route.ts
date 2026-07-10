@@ -2,15 +2,28 @@
  * POST /api/payments/boost
  * Creates a Stripe PaymentIntent (RON) for item visibility boost.
  *
- * Body: { itemId, userId, userEmail, duration: "24h" | "72h" | "7d" }
+ * Body: { itemId, duration: "24h" | "72h" | "7d" }
+ * User identity and email are always derived from the validated session.
  * Returns: { clientSecret, paymentIntentId }
  */
 import { NextRequest, NextResponse } from "next/server";
 import { createBoostPaymentIntent, isStripeConfigured, BOOST_PRICES, type BoostDuration } from "@/lib/payments/stripe";
 import { getFeatureFlag } from "@/lib/feature-flags";
 import { getServiceSupabase } from "@/lib/supabase/service";
+import { getServerSupabase } from "@/lib/supabase/server";
 
 export async function POST(request: NextRequest) {
+  const session = await getServerSupabase();
+  const {
+    data: { user },
+  } = session
+    ? await session.auth.getUser()
+    : { data: { user: null } };
+
+  if (!user?.email) {
+    return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+  }
+
   if (!isStripeConfigured() || !(await getFeatureFlag("stripe_payments"))) {
     return NextResponse.json({ error: "Stripe nu este configurat" }, { status: 503 });
   }
@@ -22,11 +35,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "JSON invalid" }, { status: 400 });
   }
 
-  const { itemId, userId, userEmail, duration } = body;
+  const { itemId, duration } = body;
+  const userId = user.id;
+  const userEmail = user.email;
 
-  if (!itemId || !userId || !userEmail || !duration) {
+  if (!itemId || !duration) {
     return NextResponse.json(
-      { error: "itemId, userId, userEmail, duration sunt obligatorii" },
+      { error: "itemId și duration sunt obligatorii" },
       { status: 400 },
     );
   }

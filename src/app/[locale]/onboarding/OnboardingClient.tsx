@@ -206,17 +206,14 @@ export function OnboardingClient() {
       const supabase = getSupabaseClient();
       if (!supabase) throw new Error("Supabase client not available");
 
-      await supabase
-        .from("profiles")
-        .update({ onboarding_completed: true, onboarding_step: "done" })
-        .eq("user_id", user.id);
+      const completion = await fetch("/api/onboarding/complete", {
+        method: "POST",
+      });
+      if (!completion.ok) {
+        throw new Error("Unable to complete onboarding");
+      }
 
       await supabase.rpc("update_profile_completeness", { p_user_id: user.id });
-
-      await supabase
-        .from("onboarding_progress")
-        .update({ step_profile: true, current_step: "first_item" })
-        .eq("user_id", user.id);
 
       if (!navigatingRef.current) {
         navigatingRef.current = true;

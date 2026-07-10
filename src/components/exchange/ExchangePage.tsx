@@ -83,7 +83,7 @@ export function ExchangePage({ swapId }: Props) {
         const responderId = String(row.responder_id ?? "");
 
         const { data: profiles, error: profilesError } = await sb
-          .from("profiles")
+          .from("public_profiles")
           .select("user_id, display_name, avatar_url")
           .in("user_id", [requesterId, responderId]);
         if (profilesError) {

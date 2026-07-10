@@ -22,9 +22,7 @@ export type MatchingProfileRow = Record<string, unknown> & {
   display_name: string | null;
   avatar_url: string | null;
   trust_score: number | null;
-  address_lat: number | null;
-  address_lon: number | null;
-  address_city: string | null;
+  location: { city?: string; country?: string } | null;
   last_active_at: string | null;
 };
 
@@ -32,7 +30,7 @@ const ITEM_COLUMNS =
   "id, owner_id, title, description, category, item_type, perceived_value_tier, swap_wants_category_l1, swap_open_to, photos, estimated_value, created_at, is_active, status";
 
 const PROFILE_COLUMNS =
-  "user_id, username, display_name, avatar_url, trust_score, address_lat, address_lon, address_city, last_active_at";
+  "user_id, username, display_name, avatar_url, trust_score, location, last_active_at";
 
 export async function fetchItemById(
   supabase: SupabaseClient,
@@ -71,7 +69,7 @@ export async function fetchProfilesByIds(
   const map = new Map<string, MatchingProfileRow>();
   if (userIds.length === 0) return map;
   const { data, error } = await supabase
-    .from("profiles")
+    .from("public_profiles")
     .select(PROFILE_COLUMNS)
     .in("user_id", userIds);
   if (error || !data) return map;
@@ -86,7 +84,7 @@ export async function fetchProfileById(
   userId: string,
 ): Promise<MatchingProfileRow | null> {
   const { data, error } = await supabase
-    .from("profiles")
+    .from("public_profiles")
     .select(PROFILE_COLUMNS)
     .eq("user_id", userId)
     .maybeSingle();

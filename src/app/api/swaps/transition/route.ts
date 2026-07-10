@@ -108,9 +108,9 @@ export async function POST(request: NextRequest) {
   if (toStatus === "resolved") {
     // Check admin role via user metadata or profiles table
     const { data: profile } = await db
-      .from("profiles")
+      .from("user_roles")
       .select("role")
-      .eq("id", user.id)
+      .eq("user_id", user.id)
       .maybeSingle();
 
     if (profile?.role !== "admin" && profile?.role !== "moderator") {

@@ -172,7 +172,7 @@ export function ChatPage({ conversationId }: Props) {
             (conv.participant_ids as string[]).find((id: string) => id !== user!.id) ?? "";
 
           const { data: profile } = await sb
-            .from("profiles")
+            .from("public_profiles")
             .select("display_name, avatar_url, phone_verified, id_verified")
             .eq("user_id", partnerId)
             .maybeSingle();

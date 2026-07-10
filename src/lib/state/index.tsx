@@ -544,7 +544,7 @@ export function AppStateProvider({ children, initialLocale }: { children: ReactN
 
         if (participantIds.length) {
           const { data: participantProfiles, error: ppError } = await supabase
-            .from("profiles").select("user_id, display_name, badge")
+            .from("public_profiles").select("user_id, display_name, badge")
             .in("user_id", participantIds);
           if (ppError) setLastError(ppError.message);
 

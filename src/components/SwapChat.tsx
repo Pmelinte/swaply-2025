@@ -40,7 +40,7 @@ export function SwapChat({ swapId, currentUserId, partnerId }: SwapChatProps) {
     const sb = getSupabaseClient();
     if (!sb) return;
 
-    sb.from("profiles")
+    sb.from("public_profiles")
       .select("user_id, display_name, avatar_url")
       .in("user_id", [currentUserId, partnerId])
       .then(({ data }) => {

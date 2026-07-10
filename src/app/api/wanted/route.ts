@@ -65,12 +65,12 @@ export async function GET(request: NextRequest) {
   // Fetch user display names
   const userIds = [...new Set((data ?? []).map((r: { user_id: string }) => r.user_id))];
   const { data: profiles } = userIds.length > 0
-    ? await db.from("profiles").select("id, display_name").in("id", userIds)
+    ? await db.from("public_profiles").select("user_id, display_name").in("user_id", userIds)
     : { data: [] };
 
   const nameMap = new Map<string, string>();
   for (const p of profiles ?? []) {
-    nameMap.set(p.id, p.display_name || "User");
+    nameMap.set(p.user_id, p.display_name || "User");
   }
 
   const requests = (data ?? []).map((r: Record<string, unknown>) => ({

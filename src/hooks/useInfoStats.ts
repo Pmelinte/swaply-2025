@@ -41,9 +41,9 @@ export function useInfoStats(): InfoStats {
               return res;
             })
             .catch(() => ({ count: 0, data: null, error: null })),
-          sb.from("profiles").select("*", { count: "exact", head: true }),
+          sb.from("public_profiles").select("*", { count: "exact", head: true }),
           sb
-            .from("profiles")
+            .from("public_profiles")
             .select("*", { count: "exact", head: true })
             .neq("badge", "free"),
         ]);
