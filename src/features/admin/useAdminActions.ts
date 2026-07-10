@@ -33,6 +33,22 @@ export function useAdminActions() {
     [user],
   );
 
+  const adminUserAction = useCallback(
+    async (payload: Record<string, unknown>): Promise<{ error?: string }> => {
+      const response = await fetch("/api/admin/users", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const result = (await response.json().catch(() => ({}))) as {
+        error?: string;
+      };
+      return response.ok ? {} : { error: result.error ?? "Admin action failed" };
+    },
+    [],
+  );
+
   // ── Report Actions ──
 
   const updateReportStatus = useCallback(
@@ -120,33 +136,14 @@ export function useAdminActions() {
       days: number,
       reason: string,
     ): Promise<{ error?: string }> => {
-      const supabase = getSupabaseClient();
-      if (!supabase) return { error: "No supabase client" };
-
-      const suspendedUntil = new Date(
-        Date.now() + days * 24 * 60 * 60 * 1000,
-      ).toISOString();
-
-      const { error } = await supabase
-        .from("profiles")
-        .update({
-          is_suspended: true,
-          suspended_until: suspendedUntil,
-        })
-        .eq("id", targetUserId);
-
-      if (error) return { error: error.message };
-
-      const modResult = await insertModerationAction({
-        targetUserId,
+      return adminUserAction({
         action: "suspend",
+        userId: targetUserId,
+        days,
         reason,
-        details: { days, suspended_until: suspendedUntil },
       });
-
-      return modResult;
     },
-    [insertModerationAction],
+    [adminUserAction],
   );
 
   const banUser = useCallback(
@@ -154,48 +151,23 @@ export function useAdminActions() {
       targetUserId: string,
       reason: string,
     ): Promise<{ error?: string }> => {
-      const supabase = getSupabaseClient();
-      if (!supabase) return { error: "No supabase client" };
-
-      const { error } = await supabase
-        .from("profiles")
-        .update({ account_status: "deleted" })
-        .eq("id", targetUserId);
-
-      if (error) return { error: error.message };
-
-      return insertModerationAction({
-        targetUserId,
+      return adminUserAction({
         action: "ban",
+        userId: targetUserId,
         reason,
       });
     },
-    [insertModerationAction],
+    [adminUserAction],
   );
 
   const unbanUser = useCallback(
     async (targetUserId: string): Promise<{ error?: string }> => {
-      const supabase = getSupabaseClient();
-      if (!supabase) return { error: "No supabase client" };
-
-      const { error } = await supabase
-        .from("profiles")
-        .update({
-          account_status: "active",
-          is_suspended: false,
-          suspended_until: null,
-        })
-        .eq("id", targetUserId);
-
-      if (error) return { error: error.message };
-
-      return insertModerationAction({
-        targetUserId,
+      return adminUserAction({
         action: "unban",
-        reason: "Admin unban",
+        userId: targetUserId,
       });
     },
-    [insertModerationAction],
+    [adminUserAction],
   );
 
   const changeBadge = useCallback(
@@ -203,20 +175,13 @@ export function useAdminActions() {
       targetUserId: string,
       badge: string,
     ): Promise<{ error?: string }> => {
-      const supabase = getSupabaseClient();
-      if (!supabase) return { error: "No supabase client" };
-
-      const { error } = await supabase
-        .from("profiles")
-        .update({ badge })
-        .eq("id", targetUserId);
-
-      if (error) return { error: error.message };
-
-      await logAudit("change_badge", "user", targetUserId, { badge });
-      return {};
+      return adminUserAction({
+        action: "set_badge",
+        userId: targetUserId,
+        badge,
+      });
     },
-    [logAudit],
+    [adminUserAction],
   );
 
   // ── Item Actions ──
