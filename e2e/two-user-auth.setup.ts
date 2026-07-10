@@ -18,14 +18,13 @@ export async function authenticateAndSave(
   }
 
   await page.goto("/en/login");
-
-  const checkbox = page.locator('input[type="checkbox"]');
-  if (await checkbox.count()) {
-    await checkbox.check();
-  }
-
   await page.locator('input[type="email"]').fill(email);
   await page.locator('input[type="password"]').fill(password);
+
+  const termsCheckbox = page.getByRole("checkbox", { name: /terms.*gdpr/i });
+  await termsCheckbox.check();
+  await expect(termsCheckbox).toBeChecked();
+
   await page.locator('button[type="submit"]').click();
 
   await expect(page).not.toHaveURL(/\/login/, { timeout: 15_000 });
