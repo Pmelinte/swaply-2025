@@ -71,7 +71,7 @@ export async function fetchProfilesByIds(
   const map = new Map<string, MatchingProfileRow>();
   if (userIds.length === 0) return map;
   const { data, error } = await supabase
-    .from("profiles")
+    .from("public_profiles")
     .select(PROFILE_COLUMNS)
     .in("user_id", userIds);
   if (error || !data) return map;
@@ -86,7 +86,7 @@ export async function fetchProfileById(
   userId: string,
 ): Promise<MatchingProfileRow | null> {
   const { data, error } = await supabase
-    .from("profiles")
+    .from("public_profiles")
     .select(PROFILE_COLUMNS)
     .eq("user_id", userId)
     .maybeSingle();
