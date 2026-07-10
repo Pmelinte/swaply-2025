@@ -39,15 +39,22 @@ WHERE email ~ '^demo[0-9]+@swaply\.test$';
 
 COMMIT;
 
--- Verification: public shared password must match zero users and every demo
--- account must be banned.
+-- Verification: every demo identity must be banned and no session material
+-- may remain. The former shared password is intentionally not repeated here.
 SELECT
-  count(*)::int AS demo_users,
-  count(*) FILTER (
-    WHERE encrypted_password = crypt('DemoSwap2025!', encrypted_password)
-  )::int AS public_password_still_valid,
-  count(*) FILTER (
-    WHERE banned_until IS NOT NULL AND banned_until > now()
-  )::int AS banned_demo_users
-FROM auth.users
-WHERE email ~ '^demo[0-9]+@swaply\.test$';
+  (SELECT count(*)
+   FROM auth.users
+   WHERE email ~ '^demo[0-9]+@swaply\.test$')::int AS demo_users,
+  (SELECT count(*)
+   FROM auth.users
+   WHERE email ~ '^demo[0-9]+@swaply\.test$'
+     AND banned_until IS NOT NULL
+     AND banned_until > now())::int AS banned_demo_users,
+  (SELECT count(*)
+   FROM auth.sessions s
+   JOIN auth.users u ON u.id = s.user_id
+   WHERE u.email ~ '^demo[0-9]+@swaply\.test$')::int AS remaining_sessions,
+  (SELECT count(*)
+   FROM auth.refresh_tokens r
+   JOIN auth.users u ON u.id::text = r.user_id
+   WHERE u.email ~ '^demo[0-9]+@swaply\.test$')::int AS remaining_refresh_tokens;
