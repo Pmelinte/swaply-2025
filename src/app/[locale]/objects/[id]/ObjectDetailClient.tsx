@@ -265,20 +265,19 @@ export default function ObjectDetailClient() {
     const supabase = getSupabaseClient();
     if (!supabase) return;
     supabase
-      .from("profiles")
-      .select("display_name, avatar_url, location, badge, stats")
+      .from("public_profiles")
+      .select("display_name, avatar_url, location, badge, swaps_completed")
       .eq("user_id", item.ownerId)
       .maybeSingle()
       .then(({ data }) => {
         if (data) {
           const loc = typeof data.location === "object" && data.location ? data.location : {};
-          const stats = typeof data.stats === "object" && data.stats ? data.stats : {};
           setOwnerProfile({
             displayName: (data.display_name as string) || "Swaply User",
             avatarUrl: (data.avatar_url as string) || "",
             city: (loc as Record<string, unknown>).city as string || "",
             badge: (data.badge as string) || "free",
-            completedSwaps: (stats as Record<string, unknown>).completedSwaps as number || 0,
+            completedSwaps: (data.swaps_completed as number) || 0,
           });
         }
       });
