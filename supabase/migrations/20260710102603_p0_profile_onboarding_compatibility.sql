@@ -79,8 +79,7 @@ begin
 
   return new;
 end;
-$function$
-
+$function$;
 
 revoke execute on function public.protect_profile_privileged_fields()
   from public, anon, authenticated;
