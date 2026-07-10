@@ -61,13 +61,13 @@ export async function GET(request: NextRequest) {
   // Fetch user display names
   const ownerIds = [...new Set(items.map((i: { owner_id: string }) => i.owner_id))];
   const { data: profiles } = await db
-    .from("profiles")
-    .select("id, display_name")
-    .in("id", ownerIds);
+    .from("public_profiles")
+    .select("user_id, display_name")
+    .in("user_id", ownerIds);
 
   const nameMap = new Map<string, string>();
   for (const p of profiles ?? []) {
-    nameMap.set(p.id, p.display_name || "User");
+    nameMap.set(p.user_id, p.display_name || "User");
   }
 
   // Build item-by-owner map
