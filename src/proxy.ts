@@ -33,10 +33,21 @@ const AUTH_API_ROUTES = [
   "/api/gdpr",
   "/api/moderate",
   "/api/payments",
+  "/api/admin",
+  "/api/verify",
+  "/api/embeddings",
+  "/api/analyze-image",
 ];
 
 // ── API routes that are always public ───────────────────────────────
-const PUBLIC_API_ROUTES = ["/api/health", "/api/translate"];
+const PUBLIC_API_ROUTES = [
+  "/api/health",
+  "/api/translate",
+  // Provider webhooks authenticate with their cryptographic signature, not a
+  // Swaply user session. These exact routes must bypass Supabase user auth.
+  "/api/payments/webhook",
+  "/api/payments/paypal/webhook",
+];
 
 // ── Admin-only routes ───────────────────────────────────────────────
 const ADMIN_ROUTES = ["/admin"];
@@ -192,14 +203,14 @@ export async function proxy(request: NextRequest) {
 
   // Step 4 — admin routes: verify role.
   if (isAdminRoute(barePath)) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("badge")
+    const { data: userRole } = await supabase
+      .from("user_roles")
+      .select("role")
       .eq("user_id", user.id)
       .maybeSingle();
 
-    const badge = (profile as Record<string, unknown> | null)?.badge as string;
-    const isAdmin = badge === "admin" || badge === "moderator";
+    const role = (userRole as Record<string, unknown> | null)?.role as string;
+    const isAdmin = role === "admin" || role === "moderator";
 
     if (!isAdmin) {
       const homeUrl = request.nextUrl.clone();
@@ -240,14 +251,14 @@ async function runAuthMiddleware(request: NextRequest, pathname: string) {
 
   // Admin API routes
   if (isAdminRoute(pathname.replace(/^\/api/, "/admin"))) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("badge")
+    const { data: userRole } = await supabase
+      .from("user_roles")
+      .select("role")
       .eq("user_id", user.id)
       .maybeSingle();
 
-    const badge = (profile as Record<string, unknown> | null)?.badge as string;
-    if (badge !== "admin" && badge !== "moderator") {
+    const role = (userRole as Record<string, unknown> | null)?.role as string;
+    if (role !== "admin" && role !== "moderator") {
       return NextResponse.json(
         { error: "Forbidden — admin access required" },
         { status: 403 },
