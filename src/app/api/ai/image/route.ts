@@ -8,28 +8,27 @@ import { getFeatureFlag } from "@/lib/feature-flags";
 /** All category names (top-level + subcategories) for AI matching */
 const ALL_CATEGORY_NAMES = CATEGORIES_TAXONOMY.map((c) => c.name);
 
-/** Block SSRF: reject private/internal IP ranges and non-https URLs */
+/** Allow server-side downloads only from explicitly trusted image hosts. */
 function isPublicUrl(url: string): boolean {
   try {
-    const u = new URL(url);
-    if (u.protocol !== "https:" && u.protocol !== "http:") return false;
-    const host = u.hostname.toLowerCase();
-    if (
-      host === "localhost" ||
-      host === "0.0.0.0" ||
-      host === "[::1]" ||
-      host.endsWith(".local") ||
-      host.endsWith(".internal") ||
-      /^127\./.test(host) ||
-      /^10\./.test(host) ||
-      /^192\.168\./.test(host) ||
-      /^172\.(1[6-9]|2\d|3[01])\./.test(host) ||
-      /^169\.254\./.test(host) ||
-      /^100\.(6[4-9]|[7-9]\d|1[01]\d|12[0-7])\./.test(host)
-    ) {
+    const parsed = new URL(url);
+    if (parsed.protocol !== "https:" || parsed.username || parsed.password) {
       return false;
     }
-    return true;
+
+    const allowedHosts = new Set(
+      (process.env.AI_IMAGE_ALLOWED_HOSTS ?? "")
+        .split(",")
+        .map((host) => host.trim().toLowerCase())
+        .filter(Boolean),
+    );
+
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    if (supabaseUrl) {
+      allowedHosts.add(new URL(supabaseUrl).hostname.toLowerCase());
+    }
+
+    return allowedHosts.has(parsed.hostname.toLowerCase());
   } catch {
     return false;
   }
