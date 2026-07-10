@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServiceSupabase } from "@/lib/supabase/service";
+import { getServerSupabase } from "@/lib/supabase/server";
 import { requestLogger, captureError } from "@/lib/logger";
 
 /**
@@ -66,6 +67,16 @@ export async function POST(request: Request) {
   const log = requestLogger(request);
 
   try {
+    const session = await getServerSupabase();
+    const {
+      data: { user },
+    } = session
+      ? await session.auth.getUser()
+      : { data: { user: null } };
+
+    if (!user) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
     const body = await request.json();
     const itemId = typeof body.itemId === "string" ? body.itemId.trim() : "";
     if (!itemId) {
@@ -80,13 +91,16 @@ export async function POST(request: Request) {
     // Fetch item data
     const { data: item, error: fetchError } = await supabase
       .from("items")
-      .select("id, title, description, category, wishlist, ai_suggested_tags, user_final_tags")
+      .select("id, title, description, category, wishlist, ai_suggested_tags, user_final_tags, owner_id")
       .eq("id", itemId)
       .single();
 
     if (fetchError || !item) {
       log.warn("Item not found", { itemId });
       return NextResponse.json({ error: "Item not found" }, { status: 404 });
+    }
+    if (item.owner_id !== user.id) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     // Generate embedding
