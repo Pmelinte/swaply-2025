@@ -125,6 +125,6 @@ function toItemWithProfile(row: any, profile: any): Item {
   const item = rowToItem(row);
   return {
     ...item,
-    location: item.location || toText(profile?.address_city, ""),
+    location: item.location || toText(profile?.location?.city, ""),
   };
 }
