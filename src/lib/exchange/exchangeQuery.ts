@@ -61,7 +61,7 @@ export async function getExchangeSwap(swapId: string): Promise<ExchangeSwap | nu
 
   // Load profiles for both participants
   const { data: profiles, error: profilesError } = await supabase
-    .from("profiles")
+    .from("public_profiles")
     .select("user_id, display_name, avatar_url")
     .in("user_id", [requesterId, responderId]);
   if (profilesError) {
