@@ -18,14 +18,19 @@ type LocationSelection = Pick<
 const profilePath = "/en/profile";
 
 function profileControls(page: Page) {
+  const locationSection = page.locator("section").filter({
+    has: page.getByRole("heading", { name: "Localization", exact: true }),
+  });
+  const locationSelects = locationSection.locator("select");
+
   return {
     addLanguage: page.getByLabel("Add language", { exact: true }),
     avatarUrl: page.getByLabel("Avatar (URL)", { exact: true }),
     bio: page.getByLabel("Short description (bio)", { exact: true }),
-    city: page.getByLabel("City", { exact: true }),
-    country: page.getByLabel("Country", { exact: true }),
+    city: locationSelects.nth(2),
+    country: locationSelects.nth(0),
     displayName: page.getByLabel("Display name", { exact: true }),
-    region: page.getByLabel("Region", { exact: true }),
+    region: locationSelects.nth(1),
     save: page.getByRole("button", { name: "Save profile", exact: true }),
   };
 }
