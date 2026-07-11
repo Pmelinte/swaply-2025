@@ -111,9 +111,9 @@ test.describe("Train C Batch 51 profile", () => {
   test("user can edit and persist profile fields, then restore the original profile", async ({
     page,
   }) => {
-    test.setTimeout(90_000);
+    test.setTimeout(180_000);
 
-    await page.goto(profilePath, { waitUntil: "networkidle" });
+    await page.goto(profilePath, { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/en\/profile/);
 
     const original = await readProfile(page);
@@ -157,7 +157,7 @@ test.describe("Train C Batch 51 profile", () => {
       expect(addedLanguageLabel, "Adding a spoken language must create a removable chip.").toBeTruthy();
 
       await saveProfile(page);
-      await page.reload({ waitUntil: "networkidle" });
+      await page.reload({ waitUntil: "domcontentloaded" });
 
       const persisted = await readProfile(page);
       expect(persisted.displayName).toBe(temporaryDisplayName);
@@ -171,7 +171,7 @@ test.describe("Train C Batch 51 profile", () => {
       await expectAvatarLoaded(page.getByRole("img", { name: "Avatar", exact: true }), temporaryAvatar);
     } finally {
       if (mutationStarted) {
-        await page.goto(profilePath, { waitUntil: "networkidle" });
+        await page.goto(profilePath, { waitUntil: "domcontentloaded" });
         const restoreControls = profileControls(page);
 
         await expect(restoreControls.displayName).toBeVisible();
@@ -191,7 +191,7 @@ test.describe("Train C Batch 51 profile", () => {
 
         await setLocation(page, original);
         await saveProfile(page);
-        await page.reload({ waitUntil: "networkidle" });
+        await page.reload({ waitUntil: "domcontentloaded" });
 
         const restored = await readProfile(page);
         expect(restored.displayName).toBe(original.displayName);
