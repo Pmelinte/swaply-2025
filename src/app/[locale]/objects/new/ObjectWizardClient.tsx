@@ -5,6 +5,7 @@ import { useRouter } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { getSupabaseClient } from "@/lib/supabase/client";
+import { normalizeObjectWizardItemInsert } from "@/lib/items/normalize-object-wizard-insert";
 import { uploadItemPhoto } from "@/lib/storage";
 import { ChevronLeft, ChevronRight, Upload, X, Loader2, CheckCircle2 } from "lucide-react";
 
@@ -332,7 +333,7 @@ export function ObjectWizardClient() {
     }
   };
 
-  const handlePublish = async () => {
+  const handlePublish = async (requestedStatus: FormData["status"] = form.status) => {
     // Validate required fields
     if (!form.title.trim()) {
       setError("Title is required");
@@ -382,11 +383,11 @@ export function ObjectWizardClient() {
       const supabase = getSupabaseClient();
       if (!supabase) throw new Error("Supabase not available");
 
-      const payload = {
+      const legacyPayload = {
         owner_id: user!.id,
         title: form.title.trim(),
         description: form.description.trim(),
-        status: form.status,
+        status: requestedStatus,
         category_l1: form.category_l1,
         category_l2: form.category_l2 || null,
         category_l3: form.category_l3.trim() || null,
@@ -405,6 +406,11 @@ export function ObjectWizardClient() {
         swap_geo_preference: form.swap_geo_preference || null,
         item_type: "object",
       };
+
+      const payload = normalizeObjectWizardItemInsert(legacyPayload);
+      if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+        throw new Error("Invalid object payload");
+      }
 
       const { data, error: insertError } = await supabase
         .from("items")
@@ -1250,10 +1256,7 @@ export function ObjectWizardClient() {
               <div className="ml-auto flex gap-3">
                 <button
                   type="button"
-                  onClick={() => {
-                    updateForm({ status: "draft" });
-                    handlePublish();
-                  }}
+                  onClick={() => void handlePublish("draft")}
                   disabled={loading}
                   className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-6 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
                 >
@@ -1262,10 +1265,7 @@ export function ObjectWizardClient() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => {
-                    updateForm({ status: "active" });
-                    handlePublish();
-                  }}
+                  onClick={() => void handlePublish("active")}
                   disabled={loading}
                   className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-6 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
                 >
