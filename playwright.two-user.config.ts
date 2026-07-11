@@ -2,8 +2,17 @@ import { defineConfig, devices } from "@playwright/test";
 import path from "node:path";
 
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000";
+const vercelAutomationBypassSecret =
+  process.env.VERCEL_AUTOMATION_BYPASS_SECRET?.trim() || null;
 const userAAuthFile = path.join(__dirname, "e2e", ".auth", "user-a.json");
 const userBAuthFile = path.join(__dirname, "e2e", ".auth", "user-b.json");
+
+const extraHTTPHeaders = vercelAutomationBypassSecret
+  ? {
+      "x-vercel-protection-bypass": vercelAutomationBypassSecret,
+      "x-vercel-set-bypass-cookie": "true",
+    }
+  : undefined;
 
 export default defineConfig({
   testDir: "./e2e",
@@ -15,6 +24,7 @@ export default defineConfig({
   reporter: process.env.CI ? "html" : "list",
   use: {
     baseURL,
+    ...(extraHTTPHeaders ? { extraHTTPHeaders } : {}),
     screenshot: "only-on-failure",
     trace: "on-first-retry",
     video: "off",
