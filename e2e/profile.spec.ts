@@ -16,6 +16,14 @@ type LocationSelection = Pick<
 >;
 
 const profilePath = "/en/profile";
+const profileRestoreTimeout = 60_000;
+
+async function hideCookieBanners(page: Page) {
+  await page.addInitScript(() => {
+    window.localStorage.setItem("cookie_consent", "rejected");
+    window.localStorage.setItem("swaply_cookie_consent", "rejected");
+  });
+}
 
 function profileControls(page: Page) {
   const locationSection = page.locator("section").filter({
@@ -90,7 +98,7 @@ async function saveProfile(page: Page) {
   const responseBody = response.ok() ? "" : await response.text();
 
   expect(response.ok(), `Profile save failed: ${response.status()} ${responseBody}`).toBe(true);
-  await expect(page.getByRole("alert")).toContainText("Profile saved successfully!");
+  await expect(page.getByText("Profile saved successfully!", { exact: true })).toBeVisible();
 }
 
 async function expectAvatarLoaded(avatar: Locator, expectedUrl: string) {
@@ -108,11 +116,13 @@ async function expectAvatarLoaded(avatar: Locator, expectedUrl: string) {
 test.describe("Train C Batch 51 profile", () => {
   test.describe.configure({ retries: 0 });
 
-  test("user can edit and persist profile fields, then restore the original profile", async ({
-    page,
-  }) => {
+  test("user can edit and persist profile fields, then restore the original profile", async (
+    { page },
+    testInfo,
+  ) => {
     test.setTimeout(180_000);
 
+    await hideCookieBanners(page);
     await page.goto(profilePath, { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/en\/profile/);
 
@@ -142,6 +152,7 @@ test.describe("Train C Batch 51 profile", () => {
 
     let addedLanguageLabel: string | null = null;
     let mutationStarted = false;
+    let primaryError: unknown | null = null;
 
     try {
       mutationStarted = true;
@@ -169,39 +180,67 @@ test.describe("Train C Batch 51 profile", () => {
       expect(persisted.languageLabels).toContain(addedLanguageLabel);
 
       await expectAvatarLoaded(page.getByRole("img", { name: "Avatar", exact: true }), temporaryAvatar);
-    } finally {
-      if (mutationStarted) {
-        await page.goto(profilePath, { waitUntil: "domcontentloaded" });
-        const restoreControls = profileControls(page);
+    } catch (error) {
+      primaryError = error;
+    }
 
-        await expect(restoreControls.displayName).toBeVisible();
-        await restoreControls.displayName.fill(original.displayName);
-        await restoreControls.avatarUrl.fill(original.avatarUrl);
-        await restoreControls.bio.fill(original.bio);
+    let restoreError: unknown | null = null;
 
-        if (addedLanguageLabel) {
-          const addedLanguageButton = page.getByRole("button", {
-            name: addedLanguageLabel,
-            exact: true,
-          });
-          if (await addedLanguageButton.isVisible()) {
-            await addedLanguageButton.click();
+    if (mutationStarted) {
+      testInfo.setTimeout(testInfo.timeout + profileRestoreTimeout);
+
+      try {
+        await test.step("restore the original profile", async () => {
+          await page.goto(profilePath, { waitUntil: "domcontentloaded" });
+          const restoreControls = profileControls(page);
+
+          await expect(restoreControls.displayName).toBeVisible();
+          await restoreControls.displayName.fill(original.displayName);
+          await restoreControls.avatarUrl.fill(original.avatarUrl);
+          await restoreControls.bio.fill(original.bio);
+
+          if (addedLanguageLabel) {
+            const addedLanguageButton = page.getByRole("button", {
+              name: addedLanguageLabel,
+              exact: true,
+            });
+            if (await addedLanguageButton.isVisible()) {
+              await addedLanguageButton.click();
+            }
           }
-        }
 
-        await setLocation(page, original);
-        await saveProfile(page);
-        await page.reload({ waitUntil: "domcontentloaded" });
+          await setLocation(page, original);
+          await saveProfile(page);
+          await page.reload({ waitUntil: "domcontentloaded" });
 
-        const restored = await readProfile(page);
-        expect(restored.displayName).toBe(original.displayName);
-        expect(restored.avatarUrl).toBe(original.avatarUrl);
-        expect(restored.bio).toBe(original.bio);
-        expect(restored.countryCode).toBe(original.countryCode);
-        expect(restored.regionCode).toBe(original.regionCode);
-        expect(restored.city).toBe(original.city);
-        expect(restored.languageLabels).toEqual(original.languageLabels);
+          const restored = await readProfile(page);
+          expect(restored.displayName).toBe(original.displayName);
+          expect(restored.avatarUrl).toBe(original.avatarUrl);
+          expect(restored.bio).toBe(original.bio);
+          expect(restored.countryCode).toBe(original.countryCode);
+          expect(restored.regionCode).toBe(original.regionCode);
+          expect(restored.city).toBe(original.city);
+          expect(restored.languageLabels).toEqual(original.languageLabels);
+        }, { timeout: profileRestoreTimeout });
+      } catch (error) {
+        restoreError = error;
       }
     }
+
+    if (primaryError !== null) {
+      if (restoreError !== null) {
+        await testInfo.attach("profile-restore-error", {
+          body:
+            restoreError instanceof Error
+              ? restoreError.stack ?? restoreError.message
+              : String(restoreError),
+          contentType: "text/plain",
+        });
+      }
+
+      throw primaryError;
+    }
+
+    if (restoreError !== null) throw restoreError;
   });
 });
