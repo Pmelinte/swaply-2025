@@ -21,11 +21,16 @@ export default function EditObjectPage() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setItem(items.find((i) => i.id === params.id) ?? null);
+      setItem(
+        items.find(
+          (candidate) =>
+            candidate.id === params.id && candidate.ownerId === user?.id,
+        ) ?? null,
+      );
       setLoading(false);
     }, 250);
     return () => clearTimeout(timer);
-  }, [items, params.id]);
+  }, [items, params.id, user?.id]);
 
   if (appLoading.auth) {
     return (
