@@ -99,9 +99,9 @@ async function createObject(page: Page, title: string, description: string): Pro
   await expect(page.getByText("Your item has been listed successfully!", { exact: true })).toBeVisible({
     timeout: actionTimeout,
   });
-  await expect(page).toHaveURL(new RegExp(`/en/objects/${itemId}$`), {
-    timeout: actionTimeout,
-  });
+  await expect
+    .poll(() => new URL(page.url()).pathname, { timeout: actionTimeout })
+    .toBe(`/en/objects/${itemId}`);
 
   return itemId!;
 }
@@ -259,7 +259,12 @@ test.describe("Train C Batch 52 objects CRUD", () => {
           await archiveObject(pageA, currentTitle);
           await pageA.goto(`/en/objects/${createdItemId}`, { waitUntil: "domcontentloaded" });
           await expect(
-            pageA.getByText("Object not found or not publicly available.", { exact: false }),
+            pageA
+              .locator("main")
+              .getByText(
+                "Object not found or not publicly available. Navigate back to the objects list.",
+                { exact: true },
+              ),
           ).toBeVisible({
             timeout: actionTimeout,
           });
