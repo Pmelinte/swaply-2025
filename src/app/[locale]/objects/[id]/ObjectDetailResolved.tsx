@@ -21,16 +21,18 @@ export default function ObjectDetailResolved({
   initialItem,
 }: ObjectDetailResolvedProps) {
   const queryClient = useQueryClient();
-  const { user, loading } = useAppState();
+  const { items, user, loading } = useAppState();
   const t = useTranslations("objectDetail");
   const [seededItemId, setSeededItemId] = useState<string | null>(null);
+  const stateItem = items.find((candidate) => candidate.id === itemId) ?? null;
+  const resolvedItem = stateItem ?? initialItem;
 
   useEffect(() => {
-    queryClient.setQueryData(["item", itemId], initialItem);
+    queryClient.setQueryData(["item", itemId], resolvedItem);
     setSeededItemId(itemId);
-  }, [initialItem, itemId, queryClient]);
+  }, [itemId, queryClient, resolvedItem]);
 
-  if (!initialItem) {
+  if (!resolvedItem) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-6">
         <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-center dark:border-amber-800 dark:bg-amber-900/40">
@@ -47,11 +49,11 @@ export default function ObjectDetailResolved({
     );
   }
 
-  const isOwner = user?.id === initialItem.ownerId;
+  const isOwner = user?.id === resolvedItem.ownerId;
   const showResolvedShell = seededItemId !== itemId || loading.items;
 
   if (showResolvedShell) {
-    const coverPhoto = initialItem.photos?.[0];
+    const coverPhoto = resolvedItem.photos?.[0];
 
     return (
       <div>
@@ -71,7 +73,7 @@ export default function ObjectDetailResolved({
                 <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-zinc-100 dark:bg-zinc-800">
                   <SafeImage
                     src={coverPhoto}
-                    alt={initialItem.title}
+                    alt={resolvedItem.title}
                     fill
                     className="object-cover"
                     sizes="(max-width: 1024px) 100vw, 60vw"
@@ -83,24 +85,24 @@ export default function ObjectDetailResolved({
 
               <div>
                 <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
-                  {initialItem.title}
+                  {resolvedItem.title}
                 </h1>
                 <div className="mt-2 flex flex-wrap gap-2 text-xs text-zinc-500 dark:text-zinc-400">
-                  <span>{initialItem.category}</span>
+                  <span>{resolvedItem.category}</span>
                   <span>·</span>
-                  <span>{initialItem.condition}</span>
-                  {initialItem.location && (
+                  <span>{resolvedItem.condition}</span>
+                  {resolvedItem.location && (
                     <>
                       <span>·</span>
-                      <span>{initialItem.location}</span>
+                      <span>{resolvedItem.location}</span>
                     </>
                   )}
                 </div>
               </div>
 
-              {initialItem.description && (
+              {resolvedItem.description && (
                 <div className="rounded-2xl border border-zinc-200 bg-white p-5 text-sm leading-6 text-zinc-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
-                  {initialItem.description}
+                  {resolvedItem.description}
                 </div>
               )}
             </div>
