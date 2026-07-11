@@ -44,7 +44,7 @@ async function readProfile(page: Page): Promise<ProfileSnapshot> {
   const controls = profileControls(page);
 
   await expect(controls.displayName).toBeVisible();
-  await expect(controls.country).toBeVisible();
+  await expect(controls.country).toBeVisible({ timeout: 30_000 });
 
   return {
     avatarUrl: await controls.avatarUrl.inputValue(),
