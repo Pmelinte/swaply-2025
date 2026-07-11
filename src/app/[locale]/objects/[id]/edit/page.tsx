@@ -6,7 +6,9 @@ import { useParams } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
-import { Item } from "@/lib/types";
+import type { Item } from "@/lib/types";
+import { createMapItem } from "@/lib/state/mappers";
+import { getSupabaseClient } from "@/lib/supabase/client";
 import { ItemForm } from "@/features/items/ItemForm";
 import { LoggedOutGate } from "@/components/gated";
 import { SectionCard, StateShowcase } from "@/components/ui-custom";
@@ -20,17 +22,75 @@ export default function EditObjectPage() {
   const [item, setItem] = useState<Item | null>(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setItem(
-        items.find(
-          (candidate) =>
-            candidate.id === params.id && candidate.ownerId === user?.id,
-        ) ?? null,
-      );
+    let cancelled = false;
+
+    if (appLoading.auth) return () => {
+      cancelled = true;
+    };
+
+    if (!user) {
+      setItem(null);
       setLoading(false);
-    }, 250);
-    return () => clearTimeout(timer);
-  }, [items, params.id, user?.id]);
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    const stateItem = items.find(
+      (candidate) =>
+        candidate.id === params.id && candidate.ownerId === user.id,
+    );
+
+    if (stateItem) {
+      setItem(stateItem);
+      setLoading(false);
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    const supabase = getSupabaseClient();
+    if (!supabase) {
+      setItem(null);
+      setLoading(false);
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    setLoading(true);
+
+    void supabase
+      .from("items")
+      .select("*")
+      .eq("id", params.id)
+      .eq("owner_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (cancelled) return;
+
+        if (!data) {
+          setItem(null);
+          setLoading(false);
+          return;
+        }
+
+        const mapped = createMapItem({ current: user })(
+          data as unknown as Partial<Item> & Record<string, unknown>,
+        );
+        setItem(mapped);
+        setLoading(false);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setItem(null);
+        setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [appLoading.auth, items, params.id, user]);
 
   if (appLoading.auth) {
     return (
@@ -46,10 +106,7 @@ export default function EditObjectPage() {
 
   if (loading) {
     return (
-      <SectionCard
-        title={t("loading")}
-        description=""
-      >
+      <SectionCard title={t("loading")} description="">
         <div className="h-24 animate-pulse rounded-xl bg-zinc-100 dark:bg-zinc-800" />
       </SectionCard>
     );
@@ -57,18 +114,21 @@ export default function EditObjectPage() {
 
   if (!item) {
     return (
-      <SectionCard
-        title={t("notFound")}
-        description=""
-      >
+      <SectionCard title={t("notFound")} description="">
         <p className="text-sm text-zinc-700 dark:text-zinc-300">
           {t("notFoundDescription")}
         </p>
         <div className="mt-3 flex flex-wrap gap-2 text-sm font-semibold">
-          <Link className="rounded-full bg-blue-600 px-4 py-2 text-white" href="/objects">
+          <Link
+            className="rounded-full bg-blue-600 px-4 py-2 text-white"
+            href="/objects"
+          >
             {t("backToObjects")}
           </Link>
-          <Link className="rounded-full bg-zinc-900 px-4 py-2 text-white" href="/objects/new">
+          <Link
+            className="rounded-full bg-zinc-900 px-4 py-2 text-white"
+            href="/objects/new"
+          >
             {t("addObject")}
           </Link>
         </div>
@@ -78,10 +138,7 @@ export default function EditObjectPage() {
 
   return (
     <div className="space-y-4">
-      <SectionCard
-        title={t("title")}
-        description={t("editDescription")}
-      >
+      <SectionCard title={t("title")} description={t("editDescription")}>
         <ItemForm
           item={item}
           onSave={async (next) => {
@@ -98,17 +155,20 @@ export default function EditObjectPage() {
           {
             key: "loading",
             title: "Loading values",
-            description: "Skeleton on fields at mount + spinner on button until we fetch the object.",
+            description:
+              "Skeleton on fields at mount + spinner on button until we fetch the object.",
           },
           {
             key: "empty",
             title: "Form without data",
-            description: "If the object returns no data, we show a fallback with a link to create.",
+            description:
+              "If the object returns no data, we show a fallback with a link to create.",
           },
           {
             key: "error",
             title: "Save error",
-            description: "Clear message without data loss; user can return to /objects/[id].",
+            description:
+              "Clear message without data loss; user can return to /objects/[id].",
           },
         ]}
       />
