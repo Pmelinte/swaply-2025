@@ -65,7 +65,7 @@ test.describe("Train C two-user authenticated baseline", () => {
   test("authenticated user can log out and loses protected access", async ({ browser }) => {
     test.setTimeout(60_000);
 
-    const context = await browser.newContext({ storageState: userAAuthFile });
+    const context = await browser.newContext({ storageState: userBAuthFile });
     const page = await context.newPage();
 
     await page.goto("/en/profile", { waitUntil: "networkidle" });

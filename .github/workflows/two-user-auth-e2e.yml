@@ -1,4 +1,4 @@
-name: Train C Two-User Auth E2E
+name: Train C Authenticated E2E
 
 on:
   workflow_dispatch:
@@ -16,8 +16,8 @@ env:
   E2E_USER_B_PASSWORD: ${{ secrets.E2E_USER_B_PASSWORD }}
 
 jobs:
-  two-user-auth:
-    name: Two-User Authenticated Baseline
+  authenticated-e2e:
+    name: Authenticated Baseline and Profile
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -44,14 +44,14 @@ jobs:
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Run two-user authenticated baseline
-        run: npx playwright test --config=playwright.two-user.config.ts --project=two-user-auth
+      - name: Run authenticated baseline and profile validation
+        run: npx playwright test --config=playwright.two-user.config.ts --project=two-user-auth --project=profile
 
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: train-c-two-user-auth-report
+          name: train-c-authenticated-report
           path: playwright-report/
           if-no-files-found: warn
           retention-days: 14
@@ -60,7 +60,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: train-c-two-user-auth-results
+          name: train-c-authenticated-results
           path: test-results/
           if-no-files-found: warn
           retention-days: 14

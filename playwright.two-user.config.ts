@@ -35,6 +35,12 @@ export default defineConfig({
       dependencies: ["setup-user-a", "setup-user-b"],
     },
     {
+      name: "profile",
+      testMatch: /(?:^|[\\/])profile\.spec\.ts$/,
+      use: { ...devices["Desktop Chrome"], storageState: userAAuthFile },
+      dependencies: ["setup-user-a"],
+    },
+    {
       name: "chromium-user-a",
       testMatch: /user-a\.spec\.ts/,
       use: { ...devices["Desktop Chrome"], storageState: userAAuthFile },
