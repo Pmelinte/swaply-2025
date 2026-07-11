@@ -24,9 +24,11 @@ export default function EditObjectPage() {
   useEffect(() => {
     let cancelled = false;
 
-    if (appLoading.auth) return () => {
-      cancelled = true;
-    };
+    if (appLoading.auth) {
+      return () => {
+        cancelled = true;
+      };
+    }
 
     if (!user) {
       setItem(null);
@@ -60,13 +62,15 @@ export default function EditObjectPage() {
 
     setLoading(true);
 
-    void supabase
-      .from("items")
-      .select("*")
-      .eq("id", params.id)
-      .eq("owner_id", user.id)
-      .maybeSingle()
-      .then(({ data }) => {
+    void (async () => {
+      try {
+        const { data } = await supabase
+          .from("items")
+          .select("*")
+          .eq("id", params.id)
+          .eq("owner_id", user.id)
+          .maybeSingle();
+
         if (cancelled) return;
 
         if (!data) {
@@ -80,12 +84,12 @@ export default function EditObjectPage() {
         );
         setItem(mapped);
         setLoading(false);
-      })
-      .catch(() => {
+      } catch {
         if (cancelled) return;
         setItem(null);
         setLoading(false);
-      });
+      }
+    })();
 
     return () => {
       cancelled = true;
