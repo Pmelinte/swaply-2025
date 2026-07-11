@@ -1,7 +1,14 @@
 name: Train C Authenticated E2E
+run-name: Train C Authenticated E2E — ${{ inputs.base_url }}
 
 on:
   workflow_dispatch:
+    inputs:
+      base_url:
+        description: "Full target URL. Use the Vercel Preview branch alias for PR validation."
+        required: true
+        default: "https://www.swaply.world"
+        type: string
 
 permissions:
   contents: read
@@ -9,7 +16,8 @@ permissions:
 env:
   NODE_VERSION: "22"
   NEXT_TELEMETRY_DISABLED: "1"
-  PLAYWRIGHT_BASE_URL: https://www.swaply.world
+  PLAYWRIGHT_BASE_URL: ${{ inputs.base_url }}
+  VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
   E2E_USER_A_EMAIL: ${{ secrets.E2E_USER_A_EMAIL }}
   E2E_USER_A_PASSWORD: ${{ secrets.E2E_USER_A_PASSWORD }}
   E2E_USER_B_EMAIL: ${{ secrets.E2E_USER_B_EMAIL }}
@@ -31,6 +39,40 @@ jobs:
           test -n "$E2E_USER_A_PASSWORD"
           test -n "$E2E_USER_B_EMAIL"
           test -n "$E2E_USER_B_PASSWORD"
+
+      - name: Verify target URL
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$PLAYWRIGHT_BASE_URL"
+
+          curl_args=(
+            --silent
+            --show-error
+            --location
+            --output /dev/null
+            --write-out "%{http_code}"
+            --max-time 45
+          )
+
+          if [ -n "${VERCEL_AUTOMATION_BYPASS_SECRET:-}" ]; then
+            curl_args+=(
+              --header "x-vercel-protection-bypass: ${VERCEL_AUTOMATION_BYPASS_SECRET}"
+              --header "x-vercel-set-bypass-cookie: true"
+            )
+          fi
+
+          status="$(curl "${curl_args[@]}" "$PLAYWRIGHT_BASE_URL")"
+          echo "Target: $PLAYWRIGHT_BASE_URL"
+          echo "HTTP status: $status"
+
+          case "$status" in
+            2*|3*) ;;
+            *)
+              echo "::error::Target URL is not reachable. If the Vercel Preview is protected, configure the repository secret VERCEL_AUTOMATION_BYPASS_SECRET."
+              exit 1
+              ;;
+          esac
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
