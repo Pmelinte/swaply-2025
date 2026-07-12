@@ -110,6 +110,9 @@ begin
     execute 'drop policy if exists "favorites_select_own" on public.user_favorites';
     execute 'drop policy if exists "favorites_insert_own" on public.user_favorites';
     execute 'drop policy if exists "favorites_delete_own" on public.user_favorites';
+    execute 'drop policy if exists "user_favorites_select" on public.user_favorites';
+    execute 'drop policy if exists "user_favorites_insert" on public.user_favorites';
+    execute 'drop policy if exists "user_favorites_delete" on public.user_favorites';
 
     execute 'create policy "favorites_select_own" on public.user_favorites for select to authenticated using (user_id = auth.uid())';
     execute 'create policy "favorites_insert_own" on public.user_favorites for insert to authenticated with check (user_id = auth.uid())';
