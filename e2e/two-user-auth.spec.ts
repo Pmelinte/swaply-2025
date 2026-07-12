@@ -1,19 +1,43 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import { readFileSync } from "node:fs";
-import { userAAuthFile, userBAuthFile } from "./two-user-auth.setup";
+import {
+  authenticateAndSave,
+  expectAuthenticatedSession,
+  userAAuthFile,
+  userBAuthFile,
+} from "./two-user-auth.setup";
 
-function requiredEmail(name: "E2E_USER_A_EMAIL" | "E2E_USER_B_EMAIL"): string {
-  const email = process.env[name];
-  if (!email) throw new Error(`${name} is required.`);
-  return email;
+type RequiredCredential =
+  | "E2E_USER_A_EMAIL"
+  | "E2E_USER_A_PASSWORD"
+  | "E2E_USER_B_EMAIL"
+  | "E2E_USER_B_PASSWORD";
+
+function requiredCredential(name: RequiredCredential): string {
+  const value = process.env[name];
+  if (!value) throw new Error(`${name} is required.`);
+  return value;
+}
+
+async function restoreReusableUserBSession(page: Page, email: string, password: string) {
+  const currentSession = await page.request.get("/api/tokens/balance");
+
+  if (currentSession.status() === 200) {
+    await page.context().storageState({ path: userBAuthFile });
+    return;
+  }
+
+  await authenticateAndSave(page, email, password, userBAuthFile, "User B");
 }
 
 test.describe("Train C two-user authenticated baseline", () => {
+  test.describe.configure({ mode: "serial" });
+
   test("dedicated sessions are distinct and both can open the profile route", async ({ browser }) => {
     const stateA = JSON.parse(readFileSync(userAAuthFile, "utf8"));
     const stateB = JSON.parse(readFileSync(userBAuthFile, "utf8"));
-    const userAEmail = requiredEmail("E2E_USER_A_EMAIL");
-    const userBEmail = requiredEmail("E2E_USER_B_EMAIL");
+    const userAEmail = requiredCredential("E2E_USER_A_EMAIL");
+    const userBEmail = requiredCredential("E2E_USER_B_EMAIL");
 
     expect(JSON.stringify(stateA)).not.toBe(JSON.stringify(stateB));
 
@@ -62,29 +86,71 @@ test.describe("Train C two-user authenticated baseline", () => {
     await expect(page.getByRole("button", { name: /save profile/i })).toHaveCount(0);
   });
 
-  test("authenticated user can log out and loses protected access", async ({ browser }) => {
-    test.setTimeout(60_000);
+  test("authenticated user can log out and loses protected access without invalidating later suites", async ({
+    browser,
+  }, testInfo) => {
+    test.setTimeout(120_000);
 
+    const userBEmail = requiredCredential("E2E_USER_B_EMAIL");
+    const userBPassword = requiredCredential("E2E_USER_B_PASSWORD");
     const context = await browser.newContext({ storageState: userBAuthFile });
     const page = await context.newPage();
 
-    await page.goto("/en/profile", { waitUntil: "networkidle" });
-    await expect(page).toHaveURL(/\/en\/profile/);
+    let logoutTriggered = false;
+    let primaryError: unknown | null = null;
 
-    await page.getByRole("button", { name: "Profile & Settings", exact: true }).click();
-    await page.getByRole("menuitem", { name: "Logout", exact: true }).click();
+    try {
+      await page.goto("/en/profile", { waitUntil: "networkidle" });
+      await expect(page).toHaveURL(/\/en\/profile/);
+      await expectAuthenticatedSession(page, "User B before logout");
 
-    await expect(page.getByRole("link", { name: "Login", exact: true })).toBeVisible();
-    await expect
-      .poll(async () => (await context.request.get("/api/tokens/balance")).status(), {
-        timeout: 30_000,
-      })
-      .toBe(401);
+      await page.getByRole("button", { name: "Profile & Settings", exact: true }).click();
+      logoutTriggered = true;
+      await page.getByRole("menuitem", { name: "Logout", exact: true }).click();
 
-    await page.goto("/en/profile", { waitUntil: "networkidle" });
-    await expect(page).toHaveURL(/\/en\/login\?returnTo=%2Fprofile/);
-    await expect(page.locator('input[type="email"]')).toBeVisible();
+      await expect(page.getByRole("link", { name: "Login", exact: true })).toBeVisible();
+      await expect
+        .poll(async () => (await context.request.get("/api/tokens/balance")).status(), {
+          timeout: 30_000,
+        })
+        .toBe(401);
+
+      await page.goto("/en/profile", { waitUntil: "networkidle" });
+      await expect(page).toHaveURL(/\/en\/login\?returnTo=%2Fprofile/);
+      await expect(page.locator('input[type="email"]')).toBeVisible();
+    } catch (error) {
+      primaryError = error;
+    }
+
+    let restoreError: unknown | null = null;
+
+    if (logoutTriggered) {
+      try {
+        await test.step("restore the reusable User B fixture", async () => {
+          await restoreReusableUserBSession(page, userBEmail, userBPassword);
+          await expectAuthenticatedSession(page, "User B after fixture restore");
+        });
+      } catch (error) {
+        restoreError = error;
+      }
+    }
 
     await context.close();
+
+    if (primaryError !== null) {
+      if (restoreError !== null) {
+        await testInfo.attach("user-b-session-restore-error", {
+          body:
+            restoreError instanceof Error
+              ? restoreError.stack ?? restoreError.message
+              : String(restoreError),
+          contentType: "text/plain",
+        });
+      }
+
+      throw primaryError;
+    }
+
+    if (restoreError !== null) throw restoreError;
   });
 });
