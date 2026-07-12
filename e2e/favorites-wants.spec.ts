@@ -82,7 +82,10 @@ test.describe("Train C Batch 53 favorites and wants", () => {
         const payload = JSON.parse(body) as { request?: { id?: string } };
         requestId = payload.request?.id ?? null;
         expect(requestId, "Wanted creation response must include an immutable id.").toBeTruthy();
-        await expect(pageA.getByText(title, { exact: false })).toBeVisible({ timeout: actionTimeout });
+
+        const createdCard = pageA.getByTestId(`wanted-request-${requestId}`);
+        await expect(createdCard).toBeVisible({ timeout: actionTimeout });
+        await expect(createdCard.getByText(title, { exact: false })).toBeVisible();
       });
 
       await test.step("User B sees the active request without owner controls", async () => {
