@@ -1,185 +1,250 @@
 "use client";
 
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import type { WantedRequest } from "@/lib/types";
 import {
-  Search,
-  Plus,
-  MapPin,
-  Tag,
-  MessageCircle,
-  X,
-  Megaphone,
   ArrowRightLeft,
-  Clock,
   CheckCircle2,
+  Clock,
   Loader2,
+  MapPin,
+  Megaphone,
+  MessageCircle,
+  Pencil,
+  Plus,
+  RotateCcw,
+  Search,
+  Tag,
+  Trash2,
+  X,
 } from "lucide-react";
+
+type WantedStatus = "active" | "fulfilled" | "expired" | "cancelled";
+
+async function getAccessToken(): Promise<string | null> {
+  const supabase = getSupabaseClient();
+  if (!supabase) return null;
+  const { data } = await supabase.auth.getSession();
+  return data.session?.access_token ?? null;
+}
 
 export default function WantedClient() {
   const { user, items, loading } = useAppState();
   const t = useTranslations("wanted");
+  const tc = useTranslations("common");
 
   const [requests, setRequests] = useState<WantedRequest[]>([]);
   const [loadingRequests, setLoadingRequests] = useState(true);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
+  const [showMine, setShowMine] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [formTitle, setFormTitle] = useState("");
   const [formDesc, setFormDesc] = useState("");
   const [formCategory, setFormCategory] = useState("");
   const [formCity, setFormCity] = useState("");
   const [formOffer, setFormOffer] = useState("");
   const [saving, setSaving] = useState(false);
-  const [justCreated, setJustCreated] = useState(false);
+  const [pendingId, setPendingId] = useState<string | null>(null);
+  const [notice, setNotice] = useState<"success" | "error" | null>(null);
 
-  // Fetch wanted requests from API
+  const resetForm = useCallback(() => {
+    setEditingId(null);
+    setFormTitle("");
+    setFormDesc("");
+    setFormCategory("");
+    setFormCity("");
+    setFormOffer("");
+    setShowForm(false);
+  }, []);
+
   const fetchRequests = useCallback(async () => {
+    setLoadingRequests(true);
+    setNotice(null);
     try {
-      const supabase = getSupabaseClient();
-      const session = supabase ? await supabase.auth.getSession() : null;
-      const token = session?.data?.session?.access_token ?? "";
-
-      const res = await fetch("/api/wanted", {
+      const token = await getAccessToken();
+      const res = await fetch(`/api/wanted${showMine ? "?mine=true" : ""}`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
-      if (res.ok) {
-        const data = await res.json();
-        setRequests(data.requests ?? []);
-      }
+      if (!res.ok) throw new Error("wanted_fetch_failed");
+      const data = (await res.json()) as { requests?: WantedRequest[] };
+      setRequests(data.requests ?? []);
     } catch {
-      // Fallback: generate from items
-      const fallback: WantedRequest[] = items
-        .filter((i) => i.wishlist && i.isActive && i.status === "active")
-        .map((item) => ({
-          id: `wanted-${item.id}`,
-          userId: item.ownerId,
-          userName: item.ownerId === user?.id ? (user.displayName || t("you")) : `${t("userPrefix")} ${item.ownerId.slice(0, 4)}`,
-          title: item.wishlist,
-          description: `${t("lookingFor")}: ${item.wishlist}`,
-          category: item.category,
-          city: item.location,
-          offerDescription: item.title,
-          status: "active" as const,
-          expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-          createdAt: item.createdAt,
-        }));
-      setRequests(fallback);
+      if (!showMine) {
+        const fallback: WantedRequest[] = items
+          .filter((item) => item.wishlist && item.isActive && item.status === "active")
+          .map((item) => ({
+            id: `wanted-${item.id}`,
+            userId: item.ownerId,
+            userName:
+              item.ownerId === user?.id
+                ? user.displayName || t("you")
+                : `${t("userPrefix")} ${item.ownerId.slice(0, 4)}`,
+            title: item.wishlist,
+            description: `${t("lookingFor")}: ${item.wishlist}`,
+            category: item.category,
+            city: item.location,
+            offerDescription: item.title,
+            status: "active",
+            expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+            createdAt: item.createdAt,
+          }));
+        setRequests(fallback);
+      } else {
+        setRequests([]);
+        setNotice("error");
+      }
     } finally {
       setLoadingRequests(false);
     }
-  }, [items, user]);
+  }, [items, showMine, t, user]);
 
   useEffect(() => {
-    if (!loading.auth) {
-      void fetchRequests();
-    }
-  }, [loading.auth, fetchRequests]);
+    if (!loading.auth) void fetchRequests();
+  }, [fetchRequests, loading.auth]);
 
-  // Submit new wanted request
   const handleSubmit = async () => {
     if (!formTitle.trim() || saving) return;
     setSaving(true);
+    setNotice(null);
     try {
-      const supabase = getSupabaseClient();
-      const session = supabase ? await supabase.auth.getSession() : null;
-      const token = session?.data?.session?.access_token;
-
-      if (token) {
-        const res = await fetch("/api/wanted", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            title: formTitle.trim(),
-            description: formDesc.trim() || undefined,
-            category: formCategory.trim() || undefined,
-            city: formCity.trim() || undefined,
-            offerDescription: formOffer.trim() || undefined,
-          }),
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          setRequests((prev) => [
-            { ...data.request, userName: user?.displayName || t("you") },
-            ...prev,
-          ]);
-          setFormTitle("");
-          setFormDesc("");
-          setFormCategory("");
-          setFormCity("");
-          setFormOffer("");
-          setShowForm(false);
-          setJustCreated(true);
-          setTimeout(() => setJustCreated(false), 4000);
-          return;
-        }
-      }
+      const token = await getAccessToken();
+      if (!token) throw new Error("unauthorized");
+      const endpoint = editingId ? `/api/wanted/${editingId}` : "/api/wanted";
+      const res = await fetch(endpoint, {
+        method: editingId ? "PATCH" : "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: formTitle.trim(),
+          description: formDesc.trim() || null,
+          category: formCategory.trim() || null,
+          city: formCity.trim() || null,
+          offerDescription: formOffer.trim() || null,
+        }),
+      });
+      if (!res.ok) throw new Error("wanted_save_failed");
+      const data = (await res.json()) as { request: WantedRequest };
+      setRequests((prev) => {
+        const withName = {
+          ...data.request,
+          userName: data.request.userName || user?.displayName || t("you"),
+        };
+        return editingId
+          ? prev.map((request) => (request.id === editingId ? withName : request))
+          : [withName, ...prev];
+      });
+      resetForm();
+      setNotice("success");
     } catch {
-      // Silent
+      setNotice("error");
     } finally {
       setSaving(false);
     }
   };
 
+  const startEdit = (request: WantedRequest) => {
+    setEditingId(request.id);
+    setFormTitle(request.title);
+    setFormDesc(request.description ?? "");
+    setFormCategory(request.category ?? "");
+    setFormCity(request.city ?? "");
+    setFormOffer(request.offerDescription ?? "");
+    setShowForm(true);
+    setNotice(null);
+  };
+
+  const mutateRequest = async (
+    requestId: string,
+    action: "fulfilled" | "cancelled" | "active" | "delete",
+  ) => {
+    if (pendingId) return;
+    setPendingId(requestId);
+    setNotice(null);
+    try {
+      const token = await getAccessToken();
+      if (!token) throw new Error("unauthorized");
+      const res = await fetch(`/api/wanted/${requestId}`, {
+        method: action === "delete" ? "DELETE" : "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          ...(action === "delete" ? {} : { "Content-Type": "application/json" }),
+        },
+        body:
+          action === "delete"
+            ? undefined
+            : JSON.stringify({ status: action, renew: action === "active" }),
+      });
+      if (!res.ok) throw new Error("wanted_mutation_failed");
+      if (action === "delete") {
+        setRequests((prev) => prev.filter((request) => request.id !== requestId));
+      } else {
+        const data = (await res.json()) as { request: WantedRequest };
+        setRequests((prev) =>
+          prev.map((request) =>
+            request.id === requestId ? { ...request, ...data.request } : request,
+          ),
+        );
+      }
+      setNotice("success");
+    } catch {
+      setNotice("error");
+    } finally {
+      setPendingId(null);
+    }
+  };
+
   const categories = useMemo(() => {
-    const cats = new Set(requests.map((r) => r.category).filter(Boolean));
-    return [...cats].sort() as string[];
+    return [...new Set(requests.map((request) => request.category).filter(Boolean))].sort() as string[];
   }, [requests]);
 
   const filtered = useMemo(() => {
     let result = requests;
     if (search.trim()) {
-      const q = search.toLowerCase();
+      const query = search.toLowerCase();
       result = result.filter(
-        (r) =>
-          r.title.toLowerCase().includes(q) ||
-          (r.description?.toLowerCase().includes(q) ?? false) ||
-          (r.category?.toLowerCase().includes(q) ?? false),
+        (request) =>
+          request.title.toLowerCase().includes(query) ||
+          request.description?.toLowerCase().includes(query) ||
+          request.category?.toLowerCase().includes(query),
       );
     }
-    if (categoryFilter) {
-      result = result.filter((r) => r.category === categoryFilter);
-    }
+    if (categoryFilter) result = result.filter((request) => request.category === categoryFilter);
     return result;
-  }, [requests, search, categoryFilter]);
+  }, [categoryFilter, requests, search]);
 
-  // Days remaining helper
-  function daysRemaining(expiresAt: string): number {
-    return Math.max(0, Math.ceil((new Date(expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
-  }
+  const daysRemaining = (expiresAt: string): number =>
+    Math.max(0, Math.ceil((new Date(expiresAt).getTime() - Date.now()) / 86_400_000));
 
   if (loading.auth || loadingRequests) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-12 text-zinc-400 dark:text-zinc-500">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-300 border-t-blue-500 dark:border-zinc-600 dark:border-t-blue-400" />
+        <Loader2 className="h-8 w-8 animate-spin" aria-hidden="true" />
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-6 space-y-6">
-      {/* Header */}
+    <div className="mx-auto max-w-4xl space-y-6 px-4 py-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
-            {t("title")}
-          </h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            {t("subtitle")}
-          </p>
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{t("title")}</h1>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">{t("subtitle")}</p>
         </div>
         {user && (
           <button
             type="button"
-            onClick={() => setShowForm(!showForm)}
+            onClick={() => {
+              if (showForm) resetForm();
+              else setShowForm(true);
+            }}
             className="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
           >
             {showForm ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
@@ -188,56 +253,84 @@ export default function WantedClient() {
         )}
       </div>
 
-      {/* Success toast */}
-      {justCreated && (
-        <div className="flex items-center gap-2 rounded-xl bg-green-50 px-4 py-3 text-sm text-green-800 dark:bg-green-900/30 dark:text-green-200">
-          <CheckCircle2 className="h-4 w-4" />
-          {t("requestPublished")}
+      {notice && (
+        <div
+          role={notice === "error" ? "alert" : "status"}
+          className={`flex items-center gap-2 rounded-xl px-4 py-3 text-sm ${
+            notice === "error"
+              ? "bg-red-50 text-red-800 dark:bg-red-950/30 dark:text-red-200"
+              : "bg-green-50 text-green-800 dark:bg-green-900/30 dark:text-green-200"
+          }`}
+        >
+          {notice === "error" ? <X className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
+          {notice === "error" ? tc("errorOccurred") : tc("success")}
         </div>
       )}
 
-      {/* Post form */}
+      {user && (
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => setShowMine(false)}
+            className={`rounded-full px-3 py-1.5 text-sm font-medium ${
+              !showMine ? "bg-blue-600 text-white" : "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+            }`}
+          >
+            {t("allCategories")}
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowMine(true)}
+            className={`rounded-full px-3 py-1.5 text-sm font-medium ${
+              showMine ? "bg-blue-600 text-white" : "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+            }`}
+          >
+            {t("you")}
+          </button>
+        </div>
+      )}
+
       {showForm && (
         <div className="rounded-2xl border-2 border-dashed border-blue-300 bg-blue-50/50 p-5 dark:border-blue-700 dark:bg-blue-950/20">
-          <h3 className="mb-3 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-            {t("newRequestTitle")}
-          </h3>
+          <h2 className="mb-3 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+            {editingId ? tc("edit") : t("newRequestTitle")}
+          </h2>
           <div className="space-y-3">
             <input
               type="text"
               value={formTitle}
-              onChange={(e) => setFormTitle(e.target.value)}
+              onChange={(event) => setFormTitle(event.target.value)}
               placeholder={t("whatLookingFor")}
-              className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+              className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
             />
             <textarea
               value={formDesc}
-              onChange={(e) => setFormDesc(e.target.value)}
+              onChange={(event) => setFormDesc(event.target.value)}
               placeholder={t("descriptionPlaceholder")}
               rows={3}
-              className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+              className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
             />
             <div className="grid gap-3 sm:grid-cols-3">
               <input
                 type="text"
                 value={formCategory}
-                onChange={(e) => setFormCategory(e.target.value)}
+                onChange={(event) => setFormCategory(event.target.value)}
                 placeholder={t("categoryPlaceholder")}
-                className="rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                className="rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
               />
               <input
                 type="text"
                 value={formCity}
-                onChange={(e) => setFormCity(e.target.value)}
+                onChange={(event) => setFormCity(event.target.value)}
                 placeholder={t("cityPlaceholder")}
-                className="rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                className="rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
               />
               <input
                 type="text"
                 value={formOffer}
-                onChange={(e) => setFormOffer(e.target.value)}
+                onChange={(event) => setFormOffer(event.target.value)}
                 placeholder={t("offerPlaceholder")}
-                className="rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                className="rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
               />
             </div>
             <button
@@ -247,24 +340,21 @@ export default function WantedClient() {
               className="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
             >
               {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-              {t("publishRequest")}
+              {editingId ? tc("save") : t("publishRequest")}
             </button>
           </div>
         </div>
       )}
 
-      {/* Search & Filter */}
-      <div className="flex items-center gap-2">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder={t("searchPlaceholder")}
-            className="w-full rounded-xl border border-zinc-200 bg-white py-2 pl-10 pr-4 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
-          />
-        </div>
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+        <input
+          type="text"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder={t("searchPlaceholder")}
+          className="w-full rounded-xl border border-zinc-200 bg-white py-2 pl-10 pr-4 text-sm outline-none focus:border-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+        />
       </div>
 
       {categories.length > 0 && (
@@ -272,99 +362,92 @@ export default function WantedClient() {
           <button
             type="button"
             onClick={() => setCategoryFilter(null)}
-            className={`rounded-full px-2.5 py-1 text-xs font-medium transition ${
-              !categoryFilter
-                ? "bg-blue-600 text-white"
-                : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-700 dark:text-zinc-300"
+            className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+              !categoryFilter ? "bg-blue-600 text-white" : "bg-zinc-100 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300"
             }`}
           >
             {t("allCategories")}
           </button>
-          {categories.map((cat) => (
+          {categories.map((category) => (
             <button
-              key={cat}
+              key={category}
               type="button"
-              onClick={() => setCategoryFilter(cat === categoryFilter ? null : cat)}
-              className={`rounded-full px-2.5 py-1 text-xs font-medium transition ${
-                categoryFilter === cat
-                  ? "bg-blue-600 text-white"
-                  : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-700 dark:text-zinc-300"
+              onClick={() => setCategoryFilter(category === categoryFilter ? null : category)}
+              className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+                categoryFilter === category ? "bg-blue-600 text-white" : "bg-zinc-100 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300"
               }`}
             >
-              {cat}
+              {category}
             </button>
           ))}
         </div>
       )}
 
-      {/* Results */}
       <div className="grid gap-3 sm:grid-cols-2">
         {filtered.length === 0 ? (
           <div className="col-span-full flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-zinc-200 py-12 dark:border-zinc-700">
             <Megaphone className="mb-3 h-10 w-10 text-zinc-300 dark:text-zinc-600" />
-            <p className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-              {t("noRequests")}
-            </p>
+            <p className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">{t("noRequests")}</p>
             <p className="mt-1 text-xs text-zinc-500">{t("noRequestsDesc")}</p>
           </div>
         ) : (
-          filtered.map((req) => {
-            const days = daysRemaining(req.expiresAt);
+          filtered.map((request) => {
+            const owner = request.userId === user?.id;
+            const pending = pendingId === request.id;
+            const status = request.status as WantedStatus;
             return (
-              <div
-                key={req.id}
-                className="rounded-2xl border-2 border-dashed border-blue-200 bg-white/80 p-4 shadow-sm backdrop-blur transition hover:border-blue-400 hover:shadow-md dark:border-blue-800 dark:bg-zinc-900/80 dark:hover:border-blue-600"
+              <article
+                key={request.id}
+                data-testid={`wanted-request-${request.id}`}
+                className="rounded-2xl border-2 border-dashed border-blue-200 bg-white/80 p-4 shadow-sm dark:border-blue-800 dark:bg-zinc-900/80"
               >
                 <div className="flex items-start gap-3">
-                  {/* Search icon */}
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-100 dark:bg-blue-900/40">
                     <Search className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                   </div>
-
                   <div className="min-w-0 flex-1">
-                    <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-50">
-                      {t("searchPrefix")} {req.title}
-                    </h3>
-
-                    {req.description && (
-                      <p className="mt-1 line-clamp-2 text-xs text-zinc-600 dark:text-zinc-400">
-                        {req.description}
-                      </p>
-                    )}
-
-                    {/* Offer section */}
-                    {req.offerDescription && (
-                      <p className="mt-2 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
-                        <ArrowRightLeft className="h-3 w-3" />
-                        {t("canOffer")}: {req.offerDescription}
-                      </p>
-                    )}
-
-                    {/* Metadata */}
-                    <div className="mt-2 flex flex-wrap items-center gap-2 text-[10px] text-zinc-500">
-                      {req.category && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-2 py-0.5 dark:bg-zinc-700">
-                          <Tag className="h-2.5 w-2.5" />
-                          {req.category}
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-50">
+                        {t("searchPrefix")} {request.title}
+                      </h3>
+                      {owner && (
+                        <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
+                          {status}
                         </span>
                       )}
-                      {req.city && (
+                    </div>
+                    {request.description && (
+                      <p className="mt-1 line-clamp-2 text-xs text-zinc-600 dark:text-zinc-400">{request.description}</p>
+                    )}
+                    {request.offerDescription && (
+                      <p className="mt-2 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
+                        <ArrowRightLeft className="h-3 w-3" />
+                        {t("canOffer")}: {request.offerDescription}
+                      </p>
+                    )}
+                    <div className="mt-2 flex flex-wrap items-center gap-2 text-[10px] text-zinc-500">
+                      {request.category && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-2 py-0.5 dark:bg-zinc-700">
+                          <Tag className="h-2.5 w-2.5" />
+                          {request.category}
+                        </span>
+                      )}
+                      {request.city && (
                         <span className="inline-flex items-center gap-1">
                           <MapPin className="h-2.5 w-2.5" />
-                          {req.city}
+                          {request.city}
                         </span>
                       )}
                       <span className="inline-flex items-center gap-1">
                         <Clock className="h-2.5 w-2.5" />
-                        {t("daysRemaining", { days })}
+                        {t("daysRemaining", { days: daysRemaining(request.expiresAt) })}
                       </span>
                     </div>
                   </div>
                 </div>
 
-                {/* Action */}
-                {req.userId !== user?.id && (
-                  <div className="mt-3 border-t border-zinc-100 pt-3 dark:border-zinc-800">
+                <div className="mt-3 flex flex-wrap gap-2 border-t border-zinc-100 pt-3 dark:border-zinc-800">
+                  {!owner && status === "active" && (
                     <Link
                       href="/chat"
                       className="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-3.5 py-2 text-xs font-semibold text-white hover:bg-blue-700"
@@ -372,9 +455,63 @@ export default function WantedClient() {
                       <MessageCircle className="h-3.5 w-3.5" />
                       {t("proposeSwap")}
                     </Link>
-                  </div>
-                )}
-              </div>
+                  )}
+                  {owner && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => startEdit(request)}
+                        disabled={pending}
+                        aria-label={tc("edit")}
+                        className="rounded-lg border border-zinc-200 p-2 text-zinc-600 hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </button>
+                      {status === "active" ? (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => void mutateRequest(request.id, "fulfilled")}
+                            disabled={pending}
+                            aria-label={tc("success")}
+                            className="rounded-lg border border-green-200 p-2 text-green-700 hover:bg-green-50 disabled:opacity-50 dark:border-green-900 dark:text-green-300 dark:hover:bg-green-950/30"
+                          >
+                            {pending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => void mutateRequest(request.id, "cancelled")}
+                            disabled={pending}
+                            aria-label={tc("cancel")}
+                            className="rounded-lg border border-amber-200 p-2 text-amber-700 hover:bg-amber-50 disabled:opacity-50 dark:border-amber-900 dark:text-amber-300 dark:hover:bg-amber-950/30"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => void mutateRequest(request.id, "active")}
+                          disabled={pending}
+                          aria-label={tc("retry")}
+                          className="rounded-lg border border-blue-200 p-2 text-blue-700 hover:bg-blue-50 disabled:opacity-50 dark:border-blue-900 dark:text-blue-300 dark:hover:bg-blue-950/30"
+                        >
+                          {pending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RotateCcw className="h-3.5 w-3.5" />}
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => void mutateRequest(request.id, "delete")}
+                        disabled={pending}
+                        aria-label={tc("delete")}
+                        className="rounded-lg border border-red-200 p-2 text-red-700 hover:bg-red-50 disabled:opacity-50 dark:border-red-900 dark:text-red-300 dark:hover:bg-red-950/30"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </>
+                  )}
+                </div>
+              </article>
             );
           })
         )}
