@@ -25,9 +25,9 @@ env:
 
 jobs:
   authenticated-e2e:
-    name: Authenticated Baseline, Profile and Objects CRUD
+    name: Authenticated Baseline, Profile, Objects CRUD, Favorites and Wants
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -86,8 +86,8 @@ jobs:
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Run deterministic authenticated Train C dependency graph
-        run: npx playwright test --config=playwright.two-user.config.ts --project=objects-crud
+      - name: Run deterministic authenticated Train C dependency graph through Batch 53
+        run: npx playwright test --config=playwright.two-user.config.ts --project=favorites-wants
 
       - name: Upload Playwright report
         if: always()
