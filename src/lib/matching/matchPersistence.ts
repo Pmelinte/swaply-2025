@@ -48,12 +48,7 @@ type MatchRow = {
   status: string;
 };
 
-const ACTIVE_MATCH_STATUSES = [
-  "interest_expressed",
-  "pending_chat",
-  "converted_to_swap",
-  "accepted",
-];
+const ACTIVE_MATCH_STATUSES = ["pending_chat", "converted_to_swap", "accepted"];
 const ACTIVE_SWAP_STATUSES = ["pending", "proposed", "accepted"];
 
 function buildReasoning(candidate: PersistableMatchCandidate): string {
@@ -131,8 +126,8 @@ export async function persistMatchCandidate(
     target_user_id: input.candidate.item.owner_id,
     initiator_item_id: input.sourceItem?.id ?? null,
     target_item_id: input.candidate.item.id,
-    match_type: "express_interest",
-    status: "interest_expressed",
+    match_type: "ai",
+    status: "pending_chat",
     ai_score: input.candidate.score,
     ai_reasoning: buildReasoning(input.candidate),
     slot_position: input.slotPosition ?? null,
