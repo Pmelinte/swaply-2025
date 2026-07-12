@@ -47,7 +47,10 @@ export default function FavoritesClient() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6 px-4 py-6">
+    <div
+      data-testid="favorites-page"
+      className="mx-auto max-w-4xl space-y-6 px-4 py-6"
+    >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{t("title")}</h1>
@@ -112,6 +115,7 @@ export default function FavoritesClient() {
             return (
               <div
                 key={item.id}
+                data-testid={`favorite-item-${item.id}`}
                 className="group relative rounded-2xl border border-zinc-200 bg-white/80 shadow-sm backdrop-blur transition hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900/80"
               >
                 <Link href={`/objects/${item.id}`}>
