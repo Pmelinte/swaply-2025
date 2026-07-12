@@ -58,6 +58,12 @@ export default defineConfig({
       dependencies: ["two-user-auth", "profile"],
     },
     {
+      name: "favorites-wants",
+      testMatch: /(?:^|[\\/])favorites-wants\.spec\.ts$/,
+      use: { ...devices["Desktop Chrome"] },
+      dependencies: ["objects-crud"],
+    },
+    {
       name: "chromium-user-a",
       testMatch: /user-a\.spec\.ts/,
       use: { ...devices["Desktop Chrome"], storageState: userAAuthFile },
