@@ -1,221 +1,172 @@
 /**
- * /api/wanted — Wanted requests CRUD + matching notifications
- * GET: list active wanted requests (optionally filtered)
- * POST: create a wanted request + check for matching items
+ * /api/wanted
+ * GET: public active/non-expired requests, or all own requests with mine=true.
+ * POST: authenticated creation with offered-item ownership validation.
  */
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-function getClients(token: string) {
+function getClient(request: NextRequest): SupabaseClient | null {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!supabaseUrl || !supabaseAnonKey) return null;
 
-  const userClient = createClient(supabaseUrl, supabaseAnonKey, {
-    global: { headers: { Authorization: `Bearer ${token}` } },
+  const authHeader = request.headers.get("authorization");
+  return createClient(supabaseUrl, supabaseAnonKey, {
+    global: authHeader ? { headers: { Authorization: authHeader } } : undefined,
     auth: { autoRefreshToken: false, persistSession: false },
   });
-  const db = serviceKey
-    ? createClient(supabaseUrl, serviceKey, { auth: { autoRefreshToken: false, persistSession: false } })
-    : userClient;
-  return { userClient, db };
 }
 
-function normalizeText(s: string): string {
-  return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+function cleanText(value: unknown, maxLength: number): string | null {
+  if (typeof value !== "string") return null;
+  const normalized = value.trim();
+  if (!normalized) return null;
+  return normalized.slice(0, maxLength);
 }
 
-function escapeLike(s: string): string {
-  return s.replace(/[%_\\]/g, "\\$&");
+function normalizeItemIds(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return [...new Set(value.filter((id): id is string => typeof id === "string" && id.length > 0))].slice(0, 20);
+}
+
+function mapRequest(row: Record<string, unknown>) {
+  return {
+    id: row.id,
+    userId: row.user_id,
+    title: row.title,
+    description: row.description,
+    category: row.category,
+    city: row.city,
+    offerDescription: row.offer_description,
+    offerItemIds: row.offer_item_ids ?? [],
+    status: row.status,
+    expiresAt: row.expires_at,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
 }
 
 export async function GET(request: NextRequest) {
-  const authHeader = request.headers.get("authorization") ?? "";
-  const token = authHeader.replace("Bearer ", "");
-  const clients = getClients(token);
-  if (!clients) return NextResponse.json({ error: "Server misconfigured" }, { status: 500 });
+  const db = getClient(request);
+  if (!db) {
+    return NextResponse.json({ code: "SERVER_MISCONFIGURED" }, { status: 500 });
+  }
 
-  const { db } = clients;
+  const mine = request.nextUrl.searchParams.get("mine") === "true";
+  const category = cleanText(request.nextUrl.searchParams.get("category"), 100);
+  const city = cleanText(request.nextUrl.searchParams.get("city"), 120);
 
-  const category = request.nextUrl.searchParams.get("category");
-  const city = request.nextUrl.searchParams.get("city");
-  const userId = request.nextUrl.searchParams.get("user_id");
-  const includeExpired = request.nextUrl.searchParams.get("include_expired");
+  let currentUserId: string | null = null;
+  if (mine) {
+    const { data: authData, error: authError } = await db.auth.getUser();
+    if (authError || !authData.user) {
+      return NextResponse.json({ code: "UNAUTHORIZED" }, { status: 401 });
+    }
+    currentUserId = authData.user.id;
+  }
 
   let query = db.from("wanted_requests").select("*");
 
-  if (!includeExpired) {
-    query = query.eq("status", "active");
+  if (mine && currentUserId) {
+    query = query.eq("user_id", currentUserId);
+  } else {
+    query = query.eq("status", "active").gt("expires_at", new Date().toISOString());
   }
-  if (category) {
-    query = query.eq("category", category);
-  }
-  if (city) {
-    query = query.eq("city", city);
-  }
-  if (userId) {
-    query = query.eq("user_id", userId);
-  }
+  if (category) query = query.eq("category", category);
+  if (city) query = query.eq("city", city);
 
-  const { data, error } = await query.order("created_at", { ascending: false }).limit(100);
+  const { data, error } = await query
+    .order("created_at", { ascending: false })
+    .limit(100);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-
-  // Fetch user display names
-  const userIds = [...new Set((data ?? []).map((r: { user_id: string }) => r.user_id))];
-  const { data: profiles } = userIds.length > 0
-    ? await db.from("public_profiles").select("user_id, display_name").in("user_id", userIds)
-    : { data: [] };
-
-  const nameMap = new Map<string, string>();
-  for (const p of profiles ?? []) {
-    nameMap.set(p.user_id, p.display_name || "User");
+  if (error) {
+    return NextResponse.json({ code: "WANTED_LIST_FAILED" }, { status: 500 });
   }
 
-  const requests = (data ?? []).map((r: Record<string, unknown>) => ({
-    id: r.id,
-    userId: r.user_id,
-    userName: nameMap.get(r.user_id as string) ?? "User",
-    title: r.title,
-    description: r.description,
-    category: r.category,
-    city: r.city,
-    offerDescription: r.offer_description,
-    offerItemIds: r.offer_item_ids,
-    status: r.status,
-    expiresAt: r.expires_at,
-    createdAt: r.created_at,
-  }));
-
-  return NextResponse.json({ requests });
+  return NextResponse.json({ requests: (data ?? []).map(mapRequest) });
 }
 
 export async function POST(request: NextRequest) {
-  const authHeader = request.headers.get("authorization") ?? "";
-  const token = authHeader.replace("Bearer ", "");
-  const clients = getClients(token);
-  if (!clients) return NextResponse.json({ error: "Server misconfigured" }, { status: 500 });
+  const db = getClient(request);
+  if (!db) {
+    return NextResponse.json({ code: "SERVER_MISCONFIGURED" }, { status: 500 });
+  }
 
-  const { userClient, db } = clients;
-  const { data: { user }, error: authError } = await userClient.auth.getUser();
-  if (authError || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { data: authData, error: authError } = await db.auth.getUser();
+  const user = authData.user;
+  if (authError || !user) {
+    return NextResponse.json({ code: "UNAUTHORIZED" }, { status: 401 });
+  }
 
-  let body: {
-    title?: string;
-    description?: string;
-    category?: string;
-    city?: string;
-    offerDescription?: string;
-    offerItemIds?: string[];
-  };
+  let rawBody: Record<string, unknown>;
   try {
-    body = await request.json();
+    rawBody = await request.json();
   } catch {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+    return NextResponse.json({ code: "INVALID_JSON" }, { status: 400 });
   }
 
-  if (!body.title || body.title.trim().length < 3) {
-    return NextResponse.json({ error: "Title must be at least 3 characters" }, { status: 400 });
+  const title = cleanText(rawBody.title, 160);
+  if (!title || title.length < 3) {
+    return NextResponse.json({ code: "INVALID_TITLE" }, { status: 400 });
   }
 
-  // Insert request
-  const { data: wantedReq, error: insertError } = await db
+  const offerItemIds = normalizeItemIds(rawBody.offerItemIds);
+  if (offerItemIds.length > 0) {
+    const { data: ownedItems, error: ownershipError } = await db
+      .from("items")
+      .select("id")
+      .eq("owner_id", user.id)
+      .in("id", offerItemIds);
+
+    if (ownershipError) {
+      return NextResponse.json({ code: "OFFER_ITEMS_VALIDATION_FAILED" }, { status: 500 });
+    }
+
+    const ownedIds = new Set((ownedItems ?? []).map((item: { id: string }) => item.id));
+    if (offerItemIds.some((id) => !ownedIds.has(id))) {
+      return NextResponse.json({ code: "OFFER_ITEM_NOT_OWNED" }, { status: 403 });
+    }
+  }
+
+  const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+  const payload = {
+    user_id: user.id,
+    title,
+    description: cleanText(rawBody.description, 2000),
+    category: cleanText(rawBody.category, 100),
+    city: cleanText(rawBody.city, 120),
+    offer_description: cleanText(rawBody.offerDescription, 1000),
+    offer_item_ids: offerItemIds,
+    status: "active",
+    expires_at: expiresAt,
+  };
+
+  const { data: wantedRequest, error: insertError } = await db
     .from("wanted_requests")
-    .insert({
-      user_id: user.id,
-      title: body.title.trim(),
-      description: body.description?.trim() || null,
-      category: body.category?.trim() || null,
-      city: body.city?.trim() || null,
-      offer_description: body.offerDescription?.trim() || null,
-      offer_item_ids: body.offerItemIds ?? null,
-      status: "active",
-      expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-    })
-    .select()
+    .insert(payload)
+    .select("*")
     .single();
 
-  if (insertError || !wantedReq) {
-    return NextResponse.json({ error: insertError?.message ?? "Failed to create" }, { status: 500 });
+  if (insertError || !wantedRequest) {
+    return NextResponse.json({ code: "WANTED_CREATE_FAILED" }, { status: 500 });
   }
 
-  // ── Match against existing items ──
-  // Find items whose category or title match the wanted request
-  const matchedOwners = new Set<string>();
-  if (body.category || body.title) {
-    const normalizedTitle = normalizeText(body.title);
-    const normalizedCategory = body.category ? normalizeText(body.category) : null;
+  let matchQuery = db
+    .from("items")
+    .select("id", { count: "exact", head: true })
+    .eq("status", "active")
+    .eq("is_active", true)
+    .neq("owner_id", user.id);
 
-    // Search for matching items
-    let matchQuery = db
-      .from("objects")
-      .select("id, owner_id, title, category")
-      .eq("status", "active")
-      .neq("owner_id", user.id)
-      .limit(50);
+  if (payload.category) matchQuery = matchQuery.eq("category", payload.category);
+  const { count } = await matchQuery;
 
-    if (normalizedCategory) {
-      matchQuery = matchQuery.ilike("category", `%${escapeLike(body.category!)}%`);
-    }
-
-    const { data: matchingItems } = await matchQuery;
-
-    for (const item of matchingItems ?? []) {
-      const itemTitle = normalizeText(item.title ?? "");
-      const itemCategory = normalizeText(item.category ?? "");
-
-      const titleMatch = normalizedTitle.split(" ").some(
-        (word: string) => word.length > 2 && (itemTitle.includes(word) || itemCategory.includes(word)),
-      );
-      const categoryMatch = normalizedCategory && itemCategory.includes(normalizedCategory);
-
-      if (titleMatch || categoryMatch) {
-        matchedOwners.add(item.owner_id);
-      }
-    }
-
-    // Notify matched item owners
-    for (const ownerId of matchedOwners) {
-      await db.from("notifications").insert({
-        user_id: ownerId,
-        type: "wanted_match",
-        title: "Someone is looking for your item!",
-        message: `A new request matches your listing: "${body.title}"`,
-        read: false,
-      }).then(({ error: e }) => {
-        if (e) console.error("[wanted] notification error:", e.message);
-      });
-    }
-  }
-
-  // Also notify the requester if there are existing matching items
-  if (matchedOwners.size > 0) {
-    await db.from("notifications").insert({
-      user_id: user.id,
-      type: "wanted_matches_found",
-      title: "Matches found for your request!",
-      message: `We found ${matchedOwners.size} potential match${matchedOwners.size > 1 ? "es" : ""} for "${body.title}"`,
-      read: false,
-    }).then(({ error: e }) => {
-      if (e) console.error("[wanted] self-notification error:", e.message);
-    });
-  }
-
-  return NextResponse.json({
-    request: {
-      id: wantedReq.id,
-      userId: wantedReq.user_id,
-      title: wantedReq.title,
-      description: wantedReq.description,
-      category: wantedReq.category,
-      city: wantedReq.city,
-      offerDescription: wantedReq.offer_description,
-      offerItemIds: wantedReq.offer_item_ids,
-      status: wantedReq.status,
-      expiresAt: wantedReq.expires_at,
-      createdAt: wantedReq.created_at,
+  return NextResponse.json(
+    {
+      request: mapRequest(wantedRequest),
+      matchedCount: count ?? 0,
     },
-    matchedCount: matchedOwners.size,
-  }, { status: 201 });
+    { status: 201 },
+  );
 }
