@@ -20,6 +20,7 @@ export default defineConfig({
   expect: { timeout: 10_000 },
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
+  fullyParallel: false,
   workers: 1,
   reporter: process.env.CI ? "html" : "list",
   use: {
@@ -54,7 +55,7 @@ export default defineConfig({
       name: "objects-crud",
       testMatch: /(?:^|[\\/])objects-crud\.spec\.ts$/,
       use: { ...devices["Desktop Chrome"] },
-      dependencies: ["setup-user-a", "setup-user-b"],
+      dependencies: ["two-user-auth", "profile"],
     },
     {
       name: "chromium-user-a",
