@@ -4,10 +4,10 @@ import { useTranslations } from "next-intl";
 import { CheckCircle2 } from "lucide-react";
 import { SafeImage } from "@/components/SafeImage";
 import { NO_IMAGE_URL } from "@/lib/storage";
-import type { SelectedMatch } from "@/lib/matching/matchingStore";
+import type { SelectedInterest } from "@/lib/matching/matchingStore";
 
 interface Props {
-  selected: SelectedMatch[];
+  selected: SelectedInterest[];
   withdrawingIds: Set<string>;
   onWithdraw: (itemId: string) => void;
 }
@@ -50,7 +50,7 @@ export default function MatchingSelected({ selected, withdrawingIds, onWithdraw 
                     {interest.item.title}
                   </p>
                   <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                    {interest.score}% · {interest.matchId ? "saved" : "saving"}
+                    {interest.score}% · {interest.interestId ? "saved" : "saving"}
                   </p>
                 </div>
 
@@ -66,7 +66,7 @@ export default function MatchingSelected({ selected, withdrawingIds, onWithdraw 
                   <button
                     type="button"
                     data-testid={`withdraw-interest-${interest.itemId}`}
-                    disabled={isWithdrawing}
+                    disabled={isWithdrawing || !interest.interestId}
                     onClick={() => onWithdraw(interest.itemId)}
                     className="rounded-full border border-zinc-300 bg-white px-3 py-1 text-xs font-semibold text-zinc-700 hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
                     aria-label="Withdraw interest"
