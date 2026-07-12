@@ -33,7 +33,7 @@ async function openWanted(page: Page) {
   await expect
     .poll(() => new URL(page.url()).pathname, { timeout: actionTimeout })
     .toBe(wantedPath);
-  await expect(page.getByRole("heading", { name: "Wanted requests", exact: true })).toBeVisible({
+  await expect(page.getByRole("button", { name: "Post a request", exact: true })).toBeVisible({
     timeout: actionTimeout,
   });
 }
