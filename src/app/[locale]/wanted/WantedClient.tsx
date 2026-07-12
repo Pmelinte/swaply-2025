@@ -25,20 +25,30 @@ import {
 
 type WantedStatus = "active" | "fulfilled" | "expired" | "cancelled";
 
-async function getAccessToken(): Promise<string | null> {
+type SessionContext = {
+  accessToken: string | null;
+  userId: string | null;
+};
+
+async function getSessionContext(): Promise<SessionContext> {
   const supabase = getSupabaseClient();
-  if (!supabase) return null;
+  if (!supabase) return { accessToken: null, userId: null };
+
   const { data } = await supabase.auth.getSession();
-  return data.session?.access_token ?? null;
+  return {
+    accessToken: data.session?.access_token ?? null,
+    userId: data.session?.user.id ?? null,
+  };
 }
 
 export default function WantedClient() {
-  const { user, items, loading } = useAppState();
+  const { user, items } = useAppState();
   const t = useTranslations("wanted");
   const tc = useTranslations("common");
 
   const [requests, setRequests] = useState<WantedRequest[]>([]);
   const [loadingRequests, setLoadingRequests] = useState(true);
+  const [sessionUserId, setSessionUserId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [showMine, setShowMine] = useState(false);
@@ -53,6 +63,8 @@ export default function WantedClient() {
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [notice, setNotice] = useState<"success" | "error" | null>(null);
 
+  const authenticatedUserId = user?.id ?? sessionUserId;
+
   const resetForm = useCallback(() => {
     setEditingId(null);
     setFormTitle("");
@@ -66,12 +78,19 @@ export default function WantedClient() {
   const fetchRequests = useCallback(async () => {
     setLoadingRequests(true);
     setNotice(null);
+
     try {
-      const token = await getAccessToken();
+      const session = await getSessionContext();
+      setSessionUserId(session.userId);
+
       const res = await fetch(`/api/wanted${showMine ? "?mine=true" : ""}`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        headers: session.accessToken
+          ? { Authorization: `Bearer ${session.accessToken}` }
+          : {},
       });
+
       if (!res.ok) throw new Error("wanted_fetch_failed");
+
       const data = (await res.json()) as { requests?: WantedRequest[] };
       setRequests(data.requests ?? []);
     } catch {
@@ -82,8 +101,8 @@ export default function WantedClient() {
             id: `wanted-${item.id}`,
             userId: item.ownerId,
             userName:
-              item.ownerId === user?.id
-                ? user.displayName || t("you")
+              item.ownerId === authenticatedUserId
+                ? user?.displayName || t("you")
                 : `${t("userPrefix")} ${item.ownerId.slice(0, 4)}`,
             title: item.wishlist,
             description: `${t("lookingFor")}: ${item.wishlist}`,
@@ -102,24 +121,28 @@ export default function WantedClient() {
     } finally {
       setLoadingRequests(false);
     }
-  }, [items, showMine, t, user]);
+  }, [authenticatedUserId, items, showMine, t, user?.displayName]);
 
   useEffect(() => {
-    if (!loading.auth) void fetchRequests();
-  }, [fetchRequests, loading.auth]);
+    void fetchRequests();
+  }, [fetchRequests]);
 
   const handleSubmit = async () => {
     if (!formTitle.trim() || saving) return;
+
     setSaving(true);
     setNotice(null);
+
     try {
-      const token = await getAccessToken();
-      if (!token) throw new Error("unauthorized");
+      const session = await getSessionContext();
+      if (!session.accessToken || !session.userId) throw new Error("unauthorized");
+      setSessionUserId(session.userId);
+
       const endpoint = editingId ? `/api/wanted/${editingId}` : "/api/wanted";
       const res = await fetch(endpoint, {
         method: editingId ? "PATCH" : "POST",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${session.accessToken}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -130,17 +153,21 @@ export default function WantedClient() {
           offerDescription: formOffer.trim() || null,
         }),
       });
+
       if (!res.ok) throw new Error("wanted_save_failed");
+
       const data = (await res.json()) as { request: WantedRequest };
       setRequests((prev) => {
         const withName = {
           ...data.request,
           userName: data.request.userName || user?.displayName || t("you"),
         };
+
         return editingId
           ? prev.map((request) => (request.id === editingId ? withName : request))
           : [withName, ...prev];
       });
+
       resetForm();
       setNotice("success");
     } catch {
@@ -166,15 +193,19 @@ export default function WantedClient() {
     action: "fulfilled" | "cancelled" | "active" | "delete",
   ) => {
     if (pendingId) return;
+
     setPendingId(requestId);
     setNotice(null);
+
     try {
-      const token = await getAccessToken();
-      if (!token) throw new Error("unauthorized");
+      const session = await getSessionContext();
+      if (!session.accessToken || !session.userId) throw new Error("unauthorized");
+      setSessionUserId(session.userId);
+
       const res = await fetch(`/api/wanted/${requestId}`, {
         method: action === "delete" ? "DELETE" : "PATCH",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${session.accessToken}`,
           ...(action === "delete" ? {} : { "Content-Type": "application/json" }),
         },
         body:
@@ -182,7 +213,9 @@ export default function WantedClient() {
             ? undefined
             : JSON.stringify({ status: action, renew: action === "active" }),
       });
+
       if (!res.ok) throw new Error("wanted_mutation_failed");
+
       if (action === "delete") {
         setRequests((prev) => prev.filter((request) => request.id !== requestId));
       } else {
@@ -193,6 +226,7 @@ export default function WantedClient() {
           ),
         );
       }
+
       setNotice("success");
     } catch {
       setNotice("error");
@@ -207,6 +241,7 @@ export default function WantedClient() {
 
   const filtered = useMemo(() => {
     let result = requests;
+
     if (search.trim()) {
       const query = search.toLowerCase();
       result = result.filter(
@@ -216,14 +251,18 @@ export default function WantedClient() {
           request.category?.toLowerCase().includes(query),
       );
     }
-    if (categoryFilter) result = result.filter((request) => request.category === categoryFilter);
+
+    if (categoryFilter) {
+      result = result.filter((request) => request.category === categoryFilter);
+    }
+
     return result;
   }, [categoryFilter, requests, search]);
 
   const daysRemaining = (expiresAt: string): number =>
     Math.max(0, Math.ceil((new Date(expiresAt).getTime() - Date.now()) / 86_400_000));
 
-  if (loading.auth || loadingRequests) {
+  if (loadingRequests) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-12 text-zinc-400 dark:text-zinc-500">
         <Loader2 className="h-8 w-8 animate-spin" aria-hidden="true" />
@@ -238,7 +277,8 @@ export default function WantedClient() {
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{t("title")}</h1>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">{t("subtitle")}</p>
         </div>
-        {user && (
+
+        {authenticatedUserId && (
           <button
             type="button"
             onClick={() => {
@@ -262,18 +302,24 @@ export default function WantedClient() {
               : "bg-green-50 text-green-800 dark:bg-green-900/30 dark:text-green-200"
           }`}
         >
-          {notice === "error" ? <X className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
+          {notice === "error" ? (
+            <X className="h-4 w-4" />
+          ) : (
+            <CheckCircle2 className="h-4 w-4" />
+          )}
           {notice === "error" ? tc("errorOccurred") : tc("success")}
         </div>
       )}
 
-      {user && (
+      {authenticatedUserId && (
         <div className="flex gap-2">
           <button
             type="button"
             onClick={() => setShowMine(false)}
             className={`rounded-full px-3 py-1.5 text-sm font-medium ${
-              !showMine ? "bg-blue-600 text-white" : "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+              !showMine
+                ? "bg-blue-600 text-white"
+                : "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
             }`}
           >
             {t("allCategories")}
@@ -282,7 +328,9 @@ export default function WantedClient() {
             type="button"
             onClick={() => setShowMine(true)}
             className={`rounded-full px-3 py-1.5 text-sm font-medium ${
-              showMine ? "bg-blue-600 text-white" : "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+              showMine
+                ? "bg-blue-600 text-white"
+                : "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
             }`}
           >
             {t("you")}
@@ -363,7 +411,9 @@ export default function WantedClient() {
             type="button"
             onClick={() => setCategoryFilter(null)}
             className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-              !categoryFilter ? "bg-blue-600 text-white" : "bg-zinc-100 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300"
+              !categoryFilter
+                ? "bg-blue-600 text-white"
+                : "bg-zinc-100 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300"
             }`}
           >
             {t("allCategories")}
@@ -374,7 +424,9 @@ export default function WantedClient() {
               type="button"
               onClick={() => setCategoryFilter(category === categoryFilter ? null : category)}
               className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-                categoryFilter === category ? "bg-blue-600 text-white" : "bg-zinc-100 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300"
+                categoryFilter === category
+                  ? "bg-blue-600 text-white"
+                  : "bg-zinc-100 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300"
               }`}
             >
               {category}
@@ -387,14 +439,17 @@ export default function WantedClient() {
         {filtered.length === 0 ? (
           <div className="col-span-full flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-zinc-200 py-12 dark:border-zinc-700">
             <Megaphone className="mb-3 h-10 w-10 text-zinc-300 dark:text-zinc-600" />
-            <p className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">{t("noRequests")}</p>
+            <p className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
+              {t("noRequests")}
+            </p>
             <p className="mt-1 text-xs text-zinc-500">{t("noRequestsDesc")}</p>
           </div>
         ) : (
           filtered.map((request) => {
-            const owner = request.userId === user?.id;
+            const owner = request.userId === authenticatedUserId;
             const pending = pendingId === request.id;
             const status = request.status as WantedStatus;
+
             return (
               <article
                 key={request.id}
@@ -417,7 +472,9 @@ export default function WantedClient() {
                       )}
                     </div>
                     {request.description && (
-                      <p className="mt-1 line-clamp-2 text-xs text-zinc-600 dark:text-zinc-400">{request.description}</p>
+                      <p className="mt-1 line-clamp-2 text-xs text-zinc-600 dark:text-zinc-400">
+                        {request.description}
+                      </p>
                     )}
                     {request.offerDescription && (
                       <p className="mt-2 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
@@ -456,6 +513,7 @@ export default function WantedClient() {
                       {t("proposeSwap")}
                     </Link>
                   )}
+
                   {owner && (
                     <>
                       <button
@@ -467,6 +525,7 @@ export default function WantedClient() {
                       >
                         <Pencil className="h-3.5 w-3.5" />
                       </button>
+
                       {status === "active" ? (
                         <>
                           <button
@@ -476,7 +535,11 @@ export default function WantedClient() {
                             aria-label={tc("success")}
                             className="rounded-lg border border-green-200 p-2 text-green-700 hover:bg-green-50 disabled:opacity-50 dark:border-green-900 dark:text-green-300 dark:hover:bg-green-950/30"
                           >
-                            {pending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+                            {pending ? (
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            ) : (
+                              <CheckCircle2 className="h-3.5 w-3.5" />
+                            )}
                           </button>
                           <button
                             type="button"
@@ -496,9 +559,14 @@ export default function WantedClient() {
                           aria-label={tc("retry")}
                           className="rounded-lg border border-blue-200 p-2 text-blue-700 hover:bg-blue-50 disabled:opacity-50 dark:border-blue-900 dark:text-blue-300 dark:hover:bg-blue-950/30"
                         >
-                          {pending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RotateCcw className="h-3.5 w-3.5" />}
+                          {pending ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <RotateCcw className="h-3.5 w-3.5" />
+                          )}
                         </button>
                       )}
+
                       <button
                         type="button"
                         onClick={() => void mutateRequest(request.id, "delete")}
