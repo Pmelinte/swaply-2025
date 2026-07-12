@@ -9,7 +9,8 @@ import { createMapItem } from "@/lib/state/mappers";
 import type { Item } from "@/lib/types";
 import ObjectDetailResolved from "./ObjectDetailResolved";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 interface Props {
   params: Promise<{ locale: string; id: string }>;
@@ -59,7 +60,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const sourceLang = detectSourceLanguage(`${item.title ?? ""} ${item.description ?? ""}`);
 
-  // On-demand translation for non-ro/en locales
   const { title: tTitle, description: tDesc } = await translateFields(
     {
       title: String(item.title ?? ""),
@@ -118,7 +118,6 @@ export default async function ObjectDetailPage({ params }: Props) {
     ? detectSourceLanguage(`${item.title ?? ""} ${item.description ?? ""}`)
     : "en";
 
-  // Translate title + description for JSON-LD
   const tName = item
     ? await translateOnDemand(String(item.title ?? ""), locale, sourceLang)
     : "";
@@ -136,7 +135,6 @@ export default async function ObjectDetailPage({ params }: Props) {
       )
     : null;
 
-  // JSON-LD structured data for SEO
   const jsonLd = item
     ? {
         "@context": "https://schema.org",

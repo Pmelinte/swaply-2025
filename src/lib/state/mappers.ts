@@ -42,6 +42,14 @@ function safeNumber(...values: unknown[]): number {
   return 0;
 }
 
+export function resolveItemWishlist(row: Record<string, unknown>): string {
+  const aiMeta = safeObject(row.ai_metadata, {}) as Record<string, unknown>;
+  return safeString(
+    row.swap_wants_description,
+    safeString(aiMeta.wishlist, safeString(row.wishlist)),
+  );
+}
+
 export function createMapProfile(userRef: MutableRef<UserProfile | null>) {
   return (data: Partial<UserProfile> & Record<string, unknown>): UserProfile => {
     const currentUser = userRef.current;
@@ -158,7 +166,6 @@ export function createMapItem(userRef: MutableRef<UserProfile | null>) {
   return (row: Partial<Item> & Record<string, unknown>): Item => {
     const currentUser = userRef.current;
     const aiMeta = safeObject(row.ai_metadata, {}) as Record<string, unknown>;
-    // DB images is JSONB array of URLs; app photos is string[]
     const imagesRaw = row.images ?? row.photos;
     const photosList = Array.isArray(imagesRaw)
       ? (imagesRaw as (string | { url?: string })[]).map((img) =>
@@ -175,7 +182,7 @@ export function createMapItem(userRef: MutableRef<UserProfile | null>) {
       category: safeString(row.category, "General"),
       condition: (safeString(row.condition, "good") as Item["condition"]) ?? "good",
       description: safeString(row.description),
-      wishlist: safeString(row.wishlist, safeString(aiMeta.wishlist)),
+      wishlist: resolveItemWishlist(row),
       status: (safeString(row.status, "active") as Item["status"]) ?? "active",
       isDemo: safeBoolean(row.is_demo, false),
       isActive: safeBoolean(row.is_active, true),
@@ -208,7 +215,6 @@ export function createMapMessage() {
 
     return {
       id: safeString(row.id, nanoid()),
-      // DB uses conversation_id (text) or swap_id (uuid) — both map to conversationId
       conversationId: safeString(row.conversation_id, safeString(row.swap_id, safeString(row.conversationId))),
       senderId: safeString(row.sender_id, safeString(row.senderId)),
       recipientId: safeString(row.recipient_id, safeString(row.recipientId)) || undefined,
@@ -241,8 +247,6 @@ export function createMapSwapIntent() {
       id: safeString(row.id, nanoid()),
       requesterId: safeString(row.requester_id, safeString(row.requesterId)),
       responderId: safeString(row.responder_id, safeString(row.responderId)),
-      // DB `swaps` uses offered_item_id / requested_item_id.
-      // camelCase fallbacks cover objects coming from client-side state, not the DB.
       requesterItemId: safeString(row.offered_item_id, safeString(row.requesterItemId)),
       responderItemId: safeString(row.requested_item_id, safeString(row.responderItemId)),
       status: safeSwapStatus(row.status, "pending"),
@@ -264,7 +268,6 @@ export function createMapSwapIntent() {
 
 export function createMapNotification() {
   return (row: Partial<Notification> & Record<string, unknown>): Notification => {
-    // DB uses title+body; app uses message. Combine for display.
     const title = safeString(row.title);
     const body = safeString(row.body);
     const message = safeString(row.message) || (title && body ? `${title}: ${body}` : title || body);
@@ -276,7 +279,6 @@ export function createMapNotification() {
       message,
       body: body || undefined,
       data: (row.data && typeof row.data === "object" ? row.data : {}) as Record<string, unknown>,
-      // DB uses is_read; app uses read
       read: safeBoolean(row.is_read, safeBoolean(row.read, false)),
       priority: safeNotificationPriority(row.priority, "info"),
       createdAt: safeString(row.created_at, safeString(row.createdAt, new Date().toISOString())),

@@ -25,7 +25,7 @@ export default function ObjectDetailResolved({
   const t = useTranslations("objectDetail");
   const [seededItemId, setSeededItemId] = useState<string | null>(null);
   const stateItem = items.find((candidate) => candidate.id === itemId) ?? null;
-  const resolvedItem = stateItem ?? initialItem;
+  const resolvedItem = initialItem ?? stateItem;
 
   useEffect(() => {
     queryClient.setQueryData(["item", itemId], resolvedItem);
@@ -50,7 +50,16 @@ export default function ObjectDetailResolved({
   }
 
   const isOwner = user?.id === resolvedItem.ownerId;
-  const showResolvedShell = seededItemId !== itemId || loading.items;
+  const stateIsStale = Boolean(
+    initialItem &&
+      stateItem &&
+      (stateItem.title !== initialItem.title ||
+        stateItem.description !== initialItem.description ||
+        stateItem.wishlist !== initialItem.wishlist ||
+        stateItem.status !== initialItem.status ||
+        stateItem.isActive !== initialItem.isActive),
+  );
+  const showResolvedShell = seededItemId !== itemId || loading.items || stateIsStale;
 
   if (showResolvedShell) {
     const coverPhoto = resolvedItem.photos?.[0];

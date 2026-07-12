@@ -146,8 +146,9 @@ export default function EditObjectPage() {
         <ItemForm
           item={item}
           onSave={async (next) => {
-            await upsertItem(next);
-            router.push(`/objects/${params.id}`);
+            const saved = await upsertItem(next);
+            if (!saved) return;
+            window.location.assign(`/en/objects/${params.id}?updated=${Date.now()}`);
           }}
           onCancel={() => router.push(`/objects/${params.id}`)}
         />
