@@ -2,8 +2,17 @@ import { defineConfig, devices } from "@playwright/test";
 import path from "node:path";
 
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000";
+const vercelAutomationBypassSecret =
+  process.env.VERCEL_AUTOMATION_BYPASS_SECRET?.trim() || null;
 const userAAuthFile = path.join(__dirname, "e2e", ".auth", "user-a.json");
 const userBAuthFile = path.join(__dirname, "e2e", ".auth", "user-b.json");
+
+const extraHTTPHeaders = vercelAutomationBypassSecret
+  ? {
+      "x-vercel-protection-bypass": vercelAutomationBypassSecret,
+      "x-vercel-set-bypass-cookie": "true",
+    }
+  : undefined;
 
 export default defineConfig({
   testDir: "./e2e",
@@ -11,10 +20,12 @@ export default defineConfig({
   expect: { timeout: 10_000 },
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
+  fullyParallel: false,
   workers: 1,
   reporter: process.env.CI ? "html" : "list",
   use: {
     baseURL,
+    ...(extraHTTPHeaders ? { extraHTTPHeaders } : {}),
     screenshot: "only-on-failure",
     trace: "on-first-retry",
     video: "off",
@@ -39,6 +50,12 @@ export default defineConfig({
       testMatch: /(?:^|[\\/])profile\.spec\.ts$/,
       use: { ...devices["Desktop Chrome"], storageState: userAAuthFile },
       dependencies: ["setup-user-a"],
+    },
+    {
+      name: "objects-crud",
+      testMatch: /(?:^|[\\/])objects-crud\.spec\.ts$/,
+      use: { ...devices["Desktop Chrome"] },
+      dependencies: ["two-user-auth", "profile"],
     },
     {
       name: "chromium-user-a",

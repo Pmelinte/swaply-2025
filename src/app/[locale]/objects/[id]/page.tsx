@@ -5,7 +5,9 @@ import { getServerSupabase } from "@/lib/supabase/server";
 import { getTranslations } from "next-intl/server";
 import { translateFields, translateOnDemand } from "@/lib/translate-on-demand";
 import { getItemImageUrls } from "@/lib/item-image-src";
-import ObjectDetailClient from "./ObjectDetailClient";
+import { createMapItem } from "@/lib/state/mappers";
+import type { Item } from "@/lib/types";
+import ObjectDetailResolved from "./ObjectDetailResolved";
 
 export const revalidate = 300;
 
@@ -34,8 +36,11 @@ async function getItem(id: string) {
 
   const { data, error } = await supabase
     .from("items")
-    .select("title, description, category, condition, location, images")
+    .select(
+      "id, owner_id, title, description, category, condition, location, images, tags, status, is_active, is_demo, created_at, ai_metadata",
+    )
     .eq("id", id)
+    .eq("is_active", true)
     .maybeSingle();
   if (error) {
     console.error("[objects/detail] item lookup failed:", error);
@@ -58,7 +63,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { title: tTitle, description: tDesc } = await translateFields(
     {
       title: String(item.title ?? ""),
-      description: String(item.description ?? "").slice(0, 160) ||
+      description:
+        String(item.description ?? "").slice(0, 160) ||
         `${item.category} · ${item.condition}${item.location ? ` · ${item.location}` : ""}`,
     },
     locale,
@@ -76,7 +82,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
       type: "website",
-      ...(image ? { images: [{ url: image, width: 1200, height: 630, alt: String(item.title ?? "Swaply item") }] } : {}),
+      ...(image
+        ? {
+            images: [
+              {
+                url: image,
+                width: 1200,
+                height: 630,
+                alt: String(item.title ?? "Swaply item"),
+              },
+            ],
+          }
+        : {}),
     },
     twitter: {
       card: image ? "summary_large_image" : "summary",
@@ -102,9 +119,22 @@ export default async function ObjectDetailPage({ params }: Props) {
     : "en";
 
   // Translate title + description for JSON-LD
-  const tName = item ? await translateOnDemand(String(item.title ?? ""), locale, sourceLang) : "";
-  const tDescription = item ? await translateOnDemand(String(item.description ?? "").slice(0, 500), locale, sourceLang) : "";
+  const tName = item
+    ? await translateOnDemand(String(item.title ?? ""), locale, sourceLang)
+    : "";
+  const tDescription = item
+    ? await translateOnDemand(
+        String(item.description ?? "").slice(0, 500),
+        locale,
+        sourceLang,
+      )
+    : "";
   const images = item ? getItemImageUrls(item.images) : [];
+  const initialItem = item
+    ? createMapItem({ current: null })(
+        item as unknown as Partial<Item> & Record<string, unknown>,
+      )
+    : null;
 
   // JSON-LD structured data for SEO
   const jsonLd = item
@@ -120,10 +150,27 @@ export default async function ObjectDetailPage({ params }: Props) {
           availability: "https://schema.org/InStock",
           priceCurrency: "RON",
           price: "0",
-          description: await translateOnDemand("Disponibil pentru schimb (barter)", locale, "ro"),
+          description: await translateOnDemand(
+            "Disponibil pentru schimb (barter)",
+            locale,
+            "ro",
+          ),
         },
-        ...(item.condition ? { itemCondition: `https://schema.org/${item.condition === "new" ? "NewCondition" : "UsedCondition"}` } : {}),
-        ...(item.location ? { availableAtOrFrom: { "@type": "Place", name: item.location as string } } : {}),
+        ...(item.condition
+          ? {
+              itemCondition: `https://schema.org/${
+                item.condition === "new" ? "NewCondition" : "UsedCondition"
+              }`,
+            }
+          : {}),
+        ...(item.location
+          ? {
+              availableAtOrFrom: {
+                "@type": "Place",
+                name: item.location as string,
+              },
+            }
+          : {}),
       }
     : null;
 
@@ -137,7 +184,7 @@ export default async function ObjectDetailPage({ params }: Props) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       )}
-      <ObjectDetailClient />
+      <ObjectDetailResolved itemId={id} initialItem={initialItem} />
     </>
   );
 }
