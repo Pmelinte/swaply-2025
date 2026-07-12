@@ -14,6 +14,10 @@ import {
 import { calculateMatchScore } from "@/lib/matching/matchScore";
 import { persistMatchCandidate } from "@/lib/matching/matchPersistence";
 import {
+  fetchExpressedInterests,
+  withdrawExpressedInterest,
+} from "@/lib/matching/interestPersistence";
+import {
   DEFAULT_FILTERS,
   type MatchingFilters,
   type SelectedMatch,
@@ -56,6 +60,7 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
   );
   const [loading, setLoading] = useState(false);
   const [persistingIds, setPersistingIds] = useState<Set<string>>(new Set());
+  const [withdrawingIds, setWithdrawingIds] = useState<Set<string>>(new Set());
 
   const [selected, setSelected] = useState<SelectedMatch[]>([]);
   const [sort, setSort] = useState<SortOrder>("relevant");
@@ -122,6 +127,40 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
         setLoading(false);
       }
     });
+    return () => {
+      cancelled = true;
+    };
+  }, [userId]);
+
+  useEffect(() => {
+    const supabase = getSupabaseClient();
+    if (!supabase) return;
+
+    let cancelled = false;
+
+    async function restoreInterests() {
+      const rows = await fetchExpressedInterests(supabase, userId);
+      const restored = await Promise.all(
+        rows.map(async (row): Promise<SelectedMatch | null> => {
+          const item = await fetchItemById(supabase, row.target_item_id);
+          if (!item) return null;
+          return {
+            itemId: item.id,
+            ownerId: row.target_user_id,
+            item,
+            score: row.ai_score ?? 0,
+            matchId: row.id,
+          };
+        }),
+      );
+
+      if (!cancelled) {
+        setSelected(restored.filter((entry): entry is SelectedMatch => entry !== null));
+      }
+    }
+
+    void restoreInterests();
+
     return () => {
       cancelled = true;
     };
@@ -195,20 +234,21 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
         })
       : null;
 
-    setSelected((previous) => {
-      if (previous.length >= 2) return previous;
-      if (previous.some((entry) => entry.itemId === candidate.item.id)) return previous;
-      return [
-        ...previous,
-        {
-          itemId: candidate.item.id,
-          ownerId: candidate.item.owner_id,
-          item: candidate.item,
-          score: candidate.score,
-          matchId: persisted?.id,
-        },
-      ];
-    });
+    if (persisted) {
+      setSelected((previous) => {
+        if (previous.some((entry) => entry.itemId === candidate.item.id)) return previous;
+        return [
+          ...previous,
+          {
+            itemId: candidate.item.id,
+            ownerId: candidate.item.owner_id,
+            item: candidate.item,
+            score: candidate.score,
+            matchId: persisted.id,
+          },
+        ];
+      });
+    }
 
     setPersistingIds((previous) => {
       const next = new Set(previous);
@@ -216,6 +256,32 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
       return next;
     });
     setDrawerItem(null);
+  }
+
+  async function withdrawInterest(itemId: string) {
+    const interest = selected.find((entry) => entry.itemId === itemId);
+    if (!interest || withdrawingIds.has(itemId)) return;
+
+    if (!interest.matchId) {
+      setSelected((previous) => previous.filter((entry) => entry.itemId !== itemId));
+      return;
+    }
+
+    const supabase = getSupabaseClient();
+    if (!supabase) return;
+
+    setWithdrawingIds((previous) => new Set(previous).add(itemId));
+    const withdrawn = await withdrawExpressedInterest(supabase, interest.matchId, userId);
+
+    if (withdrawn) {
+      setSelected((previous) => previous.filter((entry) => entry.itemId !== itemId));
+    }
+
+    setWithdrawingIds((previous) => {
+      const next = new Set(previous);
+      next.delete(itemId);
+      return next;
+    });
   }
 
   return (
@@ -272,7 +338,11 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
             }}
           />
 
-          <MatchingSelected selected={selected} />
+          <MatchingSelected
+            selected={selected}
+            withdrawingIds={withdrawingIds}
+            onWithdraw={(itemId) => void withdrawInterest(itemId)}
+          />
         </div>
       </div>
 
