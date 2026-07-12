@@ -25,7 +25,7 @@ export default function ObjectDetailResolved({
   const t = useTranslations("objectDetail");
   const [seededItemId, setSeededItemId] = useState<string | null>(null);
   const stateItem = items.find((candidate) => candidate.id === itemId) ?? null;
-  const resolvedItem = stateItem ?? initialItem;
+  const resolvedItem = initialItem ?? stateItem;
 
   useEffect(() => {
     queryClient.setQueryData(["item", itemId], resolvedItem);
