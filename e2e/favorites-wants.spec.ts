@@ -8,12 +8,17 @@ import {
 
 const wantedPath = "/en/wanted";
 const favoritesPath = "/en/favorites";
-const objectsPath = "/en/objects";
+const objectCreatePath = "/en/objects/new";
+const myObjectsPath = "/en/my-objects";
 const profilePath = "/en/profile";
 const actionTimeout = 20_000;
 
 function readStorageState(path: string) {
   return JSON.parse(readFileSync(path, "utf8"));
+}
+
+function mainContent(page: Page) {
+  return page.getByRole("main");
 }
 
 async function expectReusableSession(page: Page, label: string) {
@@ -22,6 +27,62 @@ async function expectReusableSession(page: Page, label: string) {
     .poll(() => new URL(page.url()).pathname, { timeout: actionTimeout })
     .toBe(profilePath);
   await expectAuthenticatedSession(page, label);
+}
+
+async function preparePage(page: Page) {
+  await page.addInitScript(() => {
+    window.localStorage.setItem("cookie_consent", "rejected");
+    window.localStorage.setItem("swaply_cookie_consent", "rejected");
+  });
+
+  await page.route("**/api/analyze-image", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({}),
+    });
+  });
+
+  await page.route("**/api/ai", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ status: "fallback", tags: [] }),
+    });
+  });
+
+  await page.route("**/api/translate", async (route) => {
+    let translated = "";
+
+    try {
+      const body = route.request().postDataJSON() as { text?: unknown };
+      if (typeof body.text === "string") translated = body.text;
+    } catch {
+      // Keep the identity-translation fallback empty for malformed test requests.
+    }
+
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ translated }),
+    });
+  });
+
+  await page.route("**/api/translate/item", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({}),
+    });
+  });
+
+  await page.route("**/api/embeddings", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ ok: true }),
+    });
+  });
 }
 
 function isWantedCreateResponse(response: Response) {
@@ -42,6 +103,19 @@ function isFavoriteWriteResponse(response: Response, itemId: string) {
   return body.includes(itemId) || url.searchParams.get("item_id") === `eq.${itemId}`;
 }
 
+function isItemsWriteResponse(response: Response, itemId?: string) {
+  const request = response.request();
+  const method = request.method();
+  if (method !== "POST" && method !== "PATCH") return false;
+
+  const url = new URL(response.url());
+  if (!url.pathname.endsWith("/rest/v1/items")) return false;
+  if (!itemId) return true;
+
+  const body = request.postData() ?? "";
+  return body.includes(itemId) || url.searchParams.get("id") === `eq.${itemId}`;
+}
+
 async function openWanted(page: Page) {
   await page.goto(wantedPath, { waitUntil: "domcontentloaded" });
   await expect
@@ -60,24 +134,119 @@ async function openFavorites(page: Page) {
   await expect(page.getByTestId("favorites-page")).toBeVisible({ timeout: actionTimeout });
 }
 
-async function findPublicObjectPath(page: Page): Promise<{ itemId: string; path: string }> {
-  await page.goto(objectsPath, { waitUntil: "domcontentloaded" });
-  await expect
-    .poll(() => new URL(page.url()).pathname, { timeout: actionTimeout })
-    .toBe(objectsPath);
+async function createObject(page: Page, title: string, description: string): Promise<string> {
+  await page.goto(objectCreatePath, { waitUntil: "domcontentloaded" });
+  await expect(page).toHaveURL(/\/en\/objects\/new/);
 
-  const paths = await page.locator('a[href^="/en/objects/"]').evaluateAll((links) =>
-    links
-      .map((link) => link.getAttribute("href") ?? "")
-      .filter((href) => /^\/en\/objects\/[0-9a-f-]{36}$/i.test(href)),
+  const origin = new URL(page.url()).origin;
+  const imageUrl = `${origin}/icons/icon-512x512.png`;
+
+  await page.getByPlaceholder("https://example.com/product.jpg", { exact: true }).fill(imageUrl);
+  await page.getByRole("button", { name: "Use", exact: true }).click();
+  await expect(page.getByRole("img", { name: "Photo 1", exact: true })).toBeVisible({
+    timeout: actionTimeout,
+  });
+
+  const titleInput = page.getByPlaceholder("What are you offering?", { exact: true });
+  await expect(titleInput).toBeEnabled({ timeout: actionTimeout });
+  await titleInput.fill(title);
+
+  await page.getByRole("button").filter({ hasText: "Electronics" }).click();
+  await page.getByRole("button", { name: "Computers", exact: true }).click();
+  await page.getByRole("button", { name: "Next", exact: true }).click();
+
+  await page.locator("button").filter({ has: page.getByText("Good", { exact: true }) }).click();
+  await page.locator("button").filter({ has: page.getByText("Medium", { exact: true }) }).click();
+  await page.getByRole("button", { name: "Next", exact: true }).click();
+
+  await page
+    .getByPlaceholder("Describe the item in detail...", { exact: true })
+    .fill(description);
+  await page.getByRole("button", { name: "Next", exact: true }).click();
+
+  await page.locator("button").filter({ hasText: "Objects only" }).click();
+  await page
+    .getByPlaceholder("Describe what you're looking for...", { exact: true })
+    .fill("A compact camera or an e-reader in good condition.");
+  await page.getByRole("button", { name: "Adjacent", exact: true }).click();
+  await page.getByRole("button", { name: "Moderate", exact: true }).click();
+  await page.locator("button").filter({ hasText: "Local" }).click();
+  await page.getByRole("button", { name: "Next", exact: true }).click();
+
+  const insertResponsePromise = page.waitForResponse(
+    (response) => isItemsWriteResponse(response),
+    { timeout: actionTimeout },
   );
 
-  const path = paths[0];
-  expect(path, "Objects page must expose at least one active public object.").toBeTruthy();
+  await page.getByRole("button", { name: "Publish Listing", exact: true }).click();
+  const insertResponse = await insertResponsePromise;
+  const responseBody = await insertResponse.text();
 
-  const itemId = path.split("/").pop() ?? "";
-  expect(itemId).toMatch(/^[0-9a-f-]{36}$/i);
-  return { itemId, path };
+  expect(
+    insertResponse.ok(),
+    `Item creation failed: ${insertResponse.status()} ${responseBody}`,
+  ).toBe(true);
+
+  const insertedRows = JSON.parse(responseBody) as Array<{ id?: string }>;
+  const itemId = insertedRows[0]?.id;
+  expect(itemId, "The item insert response must include an id.").toBeTruthy();
+
+  await expect(
+    mainContent(page).getByText("Your item has been listed successfully!", { exact: true }),
+  ).toBeVisible({ timeout: actionTimeout });
+  await expect
+    .poll(() => new URL(page.url()).pathname, { timeout: actionTimeout })
+    .toBe(`/en/objects/${itemId}`);
+
+  return itemId!;
+}
+
+async function archiveObject(page: Page, itemId: string) {
+  await expectAuthenticatedSession(page, "User A before Favorites object cleanup");
+  await page.goto(myObjectsPath, { waitUntil: "domcontentloaded" });
+  await expect
+    .poll(() => new URL(page.url()).pathname, { timeout: actionTimeout })
+    .toBe(myObjectsPath);
+
+  const main = mainContent(page);
+  const search = main.getByPlaceholder("Search your items...", { exact: true });
+  await expect(search).toBeVisible({ timeout: actionTimeout });
+  await search.fill("");
+
+  const itemLink = main.locator(`a[href$="/objects/${itemId}"]`).first();
+  await expect(itemLink, `Cleanup could not find item ${itemId} in My Objects.`).toBeVisible({
+    timeout: actionTimeout,
+  });
+
+  const card = itemLink.locator("xpath=ancestor::div[contains(@class,'overflow-hidden')][1]");
+  await expect(card).toBeVisible({ timeout: actionTimeout });
+
+  const expandButton = card.getByRole("button", { name: "Expand details", exact: true });
+  if (await expandButton.isVisible().catch(() => false)) {
+    await expandButton.click();
+  }
+
+  const archiveButton = card.getByRole("button", { name: "Archive", exact: true });
+  if (!(await archiveButton.isVisible({ timeout: 3_000 }).catch(() => false))) {
+    await expect(card.getByRole("button", { name: "Resume", exact: true })).toBeVisible({
+      timeout: actionTimeout,
+    });
+    return;
+  }
+
+  const archiveResponsePromise = page.waitForResponse(
+    (response) => isItemsWriteResponse(response, itemId),
+    { timeout: actionTimeout },
+  );
+
+  await archiveButton.click();
+  const archiveResponse = await archiveResponsePromise;
+  const archiveBody = archiveResponse.ok() ? "" : await archiveResponse.text();
+
+  expect(
+    archiveResponse.ok(),
+    `Item cleanup failed: ${archiveResponse.status()} ${archiveBody}`,
+  ).toBe(true);
 }
 
 async function ensureNotFavorite(page: Page, path: string, itemId: string) {
@@ -102,13 +271,20 @@ test.describe("Train C Batch 53 favorites and wants", () => {
 
   test("favorite persists for User A, remains isolated from User B, and cleans up", async ({
     browser,
-  }) => {
-    test.setTimeout(180_000);
+  }, testInfo) => {
+    test.setTimeout(240_000);
 
     const contextA = await browser.newContext({ storageState: readStorageState(userAAuthFile) });
     const contextB = await browser.newContext({ storageState: readStorageState(userBAuthFile) });
     const pageA = await contextA.newPage();
     const pageB = await contextB.newPage();
+
+    await preparePage(pageA);
+    await preparePage(pageB);
+
+    const suffix = `${Date.now()}-${testInfo.workerIndex}`;
+    const title = `Batch 53 favorite ${suffix}`;
+    const description = "Batch 53 verifies favorite persistence and per-user isolation.";
 
     let itemId: string | null = null;
     let itemPath: string | null = null;
@@ -120,10 +296,9 @@ test.describe("Train C Batch 53 favorites and wants", () => {
         await expectReusableSession(pageB, "User B before Favorites lifecycle");
       });
 
-      await test.step("select a stable public object and normalize both test users", async () => {
-        const selected = await findPublicObjectPath(pageA);
-        itemId = selected.itemId;
-        itemPath = selected.path;
+      await test.step("create an isolated favorite test object as User A", async () => {
+        itemId = await createObject(pageA, title, description);
+        itemPath = `/en/objects/${itemId}`;
 
         await ensureNotFavorite(pageA, itemPath, itemId);
         await ensureNotFavorite(pageB, itemPath, itemId);
@@ -192,6 +367,7 @@ test.describe("Train C Batch 53 favorites and wants", () => {
         try {
           await ensureNotFavorite(pageA, itemPath, itemId);
           await ensureNotFavorite(pageB, itemPath, itemId);
+          await archiveObject(pageA, itemId);
         } catch (cleanupError) {
           if (!primaryError) primaryError = cleanupError;
         }
