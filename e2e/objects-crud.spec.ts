@@ -1,4 +1,9 @@
-import { expect, test, type Page } from "@playwright/test";
+import {
+  expect,
+  test,
+  type Page,
+  type Response as PlaywrightResponse,
+} from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { userAAuthFile, userBAuthFile } from "./two-user-auth.setup";
 
@@ -12,6 +17,20 @@ function readStorageState(path: string) {
 
 function mainContent(page: Page) {
   return page.getByRole("main");
+}
+
+function isItemsWriteResponse(response: PlaywrightResponse, itemId?: string) {
+  const request = response.request();
+  const method = request.method();
+
+  if (method !== "POST" && method !== "PATCH") return false;
+
+  const url = new URL(response.url());
+  if (!url.pathname.endsWith("/rest/v1/items")) return false;
+  if (!itemId) return true;
+
+  const body = request.postData() ?? "";
+  return body.includes(itemId) || url.searchParams.get("id") === `eq.${itemId}`;
 }
 
 async function expectObjectDetails(page: Page, title: string, description: string) {
@@ -39,11 +58,44 @@ async function preparePage(page: Page) {
     });
   });
 
+  await page.route("**/api/ai", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ status: "fallback", tags: [] }),
+    });
+  });
+
+  await page.route("**/api/translate", async (route) => {
+    let translated = "";
+
+    try {
+      const body = route.request().postDataJSON() as { text?: unknown };
+      if (typeof body.text === "string") translated = body.text;
+    } catch {
+      // Keep the identity-translation fallback empty for malformed test requests.
+    }
+
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ translated }),
+    });
+  });
+
   await page.route("**/api/translate/item", async (route) => {
     await route.fulfill({
       status: 200,
       contentType: "application/json",
       body: JSON.stringify({}),
+    });
+  });
+
+  await page.route("**/api/embeddings", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ ok: true }),
     });
   });
 }
@@ -88,13 +140,7 @@ async function createObject(page: Page, title: string, description: string): Pro
   await page.getByRole("button", { name: "Next", exact: true }).click();
 
   const insertResponsePromise = page.waitForResponse(
-    (response) => {
-      const request = response.request();
-      return (
-        request.method() === "POST" &&
-        new URL(response.url()).pathname.endsWith("/rest/v1/items")
-      );
-    },
+    (response) => isItemsWriteResponse(response),
     { timeout: actionTimeout },
   );
 
@@ -123,36 +169,47 @@ async function createObject(page: Page, title: string, description: string): Pro
   return itemId!;
 }
 
-async function archiveObject(page: Page, title: string) {
+async function archiveObject(page: Page, itemId: string) {
   await page.goto(myObjectsPath, { waitUntil: "domcontentloaded" });
-  await expect(page).toHaveURL(/\/en\/my-objects/);
+  await expect
+    .poll(() => new URL(page.url()).pathname, { timeout: actionTimeout })
+    .toBe(myObjectsPath);
 
   const main = mainContent(page);
   const search = main.getByPlaceholder("Search your items...", { exact: true });
   await expect(search).toBeVisible({ timeout: actionTimeout });
-  await search.fill(title);
+  await search.fill("");
 
-  const itemLink = main.getByRole("link", { name: title, exact: true });
-  if (!(await itemLink.isVisible({ timeout: 5_000 }).catch(() => false))) return;
+  const itemLink = main.locator(`a[href$="/objects/${itemId}"]`).first();
+  await expect(itemLink, `Cleanup could not find item ${itemId} in My Objects.`).toBeVisible({
+    timeout: actionTimeout,
+  });
 
   const card = itemLink.locator("xpath=ancestor::div[contains(@class,'overflow-hidden')][1]");
-  await card.getByRole("button", { name: "Expand details", exact: true }).click();
-  await card.getByRole("button", { name: "Delete", exact: true }).click();
+  await expect(card).toBeVisible({ timeout: actionTimeout });
+
+  const expandButton = card.getByRole("button", { name: "Expand details", exact: true });
+  if (await expandButton.isVisible().catch(() => false)) {
+    await expandButton.click();
+  }
+
+  const archiveButton = card.getByRole("button", { name: "Archive", exact: true });
+  if (!(await archiveButton.isVisible({ timeout: 3_000 }).catch(() => false))) {
+    await expect(card.getByRole("button", { name: "Resume", exact: true })).toBeVisible({
+      timeout: actionTimeout,
+    });
+    return;
+  }
 
   const archiveResponsePromise = page.waitForResponse(
-    (response) => {
-      const request = response.request();
-      return (
-        request.method() === "POST" &&
-        new URL(response.url()).pathname.endsWith("/rest/v1/items")
-      );
-    },
+    (response) => isItemsWriteResponse(response, itemId),
     { timeout: actionTimeout },
   );
 
-  await card.getByRole("button", { name: "Archive instead", exact: true }).click();
+  await archiveButton.click();
   const archiveResponse = await archiveResponsePromise;
   const archiveBody = archiveResponse.ok() ? "" : await archiveResponse.text();
+
   expect(
     archiveResponse.ok(),
     `Item cleanup failed: ${archiveResponse.status()} ${archiveBody}`,
@@ -182,76 +239,86 @@ test.describe("Train C Batch 52 objects CRUD", () => {
     const editedDescription = "Batch 52 verifies authenticated object editing and owner isolation.";
 
     let createdItemId: string | null = null;
-    let currentTitle = originalTitle;
     let primaryError: unknown | null = null;
 
     try {
-      createdItemId = await createObject(pageA, originalTitle, originalDescription);
+      createdItemId = await test.step("create an object as User A", async () =>
+        createObject(pageA, originalTitle, originalDescription),
+      );
+      const itemId = createdItemId;
 
-      await expectObjectDetails(pageA, originalTitle, originalDescription);
-      await expect(
-        mainContent(pageA).getByRole("link", { name: "Edit object", exact: true }),
-      ).toBeVisible({
-        timeout: actionTimeout,
+      await test.step("verify owner detail and reload persistence", async () => {
+        await expectObjectDetails(pageA, originalTitle, originalDescription);
+        await expect(
+          mainContent(pageA).getByRole("link", { name: "Edit object", exact: true }),
+        ).toBeVisible({
+          timeout: actionTimeout,
+        });
+
+        await pageA.reload({ waitUntil: "domcontentloaded" });
+        await expectObjectDetails(pageA, originalTitle, originalDescription);
       });
 
-      await pageA.reload({ waitUntil: "domcontentloaded" });
-      await expectObjectDetails(pageA, originalTitle, originalDescription);
+      await test.step("verify User B can read but cannot edit", async () => {
+        await pageB.goto(`/en/objects/${itemId}`, { waitUntil: "domcontentloaded" });
+        await expectObjectDetails(pageB, originalTitle, originalDescription);
+        await expect(
+          mainContent(pageB).getByRole("link", { name: "Edit object", exact: true }),
+        ).toHaveCount(0);
 
-      await pageB.goto(`/en/objects/${createdItemId}`, { waitUntil: "domcontentloaded" });
-      await expectObjectDetails(pageB, originalTitle, originalDescription);
-      await expect(
-        mainContent(pageB).getByRole("link", { name: "Edit object", exact: true }),
-      ).toHaveCount(0);
+        await pageB.goto(`/en/objects/${itemId}/edit`, { waitUntil: "domcontentloaded" });
+        const unauthorizedMain = mainContent(pageB);
+        await expect(
+          unauthorizedMain.getByRole("heading", { name: "Object not found", exact: true }),
+        ).toBeVisible({ timeout: actionTimeout });
+        await expect(unauthorizedMain.locator("form")).toHaveCount(0);
+        await expect(
+          unauthorizedMain.getByRole("button", { name: "Save", exact: true }),
+        ).toHaveCount(0);
+      });
 
-      await pageB.goto(`/en/objects/${createdItemId}/edit`, { waitUntil: "domcontentloaded" });
-      await pageB.waitForTimeout(1_000);
-      await expect(
-        mainContent(pageB).getByRole("button", { name: "Save", exact: true }),
-      ).toHaveCount(0);
+      await test.step("update the object as User A", async () => {
+        await pageA.goto(`/en/objects/${itemId}`, { waitUntil: "domcontentloaded" });
+        await mainContent(pageA).getByRole("link", { name: "Edit object", exact: true }).click();
+        await expect
+          .poll(() => new URL(pageA.url()).pathname, { timeout: actionTimeout })
+          .toBe(`/en/objects/${itemId}/edit`);
 
-      await pageA.goto(`/en/objects/${createdItemId}`, { waitUntil: "domcontentloaded" });
-      await mainContent(pageA).getByRole("link", { name: "Edit object", exact: true }).click();
-      await expect
-        .poll(() => new URL(pageA.url()).pathname, { timeout: actionTimeout })
-        .toBe(`/en/objects/${createdItemId}/edit`);
+        const editMain = mainContent(pageA);
+        const titleField = editMain.locator("input[name=title]");
+        const descriptionField = editMain.locator("textarea[name=description]");
 
-      const editMain = mainContent(pageA);
-      await editMain.getByLabel("Title *", { exact: true }).fill(editedTitle);
-      await editMain
-        .getByPlaceholder(
-          "Describe the object in detail: condition, defects, included accessories...",
-          { exact: true },
-        )
-        .fill(editedDescription);
+        await expect(titleField).toBeVisible({ timeout: actionTimeout });
+        await expect(descriptionField).toBeVisible({ timeout: actionTimeout });
+        await titleField.fill(editedTitle);
+        await descriptionField.fill(editedDescription);
+        await expect(titleField).toHaveValue(editedTitle);
+        await expect(descriptionField).toHaveValue(editedDescription);
 
-      const updateResponsePromise = pageA.waitForResponse(
-        (response) => {
-          const request = response.request();
-          return (
-            request.method() === "POST" &&
-            new URL(response.url()).pathname.endsWith("/rest/v1/items")
-          );
-        },
-        { timeout: actionTimeout },
-      );
+        const updateResponsePromise = pageA.waitForResponse(
+          (response) => isItemsWriteResponse(response, itemId),
+          { timeout: actionTimeout },
+        );
 
-      await editMain.getByRole("button", { name: "Save", exact: true }).click();
-      const updateResponse = await updateResponsePromise;
-      const updateBody = updateResponse.ok() ? "" : await updateResponse.text();
-      expect(
-        updateResponse.ok(),
-        `Item update failed: ${updateResponse.status()} ${updateBody}`,
-      ).toBe(true);
+        await editMain.locator("form button[type=submit]").click();
+        const updateResponse = await updateResponsePromise;
+        const updateBody = updateResponse.ok() ? "" : await updateResponse.text();
 
-      currentTitle = editedTitle;
-      await expect
-        .poll(() => new URL(pageA.url()).pathname, { timeout: actionTimeout })
-        .toBe(`/en/objects/${createdItemId}`);
-      await expectObjectDetails(pageA, editedTitle, editedDescription);
+        expect(
+          updateResponse.ok(),
+          `Item update failed: ${updateResponse.status()} ${updateBody}`,
+        ).toBe(true);
 
-      await pageA.reload({ waitUntil: "domcontentloaded" });
-      await expectObjectDetails(pageA, editedTitle, editedDescription);
+        await expect
+          .poll(() => new URL(pageA.url()).pathname, { timeout: actionTimeout })
+          .toBe(`/en/objects/${itemId}`);
+        await expectObjectDetails(pageA, editedTitle, editedDescription);
+      });
+
+      await test.step("verify the update persists after reload", async () => {
+        await pageA.reload({ waitUntil: "domcontentloaded" });
+        await expectObjectDetails(pageA, editedTitle, editedDescription);
+      });
     } catch (error) {
       primaryError = error;
     }
@@ -259,10 +326,12 @@ test.describe("Train C Batch 52 objects CRUD", () => {
     let cleanupError: unknown | null = null;
 
     if (createdItemId) {
+      const itemId = createdItemId;
+
       try {
-        await test.step("archive the Batch 52 test object", async () => {
-          await archiveObject(pageA, currentTitle);
-          await pageA.goto(`/en/objects/${createdItemId}`, { waitUntil: "domcontentloaded" });
+        await test.step("archive the Batch 52 test object by id", async () => {
+          await archiveObject(pageA, itemId);
+          await pageA.goto(`/en/objects/${itemId}`, { waitUntil: "domcontentloaded" });
           await expect(
             mainContent(pageA).getByText(
               "Object not found or not publicly available. Navigate back to the objects list.",
