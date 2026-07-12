@@ -19,28 +19,22 @@ import {
 
 export default function FavoritesClient() {
   const { items, loading, user } = useAppState();
-  const {
-    favoriteIds,
-    toggleFavorite,
-    loaded,
-    error,
-    pendingItemIds,
-  } = useFavorites(user?.id);
+  const { favoriteIds, toggleFavorite, loaded, error, isPending } = useFavorites(user?.id);
   const t = useTranslations("favorites");
   const tCat = useTranslations("categories");
   const [search, setSearch] = useState("");
 
   const favoriteItems = useMemo(() => {
-    return items.filter((i) => favoriteIds.has(i.id));
+    return items.filter((item) => favoriteIds.has(item.id));
   }, [items, favoriteIds]);
 
   const filtered = useMemo(() => {
     if (!search.trim()) return favoriteItems;
-    const q = search.toLowerCase();
+    const query = search.toLowerCase();
     return favoriteItems.filter(
-      (i) =>
-        i.title.toLowerCase().includes(q) ||
-        i.category.toLowerCase().includes(q),
+      (item) =>
+        item.title.toLowerCase().includes(query) ||
+        item.category.toLowerCase().includes(query),
     );
   }, [favoriteItems, search]);
 
@@ -85,7 +79,7 @@ export default function FavoritesClient() {
           <input
             type="text"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(event) => setSearch(event.target.value)}
             placeholder={t("searchSaved")}
             className="w-full rounded-xl border border-zinc-200 bg-white py-2 pl-10 pr-4 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
           />
@@ -114,7 +108,7 @@ export default function FavoritesClient() {
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((item) => {
-            const pending = pendingItemIds.has(item.id);
+            const pending = isPending(item.id);
             return (
               <div
                 key={item.id}
