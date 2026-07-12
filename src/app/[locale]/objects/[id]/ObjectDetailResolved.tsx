@@ -50,7 +50,16 @@ export default function ObjectDetailResolved({
   }
 
   const isOwner = user?.id === resolvedItem.ownerId;
-  const showResolvedShell = seededItemId !== itemId || loading.items;
+  const stateIsStale = Boolean(
+    initialItem &&
+      stateItem &&
+      (stateItem.title !== initialItem.title ||
+        stateItem.description !== initialItem.description ||
+        stateItem.wishlist !== initialItem.wishlist ||
+        stateItem.status !== initialItem.status ||
+        stateItem.isActive !== initialItem.isActive),
+  );
+  const showResolvedShell = seededItemId !== itemId || loading.items || stateIsStale;
 
   if (showResolvedShell) {
     const coverPhoto = resolvedItem.photos?.[0];
