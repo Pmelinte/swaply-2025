@@ -33,7 +33,7 @@ async function openWanted(page: Page) {
   await expect
     .poll(() => new URL(page.url()).pathname, { timeout: actionTimeout })
     .toBe(wantedPath);
-  await expect(page.getByRole("button", { name: "Post a request", exact: true })).toBeVisible({
+  await expect(page.getByRole("button", { name: "Post Request", exact: true })).toBeVisible({
     timeout: actionTimeout,
   });
 }
@@ -65,7 +65,7 @@ test.describe("Train C Batch 53 favorites and wants", () => {
 
       await test.step("User A creates a wanted request", async () => {
         await openWanted(pageA);
-        await pageA.getByRole("button", { name: "Post a request", exact: true }).click();
+        await pageA.getByRole("button", { name: "Post Request", exact: true }).click();
         await pageA.getByPlaceholder("What are you looking for?", { exact: true }).fill(title);
         await pageA
           .getByPlaceholder("Add details about what you need...", { exact: true })
