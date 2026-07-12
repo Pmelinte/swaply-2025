@@ -10,6 +10,21 @@ function readStorageState(path: string) {
   return JSON.parse(readFileSync(path, "utf8"));
 }
 
+function mainContent(page: Page) {
+  return page.getByRole("main");
+}
+
+async function expectObjectDetails(page: Page, title: string, description: string) {
+  const main = mainContent(page);
+
+  await expect(main.getByRole("heading", { name: title, exact: true })).toBeVisible({
+    timeout: actionTimeout,
+  });
+  await expect(main.getByText(description, { exact: true })).toBeVisible({
+    timeout: actionTimeout,
+  });
+}
+
 async function preparePage(page: Page) {
   await page.addInitScript(() => {
     window.localStorage.setItem("cookie_consent", "rejected");
@@ -96,7 +111,9 @@ async function createObject(page: Page, title: string, description: string): Pro
   const itemId = insertedRows[0]?.id;
   expect(itemId, "The item insert response must include an id.").toBeTruthy();
 
-  await expect(page.getByText("Your item has been listed successfully!", { exact: true })).toBeVisible({
+  await expect(
+    mainContent(page).getByText("Your item has been listed successfully!", { exact: true }),
+  ).toBeVisible({
     timeout: actionTimeout,
   });
   await expect
@@ -110,11 +127,12 @@ async function archiveObject(page: Page, title: string) {
   await page.goto(myObjectsPath, { waitUntil: "domcontentloaded" });
   await expect(page).toHaveURL(/\/en\/my-objects/);
 
-  const search = page.getByPlaceholder("Search your items...", { exact: true });
+  const main = mainContent(page);
+  const search = main.getByPlaceholder("Search your items...", { exact: true });
   await expect(search).toBeVisible({ timeout: actionTimeout });
   await search.fill(title);
 
-  const itemLink = page.getByRole("link", { name: title, exact: true });
+  const itemLink = main.getByRole("link", { name: title, exact: true });
   if (!(await itemLink.isVisible({ timeout: 5_000 }).catch(() => false))) return;
 
   const card = itemLink.locator("xpath=ancestor::div[contains(@class,'overflow-hidden')][1]");
@@ -170,40 +188,37 @@ test.describe("Train C Batch 52 objects CRUD", () => {
     try {
       createdItemId = await createObject(pageA, originalTitle, originalDescription);
 
-      await expect(pageA.getByRole("heading", { name: originalTitle, exact: true })).toBeVisible({
-        timeout: actionTimeout,
-      });
-      await expect(pageA.getByText(originalDescription, { exact: true })).toBeVisible({
-        timeout: actionTimeout,
-      });
-      await expect(pageA.getByRole("link", { name: "Edit object", exact: true })).toBeVisible({
+      await expectObjectDetails(pageA, originalTitle, originalDescription);
+      await expect(
+        mainContent(pageA).getByRole("link", { name: "Edit object", exact: true }),
+      ).toBeVisible({
         timeout: actionTimeout,
       });
 
       await pageA.reload({ waitUntil: "domcontentloaded" });
-      await expect(pageA.getByRole("heading", { name: originalTitle, exact: true })).toBeVisible({
-        timeout: actionTimeout,
-      });
-      await expect(pageA.getByText(originalDescription, { exact: true })).toBeVisible({
-        timeout: actionTimeout,
-      });
+      await expectObjectDetails(pageA, originalTitle, originalDescription);
 
       await pageB.goto(`/en/objects/${createdItemId}`, { waitUntil: "domcontentloaded" });
-      await expect(pageB.getByRole("heading", { name: originalTitle, exact: true })).toBeVisible({
-        timeout: actionTimeout,
-      });
-      await expect(pageB.getByRole("link", { name: "Edit object", exact: true })).toHaveCount(0);
+      await expectObjectDetails(pageB, originalTitle, originalDescription);
+      await expect(
+        mainContent(pageB).getByRole("link", { name: "Edit object", exact: true }),
+      ).toHaveCount(0);
 
       await pageB.goto(`/en/objects/${createdItemId}/edit`, { waitUntil: "domcontentloaded" });
       await pageB.waitForTimeout(1_000);
-      await expect(pageB.getByRole("button", { name: "Save", exact: true })).toHaveCount(0);
+      await expect(
+        mainContent(pageB).getByRole("button", { name: "Save", exact: true }),
+      ).toHaveCount(0);
 
       await pageA.goto(`/en/objects/${createdItemId}`, { waitUntil: "domcontentloaded" });
-      await pageA.getByRole("link", { name: "Edit object", exact: true }).click();
-      await expect(pageA).toHaveURL(new RegExp(`/en/objects/${createdItemId}/edit$`));
+      await mainContent(pageA).getByRole("link", { name: "Edit object", exact: true }).click();
+      await expect
+        .poll(() => new URL(pageA.url()).pathname, { timeout: actionTimeout })
+        .toBe(`/en/objects/${createdItemId}/edit`);
 
-      await pageA.getByLabel("Title *", { exact: true }).fill(editedTitle);
-      await pageA
+      const editMain = mainContent(pageA);
+      await editMain.getByLabel("Title *", { exact: true }).fill(editedTitle);
+      await editMain
         .getByPlaceholder(
           "Describe the object in detail: condition, defects, included accessories...",
           { exact: true },
@@ -221,7 +236,7 @@ test.describe("Train C Batch 52 objects CRUD", () => {
         { timeout: actionTimeout },
       );
 
-      await pageA.getByRole("button", { name: "Save", exact: true }).click();
+      await editMain.getByRole("button", { name: "Save", exact: true }).click();
       const updateResponse = await updateResponsePromise;
       const updateBody = updateResponse.ok() ? "" : await updateResponse.text();
       expect(
@@ -230,23 +245,13 @@ test.describe("Train C Batch 52 objects CRUD", () => {
       ).toBe(true);
 
       currentTitle = editedTitle;
-      await expect(pageA).toHaveURL(new RegExp(`/en/objects/${createdItemId}$`), {
-        timeout: actionTimeout,
-      });
-      await expect(pageA.getByRole("heading", { name: editedTitle, exact: true })).toBeVisible({
-        timeout: actionTimeout,
-      });
-      await expect(pageA.getByText(editedDescription, { exact: true })).toBeVisible({
-        timeout: actionTimeout,
-      });
+      await expect
+        .poll(() => new URL(pageA.url()).pathname, { timeout: actionTimeout })
+        .toBe(`/en/objects/${createdItemId}`);
+      await expectObjectDetails(pageA, editedTitle, editedDescription);
 
       await pageA.reload({ waitUntil: "domcontentloaded" });
-      await expect(pageA.getByRole("heading", { name: editedTitle, exact: true })).toBeVisible({
-        timeout: actionTimeout,
-      });
-      await expect(pageA.getByText(editedDescription, { exact: true })).toBeVisible({
-        timeout: actionTimeout,
-      });
+      await expectObjectDetails(pageA, editedTitle, editedDescription);
     } catch (error) {
       primaryError = error;
     }
@@ -259,12 +264,10 @@ test.describe("Train C Batch 52 objects CRUD", () => {
           await archiveObject(pageA, currentTitle);
           await pageA.goto(`/en/objects/${createdItemId}`, { waitUntil: "domcontentloaded" });
           await expect(
-            pageA
-              .locator("main")
-              .getByText(
-                "Object not found or not publicly available. Navigate back to the objects list.",
-                { exact: true },
-              ),
+            mainContent(pageA).getByText(
+              "Object not found or not publicly available. Navigate back to the objects list.",
+              { exact: true },
+            ),
           ).toBeVisible({
             timeout: actionTimeout,
           });
