@@ -86,8 +86,8 @@ jobs:
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Run authenticated baseline, profile and objects CRUD validation
-        run: npx playwright test --config=playwright.two-user.config.ts --project=two-user-auth --project=profile --project=objects-crud
+      - name: Run deterministic authenticated Train C dependency graph
+        run: npx playwright test --config=playwright.two-user.config.ts --project=objects-crud
 
       - name: Upload Playwright report
         if: always()
