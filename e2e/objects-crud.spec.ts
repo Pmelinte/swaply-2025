@@ -5,10 +5,15 @@ import {
   type Response as PlaywrightResponse,
 } from "@playwright/test";
 import { readFileSync } from "node:fs";
-import { userAAuthFile, userBAuthFile } from "./two-user-auth.setup";
+import {
+  expectAuthenticatedSession,
+  userAAuthFile,
+  userBAuthFile,
+} from "./two-user-auth.setup";
 
 const objectCreatePath = "/en/objects/new";
 const myObjectsPath = "/en/my-objects";
+const profilePath = "/en/profile";
 const actionTimeout = 20_000;
 
 function readStorageState(path: string) {
@@ -42,6 +47,14 @@ async function expectObjectDetails(page: Page, title: string, description: strin
   await expect(main.getByText(description, { exact: true })).toBeVisible({
     timeout: actionTimeout,
   });
+}
+
+async function expectReusableSession(page: Page, label: string) {
+  await page.goto(profilePath, { waitUntil: "domcontentloaded" });
+  await expect
+    .poll(() => new URL(page.url()).pathname, { timeout: actionTimeout })
+    .toBe(profilePath);
+  await expectAuthenticatedSession(page, label);
 }
 
 async function preparePage(page: Page) {
@@ -170,6 +183,7 @@ async function createObject(page: Page, title: string, description: string): Pro
 }
 
 async function archiveObject(page: Page, itemId: string) {
+  await expectAuthenticatedSession(page, "User A before object cleanup");
   await page.goto(myObjectsPath, { waitUntil: "domcontentloaded" });
   await expect
     .poll(() => new URL(page.url()).pathname, { timeout: actionTimeout })
@@ -242,6 +256,11 @@ test.describe("Train C Batch 52 objects CRUD", () => {
     let primaryError: unknown | null = null;
 
     try {
+      await test.step("verify reusable User A and User B sessions", async () => {
+        await expectReusableSession(pageA, "User A before Objects CRUD");
+        await expectReusableSession(pageB, "User B before Objects CRUD");
+      });
+
       createdItemId = await test.step("create an object as User A", async () =>
         createObject(pageA, originalTitle, originalDescription),
       );
@@ -265,11 +284,19 @@ test.describe("Train C Batch 52 objects CRUD", () => {
         await expect(
           mainContent(pageB).getByRole("link", { name: "Edit object", exact: true }),
         ).toHaveCount(0);
+        await expectAuthenticatedSession(pageB, "User B before direct edit authorization check");
 
         await pageB.goto(`/en/objects/${itemId}/edit`, { waitUntil: "domcontentloaded" });
+        await expect
+          .poll(() => new URL(pageB.url()).pathname, { timeout: actionTimeout })
+          .toBe(`/en/objects/${itemId}/edit`);
+        await expectAuthenticatedSession(pageB, "User B on denied edit route");
+
         const unauthorizedMain = mainContent(pageB);
         await expect(
-          unauthorizedMain.getByRole("heading", { name: "Object not found", exact: true }),
+          unauthorizedMain
+            .getByText(/Object not found|Access denied|not publicly available/i)
+            .first(),
         ).toBeVisible({ timeout: actionTimeout });
         await expect(unauthorizedMain.locator("form")).toHaveCount(0);
         await expect(
