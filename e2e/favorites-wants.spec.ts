@@ -68,13 +68,13 @@ test.describe("Train C Batch 53 favorites and wants", () => {
         await pageA.getByRole("button", { name: "Post Request", exact: true }).click();
         await pageA.getByPlaceholder("What are you looking for?", { exact: true }).fill(title);
         await pageA
-          .getByPlaceholder("Add details about what you need...", { exact: true })
+          .getByPlaceholder("Describe what you need, condition, budget range...", { exact: true })
           .fill(description);
 
         const createResponsePromise = pageA.waitForResponse(isWantedCreateResponse, {
           timeout: actionTimeout,
         });
-        await pageA.getByRole("button", { name: "Publish request", exact: true }).click();
+        await pageA.getByRole("button", { name: "Publish Request", exact: true }).click();
         const response = await createResponsePromise;
         const body = await response.text();
         expect(response.ok(), `Wanted creation failed: ${response.status()} ${body}`).toBe(true);
