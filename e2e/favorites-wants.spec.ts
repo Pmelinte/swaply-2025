@@ -7,6 +7,8 @@ import {
 } from "./two-user-auth.setup";
 
 const wantedPath = "/en/wanted";
+const favoritesPath = "/en/favorites";
+const objectsPath = "/en/objects";
 const profilePath = "/en/profile";
 const actionTimeout = 20_000;
 
@@ -28,6 +30,18 @@ function isWantedCreateResponse(response: Response) {
   return request.method() === "POST" && url.pathname === "/api/wanted";
 }
 
+function isFavoriteWriteResponse(response: Response, itemId: string) {
+  const request = response.request();
+  const method = request.method();
+  if (method !== "POST" && method !== "DELETE") return false;
+
+  const url = new URL(response.url());
+  if (!url.pathname.endsWith("/rest/v1/user_favorites")) return false;
+
+  const body = request.postData() ?? "";
+  return body.includes(itemId) || url.searchParams.get("item_id") === `eq.${itemId}`;
+}
+
 async function openWanted(page: Page) {
   await page.goto(wantedPath, { waitUntil: "domcontentloaded" });
   await expect
@@ -38,8 +52,157 @@ async function openWanted(page: Page) {
   });
 }
 
+async function openFavorites(page: Page) {
+  await page.goto(favoritesPath, { waitUntil: "domcontentloaded" });
+  await expect
+    .poll(() => new URL(page.url()).pathname, { timeout: actionTimeout })
+    .toBe(favoritesPath);
+  await expect(page.getByTestId("favorites-page")).toBeVisible({ timeout: actionTimeout });
+}
+
+async function findPublicObjectPath(page: Page): Promise<{ itemId: string; path: string }> {
+  await page.goto(objectsPath, { waitUntil: "domcontentloaded" });
+  await expect
+    .poll(() => new URL(page.url()).pathname, { timeout: actionTimeout })
+    .toBe(objectsPath);
+
+  const paths = await page.locator('a[href^="/en/objects/"]').evaluateAll((links) =>
+    links
+      .map((link) => link.getAttribute("href") ?? "")
+      .filter((href) => /^\/en\/objects\/[0-9a-f-]{36}$/i.test(href)),
+  );
+
+  const path = paths[0];
+  expect(path, "Objects page must expose at least one active public object.").toBeTruthy();
+
+  const itemId = path.split("/").pop() ?? "";
+  expect(itemId).toMatch(/^[0-9a-f-]{36}$/i);
+  return { itemId, path };
+}
+
+async function ensureNotFavorite(page: Page, path: string, itemId: string) {
+  await page.goto(path, { waitUntil: "domcontentloaded" });
+  const favoriteButton = page.getByRole("button", { name: "Favorite", exact: true });
+  await expect(favoriteButton).toBeVisible({ timeout: actionTimeout });
+
+  const iconClass = (await favoriteButton.locator("svg").getAttribute("class")) ?? "";
+  if (!iconClass.includes("fill-red-500")) return;
+
+  const responsePromise = page.waitForResponse(
+    (response) => isFavoriteWriteResponse(response, itemId),
+    { timeout: actionTimeout },
+  );
+  await favoriteButton.click();
+  const response = await responsePromise;
+  expect(response.ok(), `Favorite cleanup failed with ${response.status()}.`).toBe(true);
+}
+
 test.describe("Train C Batch 53 favorites and wants", () => {
   test.describe.configure({ retries: 0 });
+
+  test("favorite persists for User A, remains isolated from User B, and cleans up", async ({
+    browser,
+  }) => {
+    test.setTimeout(180_000);
+
+    const contextA = await browser.newContext({ storageState: readStorageState(userAAuthFile) });
+    const contextB = await browser.newContext({ storageState: readStorageState(userBAuthFile) });
+    const pageA = await contextA.newPage();
+    const pageB = await contextB.newPage();
+
+    let itemId: string | null = null;
+    let itemPath: string | null = null;
+    let primaryError: unknown = null;
+
+    try {
+      await test.step("verify reusable sessions", async () => {
+        await expectReusableSession(pageA, "User A before Favorites lifecycle");
+        await expectReusableSession(pageB, "User B before Favorites lifecycle");
+      });
+
+      await test.step("select a stable public object and normalize both test users", async () => {
+        const selected = await findPublicObjectPath(pageA);
+        itemId = selected.itemId;
+        itemPath = selected.path;
+
+        await ensureNotFavorite(pageA, itemPath, itemId);
+        await ensureNotFavorite(pageB, itemPath, itemId);
+      });
+
+      await test.step("User A saves the object", async () => {
+        expect(itemId).toBeTruthy();
+        expect(itemPath).toBeTruthy();
+
+        await pageA.goto(itemPath!, { waitUntil: "domcontentloaded" });
+        const favoriteButton = pageA.getByRole("button", { name: "Favorite", exact: true });
+        await expect(favoriteButton).toBeVisible({ timeout: actionTimeout });
+
+        const responsePromise = pageA.waitForResponse(
+          (response) => isFavoriteWriteResponse(response, itemId!),
+          { timeout: actionTimeout },
+        );
+        await favoriteButton.click();
+        const response = await responsePromise;
+        expect(response.ok(), `Favorite creation failed with ${response.status()}.`).toBe(true);
+
+        await expect(favoriteButton.locator("svg")).toHaveClass(/fill-red-500/, {
+          timeout: actionTimeout,
+        });
+      });
+
+      await test.step("favorite persists after reload and appears in User A Favorites", async () => {
+        await pageA.reload({ waitUntil: "domcontentloaded" });
+        const favoriteButton = pageA.getByRole("button", { name: "Favorite", exact: true });
+        await expect(favoriteButton.locator("svg")).toHaveClass(/fill-red-500/, {
+          timeout: actionTimeout,
+        });
+
+        await openFavorites(pageA);
+        await expect(pageA.getByTestId(`favorite-item-${itemId}`)).toBeVisible({
+          timeout: actionTimeout,
+        });
+      });
+
+      await test.step("User B does not inherit User A favorite", async () => {
+        await openFavorites(pageB);
+        await expect(pageB.getByTestId(`favorite-item-${itemId}`)).toHaveCount(0);
+      });
+
+      await test.step("User A removes the favorite and persistence is cleared", async () => {
+        const card = pageA.getByTestId(`favorite-item-${itemId}`);
+        await expect(card).toBeVisible({ timeout: actionTimeout });
+
+        const responsePromise = pageA.waitForResponse(
+          (response) => isFavoriteWriteResponse(response, itemId!),
+          { timeout: actionTimeout },
+        );
+        await card.getByRole("button").click();
+        const response = await responsePromise;
+        expect(response.ok(), `Favorite deletion failed with ${response.status()}.`).toBe(true);
+        await expect(card).toHaveCount(0, { timeout: actionTimeout });
+
+        await pageA.reload({ waitUntil: "domcontentloaded" });
+        await expect(pageA.getByTestId("favorites-page")).toBeVisible({ timeout: actionTimeout });
+        await expect(pageA.getByTestId(`favorite-item-${itemId}`)).toHaveCount(0);
+      });
+    } catch (error) {
+      primaryError = error;
+    } finally {
+      if (itemId && itemPath) {
+        try {
+          await ensureNotFavorite(pageA, itemPath, itemId);
+          await ensureNotFavorite(pageB, itemPath, itemId);
+        } catch (cleanupError) {
+          if (!primaryError) primaryError = cleanupError;
+        }
+      }
+
+      await contextA.close();
+      await contextB.close();
+    }
+
+    if (primaryError) throw primaryError;
+  });
 
   test("wanted request is public only while active and remains owner-controlled", async ({
     browser,
