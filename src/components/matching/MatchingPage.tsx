@@ -12,9 +12,9 @@ import {
   type MatchingProfileRow,
 } from "@/lib/matching/matchQueries";
 import { calculateMatchScore } from "@/lib/matching/matchScore";
-import { persistMatchCandidate } from "@/lib/matching/matchPersistence";
 import {
   fetchExpressedInterests,
+  persistExpressedInterest,
   withdrawExpressedInterest,
 } from "@/lib/matching/interestPersistence";
 import {
@@ -142,13 +142,13 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
       const rows = await fetchExpressedInterests(supabase, userId);
       const restored = await Promise.all(
         rows.map(async (row): Promise<SelectedMatch | null> => {
-          const item = await fetchItemById(supabase, row.target_item_id);
+          const item = await fetchItemById(supabase, row.to_item_id);
           if (!item) return null;
           return {
             itemId: item.id,
-            ownerId: row.target_user_id,
+            ownerId: row.to_user_id,
             item,
-            score: row.ai_score ?? 0,
+            score: row.match_score ?? 0,
             matchId: row.id,
           };
         }),
@@ -226,11 +226,11 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
     setPersistingIds((previous) => new Set(previous).add(candidate.item.id));
 
     const persisted = supabase
-      ? await persistMatchCandidate(supabase, {
+      ? await persistExpressedInterest(supabase, {
           userId,
           sourceItem,
           candidate,
-          slotPosition: selected.length + 1,
+          source: "browsing",
         })
       : null;
 
