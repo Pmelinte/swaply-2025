@@ -20,7 +20,7 @@ import {
 import {
   DEFAULT_FILTERS,
   type MatchingFilters,
-  type SelectedMatch,
+  type SelectedInterest,
   type SortOrder,
 } from "@/lib/matching/matchingStore";
 import MatchingSlots from "./MatchingSlots";
@@ -62,7 +62,7 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
   const [persistingIds, setPersistingIds] = useState<Set<string>>(new Set());
   const [withdrawingIds, setWithdrawingIds] = useState<Set<string>>(new Set());
 
-  const [selected, setSelected] = useState<SelectedMatch[]>([]);
+  const [selected, setSelected] = useState<SelectedInterest[]>([]);
   const [sort, setSort] = useState<SortOrder>("relevant");
   const [filters, setFilters] = useState<MatchingFilters>(DEFAULT_FILTERS);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -141,7 +141,7 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
     async function restoreInterests() {
       const rows = await fetchExpressedInterests(supabase, userId);
       const restored = await Promise.all(
-        rows.map(async (row): Promise<SelectedMatch | null> => {
+        rows.map(async (row): Promise<SelectedInterest | null> => {
           const item = await fetchItemById(supabase, row.to_item_id);
           if (!item) return null;
           return {
@@ -149,13 +149,13 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
             ownerId: row.to_user_id,
             item,
             score: row.match_score ?? 0,
-            matchId: row.id,
+            interestId: row.id,
           };
         }),
       );
 
       if (!cancelled) {
-        setSelected(restored.filter((entry): entry is SelectedMatch => entry !== null));
+        setSelected(restored.filter((entry): entry is SelectedInterest => entry !== null));
       }
     }
 
@@ -220,19 +220,23 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
 
   async function expressInterest(candidate: ScoredCandidate) {
     if (persistingIds.has(candidate.item.id)) return;
+    if (selected.some((entry) => entry.itemId === candidate.item.id)) {
+      setDrawerItem(null);
+      return;
+    }
 
     const sourceItem = activeSlotItems[0] ?? null;
     const supabase = getSupabaseClient();
+    if (!supabase) return;
+
     setPersistingIds((previous) => new Set(previous).add(candidate.item.id));
 
-    const persisted = supabase
-      ? await persistExpressedInterest(supabase, {
-          userId,
-          sourceItem,
-          candidate,
-          source: "browsing",
-        })
-      : null;
+    const persisted = await persistExpressedInterest(supabase, {
+      userId,
+      sourceItem,
+      candidate,
+      source: "browsing",
+    });
 
     if (persisted) {
       setSelected((previous) => {
@@ -244,7 +248,7 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
             ownerId: candidate.item.owner_id,
             item: candidate.item,
             score: candidate.score,
-            matchId: persisted.id,
+            interestId: persisted.id,
           },
         ];
       });
@@ -260,18 +264,13 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
 
   async function withdrawInterest(itemId: string) {
     const interest = selected.find((entry) => entry.itemId === itemId);
-    if (!interest || withdrawingIds.has(itemId)) return;
-
-    if (!interest.matchId) {
-      setSelected((previous) => previous.filter((entry) => entry.itemId !== itemId));
-      return;
-    }
+    if (!interest || withdrawingIds.has(itemId) || !interest.interestId) return;
 
     const supabase = getSupabaseClient();
     if (!supabase) return;
 
     setWithdrawingIds((previous) => new Set(previous).add(itemId));
-    const withdrawn = await withdrawExpressedInterest(supabase, interest.matchId, userId);
+    const withdrawn = await withdrawExpressedInterest(supabase, interest.interestId, userId);
 
     if (withdrawn) {
       setSelected((previous) => previous.filter((entry) => entry.itemId !== itemId));
