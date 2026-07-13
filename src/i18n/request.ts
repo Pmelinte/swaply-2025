@@ -35,16 +35,23 @@ export default getRequestConfig(async ({ requestLocale }) => {
     locale = routing.defaultLocale;
   }
 
-  const enMessages = (await import(`../messages/${defaultLocale}.json`))
-    .default;
+  const baseEnglishMessages = (
+    await import(`../messages/${defaultLocale}.json`)
+  ).default as Record<string, unknown>;
+  const batch57EnglishMessages = (
+    await import("../messages/batch57.en.json")
+  ).default as Record<string, unknown>;
+  const enMessages = deepMerge(batch57EnglishMessages, baseEnglishMessages);
+
   let messages;
   if (locale === defaultLocale) {
     messages = enMessages;
   } else {
     try {
-      const localeMessages = (await import(`../messages/${locale}.json`))
-        .default;
-      // Merge English as fallback for any missing keys
+      const localeMessages = (
+        await import(`../messages/${locale}.json`)
+      ).default as Record<string, unknown>;
+      // Merge English as fallback for any missing keys.
       messages = deepMerge(localeMessages, enMessages);
     } catch {
       messages = enMessages;
@@ -57,7 +64,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
     now: new Date(),
     timeZone: "UTC",
     onError() {
-      // Suppress missing message errors
+      // Suppress missing message errors.
     },
     getMessageFallback() {
       return "";
