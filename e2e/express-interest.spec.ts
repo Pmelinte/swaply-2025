@@ -77,6 +77,22 @@ function isItemsWriteResponse(response: Response, itemId?: string) {
   );
 }
 
+function isMatchingCandidateResponse(response: Response) {
+  const request = response.request();
+  if (request.method() !== "GET") return false;
+
+  const url = new URL(response.url());
+  const selectedColumns = url.searchParams.get("select") ?? "";
+
+  return (
+    url.pathname.endsWith("/rest/v1/items") &&
+    url.searchParams.get("is_active") === "eq.true" &&
+    url.searchParams.get("status") === "eq.active" &&
+    url.searchParams.get("limit") === "100" &&
+    selectedColumns.includes("perceived_value_tier")
+  );
+}
+
 function isInterestWriteResponse(response: Response, method: "POST" | "PATCH") {
   const request = response.request();
   const url = new URL(response.url());
@@ -225,6 +241,10 @@ test.describe("Train C Batch 54 Express Interest", () => {
         expect(sourceItemId).toBeTruthy();
         expect(targetItemId).toBeTruthy();
 
+        const candidatesResponsePromise = pageA.waitForResponse(isMatchingCandidateResponse, {
+          timeout: actionTimeout,
+        });
+
         await pageA.goto(`${matchingPath}?slot1=${sourceItemId}`, {
           waitUntil: "domcontentloaded",
         });
@@ -232,9 +252,23 @@ test.describe("Train C Batch 54 Express Interest", () => {
           .poll(() => new URL(pageA.url()).pathname, { timeout: actionTimeout })
           .toBe(matchingPath);
 
+        const candidatesResponse = await candidatesResponsePromise;
+        const candidatesBody = await candidatesResponse.text();
+        expect(
+          candidatesResponse.ok(),
+          `Matching candidate query failed: ${candidatesResponse.status()} ${candidatesBody}`,
+        ).toBe(true);
+
+        const candidateRows = JSON.parse(candidatesBody) as Array<{ id?: string }>;
+        expect(
+          candidateRows.some((row) => row.id === targetItemId),
+          `Matching candidate query did not include target item ${targetItemId}.`,
+        ).toBe(true);
+
         const sortSelect = pageA.locator("select").first();
         await expect(sortSelect).toBeVisible({ timeout: actionTimeout });
         await sortSelect.selectOption("newest");
+        await expect(sortSelect).toHaveValue("newest", { timeout: actionTimeout });
 
         const candidate = pageA.getByTestId(`matching-candidate-${targetItemId}`);
         await expect(candidate).toBeVisible({ timeout: actionTimeout });
