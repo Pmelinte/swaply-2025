@@ -64,6 +64,12 @@ export default defineConfig({
       dependencies: ["objects-crud"],
     },
     {
+      name: "express-interest",
+      testMatch: /(?:^|[\\/])express-interest\.spec\.ts$/,
+      use: { ...devices["Desktop Chrome"] },
+      dependencies: ["favorites-wants"],
+    },
+    {
       name: "chromium-user-a",
       testMatch: /user-a\.spec\.ts/,
       use: { ...devices["Desktop Chrome"], storageState: userAAuthFile },
