@@ -23,6 +23,7 @@ export type AcceptedInterestResult = {
   interest_id: string;
   matching_session_id: string;
   match_id: string;
+  conversation_id: string;
   interest_status: "accepted";
   match_status: "accepted";
 };
@@ -62,7 +63,9 @@ export async function fetchReceivedInterests(
 ): Promise<ReceivedInterestRow[]> {
   const { data, error } = await supabase
     .from("matching_interests")
-    .select("id, from_user_id, from_item_id, to_item_id, match_score, created_at")
+    .select(
+      "id, from_user_id, from_item_id, to_item_id, match_score, created_at",
+    )
     .eq("to_user_id", userId)
     .eq("status", "pending")
     .order("created_at", { ascending: false });
@@ -183,6 +186,7 @@ export async function acceptReceivedInterest(
     !result?.interest_id ||
     !result.matching_session_id ||
     !result.match_id ||
+    !result.conversation_id ||
     result.interest_status !== "accepted" ||
     result.match_status !== "accepted"
   ) {
