@@ -4,6 +4,7 @@ import { moderateText } from "@/lib/moderation/moderationEngine";
 export type ConversationRow = {
   id: string;
   swap_id: string | null;
+  match_id: string | null;
   participant_ids: string[];
   item_ids: string[];
   status: string | null;
@@ -14,7 +15,8 @@ export type ConversationRow = {
 
 export type MessageRow = {
   id: string;
-  swap_id: string;
+  swap_id: string | null;
+  match_id: string | null;
   sender_id: string;
   recipient_id: string;
   content: string;
@@ -27,13 +29,19 @@ export type MessageRow = {
   message_type: string | null;
 };
 
+const CONVERSATION_SELECT =
+  "id, swap_id, match_id, participant_ids, item_ids, status, agenda_state, created_at, updated_at";
+
+const MESSAGE_SELECT =
+  "id, swap_id, match_id, sender_id, recipient_id, content, attachments, read_at, metadata, created_at, is_read, conversation_id, message_type";
+
 export async function fetchUserConversations(
   supabase: SupabaseClient,
   userId: string,
 ): Promise<ConversationRow[]> {
   const { data, error } = await supabase
     .from("conversations")
-    .select("id, swap_id, participant_ids, item_ids, status, agenda_state, created_at, updated_at")
+    .select(CONVERSATION_SELECT)
     .contains("participant_ids", [userId])
     .order("updated_at", { ascending: false })
     .limit(50);
@@ -52,9 +60,7 @@ export async function fetchConversationMessages(
 ): Promise<MessageRow[]> {
   const { data, error } = await supabase
     .from("messages")
-    .select(
-      "id, swap_id, sender_id, recipient_id, content, attachments, read_at, metadata, created_at, is_read, conversation_id, message_type",
-    )
+    .select(MESSAGE_SELECT)
     .eq("conversation_id", conversationId)
     .order("created_at", { ascending: true })
     .limit(200);
@@ -75,11 +81,23 @@ export async function sendConversationMessage(
     content: string;
   },
 ): Promise<MessageRow | null> {
-  const recipientId = input.conversation.participant_ids.find((id) => id !== input.senderId);
-  if (!recipientId || !input.conversation.swap_id || input.content.trim().length === 0) return null;
+  const recipientId = input.conversation.participant_ids.find(
+    (id) => id !== input.senderId,
+  );
+  const content = input.content.trim();
+  const isMatchConversation = Boolean(input.conversation.match_id);
 
-  const moderation = moderateText(input.content);
-  if (moderation.recommended_action === "block") {
+  if (
+    !recipientId ||
+    content.length === 0 ||
+    content.length > 4000 ||
+    (!input.conversation.swap_id && !input.conversation.match_id)
+  ) {
+    return null;
+  }
+
+  const moderation = isMatchConversation ? null : moderateText(content);
+  if (moderation?.recommended_action === "block") {
     console.error("Blocked moderated message", moderation);
     return null;
   }
@@ -88,20 +106,23 @@ export async function sendConversationMessage(
     .from("messages")
     .insert({
       swap_id: input.conversation.swap_id,
+      match_id: input.conversation.match_id,
       sender_id: input.senderId,
       recipient_id: recipientId,
-      content: input.content.trim(),
+      content,
       conversation_id: input.conversation.id,
       message_type: "text",
-      metadata: {
-        source: "chat_page",
-        moderation,
-      },
+      metadata: isMatchConversation
+        ? {
+            source: "match_conversation",
+          }
+        : {
+            source: "chat_page",
+            moderation,
+          },
       is_read: false,
     })
-    .select(
-      "id, swap_id, sender_id, recipient_id, content, attachments, read_at, metadata, created_at, is_read, conversation_id, message_type",
-    )
+    .select(MESSAGE_SELECT)
     .single();
 
   if (error) {
@@ -114,36 +135,41 @@ export async function sendConversationMessage(
     .update({ updated_at: new Date().toISOString() })
     .eq("id", input.conversation.id);
 
-  await supabase.from("notifications").insert({
-    user_id: recipientId,
-    type: moderation.risk_score >= 30 ? "message_flagged" : "message",
-    title: moderation.risk_score >= 30 ? "Potentially risky message" : "New Swaply message",
-    body: input.content.trim().slice(0, 140),
-    data: {
-      conversation_id: input.conversation.id,
-      swap_id: input.conversation.swap_id,
-      message_id: data.id,
-      moderation,
-    },
-    read: false,
-    is_read: false,
-    priority: moderation.risk_score >= 50 ? "high" : "normal",
-  });
-
-  if (moderation.risk_score >= 50) {
+  if (!isMatchConversation && input.conversation.swap_id && moderation) {
     await supabase.from("notifications").insert({
-      user_id: input.senderId,
-      type: "trust_warning",
-      title: "Message flagged by safety systems",
-      body: "Your recent message triggered Swaply safety checks.",
+      user_id: recipientId,
+      type: moderation.risk_score >= 30 ? "message_flagged" : "message",
+      title:
+        moderation.risk_score >= 30
+          ? "Potentially risky message"
+          : "New Swaply message",
+      body: content.slice(0, 140),
       data: {
         conversation_id: input.conversation.id,
+        swap_id: input.conversation.swap_id,
+        message_id: data.id,
         moderation,
       },
       read: false,
       is_read: false,
-      priority: "high",
+      priority: moderation.risk_score >= 50 ? "high" : "normal",
     });
+
+    if (moderation.risk_score >= 50) {
+      await supabase.from("notifications").insert({
+        user_id: input.senderId,
+        type: "trust_warning",
+        title: "Message flagged by safety systems",
+        body: "Your recent message triggered Swaply safety checks.",
+        data: {
+          conversation_id: input.conversation.id,
+          moderation,
+        },
+        read: false,
+        is_read: false,
+        priority: "high",
+      });
+    }
   }
 
   return data as MessageRow;
