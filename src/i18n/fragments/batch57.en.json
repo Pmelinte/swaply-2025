@@ -1,0 +1,46 @@
+{
+  "guidedMatchConversation": {
+    "title": "Conversation guide",
+    "description": "Use these optional stages to clarify the exchange. Free conversation always remains available.",
+    "progress": "{completed} of {total} stages complete",
+    "saving": "Saving…",
+    "markComplete": "Mark complete",
+    "markIncomplete": "Reopen stage",
+    "stages": {
+      "interest": "Interest",
+      "condition": "Item condition",
+      "offer": "What each person offers",
+      "logistics": "Delivery or meetup",
+      "agreement": "Ready for agreement"
+    },
+    "quickRepliesTitle": "Quick replies",
+    "quickRepliesDescription": "Choose a prompt to place it in the message field. Nothing is sent automatically.",
+    "quickReplyLabels": {
+      "interested": "Confirm interest",
+      "condition": "Ask about condition",
+      "offer": "Ask what they want",
+      "local": "Prefer local meetup",
+      "courier": "Courier is possible"
+    },
+    "quickReplies": {
+      "interested": "I am interested in this exchange. Can we discuss the details?",
+      "condition": "Could you describe the item's condition and mention any defects or missing parts?",
+      "offer": "What would you like to receive in exchange?",
+      "local": "I would prefer a local meetup in a safe public place.",
+      "courier": "Courier delivery also works for me. How should we organize it?"
+    },
+    "refusalTitle": "Polite decline",
+    "refusalDescription": "Insert a respectful response without rejecting or closing the match automatically.",
+    "refusalLabels": {
+      "notRightFit": "Not the right fit",
+      "needTime": "Need more time",
+      "preferDifferent": "Looking for something different"
+    },
+    "refusals": {
+      "notRightFit": "Thank you for the proposal. I do not think this exchange is the right fit for me, but I appreciate your interest.",
+      "needTime": "Thank you for the proposal. I need a little more time before deciding, and I will return to the conversation when I am ready.",
+      "preferDifferent": "Thank you for your interest. At the moment I am looking for a different type of exchange, but I appreciate the proposal."
+    },
+    "draftNotice": "Inserted text remains editable in your draft. Review it before pressing Send."
+  }
+}

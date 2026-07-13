@@ -4,13 +4,18 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { getSupabaseClient } from "@/lib/supabase/client";
+import { MatchConversationGuide } from "@/components/chat/MatchConversationGuide";
 import { ExchangeLogisticsPanel } from "@/components/exchange/ExchangeLogisticsPanel";
 import { SwapFeedbackPanel } from "@/components/feedback/SwapFeedbackPanel";
 import {
   fetchConversationMessages,
   fetchUserConversations,
+  parseMatchConversationAgenda,
   sendConversationMessage,
+  updateMatchConversationAgenda,
   type ConversationRow,
+  type MatchConversationAgendaState,
+  type MatchConversationStage,
   type MessageRow,
 } from "@/lib/chat/chatQueries";
 
@@ -80,6 +85,12 @@ export function RealChatPage({ conversationId }: Props) {
   >({});
   const [translatingId, setTranslatingId] = useState<string | null>(null);
   const [activeItemTitles, setActiveItemTitles] = useState<string[]>([]);
+  const [agendaState, setAgendaState] =
+    useState<MatchConversationAgendaState>(() =>
+      parseMatchConversationAgenda(null),
+    );
+  const [savingAgendaStage, setSavingAgendaStage] =
+    useState<MatchConversationStage | null>(null);
 
   const activeConversation = useMemo(
     () =>
@@ -193,6 +204,51 @@ export function RealChatPage({ conversationId }: Props) {
       cancelled = true;
     };
   }, [activeConversation?.id, itemIdsKey]);
+
+  useEffect(() => {
+    setAgendaState(
+      parseMatchConversationAgenda(activeConversation?.agenda_state),
+    );
+    setSavingAgendaStage(null);
+  }, [activeConversation?.id, activeConversation?.agenda_state]);
+
+  async function handleAgendaUpdate(
+    stage: MatchConversationStage,
+    completed?: boolean | null,
+  ) {
+    const supabase = getSupabaseClient();
+    if (
+      !supabase ||
+      !activeConversation?.match_id ||
+      savingAgendaStage
+    ) {
+      return;
+    }
+
+    setSavingAgendaStage(stage);
+    const nextAgenda = await updateMatchConversationAgenda(supabase, {
+      conversationId: activeConversation.id,
+      stage,
+      completed,
+    });
+
+    if (nextAgenda) {
+      setAgendaState(nextAgenda);
+      setConversations((previous) =>
+        previous.map((conversation) =>
+          conversation.id === activeConversation.id
+            ? {
+                ...conversation,
+                agenda_state: nextAgenda,
+                updated_at: nextAgenda.updated_at ?? conversation.updated_at,
+              }
+            : conversation,
+        ),
+      );
+    }
+
+    setSavingAgendaStage(null);
+  }
 
   async function handleSend() {
     const supabase = getSupabaseClient();
@@ -411,6 +467,18 @@ export function RealChatPage({ conversationId }: Props) {
             ) : null}
           </div>
         </div>
+
+        {isMatchConversation && activeConversation ? (
+          <MatchConversationGuide
+            agenda={agendaState}
+            savingStage={savingAgendaStage}
+            disabled={sending}
+            onUpdateStage={(stage, completed) =>
+              void handleAgendaUpdate(stage, completed)
+            }
+            onInsertDraft={setDraft}
+          />
+        ) : null}
 
         {activeConversation?.swap_id ? (
           <div className="space-y-4 border-b border-zinc-200 p-4 dark:border-zinc-800">

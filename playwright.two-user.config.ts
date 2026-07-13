@@ -76,10 +76,16 @@ export default defineConfig({
       dependencies: ["express-interest"],
     },
     {
-      name: "match-conversation",
+      name: "match-conversation-base",
       testMatch: /(?:^|[\\/])match-conversation\.spec\.ts$/,
       use: { ...devices["Desktop Chrome"] },
       dependencies: ["match-creation"],
+    },
+    {
+      name: "match-conversation",
+      testMatch: /(?:^|[\\/])guided-match-conversation\.spec\.ts$/,
+      use: { ...devices["Desktop Chrome"] },
+      dependencies: ["match-conversation-base"],
     },
     {
       name: "chromium-user-a",
