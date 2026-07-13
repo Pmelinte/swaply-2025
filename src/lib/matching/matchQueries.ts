@@ -29,7 +29,7 @@ export type MatchingProfileRow = Record<string, unknown> & {
 };
 
 const ITEM_COLUMNS =
-  "id, owner_id, title, description, category, item_type, perceived_value_tier, swap_wants_category_l1, swap_open_to, images, image_url, estimated_value, created_at, is_active, status";
+  "id, owner_id, title, description, category, item_type, perceived_value_tier, swap_open_to, images, image_url, estimated_value, created_at, is_active, status";
 
 const PROFILE_COLUMNS =
   "user_id, username, display_name, avatar_url, trust_score, location, last_active_at";
@@ -43,6 +43,7 @@ function normalizeMatchingItem(row: Record<string, unknown>): MatchingItemRow {
 
   return {
     ...row,
+    swap_wants_category_l1: null,
     images,
     image_url: imageUrl,
     photos,
