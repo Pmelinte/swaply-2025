@@ -1,4 +1,4 @@
-import { expect, test, type Page, type Response } from "@playwright/test";
+import { expect, test, type APIResponse, type Page, type Response } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import {
   expectAuthenticatedSession,
@@ -77,26 +77,25 @@ function isItemsWriteResponse(response: Response, itemId?: string) {
   );
 }
 
-function isMatchingCandidateResponse(response: Response) {
+function isMatchingSessionWriteResponse(response: Response) {
   const request = response.request();
-  if (request.method() !== "GET") return false;
-
   const url = new URL(response.url());
-  const selectedColumns = url.searchParams.get("select") ?? "";
-
-  return (
-    url.pathname.endsWith("/rest/v1/items") &&
-    url.searchParams.get("is_active") === "eq.true" &&
-    url.searchParams.get("status") === "eq.active" &&
-    url.searchParams.get("limit") === "100" &&
-    selectedColumns.includes("perceived_value_tier")
-  );
+  return request.method() === "POST" && url.pathname.endsWith("/rest/v1/matching_sessions");
 }
 
-function isInterestWriteResponse(response: Response, method: "POST" | "PATCH") {
+function isInterestWriteResponse(response: Response) {
   const request = response.request();
   const url = new URL(response.url());
-  return request.method() === method && url.pathname.endsWith("/rest/v1/matching_interests");
+  return request.method() === "POST" && url.pathname.endsWith("/rest/v1/matching_interests");
+}
+
+function isAcceptInterestResponse(response: Response) {
+  const request = response.request();
+  const url = new URL(response.url());
+  return (
+    request.method() === "POST" &&
+    url.pathname.endsWith("/rest/v1/rpc/accept_matching_interest")
+  );
 }
 
 async function createObject(page: Page, title: string, description: string): Promise<string> {
@@ -187,63 +186,98 @@ async function archiveObject(page: Page, itemId: string, label: string) {
   expect(response.ok(), `${label} object cleanup failed with ${response.status()}.`).toBe(true);
 }
 
-function parseInterestId(body: string): string | null {
+function parseId(body: string): string | null {
   const parsed = JSON.parse(body) as Array<{ id?: string }> | { id?: string };
   if (Array.isArray(parsed)) return parsed[0]?.id ?? null;
   return parsed.id ?? null;
 }
 
-test.describe("Train C Batch 54 Express Interest", () => {
+type AcceptInterestPayload = {
+  interest_id?: string;
+  matching_session_id?: string;
+  match_id?: string;
+  interest_status?: string;
+  match_status?: string;
+};
+
+function parseAcceptPayload(body: string): AcceptInterestPayload {
+  const parsed = JSON.parse(body) as AcceptInterestPayload[] | AcceptInterestPayload;
+  return Array.isArray(parsed) ? (parsed[0] ?? {}) : parsed;
+}
+
+function authenticatedRestHeaders(response: Response) {
+  const headers = response.request().headers();
+  const apikey = headers.apikey;
+  const authorization = headers.authorization;
+
+  if (!apikey) {
+    throw new Error("Supabase request must contain an apikey header.");
+  }
+  if (!authorization) {
+    throw new Error("Supabase request must contain an Authorization header.");
+  }
+
+  return {
+    apikey,
+    authorization,
+    "content-type": "application/json",
+  };
+}
+
+async function expectJsonOk(response: APIResponse, label: string) {
+  const body = await response.text();
+  expect(response.ok(), `${label} failed: ${response.status()} ${body}`).toBe(true);
+  return body;
+}
+
+test.describe("Train C Batch 55 Match Creation", () => {
   test.describe.configure({ retries: 0 });
 
-  test("persists, is participant-visible, remains isolated, and can be withdrawn", async ({
+  test("creates a matching session and idempotently accepts an interest into a match", async ({
     browser,
   }, testInfo) => {
     test.setTimeout(300_000);
 
     const contextA = await browser.newContext({ storageState: readStorageState(userAAuthFile) });
     const contextB = await browser.newContext({ storageState: readStorageState(userBAuthFile) });
-    const contextC = await browser.newContext();
     const pageA = await contextA.newPage();
     const pageB = await contextB.newPage();
-    const pageC = await contextC.newPage();
 
     await preparePage(pageA);
     await preparePage(pageB);
-    await preparePage(pageC);
 
     const suffix = `${Date.now()}-${testInfo.workerIndex}`;
     let sourceItemId: string | null = null;
     let targetItemId: string | null = null;
     let interestId: string | null = null;
+    let matchingSessionId: string | null = null;
+    let matchId: string | null = null;
     let primaryError: unknown = null;
 
     try {
       await test.step("verify reusable authenticated sessions", async () => {
-        await expectReusableSession(pageA, "User A before Express Interest lifecycle");
-        await expectReusableSession(pageB, "User B before Express Interest lifecycle");
+        await expectReusableSession(pageA, "User A before Batch 55 lifecycle");
+        await expectReusableSession(pageB, "User B before Batch 55 lifecycle");
       });
 
       await test.step("create source and target objects", async () => {
         sourceItemId = await createObject(
           pageA,
-          `Batch 54 source ${suffix}`,
-          "Source object owned by User A for the Express Interest contract.",
+          `Batch 55 source ${suffix}`,
+          "Source object owned by User A for the Match Creation contract.",
         );
         targetItemId = await createObject(
           pageB,
-          `Batch 54 target ${suffix}`,
-          "Target object owned by User B for the Express Interest contract.",
+          `Batch 55 target ${suffix}`,
+          "Target object owned by User B for the Match Creation contract.",
         );
       });
 
-      await test.step("User A expresses interest in User B's object", async () => {
+      let interestWriteResponse: Response | null = null;
+
+      await test.step("User A expresses interest and creates or reuses a matching session", async () => {
         expect(sourceItemId).toBeTruthy();
         expect(targetItemId).toBeTruthy();
-
-        const candidatesResponsePromise = pageA.waitForResponse(isMatchingCandidateResponse, {
-          timeout: actionTimeout,
-        });
 
         await pageA.goto(`${matchingPath}?slot1=${sourceItemId}`, {
           waitUntil: "domcontentloaded",
@@ -252,23 +286,9 @@ test.describe("Train C Batch 54 Express Interest", () => {
           .poll(() => new URL(pageA.url()).pathname, { timeout: actionTimeout })
           .toBe(matchingPath);
 
-        const candidatesResponse = await candidatesResponsePromise;
-        const candidatesBody = await candidatesResponse.text();
-        expect(
-          candidatesResponse.ok(),
-          `Matching candidate query failed: ${candidatesResponse.status()} ${candidatesBody}`,
-        ).toBe(true);
-
-        const candidateRows = JSON.parse(candidatesBody) as Array<{ id?: string }>;
-        expect(
-          candidateRows.some((row) => row.id === targetItemId),
-          `Matching candidate query did not include target item ${targetItemId}.`,
-        ).toBe(true);
-
         const sortSelect = pageA.locator("select").first();
         await expect(sortSelect).toBeVisible({ timeout: actionTimeout });
         await sortSelect.selectOption("newest");
-        await expect(sortSelect).toHaveValue("newest", { timeout: actionTimeout });
 
         const candidate = pageA.getByTestId(`matching-candidate-${targetItemId}`);
         await expect(candidate).toBeVisible({ timeout: actionTimeout });
@@ -277,60 +297,141 @@ test.describe("Train C Batch 54 Express Interest", () => {
           timeout: actionTimeout,
         });
 
-        const responsePromise = pageA.waitForResponse(
-          (response) => isInterestWriteResponse(response, "POST"),
+        const sessionResponsePromise = pageA.waitForResponse(
+          (response) => isMatchingSessionWriteResponse(response),
           { timeout: actionTimeout },
         );
+        const interestResponsePromise = pageA.waitForResponse(
+          (response) => isInterestWriteResponse(response),
+          { timeout: actionTimeout },
+        );
+
         await pageA.getByTestId(`express-interest-submit-${targetItemId}`).click();
-        const response = await responsePromise;
-        const body = await response.text();
-        expect(response.ok(), `Express Interest failed: ${response.status()} ${body}`).toBe(true);
 
-        interestId = parseInterestId(body);
-        expect(interestId, "Express Interest response must include an immutable id.").toBeTruthy();
-        await expect(pageA.getByTestId(`express-interest-${targetItemId}`)).toBeVisible({
-          timeout: actionTimeout,
-        });
+        const [sessionResponse, interestResponse] = await Promise.all([
+          sessionResponsePromise,
+          interestResponsePromise,
+        ]);
+        const sessionBody = await sessionResponse.text();
+        const interestBody = await interestResponse.text();
+
+        expect(
+          sessionResponse.ok(),
+          `Matching session write failed: ${sessionResponse.status()} ${sessionBody}`,
+        ).toBe(true);
+        expect(
+          interestResponse.ok(),
+          `Express Interest failed: ${interestResponse.status()} ${interestBody}`,
+        ).toBe(true);
+
+        matchingSessionId = parseId(sessionBody);
+        interestId = parseId(interestBody);
+        interestWriteResponse = interestResponse;
+
+        expect(matchingSessionId, "Matching session response must include an id.").toBeTruthy();
+        expect(interestId, "Express Interest response must include an id.").toBeTruthy();
       });
 
-      await test.step("interest persists for User A after reload", async () => {
-        await pageA.reload({ waitUntil: "domcontentloaded" });
-        await expect(pageA.getByTestId(`express-interest-${targetItemId}`)).toBeVisible({
-          timeout: actionTimeout,
-        });
-      });
+      let acceptResponse: Response | null = null;
 
-      await test.step("User B sees the received interest", async () => {
+      await test.step("User B accepts the pending interest", async () => {
         await pageB.goto(matchingPath, { waitUntil: "domcontentloaded" });
-        await expect(pageB.getByTestId("interests-received")).toBeVisible({
-          timeout: actionTimeout,
-        });
         await expect(pageB.getByTestId(`received-interest-${interestId}`)).toBeVisible({
           timeout: actionTimeout,
         });
-      });
 
-      await test.step("nonparticipant User C cannot see the private interest", async () => {
-        await pageC.goto(matchingPath, { waitUntil: "domcontentloaded" });
-        await expect(pageC.getByTestId(`received-interest-${interestId}`)).toHaveCount(0);
-        await expect(pageC.getByTestId(`express-interest-${targetItemId}`)).toHaveCount(0);
-      });
-
-      await test.step("User A withdraws the interest", async () => {
-        const responsePromise = pageA.waitForResponse(
-          (response) => isInterestWriteResponse(response, "PATCH"),
+        const responsePromise = pageB.waitForResponse(
+          (response) => isAcceptInterestResponse(response),
           { timeout: actionTimeout },
         );
-        await pageA.getByTestId(`withdraw-interest-${targetItemId}`).click();
-        const response = await responsePromise;
-        const body = response.ok() ? "" : await response.text();
-        expect(response.ok(), `Withdraw Interest failed: ${response.status()} ${body}`).toBe(true);
-        await expect(pageA.getByTestId(`express-interest-${targetItemId}`)).toHaveCount(0);
+        await pageB.getByTestId(`accept-interest-${interestId}`).click();
+        acceptResponse = await responsePromise;
+
+        const body = await acceptResponse.text();
+        expect(
+          acceptResponse.ok(),
+          `Accept Interest failed: ${acceptResponse.status()} ${body}`,
+        ).toBe(true);
+
+        const payload = parseAcceptPayload(body);
+        expect(payload.interest_id).toBe(interestId);
+        expect(payload.matching_session_id).toBe(matchingSessionId);
+        expect(payload.interest_status).toBe("accepted");
+        expect(payload.match_status).toBe("accepted");
+        expect(payload.match_id, "Accept Interest response must include a match id.").toBeTruthy();
+        matchId = payload.match_id ?? null;
+
+        await expect(pageB.getByTestId(`received-interest-${interestId}`)).toHaveCount(0);
       });
 
-      await test.step("withdrawn interest disappears for User B", async () => {
+      await test.step("accepted state and participant match are persisted", async () => {
+        expect(acceptResponse).toBeTruthy();
+        expect(interestWriteResponse).toBeTruthy();
+        expect(matchId).toBeTruthy();
+
+        const restOrigin = new URL(acceptResponse!.url()).origin;
+        const userBHeaders = authenticatedRestHeaders(acceptResponse!);
+        const userAHeaders = authenticatedRestHeaders(interestWriteResponse!);
+
+        const matchResponse = await pageB.request.get(
+          `${restOrigin}/rest/v1/matches?select=id,status,initiator_item_id,target_item_id&id=eq.${matchId}`,
+          { headers: userBHeaders },
+        );
+        const matchBody = await expectJsonOk(matchResponse, "Participant match query");
+        const matches = JSON.parse(matchBody) as Array<{
+          id: string;
+          status: string;
+          initiator_item_id: string;
+          target_item_id: string;
+        }>;
+
+        expect(matches).toEqual([
+          {
+            id: matchId,
+            status: "accepted",
+            initiator_item_id: sourceItemId,
+            target_item_id: targetItemId,
+          },
+        ]);
+
+        const sessionResponse = await pageA.request.get(
+          `${restOrigin}/rest/v1/matching_sessions?select=id,user_id,slot_1_item_id&id=eq.${matchingSessionId}`,
+          { headers: userAHeaders },
+        );
+        const sessionBody = await expectJsonOk(sessionResponse, "Initiator session query");
+        const sessions = JSON.parse(sessionBody) as Array<{
+          id: string;
+          user_id: string;
+          slot_1_item_id: string;
+        }>;
+
+        expect(sessions).toHaveLength(1);
+        expect(sessions[0]?.id).toBe(matchingSessionId);
+        expect(sessions[0]?.slot_1_item_id).toBe(sourceItemId);
+
+        await pageA.reload({ waitUntil: "domcontentloaded" });
+        await expect(pageA.getByTestId(`express-interest-${targetItemId}`)).toHaveCount(0);
+
         await pageB.reload({ waitUntil: "domcontentloaded" });
         await expect(pageB.getByTestId(`received-interest-${interestId}`)).toHaveCount(0);
+      });
+
+      await test.step("accepting the same interest again reuses the same session and match", async () => {
+        expect(acceptResponse).toBeTruthy();
+        expect(interestId).toBeTruthy();
+
+        const repeatResponse = await pageB.request.post(acceptResponse!.url(), {
+          headers: authenticatedRestHeaders(acceptResponse!),
+          data: { p_interest_id: interestId },
+        });
+        const repeatBody = await expectJsonOk(repeatResponse, "Idempotent accept");
+        const payload = parseAcceptPayload(repeatBody);
+
+        expect(payload.interest_id).toBe(interestId);
+        expect(payload.matching_session_id).toBe(matchingSessionId);
+        expect(payload.match_id).toBe(matchId);
+        expect(payload.interest_status).toBe("accepted");
+        expect(payload.match_status).toBe("accepted");
       });
     } catch (error) {
       primaryError = error;
@@ -356,7 +457,6 @@ test.describe("Train C Batch 54 Express Interest", () => {
 
       await contextA.close().catch(() => undefined);
       await contextB.close().catch(() => undefined);
-      await contextC.close().catch(() => undefined);
 
       if (!primaryError && cleanupErrors.length > 0) throw cleanupErrors[0];
     }
