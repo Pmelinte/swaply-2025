@@ -9,6 +9,8 @@ export type MatchingItemRow = Record<string, unknown> & {
   perceived_value_tier: string | null;
   swap_wants_category_l1: string | null;
   swap_open_to: string[] | null;
+  images: string[] | null;
+  image_url: string | null;
   photos: string[] | null;
   estimated_value: number | null;
   created_at: string | null;
@@ -27,10 +29,25 @@ export type MatchingProfileRow = Record<string, unknown> & {
 };
 
 const ITEM_COLUMNS =
-  "id, owner_id, title, description, category, item_type, perceived_value_tier, swap_wants_category_l1, swap_open_to, photos, estimated_value, created_at, is_active, status";
+  "id, owner_id, title, description, category, item_type, perceived_value_tier, swap_wants_category_l1, swap_open_to, images, image_url, estimated_value, created_at, is_active, status";
 
 const PROFILE_COLUMNS =
   "user_id, username, display_name, avatar_url, trust_score, location, last_active_at";
+
+function normalizeMatchingItem(row: Record<string, unknown>): MatchingItemRow {
+  const images = Array.isArray(row.images)
+    ? row.images.filter((value): value is string => typeof value === "string" && value.length > 0)
+    : [];
+  const imageUrl = typeof row.image_url === "string" && row.image_url.length > 0 ? row.image_url : null;
+  const photos = images.length > 0 ? images : imageUrl ? [imageUrl] : [];
+
+  return {
+    ...row,
+    images,
+    image_url: imageUrl,
+    photos,
+  } as MatchingItemRow;
+}
 
 export async function fetchItemById(
   supabase: SupabaseClient,
@@ -41,8 +58,8 @@ export async function fetchItemById(
     .select(ITEM_COLUMNS)
     .eq("id", itemId)
     .maybeSingle();
-  if (error) return null;
-  return data as MatchingItemRow | null;
+  if (error || !data) return null;
+  return normalizeMatchingItem(data as Record<string, unknown>);
 }
 
 export async function fetchCandidateItems(
@@ -59,7 +76,7 @@ export async function fetchCandidateItems(
     .order("created_at", { ascending: false })
     .limit(limit);
   if (error || !data) return [];
-  return data as MatchingItemRow[];
+  return (data as Record<string, unknown>[]).map(normalizeMatchingItem);
 }
 
 export async function fetchProfilesByIds(
