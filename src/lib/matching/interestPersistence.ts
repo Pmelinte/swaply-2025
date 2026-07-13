@@ -10,6 +10,15 @@ export type ExpressedInterestRow = {
   match_score: number | null;
 };
 
+export type ReceivedInterestRow = {
+  id: string;
+  from_user_id: string;
+  from_item_id: string;
+  to_item_id: string;
+  match_score: number | null;
+  created_at: string | null;
+};
+
 export type PersistInterestInput = {
   userId: string;
   sourceItem: MatchingItemRow | null;
@@ -37,6 +46,25 @@ export async function fetchExpressedInterests(
   }
 
   return (data ?? []) as ExpressedInterestRow[];
+}
+
+export async function fetchReceivedInterests(
+  supabase: SupabaseClient,
+  userId: string,
+): Promise<ReceivedInterestRow[]> {
+  const { data, error } = await supabase
+    .from("matching_interests")
+    .select("id, from_user_id, from_item_id, to_item_id, match_score, created_at")
+    .eq("to_user_id", userId)
+    .eq("status", "pending")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("fetchReceivedInterests failed", error);
+    return [];
+  }
+
+  return (data ?? []) as ReceivedInterestRow[];
 }
 
 export async function persistExpressedInterest(
