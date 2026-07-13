@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { getSupabaseClient } from "@/lib/supabase/client";
@@ -8,10 +8,12 @@ import { MatchConversationGuide } from "@/components/chat/MatchConversationGuide
 import { ExchangeLogisticsPanel } from "@/components/exchange/ExchangeLogisticsPanel";
 import { SwapFeedbackPanel } from "@/components/feedback/SwapFeedbackPanel";
 import {
+  fetchConversationById,
   fetchConversationMessages,
   fetchUserConversations,
   parseMatchConversationAgenda,
   sendConversationMessage,
+  shouldApplyMatchConversationAgenda,
   updateMatchConversationAgenda,
   type ConversationRow,
   type MatchConversationAgendaState,
@@ -75,6 +77,7 @@ export function RealChatPage({ conversationId }: Props) {
   const [activeId, setActiveId] = useState<string | null>(
     conversationId ?? null,
   );
+  const activeIdRef = useRef<string | null>(activeId);
   const [messages, setMessages] = useState<MessageRow[]>([]);
   const [draft, setDraft] = useState("");
   const [loading, setLoading] = useState(true);
@@ -91,6 +94,7 @@ export function RealChatPage({ conversationId }: Props) {
     );
   const [savingAgendaStage, setSavingAgendaStage] =
     useState<MatchConversationStage | null>(null);
+  const [agendaSaveFailed, setAgendaSaveFailed] = useState(false);
 
   const activeConversation = useMemo(
     () =>
@@ -102,6 +106,47 @@ export function RealChatPage({ conversationId }: Props) {
   const isMatchConversation = Boolean(activeConversation?.match_id);
   const visibleStatus = activeConversation?.status ?? "active";
   const itemIdsKey = activeConversation?.item_ids.join(",") ?? "";
+
+  const applyAgendaSnapshot = useCallback(
+    (
+      targetConversationId: string,
+      nextAgenda: MatchConversationAgendaState,
+      nextUpdatedAt?: string | null,
+    ) => {
+      setConversations((previous) =>
+        previous.map((conversation) => {
+          if (conversation.id !== targetConversationId) return conversation;
+          const currentAgenda = parseMatchConversationAgenda(
+            conversation.agenda_state,
+          );
+          if (!shouldApplyMatchConversationAgenda(currentAgenda, nextAgenda)) {
+            return conversation;
+          }
+
+          return {
+            ...conversation,
+            agenda_state: nextAgenda as unknown as Record<string, unknown>,
+            updated_at:
+              nextUpdatedAt ?? nextAgenda.updated_at ?? conversation.updated_at,
+          };
+        }),
+      );
+
+      if (activeIdRef.current === targetConversationId) {
+        setAgendaState((current) =>
+          shouldApplyMatchConversationAgenda(current, nextAgenda)
+            ? nextAgenda
+            : current,
+        );
+        setAgendaSaveFailed(false);
+      }
+    },
+    [],
+  );
+
+  useEffect(() => {
+    activeIdRef.current = activeId;
+  }, [activeId]);
 
   useEffect(() => {
     setActiveId(conversationId ?? null);
@@ -137,6 +182,14 @@ export function RealChatPage({ conversationId }: Props) {
     }
 
     let cancelled = false;
+
+    async function refreshActiveConversation() {
+      const row = await fetchConversationById(supabase!, activeId!);
+      if (cancelled || !row) return;
+      const nextAgenda = parseMatchConversationAgenda(row.agenda_state);
+      applyAgendaSnapshot(row.id, nextAgenda, row.updated_at);
+    }
+
     fetchConversationMessages(supabase, activeId).then((rows) => {
       if (!cancelled) setMessages(rows);
     });
@@ -152,6 +205,7 @@ export function RealChatPage({ conversationId }: Props) {
           filter: `conversation_id=eq.${activeId}`,
         },
         (payload) => {
+          if (cancelled) return;
           const next = payload.new as MessageRow;
           setMessages((previous) =>
             previous.some((message) => message.id === next.id)
@@ -160,13 +214,43 @@ export function RealChatPage({ conversationId }: Props) {
           );
         },
       )
-      .subscribe();
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "conversations",
+          filter: `id=eq.${activeId}`,
+        },
+        (payload) => {
+          if (cancelled) return;
+          const nextConversation = payload.new as Partial<ConversationRow>;
+          if (nextConversation.id !== activeId) return;
+
+          const nextAgenda = parseMatchConversationAgenda(
+            nextConversation.agenda_state,
+          );
+          applyAgendaSnapshot(
+            activeId,
+            nextAgenda,
+            nextConversation.updated_at ?? nextAgenda.updated_at,
+          );
+        },
+      )
+      .subscribe((status) => {
+        if (
+          !cancelled &&
+          ["CHANNEL_ERROR", "TIMED_OUT", "CLOSED"].includes(status)
+        ) {
+          void refreshActiveConversation();
+        }
+      });
 
     return () => {
       cancelled = true;
       void supabase.removeChannel(channel);
     };
-  }, [activeId]);
+  }, [activeId, applyAgendaSnapshot]);
 
   useEffect(() => {
     const supabase = getSupabaseClient();
@@ -210,6 +294,7 @@ export function RealChatPage({ conversationId }: Props) {
       parseMatchConversationAgenda(activeConversation?.agenda_state),
     );
     setSavingAgendaStage(null);
+    setAgendaSaveFailed(false);
   }, [activeConversation?.id, activeConversation?.agenda_state]);
 
   async function handleAgendaUpdate(
@@ -225,29 +310,31 @@ export function RealChatPage({ conversationId }: Props) {
       return;
     }
 
+    const targetConversationId = activeConversation.id;
     setSavingAgendaStage(stage);
-    const nextAgenda = await updateMatchConversationAgenda(supabase, {
-      conversationId: activeConversation.id,
-      stage,
-      completed,
-    });
+    setAgendaSaveFailed(false);
 
-    if (nextAgenda) {
-      setAgendaState(nextAgenda);
-      setConversations((previous) =>
-        previous.map((conversation) =>
-          conversation.id === activeConversation.id
-            ? {
-                ...conversation,
-                agenda_state: nextAgenda,
-                updated_at: nextAgenda.updated_at ?? conversation.updated_at,
-              }
-            : conversation,
-        ),
-      );
+    try {
+      const nextAgenda = await updateMatchConversationAgenda(supabase, {
+        conversationId: targetConversationId,
+        stage,
+        completed,
+      });
+
+      if (nextAgenda) {
+        applyAgendaSnapshot(
+          targetConversationId,
+          nextAgenda,
+          nextAgenda.updated_at,
+        );
+      } else if (activeIdRef.current === targetConversationId) {
+        setAgendaSaveFailed(true);
+      }
+    } finally {
+      if (activeIdRef.current === targetConversationId) {
+        setSavingAgendaStage(null);
+      }
     }
-
-    setSavingAgendaStage(null);
   }
 
   async function handleSend() {
@@ -472,6 +559,7 @@ export function RealChatPage({ conversationId }: Props) {
           <MatchConversationGuide
             agenda={agendaState}
             savingStage={savingAgendaStage}
+            saveFailed={agendaSaveFailed}
             disabled={sending}
             onUpdateStage={(stage, completed) =>
               void handleAgendaUpdate(stage, completed)

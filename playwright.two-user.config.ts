@@ -82,10 +82,16 @@ export default defineConfig({
       dependencies: ["match-creation"],
     },
     {
-      name: "match-conversation",
+      name: "guided-match-conversation",
       testMatch: /(?:^|[\\/])guided-match-conversation\.spec\.ts$/,
       use: { ...devices["Desktop Chrome"] },
       dependencies: ["match-conversation-base"],
+    },
+    {
+      name: "match-conversation",
+      testMatch: /(?:^|[\\/])realtime-guided-match-conversation\.spec\.ts$/,
+      use: { ...devices["Desktop Chrome"] },
+      dependencies: ["guided-match-conversation"],
     },
     {
       name: "chromium-user-a",

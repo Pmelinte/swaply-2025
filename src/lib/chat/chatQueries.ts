@@ -63,6 +63,12 @@ function isMatchConversationStage(
   );
 }
 
+function agendaTimestamp(value: string | null): number | null {
+  if (!value) return null;
+  const timestamp = Date.parse(value);
+  return Number.isFinite(timestamp) ? timestamp : null;
+}
+
 export function parseMatchConversationAgenda(
   value: Record<string, unknown> | null | undefined,
 ): MatchConversationAgendaState {
@@ -76,9 +82,14 @@ export function parseMatchConversationAgenda(
         ),
       )
     : [];
+  const parsedVersion = Number(value?.version);
+  const version =
+    Number.isFinite(parsedVersion) && parsedVersion >= 1
+      ? Math.trunc(parsedVersion)
+      : 1;
 
   return {
-    version: Number(value?.version ?? 1),
+    version,
     active_stage: activeStage,
     completed_stages: completedStages,
     updated_by:
@@ -86,6 +97,18 @@ export function parseMatchConversationAgenda(
     updated_at:
       typeof value?.updated_at === "string" ? value.updated_at : null,
   };
+}
+
+export function shouldApplyMatchConversationAgenda(
+  current: MatchConversationAgendaState,
+  next: MatchConversationAgendaState,
+): boolean {
+  const currentTimestamp = agendaTimestamp(current.updated_at);
+  const nextTimestamp = agendaTimestamp(next.updated_at);
+
+  if (nextTimestamp === null) return currentTimestamp === null;
+  if (currentTimestamp === null) return true;
+  return nextTimestamp >= currentTimestamp;
 }
 
 export async function fetchUserConversations(
@@ -105,6 +128,24 @@ export async function fetchUserConversations(
   }
 
   return (data ?? []) as ConversationRow[];
+}
+
+export async function fetchConversationById(
+  supabase: SupabaseClient,
+  conversationId: string,
+): Promise<ConversationRow | null> {
+  const { data, error } = await supabase
+    .from("conversations")
+    .select(CONVERSATION_SELECT)
+    .eq("id", conversationId)
+    .maybeSingle();
+
+  if (error) {
+    console.error("fetchConversationById failed", error);
+    return null;
+  }
+
+  return (data as ConversationRow | null) ?? null;
 }
 
 export async function fetchConversationMessages(
