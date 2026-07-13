@@ -100,6 +100,12 @@ export default defineConfig({
       dependencies: ["match-conversation"],
     },
     {
+      name: "explicit-exchange-handoff",
+      testMatch: /(?:^|[\\/])explicit-exchange-handoff\.spec\.ts$/,
+      use: { ...devices["Desktop Chrome"] },
+      dependencies: ["bilateral-match-agreement"],
+    },
+    {
       name: "chromium-user-a",
       testMatch: /user-a\.spec\.ts/,
       use: { ...devices["Desktop Chrome"], storageState: userAAuthFile },
