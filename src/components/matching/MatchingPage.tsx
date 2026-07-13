@@ -14,6 +14,7 @@ import {
 import { calculateMatchScore } from "@/lib/matching/matchScore";
 import {
   fetchExpressedInterests,
+  fetchReceivedInterests,
   persistExpressedInterest,
   withdrawExpressedInterest,
 } from "@/lib/matching/interestPersistence";
@@ -28,6 +29,7 @@ import MatchingBrowse from "./MatchingBrowse";
 import MatchingMap from "./MatchingMap";
 import MatchingAIButton from "./MatchingAIButton";
 import MatchingSelected from "./MatchingSelected";
+import MatchingReceived, { type ReceivedInterestView } from "./MatchingReceived";
 import MatchingFilterDrawer from "./MatchingFilterDrawer";
 import MatchingItemDrawer from "./MatchingItemDrawer";
 
@@ -63,6 +65,7 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
   const [withdrawingIds, setWithdrawingIds] = useState<Set<string>>(new Set());
 
   const [selected, setSelected] = useState<SelectedInterest[]>([]);
+  const [received, setReceived] = useState<ReceivedInterestView[]>([]);
   const [sort, setSort] = useState<SortOrder>("relevant");
   const [filters, setFilters] = useState<MatchingFilters>(DEFAULT_FILTERS);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -160,6 +163,47 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
     }
 
     void restoreInterests();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [userId]);
+
+  useEffect(() => {
+    const supabase = getSupabaseClient();
+    if (!supabase) return;
+
+    let cancelled = false;
+
+    async function restoreReceivedInterests() {
+      const rows = await fetchReceivedInterests(supabase, userId);
+      const restored = await Promise.all(
+        rows.map(async (row): Promise<ReceivedInterestView | null> => {
+          const [fromItem, toItem, profile] = await Promise.all([
+            fetchItemById(supabase, row.from_item_id),
+            fetchItemById(supabase, row.to_item_id),
+            fetchProfileById(supabase, row.from_user_id),
+          ]);
+
+          if (!fromItem || !toItem || toItem.owner_id !== userId) return null;
+
+          return {
+            id: row.id,
+            fromItem,
+            toItem,
+            profile,
+            score: row.match_score ?? 0,
+            createdAt: row.created_at,
+          };
+        }),
+      );
+
+      if (!cancelled) {
+        setReceived(restored.filter((entry): entry is ReceivedInterestView => entry !== null));
+      }
+    }
+
+    void restoreReceivedInterests();
 
     return () => {
       cancelled = true;
@@ -342,6 +386,8 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
             withdrawingIds={withdrawingIds}
             onWithdraw={(itemId) => void withdrawInterest(itemId)}
           />
+
+          <MatchingReceived interests={received} />
         </div>
       </div>
 
