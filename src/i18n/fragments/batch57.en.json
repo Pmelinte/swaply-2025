@@ -4,6 +4,7 @@
     "description": "Use these optional stages to clarify the exchange. Free conversation always remains available.",
     "progress": "{completed} of {total} stages complete",
     "saving": "Saving…",
+    "saveError": "The stage could not be saved. The conversation is still available — please try again.",
     "markComplete": "Mark complete",
     "markIncomplete": "Reopen stage",
     "stages": {
