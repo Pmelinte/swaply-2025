@@ -1,8 +1,12 @@
 "use client";
 
-import { HeartHandshake } from "lucide-react";
+import { useMemo, useState } from "react";
+import { HeartHandshake, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { SafeImage } from "@/components/SafeImage";
 import { NO_IMAGE_URL } from "@/lib/storage";
+import { getSupabaseClient } from "@/lib/supabase/client";
+import { acceptReceivedInterest } from "@/lib/matching/interestPersistence";
 import type { MatchingItemRow, MatchingProfileRow } from "@/lib/matching/matchQueries";
 
 export type ReceivedInterestView = {
@@ -40,6 +44,36 @@ function formatDate(value: string | null): string | null {
 }
 
 export default function MatchingReceived({ interests, loading }: Props) {
+  const tCommon = useTranslations("common");
+  const tMatch = useTranslations("match");
+  const [acceptingIds, setAcceptingIds] = useState<Set<string>>(new Set());
+  const [acceptedIds, setAcceptedIds] = useState<Set<string>>(new Set());
+
+  const visibleInterests = useMemo(
+    () => interests.filter((interest) => !acceptedIds.has(interest.id)),
+    [acceptedIds, interests],
+  );
+
+  async function acceptInterest(interestId: string) {
+    if (acceptingIds.has(interestId) || acceptedIds.has(interestId)) return;
+
+    const supabase = getSupabaseClient();
+    if (!supabase) return;
+
+    setAcceptingIds((previous) => new Set(previous).add(interestId));
+
+    const accepted = await acceptReceivedInterest(supabase, interestId);
+    if (accepted) {
+      setAcceptedIds((previous) => new Set(previous).add(interestId));
+    }
+
+    setAcceptingIds((previous) => {
+      const next = new Set(previous);
+      next.delete(interestId);
+      return next;
+    });
+  }
+
   return (
     <section
       data-testid="interests-received"
@@ -58,7 +92,7 @@ export default function MatchingReceived({ interests, loading }: Props) {
           data-testid="interests-received-count"
           className="rounded-full bg-blue-100 px-2.5 py-1 text-xs font-semibold text-blue-800 dark:bg-blue-950/50 dark:text-blue-200"
         >
-          {interests.length}
+          {visibleInterests.length}
         </span>
       </div>
 
@@ -69,7 +103,7 @@ export default function MatchingReceived({ interests, loading }: Props) {
         >
           Loading interests…
         </p>
-      ) : interests.length === 0 ? (
+      ) : visibleInterests.length === 0 ? (
         <p
           data-testid="interests-received-empty"
           className="mt-4 text-sm text-zinc-500 dark:text-zinc-400"
@@ -78,8 +112,10 @@ export default function MatchingReceived({ interests, loading }: Props) {
         </p>
       ) : (
         <div className="mt-4 space-y-3">
-          {interests.map((interest) => {
+          {visibleInterests.map((interest) => {
             const date = formatDate(interest.createdAt);
+            const isAccepting = acceptingIds.has(interest.id);
+            const acceptLabel = tMatch("guestBtnAccept");
 
             return (
               <article
@@ -123,6 +159,22 @@ export default function MatchingReceived({ interests, loading }: Props) {
                       <span>{Math.round(interest.score)}% match</span>
                       {date ? <span>{date}</span> : null}
                     </div>
+
+                    <button
+                      type="button"
+                      data-testid={`accept-interest-${interest.id}`}
+                      onClick={() => void acceptInterest(interest.id)}
+                      disabled={isAccepting}
+                      aria-label={acceptLabel}
+                      className="mt-3 inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {isAccepting ? (
+                        <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                      ) : (
+                        <HeartHandshake className="h-4 w-4" aria-hidden="true" />
+                      )}
+                      {isAccepting ? tCommon("loading") : acceptLabel}
+                    </button>
                   </div>
                 </div>
               </article>
