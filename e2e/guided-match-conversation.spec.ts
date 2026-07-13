@@ -12,7 +12,7 @@ import {
   userBAuthFile,
 } from "./two-user-auth.setup";
 
-const chatPath = "/en/chat";
+const chatPath = "/en/messages";
 const profilePath = "/en/profile";
 const actionTimeout = 20_000;
 
