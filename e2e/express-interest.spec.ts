@@ -80,9 +80,7 @@ function isItemsWriteResponse(response: Response, itemId?: string) {
 function isInterestWriteResponse(response: Response, method: "POST" | "PATCH") {
   const request = response.request();
   const url = new URL(response.url());
-  return (
-    request.method() === method && url.pathname.endsWith("/rest/v1/matching_interests")
-  );
+  return request.method() === method && url.pathname.endsWith("/rest/v1/matching_interests");
 }
 
 async function createObject(page: Page, title: string, description: string): Promise<string> {
@@ -233,6 +231,10 @@ test.describe("Train C Batch 54 Express Interest", () => {
         await expect
           .poll(() => new URL(pageA.url()).pathname, { timeout: actionTimeout })
           .toBe(matchingPath);
+
+        const sortSelect = pageA.locator("select").first();
+        await expect(sortSelect).toBeVisible({ timeout: actionTimeout });
+        await sortSelect.selectOption("newest");
 
         const candidate = pageA.getByTestId(`matching-candidate-${targetItemId}`);
         await expect(candidate).toBeVisible({ timeout: actionTimeout });
