@@ -70,6 +70,12 @@ export default defineConfig({
       dependencies: ["favorites-wants"],
     },
     {
+      name: "match-creation",
+      testMatch: /(?:^|[\\/])match-creation\.spec\.ts$/,
+      use: { ...devices["Desktop Chrome"] },
+      dependencies: ["express-interest"],
+    },
+    {
       name: "chromium-user-a",
       testMatch: /user-a\.spec\.ts/,
       use: { ...devices["Desktop Chrome"], storageState: userAAuthFile },
