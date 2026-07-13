@@ -1,6 +1,25 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { moderateText } from "@/lib/moderation/moderationEngine";
 
+export const MATCH_CONVERSATION_STAGES = [
+  "interest",
+  "condition",
+  "offer",
+  "logistics",
+  "agreement",
+] as const;
+
+export type MatchConversationStage =
+  (typeof MATCH_CONVERSATION_STAGES)[number];
+
+export type MatchConversationAgendaState = {
+  version: number;
+  active_stage: MatchConversationStage;
+  completed_stages: MatchConversationStage[];
+  updated_by: string | null;
+  updated_at: string | null;
+};
+
 export type ConversationRow = {
   id: string;
   swap_id: string | null;
@@ -34,6 +53,40 @@ const CONVERSATION_SELECT =
 
 const MESSAGE_SELECT =
   "id, swap_id, match_id, sender_id, recipient_id, content, attachments, read_at, metadata, created_at, is_read, conversation_id, message_type";
+
+function isMatchConversationStage(
+  value: unknown,
+): value is MatchConversationStage {
+  return (
+    typeof value === "string" &&
+    MATCH_CONVERSATION_STAGES.includes(value as MatchConversationStage)
+  );
+}
+
+export function parseMatchConversationAgenda(
+  value: Record<string, unknown> | null | undefined,
+): MatchConversationAgendaState {
+  const activeStage = isMatchConversationStage(value?.active_stage)
+    ? value.active_stage
+    : "interest";
+  const completedStages = Array.isArray(value?.completed_stages)
+    ? Array.from(
+        new Set(
+          value.completed_stages.filter(isMatchConversationStage),
+        ),
+      )
+    : [];
+
+  return {
+    version: Number(value?.version ?? 1),
+    active_stage: activeStage,
+    completed_stages: completedStages,
+    updated_by:
+      typeof value?.updated_by === "string" ? value.updated_by : null,
+    updated_at:
+      typeof value?.updated_at === "string" ? value.updated_at : null,
+  };
+}
 
 export async function fetchUserConversations(
   supabase: SupabaseClient,
@@ -71,6 +124,36 @@ export async function fetchConversationMessages(
   }
 
   return (data ?? []) as MessageRow[];
+}
+
+export async function updateMatchConversationAgenda(
+  supabase: SupabaseClient,
+  input: {
+    conversationId: string;
+    stage: MatchConversationStage;
+    completed?: boolean | null;
+  },
+): Promise<MatchConversationAgendaState | null> {
+  const { data, error } = await supabase.rpc(
+    "update_match_conversation_agenda",
+    {
+      p_conversation_id: input.conversationId,
+      p_stage: input.stage,
+      p_completed: input.completed ?? null,
+    },
+  );
+
+  if (error) {
+    console.error("updateMatchConversationAgenda failed", error);
+    return null;
+  }
+
+  if (!data || typeof data !== "object" || Array.isArray(data)) {
+    console.error("updateMatchConversationAgenda returned invalid data", data);
+    return null;
+  }
+
+  return parseMatchConversationAgenda(data as Record<string, unknown>);
 }
 
 export async function sendConversationMessage(
