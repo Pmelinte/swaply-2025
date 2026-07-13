@@ -76,7 +76,7 @@ test.describe("Train C Batch 59 bilateral agreement", () => {
       let conversationId = "";
       let matchId = "";
       let restOrigin = "";
-      let authHeaders: ReturnType<typeof headersFrom>;
+      let authHeaders: ReturnType<typeof headersFrom> | null = null;
       let anonApiKey = "";
       let initialMessages = 0;
 
@@ -110,7 +110,7 @@ test.describe("Train C Batch 59 bilateral agreement", () => {
 
         const messages = await pageA.request.get(
           `${restOrigin}/rest/v1/messages?select=id&conversation_id=eq.${conversationId}`,
-          { headers: authHeaders },
+          { headers: authHeaders! },
         );
         expect(messages.ok()).toBe(true);
         initialMessages = ((await messages.json()) as unknown[]).length;
@@ -201,7 +201,7 @@ test.describe("Train C Batch 59 bilateral agreement", () => {
 
         const conversations = await pageA.request.get(
           `${restOrigin}/rest/v1/conversations?select=id,swap_id,agenda_state&match_id=eq.${matchId}`,
-          { headers: authHeaders },
+          { headers: authHeaders! },
         );
         expect(conversations.ok()).toBe(true);
         const rows = (await conversations.json()) as Array<{
@@ -223,13 +223,13 @@ test.describe("Train C Batch 59 bilateral agreement", () => {
 
         const messages = await pageA.request.get(
           `${restOrigin}/rest/v1/messages?select=id&conversation_id=eq.${conversationId}`,
-          { headers: authHeaders },
+          { headers: authHeaders! },
         );
         expect(((await messages.json()) as unknown[]).length).toBe(initialMessages);
 
         const match = await pageA.request.get(
           `${restOrigin}/rest/v1/matches?select=status,converted_swap_id&id=eq.${matchId}`,
-          { headers: authHeaders },
+          { headers: authHeaders! },
         );
         expect(await match.json()).toEqual([
           { status: "accepted", converted_swap_id: null },
