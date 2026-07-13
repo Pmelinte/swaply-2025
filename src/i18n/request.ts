@@ -39,7 +39,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
     await import(`../messages/${defaultLocale}.json`)
   ).default as Record<string, unknown>;
   const batch57EnglishMessages = (
-    await import("../messages/batch57.en.json")
+    await import("./fragments/batch57.en.json")
   ).default as Record<string, unknown>;
   const enMessages = deepMerge(batch57EnglishMessages, baseEnglishMessages);
 
