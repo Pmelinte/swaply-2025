@@ -1,4 +1,4 @@
-import type { MatchingItemRow } from "./matchQueries";
+import type { MatchingItemRow, MatchingProfileRow } from "./matchQueries";
 
 export type SelectedInterest = {
   itemId: string;
@@ -6,6 +6,16 @@ export type SelectedInterest = {
   item: MatchingItemRow;
   score: number;
   interestId?: string;
+};
+
+export type ReceivedInterest = {
+  interestId: string;
+  fromUserId: string;
+  fromProfile: MatchingProfileRow | null;
+  offeredItem: MatchingItemRow;
+  targetItem: MatchingItemRow;
+  score: number;
+  createdAt: string | null;
 };
 
 export type MatchingFilters = {
