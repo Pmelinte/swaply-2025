@@ -25,7 +25,7 @@ env:
 
 jobs:
   authenticated-e2e:
-    name: Authenticated Train C through Express Interest
+    name: Authenticated Train C through Match Creation
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
@@ -86,8 +86,8 @@ jobs:
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Run deterministic authenticated Train C dependency graph through Batch 54
-        run: npx playwright test --config=playwright.two-user.config.ts --project=express-interest
+      - name: Run deterministic authenticated Train C dependency graph through Batch 55
+        run: npx playwright test --config=playwright.two-user.config.ts --project=match-creation
 
       - name: Upload Playwright report
         if: always()
