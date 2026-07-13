@@ -24,7 +24,7 @@ export default function MatchingCard({ candidate, showScore, onOpen }: Props) {
         : "bg-zinc-200 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200";
 
   return (
-    <div className="group relative">
+    <div className="group relative" data-testid={`matching-candidate-${item.id}`}>
       <Link
         href={`/objects/${item.id}`}
         className="block overflow-hidden rounded-xl border border-zinc-200 bg-white transition hover:shadow-md dark:border-zinc-700 dark:bg-zinc-900"
@@ -58,6 +58,7 @@ export default function MatchingCard({ candidate, showScore, onOpen }: Props) {
       {showScore && (
         <button
           type="button"
+          data-testid={`matching-candidate-details-${item.id}`}
           onClick={() => onOpen(candidate)}
           className="mt-2 w-full rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
         >
