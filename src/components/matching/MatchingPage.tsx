@@ -66,6 +66,7 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
 
   const [selected, setSelected] = useState<SelectedInterest[]>([]);
   const [received, setReceived] = useState<ReceivedInterestView[]>([]);
+  const [loadingReceived, setLoadingReceived] = useState(true);
   const [sort, setSort] = useState<SortOrder>("relevant");
   const [filters, setFilters] = useState<MatchingFilters>(DEFAULT_FILTERS);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -151,7 +152,7 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
             itemId: item.id,
             ownerId: row.to_user_id,
             item,
-            score: row.match_score ?? 0,
+            score: Number(row.match_score ?? 0),
             interestId: row.id,
           };
         }),
@@ -171,11 +172,15 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
 
   useEffect(() => {
     const supabase = getSupabaseClient();
-    if (!supabase) return;
+    if (!supabase) {
+      setLoadingReceived(false);
+      return;
+    }
 
     let cancelled = false;
 
     async function restoreReceivedInterests() {
+      setLoadingReceived(true);
       const rows = await fetchReceivedInterests(supabase, userId);
       const restored = await Promise.all(
         rows.map(async (row): Promise<ReceivedInterestView | null> => {
@@ -189,10 +194,11 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
 
           return {
             id: row.id,
+            fromUserId: row.from_user_id,
             fromItem,
             toItem,
             profile,
-            score: row.match_score ?? 0,
+            score: Number(row.match_score ?? 0),
             createdAt: row.created_at,
           };
         }),
@@ -200,6 +206,7 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
 
       if (!cancelled) {
         setReceived(restored.filter((entry): entry is ReceivedInterestView => entry !== null));
+        setLoadingReceived(false);
       }
     }
 
@@ -387,7 +394,7 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
             onWithdraw={(itemId) => void withdrawInterest(itemId)}
           />
 
-          <MatchingReceived interests={received} />
+          <MatchingReceived interests={received} loading={loadingReceived} />
         </div>
       </div>
 
