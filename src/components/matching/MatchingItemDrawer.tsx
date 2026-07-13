@@ -43,6 +43,7 @@ export default function MatchingItemDrawer({
       <aside
         role="dialog"
         aria-modal={isOpen ? "true" : undefined}
+        data-testid={candidate ? `matching-item-drawer-${candidate.item.id}` : undefined}
         className={`absolute right-0 top-0 flex h-full w-full max-w-md flex-col bg-white shadow-2xl transition-transform duration-200 dark:bg-zinc-900 ${
           isOpen ? "translate-x-0 pointer-events-auto" : "translate-x-full pointer-events-none"
         }`}
@@ -96,6 +97,7 @@ export default function MatchingItemDrawer({
               </button>
               <button
                 type="button"
+                data-testid={`express-interest-submit-${candidate.item.id}`}
                 onClick={() => onExpressInterest(candidate)}
                 className="flex-1 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
               >

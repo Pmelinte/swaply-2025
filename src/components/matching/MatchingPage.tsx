@@ -12,11 +12,16 @@ import {
   type MatchingProfileRow,
 } from "@/lib/matching/matchQueries";
 import { calculateMatchScore } from "@/lib/matching/matchScore";
-import { persistMatchCandidate } from "@/lib/matching/matchPersistence";
+import {
+  fetchExpressedInterests,
+  fetchReceivedInterests,
+  persistExpressedInterest,
+  withdrawExpressedInterest,
+} from "@/lib/matching/interestPersistence";
 import {
   DEFAULT_FILTERS,
   type MatchingFilters,
-  type SelectedMatch,
+  type SelectedInterest,
   type SortOrder,
 } from "@/lib/matching/matchingStore";
 import MatchingSlots from "./MatchingSlots";
@@ -24,6 +29,7 @@ import MatchingBrowse from "./MatchingBrowse";
 import MatchingMap from "./MatchingMap";
 import MatchingAIButton from "./MatchingAIButton";
 import MatchingSelected from "./MatchingSelected";
+import MatchingReceived, { type ReceivedInterestView } from "./MatchingReceived";
 import MatchingFilterDrawer from "./MatchingFilterDrawer";
 import MatchingItemDrawer from "./MatchingItemDrawer";
 
@@ -56,8 +62,11 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
   );
   const [loading, setLoading] = useState(false);
   const [persistingIds, setPersistingIds] = useState<Set<string>>(new Set());
+  const [withdrawingIds, setWithdrawingIds] = useState<Set<string>>(new Set());
 
-  const [selected, setSelected] = useState<SelectedMatch[]>([]);
+  const [selected, setSelected] = useState<SelectedInterest[]>([]);
+  const [received, setReceived] = useState<ReceivedInterestView[]>([]);
+  const [loadingReceived, setLoadingReceived] = useState(true);
   const [sort, setSort] = useState<SortOrder>("relevant");
   const [filters, setFilters] = useState<MatchingFilters>(DEFAULT_FILTERS);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -67,8 +76,8 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
     const supabase = getSupabaseClient();
     if (!supabase) return;
     let cancelled = false;
-    fetchProfileById(supabase, userId).then((p) => {
-      if (!cancelled) setMyProfile(p);
+    fetchProfileById(supabase, userId).then((profile) => {
+      if (!cancelled) setMyProfile(profile);
     });
     return () => {
       cancelled = true;
@@ -82,8 +91,8 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
     if (!slot1Id) {
       setSlot1Item(null);
     } else {
-      fetchItemById(supabase, slot1Id).then((r) => {
-        if (!cancelled) setSlot1Item(r);
+      fetchItemById(supabase, slot1Id).then((item) => {
+        if (!cancelled) setSlot1Item(item);
       });
     }
     return () => {
@@ -98,8 +107,8 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
     if (!slot2Id) {
       setSlot2Item(null);
     } else {
-      fetchItemById(supabase, slot2Id).then((r) => {
-        if (!cancelled) setSlot2Item(r);
+      fetchItemById(supabase, slot2Id).then((item) => {
+        if (!cancelled) setSlot2Item(item);
       });
     }
     return () => {
@@ -115,13 +124,94 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
     fetchCandidateItems(supabase, userId, 100).then(async (items) => {
       if (cancelled) return;
       setCandidates(items);
-      const ownerIds = Array.from(new Set(items.map((i) => i.owner_id)));
+      const ownerIds = Array.from(new Set(items.map((item) => item.owner_id)));
       const profiles = await fetchProfilesByIds(supabase, ownerIds);
       if (!cancelled) {
         setCandidateProfiles(profiles);
         setLoading(false);
       }
     });
+    return () => {
+      cancelled = true;
+    };
+  }, [userId]);
+
+  useEffect(() => {
+    const supabase = getSupabaseClient();
+    if (!supabase) return;
+
+    let cancelled = false;
+
+    async function restoreInterests() {
+      const rows = await fetchExpressedInterests(supabase, userId);
+      const restored = await Promise.all(
+        rows.map(async (row): Promise<SelectedInterest | null> => {
+          const item = await fetchItemById(supabase, row.to_item_id);
+          if (!item) return null;
+          return {
+            itemId: item.id,
+            ownerId: row.to_user_id,
+            item,
+            score: Number(row.match_score ?? 0),
+            interestId: row.id,
+          };
+        }),
+      );
+
+      if (!cancelled) {
+        setSelected(restored.filter((entry): entry is SelectedInterest => entry !== null));
+      }
+    }
+
+    void restoreInterests();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [userId]);
+
+  useEffect(() => {
+    const supabase = getSupabaseClient();
+    if (!supabase) {
+      setLoadingReceived(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    async function restoreReceivedInterests() {
+      setLoadingReceived(true);
+      const rows = await fetchReceivedInterests(supabase, userId);
+      const restored = await Promise.all(
+        rows.map(async (row): Promise<ReceivedInterestView | null> => {
+          const [fromItem, toItem, profile] = await Promise.all([
+            fetchItemById(supabase, row.from_item_id),
+            fetchItemById(supabase, row.to_item_id),
+            fetchProfileById(supabase, row.from_user_id),
+          ]);
+
+          if (!fromItem || !toItem || toItem.owner_id !== userId) return null;
+
+          return {
+            id: row.id,
+            fromUserId: row.from_user_id,
+            fromItem,
+            toItem,
+            profile,
+            score: Number(row.match_score ?? 0),
+            createdAt: row.created_at,
+          };
+        }),
+      );
+
+      if (!cancelled) {
+        setReceived(restored.filter((entry): entry is ReceivedInterestView => entry !== null));
+        setLoadingReceived(false);
+      }
+    }
+
+    void restoreReceivedInterests();
+
     return () => {
       cancelled = true;
     };
@@ -149,12 +239,15 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
         },
       }));
     }
+
     return candidates.map((item) => {
       const profile = candidateProfiles.get(item.owner_id) ?? null;
       const breakdowns = activeSlotItems.map((slot) =>
         calculateMatchScore(slot, item, myProfile, profile),
       );
-      const best = breakdowns.reduce((a, b) => (a.total >= b.total ? a : b));
+      const best = breakdowns.reduce((left, right) =>
+        left.total >= right.total ? left : right,
+      );
       return { item, profile, score: best.total, breakdown: best };
     });
   }, [candidates, candidateProfiles, activeSlotItems, myProfile]);
@@ -162,74 +255,83 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
   const filtered = useMemo(() => {
     let list = scoredCandidates;
     if (filters.category) {
-      list = list.filter((c) => c.item.category === filters.category);
+      list = list.filter((candidate) => candidate.item.category === filters.category);
     }
     if (filters.itemType) {
-      list = list.filter((c) => c.item.item_type === filters.itemType);
+      list = list.filter((candidate) => candidate.item.item_type === filters.itemType);
     }
     return list;
   }, [scoredCandidates, filters]);
 
   const averageScore = useMemo(() => {
     if (activeSlotItems.length === 0 || filtered.length === 0) return null;
-    const sum = filtered.reduce((acc, c) => acc + c.score, 0);
+    const sum = filtered.reduce((total, candidate) => total + candidate.score, 0);
     return Math.round(sum / filtered.length);
   }, [filtered, activeSlotItems]);
 
   async function expressInterest(candidate: ScoredCandidate) {
     if (persistingIds.has(candidate.item.id)) return;
+    if (selected.some((entry) => entry.itemId === candidate.item.id)) {
+      setDrawerItem(null);
+      return;
+    }
 
     const sourceItem = activeSlotItems[0] ?? null;
     const supabase = getSupabaseClient();
-    setPersistingIds((prev) => new Set(prev).add(candidate.item.id));
+    if (!supabase) return;
 
-    const persisted = supabase
-      ? await persistMatchCandidate(supabase, {
-          userId,
-          sourceItem,
-          candidate,
-          slotPosition: selected.length + 1,
-        })
-      : null;
+    setPersistingIds((previous) => new Set(previous).add(candidate.item.id));
 
-    setSelected((prev) => {
-      if (prev.length >= 2) return prev;
-      if (prev.some((p) => p.itemId === candidate.item.id)) return prev;
-      return [
-        ...prev,
-        {
-          itemId: candidate.item.id,
-          ownerId: candidate.item.owner_id,
-          item: candidate.item,
-          score: candidate.score,
-          matchId: persisted?.id,
-        },
-      ];
+    const persisted = await persistExpressedInterest(supabase, {
+      userId,
+      sourceItem,
+      candidate,
+      source: "browsing",
     });
-    setPersistingIds((prev) => {
-      const next = new Set(prev);
+
+    if (persisted) {
+      setSelected((previous) => {
+        if (previous.some((entry) => entry.itemId === candidate.item.id)) return previous;
+        return [
+          ...previous,
+          {
+            itemId: candidate.item.id,
+            ownerId: candidate.item.owner_id,
+            item: candidate.item,
+            score: candidate.score,
+            interestId: persisted.id,
+          },
+        ];
+      });
+    }
+
+    setPersistingIds((previous) => {
+      const next = new Set(previous);
       next.delete(candidate.item.id);
       return next;
     });
     setDrawerItem(null);
   }
 
-  function declineSelected(itemId: string) {
-    setSelected((prev) => prev.filter((p) => p.itemId !== itemId));
-  }
+  async function withdrawInterest(itemId: string) {
+    const interest = selected.find((entry) => entry.itemId === itemId);
+    if (!interest || withdrawingIds.has(itemId) || !interest.interestId) return;
 
-  function markConverted(itemId: string, result: { swapId: string; conversationId: string }) {
-    setSelected((prev) =>
-      prev.map((entry) =>
-        entry.itemId === itemId
-          ? {
-              ...entry,
-              swapId: result.swapId,
-              conversationId: result.conversationId,
-            }
-          : entry,
-      ),
-    );
+    const supabase = getSupabaseClient();
+    if (!supabase) return;
+
+    setWithdrawingIds((previous) => new Set(previous).add(itemId));
+    const withdrawn = await withdrawExpressedInterest(supabase, interest.interestId, userId);
+
+    if (withdrawn) {
+      setSelected((previous) => previous.filter((entry) => entry.itemId !== itemId));
+    }
+
+    setWithdrawingIds((previous) => {
+      const next = new Set(previous);
+      next.delete(itemId);
+      return next;
+    });
   }
 
   return (
@@ -253,7 +355,7 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
             loading={loading}
             sort={sort}
             onSortChange={setSort}
-            onOpenItem={(c) => setDrawerItem(c)}
+            onOpenItem={(candidate) => setDrawerItem(candidate)}
           />
 
           <MatchingMap candidates={filtered} />
@@ -261,10 +363,10 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
           <MatchingAIButton
             userId={userId}
             slotItemId={slot1Id ?? slot2Id}
-            excludeIds={selected.map((s) => s.itemId)}
+            excludeIds={selected.map((entry) => entry.itemId)}
             slotsFull={selected.length >= 2}
             onSuggestion={(item, score) => {
-              const existing = filtered.find((f) => f.item.id === item.id);
+              const existing = filtered.find((candidate) => candidate.item.id === item.id);
               if (existing) {
                 void expressInterest(existing);
                 return;
@@ -288,9 +390,11 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
 
           <MatchingSelected
             selected={selected}
-            onDecline={declineSelected}
-            onConverted={markConverted}
+            withdrawingIds={withdrawingIds}
+            onWithdraw={(itemId) => void withdrawInterest(itemId)}
           />
+
+          <MatchingReceived interests={received} loading={loadingReceived} />
         </div>
       </div>
 

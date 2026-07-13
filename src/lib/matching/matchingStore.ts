@@ -1,13 +1,11 @@
 import type { MatchingItemRow } from "./matchQueries";
 
-export type SelectedMatch = {
+export type SelectedInterest = {
   itemId: string;
   ownerId: string;
   item: MatchingItemRow;
   score: number;
-  matchId?: string;
-  swapId?: string;
-  conversationId?: string;
+  interestId?: string;
 };
 
 export type MatchingFilters = {
