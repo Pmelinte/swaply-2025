@@ -19,6 +19,14 @@ export type ReceivedInterestRow = {
   created_at: string | null;
 };
 
+export type AcceptedInterestResult = {
+  interest_id: string;
+  matching_session_id: string;
+  match_id: string;
+  interest_status: "accepted";
+  match_status: "accepted";
+};
+
 export type PersistInterestInput = {
   userId: string;
   sourceItem: MatchingItemRow | null;
@@ -67,6 +75,31 @@ export async function fetchReceivedInterests(
   return (data ?? []) as ReceivedInterestRow[];
 }
 
+async function persistMatchingSession(
+  supabase: SupabaseClient,
+  userId: string,
+  sourceItemId: string,
+): Promise<string | null> {
+  const { data, error } = await supabase
+    .from("matching_sessions")
+    .upsert(
+      {
+        user_id: userId,
+        slot_1_item_id: sourceItemId,
+      },
+      { onConflict: "user_id" },
+    )
+    .select("id")
+    .single();
+
+  if (error) {
+    console.error("persistMatchingSession failed", error);
+    return null;
+  }
+
+  return (data as { id: string }).id;
+}
+
 export async function persistExpressedInterest(
   supabase: SupabaseClient,
   input: PersistInterestInput,
@@ -80,6 +113,14 @@ export async function persistExpressedInterest(
     console.error("persistExpressedInterest cannot target the user's own item");
     return null;
   }
+
+  const matchingSessionId = await persistMatchingSession(
+    supabase,
+    input.userId,
+    input.sourceItem.id,
+  );
+
+  if (!matchingSessionId) return null;
 
   const { data: existing, error: existingError } = await supabase
     .from("matching_interests")
@@ -122,6 +163,34 @@ export async function persistExpressedInterest(
   }
 
   return data as ExpressedInterestRow;
+}
+
+export async function acceptReceivedInterest(
+  supabase: SupabaseClient,
+  interestId: string,
+): Promise<AcceptedInterestResult | null> {
+  const { data, error } = await supabase
+    .rpc("accept_matching_interest", { p_interest_id: interestId })
+    .single();
+
+  if (error) {
+    console.error("acceptReceivedInterest failed", error);
+    return null;
+  }
+
+  const result = data as AcceptedInterestResult | null;
+  if (
+    !result?.interest_id ||
+    !result.matching_session_id ||
+    !result.match_id ||
+    result.interest_status !== "accepted" ||
+    result.match_status !== "accepted"
+  ) {
+    console.error("acceptReceivedInterest returned an invalid result", result);
+    return null;
+  }
+
+  return result;
 }
 
 export async function withdrawExpressedInterest(
