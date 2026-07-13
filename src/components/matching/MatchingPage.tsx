@@ -139,14 +139,15 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
   useEffect(() => {
     const supabase = getSupabaseClient();
     if (!supabase) return;
+    const client = supabase;
 
     let cancelled = false;
 
     async function restoreInterests() {
-      const rows = await fetchExpressedInterests(supabase, userId);
+      const rows = await fetchExpressedInterests(client, userId);
       const restored = await Promise.all(
         rows.map(async (row): Promise<SelectedInterest | null> => {
-          const item = await fetchItemById(supabase, row.to_item_id);
+          const item = await fetchItemById(client, row.to_item_id);
           if (!item) return null;
           return {
             itemId: item.id,
@@ -176,18 +177,19 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
       setLoadingReceived(false);
       return;
     }
+    const client = supabase;
 
     let cancelled = false;
 
     async function restoreReceivedInterests() {
       setLoadingReceived(true);
-      const rows = await fetchReceivedInterests(supabase, userId);
+      const rows = await fetchReceivedInterests(client, userId);
       const restored = await Promise.all(
         rows.map(async (row): Promise<ReceivedInterestView | null> => {
           const [fromItem, toItem, profile] = await Promise.all([
-            fetchItemById(supabase, row.from_item_id),
-            fetchItemById(supabase, row.to_item_id),
-            fetchProfileById(supabase, row.from_user_id),
+            fetchItemById(client, row.from_item_id),
+            fetchItemById(client, row.to_item_id),
+            fetchProfileById(client, row.from_user_id),
           ]);
 
           if (!fromItem || !toItem || toItem.owner_id !== userId) return null;
