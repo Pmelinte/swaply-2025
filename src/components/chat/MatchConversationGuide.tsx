@@ -2,6 +2,7 @@
 
 import { CheckCircle2, Circle, MessageSquareText, XCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { MatchAgreementPanel } from "@/components/chat/MatchAgreementPanel";
 import {
   MATCH_CONVERSATION_STAGES,
   type MatchConversationAgendaState,
@@ -85,6 +86,7 @@ export function MatchConversationGuide({
           const isActive = agenda.active_stage === stage;
           const isCompleted = completed.has(stage);
           const isSaving = savingStage === stage;
+          const completionManagedByAgreement = stage === "agreement";
 
           return (
             <div
@@ -110,23 +112,44 @@ export function MatchConversationGuide({
                 )}
                 <span>{t(`stages.${stage}`)}</span>
               </button>
-              <button
-                type="button"
-                data-testid={`match-stage-complete-${stage}`}
-                disabled={stageControlsDisabled}
-                onClick={() => onUpdateStage(stage, !isCompleted)}
-                className="mt-1 w-full rounded-lg border border-zinc-200 px-2 py-1 text-[11px] font-medium text-zinc-600 hover:border-blue-300 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-60 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-blue-700 dark:hover:text-blue-300"
-              >
-                {isSaving
-                  ? t("saving")
-                  : isCompleted
-                    ? t("markIncomplete")
-                    : t("markComplete")}
-              </button>
+
+              {completionManagedByAgreement ? (
+                <button
+                  type="button"
+                  data-testid="match-stage-complete-agreement"
+                  disabled
+                  className="mt-1 w-full cursor-not-allowed rounded-lg border border-emerald-200 px-2 py-1 text-center text-[11px] font-medium text-emerald-700 opacity-80 dark:border-emerald-900 dark:text-emerald-300"
+                >
+                  {isCompleted
+                    ? t("agreementConfirmed")
+                    : t("agreementManagedBelow")}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  data-testid={`match-stage-complete-${stage}`}
+                  disabled={stageControlsDisabled}
+                  onClick={() => onUpdateStage(stage, !isCompleted)}
+                  className="mt-1 w-full rounded-lg border border-zinc-200 px-2 py-1 text-[11px] font-medium text-zinc-600 hover:border-blue-300 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-60 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-blue-700 dark:hover:text-blue-300"
+                >
+                  {isSaving
+                    ? t("saving")
+                    : isCompleted
+                      ? t("markIncomplete")
+                      : t("markComplete")}
+                </button>
+              )}
             </div>
           );
         })}
       </div>
+
+      {agenda.conversation_id ? (
+        <MatchAgreementPanel
+          agenda={agenda}
+          disabled={stageControlsDisabled}
+        />
+      ) : null}
 
       <div className="grid gap-4 lg:grid-cols-2">
         <div>

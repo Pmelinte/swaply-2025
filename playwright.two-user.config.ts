@@ -94,6 +94,12 @@ export default defineConfig({
       dependencies: ["guided-match-conversation"],
     },
     {
+      name: "bilateral-match-agreement",
+      testMatch: /(?:^|[\\/])bilateral-match-agreement\.spec\.ts$/,
+      use: { ...devices["Desktop Chrome"] },
+      dependencies: ["match-conversation"],
+    },
+    {
       name: "chromium-user-a",
       testMatch: /user-a\.spec\.ts/,
       use: { ...devices["Desktop Chrome"], storageState: userAAuthFile },

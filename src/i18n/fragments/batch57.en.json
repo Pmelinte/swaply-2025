@@ -7,6 +7,8 @@
     "saveError": "The stage could not be saved. The conversation is still available — please try again.",
     "markComplete": "Mark complete",
     "markIncomplete": "Reopen stage",
+    "agreementManagedBelow": "Confirmed below",
+    "agreementConfirmed": "Both confirmed",
     "stages": {
       "interest": "Interest",
       "condition": "Item condition",
@@ -43,5 +45,39 @@
       "preferDifferent": "Thank you for your interest. At the moment I am looking for a different type of exchange, but I appreciate the proposal."
     },
     "draftNotice": "Inserted text remains editable in your draft. Review it before pressing Send."
+  },
+  "matchAgreement": {
+    "title": "Shared agreement summary",
+    "description": "Write the terms you both understand. Each participant confirms the same saved revision separately.",
+    "revision": "Revision {revision}",
+    "saving": "Saving…",
+    "save": "Save new revision",
+    "confirm": "Confirm this revision",
+    "withdraw": "Withdraw confirmation",
+    "saveError": "The agreement could not be updated. It may have changed in the meantime — review the current revision and try again.",
+    "resetNotice": "Saving any change creates a new revision and clears previous confirmations.",
+    "noSideEffects": "Confirmation does not create an Exchange, send a message, change the match status, or award tokens.",
+    "fields": {
+      "condition": "Condition agreed",
+      "offer": "What each participant gives and receives",
+      "logisticsMethod": "Delivery or meetup method",
+      "logisticsNotes": "Logistics details",
+      "additionalTerms": "Additional agreed terms"
+    },
+    "logistics": {
+      "undecided": "Not decided yet",
+      "local": "Local handover",
+      "national": "National courier",
+      "international": "International courier",
+      "other": "Other arrangement"
+    },
+    "status": {
+      "youConfirmed": "You confirmed this revision",
+      "youPending": "Your confirmation is pending",
+      "partnerConfirmed": "Partner confirmed this revision",
+      "partnerPending": "Partner confirmation is pending",
+      "bothConfirmed": "Agreement confirmed by both participants",
+      "awaitingYourConfirmation": "Review and confirm the saved revision"
+    }
   }
 }

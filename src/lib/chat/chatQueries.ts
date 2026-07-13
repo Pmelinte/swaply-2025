@@ -9,13 +9,39 @@ export const MATCH_CONVERSATION_STAGES = [
   "agreement",
 ] as const;
 
+export const MATCH_AGREEMENT_LOGISTICS_METHODS = [
+  "local_handover",
+  "national_courier",
+  "international_courier",
+  "other",
+] as const;
+
 export type MatchConversationStage =
   (typeof MATCH_CONVERSATION_STAGES)[number];
 
+export type MatchAgreementLogisticsMethod =
+  (typeof MATCH_AGREEMENT_LOGISTICS_METHODS)[number];
+
+export type MatchAgreementAction = "save" | "confirm" | "withdraw";
+
+export type MatchConversationAgreement = {
+  revision: number;
+  condition_notes: string;
+  offer_notes: string;
+  logistics_method: MatchAgreementLogisticsMethod | null;
+  logistics_notes: string;
+  additional_terms: string;
+  confirmed_by: string[];
+  updated_by: string | null;
+  updated_at: string | null;
+};
+
 export type MatchConversationAgendaState = {
   version: number;
+  conversation_id: string | null;
   active_stage: MatchConversationStage;
   completed_stages: MatchConversationStage[];
+  agreement: MatchConversationAgreement;
   updated_by: string | null;
   updated_at: string | null;
 };
@@ -63,10 +89,69 @@ function isMatchConversationStage(
   );
 }
 
+function isMatchAgreementLogisticsMethod(
+  value: unknown,
+): value is MatchAgreementLogisticsMethod {
+  return (
+    typeof value === "string" &&
+    MATCH_AGREEMENT_LOGISTICS_METHODS.includes(
+      value as MatchAgreementLogisticsMethod,
+    )
+  );
+}
+
 function agendaTimestamp(value: string | null): number | null {
   if (!value) return null;
   const timestamp = Date.parse(value);
   return Number.isFinite(timestamp) ? timestamp : null;
+}
+
+function parseNonNegativeInteger(value: unknown): number {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed >= 0 ? Math.trunc(parsed) : 0;
+}
+
+function parseAgreementText(value: unknown): string {
+  return typeof value === "string" ? value : "";
+}
+
+export function parseMatchConversationAgreement(
+  value: unknown,
+): MatchConversationAgreement {
+  const agreement =
+    value && typeof value === "object" && !Array.isArray(value)
+      ? (value as Record<string, unknown>)
+      : {};
+
+  return {
+    revision: parseNonNegativeInteger(agreement.revision),
+    condition_notes: parseAgreementText(agreement.condition_notes),
+    offer_notes: parseAgreementText(agreement.offer_notes),
+    logistics_method: isMatchAgreementLogisticsMethod(
+      agreement.logistics_method,
+    )
+      ? agreement.logistics_method
+      : null,
+    logistics_notes: parseAgreementText(agreement.logistics_notes),
+    additional_terms: parseAgreementText(agreement.additional_terms),
+    confirmed_by: Array.isArray(agreement.confirmed_by)
+      ? Array.from(
+          new Set(
+            agreement.confirmed_by.filter(
+              (entry): entry is string => typeof entry === "string",
+            ),
+          ),
+        )
+      : [],
+    updated_by:
+      typeof agreement.updated_by === "string"
+        ? agreement.updated_by
+        : null,
+    updated_at:
+      typeof agreement.updated_at === "string"
+        ? agreement.updated_at
+        : null,
+  };
 }
 
 export function parseMatchConversationAgenda(
@@ -90,13 +175,42 @@ export function parseMatchConversationAgenda(
 
   return {
     version,
+    conversation_id:
+      typeof value?.conversation_id === "string"
+        ? value.conversation_id
+        : null,
     active_stage: activeStage,
     completed_stages: completedStages,
+    agreement: parseMatchConversationAgreement(value?.agreement),
     updated_by:
       typeof value?.updated_by === "string" ? value.updated_by : null,
     updated_at:
       typeof value?.updated_at === "string" ? value.updated_at : null,
   };
+}
+
+export function hasMatchConversationAgreementContent(
+  agreement: MatchConversationAgreement,
+): boolean {
+  return Boolean(
+    agreement.condition_notes.trim() ||
+      agreement.offer_notes.trim() ||
+      agreement.logistics_method ||
+      agreement.logistics_notes.trim() ||
+      agreement.additional_terms.trim(),
+  );
+}
+
+export function isMatchConversationAgreementConfirmedByBoth(
+  agreement: MatchConversationAgreement,
+  participantIds: string[],
+): boolean {
+  return (
+    participantIds.length === 2 &&
+    participantIds.every((participantId) =>
+      agreement.confirmed_by.includes(participantId),
+    )
+  );
 }
 
 export function shouldApplyMatchConversationAgenda(
@@ -191,6 +305,48 @@ export async function updateMatchConversationAgenda(
 
   if (!data || typeof data !== "object" || Array.isArray(data)) {
     console.error("updateMatchConversationAgenda returned invalid data", data);
+    return null;
+  }
+
+  return parseMatchConversationAgenda(data as Record<string, unknown>);
+}
+
+export async function updateMatchConversationAgreement(
+  supabase: SupabaseClient,
+  input: {
+    conversationId: string;
+    action: MatchAgreementAction;
+    expectedRevision: number;
+    agreement?: Pick<
+      MatchConversationAgreement,
+      | "condition_notes"
+      | "offer_notes"
+      | "logistics_method"
+      | "logistics_notes"
+      | "additional_terms"
+    >;
+  },
+): Promise<MatchConversationAgendaState | null> {
+  const { data, error } = await supabase.rpc(
+    "update_match_conversation_agreement",
+    {
+      p_conversation_id: input.conversationId,
+      p_action: input.action,
+      p_expected_revision: input.expectedRevision,
+      p_payload: input.agreement ?? {},
+    },
+  );
+
+  if (error) {
+    console.error("updateMatchConversationAgreement failed", error);
+    return null;
+  }
+
+  if (!data || typeof data !== "object" || Array.isArray(data)) {
+    console.error(
+      "updateMatchConversationAgreement returned invalid data",
+      data,
+    );
     return null;
   }
 
