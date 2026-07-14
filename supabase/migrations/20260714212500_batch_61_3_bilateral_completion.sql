@@ -1,7 +1,8 @@
 begin;
 
--- Batch 61.3: bilateral completion and exactly-once completion effects.
+-- Batch 61.3: bilateral completion and exactly-once structural effects.
 -- Historical completed rows are intentionally not backfilled.
+-- Feedback, notifications, reputation and token ledger effects belong to C3.
 
 create table if not exists public.swap_completion_confirmations (
   swap_id uuid not null references public.swaps(id) on delete cascade,
@@ -32,10 +33,6 @@ alter table public.swap_completion_effects enable row level security;
 revoke all on table public.swap_completion_effects
   from public, anon, authenticated;
 
-create unique index if not exists notifications_completion_feedback_once
-  on public.notifications(user_id, ((data ->> 'swap_id')))
-  where type = 'feedback_requested' and data ? 'swap_id';
-
 create or replace function public.apply_swap_completion_effects_v1(
   p_swap_id uuid,
   p_actor_id uuid,
@@ -49,7 +46,8 @@ as $function$
 declare
   v_swap public.swaps%rowtype;
   v_now timestamptz := pg_catalog.clock_timestamp();
-  v_profile_count integer := 0;
+  v_item_count integer := 0;
+  v_conversation_count integer := 0;
   v_applied boolean := false;
 begin
   select *
@@ -95,93 +93,24 @@ begin
          updated_at = v_now
    where id in (v_swap.offered_item_id, v_swap.requested_item_id);
 
+  get diagnostics v_item_count = row_count;
+  if v_item_count <> 2 then
+    raise exception 'Both swap items are required for completion'
+      using errcode = 'P0002';
+  end if;
+
   if v_swap.conversation_id is not null then
     update public.conversations
        set status = 'completed',
            updated_at = v_now
      where id = v_swap.conversation_id;
+
+    get diagnostics v_conversation_count = row_count;
+    if v_conversation_count <> 1 then
+      raise exception 'Linked conversation is required for completion'
+        using errcode = 'P0002';
+    end if;
   end if;
-
-  update public.profiles
-     set swaps_completed = coalesce(swaps_completed, 0) + 1,
-         stats = pg_catalog.jsonb_set(
-           coalesce(stats, '{}'::jsonb),
-           '{completedSwaps}',
-           pg_catalog.to_jsonb(
-             coalesce((stats ->> 'completedSwaps')::integer, 0) + 1
-           ),
-           true
-         ),
-         updated_at = v_now
-   where user_id in (v_swap.requester_id, v_swap.responder_id);
-
-  get diagnostics v_profile_count = row_count;
-  if v_profile_count <> 2 then
-    raise exception 'Both participant profiles are required for completion'
-      using errcode = 'P0002';
-  end if;
-
-  perform public.calculate_trust_score(v_swap.requester_id);
-  perform public.calculate_trust_score(v_swap.responder_id);
-
-  perform public.award_tokens(
-    v_swap.requester_id,
-    30,
-    'complete_swap',
-    v_swap.id
-  );
-  perform public.award_tokens(
-    v_swap.responder_id,
-    30,
-    'complete_swap',
-    v_swap.id
-  );
-
-  update public.onboarding_progress
-     set step_first_swap = true,
-         current_step = 'completed',
-         completed_at = coalesce(completed_at, v_now),
-         updated_at = v_now
-   where user_id in (v_swap.requester_id, v_swap.responder_id)
-     and step_first_swap = false;
-
-  insert into public.notifications (
-    user_id,
-    type,
-    title,
-    body,
-    data,
-    is_read,
-    read,
-    priority
-  ) values
-    (
-      v_swap.requester_id,
-      'feedback_requested',
-      'Swap completed',
-      'Please leave feedback for this completed swap.',
-      pg_catalog.jsonb_build_object(
-        'swap_id', v_swap.id,
-        'conversation_id', v_swap.conversation_id
-      ),
-      false,
-      false,
-      'normal'
-    ),
-    (
-      v_swap.responder_id,
-      'feedback_requested',
-      'Swap completed',
-      'Please leave feedback for this completed swap.',
-      pg_catalog.jsonb_build_object(
-        'swap_id', v_swap.id,
-        'conversation_id', v_swap.conversation_id
-      ),
-      false,
-      false,
-      'normal'
-    )
-  on conflict do nothing;
 
   insert into public.swap_events (
     swap_id,
@@ -199,7 +128,7 @@ begin
     pg_catalog.jsonb_build_object(
       'authority', 'apply_swap_completion_effects_v1',
       'idempotency_key', p_idempotency_key,
-      'tokens_per_participant', 30
+      'scope', 'structural_only'
     )
   );
 
@@ -214,7 +143,7 @@ revoke execute on function public.apply_swap_completion_effects_v1(
 ) from public, anon, authenticated, service_role;
 
 -- Replace the Batch 61.2 internal writer so completed can only be entered by
--- the bilateral completion authority and the effects run in the same transaction.
+-- the bilateral completion authority and structural effects run atomically.
 create or replace function public.apply_swap_transition_v1(
   p_swap_id uuid,
   p_expected_status text,
@@ -405,12 +334,10 @@ declare
   v_swap public.swaps%rowtype;
   v_key_row public.swap_completion_confirmations%rowtype;
   v_actor_row public.swap_completion_confirmations%rowtype;
-  v_inserted boolean := false;
   v_requester_confirmed boolean := false;
   v_responder_confirmed boolean := false;
   v_confirmed_by uuid[] := '{}'::uuid[];
   v_transition jsonb;
-  v_effects_applied boolean := false;
 begin
   if v_actor_id is null then
     raise exception 'Authentication required'
@@ -475,17 +402,6 @@ begin
   end if;
 
   select *
-    into v_key_row
-    from public.swap_completion_confirmations
-   where actor_id = v_actor_id
-     and idempotency_key = trim(p_idempotency_key);
-
-  if found and v_key_row.swap_id <> p_swap_id then
-    raise exception 'Idempotency key was already used for another swap'
-      using errcode = '22023';
-  end if;
-
-  select *
     into v_actor_row
     from public.swap_completion_confirmations
    where swap_id = p_swap_id
@@ -513,8 +429,7 @@ begin
     v_actor_id,
     trim(p_idempotency_key)
   )
-  on conflict do nothing
-  returning true into v_inserted;
+  on conflict do nothing;
 
   if not found then
     select *
@@ -661,18 +576,18 @@ create trigger aaa_require_swap_completion_authority
   for each row
   execute function public.require_swap_completion_authority();
 
--- Remove historical completion effects. Their responsibilities now live in the
--- single transactional Batch 61.3 effect function.
+-- Remove legacy completion side effects. C3 will reintroduce notification,
+-- reputation and ledger effects through a reviewed exactly-once contract.
 drop trigger if exists swaps_trust_score_trigger on public.swaps;
 drop trigger if exists on_swap_complete_advance_onboarding on public.swaps;
 
 comment on function public.confirm_swap_completion_v1(uuid, text) is
   'Batch 61.3 participant-only bilateral completion confirmation with row locking and idempotency.';
 comment on function public.apply_swap_completion_effects_v1(uuid, uuid, text) is
-  'Batch 61.3 exactly-once item, conversation, profile, trust, onboarding, token and notification effects.';
+  'Batch 61.3 exactly-once structural item and conversation effects. C3 owns rewards and feedback effects.';
 comment on table public.swap_completion_confirmations is
   'Batch 61.3 private one-confirmation-per-participant registry.';
 comment on table public.swap_completion_effects is
-  'Batch 61.3 private exactly-once completion effect registry.';
+  'Batch 61.3 private exactly-once structural completion effect registry.';
 
 commit;
