@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   buildSwapCompletionIdempotencyKey,
@@ -25,5 +27,19 @@ describe("Batch 61.3 bilateral completion adapter", () => {
     expect(mapSwapCompletionErrorStatus("22023")).toBe(422);
     expect(mapSwapCompletionErrorStatus("23514")).toBe(422);
     expect(mapSwapCompletionErrorStatus(undefined)).toBe(500);
+  });
+
+  it("keeps legacy state actions on the bilateral completion endpoint", () => {
+    const source = readFileSync(
+      join(process.cwd(), "src", "lib", "state", "useSwapActions.ts"),
+      "utf8",
+    );
+
+    expect(source).toContain("/complete`");
+    expect(source).not.toContain("requester_confirmed");
+    expect(source).not.toContain("responder_confirmed");
+    expect(source).not.toContain("delivered_by_a");
+    expect(source).not.toContain("delivered_by_b");
+    expect(source).not.toContain('toStatus: "completed"');
   });
 });
