@@ -125,9 +125,28 @@ Migration `20260714202934` removed the redundant authority and config table,
 while explicitly preserving the useful identity-immutability trigger and the
 safe `pending` proposal-entry policy.
 
-The repository contains a safe historical marker for version `20260714202043`;
-a fresh database does not recreate the transient unsafe authority and reaches
-the same final schema through the reconciliation migration.
+A closed duplicate branch later applied two more Production migrations:
+
+- `20260714203949_batch_61_2_authority_consolidation`;
+- `20260714204113_batch_61_2_remove_bundle_dependency`.
+
+Those migrations reintroduced the parallel service-role authority after the
+first reconciliation. Migration
+`20260714204708_batch_61_2_late_parallel_reconciliation` removed it again and
+restored the reviewed PR #462 contract exactly:
+
+- parallel config table absent;
+- parallel RPC absent;
+- parallel trigger absent;
+- `transition_swap_v1` remains the authenticated entrypoint;
+- `apply_swap_transition_v1` remains the only status writer;
+- marker reset, identity immutability and `pending` insert policy retained;
+- no `swap_bundles` dependency.
+
+The repository contains safe no-op historical markers for versions
+`20260714202043`, `20260714203949` and `20260714204113`. A fresh database does
+not recreate the transient duplicate authority and reaches the same final schema
+through the two reconciliation migrations.
 
 ## 9. API and adapters
 
@@ -147,13 +166,16 @@ Decision, completion compatibility and Exchange adapters no longer write
 
 - `20260714201653_batch_61_2_single_swap_transition_authority`
 - `20260714201719_batch_61_2_transition_guard_bridge`
-- `20260714202043_batch_61_2_swap_transition_authority` — reconciled historical marker
+- `20260714202043_batch_61_2_swap_transition_authority` — superseded historical marker
 - `20260714202251_batch_61_2_authority_marker_reset_hardening`
 - `20260714202934_batch_61_2_parallel_authority_reconciliation`
+- `20260714203949_batch_61_2_authority_consolidation` — superseded historical marker
+- `20260714204113_batch_61_2_remove_bundle_dependency` — superseded historical marker
+- `20260714204708_batch_61_2_late_parallel_reconciliation`
 
 ## 11. Production rollback-probe evidence
 
-The final probe passed:
+After the late reconciliation, the canonical probe passed again:
 
 1. canonical responder `pending → accepted`;
 2. same-key replay with one status event;
@@ -165,7 +187,10 @@ The final probe passed:
 8. privileged direct bypass denied;
 9. legacy authenticated write routed through the same authority;
 10. requester can cancel pending;
-11. expected idempotency registry cardinality.
+11. expected idempotency registry cardinality;
+12. system expiry through the internal primitive;
+13. immutable participant identity;
+14. transaction-local authority marker empty after the protected update.
 
 The probe ran inside one transaction and ended with `ROLLBACK`.
 
@@ -174,8 +199,10 @@ Final Production state:
 - Swap rows: `401`;
 - invalid status rows: `0`;
 - transition-request test rows: `0`;
+- rollback-probe events: `0`;
 - parallel config table: absent;
 - parallel transition function: absent;
+- parallel transition trigger: absent;
 - canonical public and internal functions: present;
 - triggers retained: canonical status guard and identity immutability.
 
