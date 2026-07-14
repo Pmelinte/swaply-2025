@@ -33,7 +33,7 @@
 | Train B | `CLOSED` | Batch 47 closure report. |
 | Train C | `ACTIVE` | C1 closed; C2 active. |
 | C1 — Batch 60 handoff and validation | `CLOSED` | `docs/batch-60-4-validation-closure.md`. |
-| C2 — Canonical Exchange lifecycle | `ACTIVE` | Batch 61.1 closed; Batch 61.2 Production-validated on PR #462, merge pending. |
+| C2 — Canonical Exchange lifecycle | `ACTIVE` | Batch 61.1 closed; Batch 61.2 Production-validated on canonical PR #462, merge pending. |
 | C3 — Feedback, notifications, reputation and ledger | `PLANNED` | After C2. |
 | C4 — Cancellation, disputes, report and block | `PLANNED` | Before Train C closure. |
 | C5 — Train C closure audit | `PLANNED` | Required before Train D. |
@@ -45,13 +45,16 @@
 - Main before PR #462: `95837cbd94b22f0264a83b3e4f1ad87411660c0b`
 - Production: `https://www.swaply.world`
 - Batch 61.1 migration: `20260714192055_batch_61_1_canonical_swap_lifecycle`
-- Batch 61.2 migrations:
+- Canonical Batch 61.2 migrations:
   - `20260714201653_batch_61_2_single_swap_transition_authority`
   - `20260714201719_batch_61_2_transition_guard_bridge`
-  - `20260714202043_batch_61_2_swap_transition_authority` — reconciled historical marker
+  - `20260714202043_batch_61_2_swap_transition_authority` — superseded historical marker
   - `20260714202251_batch_61_2_authority_marker_reset_hardening`
   - `20260714202934_batch_61_2_parallel_authority_reconciliation`
-- Production rows after validation: 401 Swap rows, zero invalid statuses and zero transition-request test rows.
+  - `20260714203949_batch_61_2_authority_consolidation` — superseded historical marker
+  - `20260714204113_batch_61_2_remove_bundle_dependency` — superseded historical marker
+  - `20260714204708_batch_61_2_late_parallel_reconciliation`
+- Production after final validation: 401 Swap rows, zero invalid statuses, zero transition-request test rows and zero rollback-probe events.
 
 ## 5. Closed Batch 61.1 contract
 
@@ -70,7 +73,7 @@ Logistics details and dispute outcomes are not global statuses.
 
 ## 6. Batch 61.2 contract
 
-One database transition authority now controls global status:
+One database transition authority controls global status:
 
 - public authenticated RPC `transition_swap_v1`;
 - internal non-public `apply_swap_transition_v1`;
@@ -83,25 +86,21 @@ One database transition authority now controls global status:
 - outsider denial;
 - privileged direct-bypass denial;
 - temporary legacy authenticated bridge;
-- immutable requester, responder and item identity after creation.
+- immutable requester, responder and item identity after creation;
+- no dependency on the absent `swap_bundles` table.
 
-The API and decision/completion/Exchange adapters use the RPC instead of direct
-status writes.
+The API and decision/completion/Exchange adapters use the authenticated RPC
+instead of direct status writes.
 
 Detailed evidence: `docs/batch-61-2-single-transition-authority.md`.
 
 ## 7. Validation evidence
 
-Static gates on the original PR head passed:
+The repository and Production contract were reconciled after two separate
+parallel-migration incidents. The closed duplicate PR #463 must never be merged.
+PR #462 is the only canonical Batch 61.2 branch.
 
-- Unit Tests;
-- Lint & Type Check;
-- Build;
-- Public Visual Audit;
-- Vercel Preview READY;
-- Preview runtime: zero error, warning or fatal logs.
-
-After the final migrations, a Production transaction with rollback passed:
+The final Production rollback probe passed:
 
 1. canonical responder acceptance;
 2. same-key replay and one event;
@@ -113,14 +112,20 @@ After the final migrations, a Production transaction with rollback passed:
 8. privileged direct bypass denied;
 9. legacy authenticated write routed through the same authority;
 10. requester can cancel pending;
-11. expected idempotency row cardinality.
+11. expected idempotency row cardinality;
+12. system expiry through the same primitive;
+13. participant and item identity immutability;
+14. immediate authority-marker reset.
 
-The first probe discovered a transaction-local marker leak. Migration
-`20260714202251` fixed it and the full probe then passed.
+The probe ended with `ROLLBACK`. Final checks confirmed:
 
-A concurrent parallel migration was detected and reconciled by
-`20260714202934`; its second authority and config table are absent from the
-final schema.
+- 401 Swap rows;
+- zero incompatible status rows;
+- zero transition-request test rows;
+- zero rollback-probe events;
+- parallel config table absent;
+- parallel RPC absent;
+- parallel trigger absent.
 
 ## 8. C2 boundary after Batch 61.2
 
@@ -137,9 +142,11 @@ Therefore C2 remains `ACTIVE`.
 ## 9. Production schema notes
 
 - `swap_bundles` does not exist; Batch 61.2 does not invent it.
-- `swap_transition_requests` has RLS and no direct `anon`/`authenticated` access.
+- `swap_transition_requests` has RLS and no direct `anon`/`authenticated` table access.
+- `transition_swap_v1` is the authenticated entrypoint.
+- `apply_swap_transition_v1` has no execute grant for browser roles or `service_role`.
 - The participant UPDATE policy still permits non-status fields; confirmation,
-  logistics and feedback writes remain for the following batches.
+  logistics and feedback writes remain for following batches.
 - Historical completion/cancel/dispute triggers remain and must be reconciled
   with exactly-once effects in Batch 61.3/C3.
 
@@ -157,14 +164,6 @@ Current deferred items:
 
 ## 11. Exact next action
 
-1. Wait for all CI and Vercel checks on the final PR #462 head.
-2. Verify the final diff and repository–Production migration version parity.
-3. Merge only after the exact command `Merge #462`.
-4. After merge verify GitHub CI, Vercel Production and runtime.
-5. Begin Batch 61.3 — Bilateral Completion.
-6. Do not begin Train D before Train C is formally closed.
-
-## 12. Maintenance rule
-
-After every merged batch, record the latest verified evidence, remove stale next
-actions and keep detailed history in dedicated reports.
+1. Wait for all GitHub CI and Vercel Preview checks on the final PR #462 head.
+2. Audit the final head SHA and changed-file scope.
+3. Do not merge until Petru gives the exact command `Merge #462`.
