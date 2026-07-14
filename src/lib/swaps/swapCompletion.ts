@@ -1,154 +1,96 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { isSwapStatus } from "./lifecycle";
-import { transitionSwap } from "./transitionService";
 
-export type CompleteSwapResult = {
-  id: string;
-  status: "completed";
-  replayed?: boolean;
+export type SwapCompletionPayload = {
+  swap: Record<string, unknown>;
+  replayed: boolean;
+  idempotency_key: string;
+  both_confirmed: boolean;
+  confirmed_by: string[];
+  effects_applied: boolean;
 };
 
-type SwapRow = {
-  id: string;
-  requester_id: string;
-  responder_id: string;
-  offered_item_id: string | null;
-  requested_item_id: string | null;
-  status: string;
-  conversation_id: string | null;
+export type SwapCompletionFailure = {
+  code?: string;
+  message: string;
+  details?: string | null;
 };
 
-type ProfileStats = {
-  completed_swaps?: number | null;
-  completion_rate?: number | null;
-  trust_score?: number | null;
-};
+export type SwapCompletionResult =
+  | { ok: true; data: SwapCompletionPayload }
+  | { ok: false; error: SwapCompletionFailure };
 
-function nextCompletionRate(current: number | null | undefined): number {
-  if (typeof current !== "number" || Number.isNaN(current)) return 100;
-  return Math.min(100, Math.round(current * 0.9 + 10));
-}
-
-function nextTrustScore(current: number | null | undefined): number {
-  if (typeof current !== "number" || Number.isNaN(current)) return 10;
-  return Math.min(100, current + 5);
-}
-
-async function bumpProfileStats(supabase: SupabaseClient, userId: string) {
-  const { data } = await supabase
-    .from("profiles")
-    .select("completed_swaps, completion_rate, trust_score")
-    .eq("user_id", userId)
-    .maybeSingle();
-
-  const stats = (data ?? {}) as ProfileStats;
-  await supabase
-    .from("profiles")
-    .update({
-      completed_swaps: (stats.completed_swaps ?? 0) + 1,
-      completion_rate: nextCompletionRate(stats.completion_rate),
-      trust_score: nextTrustScore(stats.trust_score),
-      updated_at: new Date().toISOString(),
-    })
-    .eq("user_id", userId);
-}
-
-export async function completeSwap(
-  supabase: SupabaseClient,
+export function buildSwapCompletionIdempotencyKey(
   swapId: string,
   actorId: string,
-  idempotencyKey?: string,
-): Promise<CompleteSwapResult | null> {
-  const { data: swap, error: swapError } = await supabase
-    .from("swaps")
-    .select(
-      "id, requester_id, responder_id, offered_item_id, requested_item_id, status, conversation_id",
-    )
-    .eq("id", swapId)
-    .maybeSingle();
+  nonce: string,
+): string {
+  return `completion:${swapId}:${actorId}:${nonce}`;
+}
 
-  if (swapError || !swap) {
-    console.error("completeSwap lookup failed", swapError);
-    return null;
+export function mapSwapCompletionErrorStatus(code?: string): number {
+  switch (code) {
+    case "42501":
+      return 403;
+    case "P0002":
+      return 404;
+    case "40001":
+    case "23505":
+      return 409;
+    case "22023":
+    case "23514":
+      return 422;
+    default:
+      return 500;
+  }
+}
+
+export async function confirmSwapCompletion(
+  supabase: SupabaseClient,
+  swapId: string,
+  idempotencyKey: string,
+): Promise<SwapCompletionResult> {
+  const key = idempotencyKey.trim();
+  if (!key) {
+    return {
+      ok: false,
+      error: { code: "22023", message: "Idempotency key is required" },
+    };
   }
 
-  const row = swap as SwapRow;
-  if (actorId !== row.requester_id && actorId !== row.responder_id) {
-    console.error("completeSwap actor is not a participant");
-    return null;
-  }
-
-  if (!isSwapStatus(row.status) || !["accepted", "in_progress"].includes(row.status)) {
-    console.error("completeSwap invalid status", row.status);
-    return null;
-  }
-
-  const transition = await transitionSwap(supabase, {
-    swapId: row.id,
-    expectedStatus: row.status,
-    toStatus: "completed",
-    idempotencyKey:
-      idempotencyKey ?? `complete:${row.id}:${row.status}:completed`,
+  const { data, error } = await supabase.rpc("confirm_swap_completion_v1", {
+    p_swap_id: swapId,
+    p_idempotency_key: key,
   });
 
-  if (!transition.ok) {
-    console.error("completeSwap transition failed", transition.error);
-    return null;
+  if (error) {
+    return {
+      ok: false,
+      error: {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+      },
+    };
   }
 
-  if (!transition.data.replayed) {
-    const now = new Date().toISOString();
-    const itemIds = [row.offered_item_id, row.requested_item_id].filter(
-      Boolean,
-    ) as string[];
-    if (itemIds.length > 0) {
-      await supabase
-        .from("items")
-        .update({ status: "traded", is_active: false, updated_at: now })
-        .in("id", itemIds);
-    }
-
-    if (row.conversation_id) {
-      await supabase
-        .from("conversations")
-        .update({ status: "completed", updated_at: now })
-        .eq("id", row.conversation_id);
-    }
-
-    // Existing completion effects remain compatibility adapters. Batch 61.3/C3
-    // will move bilateral completion and exactly-once effects into one contract.
-    await Promise.all([
-      bumpProfileStats(supabase, row.requester_id),
-      bumpProfileStats(supabase, row.responder_id),
-    ]);
-
-    await supabase.from("notifications").insert([
-      {
-        user_id: row.requester_id,
-        type: "feedback_requested",
-        title: "Swap completed",
-        body: "Please leave feedback for this completed swap.",
-        data: { swap_id: row.id, conversation_id: row.conversation_id },
-        read: false,
-        is_read: false,
-        priority: "normal",
-      },
-      {
-        user_id: row.responder_id,
-        type: "feedback_requested",
-        title: "Swap completed",
-        body: "Please leave feedback for this completed swap.",
-        data: { swap_id: row.id, conversation_id: row.conversation_id },
-        read: false,
-        is_read: false,
-        priority: "normal",
-      },
-    ]);
+  const payload = data as Partial<SwapCompletionPayload> | null;
+  if (
+    !payload ||
+    !payload.swap ||
+    typeof payload.replayed !== "boolean" ||
+    typeof payload.idempotency_key !== "string" ||
+    typeof payload.both_confirmed !== "boolean" ||
+    !Array.isArray(payload.confirmed_by) ||
+    typeof payload.effects_applied !== "boolean"
+  ) {
+    return {
+      ok: false,
+      error: { message: "Invalid completion response" },
+    };
   }
 
   return {
-    id: String(transition.data.swap.id ?? row.id),
-    status: "completed",
-    replayed: transition.data.replayed,
+    ok: true,
+    data: payload as SwapCompletionPayload,
   };
 }
