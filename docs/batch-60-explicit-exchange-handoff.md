@@ -1,4 +1,9 @@
-# Batch 60 — Explicit Exchange handoff
+# Batch 60.1–60.2 — Explicit Exchange handoff and drift hardening
+
+## Sub-batches
+
+- **60.1 — Explicit Exchange handoff:** exposes a human-triggered transition from one bilaterally confirmed Match agreement to exactly one linked Exchange.
+- **60.2 — Contract and migration-drift hardening:** restores the reviewed Production RPC after an unreviewed superseding migration changed its response and guard contract, then pins the expected contract in automated tests.
 
 ## Scope
 
@@ -70,6 +75,8 @@ The forward-only repair migration:
 - keeps the internal implementation unavailable to `anon`, `authenticated`, and `PUBLIC`;
 - keeps only the canonical partial unique index `swaps_conversation_id_unique`;
 - does not create, modify, or delete any Exchange row while repairing the function definition.
+
+The static regression suite also checks that the repair remains the latest repository migration touching the RPC, and that a payload without `agreement_revision` is rejected by the client parser.
 
 ## Validation target
 
