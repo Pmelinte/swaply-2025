@@ -35,7 +35,7 @@
 | Train B | `CLOSED` | Batch 47 closure report; nonblocking findings stay in the deferred register. |
 | Train C | `ACTIVE` | C1 closed; C2 active. |
 | C1 — Batch 60 handoff and validation | `CLOSED` | `docs/batch-60-4-validation-closure.md`. |
-| C2 — Canonical Exchange lifecycle | `ACTIVE` | Start with predictive audit only. |
+| C2 — Canonical Exchange lifecycle | `ACTIVE` | Batch 61.1 closed; Batch 61.2 implemented and awaiting full validation. |
 | C3 — Feedback, notifications, reputation and ledger | `PLANNED` | After C2. |
 | C4 — Cancellation, disputes, report and block | `PLANNED` | Before Train C closure. |
 | C5 — Train C closure audit | `PLANNED` | Required before Train D. |
@@ -44,13 +44,15 @@
 
 ## 4. Verified Production checkpoint
 
-- Validated commit: `f422588e4c7480178e1faf8cdb6ba9d43ca2b105`
-- Production deployment: `dpl_xmzyHnSVSE6ZJUtJ3rV8n9EFFxNF`
-- Target: `https://www.swaply.world`
+- Validated main commit before Batch 61.2: `95837cbd94b22f0264a83b3e4f1ad87411660c0b`
+- Production target: `https://www.swaply.world`
+- Batch 61.1 canonical status migration: `20260714192055_batch_61_1_canonical_swap_lifecycle`
 - Vercel: READY
-- Public smoke: HTTP 200
+- `/en/exchange`: HTTP 200
+- `/en/messages`: HTTP 200
+- Production runtime after Batch 61.1 merge: no error, warning or fatal logs in the checked window.
 
-Batch 60 authenticated validation demonstrated:
+Batch 60 authenticated validation previously demonstrated:
 
 - both participants confirmed the same agreement revision;
 - no Exchange existed before the explicit action;
@@ -63,77 +65,109 @@ Batch 60 authenticated validation demonstrated:
 - cleanup removed the Exchange and restored the Match fixture;
 - final inspection found no orphan or broken Exchange links.
 
-Detailed evidence is in `docs/batch-60-4-validation-closure.md`.
+Detailed C1 evidence is in `docs/batch-60-4-validation-closure.md`.
 
-## 5. C1 closure boundary
+## 5. Closed Batch 61.1 contract
 
-C1 proves only:
+Batch 61.1 established one global `swaps.status` vocabulary:
 
-`confirmed Match agreement → explicit Create Exchange → one idempotent linked Exchange`.
+`pending → accepted → in_progress → completed`
 
-It does not prove logistics, receipt, bilateral completion, feedback, reputation effects, cancellation, disputes, report/block or final Train C closure.
+with controlled terminal or exceptional branches:
 
-## 6. Current objective — C2
+- `rejected`;
+- `cancelled`;
+- `expired`;
+- `disputed`.
 
-C2 must establish one canonical server-side Exchange lifecycle after creation.
+Logistics detail and dispute resolution outcomes are not global statuses.
 
-The first C2 step is analysis-only. Inventory before implementation:
+## 6. Current Batch 61.2 contract
 
-1. all Exchange/Swap statuses and legacy aliases;
-2. every UI, API and SQL transition path;
-3. functions, triggers, constraints, grants and RLS;
-4. participant, outsider and admin authorization;
-5. item-state, notification, trust and token effects;
-6. Realtime and reload behavior;
-7. cancellation and dispute paths;
-8. current tests and Production migration parity;
-9. concurrency, stale state, idempotency and cleanup behavior.
+Batch 61.2 establishes one database transition authority:
 
-The audit must produce one state diagram, transition matrix, authorization matrix, contradiction list, batch plan and E2E acceptance plan.
+- authenticated RPC `transition_swap_v1`;
+- internal non-public primitive `apply_swap_transition_v1`;
+- row lock and expected-status compare-and-set;
+- private idempotency registry;
+- atomic status update plus `swap_events` audit;
+- responder-only pending acceptance/rejection;
+- requester-only pending cancellation;
+- system-only expiry using the same primitive;
+- temporary trigger bridge for legacy authenticated direct writes;
+- rejection of direct privileged bypass.
 
-Do not change application code, migrations or Production during the initial C2 audit.
+Detailed scope and boundaries are in
+`docs/batch-61-2-single-transition-authority.md`.
 
-## 7. Triage policy
+## 7. C2 boundary after Batch 61.2
+
+Batch 61.2 does not yet prove:
+
+- bilateral delivery or receipt confirmation;
+- completion only after both participants confirm;
+- exactly-once item, conversation, notification, trust or token effects;
+- canonical logistics and Realtime behavior;
+- full cancellation and dispute handling.
+
+Therefore C2 remains `ACTIVE` after Batch 61.2.
+
+## 8. Production schema finding
+
+The old transition route referenced a `swap_bundles` table that does not exist in
+Production. Batch 61.2 removes that dependency and does not invent a replacement
+table outside an approved bundle contract.
+
+The current participant UPDATE policy still allows non-status fields to be
+updated directly. Batch 61.2 protects the global status transition authority;
+field-specific confirmation, logistics and feedback writes are addressed in the
+following batches.
+
+## 9. Triage policy
 
 - `FIX_NOW`: security, privacy, authorization, data integrity, blocked CI/build, blocked canonical flow or faulty foundation.
 - `DEFER_TO_E5`: confirmed but nonblocking cleanup or quality issue.
 - `REVERIFY_AT_E5`: evidence gap without demonstrated failure.
 - `POST_V1`: valid improvement outside v1 gates.
 
-Current additions:
+Current deferred additions:
 
 - `V1-DEBT-004`: auxiliary AI calls create nonfatal authenticated-E2E noise;
 - `V1-DEBT-005`: workflow display label says Batch 59 although the dependency graph executes Batch 60.
 
 Do not repair deferred items inside C2 lifecycle PRs unless new evidence promotes them to `FIX_NOW`.
 
-## 8. Validation required for authenticated feature batches
+## 10. Validation required for Batch 61.2
 
-Applicable checks include unit tests, lint, typecheck, build, public visual audit, Preview, authenticated two-user E2E, outsider denial, persistence, Realtime, concurrency, stale state, idempotency, immutable-ID cleanup and post-merge Production verification.
+Before closure:
 
-A green build alone does not prove an authenticated business flow.
+1. unit tests, lint, typecheck and build;
+2. migration contract tests;
+3. Vercel Preview and runtime smoke;
+4. repository–Supabase migration parity;
+5. authenticated requester/responder role checks;
+6. outsider denied;
+7. stale expected status rejected;
+8. concurrent conflicting transitions allow only one winner;
+9. same-key retry returns the same response without duplicate event;
+10. reused key for a different request is rejected;
+11. direct privileged bypass is rejected;
+12. persistence after reload;
+13. cleanup by immutable IDs.
 
-## 9. Batch 60.4 scope
+A green build alone does not prove the authenticated business contract.
 
-Batch 60.4 is documentation-only:
+## 11. Exact next action
 
-- adds the authenticated Production validation report;
-- marks C1 closed and C2 active;
-- updates this handoff;
-- records nonblocking E2E/documentation debt;
-- does not alter application code, database schema, policies, APIs, business logic or Production data.
+1. Complete CI and Preview validation for Batch 61.2.
+2. Apply the reviewed migrations to Production only after static gates are green.
+3. Align repository migration filenames with the actual Production migration versions.
+4. Run authenticated CAS, concurrency, idempotency, outsider and cleanup validation.
+5. Merge only after the exact command `Merge #...`.
+6. After merge verify Production and begin Batch 61.3 — Bilateral Completion.
+7. Do not begin Train D before Train C is formally closed.
 
-It does not close Train C.
+## 12. Maintenance rule
 
-## 10. Exact next action
-
-1. Merge Batch 60.4 only after CI is green and explicit approval.
-2. Verify Production deployment and runtime.
-3. Begin C2 in audit-only mode.
-4. Complete lifecycle and authorization matrices before implementation.
-5. Split implementation into small batches.
-6. Do not begin Train D before Train C is formally closed.
-
-## 11. Maintenance rule
-
-After each merged batch, record the latest verified evidence, remove stale next actions and keep detailed history in dedicated reports.
+After each merged batch, record the latest verified evidence, remove stale next
+actions and keep detailed history in dedicated reports.
