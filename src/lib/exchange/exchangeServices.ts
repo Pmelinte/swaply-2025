@@ -1,4 +1,6 @@
 import { getSupabaseClient } from "@/lib/supabase/client";
+import { isSwapStatus } from "@/lib/swaps/lifecycle";
+import { transitionSwap } from "@/lib/swaps/transitionService";
 import type { ServiceType, SupportService } from "./exchangeQuery";
 
 export type { ServiceType, SupportService };
@@ -12,14 +14,14 @@ export interface ServiceDef {
 }
 
 export const SERVICE_DEFS: ServiceDef[] = [
-  { key: "escrow",       labelKey: "escrow",       icon: "🔒", bilateral: true,  group: "bilateral"   },
-  { key: "insurance",    labelKey: "insurance",    icon: "🛡️", bilateral: true,  group: "bilateral"   },
-  { key: "transport",    labelKey: "transport",    icon: "🚚", bilateral: false, group: "individual"  },
-  { key: "accommodation",labelKey: "accommodation",icon: "🏨", bilateral: false, group: "individual"  },
-  { key: "packaging",    labelKey: "packaging",    icon: "📦", bilateral: false, group: "individual"  },
-  { key: "restaurant",   labelKey: "restaurant",   icon: "🍽️", bilateral: false, group: "individual"  },
-  { key: "legal",        labelKey: "legal",        icon: "⚖️", bilateral: false, group: "additional"  },
-  { key: "ai_valuation", labelKey: "aiValuation",  icon: "🤖", bilateral: false, group: "additional"  },
+  { key: "escrow", labelKey: "escrow", icon: "🔒", bilateral: true, group: "bilateral" },
+  { key: "insurance", labelKey: "insurance", icon: "🛡️", bilateral: true, group: "bilateral" },
+  { key: "transport", labelKey: "transport", icon: "🚚", bilateral: false, group: "individual" },
+  { key: "accommodation", labelKey: "accommodation", icon: "🏨", bilateral: false, group: "individual" },
+  { key: "packaging", labelKey: "packaging", icon: "📦", bilateral: false, group: "individual" },
+  { key: "restaurant", labelKey: "restaurant", icon: "🍽️", bilateral: false, group: "individual" },
+  { key: "legal", labelKey: "legal", icon: "⚖️", bilateral: false, group: "additional" },
+  { key: "ai_valuation", labelKey: "aiValuation", icon: "🤖", bilateral: false, group: "additional" },
 ];
 
 export async function upsertService(
@@ -58,11 +60,11 @@ export async function upsertService(
     swapId: String(row.swap_id ?? ""),
     userId: String(row.user_id ?? ""),
     serviceType: row.service_type as ServiceType,
-    isBilateral: !!(row.is_bilateral),
+    isBilateral: !!row.is_bilateral,
     provider: (row.provider as string) ?? null,
     details: (row.details as Record<string, unknown>) ?? {},
     costEur: (row.cost_eur as number) ?? null,
-    status: (row.status as "pending" | "active" | "completed" | "cancelled"),
+    status: row.status as "pending" | "active" | "completed" | "cancelled",
     createdAt: String(row.created_at ?? ""),
   };
 }
@@ -95,7 +97,8 @@ export async function confirmSwap(
     .eq("id", swapId)
     .maybeSingle();
 
-  const current: string[] = (existing as { confirmed_by?: string[] } | null)?.confirmed_by ?? [];
+  const current: string[] =
+    (existing as { confirmed_by?: string[] } | null)?.confirmed_by ?? [];
   if (current.includes(userId)) return current;
 
   const updated = [...current, userId];
@@ -110,25 +113,49 @@ export async function confirmSwap(
 export async function completeSwap(swapId: string): Promise<void> {
   const supabase = getSupabaseClient();
   if (!supabase) return;
-  await supabase
+
+  const { data: swap, error } = await supabase
     .from("swaps")
-    .update({ status: "completed", completed_at: new Date().toISOString() })
-    .eq("id", swapId);
+    .select("status")
+    .eq("id", swapId)
+    .maybeSingle();
+
+  if (error || !swap || !isSwapStatus(swap.status)) return;
+  if (swap.status !== "accepted" && swap.status !== "in_progress") return;
+
+  const result = await transitionSwap(supabase, {
+    swapId,
+    expectedStatus: swap.status,
+    toStatus: "completed",
+    idempotencyKey: `exchange-complete:${swapId}:${swap.status}:completed`,
+  });
+
+  if (!result.ok) {
+    console.error("Exchange completion transition failed", result.error);
+  }
 }
 
 export async function submitReview(
   swapId: string,
   reviewerId: string,
   reviewedId: string,
-  ratings: { overall: number; communication: number; accuracy: number; punctuality: number },
+  ratings: {
+    overall: number;
+    communication: number;
+    accuracy: number;
+    punctuality: number;
+  },
   comment: string,
 ): Promise<void> {
   const supabase = getSupabaseClient();
   if (!supabase) return;
 
-  const avgRating = (
-    ratings.overall + ratings.communication + ratings.accuracy + ratings.punctuality
-  ) / 4;
+  const avgRating =
+    (ratings.overall +
+      ratings.communication +
+      ratings.accuracy +
+      ratings.punctuality) /
+    4;
 
   await supabase.from("reviews").insert({
     swap_id: swapId,
