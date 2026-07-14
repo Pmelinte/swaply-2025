@@ -1,9 +1,9 @@
 # Swaply — Roadmap canonic până la v1.0
 
 **Document ID:** `SWAPLY-ROADMAP-TO-V1`  
-**Schema version:** `1.0.0`  
+**Schema version:** `1.0.1`  
 **Last updated:** 2026-07-14  
-**Status:** canonical after merge  
+**Status:** canonical  
 **Repository:** `Pmelinte/swaply-2025`  
 **Production:** `https://www.swaply.world`
 
@@ -31,7 +31,7 @@ Când două surse se contrazic, sursa mai sus în listă are prioritate. O afirm
 | `foundation` | Tipuri, reguli sau teste pregătitoare; nu dovedește funcționalitate live. |
 | `implemented` | Codul există, dar validarea completă poate lipsi. |
 | `verified` | Funcția este demonstrată prin autorizare, persistență și testele aplicabile. |
-| `closed` | Train închis formal prin closure report, CI și verificare de Production. |
+| `closed` | Train sau deliverable închis formal prin dovezile aplicabile. |
 | `post_v1` | Idee validă care nu blochează lansarea v1.0. |
 
 ## 3. Reguli permanente
@@ -89,9 +89,9 @@ Revizia juridică calificată, revizia nativă a limbilor și mentenanța SEO su
 ## 7. Train C — Motorul real 1-la-1 pentru Objects
 
 **Status:** `active`  
-**Current main:** `24dab3c56c3f4ccb131c9914ed4a9fa22585e1b1`  
-**Merged checkpoint:** PR #458 — Batch 60.1–60.2  
-**Current governance batch:** Batch 60.3
+**Validated Production checkpoint:** `f422588e4c7480178e1faf8cdb6ba9d43ca2b105`  
+**Latest closed deliverable:** C1 / Batch 60.4 validation closure  
+**Current deliverable:** C2
 
 ### Scop
 
@@ -101,23 +101,48 @@ Doi utilizatori reali pot parcurge în siguranță:
 
 ### Deliverables fixe
 
-- **C1:** închiderea Batch 60 și reconcilierea documentației;
-- **C2:** un singur lifecycle canonic, server-side, pentru Exchange;
-- **C3:** feedback, notificări, reputație și hardening pentru ledger;
-- **C4:** anulare, dispute, report și block;
-- **C5:** closure audit Train C.
+- **C1 — `closed`:** închiderea Batch 60 și reconcilierea documentației;
+- **C2 — `active`:** un singur lifecycle canonic, server-side, pentru Exchange;
+- **C3 — `planned`:** feedback, notificări, reputație și hardening pentru ledger;
+- **C4 — `planned`:** anulare, dispute, report și block;
+- **C5 — `planned`:** closure audit Train C.
 
-### Starea C1
+### C1 — dovezi de închidere
 
-Batch 60.1–60.2 este merged și a livrat explicit Exchange handoff plus hardening contra migration drift. Train C nu se închide încă: validarea autentificată completă Batch 60, inclusiv setul de 17 teste și cleanup-ul, rămâne gate obligatoriu.
+Batch 60.1–60.2 a livrat explicit Exchange handoff și hardening contra migration drift. Validarea autentificată Production a demonstrat:
 
-### Gate de ieșire
-
-Train C se închide numai când sunt demonstrate:
-
-- cele 17 teste autentificate Batch 60;
+- zero Exchange înainte de click-ul explicit;
+- exact un Exchange după click;
 - același Exchange ID pentru ambii participanți;
-- idempotency fără duplicate;
+- retry idempotent fără duplicate;
+- snapshot înghețat la revizia bilateral confirmată;
+- legături consistente Match–conversation–Exchange;
+- zero efecte asupra itemelor, tokenurilor, reputației și notificărilor;
+- cleanup prin ID-uri imutabile;
+- zero orphan/broken links în starea finală inspectată.
+
+Raport: `docs/batch-60-4-validation-closure.md`.
+
+Închiderea C1 nu închide Train C și nu dovedește lifecycle-ul de după creare.
+
+### C2 — obiectiv curent
+
+C2 trebuie să stabilească un singur contract server-side pentru stările și tranzițiile Exchange după creare, eliminând contradicțiile dintre UI, API routes, funcții SQL, triggers și stări legacy fără a elimina funcționalități aprobate.
+
+Înainte de implementare se auditează:
+
+- toate stările Exchange/Swap existente și aliasurile legacy;
+- toate căile de tranziție din UI, API și SQL;
+- autorizarea participant-only și outsider denial;
+- efectele asupra itemelor, notificărilor, ledger-ului și Realtime;
+- idempotency, concurență, stale state și cleanup;
+- paritatea repo–Supabase–Production.
+
+### Gate de ieșire Train C
+
+Train C se închide numai când sunt demonstrate cumulativ:
+
+- C1–C4 închise;
 - lifecycle unic și server-side;
 - finalizare bilaterală;
 - feedback participant-only;
@@ -232,10 +257,10 @@ O funcție este `verified` numai dacă:
 
 ## 14. Următoarea ordine obligatorie
 
-1. Închide Batch 60.3 ca documentație-only, numai după CI verde și comanda explicită de merge.
-2. Rulează validarea autentificată completă Batch 60 și cleanup-ul prin ID-uri.
-3. Închide C1 numai pe evidence real.
-4. Continuă C2–C4 în batch-uri mici.
+1. Închide Batch 60.4 ca documentație-only, numai după CI verde și comanda explicită de merge.
+2. Începe C2 prin audit predictiv al lifecycle-ului Exchange; fără modificări până la inventarierea completă a contractelor și dependențelor.
+3. Implementează C2 în batch-uri mici, cu teste autentificate pentru participant, outsider, concurență, stale state, idempotency și cleanup.
+4. Continuă C3 și C4 numai după C2 verificat.
 5. Execută C5 și închide Train C înainte de Train D.
 6. După Train D, execută Train E inclusiv registrul de datorii și auditul final E5.
 
