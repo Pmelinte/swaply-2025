@@ -40,19 +40,25 @@ describe("Batch 61.3 bilateral completion migration", () => {
     expect(sql).toContain("v_requester_confirmed and v_responder_confirmed");
   });
 
-  it("applies completion effects once in the transition transaction", () => {
+  it("applies structural completion effects once in the transition transaction", () => {
     const sql = completionMigration().replace(/\s+/g, " ");
     expect(sql).toContain("function public.apply_swap_completion_effects_v1");
     expect(sql).toContain("on conflict (swap_id) do nothing");
     expect(sql).toContain("set status = 'traded'");
     expect(sql).toContain("set status = 'completed'");
-    expect(sql).toContain("swaps_completed = coalesce(swaps_completed, 0) + 1");
-    expect(sql).toContain("perform public.award_tokens(");
-    expect(sql).toContain("'feedback_requested'");
     expect(sql).toContain("'completion_effects_applied'");
+    expect(sql).toContain("'scope', 'structural_only'");
   });
 
-  it("blocks direct confirmation-field writes and removes duplicate historical effects", () => {
+  it("keeps feedback, notifications, reputation and tokens outside C2", () => {
+    const sql = completionMigration();
+    expect(sql).not.toContain("perform public.award_tokens(");
+    expect(sql).not.toContain("'feedback_requested'");
+    expect(sql).not.toContain("swaps_completed = coalesce");
+    expect(sql).not.toContain("perform public.calculate_trust_score(");
+  });
+
+  it("blocks direct confirmation-field writes and removes legacy completion effects", () => {
     const sql = completionMigration().replace(/\s+/g, " ");
     expect(sql).toContain("create trigger aaa_require_swap_completion_authority");
     expect(sql).toContain("Direct completion confirmation updates are forbidden");
