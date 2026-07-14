@@ -1,0 +1,98 @@
+name: Batch 61.2 focused Chat patch
+
+on:
+  push:
+    branches:
+      - agent/batch-61-2-write-authority-cas-idempotency
+
+permissions:
+  contents: write
+
+jobs:
+  patch-chat-status:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/batch-61-2-write-authority-cas-idempotency
+          fetch-depth: 0
+
+      - name: Replace direct Chat status write
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path("src/components/chat/ChatPage.tsx")
+          text = path.read_text()
+
+          old_import = 'import type { HaikuSummaryPayload } from "./ChatSummary";\n'
+          new_import = old_import + 'import { canTransitionSwap, isSwapStatus } from "@/lib/swaps/lifecycle";\nimport { transitionSwapFromClient } from "@/lib/swaps/transitionClient";\n'
+          if old_import not in text:
+              raise SystemExit("Chat import anchor not found")
+          text = text.replace(old_import, new_import, 1)
+
+          old_handler = '''  const handleConfirmRelease = useCallback(async () => {
+            setReleaseModalOpen(false);
+
+            if (!demoMode && user && meta?.swapId) {
+              const supabase = getSupabaseClient();
+              if (supabase) {
+                await supabase
+                  .from("swaps")
+                  .update({ status: "cancelled" })
+                  .eq("id", meta.swapId);
+              }
+            }
+
+            router.push("/matching");
+          }, [demoMode, user, meta, router]);'''
+
+          new_handler = '''  const handleConfirmRelease = useCallback(async () => {
+            setReleaseModalOpen(false);
+
+            if (!demoMode && user && meta?.swapId) {
+              const supabase = getSupabaseClient();
+              if (supabase) {
+                const { data: swap } = await supabase
+                  .from("swaps")
+                  .select("status")
+                  .eq("id", meta.swapId)
+                  .maybeSingle();
+
+                if (
+                  swap &&
+                  isSwapStatus(swap.status) &&
+                  canTransitionSwap(swap.status, "cancelled")
+                ) {
+                  try {
+                    await transitionSwapFromClient(supabase, {
+                      swapId: meta.swapId,
+                      expectedStatus: swap.status,
+                      toStatus: "cancelled",
+                    });
+                  } catch (error) {
+                    console.error("[chat] swap cancellation failed:", error);
+                    setReleaseModalOpen(true);
+                    return;
+                  }
+                }
+              }
+            }
+
+            router.push("/matching");
+          }, [demoMode, user, meta, router]);'''
+
+          if old_handler not in text:
+              raise SystemExit("Chat release handler anchor not found")
+          text = text.replace(old_handler, new_handler, 1)
+          path.write_text(text)
+
+      - name: Commit focused patch and remove temporary workflow
+        run: |
+          rm .github/workflows/batch-61-2-chat-status-patch.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/components/chat/ChatPage.tsx .github/workflows/batch-61-2-chat-status-patch.yml
+          git commit -m "refactor(batch-61.2): remove direct Chat status write"
+          git push origin HEAD:agent/batch-61-2-write-authority-cas-idempotency
