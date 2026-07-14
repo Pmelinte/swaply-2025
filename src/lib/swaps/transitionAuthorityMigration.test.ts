@@ -51,11 +51,24 @@ describe("Batch 61.2 authoritative transition migration", () => {
     expect(compact).toContain(") to service_role");
   });
 
-  it("rejects direct status writes and forces new swaps to start pending", () => {
+  it("installs enforcement disabled for a safe pre-merge rollout", () => {
+    expect(compact).toContain(
+      "create table if not exists public.swap_transition_authority_config",
+    );
+    expect(compact).toContain("enforced boolean not null default false");
+    expect(compact).toContain("values (true, false)");
+    expect(compact).toContain(
+      "revoke all on table public.swap_transition_authority_config from public, anon, authenticated",
+    );
+    expect(compact).toContain("select config.enforced into v_enforced");
+  });
+
+  it("rejects direct status writes after activation and forces new swaps to start pending", () => {
     expect(compact).toContain(
       "create trigger aaa_require_swap_transition_authority before update of status on public.swaps",
     );
     expect(compact).toContain("direct swap status updates are forbidden");
+    expect(compact).toContain("if coalesce(v_enforced, false) then");
     expect(compact).toContain(
       "requester_id = (select auth.uid()) and status = 'pending'",
     );
