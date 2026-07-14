@@ -61,6 +61,21 @@ describe("Batch 61.2 authoritative transition migration", () => {
     );
   });
 
+  it("freezes participant and item identity after creation", () => {
+    expect(compact).toContain(
+      "create trigger aab_require_swap_identity_immutable before update of requester_id, responder_id, offered_item_id, requested_item_id on public.swaps",
+    );
+    expect(compact).toContain(
+      "old.requester_id is distinct from new.requester_id",
+    );
+    expect(compact).toContain(
+      "old.responder_id is distinct from new.responder_id",
+    );
+    expect(compact).toContain(
+      "swap participant and item identity is immutable",
+    );
+  });
+
   it("performs participant-role resolution and expected-state CAS under a row lock", () => {
     expect(compact).toContain(
       "from public.swaps as swap where swap.id = p_swap_id for update",
