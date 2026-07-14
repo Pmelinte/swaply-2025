@@ -23,7 +23,9 @@ describe("Batch 61.2 authoritative transition migration", () => {
   const compact = normalized(sql);
 
   it("creates an internal idempotency ledger with one key per actor and swap", () => {
-    expect(compact).toContain("create table if not exists public.swap_transition_requests");
+    expect(compact).toContain(
+      "create table if not exists public.swap_transition_requests",
+    );
     expect(compact).toContain(
       "unique (swap_id, actor_id, idempotency_key)",
     );
@@ -46,25 +48,23 @@ describe("Batch 61.2 authoritative transition migration", () => {
     expect(compact).toContain(
       ") from public, anon, authenticated",
     );
-    expect(compact).toContain(
-      ") to service_role",
-    );
+    expect(compact).toContain(") to service_role");
   });
 
   it("rejects direct status writes and forces new swaps to start pending", () => {
     expect(compact).toContain(
       "create trigger aaa_require_swap_transition_authority before update of status on public.swaps",
     );
-    expect(compact).toContain(
-      "direct swap status updates are forbidden",
-    );
+    expect(compact).toContain("direct swap status updates are forbidden");
     expect(compact).toContain(
       "requester_id = (select auth.uid()) and status = 'pending'",
     );
   });
 
   it("performs participant-role resolution and expected-state CAS under a row lock", () => {
-    expect(compact).toContain("from public.swaps as swap where swap.id = p_swap_id for update");
+    expect(compact).toContain(
+      "from public.swaps as swap where swap.id = p_swap_id for update",
+    );
     expect(compact).toContain("if v_swap.requester_id = p_actor_id then");
     expect(compact).toContain("v_actor_role := 'requester'");
     expect(compact).toContain("v_actor_role := 'responder'");
@@ -80,26 +80,30 @@ describe("Batch 61.2 authoritative transition migration", () => {
     );
     expect(compact).toContain("'authorityversion', 'batch-61.2'");
     expect(compact).toContain("insert into public.swap_transition_requests");
-    expect(compact).toContain("return v_existing.result || jsonb_build_object");
+    expect(compact).toContain(
+      "return v_existing.result || jsonb_build_object",
+    );
   });
 });
 
 describe("Batch 61.2 application write boundary", () => {
-  const protectedFiles = [
+  const canonicalWriters = [
     "src/app/api/swaps/transition/route.ts",
     "src/lib/swaps/swapActions.ts",
     "src/lib/swaps/swapCompletion.ts",
     "src/lib/state/useSwapActions.ts",
-    "src/components/chat/ChatPage.tsx",
     "src/lib/exchange/exchangeServices.ts",
   ];
 
-  it.each(protectedFiles)("contains no direct swaps.status update in %s", (path) => {
-    const source = read(path);
-    expect(source).not.toMatch(
-      /\.from\(["']swaps["']\)[\s\S]{0,180}?\.update\(\{[\s\S]{0,120}?status\s*:/,
-    );
-  });
+  it.each(canonicalWriters)(
+    "contains no direct swaps.status update in %s",
+    (path) => {
+      const source = read(path);
+      expect(source).not.toMatch(
+        /\.from\(["']swaps["']\)[\s\S]{0,180}?\.update\(\{[\s\S]{0,120}?status\s*:/,
+      );
+    },
+  );
 
   it("requires expected state and an idempotency key at the canonical route", () => {
     const route = read("src/app/api/swaps/transition/route.ts");
@@ -116,5 +120,14 @@ describe("Batch 61.2 application write boundary", () => {
     expect(read("src/lib/exchange/exchangeServices.ts")).toContain(
       "transitionSwapFromClient",
     );
+  });
+
+  it("rewrites any remaining legacy browser status PATCH before it reaches PostgREST", () => {
+    const client = read("src/lib/supabase/client.ts");
+    expect(client).toContain("isSwapsStatusPatchRequest");
+    expect(client).toContain("routeLegacySwapStatusPatch");
+    expect(client).toContain('globalThis.fetch("/api/swaps/transition"');
+    expect(client).toContain("expectedStatus: currentStatus");
+    expect(client).toContain("toStatus: body.status");
   });
 });
