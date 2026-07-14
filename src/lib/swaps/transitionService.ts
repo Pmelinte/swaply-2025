@@ -17,7 +17,7 @@ export type SwapTransitionPayload = {
 export type SwapTransitionFailure = {
   code?: string;
   message: string;
-  details?: string;
+  details?: string | null;
 };
 
 export type SwapTransitionResult =
