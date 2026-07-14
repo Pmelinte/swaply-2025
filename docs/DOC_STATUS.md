@@ -11,7 +11,7 @@
 | `canonical` | Governs current product direction or operating rules. |
 | `current` | Describes the latest verified operational checkpoint. |
 | `technical_contract` | Governs a technical area but must be reconciled with current migrations and Production before changes. |
-| `closure_evidence` | Formal evidence that a Train or Batch was closed. |
+| `closure_evidence` | Formal evidence that a Train, deliverable or Batch was closed. |
 | `historical` | Useful for chronology and rationale; must not override canonical/current documents. |
 | `idea_bank` | Product or growth ideas without mandatory v1 scope. |
 | `superseded` | Replaced by a newer document; retained only for history. |
@@ -32,12 +32,13 @@
 |---|---|---|
 | `docs/batch-40-train-a-closure-report.md` | `closure_evidence` | Train A — public shell and navigation. |
 | `docs/batch-47-train-b-closure-report.md` | `closure_evidence` | Train B — public content, SEO, legal and trust. |
+| `docs/batch-60-4-validation-closure.md` | `closure_evidence` | Train C deliverable C1 — authenticated Batch 60 Production validation and cleanup. This does not close Train C. |
 
 Closure reports are immutable historical evidence. Later regressions are fixed separately and do not rewrite the original closure decision unless the original evidence is proven false.
 
 ## 4. Batch documentation
 
-Files named `docs/batch-*.md` are normally `historical` after their PR is merged.
+Files named `docs/batch-*.md` are normally `historical` after their PR is merged, except when explicitly classified above as `closure_evidence`.
 
 They may contain:
 
