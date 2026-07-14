@@ -22,6 +22,10 @@ function bridgeMigration() {
   return migration("_batch_61_2_transition_guard_bridge.sql");
 }
 
+function markerResetMigration() {
+  return migration("_batch_61_2_authority_marker_reset_hardening.sql");
+}
+
 describe("Batch 61.2 single transition authority migrations", () => {
   it("creates a private idempotency registry", () => {
     const sql = authorityMigration();
@@ -83,8 +87,26 @@ describe("Batch 61.2 single transition authority migrations", () => {
     );
   });
 
+  it("clears the transaction-local authority marker immediately", () => {
+    const normalized = markerResetMigration().replace(/\s+/g, " ");
+    expect(normalized).toContain(
+      "perform pg_catalog.set_config('swaply.transition_authority', '', true)",
+    );
+    expect(normalized.indexOf("set status = p_to_status")).toBeLessThan(
+      normalized.indexOf(
+        "perform pg_catalog.set_config('swaply.transition_authority', '', true)",
+      ),
+    );
+    expect(
+      normalized.indexOf(
+        "perform pg_catalog.set_config('swaply.transition_authority', '', true)",
+      ),
+    ).toBeLessThan(normalized.indexOf("insert into public.swap_events"));
+  });
+
   it("does not invent the absent swap_bundles table", () => {
     expect(authorityMigration()).not.toContain("swap_bundles");
     expect(bridgeMigration()).not.toContain("swap_bundles");
+    expect(markerResetMigration()).not.toContain("swap_bundles");
   });
 });
