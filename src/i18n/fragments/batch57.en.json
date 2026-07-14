@@ -56,7 +56,15 @@
     "withdraw": "Withdraw confirmation",
     "saveError": "The agreement could not be updated. It may have changed in the meantime — review the current revision and try again.",
     "resetNotice": "Saving any change creates a new revision and clears previous confirmations.",
-    "noSideEffects": "Confirmation does not create an Exchange, send a message, change the match status, or award tokens.",
+    "lockedNotice": "The confirmed revision is now frozen inside the Exchange snapshot.",
+    "noSideEffects": "Confirmation alone does not create an Exchange, send a message, change the match status, or award tokens.",
+    "createExchange": "Create Exchange",
+    "creatingExchange": "Creating Exchange…",
+    "openExchange": "Open Exchange",
+    "exchangeCtaHint": "Both participants confirmed. Creating the Exchange still requires an explicit click.",
+    "exchangeReady": "The same Exchange is ready for both participants.",
+    "exchangeError": "The Exchange could not be created. The agreement may have changed — review the current revision and try again.",
+    "exchangeCreatedNotice": "The Exchange was created explicitly from this frozen agreement. No token, rank, notification, or item-status side effect was added by this handoff.",
     "fields": {
       "condition": "Condition agreed",
       "offer": "What each participant gives and receives",
@@ -77,7 +85,8 @@
       "partnerConfirmed": "Partner confirmed this revision",
       "partnerPending": "Partner confirmation is pending",
       "bothConfirmed": "Agreement confirmed by both participants",
-      "awaitingYourConfirmation": "Review and confirm the saved revision"
+      "awaitingYourConfirmation": "Review and confirm the saved revision",
+      "exchangeCreated": "Exchange created from this confirmed revision"
     }
   }
 }

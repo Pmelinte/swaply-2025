@@ -94,10 +94,16 @@ export default defineConfig({
       dependencies: ["guided-match-conversation"],
     },
     {
-      name: "bilateral-match-agreement",
+      name: "bilateral-match-agreement-base",
       testMatch: /(?:^|[\\/])bilateral-match-agreement\.spec\.ts$/,
       use: { ...devices["Desktop Chrome"] },
       dependencies: ["match-conversation"],
+    },
+    {
+      name: "bilateral-match-agreement",
+      testMatch: /(?:^|[\\/])explicit-exchange-handoff\.spec\.ts$/,
+      use: { ...devices["Desktop Chrome"] },
+      dependencies: ["bilateral-match-agreement-base"],
     },
     {
       name: "chromium-user-a",
