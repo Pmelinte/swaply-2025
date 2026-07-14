@@ -55,8 +55,21 @@ The Exchange is inserted directly with status `accepted`. This avoids the legacy
 
 - `20260713204828_batch_60_explicit_exchange_handoff`
 - `20260713205642_batch_60_confirmation_guard_hardening`
+- `20260714071130_batch_60_restore_hardened_exchange_handoff`
 
 The second migration wraps the atomic implementation with explicit null-safe bilateral confirmation checks. The internal implementation has no direct client EXECUTE grant.
+
+### Production drift repair
+
+A later Production-only migration, `20260713213808_batch_60_agreement_to_exchange`, was not present in the reviewed PR branch and replaced the public RPC after the two Batch 60 migrations above. Its response omitted `agreement_revision`, while the client parser requires that field, and it also bypassed parts of the reviewed wrapper contract.
+
+The forward-only repair migration:
+
+- restores the reviewed public wrapper and its `agreement_revision` response contract by delegating to the existing internal atomic implementation;
+- restores the null-safe bilateral confirmation and completed-agreement checks;
+- keeps the internal implementation unavailable to `anon`, `authenticated`, and `PUBLIC`;
+- keeps only the canonical partial unique index `swaps_conversation_id_unique`;
+- does not create, modify, or delete any Exchange row while repairing the function definition.
 
 ## Validation target
 
