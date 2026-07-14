@@ -1,10 +1,13 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { isSwapStatus } from "./lifecycle";
+import { transitionSwap } from "./transitionService";
 
 export type SwapDecision = "accepted" | "rejected";
 
 export type SwapDecisionResult = {
   id: string;
   status: string;
+  replayed?: boolean;
 };
 
 type SwapRow = {
@@ -57,10 +60,13 @@ export async function decideSwap(
   swapId: string,
   actorId: string,
   decision: SwapDecision,
+  idempotencyKey?: string,
 ): Promise<SwapDecisionResult | null> {
   const { data: swap, error: swapError } = await supabase
     .from("swaps")
-    .select("id, requester_id, responder_id, offered_item_id, requested_item_id, status, conversation_id")
+    .select(
+      "id, requester_id, responder_id, offered_item_id, requested_item_id, status, conversation_id",
+    )
     .eq("id", swapId)
     .maybeSingle();
 
@@ -75,32 +81,32 @@ export async function decideSwap(
     return null;
   }
 
-  if (!["pending", "proposed", "pending_chat"].includes(row.status)) {
+  if (!isSwapStatus(row.status) || row.status !== "pending") {
     console.error("decideSwap invalid status", row.status);
     return null;
   }
 
-  const nextStatus = decision === "accepted" ? "accepted" : "rejected";
-  const now = new Date().toISOString();
+  const transition = await transitionSwap(supabase, {
+    swapId: row.id,
+    expectedStatus: row.status,
+    toStatus: decision,
+    idempotencyKey:
+      idempotencyKey ?? `decision:${row.id}:${row.status}:${decision}`,
+  });
 
-  const { data: updated, error: updateError } = await supabase
-    .from("swaps")
-    .update({
-      status: nextStatus,
-      ...(decision === "accepted" ? { accepted_at: now } : { rejected_at: now }),
-      updated_at: now,
-    })
-    .eq("id", row.id)
-    .select("id, status")
-    .single();
-
-  if (updateError || !updated) {
-    console.error("decideSwap update failed", updateError);
+  if (!transition.ok) {
+    console.error("decideSwap transition failed", transition.error);
     return null;
   }
 
-  if (decision === "accepted") {
-    const itemIds = [row.offered_item_id, row.requested_item_id].filter(Boolean) as string[];
+  const now = new Date().toISOString();
+
+  // Existing follow-up effects remain adapters after the canonical status write.
+  // Atomic exactly-once effects are handled in Batch 61.3/C3.
+  if (!transition.data.replayed && decision === "accepted") {
+    const itemIds = [row.offered_item_id, row.requested_item_id].filter(
+      Boolean,
+    ) as string[];
     if (itemIds.length > 0) {
       await supabase
         .from("items")
@@ -108,20 +114,28 @@ export async function decideSwap(
         .in("id", itemIds);
     }
 
-    await supabase
-      .from("conversations")
-      .update({ status: "accepted", updated_at: now })
-      .eq("id", row.conversation_id);
+    if (row.conversation_id) {
+      await supabase
+        .from("conversations")
+        .update({ status: "accepted", updated_at: now })
+        .eq("id", row.conversation_id);
+    }
   }
 
-  if (decision === "rejected") {
+  if (!transition.data.replayed && decision === "rejected" && row.conversation_id) {
     await supabase
       .from("conversations")
       .update({ status: "rejected", updated_at: now })
       .eq("id", row.conversation_id);
   }
 
-  await notifyParticipants(supabase, row, decision);
+  if (!transition.data.replayed) {
+    await notifyParticipants(supabase, row, decision);
+  }
 
-  return updated as SwapDecisionResult;
+  return {
+    id: String(transition.data.swap.id ?? row.id),
+    status: String(transition.data.swap.status ?? decision),
+    replayed: transition.data.replayed,
+  };
 }

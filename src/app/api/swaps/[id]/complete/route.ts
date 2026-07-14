@@ -3,7 +3,7 @@ import { getServerSupabase } from "@/lib/supabase/server";
 import { completeSwap } from "@/lib/swaps/swapCompletion";
 
 export async function POST(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const supabase = await getServerSupabase();
@@ -20,8 +20,14 @@ export async function POST(
     return NextResponse.json({ error: "Authentication required" }, { status: 401 });
   }
 
+  const body = (await request.json().catch(() => ({}))) as {
+    idempotencyKey?: string;
+  };
+  const idempotencyKey =
+    request.headers.get("idempotency-key") ?? body.idempotencyKey;
+
   const { id } = await params;
-  const result = await completeSwap(supabase, id, user.id);
+  const result = await completeSwap(supabase, id, user.id, idempotencyKey);
 
   if (!result) {
     return NextResponse.json({ error: "Could not complete swap" }, { status: 400 });

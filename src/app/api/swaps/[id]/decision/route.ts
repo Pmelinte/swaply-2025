@@ -20,13 +20,24 @@ export async function POST(
     return NextResponse.json({ error: "Authentication required" }, { status: 401 });
   }
 
-  const body = (await request.json().catch(() => ({}))) as { decision?: SwapDecision };
+  const body = (await request.json().catch(() => ({}))) as {
+    decision?: SwapDecision;
+    idempotencyKey?: string;
+  };
   if (body.decision !== "accepted" && body.decision !== "rejected") {
     return NextResponse.json({ error: "Invalid decision" }, { status: 400 });
   }
 
   const { id } = await params;
-  const result = await decideSwap(supabase, id, user.id, body.decision);
+  const idempotencyKey =
+    request.headers.get("idempotency-key") ?? body.idempotencyKey;
+  const result = await decideSwap(
+    supabase,
+    id,
+    user.id,
+    body.decision,
+    idempotencyKey,
+  );
 
   if (!result) {
     return NextResponse.json({ error: "Could not update swap" }, { status: 400 });
