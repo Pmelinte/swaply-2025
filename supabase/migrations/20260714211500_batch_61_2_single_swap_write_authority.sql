@@ -21,7 +21,6 @@ create table if not exists public.swap_transition_requests (
 );
 
 alter table public.swap_transition_requests enable row level security;
-
 revoke all on table public.swap_transition_requests from anon, authenticated;
 
 create index if not exists swap_transition_requests_swap_created_idx
@@ -143,9 +142,7 @@ begin
   update public.swaps
   set status = p_to_status,
       lifecycle_version = lifecycle_version + 1,
-      updated_at = now(),
-      accepted_at = case when p_to_status = 'accepted' then coalesce(accepted_at, now()) else accepted_at end,
-      rejected_at = case when p_to_status = 'rejected' then coalesce(rejected_at, now()) else rejected_at end
+      updated_at = now()
   where id = p_swap_id
     and lifecycle_version = p_expected_version
   returning * into v_result;
