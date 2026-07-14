@@ -1,14 +1,18 @@
 /**
  * POST /api/swaps/transition
- * Server-side swap state machine — validates transitions before applying.
+ *
+ * The only application endpoint allowed to request a global Swap/Exchange
+ * status transition. Authentication happens here; authorization, expected-state
+ * CAS, idempotency and the write itself happen atomically in PostgreSQL.
  */
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import {
   allowedSwapTransitions,
+  buildSwapTransitionIdempotencyKey,
   isSwapStatus,
-  type SwapStatus,
 } from "@/lib/swaps/lifecycle";
+import { transitionSwapStatusAuthoritatively } from "@/lib/swaps/transitionAuthority";
 
 export async function POST(request: NextRequest) {
   const authHeader = request.headers.get("authorization") ?? "";
@@ -17,7 +21,6 @@ export async function POST(request: NextRequest) {
   const supabaseUrl =
     process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabaseUrl || !supabaseAnonKey) {
     return NextResponse.json(
@@ -40,136 +43,112 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  let body: { swapId?: string; toStatus?: string };
+  let body: {
+    swapId?: string;
+    expectedStatus?: string;
+    toStatus?: string;
+    idempotencyKey?: string;
+  };
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const { swapId, toStatus } = body;
-  if (!swapId || !toStatus) {
+  const { swapId, expectedStatus, toStatus } = body;
+  if (!swapId || !expectedStatus || !toStatus) {
     return NextResponse.json(
-      { error: "swapId and toStatus are required" },
+      { error: "swapId, expectedStatus and toStatus are required" },
       { status: 400 },
     );
   }
 
-  if (!isSwapStatus(toStatus)) {
+  if (!isSwapStatus(expectedStatus) || !isSwapStatus(toStatus)) {
     return NextResponse.json(
-      { error: `Invalid target status: ${toStatus}` },
+      { error: "Invalid swap status" },
       { status: 400 },
     );
   }
 
-  const db = serviceKey
-    ? createClient(supabaseUrl, serviceKey, {
-        auth: { autoRefreshToken: false, persistSession: false },
-      })
-    : userClient;
+  const idempotencyKey =
+    body.idempotencyKey ??
+    request.headers.get("idempotency-key") ??
+    buildSwapTransitionIdempotencyKey(swapId, expectedStatus, toStatus);
 
-  const { data: swap, error: fetchErr } = await db
-    .from("swaps")
-    .select("id, status, requester_id, responder_id")
-    .eq("id", swapId)
-    .maybeSingle();
+  try {
+    const result = await transitionSwapStatusAuthoritatively({
+      swapId,
+      actorId: user.id,
+      expectedStatus,
+      toStatus,
+      idempotencyKey,
+    });
 
-  if (fetchErr || !swap) {
-    return NextResponse.json({ error: "Swap not found" }, { status: 404 });
-  }
+    switch (result.outcome) {
+      case "applied":
+      case "replayed":
+        if (!result.swap) {
+          return NextResponse.json(
+            { error: "Transition authority returned no swap" },
+            { status: 500 },
+          );
+        }
+        return NextResponse.json({
+          swap: result.swap,
+          transition: {
+            outcome: result.outcome,
+            replayed: result.replayed,
+            actorRole: result.actorRole,
+            fromStatus: result.fromStatus,
+            toStatus: result.toStatus,
+          },
+        });
 
-  const isParticipant =
-    swap.requester_id === user.id || swap.responder_id === user.id;
-  if (!isParticipant) {
+      case "not_found":
+        return NextResponse.json({ error: "Swap not found" }, { status: 404 });
+
+      case "not_participant":
+        return NextResponse.json(
+          { error: "Not a participant of this swap" },
+          { status: 403 },
+        );
+
+      case "stale_state":
+        return NextResponse.json(
+          {
+            error: "Stale swap status",
+            expectedStatus,
+            currentStatus: result.currentStatus,
+          },
+          { status: 409 },
+        );
+
+      case "idempotency_conflict":
+        return NextResponse.json(
+          { error: "Idempotency key was reused with a different transition" },
+          { status: 409 },
+        );
+
+      case "invalid_transition":
+        return NextResponse.json(
+          {
+            error: `Invalid transition: ${expectedStatus} → ${toStatus}`,
+            allowed: allowedSwapTransitions(expectedStatus),
+          },
+          { status: 422 },
+        );
+
+      case "invalid_request":
+        return NextResponse.json(
+          { error: "Invalid transition request" },
+          { status: 400 },
+        );
+    }
+  } catch (error) {
+    console.error("[swap-transition] authority error:", error);
     return NextResponse.json(
-      { error: "Not a participant of this swap" },
-      { status: 403 },
-    );
-  }
-
-  if (!isSwapStatus(swap.status)) {
-    return NextResponse.json(
-      { error: `Unsupported current status: ${String(swap.status)}` },
-      { status: 409 },
-    );
-  }
-
-  const currentStatus: SwapStatus = swap.status;
-  const allowed = allowedSwapTransitions(currentStatus);
-
-  if (!allowed.includes(toStatus)) {
-    return NextResponse.json(
-      {
-        error: `Invalid transition: ${currentStatus} → ${toStatus}`,
-        allowed,
-      },
-      { status: 422 },
-    );
-  }
-
-  const { data: updated, error: updateErr } = await db
-    .from("swaps")
-    .update({
-      status: toStatus,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", swapId)
-    .select("*")
-    .maybeSingle();
-
-  if (updateErr) {
-    return NextResponse.json(
-      { error: updateErr.message },
+      { error: "Swap transition authority failed" },
       { status: 500 },
     );
   }
-
-  if (toStatus === "accepted") {
-    const now = new Date().toISOString();
-    await db
-      .from("swap_bundles")
-      .update({ locked: true, locked_at: now })
-      .eq("swap_id", swapId)
-      .eq("locked", false)
-      .then(({ error: lockErr }) => {
-        if (lockErr) {
-          console.error("[swap-transition] bundle lock error:", lockErr.message);
-        }
-      });
-
-    await db
-      .from("swap_events")
-      .insert({
-        swap_id: swapId,
-        actor_id: user.id,
-        action: "bundle_locked",
-        metadata: { reason: "swap_accepted" },
-      })
-      .then(({ error: logErr }) => {
-        if (logErr) {
-          console.error(
-            "[swap-transition] bundle lock event error:",
-            logErr.message,
-          );
-        }
-      });
-  }
-
-  await db
-    .from("swap_events")
-    .insert({
-      swap_id: swapId,
-      actor_id: user.id,
-      action: "status_transition",
-      from_status: currentStatus,
-      to_status: toStatus,
-      metadata: {},
-    })
-    .then(({ error: logErr }) => {
-      if (logErr) {
-        console.error("[swap-transition] event log error:", logErr.message);
-      }
-    });
-
-  return NextResponse.json({ swap: updated });
 }
