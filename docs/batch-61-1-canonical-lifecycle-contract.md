@@ -47,10 +47,26 @@ Those concepts remain in their own domain-specific state.
 The repository source of truth is:
 
 - `src/lib/swaps/lifecycle.ts` for the TypeScript vocabulary and graph;
-- `supabase/migrations/20260714190500_batch_61_1_canonical_swap_lifecycle.sql` for the Production check constraint and transition trigger;
+- `supabase/migrations/20260714192055_batch_61_1_canonical_swap_lifecycle.sql` for the Production check constraint and transition trigger;
 - contract tests in `src/lib/swaps/lifecycle.test.ts` and `src/lib/swaps/lifecycleMigration.test.ts`.
 
 The transition API and the main state mapper consume the TypeScript contract rather than declaring independent status lists.
+
+## Production application evidence
+
+The migration was applied to Production as:
+
+- version: `20260714192055`;
+- name: `batch_61_1_canonical_swap_lifecycle`.
+
+Post-application verification confirmed:
+
+- `swaps_status_check` contains exactly the eight canonical global statuses;
+- the constraint is validated;
+- `validate_swap_transition` still guards every update of `swaps.status`;
+- the trigger function matches the repository transition matrix;
+- all 401 existing `swaps` rows remain valid;
+- incompatible status rows: zero.
 
 ## Deliberate limitations remaining after Batch 61.1
 
