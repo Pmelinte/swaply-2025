@@ -108,8 +108,13 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Swap not found" }, { status: 404 });
 
       case "not_participant":
+      case "not_authorized":
         return NextResponse.json(
-          { error: "Not a participant of this swap" },
+          {
+            error:
+              result.reason ??
+              "The authenticated participant cannot perform this transition",
+          },
           { status: 403 },
         );
 
