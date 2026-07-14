@@ -4,9 +4,9 @@ import { describe, expect, it } from "vitest";
 
 const migrationDirectory = join(process.cwd(), "supabase", "migrations");
 
-function batchMigration() {
+function migration(suffix: string) {
   const file = readdirSync(migrationDirectory)
-    .filter((name) => name.endsWith("_batch_61_2_single_swap_transition_authority.sql"))
+    .filter((name) => name.endsWith(suffix))
     .sort()
     .at(-1);
 
@@ -14,10 +14,20 @@ function batchMigration() {
   return readFileSync(join(migrationDirectory, file!), "utf8");
 }
 
-describe("Batch 61.2 single transition authority migration", () => {
+function authorityMigration() {
+  return migration("_batch_61_2_single_swap_transition_authority.sql");
+}
+
+function bridgeMigration() {
+  return migration("_batch_61_2_transition_guard_bridge.sql");
+}
+
+describe("Batch 61.2 single transition authority migrations", () => {
   it("creates a private idempotency registry", () => {
-    const sql = batchMigration();
-    expect(sql).toContain("create table if not exists public.swap_transition_requests");
+    const sql = authorityMigration();
+    expect(sql).toContain(
+      "create table if not exists public.swap_transition_requests",
+    );
     expect(sql).toContain("unique (actor_id, idempotency_key)");
     expect(sql).toContain("enable row level security");
     expect(sql).toContain(
@@ -26,7 +36,7 @@ describe("Batch 61.2 single transition authority migration", () => {
   });
 
   it("uses one row-locking compare-and-set authority", () => {
-    const normalized = batchMigration().replace(/\s+/g, " ");
+    const normalized = authorityMigration().replace(/\s+/g, " ");
     expect(normalized).toContain("function public.apply_swap_transition_v1");
     expect(normalized).toContain("where id = p_swap_id for update");
     expect(normalized).toContain(
@@ -36,14 +46,8 @@ describe("Batch 61.2 single transition authority migration", () => {
     expect(normalized).toContain("function public.transition_swap_v1");
   });
 
-  it("blocks direct status updates and restricts RPC execution", () => {
-    const normalized = batchMigration().replace(/\s+/g, " ");
-    expect(normalized).toContain(
-      "Direct swap status updates are forbidden; use transition_swap_v1",
-    );
-    expect(normalized).toContain(
-      "current_setting('swaply.transition_authority', true)",
-    );
+  it("restricts public execution to the authenticated RPC", () => {
+    const normalized = authorityMigration().replace(/\s+/g, " ");
     expect(normalized).toContain(
       "grant execute on function public.transition_swap_v1(uuid, text, text, text) to authenticated",
     );
@@ -53,14 +57,34 @@ describe("Batch 61.2 single transition authority migration", () => {
   });
 
   it("routes automatic expiry through the same primitive", () => {
-    const normalized = batchMigration().replace(/\s+/g, " ");
+    const normalized = authorityMigration().replace(/\s+/g, " ");
     expect(normalized).toContain("function public.expire_old_swaps()");
     expect(normalized).toContain(
       "perform public.apply_swap_transition_v1( v_swap.id, 'pending', 'expired'",
     );
   });
 
+  it("routes authenticated legacy writes through the same authority", () => {
+    const normalized = bridgeMigration().replace(/\s+/g, " ");
+    expect(normalized).toContain(
+      "perform public.apply_swap_transition_v1( old.id, old.status, new.status, auth.uid(), 'direct_update_compat'",
+    );
+    expect(normalized).toContain(
+      "perform set_config('swaply.transition_authority', '', true)",
+    );
+    expect(normalized).toContain("return null");
+  });
+
+  it("rejects privileged direct status updates outside the authority", () => {
+    const normalized = bridgeMigration().replace(/\s+/g, " ");
+    expect(normalized).toContain("if auth.uid() is null then");
+    expect(normalized).toContain(
+      "Direct privileged swap status updates are forbidden",
+    );
+  });
+
   it("does not invent the absent swap_bundles table", () => {
-    expect(batchMigration()).not.toContain("swap_bundles");
+    expect(authorityMigration()).not.toContain("swap_bundles");
+    expect(bridgeMigration()).not.toContain("swap_bundles");
   });
 });
