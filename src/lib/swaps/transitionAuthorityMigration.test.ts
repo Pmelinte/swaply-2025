@@ -30,6 +30,10 @@ function reconciliationMigration() {
   return migration("_batch_61_2_parallel_authority_reconciliation.sql");
 }
 
+function lateReconciliationMigration() {
+  return migration("_batch_61_2_late_parallel_reconciliation.sql");
+}
+
 describe("Batch 61.2 single transition authority migrations", () => {
   it("creates a private idempotency registry", () => {
     const sql = authorityMigration();
@@ -104,7 +108,7 @@ describe("Batch 61.2 single transition authority migrations", () => {
     );
   });
 
-  it("removes the accidental parallel authority but keeps identity immutable", () => {
+  it("removes the first accidental parallel authority but keeps identity immutable", () => {
     const normalized = reconciliationMigration().replace(/\s+/g, " ");
     expect(normalized).toContain(
       "drop function if exists public.transition_swap_status_authoritative",
@@ -118,10 +122,51 @@ describe("Batch 61.2 single transition authority migrations", () => {
     expect(normalized).toContain("and status = 'pending'");
   });
 
+  it("reconciles a late duplicate branch back to the canonical contract", () => {
+    const normalized = lateReconciliationMigration().replace(/\s+/g, " ");
+    expect(normalized).toContain(
+      "drop trigger if exists aaa_require_swap_transition_authority",
+    );
+    expect(normalized).toContain(
+      "drop function if exists public.transition_swap_status_authoritative",
+    );
+    expect(normalized).toContain(
+      "drop table if exists public.swap_transition_authority_config",
+    );
+    expect(normalized).toContain(
+      "create or replace function public.transition_swap_v1",
+    );
+    expect(normalized).toContain(
+      "create or replace function public.apply_swap_transition_v1",
+    );
+    expect(normalized).toContain(
+      "revoke execute on function public.apply_swap_transition_v1",
+    );
+    expect(normalized).toContain(
+      "grant execute on function public.transition_swap_v1",
+    );
+    expect(normalized).toContain(
+      "create trigger aab_require_swap_identity_immutable",
+    );
+  });
+
+  it("keeps the marker reset before event insertion after late reconciliation", () => {
+    const normalized = lateReconciliationMigration().replace(/\s+/g, " ");
+    const reset =
+      "perform pg_catalog.set_config('swaply.transition_authority', '', true)";
+    expect(normalized.indexOf("set status = p_to_status")).toBeLessThan(
+      normalized.indexOf(reset),
+    );
+    expect(normalized.indexOf(reset)).toBeLessThan(
+      normalized.indexOf("insert into public.swap_events"),
+    );
+  });
+
   it("does not invent the absent swap_bundles table in the final authority", () => {
     expect(authorityMigration()).not.toContain("swap_bundles");
     expect(bridgeMigration()).not.toContain("swap_bundles");
     expect(markerResetMigration()).not.toContain("swap_bundles");
     expect(reconciliationMigration()).not.toContain("swap_bundles");
+    expect(lateReconciliationMigration()).not.toContain("swap_bundles");
   });
 });
