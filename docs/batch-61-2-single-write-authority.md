@@ -2,7 +2,7 @@
 
 **Train:** C  
 **Deliverable:** C2 — single canonical server-side Exchange lifecycle  
-**Scope:** one global status write authority, participant roles, expected-state compare-and-swap and idempotent replay  
+**Scope:** one global status write authority, immutable participant roles, expected-state compare-and-swap and idempotent replay  
 **Out of scope:** bilateral completion redesign, exactly-once completion rewards, dispute resolution outcomes and complete logistics/Realtime alignment
 
 ## Problem closed by this batch
@@ -13,6 +13,7 @@ Before Batch 61.2, several application paths could update `public.swaps.status` 
 - duplicate retries producing duplicate audit or compatibility effects;
 - browser writes bypassing the canonical API;
 - service-role writes bypassing participant-role checks;
+- participant IDs being replaced after creation under the previous broad update policy;
 - new rows being inserted directly in a non-`pending` status.
 
 ## Canonical write boundary
@@ -64,15 +65,17 @@ A competing command that expected the previous state returns `stale_state` and d
 | `invalid_transition` | 422 | Transition is outside the canonical graph |
 | `invalid_request` | 400 | Invalid status or command fields |
 
-## Direct-write prevention
+## Direct-write and identity prevention
 
 Batch 61.2 adds a `BEFORE UPDATE OF status` guard. A direct update is rejected unless it is executed inside the authoritative function's transaction context.
 
-The participant insert policy is also narrowed: a requester may create a swap only with `status = 'pending'`.
+A second guard freezes `requester_id`, `responder_id`, `offered_item_id` and `requested_item_id` after creation. The participant role used by the authority therefore cannot be rewritten by a browser, a stale application path or a service-role update.
+
+The participant insert policy is narrowed: a requester may create a swap only with `status = 'pending'`.
 
 The browser Supabase client contains a temporary compatibility firewall. Any remaining legacy PostgREST PATCH containing `swaps.status` is converted into a call to `/api/swaps/transition` with the current status as `expectedStatus`. Other fields from the same PATCH are written only after the authoritative transition succeeds.
 
-The database guard remains the final protection for external clients, stale application code and service-role bypass attempts.
+The database guards remain the final protection for external clients, stale application code and service-role bypass attempts.
 
 ## Compatibility boundary
 
@@ -93,7 +96,8 @@ Batch 61.2 is complete only when:
 - the Production migration is applied;
 - Production grants expose the RPC only to `service_role`;
 - direct status writes are rejected;
+- participant and item identity columns are immutable after creation;
 - new participant-created swaps are restricted to `pending`;
 - existing Production rows remain unchanged and valid;
-- the idempotency ledger, CAS function and guard match the repository contract;
+- the idempotency ledger, CAS function and guards match the repository contract;
 - no Production runtime regression is introduced.
