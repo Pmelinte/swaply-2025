@@ -32,22 +32,50 @@ revoke all on table public.swap_transition_requests
   from public, anon, authenticated;
 grant all on table public.swap_transition_requests to service_role;
 
+-- The authority can be installed before the application deployment without
+-- breaking the previous Production client. Enforcement is activated only after
+-- the merge deployment is READY and verified.
+create table if not exists public.swap_transition_authority_config (
+  singleton boolean primary key default true check (singleton),
+  enforced boolean not null default false,
+  updated_at timestamptz not null default now()
+);
+
+insert into public.swap_transition_authority_config (singleton, enforced)
+values (true, false)
+on conflict (singleton) do nothing;
+
+alter table public.swap_transition_authority_config enable row level security;
+
+revoke all on table public.swap_transition_authority_config
+  from public, anon, authenticated;
+grant all on table public.swap_transition_authority_config to service_role;
+
 create or replace function public.require_swap_transition_authority()
 returns trigger
 language plpgsql
-security invoker
+security definer
 set search_path = ''
 as $function$
+declare
+  v_enforced boolean := false;
 begin
   if old.status is distinct from new.status
      and coalesce(
        current_setting('swaply.swap_transition_authority', true),
        ''
      ) <> 'on' then
-    raise exception 'Direct swap status updates are forbidden'
-      using
-        errcode = '42501',
-        detail = 'SWAP_STATUS_WRITE_AUTHORITY_REQUIRED';
+    select config.enforced
+      into v_enforced
+    from public.swap_transition_authority_config as config
+    where config.singleton = true;
+
+    if coalesce(v_enforced, false) then
+      raise exception 'Direct swap status updates are forbidden'
+        using
+          errcode = '42501',
+          detail = 'SWAP_STATUS_WRITE_AUTHORITY_REQUIRED';
+    end if;
   end if;
 
   return new;
@@ -375,8 +403,11 @@ grant execute on function public.transition_swap_status_authoritative(
 comment on table public.swap_transition_requests is
   'Batch 61.2 internal idempotency ledger for authoritative Swap/Exchange status transitions.';
 
+comment on table public.swap_transition_authority_config is
+  'Batch 61.2 service-role-only staged enforcement switch. Activate only after the application deployment is READY.';
+
 comment on function public.require_swap_transition_authority() is
-  'Batch 61.2 guard rejecting direct public.swaps.status updates.';
+  'Batch 61.2 guard rejecting direct public.swaps.status updates after staged enforcement is activated.';
 
 comment on function public.require_swap_identity_immutable() is
   'Batch 61.2 guard freezing requester, responder and item identity after swap creation.';
