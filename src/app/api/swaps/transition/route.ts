@@ -83,10 +83,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const { swapId, toStatus, expectedVersion } = body;
-  const idempotencyKey =
-    body.idempotencyKey ?? request.headers.get("x-idempotency-key") ?? undefined;
-
+  const { swapId, toStatus } = body;
   if (!swapId || !toStatus) {
     return NextResponse.json(
       { error: "swapId and toStatus are required" },
@@ -101,14 +98,54 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (!Number.isSafeInteger(expectedVersion) || (expectedVersion ?? -1) < 0) {
+  const { data: current, error: currentError } = await userClient
+    .from("swaps")
+    .select("id, status, lifecycle_version, requester_id, responder_id")
+    .eq("id", swapId)
+    .maybeSingle();
+
+  if (currentError || !current) {
+    return NextResponse.json({ error: "Swap not found" }, { status: 404 });
+  }
+
+  if (current.requester_id !== user.id && current.responder_id !== user.id) {
+    return NextResponse.json(
+      { error: "Not a participant of this swap" },
+      { status: 403 },
+    );
+  }
+
+  const currentVersion = Number(current.lifecycle_version ?? 0);
+  const expectedVersion = body.expectedVersion ?? currentVersion;
+
+  if (!Number.isSafeInteger(expectedVersion) || expectedVersion < 0) {
     return NextResponse.json(
       { error: "expectedVersion must be a non-negative integer" },
       { status: 400 },
     );
   }
 
-  if (!idempotencyKey || idempotencyKey.trim().length < 8) {
+  // Compatibility/idempotency path for legacy callers that retry after a
+  // successful response was lost. No second write or event is produced.
+  if (current.status === toStatus) {
+    return NextResponse.json({
+      swap: current,
+      transition: {
+        fromStatus: current.status,
+        toStatus,
+        resultingVersion: currentVersion,
+        idempotentReplay: true,
+      },
+    });
+  }
+
+  const suppliedKey =
+    body.idempotencyKey ?? request.headers.get("x-idempotency-key") ?? undefined;
+  const idempotencyKey =
+    suppliedKey?.trim() ||
+    `swap:${swapId}:actor:${user.id}:v${expectedVersion}:to:${toStatus}`;
+
+  if (idempotencyKey.length < 8) {
     return NextResponse.json(
       { error: "A stable idempotencyKey of at least 8 characters is required" },
       { status: 400 },
@@ -119,7 +156,7 @@ export async function POST(request: NextRequest) {
     p_swap_id: swapId,
     p_to_status: toStatus,
     p_expected_version: expectedVersion,
-    p_idempotency_key: idempotencyKey.trim(),
+    p_idempotency_key: idempotencyKey,
   });
 
   if (error) {
@@ -127,6 +164,7 @@ export async function POST(request: NextRequest) {
       {
         error: error.message,
         code: error.code,
+        currentVersion,
       },
       { status: statusForRpcError(error.code) },
     );
