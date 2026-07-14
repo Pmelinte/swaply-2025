@@ -1,4 +1,9 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import {
+  buildSwapTransitionIdempotencyKey,
+  isSwapStatus,
+} from "./lifecycle";
+import { transitionSwapStatusAuthoritatively } from "./transitionAuthority";
 
 export type SwapDecision = "accepted" | "rejected";
 
@@ -60,7 +65,9 @@ export async function decideSwap(
 ): Promise<SwapDecisionResult | null> {
   const { data: swap, error: swapError } = await supabase
     .from("swaps")
-    .select("id, requester_id, responder_id, offered_item_id, requested_item_id, status, conversation_id")
+    .select(
+      "id, requester_id, responder_id, offered_item_id, requested_item_id, status, conversation_id",
+    )
     .eq("id", swapId)
     .maybeSingle();
 
@@ -75,53 +82,71 @@ export async function decideSwap(
     return null;
   }
 
-  if (!["pending", "proposed", "pending_chat"].includes(row.status)) {
+  if (!isSwapStatus(row.status) || row.status !== "pending") {
     console.error("decideSwap invalid status", row.status);
     return null;
   }
 
   const nextStatus = decision === "accepted" ? "accepted" : "rejected";
-  const now = new Date().toISOString();
+  const transition = await transitionSwapStatusAuthoritatively({
+    swapId: row.id,
+    actorId,
+    expectedStatus: row.status,
+    toStatus: nextStatus,
+    idempotencyKey: buildSwapTransitionIdempotencyKey(
+      row.id,
+      row.status,
+      nextStatus,
+    ),
+  }).catch((error: unknown) => {
+    console.error("decideSwap transition failed", error);
+    return null;
+  });
 
-  const { data: updated, error: updateError } = await supabase
-    .from("swaps")
-    .update({
-      status: nextStatus,
-      ...(decision === "accepted" ? { accepted_at: now } : { rejected_at: now }),
-      updated_at: now,
-    })
-    .eq("id", row.id)
-    .select("id, status")
-    .single();
-
-  if (updateError || !updated) {
-    console.error("decideSwap update failed", updateError);
+  if (
+    !transition ||
+    (transition.outcome !== "applied" && transition.outcome !== "replayed") ||
+    !transition.swap
+  ) {
+    console.error("decideSwap transition rejected", transition?.outcome);
     return null;
   }
 
-  if (decision === "accepted") {
-    const itemIds = [row.offered_item_id, row.requested_item_id].filter(Boolean) as string[];
-    if (itemIds.length > 0) {
+  // Compatibility effects remain outside the global status authority until the
+  // dedicated 61.3/61.4 batches. They run only on the first applied transition,
+  // never on an idempotent replay.
+  if (transition.outcome === "applied") {
+    const now = new Date().toISOString();
+
+    if (decision === "accepted") {
+      const itemIds = [row.offered_item_id, row.requested_item_id].filter(
+        Boolean,
+      ) as string[];
+      if (itemIds.length > 0) {
+        await supabase
+          .from("items")
+          .update({ status: "reserved", is_active: false, updated_at: now })
+          .in("id", itemIds);
+      }
+
+      if (row.conversation_id) {
+        await supabase
+          .from("conversations")
+          .update({ status: "accepted", updated_at: now })
+          .eq("id", row.conversation_id);
+      }
+    } else if (row.conversation_id) {
       await supabase
-        .from("items")
-        .update({ status: "reserved", is_active: false, updated_at: now })
-        .in("id", itemIds);
+        .from("conversations")
+        .update({ status: "rejected", updated_at: now })
+        .eq("id", row.conversation_id);
     }
 
-    await supabase
-      .from("conversations")
-      .update({ status: "accepted", updated_at: now })
-      .eq("id", row.conversation_id);
+    await notifyParticipants(supabase, row, decision);
   }
 
-  if (decision === "rejected") {
-    await supabase
-      .from("conversations")
-      .update({ status: "rejected", updated_at: now })
-      .eq("id", row.conversation_id);
-  }
-
-  await notifyParticipants(supabase, row, decision);
-
-  return updated as SwapDecisionResult;
+  return {
+    id: String(transition.swap.id ?? row.id),
+    status: String(transition.swap.status ?? nextStatus),
+  };
 }
