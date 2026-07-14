@@ -1,246 +1,185 @@
 # Swaply — Current Project Handoff
 
-**Recommended repository path:** `docs/SWAPLY_CURRENT_HANDOFF.md`  
-**Last updated:** 2026-07-12  
-**Purpose:** operational checkpoint for new chats, coding agents, and future Train C batches.
+**Repository path:** `docs/SWAPLY_CURRENT_HANDOFF.md`  
+**Last updated:** 2026-07-14  
+**Purpose:** concise operational checkpoint for new chats, coding agents and the next Train C batch.
 
-> This file is intentionally short and operational. It does **not** replace the full product-memory document:
-> `Swaply_memorie_global_first_drawer_blog_stories_prompturi_agentice_AI_actualizat`.
-> Read the full memory document for permanent product principles; use this file for the current technical state and next action.
-
----
+> This file describes the latest verified operating state. It does not replace `docs/ROADMAP_TO_V1.md` or `docs/SWAPLY_PRODUCT_MEMORY.md`.
 
 ## 1. Source-of-truth order
 
 When instructions or assumptions conflict, use this order:
 
-1. Current repository code, migrations, tests, and production evidence.
-2. This operational handoff for the latest completed checkpoint.
-3. The full Swaply product-memory document for long-term product rules.
-4. Older chat summaries only as historical context.
+1. current repository code, migrations, tests and Production evidence;
+2. this handoff;
+3. `docs/ROADMAP_TO_V1.md`;
+4. `docs/SWAPLY_PRODUCT_MEMORY.md`;
+5. `docs/db/DB_BASELINE.md`, reconciled with current migrations;
+6. closure reports and batch documentation;
+7. older chat summaries as historical context only.
 
-Never treat an old chat statement as more reliable than the current repository or verified runtime behavior.
+Never treat an old chat statement as more reliable than current repository or runtime evidence.
 
----
+## 2. Permanent operating rules
 
-## 2. Permanent product rules
-
-- Swaply is **global-first**, not RO/EN-first.
-- Do not reduce requirements to an MVP without explicit approval.
-- Do not remove existing functionality without explicit approval.
+- Swaply is global-first, not RO/EN-first.
+- Preserve the four domains: Objects, Properties, Services and Events.
+- Preserve global navigation: Home, Explore, Matching, Messages and Exchange.
 - Do not duplicate global navigation inside contextual drawers.
 - Blog and Stories remain separate systems.
-- Tokens/swapleni and trust rank remain separate systems.
-- AI recommends, explains, translates, moderates, and protects; the human decides.
-- Every AI-assisted flow must retain a usable non-AI fallback.
-- Public UI text must use the translation/content system, not new hardcoded strings.
-- Protect private profiles, messages, exact location, story consent, and token ledgers.
-- Do not change Auth, RLS, policies, secrets, or Supabase schema without an explicit audit and justification.
-- Work in small, reviewable batches and require real evidence before merge.
+- Swapleni/tokens and trust rank remain separate systems.
+- AI is advisory; the human decides; every AI flow needs a non-AI fallback.
+- Do not remove existing functionality without explicit approval.
+- Do not change Auth, RLS, policies, secrets, API contracts or Supabase schema without audit and justification.
+- Every DB change uses a versioned migration and must be verified in Production.
+- Work in small, reviewable batches.
+- No merge without Petru's exact command: `Merge #...`.
+- After every merge verify GitHub CI, Vercel Production and relevant runtime/database evidence.
 
----
+## 3. Program status
 
-## 3. Current Train C checkpoint
-
-Train C is complete through **Batch 52**, inclusive.
-
-| Batch | Scope | Result |
+| Train | Status | Evidence / next gate |
 |---|---|---|
-| 49 | Two-user authenticated Playwright harness | Merged |
-| 50 | Authenticated baseline and guest protection | Merged |
-| 51 | Authenticated profile edit, persistence, and restoration | Merged |
-| 52 | Authenticated Objects CRUD and owner isolation | Merged |
+| A — Public shell and navigation | `CLOSED` | Batch 40 closure report and verified public shell evidence. Later defects are regressions, not automatic reopening. |
+| B — Public content, SEO, legal and trust | `CLOSED` | Batch 47 closure report, SEO contracts, CI and Production evidence. Nonblocking findings are tracked in `docs/V1_DEFERRED_ISSUES.md`. |
+| C — Authenticated one-to-one Objects engine | `ACTIVE` | Batch 60.1–60.2 merged; authenticated Batch 60 closure validation remains mandatory. |
+| D — Four-domain complete product | `PLANNED` | Starts only after Train C is closed. |
+| E — AI, advanced swaps, commercialization and GA | `PLANNED` | Ends with `SWAPLY_V1_GA`; there is no Train F. |
 
-### Batch 52 final state
+## 4. Current `main` checkpoint
 
-- PR: **#446 — Batch 52: authenticated objects CRUD validation**
-- Status: **merged into `main`**
-- Merge commit: `58ea66879a487036561b98f1301047dd0a7d3f44`
-- Final validated branch commit: `47a69be4edbeb9db965be82336d097877a96ffa2`
-- Final authenticated Preview run: **Preview 7 — green**
-- Playwright result: **8 passed, 0 failed, 0 flaky, 0 skipped**
-- Test object cleanup was verified by ID: final state `archived`, `is_active=false`
+- Main commit: `24dab3c56c3f4ccb131c9914ed4a9fa22585e1b1`
+- Merged PR: **#458 — Batch 60.1–60.2 — explicit Exchange handoff and drift hardening**
+- PR head: `9808684f0421aebfc35766e941fe009e1e5f7d68`
+- Merge status: merged into `main`
+- Vercel status on the merge commit: success / Production deployment READY
 
-### Batch 52 verified contract
+### Batch 60.1 verified contract
 
-The authenticated flow now validates:
+- both Match participants confirm the same saved agreement revision;
+- `Create Exchange` remains an explicit human action;
+- the server creates or reuses one linked Exchange;
+- both participants resolve the same Exchange ID;
+- the agreement is copied as an immutable Exchange snapshot;
+- handoff adds no token, notification, trust, item-state, payment, escrow, insurance or completion side effect.
 
-1. User A and User B receive distinct, valid sessions.
-2. Logout testing restores the reusable User B fixture.
-3. User A creates an object through the production wizard.
-4. The object detail page persists after reload.
-5. User B can read a public object.
-6. User B remains authenticated but cannot access owner edit controls.
-7. User A can edit title and description.
-8. The update persists after reload.
-9. Cleanup archives the exact object by ID and verifies that it is no longer public.
+### Batch 60.2 verified contract
 
-Do not reopen Batch 52 unless a reproducible regression is demonstrated.
+- forward-only repair migration restores the reviewed hardened wrapper;
+- bilateral and completed-agreement checks are enforced;
+- `agreement_revision` remains in the response contract;
+- internal implementation is not directly executable by `anon`, `authenticated` or `PUBLIC`;
+- `swaps_conversation_id_unique` is the canonical idempotency guard;
+- Production integrity checks found no broken conversation/swap or match/swap links in the inspected state;
+- Unit Tests, Lint & Type Check, Build and Public Visual Audit passed on the PR;
+- Vercel Preview was READY.
 
----
+## 5. What is not yet proven
 
-## 4. Authenticated E2E architecture now in place
+Train C is not closed. The following remain active gates and must not be deferred to Train E:
 
-The Train C Playwright suite uses a deterministic dependency graph:
+1. complete authenticated Batch 60 suite, including the planned 17 tests;
+2. same Exchange ID visible to both participants in the real two-user flow;
+3. idempotent repeated creation without duplicate Exchange records;
+4. participant-only access and outsider denial;
+5. persistence after reload;
+6. Realtime synchronization;
+7. immutable-ID cleanup with no public test data left behind;
+8. final repo–Supabase–Production migration parity;
+9. Train C closure report.
 
-```text
-setup-user-a + setup-user-b
-             ↓
-two-user baseline, including logout + session restoration
-             ↓
-profile mutation + restoration
-             ↓
-objects CRUD + owner isolation + ID-based cleanup
-```
+A green build or public visual audit alone is not sufficient evidence for these authenticated contracts.
 
-Stability rules already established:
+## 6. Current documentation batch
 
-- `workers: 1`
-- `fullyParallel: false`
-- terminal project execution through project dependencies
-- authentication checked through an authenticated API before dependent flows
-- reusable User B session restored after logout testing
-- auxiliary AI, translation, and embedding calls neutralized where they are not the subject of the test
-- form fields targeted by stable structural selectors rather than punctuation-sensitive placeholders
-- Supabase writes correlated to the exact resource ID
-- cleanup must fail loudly if the exact test record cannot be found
+**Batch 60.3 — Canonical Roadmap & V1 Deferred Issues Register**
 
-Preserve these safeguards in subsequent authenticated batches.
+Scope is documentation-only:
 
----
+- add `docs/ROADMAP_TO_V1.md`;
+- add `docs/DOC_STATUS.md`;
+- add `docs/V1_DEFERRED_ISSUES.md`;
+- replace this stale Batch 52 handoff with the current Batch 60 checkpoint;
+- no application, migration, Auth, RLS, API or business-logic change.
 
-## 5. Next objective: Batch 53
+Batch 60.3 does not close Train C and does not prove new runtime behavior.
 
-Batch 53 has not been implemented in this checkpoint.
+## 7. Finding triage rule
 
-Before writing code, the next agent must:
+Use the fixed policy from the roadmap:
 
-1. Verify the current `main` head and confirm that merge commit `58ea66879a487036561b98f1301047dd0a7d3f44` is present in history.
-2. Read the full Swaply memory document.
-3. Identify the exact Batch 53 scope from current Train C documentation and repository evidence.
-4. Inventory affected routes, components, state hooks, API routes, Supabase tables, RLS policies, fixtures, and tests.
-5. Model the complete user flow before implementation.
-6. Predict likely failure classes before the first E2E run:
-   - session invalidation or test interference;
-   - stale storage-state fixtures;
-   - locale-prefixed route duplication;
-   - translation or placeholder mismatches;
-   - wrong Supabase method or response correlation;
-   - stale client state after mutation;
-   - non-owner authorization behavior;
-   - cleanup that searches by mutable text instead of immutable ID;
-   - auxiliary AI/network calls affecting the primary contract;
-   - test data left public after failure.
-7. Present the implementation plan, acceptance criteria, cleanup strategy, and risks before changing code.
+- `FIX_NOW`: P0/P1, security/privacy/Auth/RLS, data integrity, blocked CI/build, blocked canonical flow or faulty foundation.
+- `DEFER_TO_E5`: confirmed but nonblocking cleanup, SEO, localization, payload, refactoring, visual or documentation issue.
+- `REVERIFY_AT_E5`: evidence gap or possible regression not yet demonstrated.
+- `POST_V1`: valid improvement outside v1 gates.
 
-Do not start Batch 53 by guessing from an old chat label. Confirm its exact scope from current project documentation.
+Do not opportunistically repair deferred items inside unrelated Train C feature PRs.
 
----
-
-## 6. Required validation for every new authenticated batch
+## 8. Required validation for every authenticated batch
 
 A batch is not complete until all applicable checks pass:
 
-1. Unit Tests
-2. ESLint
-3. TypeScript
-4. Next.js Build
-5. Public Visual Audit
-6. Vercel Preview deployment
-7. Authenticated E2E against the Preview URL
-8. Authorization check with the second user where ownership is relevant
-9. Persistence check after reload
-10. Cleanup by immutable record ID
-11. Database verification that no public test data remains
-12. PR merge only after explicit approval
+1. Unit Tests;
+2. ESLint;
+3. TypeScript;
+4. Next.js Build;
+5. Public Visual Audit;
+6. Vercel Preview;
+7. authenticated E2E against the Preview URL;
+8. second-user authorization checks where ownership matters;
+9. persistence after reload;
+10. Realtime checks where applicable;
+11. cleanup by immutable record ID;
+12. database verification that no public test data remains;
+13. Production and migration verification after merge;
+14. merge only after explicit approval.
 
-A green build alone is not sufficient evidence for an authenticated business flow.
+## 9. Exact next action after Batch 60.3
 
----
+1. Wait for CI on the documentation PR.
+2. Merge only after Petru gives the exact command.
+3. Verify the resulting Production deployment.
+4. Start a narrow **Batch 60 authenticated closure validation**.
+5. Run the complete two-user suite and record exact pass/fail evidence.
+6. Repair only reproducible blockers in small sub-batches.
+7. Close C1 only when all Batch 60 gates are proven.
+8. Continue C2–C4, then execute C5 closure audit.
+9. Do not begin Train D before Train C is formally closed.
 
-## 7. Predictive E2E design checklist
-
-Before the first remote run, verify:
-
-### Authentication
-
-- Are User A and User B sessions both valid through a protected API?
-- Does any earlier test call `signOut()` and invalidate a reusable fixture?
-- Is a session restored before downstream projects start?
-
-### Routing and localization
-
-- Is the router already locale-aware?
-- Could a route become `/en/en/...`?
-- Are URL assertions checking exact pathname rather than loose substring matches?
-
-### Selectors
-
-- Prefer stable roles, names, field `name` attributes, test IDs, and scoped `<main>` queries.
-- Avoid punctuation-sensitive placeholders and globally duplicated text.
-- Scope detail-page assertions to visible content rather than `<title>` or hidden elements.
-
-### Network writes
-
-- Match the real HTTP method used by Supabase.
-- Correlate update/archive responses to the exact record ID.
-- Assert response status and include response body in the failure message.
-
-### State and persistence
-
-- Verify the mutation in UI immediately after save.
-- Reload and verify again.
-- Where appropriate, confirm final database state separately.
-
-### Cleanup
-
-- Track the immutable ID returned by insert.
-- Cleanup must run even when the primary assertion fails.
-- Cleanup must not silently return when the record is missing.
-- Confirm `archived`/inactive or deletion according to the business contract.
-
----
-
-## 8. Ready-to-use prompt for a new chat
+## 10. Ready-to-use prompt for the next functional chat
 
 ```text
-Continuăm proiectul Swaply — Train C. Începem Batch 53.
+Continuăm proiectul Swaply — Train C.
 
 Citește integral:
-1. documentul de memorie globală Swaply;
-2. docs/SWAPLY_CURRENT_HANDOFF.md;
-3. documentația Train C și codul curent din main.
+1. docs/ROADMAP_TO_V1.md
+2. docs/SWAPLY_CURRENT_HANDOFF.md
+3. docs/V1_DEFERRED_ISSUES.md
+4. docs/SWAPLY_PRODUCT_MEMORY.md
+5. documentația și testele Batch 60 din repository
 
-Checkpoint verificat:
-- Train C este complet până la Batch 52 inclusiv.
-- PR #446 a fost merged în main.
-- Merge commit: 58ea66879a487036561b98f1301047dd0a7d3f44.
-- Preview 7 a fost verde: 8 teste trecute, 0 eșuate.
-- Objects CRUD este validat cap-coadă, inclusiv izolarea User B și cleanup după ID.
+Checkpoint:
+- Train A și Train B sunt CLOSED.
+- Train C este ACTIVE.
+- PR #458 / Batch 60.1–60.2 este merged în main.
+- Main checkpoint: 24dab3c56c3f4ccb131c9914ed4a9fa22585e1b1.
+- Exchange handoff și drift hardening sunt implementate.
+- Train C nu este închis: validarea autentificată completă Batch 60 rămâne obligatorie.
 
-Nu implementa imediat.
-
-Primul pas obligatoriu:
-1. verifică main și documentația actuală;
-2. confirmă scopul exact al Batch 53;
-3. inventariază toate dependențele și contractele afectate;
-4. analizează predictiv întregul flux, inclusiv auth, RLS, locale, stare client, răspunsuri Supabase și cleanup;
-5. prezintă planul, criteriile de acceptare, riscurile și strategia E2E;
-6. nu modifica nimic până când planul este clar.
-
-După implementare, cere dovezi reale pentru Unit Tests, ESLint, TypeScript, Build, Public Visual Audit, Vercel Preview, E2E autentificat și cleanup verificat după ID.
+Primul pas este audit și plan, nu modificare:
+- inventariază cele 17 teste și dependențele lor;
+- verifică sesiunile User A/User B, RLS, RPC, migrațiile și cleanup-ul;
+- definește ordinea testelor, criteriile de acceptare și dovezile necesare;
+- clasifică orice constatare ca FIX_NOW, DEFER_TO_E5, REVERIFY_AT_E5 sau POST_V1;
+- nu repara observații neblocante din Train A/B în acest batch.
 ```
 
----
-
-## 9. Maintenance rule
+## 11. Maintenance rule
 
 Update this file after each merged batch:
 
-- replace the current checkpoint with the latest merged state;
-- record PR number and merge commit;
-- record the final remote E2E result;
-- document newly discovered systemic safeguards;
-- identify the next batch without guessing its scope;
-- keep the file concise—history belongs in dedicated closure reports.
-
+- record the latest main commit, PR and verified evidence;
+- remove stale “next batch” instructions;
+- keep only the current checkpoint and next action;
+- move detailed history to batch or closure reports;
+- never describe an unverified runtime claim as completed.
