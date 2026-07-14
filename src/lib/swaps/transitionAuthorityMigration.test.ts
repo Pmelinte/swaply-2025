@@ -18,98 +18,120 @@ function normalized(value: string) {
   return value.replace(/\s+/g, " ").toLowerCase();
 }
 
-describe("Batch 61.2 authoritative transition migration", () => {
+describe("Batch 61.2 consolidated transition authority", () => {
   const sql = readFileSync(migrationPath, "utf8");
   const compact = normalized(sql);
 
-  it("creates an internal idempotency ledger with one key per actor and swap", () => {
+  it("keeps one service-only idempotency ledger", () => {
     expect(compact).toContain(
       "create table if not exists public.swap_transition_requests",
     );
+    expect(compact).toContain("unique (actor_id, idempotency_key)");
     expect(compact).toContain(
-      "unique (swap_id, actor_id, idempotency_key)",
+      "check (char_length(idempotency_key) between 8 and 200)",
     );
-    expect(compact).toContain("replay_count integer not null default 0");
     expect(compact).toContain(
       "alter table public.swap_transition_requests enable row level security",
     );
-  });
-
-  it("keeps the ledger and authority RPC unavailable to browser roles", () => {
     expect(compact).toContain(
       "revoke all on table public.swap_transition_requests from public, anon, authenticated",
     );
-    expect(compact).toContain(
-      "grant all on table public.swap_transition_requests to service_role",
-    );
-    expect(compact).toContain(
-      "revoke execute on function public.transition_swap_status_authoritative",
-    );
-    expect(compact).toContain(
-      ") from public, anon, authenticated",
-    );
-    expect(compact).toContain(") to service_role");
   });
 
-  it("installs enforcement disabled for a safe pre-merge rollout", () => {
+  it("installs staged enforcement disabled before merge", () => {
     expect(compact).toContain(
       "create table if not exists public.swap_transition_authority_config",
     );
     expect(compact).toContain("enforced boolean not null default false");
     expect(compact).toContain("values (true, false)");
     expect(compact).toContain(
-      "revoke all on table public.swap_transition_authority_config from public, anon, authenticated",
-    );
-    expect(compact).toContain("select config.enforced into v_enforced");
-  });
-
-  it("rejects direct status writes after activation and forces new swaps to start pending", () => {
-    expect(compact).toContain(
       "create trigger aaa_require_swap_transition_authority before update of status on public.swaps",
     );
     expect(compact).toContain("direct swap status updates are forbidden");
-    expect(compact).toContain("if coalesce(v_enforced, false) then");
+  });
+
+  it("freezes participant and item identity and restricts inserts to pending", () => {
+    expect(compact).toContain(
+      "create trigger aab_require_swap_identity_immutable before update of requester_id, responder_id, offered_item_id, requested_item_id on public.swaps",
+    );
+    expect(compact).toContain(
+      "swap participant and item identity is immutable",
+    );
     expect(compact).toContain(
       "requester_id = (select auth.uid()) and status = 'pending'",
     );
   });
 
-  it("freezes participant and item identity after creation", () => {
+  it("defines apply_swap_transition_v1 as the sole status writer", () => {
     expect(compact).toContain(
-      "create trigger aab_require_swap_identity_immutable before update of requester_id, responder_id, offered_item_id, requested_item_id on public.swaps",
+      "create or replace function public.apply_swap_transition_v1",
     );
     expect(compact).toContain(
-      "old.requester_id is distinct from new.requester_id",
+      "update public.swaps set status = p_to_status",
     );
     expect(compact).toContain(
-      "old.responder_id is distinct from new.responder_id",
+      "where id = p_swap_id and status = p_expected_status",
     );
-    expect(compact).toContain(
-      "swap participant and item identity is immutable",
+
+    const statusWrites = compact.match(
+      /update public\.swaps set status = p_to_status/g,
     );
+    expect(statusWrites).toHaveLength(1);
   });
 
-  it("performs participant-role resolution and expected-state CAS under a row lock", () => {
+  it("preserves role-specific and system-only transition rules", () => {
     expect(compact).toContain(
-      "from public.swaps as swap where swap.id = p_swap_id for update",
+      "only the responder may accept or reject a pending swap",
     );
-    expect(compact).toContain("if v_swap.requester_id = p_actor_id then");
-    expect(compact).toContain("v_actor_role := 'requester'");
-    expect(compact).toContain("v_actor_role := 'responder'");
-    expect(compact).toContain("if v_swap.status <> p_expected_status then");
     expect(compact).toContain(
-      "where id = p_swap_id and status = p_expected_status returning * into v_swap",
+      "only the requester may cancel a pending swap",
     );
+    expect(compact).toContain("expiry is a system transition");
+    expect(compact).toContain("p_source <> 'system_expiry'");
+    expect(compact).toContain("v_actor_role := 'system'");
   });
 
-  it("sets the authority guard and records one transition result atomically", () => {
+  it("sets both guard contexts and records one transition event", () => {
     expect(compact).toContain(
-      "perform set_config('swaply.swap_transition_authority', 'on', true)",
+      "'swaply.transition_authority', 'apply_swap_transition_v1'",
+    );
+    expect(compact).toContain(
+      "'swaply.swap_transition_authority', 'on'",
     );
     expect(compact).toContain("'authorityversion', 'batch-61.2'");
-    expect(compact).toContain("insert into public.swap_transition_requests");
+    expect(compact).toContain("'actorrole', v_actor_role");
+  });
+
+  it("makes every entrypoint delegate to the sole writer", () => {
     expect(compact).toContain(
-      "return v_existing.result || jsonb_build_object",
+      "v_response := public.apply_swap_transition_v1",
+    );
+    expect(compact).toContain(
+      "return public.transition_swap_status_authoritative",
+    );
+    expect(compact).toContain(
+      "perform public.apply_swap_transition_v1( v_swap.id, 'pending', 'expired'",
+    );
+  });
+
+  it("serializes retries and returns stored replays", () => {
+    expect(compact).toContain("pg_catalog.pg_advisory_xact_lock");
+    expect(compact).toContain("for update");
+    expect(compact).toContain(
+      "return v_existing.response || jsonb_build_object( 'outcome', 'replayed'",
+    );
+    expect(compact).toContain("'outcome', 'idempotency_conflict'");
+    expect(compact).toContain("'outcome', 'stale_state'");
+  });
+
+  it("keeps authenticated direct-update compatibility behind the same authority", () => {
+    expect(compact).toContain(
+      "create or replace function public.validate_swap_status_transition",
+    );
+    expect(compact).toContain("v_result := public.transition_swap_status_authoritative");
+    expect(compact).toContain("return null");
+    expect(compact).toContain(
+      "direct privileged swap status updates are forbidden",
     );
   });
 });
@@ -138,6 +160,7 @@ describe("Batch 61.2 application write boundary", () => {
     expect(route).toContain("expectedStatus");
     expect(route).toContain("idempotency-key");
     expect(route).toContain("transitionSwapStatusAuthoritatively");
+    expect(route).toContain('case "not_authorized"');
     expect(route).not.toContain('.from("swaps")');
   });
 
@@ -150,7 +173,7 @@ describe("Batch 61.2 application write boundary", () => {
     );
   });
 
-  it("rewrites any remaining legacy browser status PATCH before it reaches PostgREST", () => {
+  it("rewrites remaining legacy browser status PATCH requests", () => {
     const client = read("src/lib/supabase/client.ts");
     expect(client).toContain("isSwapsStatusPatchRequest");
     expect(client).toContain("routeLegacySwapStatusPatch");
