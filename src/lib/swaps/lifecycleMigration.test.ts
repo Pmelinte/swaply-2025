@@ -18,12 +18,12 @@ function lifecycleMigrations() {
 }
 
 describe("Batch 61.1 lifecycle migration contract", () => {
-  it("keeps the canonical lifecycle migration as the final contract", () => {
+  it("keeps the Production-aligned lifecycle migration as the final contract", () => {
     const finalMigration = lifecycleMigrations().at(-1);
 
     expect(finalMigration).toBeDefined();
     expect(basename(finalMigration!.file)).toBe(
-      "20260714190500_batch_61_1_canonical_swap_lifecycle.sql",
+      "20260714192055_batch_61_1_canonical_swap_lifecycle.sql",
     );
   });
 
