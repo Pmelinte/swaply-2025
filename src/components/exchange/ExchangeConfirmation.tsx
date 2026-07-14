@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Star } from "lucide-react";
-import { confirmSwap, completeSwap, submitReview } from "@/lib/exchange/exchangeServices";
+import { confirmSwap, submitReview } from "@/lib/exchange/exchangeServices";
 
 interface Props {
   swapId: string;
@@ -37,6 +37,14 @@ function StarRating({ value, onChange }: { value: number; onChange: (v: number) 
 
 const RATING_FIELDS = ["overall", "communication", "accuracy", "promptness"] as const;
 
+function createCompletionKey(swapId: string, userId: string): string {
+  const nonce =
+    typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  return `completion:${swapId}:${userId}:${nonce}`;
+}
+
 export function ExchangeConfirmation({
   swapId,
   myUserId,
@@ -48,10 +56,12 @@ export function ExchangeConfirmation({
   const router = useRouter();
 
   const alreadyConfirmed = confirmedBy.includes(myUserId);
+  const completionKeyRef = useRef<string | null>(null);
   const [checkedReceived, setCheckedReceived] = useState(false);
   const [checkedRead, setCheckedRead] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [confirmed, setConfirmed] = useState(alreadyConfirmed);
+  const [confirmationError, setConfirmationError] = useState(false);
 
   const [ratings, setRatings] = useState<Record<(typeof RATING_FIELDS)[number], number>>({
     overall: 0,
@@ -66,14 +76,26 @@ export function ExchangeConfirmation({
   const partnerId = participantIds.find((id) => id !== myUserId) ?? "";
 
   async function handleConfirm() {
-    if (!checkedReceived || !checkedRead) return;
+    if (!checkedReceived || !checkedRead || confirming) return;
+
+    completionKeyRef.current ??= createCompletionKey(swapId, myUserId);
     setConfirming(true);
-    const updated = await confirmSwap(swapId, myUserId);
-    if (updated.length >= 2) {
-      await completeSwap(swapId);
+    setConfirmationError(false);
+
+    try {
+      const result = await confirmSwap(swapId, completionKeyRef.current);
+      if (!result) {
+        setConfirmationError(true);
+        return;
+      }
+
+      setConfirmed(true);
+      if (result.both_confirmed) {
+        router.refresh();
+      }
+    } finally {
+      setConfirming(false);
     }
-    setConfirmed(true);
-    setConfirming(false);
   }
 
   async function handleSubmitReview() {
@@ -92,7 +114,6 @@ export function ExchangeConfirmation({
 
   return (
     <div className="space-y-4">
-      {/* Confirm section */}
       <div className="rounded-2xl border border-green-200 bg-green-50/40 p-5 dark:border-green-900/40 dark:bg-green-950/10">
         <h3 className="mb-3 flex items-center gap-2 font-semibold text-zinc-900 dark:text-zinc-50">
           ✅ {t("title")}
@@ -130,11 +151,15 @@ export function ExchangeConfirmation({
             >
               {confirming ? "…" : t("confirm")}
             </button>
+            {confirmationError && (
+              <p className="mt-2 text-sm text-red-600 dark:text-red-400">
+                The confirmation could not be saved. Please try again.
+              </p>
+            )}
           </>
         )}
       </div>
 
-      {/* Feedback section */}
       <div className="rounded-2xl border border-zinc-200 p-5 dark:border-zinc-700">
         <h3 className="mb-4 font-semibold text-zinc-900 dark:text-zinc-50">
           ⭐ {t("feedbackTitle")} @{partnerName}
