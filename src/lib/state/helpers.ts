@@ -5,11 +5,11 @@
 import type {
   FeatureToggle,
   Notification,
-  SwapIntent,
   TierBenefits,
   UserProfile,
 } from "../types";
 import { mockFeatureToggles } from "../mock-data";
+import { isSwapStatus, type SwapStatus } from "../swaps/lifecycle";
 
 // ── Safe type coercion helpers ──
 
@@ -25,7 +25,10 @@ export const safeArray = <T,>(value: unknown, fallback: T[]) =>
 export const safeObject = <T extends object>(value: unknown, fallback: T) =>
   value && typeof value === "object" ? (value as T) : fallback;
 
-export const safeBadgeTier = (value: unknown, fallback: UserProfile["badge"] = "free") =>
+export const safeBadgeTier = (
+  value: unknown,
+  fallback: UserProfile["badge"] = "free",
+) =>
   value === "free" || value === "premium" || value === "platinum"
     ? value
     : fallback;
@@ -33,26 +36,23 @@ export const safeBadgeTier = (value: unknown, fallback: UserProfile["badge"] = "
 export const safeNotificationPriority = (
   value: unknown,
   fallback: Notification["priority"] = "info",
-) => (value === "info" || value === "warning" || value === "success" ? value : fallback);
-
-export const safeSwapStatus = (
-  value: unknown,
-  fallback: SwapIntent["status"] = "pending",
 ) =>
-  value === "pending" ||
-  value === "accepted" ||
-  value === "rejected" ||
-  value === "completed" ||
-  value === "cancelled" ||
-  value === "expired" ||
-  value === "disputed"
+  value === "info" || value === "warning" || value === "success"
     ? value
     : fallback;
 
+export const safeSwapStatus = (
+  value: unknown,
+  fallback: SwapStatus = "pending",
+): SwapStatus => (isSwapStatus(value) ? value : fallback);
+
 export const safeLocationType = (
   value: unknown,
-  fallback: SwapIntent["logistics"]["locationType"] = "public_spot",
-) => (value === "public_spot" || value === "courier" || value === "pickup" ? value : fallback);
+  fallback: "public_spot" | "courier" | "pickup" = "public_spot",
+) =>
+  value === "public_spot" || value === "courier" || value === "pickup"
+    ? value
+    : fallback;
 
 // ── Session management ──
 
@@ -74,7 +74,8 @@ export function setLoggedIn(value: boolean) {
 
 export function computeFeatureToggles(): FeatureToggle {
   const aiEnabled =
-    process.env.NEXT_PUBLIC_HF_ENABLED === "true" || mockFeatureToggles.aiEnabled;
+    process.env.NEXT_PUBLIC_HF_ENABLED === "true" ||
+    mockFeatureToggles.aiEnabled;
   const mapsEnabled =
     process.env.NEXT_PUBLIC_MAPS_TOKEN?.length === 0
       ? mockFeatureToggles.mapsEnabled
@@ -93,31 +94,60 @@ export function computeFeatureToggles(): FeatureToggle {
 
 // ── Tier benefits ──
 
-export function computeTierBenefits(badge: UserProfile["badge"]): TierBenefits {
+export function computeTierBenefits(
+  badge: UserProfile["badge"],
+): TierBenefits {
   switch (badge) {
     case "platinum":
       return {
-        mapPinVisible: true, priorityMatching: true, aiSuggestions: true,
-        swapAnalytics: true, profileBadge: true, prioritySupport: true,
-        monthlyTokens: 999, boostSlots: 5, adFree: true,
-        extendedFilters: true, exportReports: true, auctionMode: true,
-        itemLimit: 999, featuredSlots: 3,
+        mapPinVisible: true,
+        priorityMatching: true,
+        aiSuggestions: true,
+        swapAnalytics: true,
+        profileBadge: true,
+        prioritySupport: true,
+        monthlyTokens: 999,
+        boostSlots: 5,
+        adFree: true,
+        extendedFilters: true,
+        exportReports: true,
+        auctionMode: true,
+        itemLimit: 999,
+        featuredSlots: 3,
       };
     case "premium":
       return {
-        mapPinVisible: true, priorityMatching: true, aiSuggestions: true,
-        swapAnalytics: true, profileBadge: false, prioritySupport: false,
-        monthlyTokens: 50, boostSlots: 2, adFree: true,
-        extendedFilters: true, exportReports: false, auctionMode: false,
-        itemLimit: 50, featuredSlots: 1,
+        mapPinVisible: true,
+        priorityMatching: true,
+        aiSuggestions: true,
+        swapAnalytics: true,
+        profileBadge: false,
+        prioritySupport: false,
+        monthlyTokens: 50,
+        boostSlots: 2,
+        adFree: true,
+        extendedFilters: true,
+        exportReports: false,
+        auctionMode: false,
+        itemLimit: 50,
+        featuredSlots: 1,
       };
     default:
       return {
-        mapPinVisible: false, priorityMatching: false, aiSuggestions: false,
-        swapAnalytics: false, profileBadge: false, prioritySupport: false,
-        monthlyTokens: 10, boostSlots: 0, adFree: false,
-        extendedFilters: false, exportReports: false, auctionMode: false,
-        itemLimit: 10, featuredSlots: 0,
+        mapPinVisible: false,
+        priorityMatching: false,
+        aiSuggestions: false,
+        swapAnalytics: false,
+        profileBadge: false,
+        prioritySupport: false,
+        monthlyTokens: 10,
+        boostSlots: 0,
+        adFree: false,
+        extendedFilters: false,
+        exportReports: false,
+        auctionMode: false,
+        itemLimit: 10,
+        featuredSlots: 0,
       };
   }
 }
