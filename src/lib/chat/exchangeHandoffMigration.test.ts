@@ -41,6 +41,26 @@ describe("Batch 60.2 Exchange handoff migration contract", () => {
       "revoke all on function public.create_exchange_from_match_agreement_v1(uuid, integer)",
     );
     expect(sql).toContain("from authenticated;");
+    expect(sql).not.toContain("insert into public.swaps");
+  });
+
+  it("keeps the public wrapper callable only through the intended API roles", () => {
+    const finalMigration = exchangeHandoffMigrations().at(-1);
+    expect(finalMigration).toBeDefined();
+
+    const normalizedSql = finalMigration!.sql.replace(/\s+/g, " ");
+    expect(normalizedSql).toMatch(
+      /grant execute on function public\.create_exchange_from_match_agreement\(uuid, integer\) to authenticated;/,
+    );
+    expect(normalizedSql).toMatch(
+      /grant execute on function public\.create_exchange_from_match_agreement\(uuid, integer\) to service_role;/,
+    );
+    expect(normalizedSql).toMatch(
+      /revoke all on function public\.create_exchange_from_match_agreement\(uuid, integer\) from public;/,
+    );
+    expect(normalizedSql).toMatch(
+      /revoke all on function public\.create_exchange_from_match_agreement\(uuid, integer\) from anon;/,
+    );
   });
 
   it("keeps one canonical idempotency index", () => {
