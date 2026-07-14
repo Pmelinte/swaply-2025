@@ -4,6 +4,7 @@ import {
   SWAP_STATUSES,
   SWAP_TRANSITIONS,
   allowedSwapTransitions,
+  buildSwapTransitionIdempotencyKey,
   canTransitionSwap,
   isSwapStatus,
   isTerminalSwapStatus,
@@ -82,5 +83,45 @@ describe("Batch 61.1 canonical swap lifecycle", () => {
     expect(canTransitionSwap("accepted", "completed")).toBe(true);
     expect(canTransitionSwap("pending", "completed")).toBe(false);
     expect(canTransitionSwap("in_progress", "accepted")).toBe(false);
+  });
+});
+
+describe("Batch 61.2 transition command identity", () => {
+  it("builds one deterministic key for one logical lifecycle action", () => {
+    const first = buildSwapTransitionIdempotencyKey(
+      "00000000-0000-0000-0000-000000000061",
+      "pending",
+      "accepted",
+    );
+    const retry = buildSwapTransitionIdempotencyKey(
+      "00000000-0000-0000-0000-000000000061",
+      "pending",
+      "accepted",
+    );
+
+    expect(first).toBe(retry);
+    expect(first).toBe(
+      "swap-status:v1:00000000-0000-0000-0000-000000000061:pending:accepted",
+    );
+  });
+
+  it("changes the key when the expected or target state changes", () => {
+    const accepted = buildSwapTransitionIdempotencyKey(
+      "swap-61",
+      "pending",
+      "accepted",
+    );
+    const cancelled = buildSwapTransitionIdempotencyKey(
+      "swap-61",
+      "pending",
+      "cancelled",
+    );
+    const started = buildSwapTransitionIdempotencyKey(
+      "swap-61",
+      "accepted",
+      "in_progress",
+    );
+
+    expect(new Set([accepted, cancelled, started]).size).toBe(3);
   });
 });
