@@ -21,8 +21,6 @@
 - Blog and Stories remain separate.
 - Tokens and trust rank remain separate.
 - AI is advisory and every AI flow needs a fallback.
-- Do not remove functionality without explicit approval.
-- Database changes require reviewed versioned migrations and Production verification.
 - Use small reviewable batches.
 - Merge only after Petru gives the exact `Merge #...` command.
 - After merge verify CI, Vercel Production and relevant runtime/database evidence.
@@ -32,142 +30,141 @@
 | Train / deliverable | Status | Evidence / next gate |
 |---|---|---|
 | Train A | `CLOSED` | Batch 40 closure report. |
-| Train B | `CLOSED` | Batch 47 closure report; nonblocking findings stay in the deferred register. |
+| Train B | `CLOSED` | Batch 47 closure report. |
 | Train C | `ACTIVE` | C1 closed; C2 active. |
 | C1 — Batch 60 handoff and validation | `CLOSED` | `docs/batch-60-4-validation-closure.md`. |
-| C2 — Canonical Exchange lifecycle | `ACTIVE` | Batch 61.1 closed; Batch 61.2 implemented and awaiting full validation. |
+| C2 — Canonical Exchange lifecycle | `ACTIVE` | Batch 61.1 closed; Batch 61.2 Production-validated on PR #462, merge pending. |
 | C3 — Feedback, notifications, reputation and ledger | `PLANNED` | After C2. |
 | C4 — Cancellation, disputes, report and block | `PLANNED` | Before Train C closure. |
 | C5 — Train C closure audit | `PLANNED` | Required before Train D. |
 | Train D | `PLANNED` | Starts only after Train C closes. |
 | Train E | `PLANNED` | Ends with `SWAPLY_V1_GA`; no Train F. |
 
-## 4. Verified Production checkpoint
+## 4. Verified checkpoint
 
-- Validated main commit before Batch 61.2: `95837cbd94b22f0264a83b3e4f1ad87411660c0b`
-- Production target: `https://www.swaply.world`
-- Batch 61.1 canonical status migration: `20260714192055_batch_61_1_canonical_swap_lifecycle`
-- Vercel: READY
-- `/en/exchange`: HTTP 200
-- `/en/messages`: HTTP 200
-- Production runtime after Batch 61.1 merge: no error, warning or fatal logs in the checked window.
-
-Batch 60 authenticated validation previously demonstrated:
-
-- both participants confirmed the same agreement revision;
-- no Exchange existed before the explicit action;
-- the first RPC call created one Exchange;
-- both participants opened the same Exchange ID;
-- retry reused the same Exchange without duplicates;
-- the frozen snapshot matched the confirmed revision;
-- Match, conversation and Exchange links were consistent;
-- item, token, trust and notification state did not change from the handoff;
-- cleanup removed the Exchange and restored the Match fixture;
-- final inspection found no orphan or broken Exchange links.
-
-Detailed C1 evidence is in `docs/batch-60-4-validation-closure.md`.
+- Main before PR #462: `95837cbd94b22f0264a83b3e4f1ad87411660c0b`
+- Production: `https://www.swaply.world`
+- Batch 61.1 migration: `20260714192055_batch_61_1_canonical_swap_lifecycle`
+- Batch 61.2 migrations:
+  - `20260714201653_batch_61_2_single_swap_transition_authority`
+  - `20260714201719_batch_61_2_transition_guard_bridge`
+  - `20260714202043_batch_61_2_swap_transition_authority` — reconciled historical marker
+  - `20260714202251_batch_61_2_authority_marker_reset_hardening`
+  - `20260714202934_batch_61_2_parallel_authority_reconciliation`
+- Production rows after validation: 401 Swap rows, zero invalid statuses and zero transition-request test rows.
 
 ## 5. Closed Batch 61.1 contract
 
-Batch 61.1 established one global `swaps.status` vocabulary:
+Global `swaps.status` vocabulary:
 
 `pending → accepted → in_progress → completed`
 
-with controlled terminal or exceptional branches:
+Controlled exceptional or terminal branches:
 
 - `rejected`;
 - `cancelled`;
 - `expired`;
 - `disputed`.
 
-Logistics detail and dispute resolution outcomes are not global statuses.
+Logistics details and dispute outcomes are not global statuses.
 
-## 6. Current Batch 61.2 contract
+## 6. Batch 61.2 contract
 
-Batch 61.2 establishes one database transition authority:
+One database transition authority now controls global status:
 
-- authenticated RPC `transition_swap_v1`;
-- internal non-public primitive `apply_swap_transition_v1`;
-- row lock and expected-status compare-and-set;
+- public authenticated RPC `transition_swap_v1`;
+- internal non-public `apply_swap_transition_v1`;
+- row lock and expected-status CAS;
 - private idempotency registry;
-- atomic status update plus `swap_events` audit;
+- atomic status update plus one `swap_events` audit;
 - responder-only pending acceptance/rejection;
 - requester-only pending cancellation;
-- system-only expiry using the same primitive;
-- temporary trigger bridge for legacy authenticated direct writes;
-- rejection of direct privileged bypass.
+- system-only expiry;
+- outsider denial;
+- privileged direct-bypass denial;
+- temporary legacy authenticated bridge;
+- immutable requester, responder and item identity after creation.
 
-Detailed scope and boundaries are in
-`docs/batch-61-2-single-transition-authority.md`.
+The API and decision/completion/Exchange adapters use the RPC instead of direct
+status writes.
 
-## 7. C2 boundary after Batch 61.2
+Detailed evidence: `docs/batch-61-2-single-transition-authority.md`.
 
-Batch 61.2 does not yet prove:
+## 7. Validation evidence
 
-- bilateral delivery or receipt confirmation;
+Static gates on the original PR head passed:
+
+- Unit Tests;
+- Lint & Type Check;
+- Build;
+- Public Visual Audit;
+- Vercel Preview READY;
+- Preview runtime: zero error, warning or fatal logs.
+
+After the final migrations, a Production transaction with rollback passed:
+
+1. canonical responder acceptance;
+2. same-key replay and one event;
+3. conflicting reuse of a key rejected;
+4. stale expected state rejected;
+5. requester cannot accept;
+6. responder can reject;
+7. outsider denied;
+8. privileged direct bypass denied;
+9. legacy authenticated write routed through the same authority;
+10. requester can cancel pending;
+11. expected idempotency row cardinality.
+
+The first probe discovered a transaction-local marker leak. Migration
+`20260714202251` fixed it and the full probe then passed.
+
+A concurrent parallel migration was detected and reconciled by
+`20260714202934`; its second authority and config table are absent from the
+final schema.
+
+## 8. C2 boundary after Batch 61.2
+
+Still not proven or implemented:
+
+- bilateral delivery and receipt confirmation;
 - completion only after both participants confirm;
-- exactly-once item, conversation, notification, trust or token effects;
-- canonical logistics and Realtime behavior;
-- full cancellation and dispute handling.
+- exactly-once item, conversation, notification, trust and token effects;
+- canonical logistics lifecycle and Realtime;
+- complete cancellation and dispute handling.
 
-Therefore C2 remains `ACTIVE` after Batch 61.2.
+Therefore C2 remains `ACTIVE`.
 
-## 8. Production schema finding
+## 9. Production schema notes
 
-The old transition route referenced a `swap_bundles` table that does not exist in
-Production. Batch 61.2 removes that dependency and does not invent a replacement
-table outside an approved bundle contract.
+- `swap_bundles` does not exist; Batch 61.2 does not invent it.
+- `swap_transition_requests` has RLS and no direct `anon`/`authenticated` access.
+- The participant UPDATE policy still permits non-status fields; confirmation,
+  logistics and feedback writes remain for the following batches.
+- Historical completion/cancel/dispute triggers remain and must be reconciled
+  with exactly-once effects in Batch 61.3/C3.
 
-The current participant UPDATE policy still allows non-status fields to be
-updated directly. Batch 61.2 protects the global status transition authority;
-field-specific confirmation, logistics and feedback writes are addressed in the
-following batches.
+## 10. Triage policy
 
-## 9. Triage policy
-
-- `FIX_NOW`: security, privacy, authorization, data integrity, blocked CI/build, blocked canonical flow or faulty foundation.
-- `DEFER_TO_E5`: confirmed but nonblocking cleanup or quality issue.
+- `FIX_NOW`: security, privacy, authorization, data integrity, blocked CI/build or broken canonical flow.
+- `DEFER_TO_E5`: confirmed nonblocking cleanup or quality issue.
 - `REVERIFY_AT_E5`: evidence gap without demonstrated failure.
 - `POST_V1`: valid improvement outside v1 gates.
 
-Current deferred additions:
+Current deferred items:
 
 - `V1-DEBT-004`: auxiliary AI calls create nonfatal authenticated-E2E noise;
-- `V1-DEBT-005`: workflow display label says Batch 59 although the dependency graph executes Batch 60.
-
-Do not repair deferred items inside C2 lifecycle PRs unless new evidence promotes them to `FIX_NOW`.
-
-## 10. Validation required for Batch 61.2
-
-Before closure:
-
-1. unit tests, lint, typecheck and build;
-2. migration contract tests;
-3. Vercel Preview and runtime smoke;
-4. repository–Supabase migration parity;
-5. authenticated requester/responder role checks;
-6. outsider denied;
-7. stale expected status rejected;
-8. concurrent conflicting transitions allow only one winner;
-9. same-key retry returns the same response without duplicate event;
-10. reused key for a different request is rejected;
-11. direct privileged bypass is rejected;
-12. persistence after reload;
-13. cleanup by immutable IDs.
-
-A green build alone does not prove the authenticated business contract.
+- `V1-DEBT-005`: workflow display label says Batch 59 although its graph executes Batch 60.
 
 ## 11. Exact next action
 
-1. Complete CI and Preview validation for Batch 61.2.
-2. Apply the reviewed migrations to Production only after static gates are green.
-3. Align repository migration filenames with the actual Production migration versions.
-4. Run authenticated CAS, concurrency, idempotency, outsider and cleanup validation.
-5. Merge only after the exact command `Merge #...`.
-6. After merge verify Production and begin Batch 61.3 — Bilateral Completion.
-7. Do not begin Train D before Train C is formally closed.
+1. Wait for all CI and Vercel checks on the final PR #462 head.
+2. Verify the final diff and repository–Production migration version parity.
+3. Merge only after the exact command `Merge #462`.
+4. After merge verify GitHub CI, Vercel Production and runtime.
+5. Begin Batch 61.3 — Bilateral Completion.
+6. Do not begin Train D before Train C is formally closed.
 
 ## 12. Maintenance rule
 
-After each merged batch, record the latest verified evidence, remove stale next
+After every merged batch, record the latest verified evidence, remove stale next
 actions and keep detailed history in dedicated reports.
