@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { safeSwapStatus } from "@/lib/state/helpers";
 import {
   SWAP_STATUSES,
   SWAP_TRANSITIONS,
@@ -24,6 +25,12 @@ describe("Batch 61.1 canonical swap lifecycle", () => {
     expect(Object.keys(SWAP_TRANSITIONS)).toEqual([...SWAP_STATUSES]);
   });
 
+  it("keeps the state mapper aligned with every canonical status", () => {
+    for (const status of SWAP_STATUSES) {
+      expect(safeSwapStatus(status)).toBe(status);
+    }
+  });
+
   it("rejects logistics and dispute-resolution aliases as global statuses", () => {
     for (const alias of [
       "delivered_by_a",
@@ -34,6 +41,7 @@ describe("Batch 61.1 canonical swap lifecycle", () => {
       "resolved",
     ]) {
       expect(isSwapStatus(alias)).toBe(false);
+      expect(safeSwapStatus(alias)).toBe("pending");
     }
   });
 
