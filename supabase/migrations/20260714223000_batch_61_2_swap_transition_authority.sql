@@ -1,40 +1,34 @@
 begin;
 
--- Batch 61.2 makes one internal database function the only authority allowed to
--- change the global public.swaps.status value. The function performs participant
--- authorization, expected-state compare-and-swap and idempotent replay handling
--- in the same transaction as the status update and audit event.
+-- Batch 61.2 consolidation.
+--
+-- `apply_swap_transition_v1` is the only function that writes public.swaps.status.
+-- The service API wrapper, authenticated RPC, direct-update compatibility bridge
+-- and system expiry path all delegate to this one writer.
 
 create table if not exists public.swap_transition_requests (
   id uuid primary key default gen_random_uuid(),
   swap_id uuid not null references public.swaps(id) on delete cascade,
   actor_id uuid not null references auth.users(id) on delete cascade,
-  actor_role text not null check (actor_role in ('requester', 'responder')),
-  idempotency_key text not null check (
-    char_length(idempotency_key) between 8 and 200
-  ),
+  idempotency_key text not null,
   expected_status text not null,
-  requested_status text not null,
-  result jsonb not null,
-  replay_count integer not null default 0 check (replay_count >= 0),
+  to_status text not null,
+  response jsonb not null,
   created_at timestamptz not null default now(),
-  last_replayed_at timestamptz,
-  constraint swap_transition_requests_unique_key
-    unique (swap_id, actor_id, idempotency_key)
+  constraint swap_transition_requests_actor_key_unique
+    unique (actor_id, idempotency_key),
+  constraint swap_transition_requests_key_length
+    check (char_length(idempotency_key) between 8 and 200)
 );
 
 create index if not exists swap_transition_requests_swap_created_idx
   on public.swap_transition_requests (swap_id, created_at desc);
 
 alter table public.swap_transition_requests enable row level security;
-
 revoke all on table public.swap_transition_requests
   from public, anon, authenticated;
 grant all on table public.swap_transition_requests to service_role;
 
--- The authority can be installed before the application deployment without
--- breaking the previous Production client. Enforcement is activated only after
--- the merge deployment is READY and verified.
 create table if not exists public.swap_transition_authority_config (
   singleton boolean primary key default true check (singleton),
   enforced boolean not null default false,
@@ -46,7 +40,6 @@ values (true, false)
 on conflict (singleton) do nothing;
 
 alter table public.swap_transition_authority_config enable row level security;
-
 revoke all on table public.swap_transition_authority_config
   from public, anon, authenticated;
 grant all on table public.swap_transition_authority_config to service_role;
@@ -87,14 +80,11 @@ revoke execute on function public.require_swap_transition_authority()
 
 drop trigger if exists aaa_require_swap_transition_authority
   on public.swaps;
-
 create trigger aaa_require_swap_transition_authority
   before update of status on public.swaps
   for each row
   execute function public.require_swap_transition_authority();
 
--- Participant and item identity define the authorization boundary and cannot be
--- changed after creation by a participant or by a stale server path.
 create or replace function public.require_swap_identity_immutable()
 returns trigger
 language plpgsql
@@ -121,18 +111,13 @@ revoke execute on function public.require_swap_identity_immutable()
 
 drop trigger if exists aab_require_swap_identity_immutable
   on public.swaps;
-
 create trigger aab_require_swap_identity_immutable
   before update of requester_id, responder_id, offered_item_id, requested_item_id
   on public.swaps
   for each row
   execute function public.require_swap_identity_immutable();
 
--- A new swap must always enter the lifecycle at pending. Participants retain
--- their existing ability to create a proposal, but cannot insert a terminal or
--- already-accepted row and bypass the transition authority.
 drop policy if exists insert_own_swaps on public.swaps;
-
 create policy insert_own_swaps on public.swaps
   for insert to authenticated
   with check (
@@ -140,12 +125,13 @@ create policy insert_own_swaps on public.swaps
     and status = 'pending'
   );
 
-create or replace function public.transition_swap_status_authoritative(
+create or replace function public.apply_swap_transition_v1(
   p_swap_id uuid,
-  p_actor_id uuid,
   p_expected_status text,
   p_to_status text,
-  p_idempotency_key text
+  p_actor_id uuid,
+  p_source text,
+  p_idempotency_key text default null
 )
 returns jsonb
 language plpgsql
@@ -154,183 +140,122 @@ set search_path = ''
 as $function$
 declare
   v_swap public.swaps%rowtype;
-  v_existing public.swap_transition_requests%rowtype;
+  v_now timestamptz := pg_catalog.clock_timestamp();
+  v_allowed boolean := false;
   v_actor_role text;
-  v_result jsonb;
 begin
-  if p_swap_id is null
-     or p_actor_id is null
-     or p_expected_status is null
-     or p_to_status is null
-     or p_idempotency_key is null
-     or char_length(btrim(p_idempotency_key)) not between 8 and 200 then
-    return jsonb_build_object(
-      'outcome', 'invalid_request',
-      'replayed', false
-    );
-  end if;
-
-  if p_expected_status not in (
-       'pending', 'accepted', 'in_progress', 'completed',
-       'rejected', 'cancelled', 'expired', 'disputed'
-     )
-     or p_to_status not in (
-       'pending', 'accepted', 'in_progress', 'completed',
-       'rejected', 'cancelled', 'expired', 'disputed'
-     ) then
-    return jsonb_build_object(
-      'outcome', 'invalid_request',
-      'replayed', false
-    );
-  end if;
-
-  select request.*
-    into v_existing
-  from public.swap_transition_requests as request
-  where request.swap_id = p_swap_id
-    and request.actor_id = p_actor_id
-    and request.idempotency_key = btrim(p_idempotency_key);
-
-  if found then
-    if v_existing.expected_status <> p_expected_status
-       or v_existing.requested_status <> p_to_status then
-      return jsonb_build_object(
-        'outcome', 'idempotency_conflict',
-        'replayed', false
-      );
-    end if;
-
-    update public.swap_transition_requests
-      set replay_count = replay_count + 1,
-          last_replayed_at = clock_timestamp()
-    where id = v_existing.id;
-
-    return v_existing.result || jsonb_build_object(
-      'outcome', 'replayed',
-      'replayed', true
-    );
-  end if;
-
-  select swap.*
+  select *
     into v_swap
-  from public.swaps as swap
-  where swap.id = p_swap_id
+  from public.swaps
+  where id = p_swap_id
   for update;
 
   if not found then
-    return jsonb_build_object(
-      'outcome', 'not_found',
-      'replayed', false
-    );
+    raise exception 'Swap not found'
+      using errcode = 'P0002';
   end if;
 
-  -- Recheck after acquiring the row lock. A concurrent call with the same key
-  -- may have completed while this transaction was waiting.
-  select request.*
-    into v_existing
-  from public.swap_transition_requests as request
-  where request.swap_id = p_swap_id
-    and request.actor_id = p_actor_id
-    and request.idempotency_key = btrim(p_idempotency_key);
+  if v_swap.status is distinct from p_expected_status then
+    raise exception 'Stale swap status: expected %, current %',
+      p_expected_status,
+      v_swap.status
+      using errcode = '40001';
+  end if;
 
-  if found then
-    if v_existing.expected_status <> p_expected_status
-       or v_existing.requested_status <> p_to_status then
-      return jsonb_build_object(
-        'outcome', 'idempotency_conflict',
-        'replayed', false
-      );
+  if p_actor_id is null then
+    v_actor_role := 'system';
+    if p_source <> 'system_expiry'
+       or p_expected_status <> 'pending'
+       or p_to_status <> 'expired' then
+      raise exception 'System transition is not permitted'
+        using errcode = '42501';
+    end if;
+  else
+    if p_actor_id = v_swap.requester_id then
+      v_actor_role := 'requester';
+    elsif p_actor_id = v_swap.responder_id then
+      v_actor_role := 'responder';
+    else
+      raise exception 'Actor is not a swap participant'
+        using errcode = '42501';
     end if;
 
-    update public.swap_transition_requests
-      set replay_count = replay_count + 1,
-          last_replayed_at = clock_timestamp()
-    where id = v_existing.id;
+    if p_expected_status = 'pending'
+       and p_to_status in ('accepted', 'rejected')
+       and v_actor_role <> 'responder' then
+      raise exception 'Only the responder may accept or reject a pending swap'
+        using errcode = '42501';
+    end if;
 
-    return v_existing.result || jsonb_build_object(
-      'outcome', 'replayed',
-      'replayed', true
-    );
+    if p_expected_status = 'pending'
+       and p_to_status = 'cancelled'
+       and v_actor_role <> 'requester' then
+      raise exception 'Only the requester may cancel a pending swap'
+        using errcode = '42501';
+    end if;
+
+    if p_to_status = 'expired' then
+      raise exception 'Expiry is a system transition'
+        using errcode = '42501';
+    end if;
   end if;
 
-  if v_swap.requester_id = p_actor_id then
-    v_actor_role := 'requester';
-  elsif v_swap.responder_id = p_actor_id then
-    v_actor_role := 'responder';
-  else
-    return jsonb_build_object(
-      'outcome', 'not_participant',
-      'replayed', false
-    );
+  v_allowed := case p_expected_status
+    when 'pending' then p_to_status in (
+      'accepted', 'rejected', 'cancelled', 'expired'
+    )
+    when 'accepted' then p_to_status in (
+      'in_progress', 'completed', 'cancelled', 'disputed'
+    )
+    when 'in_progress' then p_to_status in (
+      'completed', 'cancelled', 'disputed'
+    )
+    else false
+  end;
+
+  if not v_allowed then
+    raise exception 'Invalid swap transition: % -> %',
+      p_expected_status,
+      p_to_status
+      using errcode = '23514';
   end if;
 
-  if v_swap.status <> p_expected_status then
-    return jsonb_build_object(
-      'outcome', 'stale_state',
-      'replayed', false,
-      'expectedStatus', p_expected_status,
-      'currentStatus', v_swap.status
-    );
-  end if;
-
-  if not (
-    (p_expected_status = 'pending'
-      and p_to_status in ('accepted', 'rejected', 'cancelled', 'expired'))
-    or (p_expected_status = 'accepted'
-      and p_to_status in ('in_progress', 'completed', 'cancelled', 'disputed'))
-    or (p_expected_status = 'in_progress'
-      and p_to_status in ('completed', 'cancelled', 'disputed'))
-  ) then
-    return jsonb_build_object(
-      'outcome', 'invalid_transition',
-      'replayed', false,
-      'fromStatus', p_expected_status,
-      'toStatus', p_to_status
-    );
-  end if;
-
-  perform set_config('swaply.swap_transition_authority', 'on', true);
+  perform pg_catalog.set_config(
+    'swaply.transition_authority',
+    'apply_swap_transition_v1',
+    true
+  );
+  perform pg_catalog.set_config(
+    'swaply.swap_transition_authority',
+    'on',
+    true
+  );
 
   update public.swaps
-    set status = p_to_status,
-        completed_at = case
-          when p_to_status = 'completed' then coalesce(completed_at, clock_timestamp())
-          else completed_at
-        end,
-        updated_at = clock_timestamp()
+  set status = p_to_status,
+      completed_at = case
+        when p_to_status = 'completed' then coalesce(completed_at, v_now)
+        else completed_at
+      end,
+      updated_at = v_now
   where id = p_swap_id
     and status = p_expected_status
   returning * into v_swap;
 
   if not found then
-    return jsonb_build_object(
-      'outcome', 'stale_state',
-      'replayed', false,
-      'expectedStatus', p_expected_status
-    );
+    raise exception 'Stale swap status: expected %', p_expected_status
+      using errcode = '40001';
   end if;
+
+  perform pg_catalog.set_config('swaply.transition_authority', '', true);
+  perform pg_catalog.set_config('swaply.swap_transition_authority', '', true);
 
   if p_to_status = 'accepted' then
     update public.swap_bundles
-      set locked = true,
-          locked_at = coalesce(locked_at, clock_timestamp())
+    set locked = true,
+        locked_at = coalesce(locked_at, v_now)
     where swap_id = p_swap_id
       and locked = false;
-
-    insert into public.swap_events (
-      swap_id,
-      actor_id,
-      action,
-      metadata
-    ) values (
-      p_swap_id,
-      p_actor_id,
-      'bundle_locked',
-      jsonb_build_object(
-        'reason', 'swap_accepted',
-        'idempotencyKey', btrim(p_idempotency_key)
-      )
-    );
   end if;
 
   insert into public.swap_events (
@@ -347,13 +272,15 @@ begin
     p_expected_status,
     p_to_status,
     jsonb_build_object(
+      'authority', 'apply_swap_transition_v1',
+      'authorityVersion', 'batch-61.2',
       'actorRole', v_actor_role,
-      'idempotencyKey', btrim(p_idempotency_key),
-      'authorityVersion', 'batch-61.2'
+      'source', p_source,
+      'idempotencyKey', p_idempotency_key
     )
   );
 
-  v_result := jsonb_build_object(
+  return jsonb_build_object(
     'outcome', 'applied',
     'replayed', false,
     'actorRole', v_actor_role,
@@ -361,26 +288,163 @@ begin
     'toStatus', p_to_status,
     'swap', to_jsonb(v_swap)
   );
+end;
+$function$;
+
+revoke execute on function public.apply_swap_transition_v1(
+  uuid,
+  text,
+  text,
+  uuid,
+  text,
+  text
+) from public, anon, authenticated;
+grant execute on function public.apply_swap_transition_v1(
+  uuid,
+  text,
+  text,
+  uuid,
+  text,
+  text
+) to service_role;
+
+create or replace function public.transition_swap_status_authoritative(
+  p_swap_id uuid,
+  p_actor_id uuid,
+  p_expected_status text,
+  p_to_status text,
+  p_idempotency_key text
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $function$
+declare
+  v_existing public.swap_transition_requests%rowtype;
+  v_response jsonb;
+  v_current_status text;
+begin
+  if p_swap_id is null
+     or p_actor_id is null
+     or p_expected_status is null
+     or p_to_status is null
+     or p_idempotency_key is null
+     or char_length(btrim(p_idempotency_key)) not between 8 and 200 then
+    return jsonb_build_object(
+      'outcome', 'invalid_request',
+      'replayed', false
+    );
+  end if;
+
+  perform pg_catalog.pg_advisory_xact_lock(
+    pg_catalog.hashtextextended(
+      p_actor_id::text || ':' || btrim(p_idempotency_key),
+      0
+    )
+  );
+
+  select *
+    into v_existing
+  from public.swap_transition_requests
+  where actor_id = p_actor_id
+    and idempotency_key = btrim(p_idempotency_key);
+
+  if found then
+    if v_existing.swap_id <> p_swap_id
+       or v_existing.expected_status <> p_expected_status
+       or v_existing.to_status <> p_to_status then
+      return jsonb_build_object(
+        'outcome', 'idempotency_conflict',
+        'replayed', false
+      );
+    end if;
+
+    return v_existing.response || jsonb_build_object(
+      'outcome', 'replayed',
+      'replayed', true
+    );
+  end if;
+
+  select status
+    into v_current_status
+  from public.swaps
+  where id = p_swap_id
+  for update;
+
+  if not found then
+    return jsonb_build_object(
+      'outcome', 'not_found',
+      'replayed', false
+    );
+  end if;
+
+  if v_current_status <> p_expected_status then
+    return jsonb_build_object(
+      'outcome', 'stale_state',
+      'replayed', false,
+      'expectedStatus', p_expected_status,
+      'currentStatus', v_current_status
+    );
+  end if;
+
+  begin
+    v_response := public.apply_swap_transition_v1(
+      p_swap_id,
+      p_expected_status,
+      p_to_status,
+      p_actor_id,
+      'server_api',
+      btrim(p_idempotency_key)
+    );
+  exception
+    when sqlstate 'P0002' then
+      return jsonb_build_object(
+        'outcome', 'not_found',
+        'replayed', false
+      );
+    when sqlstate '40001' then
+      select status into v_current_status
+      from public.swaps
+      where id = p_swap_id;
+      return jsonb_build_object(
+        'outcome', 'stale_state',
+        'replayed', false,
+        'expectedStatus', p_expected_status,
+        'currentStatus', v_current_status
+      );
+    when sqlstate '42501' then
+      return jsonb_build_object(
+        'outcome', 'not_authorized',
+        'replayed', false,
+        'reason', sqlerrm
+      );
+    when sqlstate '23514' then
+      return jsonb_build_object(
+        'outcome', 'invalid_transition',
+        'replayed', false,
+        'fromStatus', p_expected_status,
+        'toStatus', p_to_status
+      );
+  end;
 
   insert into public.swap_transition_requests (
     swap_id,
     actor_id,
-    actor_role,
     idempotency_key,
     expected_status,
-    requested_status,
-    result
+    to_status,
+    response
   ) values (
     p_swap_id,
     p_actor_id,
-    v_actor_role,
     btrim(p_idempotency_key),
     p_expected_status,
     p_to_status,
-    v_result
+    v_response
   );
 
-  return v_result;
+  return v_response;
 end;
 $function$;
 
@@ -391,7 +455,6 @@ revoke execute on function public.transition_swap_status_authoritative(
   text,
   text
 ) from public, anon, authenticated;
-
 grant execute on function public.transition_swap_status_authoritative(
   uuid,
   uuid,
@@ -400,17 +463,196 @@ grant execute on function public.transition_swap_status_authoritative(
   text
 ) to service_role;
 
-comment on table public.swap_transition_requests is
-  'Batch 61.2 internal idempotency ledger for authoritative Swap/Exchange status transitions.';
+create or replace function public.transition_swap_v1(
+  p_swap_id uuid,
+  p_expected_status text,
+  p_to_status text,
+  p_idempotency_key text
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $function$
+declare
+  v_actor_id uuid := auth.uid();
+begin
+  if v_actor_id is null then
+    raise exception 'Authentication required'
+      using errcode = '42501';
+  end if;
 
-comment on table public.swap_transition_authority_config is
-  'Batch 61.2 service-role-only staged enforcement switch. Activate only after the application deployment is READY.';
+  return public.transition_swap_status_authoritative(
+    p_swap_id,
+    v_actor_id,
+    p_expected_status,
+    p_to_status,
+    p_idempotency_key
+  );
+end;
+$function$;
 
-comment on function public.require_swap_transition_authority() is
-  'Batch 61.2 guard rejecting direct public.swaps.status updates after staged enforcement is activated.';
+revoke execute on function public.transition_swap_v1(
+  uuid,
+  text,
+  text,
+  text
+) from public, anon;
+grant execute on function public.transition_swap_v1(
+  uuid,
+  text,
+  text,
+  text
+) to authenticated, service_role;
 
-comment on function public.require_swap_identity_immutable() is
-  'Batch 61.2 guard freezing requester, responder and item identity after swap creation.';
+create or replace function public.expire_old_swaps()
+returns integer
+language plpgsql
+security definer
+set search_path = ''
+as $function$
+declare
+  v_swap record;
+  v_count integer := 0;
+begin
+  for v_swap in
+    select id
+    from public.swaps
+    where status = 'pending'
+      and (
+        (expires_at is not null and expires_at < now())
+        or
+        (expires_at is null and created_at < now() - interval '7 days')
+      )
+    for update skip locked
+  loop
+    perform public.apply_swap_transition_v1(
+      v_swap.id,
+      'pending',
+      'expired',
+      null,
+      'system_expiry',
+      'swap-status:v1:' || v_swap.id::text || ':pending:expired:system'
+    );
+    v_count := v_count + 1;
+  end loop;
+
+  return v_count;
+end;
+$function$;
+
+revoke execute on function public.expire_old_swaps()
+  from public, anon, authenticated;
+grant execute on function public.expire_old_swaps()
+  to service_role;
+
+create or replace function public.validate_swap_status_transition()
+returns trigger
+language plpgsql
+security definer
+set search_path = 'pg_catalog', 'public'
+as $function$
+declare
+  v_enforced boolean := false;
+  v_result jsonb;
+  v_key text;
+begin
+  if old.status = new.status then
+    return new;
+  end if;
+
+  if coalesce(current_setting('swaply.transition_authority', true), '')
+       = 'apply_swap_transition_v1'
+     or coalesce(
+       current_setting('swaply.swap_transition_authority', true),
+       ''
+     ) = 'on' then
+    return new;
+  end if;
+
+  select config.enforced
+    into v_enforced
+  from public.swap_transition_authority_config as config
+  where config.singleton = true;
+
+  if auth.uid() is null then
+    if coalesce(v_enforced, false) then
+      raise exception 'Direct privileged swap status updates are forbidden'
+        using errcode = '42501';
+    end if;
+
+    if old.status = 'pending'
+       and new.status not in ('accepted', 'rejected', 'cancelled', 'expired') then
+      raise exception 'Invalid swap transition: % -> %', old.status, new.status
+        using errcode = '23514';
+    elsif old.status = 'accepted'
+       and new.status not in ('in_progress', 'completed', 'cancelled', 'disputed') then
+      raise exception 'Invalid swap transition: % -> %', old.status, new.status
+        using errcode = '23514';
+    elsif old.status = 'in_progress'
+       and new.status not in ('completed', 'cancelled', 'disputed') then
+      raise exception 'Invalid swap transition: % -> %', old.status, new.status
+        using errcode = '23514';
+    elsif old.status in ('completed', 'rejected', 'cancelled', 'expired', 'disputed') then
+      raise exception 'Terminal swap status cannot transition: % -> %',
+        old.status,
+        new.status
+        using errcode = '23514';
+    end if;
+
+    return new;
+  end if;
+
+  v_key := 'direct-update:v1:'
+    || old.id::text || ':'
+    || old.status || ':'
+    || new.status || ':'
+    || auth.uid()::text;
+
+  v_result := public.transition_swap_status_authoritative(
+    old.id,
+    auth.uid(),
+    old.status,
+    new.status,
+    v_key
+  );
+
+  if v_result->>'outcome' in ('applied', 'replayed') then
+    return null;
+  elsif v_result->>'outcome' = 'stale_state' then
+    raise exception 'Stale swap status'
+      using errcode = '40001';
+  elsif v_result->>'outcome' in ('not_authorized', 'not_participant') then
+    raise exception 'Actor is not authorized for this transition'
+      using errcode = '42501';
+  elsif v_result->>'outcome' = 'invalid_transition' then
+    raise exception 'Invalid swap transition: % -> %', old.status, new.status
+      using errcode = '23514';
+  else
+    raise exception 'Swap transition failed: %', v_result->>'outcome'
+      using errcode = '22023';
+  end if;
+end;
+$function$;
+
+revoke execute on function public.validate_swap_status_transition()
+  from public, anon, authenticated;
+
+drop trigger if exists validate_swap_transition on public.swaps;
+create trigger validate_swap_transition
+  before update of status on public.swaps
+  for each row
+  execute function public.validate_swap_status_transition();
+
+comment on function public.apply_swap_transition_v1(
+  uuid,
+  text,
+  text,
+  uuid,
+  text,
+  text
+) is
+  'Batch 61.2 sole database writer for global Swap/Exchange status transitions.';
 
 comment on function public.transition_swap_status_authoritative(
   uuid,
@@ -419,6 +661,20 @@ comment on function public.transition_swap_status_authoritative(
   text,
   text
 ) is
-  'Batch 61.2 service-role-only participant authorization, CAS and idempotent status transition authority.';
+  'Batch 61.2 service-role entrypoint adding CAS outcomes and idempotent replay around the single writer.';
+
+comment on function public.transition_swap_v1(
+  uuid,
+  text,
+  text,
+  text
+) is
+  'Batch 61.2 authenticated compatibility entrypoint delegating to the single writer.';
+
+comment on table public.swap_transition_requests is
+  'Batch 61.2 service-only idempotency ledger for participant transition commands.';
+
+comment on table public.swap_transition_authority_config is
+  'Batch 61.2 staged enforcement switch; activate only after the merge deployment is READY.';
 
 commit;
