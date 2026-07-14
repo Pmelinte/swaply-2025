@@ -2,28 +2,28 @@
 
 **Train:** C  
 **Deliverable:** C2 — Canonical Exchange lifecycle  
-**Status:** implemented on branch; Production validation required before closure  
+**Status:** implemented and Production-validated on PR #462; merge pending  
 **Base checkpoint:** `95837cbd94b22f0264a83b3e4f1ad87411660c0b`
 
 ## 1. Objective
 
-Batch 61.2 establishes one database authority for every global `swaps.status`
-transition after the canonical vocabulary from Batch 61.1.
+Batch 61.2 establishes one database authority for every global
+`swaps.status` transition after the vocabulary fixed by Batch 61.1.
 
-The authority must provide:
+The contract provides:
 
 - authenticated participant authorization;
-- role-aware decisions for a pending proposal;
-- compare-and-set against the expected status;
-- row locking under concurrency;
+- role-aware pending decisions;
+- expected-status compare-and-set;
+- row locking;
 - idempotent retries;
-- one atomic status write plus `swap_events` audit record;
-- the same primitive for automatic expiry;
-- no dependency on tables absent from Production.
+- one transactional status write plus `swap_events` audit record;
+- the same internal primitive for automatic expiry;
+- no dependency on the absent `swap_bundles` table.
 
 ## 2. Canonical write path
 
-The public authenticated entry point is:
+Public authenticated entry point:
 
 ```text
 transition_swap_v1(
@@ -34,151 +34,169 @@ transition_swap_v1(
 )
 ```
 
-It delegates to the non-public internal primitive:
+Non-public internal primitive:
 
 ```text
 apply_swap_transition_v1(...)
 ```
 
-The internal primitive:
+The primitive locks the row using `FOR UPDATE`, verifies the expected state,
+authorizes the actor and role, validates the transition matrix, updates the
+status and inserts one audit event in the same transaction.
 
-1. locks the Swap row with `FOR UPDATE`;
-2. verifies `status = expected_status`;
-3. verifies participant and role authorization;
-4. verifies the Batch 61.1 transition matrix;
-5. updates the global status;
-6. inserts the `status_transition` event;
-7. returns the updated row.
+Only `authenticated` may execute the public RPC. The internal primitive has no
+execute grant for `anon`, `authenticated` or `service_role`.
 
-The update and audit event are in the same PostgreSQL transaction.
+## 3. CAS and stale state
 
-## 3. CAS and stale-state behavior
+Every canonical request carries `expected_status`.
 
-Every canonical call includes `expected_status`.
+If another request has already changed the row, the stale request receives
+SQLSTATE `40001`; the API maps this to HTTP `409`. The row lock serializes
+competing writers and the expected-state recheck allows only the first valid
+transition to succeed.
 
-If another request changes the row first, the stale request receives SQLSTATE
-`40001`. The API maps this to HTTP `409` instead of silently overwriting the
-newer state.
-
-This prevents two requests that both observed the same old state from applying
-conflicting transitions.
+A true two-session SQL probe is not available in the connected Production
+extension set. The row-lock contract is pinned in migration tests, while stale
+state was exercised against Production through a rollback probe.
 
 ## 4. Idempotency
 
-`swap_transition_requests` is a private registry keyed by:
+`swap_transition_requests` is a private RLS-enabled registry keyed by:
 
 ```text
 (actor_id, idempotency_key)
 ```
 
-The stored request includes the Swap ID, expected status, target status and the
-first successful response.
+It stores the Swap ID, expected status, target status and first successful
+response.
 
-A retry with the same actor, key and transition returns the stored response with
-`replayed = true`. Reusing the key for a different request is rejected.
+- same actor + same key + same request returns `replayed = true`;
+- replay produces no second status event;
+- the same key used for a different transition is rejected with SQLSTATE
+  `22023`;
+- cleanup cascades from the immutable Swap ID.
 
-The table:
+No direct table access is granted to `anon` or `authenticated`.
 
-- has RLS enabled;
-- grants no direct access to `anon` or `authenticated`;
-- is accessed only inside the security-definer RPC;
-- cascades with the Swap during immutable-ID cleanup.
+## 5. Authorization contract
 
-## 5. Authorization contract in this batch
-
-- only the responder may move `pending → accepted`;
-- only the responder may move `pending → rejected`;
-- only the requester may move `pending → cancelled`;
+- only the responder may perform `pending → accepted`;
+- only the responder may perform `pending → rejected`;
+- only the requester may perform `pending → cancelled`;
 - expiry is system-only;
-- other currently allowed participant transitions retain the Batch 61.1
-  compatibility contract.
+- outsiders are rejected;
+- requester, responder and item identity become immutable after Swap creation.
 
 Bilateral completion is deliberately not claimed here. It belongs to Batch
 61.3.
 
 ## 6. Compatibility bridge
 
-Some legacy authenticated UI paths still issue direct updates to
-`swaps.status`.
+Legacy authenticated clients that still issue a direct status update are
+intercepted by the transition trigger and routed through the same internal
+primitive. The outer write is suppressed, preventing a double write.
 
-The final transition trigger intercepts such writes and routes them through
-`apply_swap_transition_v1`. The original outer write is suppressed, so the row
-is not written twice.
+Direct privileged writes without an authenticated actor are rejected.
 
-The bridge:
+The bridge is temporary and must be removed after all clients use
+`transition_swap_v1` directly.
 
-- preserves current UI behavior during the migration;
-- still uses the same participant authorization, transition matrix and audit
-  primitive;
-- rejects direct privileged writes without an authenticated actor;
-- is temporary and must be removed after all clients use the public RPC.
+## 7. Marker hardening
 
-A temporary-table PostgreSQL probe verified the controlled nested-update and
-outer-write suppression pattern before Production migration.
+The first rollback probe found that the transaction-local authority marker
+remained set after a successful RPC. A later direct write in the same
+transaction could therefore inherit the marker.
 
-## 7. API and adapters
+Migration `20260714202251` resets the marker immediately after the protected
+UPDATE and before the audit insert. The complete probe was repeated afterward
+and the privileged bypass was rejected.
+
+## 8. Parallel migration reconciliation
+
+While PR #462 was under validation, a parallel branch applied migration
+`20260714202043_batch_61_2_swap_transition_authority` to Production.
+
+It introduced a second, disabled transition guard and a service-role function
+that targeted a different idempotency schema and the absent `swap_bundles`
+table.
+
+Migration `20260714202934` removed the redundant authority and config table,
+while explicitly preserving the useful identity-immutability trigger and the
+safe `pending` proposal-entry policy.
+
+The repository contains a safe historical marker for version `20260714202043`;
+a fresh database does not recreate the transient unsafe authority and reaches
+the same final schema through the reconciliation migration.
+
+## 9. API and adapters
 
 `/api/swaps/transition` now:
 
 - authenticates with the user's bearer token;
-- does not use service-role writes;
+- does not perform service-role status writes;
 - accepts `expectedStatus` and `Idempotency-Key`;
 - calls the shared RPC adapter;
 - maps stale state to HTTP `409`;
-- returns `replayed` and the effective idempotency key.
+- returns `replayed` and the effective key.
 
-The decision and completion compatibility endpoints, plus the Exchange service
-adapter, no longer write `swaps.status` directly.
+Decision, completion compatibility and Exchange adapters no longer write
+`swaps.status` directly.
 
-## 8. Production audit finding
+## 10. Production migration versions
 
-The previous transition endpoint attempted a best-effort update of
-`swap_bundles`, but that table does not exist in Production.
+- `20260714201653_batch_61_2_single_swap_transition_authority`
+- `20260714201719_batch_61_2_transition_guard_bridge`
+- `20260714202043_batch_61_2_swap_transition_authority` — reconciled historical marker
+- `20260714202251_batch_61_2_authority_marker_reset_hardening`
+- `20260714202934_batch_61_2_parallel_authority_reconciliation`
 
-Batch 61.2 removes that dependency. It does not create a speculative replacement
-table. Bundle design remains outside this batch unless a later canonical
-contract requires it.
+## 11. Production rollback-probe evidence
 
-## 9. Deliberate exclusions
+The final probe passed:
 
-Batch 61.2 does not close C2 and does not implement:
+1. canonical responder `pending → accepted`;
+2. same-key replay with one status event;
+3. idempotency-key conflict rejected;
+4. stale expected state rejected;
+5. requester cannot accept;
+6. responder can reject;
+7. outsider denied;
+8. privileged direct bypass denied;
+9. legacy authenticated write routed through the same authority;
+10. requester can cancel pending;
+11. expected idempotency registry cardinality.
+
+The probe ran inside one transaction and ended with `ROLLBACK`.
+
+Final Production state:
+
+- Swap rows: `401`;
+- invalid status rows: `0`;
+- transition-request test rows: `0`;
+- parallel config table: absent;
+- parallel transition function: absent;
+- canonical public and internal functions: present;
+- triggers retained: canonical status guard and identity immutability.
+
+## 12. Deliberate exclusions
+
+Batch 61.2 does not implement:
 
 - bilateral delivery or receipt confirmation;
-- safe automatic completion;
+- completion only after both participants confirm;
 - exactly-once item, conversation, notification, reputation or token effects;
-- canonical logistics lifecycle;
+- canonical logistics lifecycle and Realtime;
 - full dispute resolution;
 - feedback hardening.
 
-Those remain Batch 61.3, Batch 61.4 and C3/C4 work.
+These remain Batch 61.3, Batch 61.4 and C3/C4 work.
 
-## 10. Required validation
+## 13. Exit state
 
-Before merge:
-
-- unit tests, lint, typecheck and build;
-- migration contract tests;
-- Vercel Preview smoke and runtime inspection;
-- Production migration parity after controlled application.
-
-Authenticated closure evidence must include:
-
-- requester/responder role checks;
-- outsider denied;
-- stale expected status rejected;
-- two concurrent requests cannot both win;
-- same-key retry replays the same result;
-- different request with reused key is rejected;
-- one status event per successful transition;
-- direct privileged bypass denied;
-- persistence after reload;
-- cleanup by immutable IDs.
-
-## 11. Exit state
-
-When this batch is verified and merged:
+After PR #462 is merged and Production deployment is verified:
 
 - Batch 61.1 remains closed;
-- Batch 61.2 is closed;
+- Batch 61.2 closes;
 - C2 remains active;
-- the next fixed step is Batch 61.3 — Bilateral Completion.
+- next fixed step: Batch 61.3 — Bilateral Completion.
