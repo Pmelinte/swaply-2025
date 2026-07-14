@@ -10,6 +10,7 @@ export type SwapTransitionOutcome =
   | "idempotency_conflict"
   | "not_found"
   | "not_participant"
+  | "not_authorized"
   | "stale_state"
   | "invalid_transition";
 
@@ -21,6 +22,7 @@ export type AuthoritativeSwapTransition = {
   toStatus?: SwapStatus;
   expectedStatus?: SwapStatus;
   currentStatus?: SwapStatus;
+  reason?: string;
   swap?: Record<string, unknown>;
 };
 
