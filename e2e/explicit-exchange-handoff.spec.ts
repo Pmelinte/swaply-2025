@@ -24,6 +24,15 @@ type ProfileSignals = {
   lifetime_tokens: number | null;
 };
 
+type ItemState = {
+  id: string;
+  status: string;
+  is_active: boolean;
+  locked_by: string | null;
+  locked_until: string | null;
+  lock_reason: string | null;
+};
+
 function storage(path: string) {
   return JSON.parse(readFileSync(path, "utf8"));
 }
@@ -123,6 +132,22 @@ async function notificationCount(
   );
   expect(response.ok()).toBe(true);
   return ((await response.json()) as unknown[]).length;
+}
+
+async function itemStateForOwner(
+  page: Page,
+  restOrigin: string,
+  headers: ApiHeaders,
+  itemId: string,
+): Promise<ItemState> {
+  const response = await page.request.get(
+    `${restOrigin}/rest/v1/items?select=id,status,is_active,locked_by,locked_until,lock_reason&id=eq.${itemId}`,
+    { headers },
+  );
+  expect(response.ok()).toBe(true);
+  const rows = (await response.json()) as ItemState[];
+  expect(rows).toHaveLength(1);
+  return rows[0];
 }
 
 async function confirmIfNeeded(page: Page) {
@@ -232,6 +257,8 @@ test.describe("Train C Batch 60 explicit Exchange handoff", () => {
     let headersA: ApiHeaders | null = null;
     let headersB: ApiHeaders | null = null;
     let initiatorHeaders: ApiHeaders | null = null;
+    let initiatorItemHeaders: ApiHeaders | null = null;
+    let targetItemHeaders: ApiHeaders | null = null;
     let conversationId = "";
     let matchId = "";
     let swapId = "";
@@ -252,14 +279,7 @@ test.describe("Train C Batch 60 explicit Exchange handoff", () => {
         initiator_item_id: string;
         target_item_id: string;
       };
-      let itemStateBefore: Array<{
-        id: string;
-        status: string;
-        is_active: boolean;
-        locked_by: string | null;
-        locked_until: string | null;
-        lock_reason: string | null;
-      }> = [];
+      let itemStateBefore: ItemState[] = [];
       let profileABefore: ProfileSignals;
       let profileBBefore: ProfileSignals;
       let notificationsABefore = 0;
@@ -310,14 +330,28 @@ test.describe("Train C Batch 60 explicit Exchange handoff", () => {
         match = matchRows[0];
         expect(match.status).toBe("accepted");
         expect(match.converted_swap_id).toBeNull();
-        initiatorHeaders = match.initiator_id === userAId ? headersA : headersB;
-
-        const itemResponse = await pageA.request.get(
-          `${restOrigin}/rest/v1/items?select=id,status,is_active,locked_by,locked_until,lock_reason&id=in.(${match.initiator_item_id},${match.target_item_id})`,
-          { headers: headersA },
+        expect([match.initiator_id, match.target_user_id].sort()).toEqual(
+          [userAId, userBId].sort(),
         );
-        expect(itemResponse.ok()).toBe(true);
-        itemStateBefore = sortRows(await itemResponse.json());
+
+        initiatorHeaders = match.initiator_id === userAId ? headersA : headersB;
+        initiatorItemHeaders = initiatorHeaders;
+        targetItemHeaders = match.target_user_id === userAId ? headersA : headersB;
+
+        itemStateBefore = sortRows([
+          await itemStateForOwner(
+            pageA,
+            restOrigin,
+            initiatorItemHeaders,
+            match.initiator_item_id,
+          ),
+          await itemStateForOwner(
+            pageB,
+            restOrigin,
+            targetItemHeaders,
+            match.target_item_id,
+          ),
+        ]);
         expect(itemStateBefore).toHaveLength(2);
 
         profileABefore = await profileSignals(pageA, restOrigin, headersA, userAId);
@@ -494,11 +528,21 @@ test.describe("Train C Batch 60 explicit Exchange handoff", () => {
       });
 
       await test.step("verify no item, token, rank or notification side effects", async () => {
-        const itemResponse = await pageA.request.get(
-          `${restOrigin}/rest/v1/items?select=id,status,is_active,locked_by,locked_until,lock_reason&id=in.(${match.initiator_item_id},${match.target_item_id})`,
-          { headers: headersA! },
-        );
-        expect(sortRows(await itemResponse.json())).toEqual(itemStateBefore);
+        const itemStateAfter = sortRows([
+          await itemStateForOwner(
+            pageA,
+            restOrigin,
+            initiatorItemHeaders!,
+            match.initiator_item_id,
+          ),
+          await itemStateForOwner(
+            pageB,
+            restOrigin,
+            targetItemHeaders!,
+            match.target_item_id,
+          ),
+        ]);
+        expect(itemStateAfter).toEqual(itemStateBefore);
 
         expect(
           await profileSignals(pageA, restOrigin, headersA!, userAId),
