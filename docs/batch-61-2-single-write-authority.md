@@ -67,7 +67,7 @@ A competing command that expected the previous state returns `stale_state` and d
 
 ## Direct-write and identity prevention
 
-Batch 61.2 adds a `BEFORE UPDATE OF status` guard. A direct update is rejected unless it is executed inside the authoritative function's transaction context.
+Batch 61.2 adds a `BEFORE UPDATE OF status` guard. A direct update is rejected unless it is executed inside the authoritative function's transaction context and strict enforcement has been activated.
 
 A second guard freezes `requester_id`, `responder_id`, `offered_item_id` and `requested_item_id` after creation. The participant role used by the authority therefore cannot be rewritten by a browser, a stale application path or a service-role update.
 
@@ -76,6 +76,19 @@ The participant insert policy is narrowed: a requester may create a swap only wi
 The browser Supabase client contains a temporary compatibility firewall. Any remaining legacy PostgREST PATCH containing `swaps.status` is converted into a call to `/api/swaps/transition` with the current status as `expectedStatus`. Other fields from the same PATCH are written only after the authoritative transition succeeds.
 
 The database guards remain the final protection for external clients, stale application code and service-role bypass attempts.
+
+## Deployment sequence
+
+The migration creates a service-role-only singleton configuration row with `enforced = false`. This permits a safe pre-merge installation:
+
+1. apply the migration while the previous Production application is still active;
+2. verify that the RPC, ledger, grants, identity guard and `pending` insert policy exist;
+3. merge and deploy the application that uses the authoritative RPC;
+4. verify the new Production deployment and public/runtime smoke tests;
+5. update the internal configuration to `enforced = true`;
+6. prove that direct status writes are rejected while the RPC remains functional.
+
+The configuration table is inaccessible to `public`, `anon` and `authenticated`. Only `service_role` can activate or deactivate strict enforcement.
 
 ## Compatibility boundary
 
@@ -94,8 +107,9 @@ Batch 61.2 is complete only when:
 - Build passes;
 - Public Visual Audit passes;
 - the Production migration is applied;
-- Production grants expose the RPC only to `service_role`;
-- direct status writes are rejected;
+- Production grants expose the RPC and configuration only to `service_role`;
+- the merge deployment is READY before strict enforcement is activated;
+- strict enforcement is active and direct status writes are rejected;
 - participant and item identity columns are immutable after creation;
 - new participant-created swaps are restricted to `pending`;
 - existing Production rows remain unchanged and valid;
