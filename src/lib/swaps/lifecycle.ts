@@ -57,3 +57,17 @@ export function canTransitionSwap(
 export function isTerminalSwapStatus(status: SwapStatus): boolean {
   return (TERMINAL_SWAP_STATUSES as readonly SwapStatus[]).includes(status);
 }
+
+/**
+ * A deterministic key makes a user retry of the same one-way lifecycle action
+ * replay the first result instead of creating a second transition event.
+ * The canonical graph has no cycles, so the same swap/from/to tuple represents
+ * one logical operation.
+ */
+export function buildSwapTransitionIdempotencyKey(
+  swapId: string,
+  expectedStatus: SwapStatus,
+  toStatus: SwapStatus,
+): string {
+  return `swap-status:v1:${swapId}:${expectedStatus}:${toStatus}`;
+}
