@@ -32,8 +32,11 @@ export async function POST(
   const body = (await request.json().catch(() => ({}))) as {
     idempotencyKey?: string;
   };
-  const idempotencyKey =
-    request.headers.get("idempotency-key") ?? body.idempotencyKey?.trim();
+  const idempotencyKey = (
+    request.headers.get("idempotency-key") ??
+    body.idempotencyKey ??
+    ""
+  ).trim();
 
   if (!idempotencyKey) {
     return NextResponse.json(
