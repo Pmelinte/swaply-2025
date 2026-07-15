@@ -21,6 +21,7 @@ on:
       - "src/components/notifications/NotificationBell.tsx"
       - "supabase/migrations/20260715150000_batch_62_3_notifications_realtime.sql"
       - "supabase/migrations/20260715161000_batch_62_3_authenticated_e2e_cleanup.sql"
+      - "supabase/migrations/20260715165000_batch_62_3_review_conflict_status.sql"
 
 permissions:
   contents: read
