@@ -4,9 +4,9 @@ import { describe, expect, it } from "vitest";
 
 const directory = join(process.cwd(), "supabase", "migrations");
 
-function closureMigration() {
+function migrationEndingWith(suffix: string) {
   const file = readdirSync(directory)
-    .filter((name) => name.endsWith("_batch_62_3_authenticated_e2e_cleanup.sql"))
+    .filter((name) => name.endsWith(suffix))
     .sort()
     .at(-1);
 
@@ -14,7 +14,15 @@ function closureMigration() {
   return readFileSync(join(directory, file!), "utf8").replace(/\s+/g, " ");
 }
 
-describe("Batch 62.3 authenticated C3 closure migration", () => {
+function closureMigration() {
+  return migrationEndingWith("_batch_62_3_authenticated_e2e_cleanup.sql");
+}
+
+function notificationsRealtimeMigration() {
+  return migrationEndingWith("_batch_62_3_notifications_realtime.sql");
+}
+
+describe("Batch 62.3 authenticated C3 closure migrations", () => {
   it("keeps the E2E account registry private and empty by default", () => {
     const sql = closureMigration();
 
@@ -61,5 +69,14 @@ describe("Batch 62.3 authenticated C3 closure migration", () => {
     expect(sql).toContain("swaps_completed = greatest(");
     expect(sql).toContain("pg_catalog.to_jsonb( greatest(");
     expect(sql).not.toContain("pg_catalog.greatest");
+  });
+
+  it("publishes canonical notifications to Supabase Realtime idempotently", () => {
+    const sql = notificationsRealtimeMigration();
+
+    expect(sql).toContain("from pg_catalog.pg_publication");
+    expect(sql).toContain("from pg_catalog.pg_publication_tables");
+    expect(sql).toContain("alter publication supabase_realtime add table public.notifications");
+    expect(sql).toContain("tablename = 'notifications'");
   });
 });
