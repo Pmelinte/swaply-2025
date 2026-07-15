@@ -8,25 +8,7 @@ Batch 62.3 is implemented and validated on draft PR `#469`. C3 remains open unti
 
 ## Authenticated contract
 
-The two-user graph proves:
-
-1. valid, distinct authenticated sessions;
-2. guest and outsider denial;
-3. one canonical Exchange from a confirmed Match agreement;
-4. zero C3 effects after the first completion confirmation;
-5. exactly-once completion under second-confirmation retry and concurrency;
-6. canonical completed state for Exchange, items and conversation;
-7. one post-completion registry row;
-8. exactly `+30` Swapleni per participant;
-9. four deduplicated completion/feedback notifications;
-10. visible notification delivery without reload;
-11. one completion-counter and trust update per participant;
-12. concurrent canonical Reviews from both participants;
-13. Review replay without duplication;
-14. HTTP `409` for changed payload with a reused idempotency key;
-15. response authority limited to the reviewed participant;
-16. synchronized `is_read`, `read` and `read_at`;
-17. immutable-ID cleanup and profile-cache restoration.
+The two-user graph proves valid distinct sessions, guest and outsider denial, one canonical Exchange, zero effects after the first confirmation, exactly-once completion under retry/concurrency, `+30` Swapleni per participant, four deduplicated notifications, visible Realtime delivery, canonical Reviews, HTTP `409` for changed-payload idempotency conflict, response authority, synchronized read state and immutable-ID cleanup with cache restoration.
 
 No historical completed Exchange was backfilled.
 
@@ -36,30 +18,18 @@ No historical completed Exchange was backfilled.
 - `20260715145929_batch_62_3_notifications_realtime`;
 - `20260715155017_batch_62_3_review_conflict_status`.
 
-The private cleanup registry has RLS and no browser table access. Cleanup requires an authenticated participant, both privately registered E2E accounts and valid effect cardinality.
+The cleanup registry is private, has RLS and no browser table access. Cleanup requires an authenticated participant, both privately registered E2E accounts and valid effect cardinality.
 
-## Realtime and Review fixes
-
-The closure audit repaired:
+## Repairs found by closure testing
 
 - missing Realtime publication for `public.notifications`;
 - duplicate channel topics on the shared Supabase client;
 - a fetch/join window that could lose visible events;
 - notification body fallback that repeated the title;
 - expired reusable E2E session handling;
-- SQLSTATE `22023` for an idempotency conflict that semantically requires HTTP `409`.
+- SQLSTATE `22023` where an idempotency conflict requires HTTP `409`.
 
-The visible notification hook now uses `notifications-ui:{userId}`, handles INSERT and UPDATE, deduplicates by row ID and reconciles after `SUBSCRIBED`.
-
-## Iterative evidence
-
-- `#61`: missing notification Realtime publication;
-- `#63`: client subscription conflict;
-- `#66`: two-user baseline timing race;
-- `#68`: expired reusable User B session;
-- `#69`: 17 of 18 passed; duplicate title/message exposed;
-- `#70`: idempotency conflict returned `400` instead of `409`;
-- `#73`: complete authenticated graph passed.
+The notification UI now uses `notifications-ui:{userId}`, handles INSERT and UPDATE, deduplicates by row ID and reconciles after `SUBSCRIBED`.
 
 ## Final validation
 
@@ -73,15 +43,8 @@ After automatic validation, the authenticated workflow was restored to normal ma
 
 ## Final Production cleanup
 
-- test Swaps: `0`;
-- completion and post-completion effects: `0`;
-- test notifications: `0`;
-- test rewards: `0`;
-- test Reviews: `0`;
-- notification read-state mismatches: `0`.
+Zero test Swaps, completion effects, post-completion effects, notifications, rewards, Reviews and notification read-state mismatches remained.
 
 ## Closure gate
 
-C3 is `READY_TO_CLOSE`, not `CLOSED`.
-
-It closes only after exact command `Merge #469`, merge without head drift and successful post-merge GitHub CI, Vercel Production, runtime and database cleanup verification.
+C3 is `READY_TO_CLOSE`, not `CLOSED`. It closes only after exact command `Merge #469`, merge without head drift and successful post-merge GitHub CI, Vercel Production, runtime and database cleanup verification.
