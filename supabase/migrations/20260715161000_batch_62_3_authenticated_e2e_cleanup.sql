@@ -146,7 +146,7 @@ begin
   v_counter_delta := case when v_post_effect_rows = 1 then 1 else 0 end;
 
   update public.profiles
-     set swaps_completed = pg_catalog.greatest(
+     set swaps_completed = greatest(
            coalesce(swaps_completed, 0) - v_counter_delta,
            0
          ),
@@ -155,7 +155,7 @@ begin
              coalesce(stats, '{}'::jsonb),
              '{tokens}',
              pg_catalog.to_jsonb(
-               pg_catalog.greatest(
+               greatest(
                  coalesce((stats ->> 'tokens')::integer, 0)
                    - case
                        when user_id = v_swap.requester_id then v_requester_reward
@@ -169,7 +169,7 @@ begin
            ),
            '{completedSwaps}',
            pg_catalog.to_jsonb(
-             pg_catalog.greatest(
+             greatest(
                coalesce((stats ->> 'completedSwaps')::integer, 0) - v_counter_delta,
                0
              )
