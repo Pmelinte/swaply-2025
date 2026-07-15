@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import type { Notification, NotificationPreferences } from "@/lib/types";
 
@@ -18,6 +18,13 @@ const DEFAULT_PREFERENCES: Omit<NotificationPreferences, "userId" | "updatedAt">
 };
 
 export type NotificationFilter = "all" | "unread" | "swap" | "message" | "alert";
+export type NotificationRealtimeStatus =
+  | "IDLE"
+  | "CONNECTING"
+  | "SUBSCRIBED"
+  | "CHANNEL_ERROR"
+  | "TIMED_OUT"
+  | "CLOSED";
 
 function matchesFilter(n: Notification, filter: NotificationFilter): boolean {
   if (filter === "all") return true;
@@ -32,8 +39,45 @@ function matchesFilter(n: Notification, filter: NotificationFilter): boolean {
     ].includes(n.type);
   }
   if (filter === "message") return n.type === "message";
-  if (filter === "alert") return ["match_new", "saved_search_result", "favorite_updated", "feedback_requested", "dispute_update"].includes(n.type);
+  if (filter === "alert") {
+    return [
+      "match_new",
+      "saved_search_result",
+      "favorite_updated",
+      "feedback_requested",
+      "dispute_update",
+    ].includes(n.type);
+  }
   return true;
+}
+
+function mapNotificationRow(row: Record<string, unknown>): Notification {
+  return {
+    id: String(row.id ?? ""),
+    userId: String(row.user_id ?? ""),
+    type: String(row.type ?? "info"),
+    title: row.title ? String(row.title) : undefined,
+    message: String(row.message ?? row.body ?? row.title ?? ""),
+    body: row.body ? String(row.body) : undefined,
+    data: (row.data && typeof row.data === "object"
+      ? row.data
+      : {}) as Record<string, unknown>,
+    read: Boolean(row.is_read ?? row.read ?? false),
+    priority: String(row.priority ?? "normal") as Notification["priority"],
+    createdAt: String(row.created_at ?? new Date().toISOString()),
+  };
+}
+
+function mergeNotification(
+  previous: Notification[],
+  incoming: Notification,
+): Notification[] {
+  const existingIndex = previous.findIndex((row) => row.id === incoming.id);
+  if (existingIndex === -1) return [incoming, ...previous];
+
+  const next = [...previous];
+  next[existingIndex] = incoming;
+  return next;
 }
 
 export function useNotifications(userId: string | undefined) {
@@ -42,54 +86,62 @@ export function useNotifications(userId: string | undefined) {
   const [filter, setFilter] = useState<NotificationFilter>("all");
   const [preferences, setPreferences] = useState<NotificationPreferences | null>(null);
   const [prefsLoading, setPrefsLoading] = useState(false);
-  const fetchedRef = useRef(false);
-  const prefsFetchedRef = useRef(false);
+  const [realtimeStatus, setRealtimeStatus] =
+    useState<NotificationRealtimeStatus>("IDLE");
 
-  // Fetch notifications
-  useEffect(() => {
-    if (!userId || fetchedRef.current) return;
-    fetchedRef.current = true;
-    let cancelled = false;
+  const loadNotifications = useCallback(async () => {
+    if (!userId) {
+      setNotifications([]);
+      return;
+    }
 
-    (async () => {
-      const sb = getSupabaseClient();
-      if (!sb) return;
+    const sb = getSupabaseClient();
+    if (!sb) return;
 
-      setLoading(true);
-      const { data } = await sb
-        .from("notifications")
-        .select("*")
-        .eq("user_id", userId)
-        .order("created_at", { ascending: false })
-        .limit(100);
+    setLoading(true);
+    const { data } = await sb
+      .from("notifications")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(100);
 
-      if (cancelled) return;
-
-      if (data) {
-        setNotifications(data.map((row: Record<string, unknown>) => ({
-          id: String(row.id ?? ""),
-          userId: String(row.user_id ?? ""),
-          type: String(row.type ?? "info"),
-          title: row.title ? String(row.title) : undefined,
-          message: String(row.message ?? row.title ?? ""),
-          body: row.body ? String(row.body) : undefined,
-          data: (row.data && typeof row.data === "object" ? row.data : {}) as Record<string, unknown>,
-          read: Boolean(row.is_read ?? row.read ?? false),
-          priority: String(row.priority ?? "normal") as Notification["priority"],
-          createdAt: String(row.created_at ?? new Date().toISOString()),
-        })));
-      }
-      setLoading(false);
-    })();
-
-    return () => { cancelled = true; };
+    if (data) {
+      setNotifications(
+        data.map((row: Record<string, unknown>) => mapNotificationRow(row)),
+      );
+    }
+    setLoading(false);
   }, [userId]);
 
-  // Fetch preferences
+  // Initial fetch. Re-run whenever the authenticated identity changes.
   useEffect(() => {
-    if (!userId || prefsFetchedRef.current) return;
-    prefsFetchedRef.current = true;
     let cancelled = false;
+
+    if (!userId) {
+      setNotifications([]);
+      setLoading(false);
+      return;
+    }
+
+    void loadNotifications().then(() => {
+      if (cancelled) return;
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [loadNotifications, userId]);
+
+  // Fetch preferences whenever the authenticated identity changes.
+  useEffect(() => {
+    let cancelled = false;
+
+    if (!userId) {
+      setPreferences(null);
+      setPrefsLoading(false);
+      return;
+    }
 
     (async () => {
       const sb = getSupabaseClient();
@@ -105,48 +157,95 @@ export function useNotifications(userId: string | undefined) {
       if (cancelled) return;
 
       if (data) {
-        setPreferences({ ...DEFAULT_PREFERENCES, ...data, userId } as NotificationPreferences);
+        setPreferences({
+          ...DEFAULT_PREFERENCES,
+          ...data,
+          userId,
+        } as NotificationPreferences);
       } else {
-        setPreferences({ ...DEFAULT_PREFERENCES, userId } as NotificationPreferences);
+        setPreferences({
+          ...DEFAULT_PREFERENCES,
+          userId,
+        } as NotificationPreferences);
       }
       setPrefsLoading(false);
     })();
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [userId]);
 
-  // Realtime subscription
+  // Canonical Realtime subscription for the visible notification UI.
+  // The topic deliberately differs from the legacy AppState topic so one
+  // subscription cannot replace or remove the other on the shared client.
+  // A reconciliation fetch after SUBSCRIBED closes the fetch/join race window.
   useEffect(() => {
-    if (!userId) return;
+    if (!userId) {
+      setRealtimeStatus("IDLE");
+      return;
+    }
+
     const sb = getSupabaseClient();
-    if (!sb) return;
+    if (!sb) {
+      setRealtimeStatus("CLOSED");
+      return;
+    }
+
+    let active = true;
+    setRealtimeStatus("CONNECTING");
 
     const channel = sb
-      .channel(`notifications:${userId}`)
+      .channel(`notifications-ui:${userId}`)
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` },
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "notifications",
+          filter: `user_id=eq.${userId}`,
+        },
         (payload) => {
-          const row = payload.new as Record<string, unknown>;
-          const n: Notification = {
-            id: String(row.id ?? ""),
-            userId: String(row.user_id ?? ""),
-            type: String(row.type ?? "info"),
-            title: row.title ? String(row.title) : undefined,
-            message: String(row.message ?? row.title ?? ""),
-            body: row.body ? String(row.body) : undefined,
-            data: (row.data && typeof row.data === "object" ? row.data : {}) as Record<string, unknown>,
-            read: Boolean(row.is_read ?? row.read ?? false),
-            priority: String(row.priority ?? "normal") as Notification["priority"],
-            createdAt: String(row.created_at ?? new Date().toISOString()),
-          };
-          setNotifications((prev) => [n, ...prev]);
+          const incoming = mapNotificationRow(
+            payload.new as Record<string, unknown>,
+          );
+          setNotifications((previous) =>
+            mergeNotification(previous, incoming),
+          );
         },
       )
-      .subscribe();
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "notifications",
+          filter: `user_id=eq.${userId}`,
+        },
+        (payload) => {
+          const incoming = mapNotificationRow(
+            payload.new as Record<string, unknown>,
+          );
+          setNotifications((previous) =>
+            mergeNotification(previous, incoming),
+          );
+        },
+      )
+      .subscribe((status) => {
+        if (!active) return;
+        setRealtimeStatus(status as NotificationRealtimeStatus);
 
-    return () => { sb.removeChannel(channel); };
-  }, [userId]);
+        if (status === "SUBSCRIBED") {
+          void loadNotifications();
+        }
+      });
+
+    return () => {
+      active = false;
+      setRealtimeStatus("CLOSED");
+      void sb.removeChannel(channel);
+    };
+  }, [loadNotifications, userId]);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
   const filtered = notifications.filter((n) => matchesFilter(n, filter));
@@ -159,7 +258,13 @@ export function useNotifications(userId: string | undefined) {
         .update({ is_read: true, read: true })
         .eq("id", notificationId);
     }
-    setNotifications((prev) => prev.map((n) => n.id === notificationId ? { ...n, read: true } : n));
+    setNotifications((previous) =>
+      previous.map((notification) =>
+        notification.id === notificationId
+          ? { ...notification, read: true }
+          : notification,
+      ),
+    );
   }, []);
 
   const markAllRead = useCallback(async () => {
@@ -172,7 +277,9 @@ export function useNotifications(userId: string | undefined) {
         .eq("user_id", userId)
         .eq("is_read", false);
     }
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    setNotifications((previous) =>
+      previous.map((notification) => ({ ...notification, read: true })),
+    );
   }, [userId]);
 
   const deleteNotification = useCallback(async (notificationId: string) => {
@@ -180,22 +287,40 @@ export function useNotifications(userId: string | undefined) {
     if (sb) {
       await sb.from("notifications").delete().eq("id", notificationId);
     }
-    setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
+    setNotifications((previous) =>
+      previous.filter((notification) => notification.id !== notificationId),
+    );
   }, []);
 
-  const updatePreferences = useCallback(async (updates: Partial<NotificationPreferences>) => {
-    if (!userId) return;
-    const sb = getSupabaseClient();
-    if (!sb) return;
+  const updatePreferences = useCallback(
+    async (updates: Partial<NotificationPreferences>) => {
+      if (!userId) return;
+      const sb = getSupabaseClient();
+      if (!sb) return;
 
-    const newPrefs = { ...preferences, ...updates, userId, updated_at: new Date().toISOString() };
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { userId: _uid, updatedAt: _ua, ...dbRow } = newPrefs as NotificationPreferences & { updated_at: string };
-    const payload = { ...dbRow, user_id: userId };
+      const newPreferences = {
+        ...preferences,
+        ...updates,
+        userId,
+        updated_at: new Date().toISOString(),
+      };
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const {
+        userId: _userId,
+        updatedAt: _updatedAt,
+        ...databaseRow
+      } = newPreferences as NotificationPreferences & {
+        updated_at: string;
+      };
+      const payload = { ...databaseRow, user_id: userId };
 
-    await sb.from("notification_preferences").upsert(payload, { onConflict: "user_id" });
-    setPreferences(newPrefs as NotificationPreferences);
-  }, [userId, preferences]);
+      await sb
+        .from("notification_preferences")
+        .upsert(payload, { onConflict: "user_id" });
+      setPreferences(newPreferences as NotificationPreferences);
+    },
+    [userId, preferences],
+  );
 
   return {
     notifications: filtered,
@@ -210,5 +335,7 @@ export function useNotifications(userId: string | undefined) {
     preferences,
     prefsLoading,
     updatePreferences,
+    realtimeStatus,
+    refresh: loadNotifications,
   };
 }

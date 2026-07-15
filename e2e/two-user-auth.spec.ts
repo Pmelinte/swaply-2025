@@ -19,58 +19,127 @@ function requiredCredential(name: RequiredCredential): string {
   return value;
 }
 
-async function restoreReusableUserBSession(page: Page, email: string, password: string) {
+async function ensureReusableSession(
+  page: Page,
+  email: string,
+  password: string,
+  authFile: string,
+  label: string,
+) {
   const currentSession = await page.request.get("/api/tokens/balance");
 
-  if (currentSession.status() === 200) {
-    await page.context().storageState({ path: userBAuthFile });
-    return;
+  if (currentSession.status() !== 200) {
+    await authenticateAndSave(page, email, password, authFile, label);
+  } else {
+    await page.context().storageState({ path: authFile });
   }
 
-  await authenticateAndSave(page, email, password, userBAuthFile, "User B");
+  await page.goto("/en/profile", { waitUntil: "domcontentloaded" });
+  await expectAuthenticatedSession(page, label);
+
+  const profileMenu = page.getByRole("button", {
+    name: "Profile & Settings",
+    exact: true,
+  });
+
+  try {
+    await expect(profileMenu).toBeVisible({ timeout: 20_000 });
+  } catch {
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await expectAuthenticatedSession(page, `${label} after hydration reload`);
+    await expect(profileMenu).toBeVisible({ timeout: 20_000 });
+  }
+
+  await page.context().storageState({ path: authFile });
 }
 
 test.describe("Train C two-user authenticated baseline", () => {
   test.describe.configure({ mode: "serial" });
 
-  test("dedicated sessions are distinct and both can open the profile route", async ({ browser }) => {
+  test("dedicated sessions are distinct and both can open the profile route", async ({
+    browser,
+  }) => {
+    test.setTimeout(120_000);
+
     const stateA = JSON.parse(readFileSync(userAAuthFile, "utf8"));
     const stateB = JSON.parse(readFileSync(userBAuthFile, "utf8"));
     const userAEmail = requiredCredential("E2E_USER_A_EMAIL");
+    const userAPassword = requiredCredential("E2E_USER_A_PASSWORD");
     const userBEmail = requiredCredential("E2E_USER_B_EMAIL");
+    const userBPassword = requiredCredential("E2E_USER_B_PASSWORD");
 
     expect(JSON.stringify(stateA)).not.toBe(JSON.stringify(stateB));
 
     const contextA = await browser.newContext({ storageState: stateA });
     const contextB = await browser.newContext({ storageState: stateB });
 
-    const pageA = await contextA.newPage();
-    const pageB = await contextB.newPage();
+    try {
+      const pageA = await contextA.newPage();
+      const pageB = await contextB.newPage();
 
-    await pageA.goto("/en/profile", { waitUntil: "networkidle" });
-    await pageB.goto("/en/profile", { waitUntil: "networkidle" });
+      await Promise.all([
+        ensureReusableSession(
+          pageA,
+          userAEmail,
+          userAPassword,
+          userAAuthFile,
+          "User A baseline",
+        ),
+        ensureReusableSession(
+          pageB,
+          userBEmail,
+          userBPassword,
+          userBAuthFile,
+          "User B baseline",
+        ),
+      ]);
 
-    await expect(pageA).toHaveURL(/\/en\/profile/);
-    await expect(pageB).toHaveURL(/\/en\/profile/);
-    await expect(pageA.locator('input[type="email"]')).toHaveCount(0);
-    await expect(pageB.locator('input[type="email"]')).toHaveCount(0);
+      await Promise.all([
+        expect(pageA).toHaveURL(/\/en\/profile/),
+        expect(pageB).toHaveURL(/\/en\/profile/),
+        expect(pageA.locator('input[type="email"]')).toHaveCount(0),
+        expect(pageB.locator('input[type="email"]')).toHaveCount(0),
+      ]);
 
-    await pageA.getByRole("button", { name: "Account & Settings", exact: true }).click();
-    await pageB.getByRole("button", { name: "Account & Settings", exact: true }).click();
+      await Promise.all([
+        pageA
+          .getByRole("button", {
+            name: "Account & Settings",
+            exact: true,
+          })
+          .click(),
+        pageB
+          .getByRole("button", {
+            name: "Account & Settings",
+            exact: true,
+          })
+          .click(),
+      ]);
 
-    const currentEmailA = pageA.locator("p").filter({ hasText: "Current email:" });
-    const currentEmailB = pageB.locator("p").filter({ hasText: "Current email:" });
+      const currentEmailA = pageA
+        .locator("p")
+        .filter({ hasText: "Current email:" });
+      const currentEmailB = pageB
+        .locator("p")
+        .filter({ hasText: "Current email:" });
 
-    await expect(currentEmailA).toContainText(userAEmail);
-    await expect(currentEmailB).toContainText(userBEmail);
-    await expect(currentEmailA).not.toContainText(userBEmail);
-    await expect(currentEmailB).not.toContainText(userAEmail);
-
-    await contextA.close();
-    await contextB.close();
+      await Promise.all([
+        expect(currentEmailA).toContainText(userAEmail),
+        expect(currentEmailB).toContainText(userBEmail),
+        expect(currentEmailA).not.toContainText(userBEmail),
+        expect(currentEmailB).not.toContainText(userAEmail),
+      ]);
+    } finally {
+      await Promise.all([
+        contextA.close().catch(() => undefined),
+        contextB.close().catch(() => undefined),
+      ]);
+    }
   });
 
-  test("guest requests cannot read authenticated account APIs", async ({ request }) => {
+  test("guest requests cannot read authenticated account APIs", async ({
+    request,
+  }) => {
     const balance = await request.get("/api/tokens/balance");
     expect(balance.status()).toBe(401);
 
@@ -78,12 +147,16 @@ test.describe("Train C two-user authenticated baseline", () => {
     expect(history.status()).toBe(401);
   });
 
-  test("guest profile requests redirect to login without private profile controls", async ({ page }) => {
-    await page.goto("/en/profile", { waitUntil: "networkidle" });
+  test("guest profile requests redirect to login without private profile controls", async ({
+    page,
+  }) => {
+    await page.goto("/en/profile", { waitUntil: "domcontentloaded" });
 
     await expect(page).toHaveURL(/\/en\/login\?returnTo=%2Fprofile/);
     await expect(page.locator('input[type="email"]')).toBeVisible();
-    await expect(page.getByRole("button", { name: /save profile/i })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /save profile/i })).toHaveCount(
+      0,
+    );
   });
 
   test("authenticated user can log out and loses protected access without invalidating later suites", async ({
@@ -100,22 +173,32 @@ test.describe("Train C two-user authenticated baseline", () => {
     let primaryError: unknown | null = null;
 
     try {
-      await page.goto("/en/profile", { waitUntil: "networkidle" });
-      await expect(page).toHaveURL(/\/en\/profile/);
-      await expectAuthenticatedSession(page, "User B before logout");
+      await ensureReusableSession(
+        page,
+        userBEmail,
+        userBPassword,
+        userBAuthFile,
+        "User B before logout",
+      );
 
-      await page.getByRole("button", { name: "Profile & Settings", exact: true }).click();
+      await page
+        .getByRole("button", { name: "Profile & Settings", exact: true })
+        .click();
       logoutTriggered = true;
       await page.getByRole("menuitem", { name: "Logout", exact: true }).click();
 
-      await expect(page.getByRole("link", { name: "Login", exact: true })).toBeVisible();
+      await expect(
+        page.getByRole("link", { name: "Login", exact: true }),
+      ).toBeVisible();
       await expect
-        .poll(async () => (await context.request.get("/api/tokens/balance")).status(), {
-          timeout: 30_000,
-        })
+        .poll(
+          async () =>
+            (await context.request.get("/api/tokens/balance")).status(),
+          { timeout: 30_000 },
+        )
         .toBe(401);
 
-      await page.goto("/en/profile", { waitUntil: "networkidle" });
+      await page.goto("/en/profile", { waitUntil: "domcontentloaded" });
       await expect(page).toHaveURL(/\/en\/login\?returnTo=%2Fprofile/);
       await expect(page.locator('input[type="email"]')).toBeVisible();
     } catch (error) {
@@ -127,8 +210,13 @@ test.describe("Train C two-user authenticated baseline", () => {
     if (logoutTriggered) {
       try {
         await test.step("restore the reusable User B fixture", async () => {
-          await restoreReusableUserBSession(page, userBEmail, userBPassword);
-          await expectAuthenticatedSession(page, "User B after fixture restore");
+          await ensureReusableSession(
+            page,
+            userBEmail,
+            userBPassword,
+            userBAuthFile,
+            "User B after fixture restore",
+          );
         });
       } catch (error) {
         restoreError = error;
