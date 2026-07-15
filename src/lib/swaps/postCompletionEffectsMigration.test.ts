@@ -4,14 +4,22 @@ import { describe, expect, it } from "vitest";
 
 const directory = join(process.cwd(), "supabase", "migrations");
 
-function postCompletionMigration() {
+function migrationEndingWith(suffix: string) {
   const file = readdirSync(directory)
-    .filter((name) => name.endsWith("_batch_62_2_post_completion_effects.sql"))
+    .filter((name) => name.endsWith(suffix))
     .sort()
     .at(-1);
 
   expect(file).toBeDefined();
   return readFileSync(join(directory, file!), "utf8");
+}
+
+function postCompletionMigration() {
+  return migrationEndingWith("_batch_62_2_post_completion_effects.sql");
+}
+
+function trustExpressionFixMigration() {
+  return migrationEndingWith("_batch_62_2_trust_expression_fix.sql");
 }
 
 describe("Batch 62.2 post-completion effects migration", () => {
@@ -74,5 +82,13 @@ describe("Batch 62.2 post-completion effects migration", () => {
     expect(sql).toContain("new.is_read := v_read");
     expect(sql).toContain("new.read := v_read");
     expect(sql).toContain("before insert or update of read, is_read, read_at");
+  });
+
+  it("pins the PostgreSQL LEAST and GREATEST expression correction", () => {
+    const sql = trustExpressionFixMigration().replace(/\s+/g, " ");
+    expect(sql).toContain("v_score := v_score + least(v_completed * 20, 400)");
+    expect(sql).toContain("v_score := greatest(0, least(1000, v_score))");
+    expect(sql).not.toContain("pg_catalog.least");
+    expect(sql).not.toContain("pg_catalog.greatest");
   });
 });
