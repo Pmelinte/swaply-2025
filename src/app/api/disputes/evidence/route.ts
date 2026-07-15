@@ -1,72 +1,80 @@
-/**
- * POST /api/disputes/evidence — Add evidence to an existing dispute
- */
-import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createHash } from "node:crypto";
+import { NextResponse } from "next/server";
+import { getServerSupabase } from "@/lib/supabase/server";
+import { validateDisputeEvidence } from "@/lib/swaps/disputePolicy";
+import {
+  addSwapDisputeEvidence,
+  mapDisputeErrorStatus,
+} from "@/lib/swaps/disputeService";
 
-export async function POST(request: NextRequest) {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!supabaseUrl || !supabaseAnonKey) {
-    return NextResponse.json({ error: "Server misconfigured" }, { status: 500 });
+export async function POST(request: Request) {
+  const supabase = await getServerSupabase();
+  if (!supabase) {
+    return NextResponse.json(
+      { error: "Supabase is not configured" },
+      { status: 500 },
+    );
   }
 
-  const authHeader = request.headers.get("authorization") ?? "";
-  const token = authHeader.replace("Bearer ", "");
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+  if (userError || !user) {
+    return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+  }
 
-  const userClient = createClient(supabaseUrl, supabaseAnonKey, {
-    global: { headers: { Authorization: `Bearer ${token}` } },
-    auth: { autoRefreshToken: false, persistSession: false },
+  const body = (await request.json().catch(() => ({}))) as {
+    disputeId?: string;
+    evidenceType?: string;
+    content?: string;
+    idempotencyKey?: string;
+  };
+
+  if (!body.disputeId) {
+    return NextResponse.json({ error: "Dispute ID is required" }, { status: 422 });
+  }
+
+  const evidenceResult = validateDisputeEvidence([
+    { evidenceType: body.evidenceType, content: body.content },
+  ]);
+  if (!evidenceResult.ok) {
+    return NextResponse.json(
+      { error: evidenceResult.message },
+      { status: 422 },
+    );
+  }
+
+  const evidence = evidenceResult.evidence[0];
+  const fingerprint = createHash("sha256")
+    .update(`${evidence.evidenceType}:${evidence.content}`)
+    .digest("hex")
+    .slice(0, 24);
+  const idempotencyKey = (
+    request.headers.get("idempotency-key") ??
+    body.idempotencyKey ??
+    `dispute-evidence:${body.disputeId}:${user.id}:${fingerprint}`
+  ).trim();
+
+  const result = await addSwapDisputeEvidence(supabase, {
+    disputeId: body.disputeId,
+    evidenceType: evidence.evidenceType,
+    content: evidence.content,
+    idempotencyKey,
   });
 
-  const { data: { user }, error: authError } = await userClient.auth.getUser();
-  if (authError || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const db = serviceKey
-    ? createClient(supabaseUrl, serviceKey, { auth: { autoRefreshToken: false, persistSession: false } })
-    : userClient;
-
-  let body: { disputeId?: string; evidenceType?: string; content?: string };
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  if (!result.ok) {
+    return NextResponse.json(
+      {
+        error: result.error.message,
+        code: result.error.code,
+        details: result.error.details,
+      },
+      { status: mapDisputeErrorStatus(result.error.code) },
+    );
   }
 
-  const { disputeId, evidenceType, content } = body;
-  if (!disputeId || !evidenceType || !content) {
-    return NextResponse.json({ error: "disputeId, evidenceType, and content are required" }, { status: 400 });
-  }
-
-  // Verify user is a participant
-  const { data: dispute } = await db
-    .from("disputes")
-    .select("id, initiator_id, respondent_id, status")
-    .eq("id", disputeId)
-    .maybeSingle();
-
-  if (!dispute) return NextResponse.json({ error: "Dispute not found" }, { status: 404 });
-  if (dispute.initiator_id !== user.id && dispute.respondent_id !== user.id) {
-    return NextResponse.json({ error: "Not a participant" }, { status: 403 });
-  }
-  if (dispute.status !== "open" && dispute.status !== "waiting_evidence") {
-    return NextResponse.json({ error: "Dispute no longer accepts evidence" }, { status: 422 });
-  }
-
-  const { data: evidence, error: insertErr } = await db
-    .from("dispute_evidence")
-    .insert({
-      dispute_id: disputeId,
-      submitted_by: user.id,
-      evidence_type: evidenceType,
-      content,
-    })
-    .select("*")
-    .single();
-
-  if (insertErr) return NextResponse.json({ error: insertErr.message }, { status: 500 });
-
-  return NextResponse.json({ evidence }, { status: 201 });
+  return NextResponse.json(result.data, {
+    status: result.data.replayed ? 200 : 201,
+  });
 }
