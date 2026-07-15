@@ -1,14 +1,15 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import {
   getNotificationHref,
   type NotificationRow,
 } from "@/lib/notifications/notificationQueries";
 
-function formatDate(value: string): string {
-  return new Intl.DateTimeFormat("ro-RO", {
+function formatDate(value: string, locale: string): string {
+  return new Intl.DateTimeFormat(locale, {
     day: "2-digit",
     month: "2-digit",
     hour: "2-digit",
@@ -17,10 +18,12 @@ function formatDate(value: string): string {
 }
 
 function isUnread(row: NotificationRow): boolean {
-  return row.read === false || row.is_read === false;
+  return row.is_read === false;
 }
 
 export function NotificationsCenter() {
+  const locale = useLocale();
+  const t = useTranslations();
   const [notifications, setNotifications] = useState<NotificationRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "unread" | "high">("all");
@@ -48,6 +51,28 @@ export function NotificationsCenter() {
     if (filter === "high") return notifications.filter((row) => row.priority === "high");
     return notifications;
   }, [notifications, filter]);
+
+  function localizedTitle(row: NotificationRow): string {
+    switch (row.title_key) {
+      case "tokenReasons.swap_completed":
+        return t("tokenReasons.swap_completed");
+      case "notificationSettings.type_feedback_requested":
+        return t("notificationSettings.type_feedback_requested");
+      default:
+        return row.title;
+    }
+  }
+
+  function localizedBody(row: NotificationRow): string | null {
+    switch (row.body_key) {
+      case "change.bothConfirmed":
+        return t("change.bothConfirmed");
+      case "notificationSettings.type_feedback_requested_desc":
+        return t("notificationSettings.type_feedback_requested_desc");
+      default:
+        return row.body;
+    }
+  }
 
   async function markOne(notificationId: string) {
     await fetch("/api/notifications", {
@@ -78,7 +103,9 @@ export function NotificationsCenter() {
       <div className="rounded-3xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">Notifications</h1>
+            <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
+              {t("notifications.pageTitle")}
+            </h1>
             <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
               {unread} unread · {notifications.length} total
             </p>
@@ -96,7 +123,11 @@ export function NotificationsCenter() {
                     : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-200"
                 }`}
               >
-                {entry === "all" ? "All" : entry === "unread" ? "Unread" : "High priority"}
+                {entry === "all"
+                  ? t("notifications.filterAll")
+                  : entry === "unread"
+                    ? t("notifications.filterUnread")
+                    : "High priority"}
               </button>
             ))}
             <button
@@ -104,7 +135,7 @@ export function NotificationsCenter() {
               onClick={() => void markAll()}
               className="rounded-full border border-zinc-200 px-3 py-2 text-xs font-semibold text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-800"
             >
-              Mark all read
+              {t("notifications.markAllRead")}
             </button>
           </div>
         </div>
@@ -112,15 +143,16 @@ export function NotificationsCenter() {
         <div className="mt-6 space-y-3">
           {loading ? (
             <p className="rounded-2xl bg-zinc-50 p-4 text-sm text-zinc-500 dark:bg-zinc-950">
-              Loading notifications...
+              {t("common.loading")}
             </p>
           ) : visible.length === 0 ? (
             <p className="rounded-2xl bg-zinc-50 p-4 text-sm text-zinc-500 dark:bg-zinc-950">
-              No notifications in this view.
+              {t("notifications.empty")}
             </p>
           ) : (
             visible.map((row) => {
               const unreadRow = isUnread(row);
+              const body = localizedBody(row);
               return (
                 <div
                   key={row.id}
@@ -142,13 +174,15 @@ export function NotificationsCenter() {
                             high
                           </span>
                         )}
-                        <span className="text-xs text-zinc-500">{formatDate(row.created_at)}</span>
+                        <span className="text-xs text-zinc-500">
+                          {formatDate(row.created_at, locale)}
+                        </span>
                       </div>
                       <h2 className="mt-2 text-sm font-semibold text-zinc-900 dark:text-zinc-50">
-                        {row.title}
+                        {localizedTitle(row)}
                       </h2>
-                      {row.body && (
-                        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">{row.body}</p>
+                      {body && (
+                        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">{body}</p>
                       )}
                     </div>
 
@@ -165,7 +199,7 @@ export function NotificationsCenter() {
                         onClick={() => void markOne(row.id)}
                         className="rounded-full bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700"
                       >
-                        Open
+                        {t("common.view")}
                       </Link>
                     </div>
                   </div>
