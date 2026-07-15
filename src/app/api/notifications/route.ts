@@ -20,7 +20,7 @@ export async function GET() {
   }
 
   const notifications = await fetchNotifications(supabase, user.id);
-  const unread = notifications.filter((row) => row.read === false || row.is_read === false).length;
+  const unread = notifications.filter((row) => row.is_read === false).length;
 
   return NextResponse.json({ notifications, unread });
 }
