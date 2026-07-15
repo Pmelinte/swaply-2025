@@ -2,21 +2,37 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@/i18n/navigation";
-import { Bell, Check, MessageSquare, ArrowRightLeft, Search, Star, AlertTriangle } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowRightLeft,
+  Bell,
+  Check,
+  MessageSquare,
+  Search,
+  Star,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useNotifications } from "@/hooks/useNotifications";
 
 function typeIcon(type: string) {
   switch (type) {
-    case "message": return <MessageSquare className="h-3.5 w-3.5 text-blue-500" />;
+    case "message":
+      return <MessageSquare className="h-3.5 w-3.5 text-blue-500" />;
     case "swap_proposed":
     case "swap_accepted":
-    case "logistics_updated": return <ArrowRightLeft className="h-3.5 w-3.5 text-green-500" />;
+    case "swap_completed":
+    case "logistics_updated":
+      return <ArrowRightLeft className="h-3.5 w-3.5 text-green-500" />;
     case "match_new":
-    case "saved_search_result": return <Search className="h-3.5 w-3.5 text-purple-500" />;
-    case "favorite_updated": return <Star className="h-3.5 w-3.5 text-amber-500" />;
-    case "dispute_update": return <AlertTriangle className="h-3.5 w-3.5 text-red-500" />;
-    default: return <Bell className="h-3.5 w-3.5 text-zinc-400" />;
+    case "saved_search_result":
+      return <Search className="h-3.5 w-3.5 text-purple-500" />;
+    case "favorite_updated":
+    case "feedback_requested":
+      return <Star className="h-3.5 w-3.5 text-amber-500" />;
+    case "dispute_update":
+      return <AlertTriangle className="h-3.5 w-3.5 text-red-500" />;
+    default:
+      return <Bell className="h-3.5 w-3.5 text-zinc-400" />;
   }
 }
 
@@ -33,16 +49,23 @@ function timeAgo(dateStr: string): string {
 
 export function NotificationBell({ userId }: { userId: string }) {
   const t = useTranslations("notifications");
-  const { notifications, unreadCount, markRead, markAllRead } = useNotifications(userId);
+  const {
+    notifications,
+    unreadCount,
+    markRead,
+    markAllRead,
+    realtimeStatus,
+  } = useNotifications(userId);
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
+    function handleClick(event: MouseEvent) {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
         setOpen(false);
       }
     }
+
     if (open) document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, [open]);
@@ -53,14 +76,18 @@ export function NotificationBell({ userId }: { userId: string }) {
     <div ref={ref} className="relative">
       <button
         type="button"
-        onClick={() => setOpen((prev) => !prev)}
+        onClick={() => setOpen((previous) => !previous)}
         className="relative inline-flex items-center justify-center rounded-full p-2 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
         title={t("title")}
         aria-label={t("title")}
+        data-realtime-status={realtimeStatus}
       >
         <Bell className="h-5 w-5" />
         {unreadCount > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+          <span
+            data-testid="notification-unread-count"
+            className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white"
+          >
             {unreadCount > 99 ? "99+" : unreadCount}
           </span>
         )}
@@ -86,25 +113,36 @@ export function NotificationBell({ userId }: { userId: string }) {
 
           <div className="max-h-80 overflow-y-auto">
             {preview.length > 0 ? (
-              preview.map((n) => (
+              preview.map((notification) => (
                 <button
-                  key={n.id}
+                  key={notification.id}
                   type="button"
-                  onClick={() => { void markRead(n.id); setOpen(false); }}
+                  onClick={() => {
+                    void markRead(notification.id);
+                    setOpen(false);
+                  }}
                   className={`w-full border-b border-zinc-50 px-4 py-3 text-left transition last:border-0 hover:bg-blue-50 dark:border-zinc-700/50 dark:hover:bg-blue-900/20 ${
-                    n.read ? "opacity-50" : ""
+                    notification.read ? "opacity-50" : ""
                   }`}
                 >
                   <div className="flex items-start gap-2.5">
-                    <span className="mt-0.5 shrink-0">{typeIcon(n.type)}</span>
+                    <span className="mt-0.5 shrink-0">
+                      {typeIcon(notification.type)}
+                    </span>
                     <div className="min-w-0 flex-1">
-                      {n.title && (
-                        <p className="truncate text-xs font-semibold text-zinc-900 dark:text-zinc-100">{n.title}</p>
+                      {notification.title && (
+                        <p className="truncate text-xs font-semibold text-zinc-900 dark:text-zinc-100">
+                          {notification.title}
+                        </p>
                       )}
-                      <p className="truncate text-xs text-zinc-600 dark:text-zinc-300">{n.message}</p>
-                      <span className="mt-0.5 text-[10px] text-zinc-400">{timeAgo(n.createdAt)}</span>
+                      <p className="truncate text-xs text-zinc-600 dark:text-zinc-300">
+                        {notification.message}
+                      </p>
+                      <span className="mt-0.5 text-[10px] text-zinc-400">
+                        {timeAgo(notification.createdAt)}
+                      </span>
                     </div>
-                    {!n.read && (
+                    {!notification.read && (
                       <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-blue-500" />
                     )}
                   </div>
