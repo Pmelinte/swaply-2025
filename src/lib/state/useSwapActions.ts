@@ -172,8 +172,7 @@ export function useSwapActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
         setNotifications((prev) => [{
           id: `swap-${swapId}-${status}-${Date.now()}`, userId: user?.id ?? "", type: "swap_update",
           message: `${statusMessages[status]} (${reqItem?.title ?? "?"} ↔ ${resItem?.title ?? "?"})`,
-          read: false,
-          priority: status === "cancelled" ? "warning" : "info",
+          read: false, priority: status === "cancelled" ? "warning" : "info",
           createdAt: new Date().toISOString(),
         }, ...prev]);
       }
@@ -292,6 +291,62 @@ export function useSwapActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
     const swap = swaps.find((s) => s.id === swapId);
     if (!swap) return;
 
+    setLastError(null);
+
+    if (dataSource === "supabase" && supabase) {
+      const idempotencyKey = `dispute:${swapId}:${user.id}`;
+      try {
+        const res = await fetch("/api/disputes", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "idempotency-key": idempotencyKey,
+          },
+          body: JSON.stringify({
+            swapId,
+            expectedStatus: swap.status,
+            reason,
+            description,
+            evidence: (photos ?? []).map((url: string) => ({
+              evidenceType: "photo",
+              content: url,
+            })),
+            idempotencyKey,
+          }),
+        });
+
+        const result = await res.json();
+        if (!res.ok) {
+          setLastError(result.error ?? "Dispute opening failed");
+          return;
+        }
+
+        if (result.swap) {
+          const mapped = mapSwapIntent(result.swap);
+          setSwaps((prev) => prev.map((entry) => entry.id === swapId ? mapped : entry));
+        }
+
+        setNotifications((prev) => [{
+          id: `dispute-${swapId}-${Date.now()}`,
+          userId: user.id,
+          type: "dispute_filed",
+          message: `Dispută deschisă pentru schimbul ${swap.requesterItemId.slice(0, 8)}`,
+          read: false,
+          priority: "warning",
+          createdAt: new Date().toISOString(),
+        }, ...prev]);
+        trackEvent("dispute_filed", {
+          swapId,
+          reason,
+          replayed: Boolean(result.replayed),
+        });
+        return;
+      } catch (error) {
+        setLastError(error instanceof Error ? error.message : "Network error");
+        return;
+      }
+    }
+
     const dispute: NonNullable<SwapIntent["dispute"]> = {
       filedBy: user.id,
       reason,
@@ -300,60 +355,13 @@ export function useSwapActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
       status: "open",
       filedAt: new Date().toISOString(),
     };
-
     const updated = {
       ...swap,
       status: "disputed" as const,
       dispute,
       notifications: [...swap.notifications, `Dispută deschisă: ${reason}`],
     };
-
-    setSwaps((prev) => prev.map((s) => s.id === swapId ? updated : s));
-
-    if (dataSource === "supabase" && supabase) {
-      try {
-        const session = await supabase.auth.getSession();
-        const accessToken = session.data.session?.access_token;
-
-        const res = await fetch("/api/disputes", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-          },
-          body: JSON.stringify({
-            swapId,
-            reason,
-            description,
-            evidence: (photos ?? []).map((url: string) => ({ evidenceType: "photo", content: url })),
-          }),
-        });
-
-        if (!res.ok) {
-          await supabase.from("swaps").update({
-            dispute,
-            notifications: updated.notifications,
-            updated_at: new Date().toISOString(),
-          }).eq("id", swapId);
-
-          await fetch("/api/swaps/transition", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-            },
-            body: JSON.stringify({ swapId, toStatus: "disputed" }),
-          });
-        }
-      } catch {
-        await supabase?.from("swaps").update({
-          dispute,
-          notifications: updated.notifications,
-          updated_at: new Date().toISOString(),
-        }).eq("id", swapId);
-      }
-    }
-
+    setSwaps((prev) => prev.map((entry) => entry.id === swapId ? updated : entry));
     setNotifications((prev) => [{
       id: `dispute-${swapId}-${Date.now()}`,
       userId: user.id,
@@ -363,9 +371,8 @@ export function useSwapActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
       priority: "warning",
       createdAt: new Date().toISOString(),
     }, ...prev]);
-
     trackEvent("dispute_filed", { swapId, reason });
-  }, [user, swaps, dataSource, supabase, trackEvent, setSwaps, setNotifications]);
+  }, [user, swaps, dataSource, supabase, mapSwapIntent, trackEvent, setLastError, setSwaps, setNotifications]);
 
   return { proposeSwap, updateSwapStatus, addSwapFeedback, updateSwapLogistics, confirmDelivery, fileDispute };
 }
