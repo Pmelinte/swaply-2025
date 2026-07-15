@@ -6,114 +6,94 @@
 
 Batch 62.3 is implemented and validated on draft PR `#469`. C3 remains open until the PR is merged on Petru's explicit command and the merged Production deployment is verified.
 
-## Scope and final contract
+## Authenticated contract
 
-The authenticated two-user graph proves:
+The two-user graph proves:
 
-1. dedicated sessions are valid and distinct;
-2. guest and outsider requests are denied;
-3. one confirmed Match agreement creates one canonical Exchange;
-4. the first completion confirmation has zero C3 effects;
-5. the second confirmation, raced with retry, completes exactly once;
-6. the Exchange, two items and linked conversation reach their canonical completed states;
-7. one post-completion registry row is created;
-8. each participant receives exactly `+30` Swapleni, with two ledger rows totaling `60`;
-9. each participant receives one completion and one feedback-request notification, with four unique dedupe keys;
-10. both users receive the visible notification state without reload;
-11. completion counters and deterministic trust update once;
-12. both participants submit canonical Reviews concurrently;
-13. same-payload replay creates no second Review;
-14. changed payload with a reused idempotency key returns HTTP `409`;
-15. only the reviewed participant may add the Review response;
-16. `is_read`, legacy `read` and `read_at` remain synchronized;
-17. cleanup removes every fixture row by immutable Swap ID and restores profile caches.
+1. valid, distinct authenticated sessions;
+2. guest and outsider denial;
+3. one canonical Exchange from a confirmed Match agreement;
+4. zero C3 effects after the first completion confirmation;
+5. exactly-once completion under second-confirmation retry and concurrency;
+6. canonical completed state for Exchange, items and conversation;
+7. one post-completion registry row;
+8. exactly `+30` Swapleni per participant;
+9. four deduplicated completion/feedback notifications;
+10. visible notification delivery without reload;
+11. one completion-counter and trust update per participant;
+12. concurrent canonical Reviews from both participants;
+13. Review replay without duplication;
+14. HTTP `409` for changed payload with a reused idempotency key;
+15. response authority limited to the reviewed participant;
+16. synchronized `is_read`, `read` and `read_at`;
+17. immutable-ID cleanup and profile-cache restoration.
 
 No historical completed Exchange was backfilled.
 
 ## Production migrations
 
-- `20260715144457_batch_62_3_authenticated_e2e_cleanup`
-  - private E2E account registry;
-  - RLS and no browser table access;
-  - participant and allowlist guard;
-  - exact cardinality validation;
-  - immutable-ID cleanup and cache restoration.
-- `20260715145929_batch_62_3_notifications_realtime`
-  - publishes `public.notifications` to Supabase Realtime exactly once.
-- `20260715155017_batch_62_3_review_conflict_status`
-  - changed-payload idempotency conflicts use SQLSTATE `23505`, producing HTTP `409`;
-  - authenticated-only Review submission ACL remains unchanged.
+- `20260715144457_batch_62_3_authenticated_e2e_cleanup`;
+- `20260715145929_batch_62_3_notifications_realtime`;
+- `20260715155017_batch_62_3_review_conflict_status`.
 
-Repository migration files use the canonical Batch 62.3 names under `supabase/migrations/`.
+The private cleanup registry has RLS and no browser table access. Cleanup requires an authenticated participant, both privately registered E2E accounts and valid effect cardinality.
 
-## Realtime and UI repairs
+## Realtime and Review fixes
 
-The closure audit found that notifications were not published to Realtime and that two consumers used the same channel topic on the shared Supabase client.
+The closure audit found and repaired:
 
-The visible notification hook now:
+- missing Realtime publication for `public.notifications`;
+- duplicate channel topics on the shared Supabase client;
+- a fetch/join window that could lose visible events;
+- notification body fallback that repeated the title;
+- expired reusable E2E session handling;
+- SQLSTATE `22023` for an idempotency conflict that semantically requires HTTP `409`.
 
-- uses `notifications-ui:{userId}`;
-- exposes explicit connection state;
-- handles INSERT and UPDATE events;
-- deduplicates by notification ID;
-- reconciles after `SUBSCRIBED` so the fetch/join race cannot lose events;
-- renders canonical body text instead of repeating the title as the message.
+The visible notification hook now uses `notifications-ui:{userId}`, handles INSERT and UPDATE, deduplicates by row ID and reconciles after `SUBSCRIBED`.
 
 ## Iterative evidence
 
-The failed runs produced concrete fixes and completed cleanup:
-
-- `#61`: notifications absent from Realtime publication;
-- `#63`: UI subscription conflict remained;
+- `#61`: missing notification Realtime publication;
+- `#63`: client subscription conflict;
 - `#66`: two-user baseline timing race;
 - `#68`: expired reusable User B session;
-- `#69`: 17 of 18 tests passed; notification title was duplicated as message;
-- `#70`: Review idempotency conflict returned `400` instead of `409`;
-- `#73`: full authenticated graph passed.
+- `#69`: 17 of 18 passed; duplicate title/message exposed;
+- `#70`: idempotency conflict returned `400` instead of `409`;
+- `#73`: complete authenticated graph passed.
 
 ## Final validation
 
 Authenticated GitHub Actions:
 
 - run `#73`, ID `29429892042`;
-- exact tested head `c7f0ff9497faea4f515325155978d500d4c53898`;
+- tested code head `c7f0ff9497faea4f515325155978d500d4c53898`;
 - result `SUCCESS`.
 
 Repository CI:
 
 - run `#1017`, ID `29429886622`;
-- Unit Tests, Lint & Type Check, Build and Public Visual Audit all passed on the same code head.
+- Unit Tests, Lint & Type Check, Build and Public Visual Audit: success.
 
 Vercel Preview:
 
 - deployment `dpl_6BGpfYuMweBEBgQvQxkAMDgjF9RY`;
-- exact source head `c7f0ff9497faea4f515325155978d500d4c53898`;
-- state `READY`;
+- state `READY` on the same code head;
 - `/en/exchange` and `/en/messages`: HTTP `200`;
-- no inspected `error`, `warning` or `fatal` runtime events.
+- no inspected runtime errors, warnings or fatal events.
 
-After successful automatic PR validation, the authenticated workflow was restored to its normal manual entrypoint. Final post-validation commits change documentation and workflow trigger configuration only, not the validated product or database contract.
+After automatic validation, the authenticated workflow was restored to normal manual dispatch. Later commits modify documentation and workflow trigger configuration, not the validated product/database contract.
 
 ## Final Production cleanup
 
-After run `#73`:
-
 - test Swaps: `0`;
-- completion and post-completion effect rows: `0`;
-- canonical test notifications: `0`;
-- completion rewards: `0`;
-- canonical test Reviews: `0`;
-- notification `read/is_read` mismatches: `0`.
+- completion and post-completion effects: `0`;
+- test notifications: `0`;
+- test rewards: `0`;
+- test Reviews: `0`;
+- notification read-state mismatches: `0`.
 
 ## Closure gate
 
-C3 is `READY_TO_CLOSE`, not yet `CLOSED`.
+C3 is `READY_TO_CLOSE`, not `CLOSED`.
 
-C3 closes only after:
-
-1. exact command `Merge #469`;
-2. merge without head drift;
-3. post-merge GitHub CI and Vercel Production verification;
-4. final Production runtime and database cleanup checks.
-
-Until then PR `#469` remains open and draft, Train C remains active, and C4 does not start.
+It closes only after exact command `Merge #469`, merge without head drift and successful post-merge GitHub CI, Vercel Production, runtime and database cleanup verification.
