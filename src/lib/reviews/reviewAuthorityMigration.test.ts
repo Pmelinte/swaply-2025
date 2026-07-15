@@ -9,7 +9,7 @@ function batchSql() {
     .filter((name) => name.includes("_batch_62_1_review_"))
     .sort();
 
-  expect(files.length).toBeGreaterThanOrEqual(5);
+  expect(files.length).toBeGreaterThanOrEqual(6);
   return files
     .map((file) => readFileSync(join(migrationDirectory, file), "utf8"))
     .join("\n")
@@ -51,7 +51,8 @@ describe("Batch 62.1 canonical Review authority", () => {
 
   it("blocks direct browser writes and exposes only authenticated RPCs", () => {
     const sql = batchSql();
-    expect(sql).toContain("revoke insert, update, delete on table public.reviews from public, anon, authenticated");
+    expect(sql).toContain("revoke all on table public.reviews from public, anon, authenticated");
+    expect(sql).toContain("grant select on table public.reviews to anon, authenticated");
     expect(sql).toContain("Direct review inserts are forbidden");
     expect(sql).toContain("Direct review updates are forbidden");
     expect(sql).toContain("grant execute on function public.submit_swap_review_v1");
