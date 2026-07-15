@@ -22,7 +22,15 @@ export type NotificationFilter = "all" | "unread" | "swap" | "message" | "alert"
 function matchesFilter(n: Notification, filter: NotificationFilter): boolean {
   if (filter === "all") return true;
   if (filter === "unread") return !n.read;
-  if (filter === "swap") return ["swap_proposed", "swap_accepted", "logistics_updated", "meeting_reminder"].includes(n.type);
+  if (filter === "swap") {
+    return [
+      "swap_proposed",
+      "swap_accepted",
+      "swap_completed",
+      "logistics_updated",
+      "meeting_reminder",
+    ].includes(n.type);
+  }
   if (filter === "message") return n.type === "message";
   if (filter === "alert") return ["match_new", "saved_search_result", "favorite_updated", "feedback_requested", "dispute_update"].includes(n.type);
   return true;
@@ -66,7 +74,7 @@ export function useNotifications(userId: string | undefined) {
           message: String(row.message ?? row.title ?? ""),
           body: row.body ? String(row.body) : undefined,
           data: (row.data && typeof row.data === "object" ? row.data : {}) as Record<string, unknown>,
-          read: Boolean(row.read ?? row.is_read ?? false),
+          read: Boolean(row.is_read ?? row.read ?? false),
           priority: String(row.priority ?? "normal") as Notification["priority"],
           createdAt: String(row.created_at ?? new Date().toISOString()),
         })));
@@ -128,7 +136,7 @@ export function useNotifications(userId: string | undefined) {
             message: String(row.message ?? row.title ?? ""),
             body: row.body ? String(row.body) : undefined,
             data: (row.data && typeof row.data === "object" ? row.data : {}) as Record<string, unknown>,
-            read: false,
+            read: Boolean(row.is_read ?? row.read ?? false),
             priority: String(row.priority ?? "normal") as Notification["priority"],
             createdAt: String(row.created_at ?? new Date().toISOString()),
           };
@@ -146,7 +154,10 @@ export function useNotifications(userId: string | undefined) {
   const markRead = useCallback(async (notificationId: string) => {
     const sb = getSupabaseClient();
     if (sb) {
-      await sb.from("notifications").update({ read: true }).eq("id", notificationId);
+      await sb
+        .from("notifications")
+        .update({ is_read: true, read: true })
+        .eq("id", notificationId);
     }
     setNotifications((prev) => prev.map((n) => n.id === notificationId ? { ...n, read: true } : n));
   }, []);
@@ -155,7 +166,11 @@ export function useNotifications(userId: string | undefined) {
     if (!userId) return;
     const sb = getSupabaseClient();
     if (sb) {
-      await sb.from("notifications").update({ read: true }).eq("user_id", userId).eq("read", false);
+      await sb
+        .from("notifications")
+        .update({ is_read: true, read: true })
+        .eq("user_id", userId)
+        .eq("is_read", false);
     }
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
   }, [userId]);
