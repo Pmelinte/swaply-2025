@@ -40,7 +40,7 @@ The private cleanup registry has RLS and no browser table access. Cleanup requir
 
 ## Realtime and Review fixes
 
-The closure audit found and repaired:
+The closure audit repaired:
 
 - missing Realtime publication for `public.notifications`;
 - duplicate channel topics on the shared Supabase client;
@@ -63,25 +63,13 @@ The visible notification hook now uses `notifications-ui:{userId}`, handles INSE
 
 ## Final validation
 
-Authenticated GitHub Actions:
+- Authenticated Actions run `#73`, ID `29429892042`, code head `c7f0ff9497faea4f515325155978d500d4c53898`: `SUCCESS`.
+- CI run `#1017`, ID `29429886622`: Unit Tests, Lint & Type Check, Build and Public Visual Audit succeeded.
+- Vercel deployment `dpl_6BGpfYuMweBEBgQvQxkAMDgjF9RY`: `READY` on the same code head.
+- `/en/exchange` and `/en/messages`: HTTP `200`.
+- No inspected Preview runtime errors, warnings or fatal events.
 
-- run `#73`, ID `29429892042`;
-- tested code head `c7f0ff9497faea4f515325155978d500d4c53898`;
-- result `SUCCESS`.
-
-Repository CI:
-
-- run `#1017`, ID `29429886622`;
-- Unit Tests, Lint & Type Check, Build and Public Visual Audit: success.
-
-Vercel Preview:
-
-- deployment `dpl_6BGpfYuMweBEBgQvQxkAMDgjF9RY`;
-- state `READY` on the same code head;
-- `/en/exchange` and `/en/messages`: HTTP `200`;
-- no inspected runtime errors, warnings or fatal events.
-
-After automatic validation, the authenticated workflow was restored to normal manual dispatch. Later commits modify documentation and workflow trigger configuration, not the validated product/database contract.
+After automatic validation, the authenticated workflow was restored to normal manual dispatch. Later commits modify documentation and workflow trigger configuration, not the validated product or database contract.
 
 ## Final Production cleanup
 
