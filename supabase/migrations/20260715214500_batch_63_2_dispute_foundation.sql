@@ -24,12 +24,51 @@ create table if not exists public.disputes (
 alter table public.disputes add column if not exists opened_from_status text;
 alter table public.disputes add column if not exists updated_at timestamptz default now();
 update public.disputes
-   set opened_from_status = coalesce(opened_from_status, 'accepted'),
-       description = coalesce(description, reason, 'Legacy dispute'),
-       updated_at = coalesce(updated_at, created_at, now())
- where opened_from_status is null
-    or description is null
-    or updated_at is null;
+   set opened_from_status = case
+         when opened_from_status in ('accepted', 'in_progress')
+           then opened_from_status
+         else 'accepted'
+       end,
+       description = case
+         when char_length(pg_catalog.btrim(coalesce(description, reason, '')))
+              between 10 and 2000
+           then pg_catalog.btrim(coalesce(description, reason))
+         else pg_catalog.left(
+           'Legacy dispute: ' || coalesce(nullif(pg_catalog.btrim(reason), ''), 'unknown'),
+           2000
+         )
+       end,
+       reason = case
+         when reason in (
+           'item_not_received',
+           'wrong_item',
+           'damaged',
+           'condition_mismatch',
+           'no_show',
+           'other'
+         ) then reason
+         else 'other'
+       end,
+       status = case
+         when status in (
+           'open',
+           'waiting_evidence',
+           'under_review',
+           'resolved_requester',
+           'resolved_responder',
+           'resolved_split',
+           'rejected'
+         ) then status
+         else 'under_review'
+       end,
+       resolution_notes = case
+         when resolution_notes is null then null
+         when char_length(pg_catalog.btrim(resolution_notes)) >= 3
+           then pg_catalog.left(pg_catalog.btrim(resolution_notes), 2000)
+         else null
+       end,
+       created_at = coalesce(created_at, now()),
+       updated_at = coalesce(updated_at, created_at, now());
 alter table public.disputes alter column swap_id set not null;
 alter table public.disputes alter column initiator_id set not null;
 alter table public.disputes alter column respondent_id set not null;
@@ -72,6 +111,9 @@ alter table public.disputes add constraint disputes_description_check
 alter table public.disputes add constraint disputes_resolution_notes_check
   check (resolution_notes is null or char_length(resolution_notes) between 3 and 2000);
 
+drop index if exists public.idx_disputes_swap_id;
+drop index if exists public.idx_disputes_status;
+drop index if exists public.idx_disputes_initiator;
 create unique index if not exists disputes_swap_unique_idx
   on public.disputes (swap_id);
 create index if not exists disputes_participants_created_idx
@@ -88,6 +130,24 @@ create table if not exists public.dispute_evidence (
   created_at timestamptz not null default now()
 );
 
+update public.dispute_evidence
+   set evidence_type = case
+         when evidence_type in (
+           'photo',
+           'chat_screenshot',
+           'tracking',
+           'meeting_code',
+           'location_proof',
+           'note'
+         ) then evidence_type
+         else 'note'
+       end,
+       content = pg_catalog.left(
+         coalesce(nullif(pg_catalog.btrim(content), ''), 'Legacy evidence'),
+         2000
+       ),
+       created_at = coalesce(created_at, now());
+drop index if exists public.idx_dispute_evidence_dispute;
 alter table public.dispute_evidence alter column dispute_id set not null;
 alter table public.dispute_evidence alter column submitted_by set not null;
 alter table public.dispute_evidence alter column evidence_type set not null;
