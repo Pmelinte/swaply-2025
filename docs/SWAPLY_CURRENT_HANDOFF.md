@@ -32,11 +32,11 @@
 |---|---|---|
 | Train A | `CLOSED` | Batch 40 closure report. |
 | Train B | `CLOSED` | Batch 47 closure report. |
-| Train C | `ACTIVE` | C1 and C2 closed; C3 active. |
+| Train C | `ACTIVE` | C1 and C2 closed; C3 ready to close; C4 and C5 remain. |
 | C1 — Match agreement to Exchange handoff | `CLOSED` | Batch 60 closure and authenticated validation. |
-| C2 — Canonical Exchange lifecycle | `CLOSED` | Batch 61.1–61.4, bilateral completion and authenticated race validation. |
-| C3 — Feedback, notifications, reputation and ledger | `ACTIVE` | Batch 62.1 merged; Batch 62.2 implemented and Production-probed; PR/CI pending. |
-| C4 — Cancellation, disputes, report and block | `PLANNED` | Starts after C3 closes. |
+| C2 — Canonical Exchange lifecycle | `CLOSED` | Batch 61.1–61.4 and authenticated bilateral completion. |
+| C3 — Feedback, notifications, reputation and ledger | `READY_TO_CLOSE` | Batches 62.1 and 62.2 merged; Batch 62.3 validated on PR #469, merge pending. |
+| C4 — Cancellation, disputes, report and block | `PLANNED` | Starts only after C3 closes. |
 | C5 — Train C closure audit | `PLANNED` | Required before Train D. |
 | Train D | `PLANNED` | Starts only after Train C closes. |
 | Train E | `PLANNED` | Ends with `SWAPLY_V1_GA`; no Train F. |
@@ -44,11 +44,14 @@
 ## 4. Verified checkpoint
 
 - Repository: `Pmelinte/swaply-2025`.
-- Main head after Batch 62.1 merge: `9973c048bb042a348d963efa98522d2783ae42d7`.
+- Current `main`: `aa434594039b7bcb443b03848f3d5a76b6d26fff`.
 - Production: `https://www.swaply.world`.
-- Batch 62.1 PR: `#467`, merged.
-- Active Batch 62.2 branch: `agent/batch-62-2-post-completion-effects`.
-- No Batch 62.2 merge is authorized yet.
+- Batch 62.1 PR `#467`: merged.
+- Batch 62.2 PR `#468`: merged.
+- Batch 62.3 PR `#469`: `OPEN / DRAFT`, not merged.
+- Active branch: `agent/batch-62-3-authenticated-c3-closure`.
+- Last fully validated code head before documentation-only commits: `c7f0ff9497faea4f515325155978d500d4c53898`.
+- No PR #469 merge is authorized yet.
 
 ## 5. Closed C2 contract
 
@@ -71,22 +74,22 @@ C2 guarantees:
 - private idempotency registry;
 - immutable participant and item identity;
 - bilateral completion confirmation;
-- first confirmation has zero completion side effects;
+- first confirmation has zero completion effects;
 - second confirmation completes atomically;
 - items become traded and inactive exactly once;
 - linked conversation becomes completed exactly once;
-- authenticated concurrency and cleanup evidence passed in Batch 61.4.
+- authenticated concurrency and cleanup evidence passed.
 
 Detailed evidence:
 
 - `docs/batch-61-2-single-transition-authority.md`;
 - `docs/batch-61-4-authenticated-completion-validation.md`.
 
-## 6. Batch 62.1 — Canonical Review Authority
+## 6. C3 canonical contract
+
+### Batch 62.1 — Canonical Review Authority
 
 Merged in PR `#467`.
-
-Canonical contract:
 
 - `public.reviews` is the only Exchange Review table;
 - `submit_swap_review_v1(...)` is the only authenticated submission authority;
@@ -97,85 +100,106 @@ Canonical contract:
 - same-payload replay is idempotent;
 - conflicting key or changed payload is rejected;
 - direct browser writes are blocked;
-- `respond_to_swap_review_v1(...)` permits only the reviewed participant to add the response;
+- only the reviewed participant may add the response;
 - legacy `feedback` and `swap_feedback` writers are removed from the active flow.
 
 Detailed evidence: `docs/batch-62-1-canonical-review-authority.md`.
 
-## 7. Batch 62.2 — Exactly-Once Post-Completion Effects
+### Batch 62.2 — Exactly-Once Post-Completion Effects
 
-Implemented on the active branch and applied to Production without historical backfill.
+Merged in PR `#468`.
 
-Canonical effects for each newly completed Exchange:
+For each newly completed canonical Exchange:
 
-- private one-row registry `swap_post_completion_effects`;
-- `+30` Swapleni for requester;
-- `+30` Swapleni for responder;
-- `user_tokens` remains ledger source of truth;
-- `profiles.stats.tokens` remains the active balance cache;
-- two deduplicated completion notifications;
-- two deduplicated feedback-request notifications;
+- one private `swap_post_completion_effects` row;
+- requester receives `+30` Swapleni;
+- responder receives `+30` Swapleni;
+- `user_tokens` is the ledger source of truth;
+- `profiles.stats.tokens` is the active balance cache;
+- two completion notifications and two feedback-request notifications;
+- deterministic dedupe keys;
 - `swaps_completed` and `stats.completedSwaps` increment once per participant;
-- trust recalculates only for users touched by new canonical events;
-- canonical Review insertion recalculates `rating`, `rating_count` and trust;
-- `is_read` is canonical while the database synchronizes the legacy `read` field.
-
-Structural C2 effects and C3 post-completion effects occur in the same database transaction. Any failure rolls back all of them together.
-
-Production migrations:
-
-- `20260715140012_batch_62_2_post_completion_effects`;
-- `20260715140240_batch_62_2_trust_expression_fix`.
-
-The first runtime rollback probe caught an invalid schema-qualified use of PostgreSQL `LEAST/GREATEST`. The probe rolled back completely. The follow-up migration corrected the function before the successful probes and the regression is pinned by a contract test.
-
-Successful Production rollback evidence:
-
-1. first confirmation produces no post-completion effects;
-2. second confirmation completes;
-3. one post-effect registry row;
-4. two rewards totaling exactly `60`;
-5. four notifications with four unique dedupe keys;
-6. token caches and completion counters update once;
-7. replay creates no duplicates;
-8. `read/is_read` synchronization works both ways;
-9. canonical Review updates rating and trust;
-10. Review replay creates no second row.
-
-Post-rollback state:
-
-- zero post-effect rows;
-- zero canonical completion notifications;
-- zero recent canonical completion rewards;
-- zero Reviews;
-- zero notification read-state mismatches.
+- trust recalculates only for affected users;
+- a new canonical Review recalculates rating and trust;
+- `is_read` is canonical while legacy `read` remains synchronized;
+- structural and C3 effects commit or roll back in the same transaction;
+- historical completed Swaps are not backfilled.
 
 Detailed evidence: `docs/batch-62-2-post-completion-effects.md`.
 
-## 8. C3 boundary
+### Batch 62.3 — Authenticated C3 Closure
 
-Still required before C3 can close:
+Validated on PR `#469`.
 
-- open and validate the Batch 62.2 draft PR;
-- all GitHub CI checks green;
-- Vercel Preview READY on the exact head;
-- merge only on explicit command;
-- verify GitHub CI, Vercel Production, runtime and database evidence after merge;
-- Batch 62.3 authenticated E2E covering two participants, outsider, retry, concurrency, Realtime and cleanup;
-- reconcile closure documentation.
+Additional fixes and guarantees:
 
-C3 therefore remains `ACTIVE`.
+- `public.notifications` is published to Supabase Realtime;
+- the visible notification UI uses a dedicated channel topic;
+- Realtime INSERT and UPDATE events are deduplicated by row ID;
+- a reconciliation fetch after `SUBSCRIBED` prevents event loss during channel join;
+- canonical notification body is displayed instead of repeating the title;
+- expired reusable E2E sessions are refreshed deterministically;
+- changed-payload Review idempotency conflicts return HTTP `409`;
+- guarded cleanup is restricted to privately registered E2E participants;
+- cleanup validates cardinality and restores affected profile caches.
+
+Production migrations:
+
+- `20260715144457_batch_62_3_authenticated_e2e_cleanup`;
+- `20260715145929_batch_62_3_notifications_realtime`;
+- `20260715155017_batch_62_3_review_conflict_status`.
+
+Detailed evidence: `docs/batch-62-3-authenticated-c3-closure.md`.
+
+## 7. Final Batch 62.3 evidence
+
+Authenticated GitHub Actions:
+
+- run `#73`, ID `29429892042`;
+- exact tested code head `c7f0ff9497faea4f515325155978d500d4c53898`;
+- result `SUCCESS`.
+
+Repository CI:
+
+- run `#1017`, ID `29429886622`;
+- Unit Tests, Lint & Type Check, Build and Public Visual Audit passed on the same code head.
+
+Vercel Preview:
+
+- deployment `dpl_6BGpfYuMweBEBgQvQxkAMDgjF9RY`;
+- exact code head `c7f0ff9497faea4f515325155978d500d4c53898`;
+- state `READY`;
+- `/en/exchange` and `/en/messages`: HTTP `200`;
+- no inspected `error`, `warning` or `fatal` runtime events.
+
+Production cleanup after the successful run:
+
+- test Swaps: `0`;
+- completion and post-completion effects: `0`;
+- test notifications: `0`;
+- test rewards: `0`;
+- test Reviews: `0`;
+- notification `read/is_read` mismatches: `0`.
+
+## 8. C3 closure boundary
+
+C3 is `READY_TO_CLOSE`, not yet `CLOSED`.
+
+C3 becomes `CLOSED` only after:
+
+1. Petru gives the exact command `Merge #469`;
+2. the PR is merged without head drift;
+3. GitHub CI and Vercel Production are verified on the merged commit;
+4. Production runtime and database cleanup remain green.
+
+C4 must not start before those checks pass.
 
 ## 9. Deliberate non-backfill policy
 
-Historical seed/demo values are not globally recalculated.
-
-In particular:
-
-- historical completed Swaps do not receive new Batch 62.2 rewards or notifications;
-- legacy `profiles.token_balance` and `profiles.lifetime_tokens` are not rewritten;
-- only new canonical completion and Review events update the affected users;
-- Review token rewards remain outside Batch 62.2.
+- historical completed Swaps do not receive Batch 62.2 rewards or notifications;
+- legacy `profiles.token_balance` and `profiles.lifetime_tokens` are not globally rewritten;
+- only new canonical completion and Review events update affected users;
+- Review token rewards remain outside this C3 contract.
 
 ## 10. Triage policy
 
@@ -191,6 +215,6 @@ Current deferred items:
 
 ## 11. Exact next action
 
-1. Open the Batch 62.2 PR as draft.
-2. Run all repository CI and Vercel Preview checks on the exact final head.
-3. Do not merge until Petru gives the exact command `Merge #...`.
+1. Verify the final documentation-only PR #469 head has green CI and a READY Preview.
+2. Do not merge until Petru gives the exact command `Merge #469`.
+3. After merge, verify GitHub CI, Vercel Production, runtime and database cleanup before marking C3 `CLOSED`.
