@@ -53,6 +53,7 @@ export function ExchangeConfirmation({
   participantIds,
 }: Props) {
   const t = useTranslations("exchange.confirmation");
+  const common = useTranslations("common");
   const router = useRouter();
 
   const alreadyConfirmed = confirmedBy.includes(myUserId);
@@ -93,6 +94,9 @@ export function ExchangeConfirmation({
       if (result.both_confirmed) {
         router.refresh();
       }
+    } catch (error) {
+      console.error("Exchange completion confirmation failed", error);
+      setConfirmationError(true);
     } finally {
       setConfirming(false);
     }
@@ -153,7 +157,7 @@ export function ExchangeConfirmation({
             </button>
             {confirmationError && (
               <p className="mt-2 text-sm text-red-600 dark:text-red-400">
-                The confirmation could not be saved. Please try again.
+                {common("errorOccurred")} {common("tryAgain")}
               </p>
             )}
           </>
