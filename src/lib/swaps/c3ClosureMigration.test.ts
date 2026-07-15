@@ -54,4 +54,12 @@ describe("Batch 62.3 authenticated C3 closure migration", () => {
     expect(sql).toContain("perform public.refresh_review_reputation_v1(v_swap.requester_id)");
     expect(sql).toContain("perform public.refresh_review_reputation_v1(v_swap.responder_id)");
   });
+
+  it("uses PostgreSQL GREATEST expressions without invalid schema qualification", () => {
+    const sql = closureMigration();
+
+    expect(sql).toContain("swaps_completed = greatest(");
+    expect(sql).toContain("pg_catalog.to_jsonb( greatest(");
+    expect(sql).not.toContain("pg_catalog.greatest");
+  });
 });
