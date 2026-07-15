@@ -1,6 +1,4 @@
 import { getSupabaseClient } from "@/lib/supabase/client";
-import { isSwapStatus } from "@/lib/swaps/lifecycle";
-import { transitionSwap } from "@/lib/swaps/transitionService";
 import type { ServiceType, SupportService } from "./exchangeQuery";
 
 export type { ServiceType, SupportService };
@@ -12,6 +10,15 @@ export interface ServiceDef {
   bilateral: boolean;
   group: "bilateral" | "individual" | "additional";
 }
+
+export type CompletionResponse = {
+  swap: Record<string, unknown>;
+  replayed: boolean;
+  idempotency_key: string;
+  both_confirmed: boolean;
+  confirmed_by: string[];
+  effects_applied: boolean;
+};
 
 export const SERVICE_DEFS: ServiceDef[] = [
   { key: "escrow", labelKey: "escrow", icon: "🔒", bilateral: true, group: "bilateral" },
@@ -86,53 +93,39 @@ export async function removeService(
 
 export async function confirmSwap(
   swapId: string,
-  userId: string,
-): Promise<string[]> {
-  const supabase = getSupabaseClient();
-  if (!supabase) return [];
-
-  const { data: existing } = await supabase
-    .from("swaps")
-    .select("confirmed_by")
-    .eq("id", swapId)
-    .maybeSingle();
-
-  const current: string[] =
-    (existing as { confirmed_by?: string[] } | null)?.confirmed_by ?? [];
-  if (current.includes(userId)) return current;
-
-  const updated = [...current, userId];
-  await supabase
-    .from("swaps")
-    .update({ confirmed_by: updated })
-    .eq("id", swapId);
-
-  return updated;
-}
-
-export async function completeSwap(swapId: string): Promise<void> {
-  const supabase = getSupabaseClient();
-  if (!supabase) return;
-
-  const { data: swap, error } = await supabase
-    .from("swaps")
-    .select("status")
-    .eq("id", swapId)
-    .maybeSingle();
-
-  if (error || !swap || !isSwapStatus(swap.status)) return;
-  if (swap.status !== "accepted" && swap.status !== "in_progress") return;
-
-  const result = await transitionSwap(supabase, {
-    swapId,
-    expectedStatus: swap.status,
-    toStatus: "completed",
-    idempotencyKey: `exchange-complete:${swapId}:${swap.status}:completed`,
+  idempotencyKey: string,
+): Promise<CompletionResponse | null> {
+  const response = await fetch(`/api/swaps/${encodeURIComponent(swapId)}/complete`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "idempotency-key": idempotencyKey,
+    },
+    body: JSON.stringify({ idempotencyKey }),
   });
 
-  if (!result.ok) {
-    console.error("Exchange completion transition failed", result.error);
+  if (!response.ok) {
+    const payload = (await response.json().catch(() => null)) as
+      | { error?: string; code?: string }
+      | null;
+    console.error("Exchange completion confirmation failed", payload ?? response.status);
+    return null;
   }
+
+  const payload = (await response.json()) as Partial<CompletionResponse>;
+  if (
+    !payload.swap ||
+    typeof payload.replayed !== "boolean" ||
+    typeof payload.idempotency_key !== "string" ||
+    typeof payload.both_confirmed !== "boolean" ||
+    !Array.isArray(payload.confirmed_by) ||
+    typeof payload.effects_applied !== "boolean"
+  ) {
+    console.error("Exchange completion returned an invalid response");
+    return null;
+  }
+
+  return payload as CompletionResponse;
 }
 
 export async function submitReview(

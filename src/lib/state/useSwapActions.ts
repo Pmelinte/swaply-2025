@@ -4,7 +4,6 @@ import { useCallback } from "react";
 import { nanoid } from "nanoid";
 import type { SwapIntent, SwapType } from "../types";
 import type { SharedDeps } from "./shared-deps";
-import { showTokenToast } from "@/components/tokens/TokenToast";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { trackItemEvent } from "@/lib/item-analytics";
 
@@ -47,11 +46,9 @@ export function useSwapActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
         if (!data) return null;
         const mapped = mapSwapIntent(data);
         setSwaps((prev) => [mapped, ...prev.filter((s) => s.id !== mapped.id)]);
-        // Track analytics for both items
         trackItemEvent(responderItemId, "swap_proposed", user.id);
         trackItemEvent(requesterItemId, "swap_proposed", user.id);
 
-        // Send push notification to the item owner (fire-and-forget)
         const reqItem = items.find((i) => i.id === requesterItemId);
         fetch("/api/push/notify", {
           method: "POST",
@@ -63,7 +60,6 @@ export function useSwapActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
             url: `/change?swap=${mapped.id}`,
           }),
         }).catch(() => { /* push is best-effort */ });
-        // Mark onboarding step_first_swap
         supabase.from("onboarding_progress").upsert(
           { user_id: user.id, step_first_swap: true },
           { onConflict: "user_id" },
@@ -73,7 +69,6 @@ export function useSwapActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
         return mapped;
       }
 
-      // Mark onboarding step_first_swap
       const sb = getSupabaseClient();
       if (sb) {
         sb.from("onboarding_progress").upsert(
@@ -108,16 +103,20 @@ export function useSwapActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
     async (swapId: string, status: SwapIntent["status"]) => {
       if (!swapId) return;
       setLastError(null);
+
+      if (status === "completed") {
+        setLastError("Completion requires a separate confirmation from both participants.");
+        return;
+      }
+
       const existing = swaps.find((s) => s.id === swapId);
       const previousStatus = existing?.status;
       const nextNotifications = [...(existing?.notifications ?? []), `Status actualizat: ${status}`];
 
-      // Optimistic update
       setSwaps((prev) => prev.map((s) => s.id === swapId ? { ...s, status, notifications: nextNotifications } : s));
 
       if (dataSource === "supabase" && supabase) {
         try {
-          // Call server-side state machine for validated transition
           const session = await supabase.auth.getSession();
           const accessToken = session.data.session?.access_token;
 
@@ -132,47 +131,38 @@ export function useSwapActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
 
           const result = await res.json();
           if (!res.ok) {
-            // Rollback optimistic update
             setSwaps((prev) => prev.map((s) => s.id === swapId ? { ...s, status: previousStatus ?? s.status, notifications: existing?.notifications ?? s.notifications } : s));
             setLastError(result.error ?? "Transition failed");
             return;
           }
 
-          // Apply server-confirmed data
           if (result.swap) {
             const mapped = mapSwapIntent(result.swap);
             setSwaps((prev) => prev.map((s) => s.id === swapId ? mapped : s));
           }
         } catch (err) {
-          // Rollback on network error
           setSwaps((prev) => prev.map((s) => s.id === swapId ? { ...s, status: previousStatus ?? s.status, notifications: existing?.notifications ?? s.notifications } : s));
           setLastError(err instanceof Error ? err.message : "Network error");
           return;
         }
 
         sendAuditLog({ userId: user?.id ?? "", action: "swap.status_changed", entityType: "swap", entityId: swapId, oldData: { status: previousStatus }, newData: { status } });
-        // Track accepted/completed analytics
-        if (status === "accepted" || status === "completed") {
-          const evType = status === "accepted" ? "swap_accepted" as const : "swap_completed" as const;
-          if (existing?.requesterItemId) trackItemEvent(existing.requesterItemId, evType, user?.id);
-          if (existing?.responderItemId) trackItemEvent(existing.responderItemId, evType, user?.id);
+        if (status === "accepted") {
+          if (existing?.requesterItemId) trackItemEvent(existing.requesterItemId, "swap_accepted", user?.id);
+          if (existing?.responderItemId) trackItemEvent(existing.responderItemId, "swap_accepted", user?.id);
         }
         return;
       }
 
-      // Mock/local fallback — no server validation
       sendAuditLog({ userId: user?.id ?? "", action: "swap.status_changed", entityType: "swap", entityId: swapId, oldData: { status: previousStatus }, newData: { status } });
-      // Track accepted/completed analytics (mock path)
-      if (status === "accepted" || status === "completed") {
-        const evType = status === "accepted" ? "swap_accepted" as const : "swap_completed" as const;
-        if (existing?.requesterItemId) trackItemEvent(existing.requesterItemId, evType, user?.id);
-        if (existing?.responderItemId) trackItemEvent(existing.responderItemId, evType, user?.id);
+      if (status === "accepted") {
+        if (existing?.requesterItemId) trackItemEvent(existing.requesterItemId, "swap_accepted", user?.id);
+        if (existing?.responderItemId) trackItemEvent(existing.responderItemId, "swap_accepted", user?.id);
       }
 
       const statusMessages: Record<string, string> = {
         accepted: "Schimbul a fost acceptat!",
         rejected: "Schimbul a fost refuzat.",
-        completed: "Schimbul a fost finalizat cu succes!",
         cancelled: "Schimbul a fost anulat.",
         expired: "Schimbul a expirat.",
       };
@@ -183,12 +173,9 @@ export function useSwapActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
           id: `swap-${swapId}-${status}-${Date.now()}`, userId: user?.id ?? "", type: "swap_update",
           message: `${statusMessages[status]} (${reqItem?.title ?? "?"} ↔ ${resItem?.title ?? "?"})`,
           read: false,
-          priority: status === "completed" ? "success" : status === "cancelled" ? "warning" : "info",
+          priority: status === "cancelled" ? "warning" : "info",
           createdAt: new Date().toISOString(),
         }, ...prev]);
-      }
-      if (status === "completed") {
-        showTokenToast(30, "complete_swap");
       }
     },
     [dataSource, items, mapSwapIntent, sendAuditLog, supabase, swaps, user?.id, setLastError, setSwaps, setNotifications],
@@ -234,57 +221,66 @@ export function useSwapActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
     [dataSource, mapSwapIntent, supabase, swaps, setLastError, setSwaps],
   );
 
-  const confirmDelivery = useCallback(async (swapId: string, side: "requester" | "responder") => {
+  const confirmDelivery = useCallback(async (swapId: string, _side: "requester" | "responder") => {
     if (!user?.id) return;
     const swap = swaps.find((s) => s.id === swapId);
     if (!swap) return;
 
-    const field = side === "requester" ? "requesterConfirmed" : "responderConfirmed";
-    const otherConfirmed = side === "requester" ? swap.responderConfirmed : swap.requesterConfirmed;
+    setLastError(null);
 
-    // Determine which delivery status to transition to
-    const isFirstDelivery = !swap.requesterConfirmed && !swap.responderConfirmed;
-    const deliveryStatus = isFirstDelivery ? "delivered_by_a" : "delivered_by_b";
-
-    const updated = { ...swap, [field]: true };
-    if (otherConfirmed) {
-      updated.status = "completed";
-      updated.notifications = [...updated.notifications, "Ambele părți au confirmat. Schimb finalizat!"];
-    } else {
-      updated.notifications = [...updated.notifications, `${side === "requester" ? "Solicitantul" : "Partenerul"} a confirmat predarea.`];
-    }
-
-    setSwaps((prev) => prev.map((s) => s.id === swapId ? updated : s));
-
-    if (dataSource === "supabase" && supabase) {
-      const dbField = side === "requester" ? "requester_confirmed" : "responder_confirmed";
-      await supabase.from("swaps").update({
-        [dbField]: true,
-        notifications: updated.notifications,
-        updated_at: new Date().toISOString(),
-      }).eq("id", swapId);
-
-      // Use server-side state machine for the status transition
-      const targetStatus = otherConfirmed ? "completed" : deliveryStatus;
+    if (dataSource === "supabase") {
+      const idempotencyKey = `completion:${swapId}:${user.id}:delivery`;
       try {
-        const session = await supabase.auth.getSession();
-        const accessToken = session.data.session?.access_token;
-        await fetch("/api/swaps/transition", {
+        const response = await fetch(`/api/swaps/${encodeURIComponent(swapId)}/complete`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+            "idempotency-key": idempotencyKey,
           },
-          body: JSON.stringify({ swapId, toStatus: targetStatus }),
+          body: JSON.stringify({ idempotencyKey }),
         });
-      } catch {
-        // confirmation fields saved, status transition logged as best-effort
+        const result = await response.json();
+        if (!response.ok) {
+          setLastError(result.error ?? "Completion confirmation failed");
+          return;
+        }
+
+        if (result.swap) {
+          const mapped = mapSwapIntent(result.swap);
+          setSwaps((prev) => prev.map((entry) => entry.id === swapId ? mapped : entry));
+        }
+
+        trackEvent("swap_delivery_confirmed", {
+          swapId,
+          actorId: user.id,
+          bothConfirmed: Boolean(result.both_confirmed),
+          replayed: Boolean(result.replayed),
+        });
+        return;
+      } catch (error) {
+        setLastError(error instanceof Error ? error.message : "Network error");
+        return;
       }
     }
 
-    trackEvent("swap_delivery_confirmed", { swapId, side });
-    if (otherConfirmed) trackEvent("swap_auto_completed", { swapId });
-  }, [user?.id, swaps, dataSource, supabase, trackEvent, setSwaps]);
+    const isRequester = swap.requesterId === user.id;
+    const isResponder = swap.responderId === user.id;
+    if (!isRequester && !isResponder) {
+      setLastError("Only swap participants may confirm completion.");
+      return;
+    }
+
+    const updated = {
+      ...swap,
+      requesterConfirmed: swap.requesterConfirmed || isRequester,
+      responderConfirmed: swap.responderConfirmed || isResponder,
+    };
+    if (updated.requesterConfirmed && updated.responderConfirmed) {
+      updated.status = "completed";
+    }
+    setSwaps((prev) => prev.map((entry) => entry.id === swapId ? updated : entry));
+    trackEvent("swap_delivery_confirmed", { swapId, actorId: user.id, bothConfirmed: updated.status === "completed" });
+  }, [user?.id, swaps, dataSource, mapSwapIntent, trackEvent, setLastError, setSwaps]);
 
   const fileDispute = useCallback(async (
     swapId: string,
@@ -319,7 +315,6 @@ export function useSwapActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
         const session = await supabase.auth.getSession();
         const accessToken = session.data.session?.access_token;
 
-        // Use the new disputes API which handles both dispute creation and swap transition
         const res = await fetch("/api/disputes", {
           method: "POST",
           headers: {
@@ -335,7 +330,6 @@ export function useSwapActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
         });
 
         if (!res.ok) {
-          // Fallback: save dispute data directly + use transition API
           await supabase.from("swaps").update({
             dispute,
             notifications: updated.notifications,
@@ -352,7 +346,6 @@ export function useSwapActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
           });
         }
       } catch {
-        // Fallback: save directly to swaps table
         await supabase?.from("swaps").update({
           dispute,
           notifications: updated.notifications,
