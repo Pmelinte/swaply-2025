@@ -1,5 +1,5 @@
 name: Train C Authenticated E2E
-run-name: Train C Authenticated E2E — ${{ github.event_name == 'workflow_dispatch' && inputs.base_url || 'PR Preview' }}
+run-name: Train C Authenticated E2E — ${{ inputs.base_url }}
 
 on:
   workflow_dispatch:
@@ -9,19 +9,6 @@ on:
         required: true
         default: "https://www.swaply.world"
         type: string
-  pull_request:
-    branches:
-      - main
-    paths:
-      - ".github/workflows/two-user-auth-e2e.yml"
-      - "playwright.two-user.config.ts"
-      - "e2e/two-user-auth.spec.ts"
-      - "e2e/c3-closure-authenticated.spec.ts"
-      - "src/hooks/useNotifications.ts"
-      - "src/components/notifications/NotificationBell.tsx"
-      - "supabase/migrations/20260715150000_batch_62_3_notifications_realtime.sql"
-      - "supabase/migrations/20260715161000_batch_62_3_authenticated_e2e_cleanup.sql"
-      - "supabase/migrations/20260715165000_batch_62_3_review_conflict_status.sql"
 
 permissions:
   contents: read
@@ -29,7 +16,7 @@ permissions:
 env:
   NODE_VERSION: "22"
   NEXT_TELEMETRY_DISABLED: "1"
-  PLAYWRIGHT_BASE_URL: ${{ github.event_name == 'workflow_dispatch' && inputs.base_url || 'https://swaply-2025-git-agent-batch-62-6507dd-petrus-projects-d4a0946c.vercel.app' }}
+  PLAYWRIGHT_BASE_URL: ${{ inputs.base_url }}
   VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
   E2E_USER_A_EMAIL: ${{ secrets.E2E_USER_A_EMAIL }}
   E2E_USER_A_PASSWORD: ${{ secrets.E2E_USER_A_PASSWORD }}
@@ -53,7 +40,7 @@ jobs:
           test -n "$E2E_USER_B_EMAIL"
           test -n "$E2E_USER_B_PASSWORD"
 
-      - name: Wait for target URL
+      - name: Verify target URL
         shell: bash
         run: |
           set -euo pipefail
@@ -75,19 +62,17 @@ jobs:
             )
           fi
 
-          for attempt in $(seq 1 30); do
-            status="$(curl "${curl_args[@]}" "$PLAYWRIGHT_BASE_URL" || true)"
-            echo "Attempt $attempt — target: $PLAYWRIGHT_BASE_URL — HTTP: ${status:-unreachable}"
+          status="$(curl "${curl_args[@]}" "$PLAYWRIGHT_BASE_URL")"
+          echo "Target: $PLAYWRIGHT_BASE_URL"
+          echo "HTTP status: $status"
 
-            case "$status" in
-              2*|3*) exit 0 ;;
-            esac
-
-            sleep 20
-          done
-
-          echo "::error::Target URL did not become reachable. If Preview is protected, configure VERCEL_AUTOMATION_BYPASS_SECRET."
-          exit 1
+          case "$status" in
+            2*|3*) ;;
+            *)
+              echo "::error::Target URL is not reachable. If the Vercel Preview is protected, configure VERCEL_AUTOMATION_BYPASS_SECRET."
+              exit 1
+              ;;
+          esac
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
