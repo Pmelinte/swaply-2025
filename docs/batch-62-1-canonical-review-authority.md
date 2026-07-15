@@ -27,8 +27,9 @@ The function:
 ## Write protection
 
 - public and authenticated users retain public Review read access;
-- direct browser INSERT, UPDATE and DELETE grants are removed;
-- a write-authority trigger rejects direct Review inserts and updates;
+- all historic browser table privileges are removed, including `TRUNCATE`, `TRIGGER` and `REFERENCES`;
+- browser roles receive only `SELECT` on `reviews`;
+- a null-safe write-authority trigger rejects direct Review inserts and updates when the authority marker is missing or incorrect;
 - the submission and response RPCs are not executable by `anon`, `PUBLIC` or `service_role`;
 - only `authenticated` can invoke the two public authorities.
 
@@ -63,9 +64,35 @@ Applied and repository-aligned:
 - `20260715122311_batch_62_1_review_response_function`;
 - `20260715122323_batch_62_1_review_response_authenticated_grant`;
 - `20260715122333_batch_62_1_review_response_revoke_nonparticipants`;
-- `20260715122354_batch_62_1_review_constraints`.
+- `20260715122354_batch_62_1_review_constraints`;
+- `20260715122600_batch_62_1_review_table_grants_hardening`;
+- `20260715122900_batch_62_1_review_authority_null_guard`.
 
-## Validation gates
+## Production rollback probe
+
+A completed-Exchange probe ran inside a transaction and ended with `ROLLBACK`.
+
+Verified:
+
+- direct Review insert denied;
+- completed-Swap participant insert succeeds;
+- reviewer and counterparty are derived correctly;
+- same key and payload replay without a second row;
+- conflicting key reuse rejected;
+- outsider rejected;
+- reviewed participant can add a response;
+- reviewer cannot add the counterparty response;
+- direct immutable-field update denied;
+- an `accepted` Exchange cannot receive a Review.
+
+Post-rollback cleanup:
+
+- zero Reviews;
+- zero probe Reviews;
+- zero notifications;
+- zero completion or Review token rows.
+
+## Remaining validation gates
 
 Before merge:
 
@@ -73,7 +100,6 @@ Before merge:
 2. lint and TypeScript;
 3. Next.js build;
 4. Public Visual Audit;
-5. Production rollback probe for participant, outsider, incomplete Swap, replay, conflicting payload and response ownership;
-6. Vercel Preview runtime check.
+5. Vercel Preview runtime check.
 
 No merge without Petru's explicit `Merge #...` command.
