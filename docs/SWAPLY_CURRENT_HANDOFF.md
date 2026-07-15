@@ -50,7 +50,7 @@
 - Batch 62.2 PR `#468`: merged.
 - Batch 62.3 PR `#469`: `OPEN / DRAFT`, not merged.
 - Active branch: `agent/batch-62-3-authenticated-c3-closure`.
-- Last fully validated code head before documentation-only commits: `c7f0ff9497faea4f515325155978d500d4c53898`.
+- Last fully validated code head before final documentation and workflow-trigger cleanup: `c7f0ff9497faea4f515325155978d500d4c53898`.
 - No PR #469 merge is authorized yet.
 
 ## 5. Closed C2 contract
@@ -215,6 +215,6 @@ Current deferred items:
 
 ## 11. Exact next action
 
-1. Verify the final documentation-only PR #469 head has green CI and a READY Preview.
+1. Verify the final PR #469 head has green CI and a READY Preview.
 2. Do not merge until Petru gives the exact command `Merge #469`.
 3. After merge, verify GitHub CI, Vercel Production, runtime and database cleanup before marking C3 `CLOSED`.
