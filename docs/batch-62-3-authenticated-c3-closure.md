@@ -92,7 +92,7 @@ Vercel Preview:
 - `/en/exchange` and `/en/messages`: HTTP `200`;
 - no inspected `error`, `warning` or `fatal` runtime events.
 
-After the successful automatic PR validation, `.github/workflows/two-user-auth-e2e.yml` was restored to its normal `workflow_dispatch` entrypoint. The final post-validation commits change only documentation and workflow trigger configuration, not the validated product or database contract.
+After successful automatic PR validation, the authenticated workflow was restored to its normal manual entrypoint. Final post-validation commits change documentation and workflow trigger configuration only, not the validated product or database contract.
 
 ## Final Production cleanup
 
