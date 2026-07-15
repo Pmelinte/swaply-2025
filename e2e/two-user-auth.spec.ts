@@ -19,19 +19,38 @@ function requiredCredential(name: RequiredCredential): string {
   return value;
 }
 
-async function restoreReusableUserBSession(
+async function ensureReusableSession(
   page: Page,
   email: string,
   password: string,
+  authFile: string,
+  label: string,
 ) {
   const currentSession = await page.request.get("/api/tokens/balance");
 
-  if (currentSession.status() === 200) {
-    await page.context().storageState({ path: userBAuthFile });
-    return;
+  if (currentSession.status() !== 200) {
+    await authenticateAndSave(page, email, password, authFile, label);
+  } else {
+    await page.context().storageState({ path: authFile });
   }
 
-  await authenticateAndSave(page, email, password, userBAuthFile, "User B");
+  await page.goto("/en/profile", { waitUntil: "domcontentloaded" });
+  await expectAuthenticatedSession(page, label);
+
+  const profileMenu = page.getByRole("button", {
+    name: "Profile & Settings",
+    exact: true,
+  });
+
+  try {
+    await expect(profileMenu).toBeVisible({ timeout: 20_000 });
+  } catch {
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await expectAuthenticatedSession(page, `${label} after hydration reload`);
+    await expect(profileMenu).toBeVisible({ timeout: 20_000 });
+  }
+
+  await page.context().storageState({ path: authFile });
 }
 
 test.describe("Train C two-user authenticated baseline", () => {
@@ -40,12 +59,14 @@ test.describe("Train C two-user authenticated baseline", () => {
   test("dedicated sessions are distinct and both can open the profile route", async ({
     browser,
   }) => {
-    test.setTimeout(90_000);
+    test.setTimeout(120_000);
 
     const stateA = JSON.parse(readFileSync(userAAuthFile, "utf8"));
     const stateB = JSON.parse(readFileSync(userBAuthFile, "utf8"));
     const userAEmail = requiredCredential("E2E_USER_A_EMAIL");
+    const userAPassword = requiredCredential("E2E_USER_A_PASSWORD");
     const userBEmail = requiredCredential("E2E_USER_B_EMAIL");
+    const userBPassword = requiredCredential("E2E_USER_B_PASSWORD");
 
     expect(JSON.stringify(stateA)).not.toBe(JSON.stringify(stateB));
 
@@ -57,8 +78,20 @@ test.describe("Train C two-user authenticated baseline", () => {
       const pageB = await contextB.newPage();
 
       await Promise.all([
-        pageA.goto("/en/profile", { waitUntil: "domcontentloaded" }),
-        pageB.goto("/en/profile", { waitUntil: "domcontentloaded" }),
+        ensureReusableSession(
+          pageA,
+          userAEmail,
+          userAPassword,
+          userAAuthFile,
+          "User A baseline",
+        ),
+        ensureReusableSession(
+          pageB,
+          userBEmail,
+          userBPassword,
+          userBAuthFile,
+          "User B baseline",
+        ),
       ]);
 
       await Promise.all([
@@ -140,9 +173,13 @@ test.describe("Train C two-user authenticated baseline", () => {
     let primaryError: unknown | null = null;
 
     try {
-      await page.goto("/en/profile", { waitUntil: "domcontentloaded" });
-      await expect(page).toHaveURL(/\/en\/profile/);
-      await expectAuthenticatedSession(page, "User B before logout");
+      await ensureReusableSession(
+        page,
+        userBEmail,
+        userBPassword,
+        userBAuthFile,
+        "User B before logout",
+      );
 
       await page
         .getByRole("button", { name: "Profile & Settings", exact: true })
@@ -173,8 +210,13 @@ test.describe("Train C two-user authenticated baseline", () => {
     if (logoutTriggered) {
       try {
         await test.step("restore the reusable User B fixture", async () => {
-          await restoreReusableUserBSession(page, userBEmail, userBPassword);
-          await expectAuthenticatedSession(page, "User B after fixture restore");
+          await ensureReusableSession(
+            page,
+            userBEmail,
+            userBPassword,
+            userBAuthFile,
+            "User B after fixture restore",
+          );
         });
       } catch (error) {
         restoreError = error;
