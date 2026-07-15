@@ -61,6 +61,16 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  if (toStatus === "cancelled") {
+    return NextResponse.json(
+      {
+        error: "Cancellation requires the canonical cancel endpoint",
+        code: "CANCEL_AUTHORITY_REQUIRED",
+      },
+      { status: 409 },
+    );
+  }
+
   let expectedStatus: SwapStatus | undefined;
   if (body.expectedStatus !== undefined) {
     if (!isSwapStatus(body.expectedStatus)) {
