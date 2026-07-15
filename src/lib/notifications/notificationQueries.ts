@@ -6,10 +6,15 @@ export type NotificationRow = {
   type: string;
   title: string;
   body: string | null;
+  title_key: string | null;
+  body_key: string | null;
   data: Record<string, unknown> | null;
   read: boolean | null;
   is_read: boolean | null;
   priority: string | null;
+  source_type: string | null;
+  source_id: string | null;
+  dedupe_key: string | null;
   created_at: string;
 };
 
@@ -40,7 +45,9 @@ export async function fetchNotifications(
 ): Promise<NotificationRow[]> {
   const { data, error } = await supabase
     .from("notifications")
-    .select("id, user_id, type, title, body, data, read, is_read, priority, created_at")
+    .select(
+      "id, user_id, type, title, body, title_key, body_key, data, read, is_read, priority, source_type, source_id, dedupe_key, created_at",
+    )
     .eq("user_id", userId)
     .order("created_at", { ascending: false })
     .limit(100);
@@ -54,7 +61,7 @@ export async function fetchNotifications(
 }
 
 export function countUnreadNotifications(rows: NotificationRow[]): number {
-  return rows.filter((row) => row.read === false || row.is_read === false).length;
+  return rows.filter((row) => row.is_read === false).length;
 }
 
 export async function markNotificationRead(
@@ -64,7 +71,7 @@ export async function markNotificationRead(
 ): Promise<boolean> {
   const { error } = await supabase
     .from("notifications")
-    .update({ read: true, is_read: true })
+    .update({ is_read: true, read: true })
     .eq("id", notificationId)
     .eq("user_id", userId);
 
@@ -77,8 +84,9 @@ export async function markAllNotificationsRead(
 ): Promise<boolean> {
   const { error } = await supabase
     .from("notifications")
-    .update({ read: true, is_read: true })
-    .eq("user_id", userId);
+    .update({ is_read: true, read: true })
+    .eq("user_id", userId)
+    .eq("is_read", false);
 
   return !error;
 }
