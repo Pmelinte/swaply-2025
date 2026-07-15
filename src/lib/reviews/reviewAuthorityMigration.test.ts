@@ -9,7 +9,7 @@ function batchSql() {
     .filter((name) => name.includes("_batch_62_1_review_"))
     .sort();
 
-  expect(files.length).toBeGreaterThanOrEqual(6);
+  expect(files.length).toBeGreaterThanOrEqual(7);
   return files
     .map((file) => readFileSync(join(migrationDirectory, file), "utf8"))
     .join("\n")
@@ -53,6 +53,8 @@ describe("Batch 62.1 canonical Review authority", () => {
     const sql = batchSql();
     expect(sql).toContain("revoke all on table public.reviews from public, anon, authenticated");
     expect(sql).toContain("grant select on table public.reviews to anon, authenticated");
+    expect(sql).toContain("v_authority is distinct from 'submit_swap_review_v1'");
+    expect(sql).toContain("v_authority is distinct from 'respond_to_swap_review_v1'");
     expect(sql).toContain("Direct review inserts are forbidden");
     expect(sql).toContain("Direct review updates are forbidden");
     expect(sql).toContain("grant execute on function public.submit_swap_review_v1");
