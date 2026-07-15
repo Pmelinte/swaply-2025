@@ -57,7 +57,7 @@ function mapNotificationRow(row: Record<string, unknown>): Notification {
     userId: String(row.user_id ?? ""),
     type: String(row.type ?? "info"),
     title: row.title ? String(row.title) : undefined,
-    message: String(row.message ?? row.title ?? ""),
+    message: String(row.message ?? row.body ?? row.title ?? ""),
     body: row.body ? String(row.body) : undefined,
     data: (row.data && typeof row.data === "object"
       ? row.data
