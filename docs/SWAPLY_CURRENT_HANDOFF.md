@@ -2,7 +2,7 @@
 
 **Last updated:** 2026-07-15
 
-## Program status
+## Status
 
 - Train A: `CLOSED`.
 - Train B: `CLOSED`.
@@ -13,7 +13,7 @@
 - C4 and C5: `PLANNED`.
 - Train E is terminal for v1; there is no Train F.
 
-## Permanent rules
+## Rules
 
 - Swaply remains global-first across Objects, Properties, Services and Events.
 - Global navigation and contextual drawers remain separate.
@@ -24,73 +24,49 @@
 - Merge only after Petru gives the exact `Merge #...` command.
 - After merge verify GitHub CI, Vercel Production, runtime and database evidence.
 
-## Verified checkpoint
+## Checkpoint
 
 - Repository: `Pmelinte/swaply-2025`.
 - Current `main`: `aa434594039b7bcb443b03848f3d5a76b6d26fff`.
 - Production: `https://www.swaply.world`.
-- PR `#467` / Batch 62.1: merged.
-- PR `#468` / Batch 62.2: merged.
-- PR `#469` / Batch 62.3: `OPEN / DRAFT`, not merged.
-- Active branch: `agent/batch-62-3-authenticated-c3-closure`.
+- PR `#467` and PR `#468`: merged.
+- PR `#469`: `OPEN / DRAFT`, not merged.
+- Branch: `agent/batch-62-3-authenticated-c3-closure`.
 - Fully validated product/database code head: `c7f0ff9497faea4f515325155978d500d4c53898`.
-- Later commits contain closure documentation and restoration of the authenticated workflow to manual dispatch.
+- Later commits contain documentation and restoration of the authenticated workflow to manual dispatch.
 
-## C2 contract
+## C2
 
-- one canonical Swap transition authority;
-- expected-state CAS and row lock;
-- participant authorization;
-- private idempotency registry;
-- immutable participant and item identity;
-- bilateral completion;
-- first confirmation has zero completion effects;
-- second confirmation completes atomically;
-- items and linked conversation complete exactly once.
+C2 guarantees one canonical transition authority, expected-state CAS, participant authorization, immutable identity, bilateral completion and exactly-once structural effects.
 
 Evidence:
 
 - `docs/batch-61-2-single-transition-authority.md`;
 - `docs/batch-61-4-authenticated-completion-validation.md`.
 
-## C3 contract
+## C3
 
 ### Batch 62.1
 
-- one canonical Review table and authenticated authority;
-- reviewer and reviewed participant derived canonically;
-- one immutable Review per participant and Swap;
-- idempotent same-payload replay;
-- direct browser writes blocked;
-- reviewed participant controls the response.
+One canonical Review table and authority; derived participants; immutable Review; idempotent replay; direct writes blocked; reviewed participant controls response.
 
 Evidence: `docs/batch-62-1-canonical-review-authority.md`.
 
 ### Batch 62.2
 
-For each new canonical completion:
-
-- one private post-completion registry row;
-- `+30` Swapleni per participant;
-- four deduplicated completion/feedback notifications;
-- completion counters and trust update once;
-- Review insertion recalculates rating and trust;
-- `is_read` is canonical and legacy `read` stays synchronized;
-- structural and C3 effects share one transaction;
-- no historical backfill.
+Each new canonical completion creates one private effect row, awards `+30` Swapleni per participant, sends four deduplicated notifications, updates counters and trust once, synchronizes notification read state and shares one transaction with structural effects. No historical backfill.
 
 Evidence: `docs/batch-62-2-post-completion-effects.md`.
 
 ### Batch 62.3
 
-Validated guarantees:
+Validated fixes:
 
-- notifications published to Supabase Realtime;
-- dedicated lossless and deduplicated UI channel;
-- deterministic reusable-session refresh;
-- changed-payload Review idempotency conflict returns HTTP `409`;
-- guarded cleanup restricted to private E2E participants;
-- cardinality validation and profile-cache restoration.
+- notification Realtime publication;
+- dedicated lossless UI channel;
+- deterministic E2E session refresh;
+- HTTP `409` for changed-payload Review idempotency conflict;
+- private guarded cleanup and cache restoration.
 
 Production migrations:
 
@@ -102,8 +78,8 @@ Evidence: `docs/batch-62-3-authenticated-c3-closure.md`.
 
 ## Final validation
 
-- Authenticated Actions run `#73`, ID `29429892042`: `SUCCESS`.
-- CI run `#1017`, ID `29429886622`: Unit Tests, Lint & Type Check, Build and Public Visual Audit succeeded.
+- Authenticated run `#73`, ID `29429892042`: `SUCCESS`.
+- CI run `#1017`, ID `29429886622`: all four jobs succeeded.
 - Vercel deployment `dpl_6BGpfYuMweBEBgQvQxkAMDgjF9RY`: `READY`.
 - `/en/exchange` and `/en/messages`: HTTP `200`.
 - No inspected Preview runtime errors, warnings or fatal events.
