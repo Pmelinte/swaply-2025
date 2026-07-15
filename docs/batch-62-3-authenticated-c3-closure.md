@@ -20,22 +20,17 @@ No historical completed Exchange was backfilled.
 
 The cleanup registry is private, has RLS and no browser table access. Cleanup requires an authenticated participant, both privately registered E2E accounts and valid effect cardinality.
 
-## Repairs found by closure testing
+## Repairs
 
-- missing Realtime publication for `public.notifications`;
-- duplicate channel topics on the shared Supabase client;
-- a fetch/join window that could lose visible events;
-- notification body fallback that repeated the title;
-- expired reusable E2E session handling;
-- SQLSTATE `22023` where an idempotency conflict requires HTTP `409`.
+Closure testing repaired missing notification Realtime publication, duplicate client channel topics, the fetch/join event-loss window, duplicated title/message rendering, expired E2E session handling and the Review idempotency conflict HTTP status.
 
-The notification UI now uses `notifications-ui:{userId}`, handles INSERT and UPDATE, deduplicates by row ID and reconciles after `SUBSCRIBED`.
+The notification UI uses `notifications-ui:{userId}`, handles INSERT and UPDATE, deduplicates by row ID and reconciles after `SUBSCRIBED`.
 
 ## Final validation
 
 - Authenticated Actions run `#73`, ID `29429892042`, code head `c7f0ff9497faea4f515325155978d500d4c53898`: `SUCCESS`.
 - CI run `#1017`, ID `29429886622`: Unit Tests, Lint & Type Check, Build and Public Visual Audit succeeded.
-- Vercel deployment `dpl_6BGpfYuMweBEBgQvQxkAMDgjF9RY`: `READY` on the same code head.
+- Vercel deployment `dpl_6BGpfYuMweBEBgQvQxkAMDgjF9RY`: `READY`.
 - `/en/exchange` and `/en/messages`: HTTP `200`.
 - No inspected Preview runtime errors, warnings or fatal events.
 
