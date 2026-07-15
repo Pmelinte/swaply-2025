@@ -16,6 +16,9 @@ on:
       - ".github/workflows/two-user-auth-e2e.yml"
       - "playwright.two-user.config.ts"
       - "e2e/c3-closure-authenticated.spec.ts"
+      - "src/hooks/useNotifications.ts"
+      - "src/components/notifications/NotificationBell.tsx"
+      - "supabase/migrations/20260715150000_batch_62_3_notifications_realtime.sql"
       - "supabase/migrations/20260715161000_batch_62_3_authenticated_e2e_cleanup.sql"
 
 permissions:
