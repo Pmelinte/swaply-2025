@@ -20,6 +20,12 @@ export type CompletionResponse = {
   effects_applied: boolean;
 };
 
+export type ReviewSubmissionResponse = {
+  review: Record<string, unknown>;
+  replayed: boolean;
+  idempotency_key?: string;
+};
+
 export const SERVICE_DEFS: ServiceDef[] = [
   { key: "escrow", labelKey: "escrow", icon: "🔒", bilateral: true, group: "bilateral" },
   { key: "insurance", labelKey: "insurance", icon: "🛡️", bilateral: true, group: "bilateral" },
@@ -128,37 +134,59 @@ export async function confirmSwap(
   return payload as CompletionResponse;
 }
 
+export async function fetchMyReview(
+  swapId: string,
+): Promise<Record<string, unknown> | null> {
+  const response = await fetch(`/api/swaps/${encodeURIComponent(swapId)}/reviews`, {
+    method: "GET",
+    cache: "no-store",
+  });
+
+  if (!response.ok) return null;
+  const payload = (await response.json().catch(() => null)) as
+    | { review?: Record<string, unknown> | null }
+    | null;
+  return payload?.review ?? null;
+}
+
 export async function submitReview(
   swapId: string,
-  reviewerId: string,
-  reviewedId: string,
-  ratings: {
-    overall: number;
-    communication: number;
-    accuracy: number;
-    punctuality: number;
-  },
+  rating: number,
   comment: string,
-): Promise<void> {
-  const supabase = getSupabaseClient();
-  if (!supabase) return;
-
-  const avgRating =
-    (ratings.overall +
-      ratings.communication +
-      ratings.accuracy +
-      ratings.punctuality) /
-    4;
-
-  await supabase.from("reviews").insert({
-    swap_id: swapId,
-    reviewer_id: reviewerId,
-    reviewed_id: reviewedId,
-    rating: Math.round(avgRating * 10) / 10,
-    rating_communication: ratings.communication,
-    rating_accuracy: ratings.accuracy,
-    rating_punctuality: ratings.punctuality,
-    comment,
-    tags: [],
+  idempotencyKey: string,
+  tags: string[] = [],
+  photos: string[] = [],
+): Promise<ReviewSubmissionResponse | null> {
+  const response = await fetch(`/api/swaps/${encodeURIComponent(swapId)}/reviews`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "idempotency-key": idempotencyKey,
+    },
+    body: JSON.stringify({
+      rating,
+      comment,
+      tags,
+      photos,
+      idempotencyKey,
+    }),
   });
+
+  if (!response.ok) {
+    const payload = (await response.json().catch(() => null)) as
+      | { error?: string; code?: string }
+      | null;
+    console.error("Canonical review submission failed", payload ?? response.status);
+    return null;
+  }
+
+  const payload = (await response.json().catch(() => null)) as
+    | Partial<ReviewSubmissionResponse>
+    | null;
+  if (!payload?.review || typeof payload.replayed !== "boolean") {
+    console.error("Canonical review endpoint returned an invalid response");
+    return null;
+  }
+
+  return payload as ReviewSubmissionResponse;
 }

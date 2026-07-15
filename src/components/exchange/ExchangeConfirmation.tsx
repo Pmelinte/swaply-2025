@@ -1,10 +1,14 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Star } from "lucide-react";
-import { confirmSwap, submitReview } from "@/lib/exchange/exchangeServices";
+import {
+  confirmSwap,
+  fetchMyReview,
+  submitReview,
+} from "@/lib/exchange/exchangeServices";
 
 interface Props {
   swapId: string;
@@ -35,14 +39,12 @@ function StarRating({ value, onChange }: { value: number; onChange: (v: number) 
   );
 }
 
-const RATING_FIELDS = ["overall", "communication", "accuracy", "promptness"] as const;
-
-function createCompletionKey(swapId: string, userId: string): string {
+function createOperationKey(kind: "completion" | "review", swapId: string, userId: string): string {
   const nonce =
     typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
       ? crypto.randomUUID()
       : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-  return `completion:${swapId}:${userId}:${nonce}`;
+  return `${kind}:${swapId}:${userId}:${nonce}`;
 }
 
 export function ExchangeConfirmation({
@@ -50,7 +52,6 @@ export function ExchangeConfirmation({
   myUserId,
   partnerName,
   confirmedBy,
-  participantIds,
 }: Props) {
   const t = useTranslations("exchange.confirmation");
   const common = useTranslations("common");
@@ -58,28 +59,33 @@ export function ExchangeConfirmation({
 
   const alreadyConfirmed = confirmedBy.includes(myUserId);
   const completionKeyRef = useRef<string | null>(null);
+  const reviewKeyRef = useRef<string | null>(null);
   const [checkedReceived, setCheckedReceived] = useState(false);
   const [checkedRead, setCheckedRead] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [confirmed, setConfirmed] = useState(alreadyConfirmed);
   const [confirmationError, setConfirmationError] = useState(false);
 
-  const [ratings, setRatings] = useState<Record<(typeof RATING_FIELDS)[number], number>>({
-    overall: 0,
-    communication: 0,
-    accuracy: 0,
-    promptness: 0,
-  });
+  const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [submittingReview, setSubmittingReview] = useState(false);
   const [reviewDone, setReviewDone] = useState(false);
+  const [reviewError, setReviewError] = useState(false);
 
-  const partnerId = participantIds.find((id) => id !== myUserId) ?? "";
+  useEffect(() => {
+    let cancelled = false;
+    void fetchMyReview(swapId).then((review) => {
+      if (!cancelled && review) setReviewDone(true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [swapId]);
 
   async function handleConfirm() {
     if (!checkedReceived || !checkedRead || confirming) return;
 
-    completionKeyRef.current ??= createCompletionKey(swapId, myUserId);
+    completionKeyRef.current ??= createOperationKey("completion", swapId, myUserId);
     setConfirming(true);
     setConfirmationError(false);
 
@@ -103,17 +109,32 @@ export function ExchangeConfirmation({
   }
 
   async function handleSubmitReview() {
-    if (!ratings.overall) return;
+    if (!rating || submittingReview || reviewDone) return;
+
+    reviewKeyRef.current ??= createOperationKey("review", swapId, myUserId);
     setSubmittingReview(true);
-    await submitReview(swapId, myUserId, partnerId, {
-      overall: ratings.overall,
-      communication: ratings.communication,
-      accuracy: ratings.accuracy,
-      punctuality: ratings.promptness,
-    }, comment);
-    setReviewDone(true);
-    setSubmittingReview(false);
-    setTimeout(() => router.push("/profile?swap=completed"), 1500);
+    setReviewError(false);
+
+    try {
+      const result = await submitReview(
+        swapId,
+        rating,
+        comment,
+        reviewKeyRef.current,
+      );
+      if (!result) {
+        setReviewError(true);
+        return;
+      }
+
+      setReviewDone(true);
+      setTimeout(() => router.push("/profile?swap=completed"), 1500);
+    } catch (error) {
+      console.error("Exchange review submission failed", error);
+      setReviewError(true);
+    } finally {
+      setSubmittingReview(false);
+    }
   }
 
   return (
@@ -133,7 +154,7 @@ export function ExchangeConfirmation({
               <input
                 type="checkbox"
                 checked={checkedReceived}
-                onChange={(e) => setCheckedReceived(e.target.checked)}
+                onChange={(event) => setCheckedReceived(event.target.checked)}
                 className="mt-0.5"
               />
               {t("received")}
@@ -142,7 +163,7 @@ export function ExchangeConfirmation({
               <input
                 type="checkbox"
                 checked={checkedRead}
-                onChange={(e) => setCheckedRead(e.target.checked)}
+                onChange={(event) => setCheckedRead(event.target.checked)}
                 className="mt-0.5"
               />
               {t("accepted")}
@@ -175,24 +196,20 @@ export function ExchangeConfirmation({
           </p>
         ) : (
           <div className="space-y-3">
-            {RATING_FIELDS.map((cat) => (
-              <div key={cat} className="flex items-center justify-between">
-                <span className="text-sm text-zinc-600 dark:text-zinc-300">
-                  {t(`rating.${cat}`)}
-                </span>
-                <StarRating
-                  value={ratings[cat]}
-                  onChange={(v) => setRatings((r) => ({ ...r, [cat]: v }))}
-                />
-              </div>
-            ))}
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-zinc-600 dark:text-zinc-300">
+                {t("rating.overall")}
+              </span>
+              <StarRating value={rating} onChange={setRating} />
+            </div>
 
             <div>
               <p className="mb-1 text-xs font-medium text-zinc-500">{t("comment")}</p>
               <textarea
                 rows={3}
                 value={comment}
-                onChange={(e) => setComment(e.target.value)}
+                maxLength={1000}
+                onChange={(event) => setComment(event.target.value)}
                 className="w-full resize-none rounded-xl border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
               />
             </div>
@@ -200,11 +217,17 @@ export function ExchangeConfirmation({
             <button
               type="button"
               onClick={handleSubmitReview}
-              disabled={!ratings.overall || submittingReview}
+              disabled={!rating || submittingReview}
               className="w-full rounded-xl bg-yellow-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-yellow-600 disabled:opacity-60"
             >
               {submittingReview ? "…" : `${t("submit")} →`}
             </button>
+
+            {reviewError && (
+              <p className="text-sm text-red-600 dark:text-red-400">
+                {common("errorOccurred")} {common("tryAgain")}
+              </p>
+            )}
           </div>
         )}
       </div>
