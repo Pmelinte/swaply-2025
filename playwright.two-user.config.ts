@@ -106,8 +106,8 @@ export default defineConfig({
       dependencies: ["bilateral-match-agreement-base"],
     },
     {
-      name: "bilateral-completion-http",
-      testMatch: /(?:^|[\\/])bilateral-completion-http\.spec\.ts$/,
+      name: "c3-closure-authenticated",
+      testMatch: /(?:^|[\\/])c3-closure-authenticated\.spec\.ts$/,
       use: { ...devices["Desktop Chrome"] },
       dependencies: ["bilateral-match-agreement"],
     },
