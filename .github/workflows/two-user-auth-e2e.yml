@@ -15,6 +15,7 @@ on:
     paths:
       - ".github/workflows/two-user-auth-e2e.yml"
       - "playwright.two-user.config.ts"
+      - "e2e/two-user-auth.spec.ts"
       - "e2e/c3-closure-authenticated.spec.ts"
       - "src/hooks/useNotifications.ts"
       - "src/components/notifications/NotificationBell.tsx"
