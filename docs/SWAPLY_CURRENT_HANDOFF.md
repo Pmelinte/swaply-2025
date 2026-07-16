@@ -18,7 +18,7 @@ C4 sequence:
 
 - Batch 63.1 — canonical cancel authority: `CLOSED`;
 - Batch 63.2 — canonical dispute authority: `CLOSED`;
-- Batch 63.3 — canonical report/block authority: `IN_PROGRESS` on draft PR `#472`;
+- Batch 63.3 — canonical report/block authority: `AUTHENTICATED PASS`, draft PR `#472`, awaiting final post-audit CI/Preview;
 - Batch 63.4 — authenticated C4 closure: `PLANNED`.
 
 ## Rules
@@ -44,11 +44,15 @@ C4 sequence:
 - Active branch: `agent/batch-63-3-report-block-authority`.
 - Supabase Production includes:
   - `20260715182419_batch_63_1_cancel_authority`;
-  - `20260715231323_batch_63_2_dispute_foundation`;
-  - `20260715231400_batch_63_2_dispute_open_authority`;
-  - `20260715231430_batch_63_2_dispute_evidence_authority`;
-  - `20260715231502_batch_63_2_dispute_resolution_authority`.
-- Batch 63.3 migrations are repository-only and have not been applied to Production.
+  - four Batch 63.2 dispute migrations;
+  - the Batch 63.3 legacy bridge and foundation;
+  - split report submit and resolution authorities;
+  - block authority, response hardening and cleanup guard;
+  - moderation action compatibility;
+  - post-audit `GREATEST` and `LEAST/GREATEST` fixes;
+  - terminal-effect foreign-key indexes.
+- Batch 63.3 Production migration and authenticated audit: `PASS`.
+- All Batch 63.3 fixtures, temporary sanctions, block rows, cron jobs and private request/effect rows: cleaned.
 
 ## C2
 
@@ -117,7 +121,7 @@ Evidence: `docs/batch-63-2-dispute-authority.md`.
 
 ### Batch 63.3 — reports and blocks
 
-Audit found two incompatible report sources: user actions wrote `public.reports`, while the admin workflow used absent `public.abuse_reports`. Blocks were direct client writes, were not hydrated after login and did not create a server-side contact barrier. Unverified profile reports could also trigger automatic suspension before moderator review.
+The audit found two incompatible report sources: user actions wrote `public.reports`, while the admin workflow used absent `public.abuse_reports`. Blocks were direct client writes, were not hydrated after login and did not create a server-side contact barrier. Unverified profile reports could also trigger automatic suspension before moderator review.
 
 PR `#472` introduces:
 
@@ -132,20 +136,32 @@ PR `#472` introduces:
 - persisted block hydration and accurate UI success/error state;
 - canonical admin report listing, statistics and actions.
 
+Production evidence:
+
+- all logical Batch 63.3 migrations applied; the long report authority was operationally split into submit and resolution units;
+- two SQL qualification defects found by real authenticated probes were repaired only through new follow-up migrations;
+- raw user/item report, self-target, own-item, missing target, duplicate, replay, conflict, RLS and direct-write probes: `PASS`;
+- ten-per-24h rate limit and eleventh rejection: `PASS`;
+- investigate, dismiss, warn, hide-item and seven-day suspension outcomes: `PASS`;
+- stale status, terminal replay and exactly-once effects: `PASS`;
+- bilateral block/unblock barriers for interests, conversations, messages and Swaps: `PASS`;
+- pre-existing history readable after block: `PASS`;
+- two-session same-key pg_cron concurrency: `PASS` with one block row, one request and one audit event;
+- zero Swapleni, Review, Story, notification and trust side effects outside the explicit confirmed moderation outcome: `PASS`;
+- immutable-ID and profile restoration cleanup: `PASS`;
+- security/performance advisors reviewed; three new FK index findings remediated.
+
 Evidence: `docs/batch-63-3-report-block-authority.md`.
 
 ## Current closure gate
 
-Batch 63.3 remains `IN_PROGRESS` and PR `#472` remains draft until:
+Batch 63.3 has passed the Production authenticated audit. PR `#472` remains draft until the latest post-audit branch head passes:
 
-- final CI and Vercel Preview pass on the latest head;
-- migration review against current Production is complete;
-- the migrations are applied only after explicit authorization;
-- authenticated reporter, outsider, moderator, stale, replay, rate-limit and concurrency probes pass;
-- every moderator outcome passes;
-- block/unblock and contact-barrier enforcement pass in both directions;
-- existing history remains readable;
-- zero reward, Review, Story and trust side effects are verified;
-- immutable-ID cleanup is complete.
+- GitHub Unit Tests;
+- migration-contract tests;
+- lint and TypeScript;
+- Next.js Production Build;
+- Public Visual Audit;
+- Vercel Preview and runtime-log inspection.
 
-No merge is authorized by this handoff.
+After those checks, Batch 63.3 may be considered ready for an explicit `Merge #472` command. No merge is authorized by this handoff.
