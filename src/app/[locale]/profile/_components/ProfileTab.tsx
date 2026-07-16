@@ -1,12 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
-import { X, Plus } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+import { Plus } from "lucide-react";
 import { Badge, SectionCard } from "@/components/ui-custom";
 import { MissingDataCallout } from "@/components/gated";
-import type { UserProfile, LanguageCode } from "@/lib/types";
+import type { UserProfile } from "@/lib/types";
 import { languageNames, localeFlagUrl, type Locale, locales } from "@/i18n/config";
+import {
+  getGlobalProfileContract,
+} from "@/lib/profile/userProfilePersistence";
+import type { GlobalUserProfile } from "@/lib/profile/profileTypes";
 import dynamic from "next/dynamic";
 
 const LocationPicker = dynamic(() => import("@/components/LocationPicker"), {
@@ -21,12 +25,119 @@ interface ProfileTabProps {
   userId: string;
 }
 
+const languageText = {
+  ro: {
+    primary: "Limba principală",
+    secondary: "Limba secundară",
+    tertiary: "A treia limbă",
+    optional: "Opțional",
+    description: "Ordinea stabilește fallback-ul folosit în toate domeniile Swaply.",
+    autoTranslate: "Tradu automat mesajele în limba preferată",
+    showOriginal: "Arată și textul original când există traducere",
+  },
+  en: {
+    primary: "Primary language",
+    secondary: "Secondary language",
+    tertiary: "Third language",
+    optional: "Optional",
+    description: "This order defines the fallback used across every Swaply domain.",
+    autoTranslate: "Translate messages automatically into the preferred language",
+    showOriginal: "Also show the original text when a translation exists",
+  },
+} as const;
+
 export default function ProfileTab({ draft, update, userId }: ProfileTabProps) {
   const t = useTranslations("profile");
+  const locale = useLocale();
+  const text = locale === "ro" ? languageText.ro : languageText.en;
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
+  const contract = getGlobalProfileContract(draft, locale);
+  const preferences = contract.languagePreferences;
 
   const locationIncomplete = !draft.location?.city || !draft.location?.country;
+
+  const updateLanguage = (position: 0 | 1 | 2, value: string) => {
+    const next: Array<Locale | null> = [
+      preferences.primary,
+      preferences.secondary,
+      preferences.tertiary,
+    ];
+    const localeValue = value ? value as Locale : null;
+    if (position === 0 && !localeValue) return;
+    next[position] = localeValue;
+
+    const selected = next.filter((entry): entry is Locale => Boolean(entry));
+    if (new Set(selected).size !== selected.length) return;
+
+    const primary = next[0] ?? preferences.primary;
+    const nextPreferences = {
+      ...preferences,
+      primary,
+      secondary: next[1],
+      tertiary: next[2],
+    };
+
+    update({
+      languages: selected as unknown as UserProfile["languages"],
+      globalProfile: {
+        ...contract,
+        languagePreferences: nextPreferences,
+        legacyLanguages: selected,
+        preferredLocale: primary,
+      },
+    } as Partial<GlobalUserProfile>);
+  };
+
+  const updateTranslationPreference = (
+    key: "autoTranslateMessages" | "showOriginalLanguage",
+    value: boolean,
+  ) => {
+    update({
+      globalProfile: {
+        ...contract,
+        languagePreferences: {
+          ...preferences,
+          [key]: value,
+        },
+      },
+    } as Partial<GlobalUserProfile>);
+  };
+
+  const languageSelect = (
+    position: 0 | 1 | 2,
+    label: string,
+    value: Locale | null,
+    optional: boolean,
+  ) => {
+    const selectedElsewhere = new Set(
+      [preferences.primary, preferences.secondary, preferences.tertiary]
+        .filter((entry, index): entry is Locale => Boolean(entry) && index !== position),
+    );
+
+    return (
+      <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
+        {label}
+        <select
+          value={value ?? ""}
+          onChange={(event) => updateLanguage(position, event.target.value)}
+          className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+        >
+          {optional && <option value="">{text.optional}</option>}
+          {locales
+            .filter((candidate) => candidate === value || !selectedElsewhere.has(candidate))
+            .map((candidate) => {
+              const info = languageNames[candidate];
+              return (
+                <option key={candidate} value={candidate}>
+                  {info.nativeName} ({info.name})
+                </option>
+              );
+            })}
+        </select>
+      </label>
+    );
+  };
 
   return (
     <>
@@ -56,7 +167,7 @@ export default function ProfileTab({ draft, update, userId }: ProfileTabProps) {
               {t("avatarUrl")}
               <input
                 value={draft.avatarUrl ?? ""}
-                onChange={(e) => update({ avatarUrl: e.target.value })}
+                onChange={(event) => update({ avatarUrl: event.target.value })}
                 placeholder={t("avatarPlaceholder")}
                 className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
               />
@@ -69,8 +180,8 @@ export default function ProfileTab({ draft, update, userId }: ProfileTabProps) {
                 accept="image/jpeg,image/png,image/webp,image/gif"
                 className="hidden"
                 disabled={avatarUploading}
-                onChange={async (e) => {
-                  const file = e.target.files?.[0];
+                onChange={async (event) => {
+                  const file = event.target.files?.[0];
                   if (!file) return;
                   setAvatarUploading(true);
                   try {
@@ -82,7 +193,7 @@ export default function ProfileTab({ draft, update, userId }: ProfileTabProps) {
                     }
                   } finally {
                     setAvatarUploading(false);
-                    e.target.value = "";
+                    event.target.value = "";
                   }
                 }}
               />
@@ -96,7 +207,7 @@ export default function ProfileTab({ draft, update, userId }: ProfileTabProps) {
             {t("displayName")}
             <input
               value={draft.displayName}
-              onChange={(e) => update({ displayName: e.target.value })}
+              onChange={(event) => update({ displayName: event.target.value })}
               className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
             />
           </label>
@@ -104,7 +215,7 @@ export default function ProfileTab({ draft, update, userId }: ProfileTabProps) {
             {t("firstName")}
             <input
               value={draft.firstName ?? ""}
-              onChange={(e) => update({ firstName: e.target.value })}
+              onChange={(event) => update({ firstName: event.target.value })}
               className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
             />
           </label>
@@ -113,57 +224,50 @@ export default function ProfileTab({ draft, update, userId }: ProfileTabProps) {
           {t("bio")}
           <textarea
             value={draft.bio ?? ""}
-            onChange={(e) => update({ bio: e.target.value })}
+            onChange={(event) => update({ bio: event.target.value })}
             className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
             rows={3}
           />
         </label>
-        <div>
-          <p className="mb-1.5 text-sm font-semibold text-zinc-700 dark:text-zinc-200">{t("spokenLanguages")}</p>
-          <div className="flex flex-wrap gap-2">
-            {draft.languages.map((lang) => {
-              const info = languageNames[lang as Locale];
-              return (
-                <span key={lang} className="inline-flex items-center gap-1.5 rounded-full bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900/40 dark:text-blue-200">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  {info && <img src={localeFlagUrl(lang as Locale)} alt="" width={16} height={12} className="rounded-sm" />}
-                  {info ? info.nativeName : lang.toUpperCase()}
-                  <button
-                    type="button"
-                    onClick={() => update({ languages: draft.languages.filter((l) => l !== lang) })}
-                    className="text-blue-600 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-100"
-                    aria-label={`${t("removeLanguage")} ${info ? info.nativeName : lang}`}
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </span>
-              );
-            })}
-            <div className="inline-flex items-center gap-1">
-              <select
-                value=""
-                onChange={(e) => {
-                  const val = e.target.value as LanguageCode;
-                  if (val && !draft.languages.includes(val)) {
-                    update({ languages: [...draft.languages, val] });
-                  }
-                }}
-                aria-label={t("addLanguage")}
-                className="w-40 rounded-lg border border-zinc-200 bg-white px-2 py-1 text-xs dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
-              >
-                <option value="">{t("addLanguage")}</option>
-                {locales
-                  .filter((loc) => !draft.languages.includes(loc as LanguageCode))
-                  .map((loc) => {
-                    const info = languageNames[loc];
-                    return (
-                      <option key={loc} value={loc}>
-                        {info.nativeName} ({info.name})
-                      </option>
-                    );
-                  })}
-              </select>
-            </div>
+
+        <div className="rounded-xl border border-blue-100 bg-blue-50/40 p-4 dark:border-blue-900 dark:bg-blue-950/20">
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">
+              {t("spokenLanguages")}
+            </p>
+            {preferences.primary && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2 py-1 text-xs font-medium text-zinc-700 shadow-sm dark:bg-zinc-800 dark:text-zinc-200">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={localeFlagUrl(preferences.primary)} alt="" width={16} height={12} className="rounded-sm" />
+                {languageNames[preferences.primary].nativeName}
+              </span>
+            )}
+          </div>
+          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{text.description}</p>
+          <div className="mt-3 grid gap-3 sm:grid-cols-3">
+            {languageSelect(0, text.primary, preferences.primary, false)}
+            {languageSelect(1, text.secondary, preferences.secondary, true)}
+            {languageSelect(2, text.tertiary, preferences.tertiary, true)}
+          </div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <label className="flex items-start gap-2 text-sm text-zinc-700 dark:text-zinc-200">
+              <input
+                type="checkbox"
+                checked={preferences.autoTranslateMessages}
+                onChange={(event) => updateTranslationPreference("autoTranslateMessages", event.target.checked)}
+                className="mt-0.5"
+              />
+              <span>{text.autoTranslate}</span>
+            </label>
+            <label className="flex items-start gap-2 text-sm text-zinc-700 dark:text-zinc-200">
+              <input
+                type="checkbox"
+                checked={preferences.showOriginalLanguage}
+                onChange={(event) => updateTranslationPreference("showOriginalLanguage", event.target.checked)}
+                className="mt-0.5"
+              />
+              <span>{text.showOriginal}</span>
+            </label>
           </div>
         </div>
       </SectionCard>
@@ -200,8 +304,8 @@ export default function ProfileTab({ draft, update, userId }: ProfileTabProps) {
             {t("postalCode")}
             <input
               value={draft.location?.postalCode ?? ""}
-              onChange={(e) =>
-                update({ location: { ...(draft.location ?? {}), postalCode: e.target.value } })
+              onChange={(event) =>
+                update({ location: { ...(draft.location ?? {}), postalCode: event.target.value } })
               }
               className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
             />
@@ -211,11 +315,11 @@ export default function ProfileTab({ draft, update, userId }: ProfileTabProps) {
             <input
               type="number"
               value={draft.location?.travelRadiusKm ?? 0}
-              onChange={(e) =>
+              onChange={(event) =>
                 update({
                   location: {
                     ...(draft.location ?? {}),
-                    travelRadiusKm: Number(e.target.value),
+                    travelRadiusKm: Number(event.target.value),
                   },
                 })
               }
@@ -228,9 +332,9 @@ export default function ProfileTab({ draft, update, userId }: ProfileTabProps) {
             <input
               type="checkbox"
               checked={draft.visibility.showExactLocation}
-              onChange={(e) =>
+              onChange={(event) =>
                 update({
-                  visibility: { ...draft.visibility, showExactLocation: e.target.checked },
+                  visibility: { ...draft.visibility, showExactLocation: event.target.checked },
                 })
               }
             />
@@ -240,9 +344,9 @@ export default function ProfileTab({ draft, update, userId }: ProfileTabProps) {
             <input
               type="checkbox"
               checked={draft.visibility.showLastSeen}
-              onChange={(e) =>
+              onChange={(event) =>
                 update({
-                  visibility: { ...draft.visibility, showLastSeen: e.target.checked },
+                  visibility: { ...draft.visibility, showLastSeen: event.target.checked },
                 })
               }
             />
