@@ -9,7 +9,7 @@ function safetySql() {
     .filter((name) => name.includes("_batch_63_3_"))
     .sort();
 
-  expect(files).toHaveLength(7);
+  expect(files).toHaveLength(10);
   return files
     .map((file) => readFileSync(join(directory, file), "utf8"))
     .join("\n")
@@ -59,6 +59,8 @@ describe("Batch 63.3 canonical report and block migrations", () => {
     expect(sql).toContain("insert into public.safety_report_resolution_effects");
     expect(sql).toContain("normalize_safety_moderation_action_v1");
     expect(sql).toContain("new.action := 'suspend_user'");
+    expect(sql).toContain("Expected pg_catalog.greatest reference not found");
+    expect(sql).toContain("'pg_catalog.greatest(', 'greatest('");
   });
 
   it("blocks and unblocks without deleting history or notifying the target", () => {
@@ -82,6 +84,15 @@ describe("Batch 63.3 canonical report and block migrations", () => {
     expect(sql).toContain("on public.messages");
     expect(sql).toContain("enforce_unblocked_swap_v1");
     expect(sql).toContain("on public.swaps");
+    expect(sql).toContain("'pg_catalog.least(', 'least('");
+    expect(sql).toContain("'pg_catalog.greatest(', 'greatest('");
+  });
+
+  it("indexes canonical terminal-effect foreign keys", () => {
+    const sql = safetySql();
+    expect(sql).toContain("safety_report_resolution_effects_moderator_idx");
+    expect(sql).toContain("safety_report_resolution_effects_user_idx");
+    expect(sql).toContain("safety_report_resolution_effects_item_idx");
   });
 
   it("does not create rewards, Reviews, Stories or trust changes", () => {
