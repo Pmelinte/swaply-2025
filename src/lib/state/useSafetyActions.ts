@@ -1,18 +1,21 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import type { Dispatch, SetStateAction } from "react";
 import { nanoid } from "nanoid";
 import type { SharedDeps } from "./shared-deps";
-import type { SafetyReportReason } from "../safety/reportBlockPolicy";
+import { isSafetyReportReason } from "../safety/reportBlockPolicy";
 import { setUserBlock, submitSafetyReport } from "../safety/reportBlockService";
-
-type SafetyActionResult = { error?: string };
 
 export function useSafetyActions(
   deps: Pick<
     SharedDeps,
-    "user" | "dataSource" | "supabase" | "setLastError" | "setNotifications"
+    | "user"
+    | "dataSource"
+    | "supabase"
+    | "setLastError"
+    | "setNotifications"
+    | "sendAuditLog"
   > & {
     setBlockedUsers: Dispatch<SetStateAction<string[]>>;
   },
@@ -26,18 +29,60 @@ export function useSafetyActions(
     setBlockedUsers,
   } = deps;
 
+  useEffect(() => {
+    let cancelled = false;
+
+    const hydrateBlocks = async () => {
+      if (dataSource !== "supabase" || !supabase || !user?.id) {
+        setBlockedUsers([]);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("blocked_users")
+        .select("blocked_id")
+        .eq("blocker_id", user.id)
+        .order("created_at", { ascending: false });
+
+      if (cancelled) return;
+      if (error) {
+        setLastError(error.message);
+        setBlockedUsers([]);
+        return;
+      }
+
+      setBlockedUsers(
+        Array.from(
+          new Set(
+            (data ?? [])
+              .map((row) => row.blocked_id)
+              .filter((id): id is string => typeof id === "string"),
+          ),
+        ),
+      );
+    };
+
+    void hydrateBlocks();
+    return () => {
+      cancelled = true;
+    };
+  }, [dataSource, setBlockedUsers, setLastError, supabase, user?.id]);
+
   const reportUser = useCallback(
     async (params: {
       reportedUserId: string;
       reportedItemId?: string;
-      reason: SafetyReportReason;
+      reason: string;
       description?: string;
-    }): Promise<SafetyActionResult> => {
-      if (!user?.id) return { error: "Authentication required" };
+    }): Promise<void> => {
+      if (!user?.id) throw new Error("Authentication required");
+      if (!isSafetyReportReason(params.reason)) {
+        throw new Error("Invalid report reason");
+      }
       setLastError(null);
 
       if (dataSource === "supabase") {
-        if (!supabase) return { error: "Supabase client unavailable" };
+        if (!supabase) throw new Error("Supabase client unavailable");
 
         const result = await submitSafetyReport(supabase, {
           targetType: params.reportedItemId ? "item" : "user",
@@ -49,23 +94,21 @@ export function useSafetyActions(
 
         if (!result.ok) {
           setLastError(result.error.message);
-          return { error: result.error.message };
+          throw new Error(result.error.message);
         }
       }
-
-      return {};
     },
-    [dataSource, setLastError, supabase, user],
+    [dataSource, setLastError, supabase, user?.id],
   );
 
   const changeBlock = useCallback(
-    async (targetUserId: string, blocked: boolean): Promise<SafetyActionResult> => {
-      if (!user?.id) return { error: "Authentication required" };
-      if (!targetUserId) return { error: "Target user is required" };
+    async (targetUserId: string, blocked: boolean): Promise<void> => {
+      if (!user?.id) throw new Error("Authentication required");
+      if (!targetUserId) throw new Error("Target user is required");
       setLastError(null);
 
       if (dataSource === "supabase") {
-        if (!supabase) return { error: "Supabase client unavailable" };
+        if (!supabase) throw new Error("Supabase client unavailable");
 
         const result = await setUserBlock(supabase, {
           targetUserId,
@@ -75,13 +118,13 @@ export function useSafetyActions(
 
         if (!result.ok) {
           setLastError(result.error.message);
-          return { error: result.error.message };
+          throw new Error(result.error.message);
         }
 
         if (result.data.blocked !== blocked) {
           const error = "Block state did not match the requested state";
           setLastError(error);
-          return { error };
+          throw new Error(error);
         }
       }
 
@@ -93,10 +136,8 @@ export function useSafetyActions(
         }
         return previous.filter((id) => id !== targetUserId);
       });
-
-      return {};
     },
-    [dataSource, setBlockedUsers, setLastError, supabase, user],
+    [dataSource, setBlockedUsers, setLastError, supabase, user?.id],
   );
 
   const blockUser = useCallback(
