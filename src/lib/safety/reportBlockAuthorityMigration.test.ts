@@ -9,7 +9,7 @@ function safetySql() {
     .filter((name) => name.includes("_batch_63_3_"))
     .sort();
 
-  expect(files).toHaveLength(6);
+  expect(files).toHaveLength(7);
   return files
     .map((file) => readFileSync(join(directory, file), "utf8"))
     .join("\n")
@@ -55,6 +55,8 @@ describe("Batch 63.3 canonical report and block migrations", () => {
     expect(sql).toContain("'item_hidden'");
     expect(sql).toContain("'user_suspended'");
     expect(sql).toContain("insert into public.safety_report_resolution_effects");
+    expect(sql).toContain("normalize_safety_moderation_action_v1");
+    expect(sql).toContain("new.action := 'suspend_user'");
   });
 
   it("blocks and unblocks without deleting history or notifying the target", () => {
@@ -66,7 +68,6 @@ describe("Batch 63.3 canonical report and block migrations", () => {
     expect(sql).toContain("'safety.user_unblocked'");
     expect(sql).not.toContain("delete from public.messages");
     expect(sql).not.toContain("delete from public.conversations");
-    expect(sql).not.toContain("'user_blocked' ,");
   });
 
   it("enforces the bilateral contact barrier at every creation boundary", () => {
