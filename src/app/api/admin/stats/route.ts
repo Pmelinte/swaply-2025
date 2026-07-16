@@ -45,9 +45,9 @@ export async function GET() {
       .select("id", { count: "exact", head: true })
       .in("status", ["pending", "accepted"]),
     service
-      .from("abuse_reports")
+      .from("reports")
       .select("id", { count: "exact", head: true })
-      .eq("status", "pending"),
+      .in("status", ["open", "investigating"]),
   ]);
 
   const error = users.error ?? items.error ?? swaps.error ?? reports.error;

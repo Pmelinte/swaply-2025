@@ -1,11 +1,18 @@
 "use client";
 
 import { useCallback } from "react";
+import { nanoid } from "nanoid";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { useAppState } from "@/lib/state";
+import type {
+  SafetyReportAction,
+  SafetyReportStatus,
+} from "@/lib/safety/reportBlockPolicy";
+import { resolveSafetyReport } from "@/lib/safety/reportBlockService";
 
 /**
- * Admin moderation actions — all actions log to audit_log.
+ * Admin moderation actions. Canonical report resolution is database-owned;
+ * unrelated manual user and item administration remains server-routed.
  */
 export function useAdminActions() {
   const { user } = useAppState();
@@ -30,7 +37,7 @@ export function useAdminActions() {
         }),
       }).catch(() => {});
     },
-    [user],
+    [user?.id],
   );
 
   const adminUserAction = useCallback(
@@ -49,85 +56,27 @@ export function useAdminActions() {
     [],
   );
 
-  // ── Report Actions ──
-
-  const updateReportStatus = useCallback(
-    async (
-      reportId: string,
-      status: string,
-      resolution?: string,
-    ): Promise<{ error?: string }> => {
-      const supabase = getSupabaseClient();
-      if (!supabase) return { error: "No supabase client" };
-
-      const payload: Record<string, unknown> = { status };
-      if (resolution) payload.resolution = resolution;
-      if (status === "resolved" || status === "dismissed") {
-        payload.resolved_at = new Date().toISOString();
-      }
-
-      const { error } = await supabase
-        .from("abuse_reports")
-        .update(payload)
-        .eq("id", reportId);
-
-      if (error) return { error: error.message };
-
-      await logAudit("update_report", "report", reportId, payload);
-      return {};
-    },
-    [logAudit],
-  );
-
-  // ── Moderation Actions ──
-
-  const insertModerationAction = useCallback(
+  const resolveReport = useCallback(
     async (params: {
-      targetUserId: string;
-      action: string;
-      reason: string;
-      reportId?: string;
-      details?: Record<string, unknown>;
+      reportId: string;
+      expectedStatus: Extract<SafetyReportStatus, "open" | "investigating">;
+      action: SafetyReportAction;
+      notes: string;
     }): Promise<{ error?: string }> => {
       const supabase = getSupabaseClient();
-      if (!supabase || !user?.id) return { error: "Not authenticated" };
+      if (!supabase) return { error: "No Supabase client" };
 
-      const { error } = await supabase.from("moderation_actions").insert({
-        moderator_id: user.id,
-        target_type: "user",
-        target_id: params.targetUserId,
-        action: params.action,
-        reason: params.reason,
-        report_id: params.reportId ?? null,
-      });
-
-      if (error) return { error: error.message };
-
-      await logAudit(params.action, "user", params.targetUserId, {
-        reason: params.reason,
+      const result = await resolveSafetyReport(supabase, {
         reportId: params.reportId,
+        expectedStatus: params.expectedStatus,
+        action: params.action,
+        notes: params.notes,
+        idempotencyKey: `resolve-report:${nanoid()}`,
       });
-      return {};
-    },
-    [logAudit, user],
-  );
 
-  // ── User Actions ──
-
-  const warnUser = useCallback(
-    async (
-      targetUserId: string,
-      reason: string,
-      reportId?: string,
-    ): Promise<{ error?: string }> => {
-      return insertModerationAction({
-        targetUserId,
-        action: "warn",
-        reason,
-        reportId,
-      });
+      return result.ok ? {} : { error: result.error.message };
     },
-    [insertModerationAction],
+    [],
   );
 
   const suspendUser = useCallback(
@@ -184,15 +133,13 @@ export function useAdminActions() {
     [adminUserAction],
   );
 
-  // ── Item Actions ──
-
   const toggleItemActive = useCallback(
     async (
       itemId: string,
       isActive: boolean,
     ): Promise<{ error?: string }> => {
       const supabase = getSupabaseClient();
-      if (!supabase) return { error: "No supabase client" };
+      if (!supabase) return { error: "No Supabase client" };
 
       const { error } = await supabase
         .from("items")
@@ -219,7 +166,7 @@ export function useAdminActions() {
   const deleteItem = useCallback(
     async (itemId: string): Promise<{ error?: string }> => {
       const supabase = getSupabaseClient();
-      if (!supabase) return { error: "No supabase client" };
+      if (!supabase) return { error: "No Supabase client" };
 
       const { error } = await supabase
         .from("items")
@@ -244,7 +191,7 @@ export function useAdminActions() {
       isDemo: boolean,
     ): Promise<{ error?: string }> => {
       const supabase = getSupabaseClient();
-      if (!supabase) return { error: "No supabase client" };
+      if (!supabase) return { error: "No Supabase client" };
 
       const { error } = await supabase
         .from("items")
@@ -260,9 +207,7 @@ export function useAdminActions() {
   );
 
   return {
-    updateReportStatus,
-    insertModerationAction,
-    warnUser,
+    resolveReport,
     suspendUser,
     banUser,
     unbanUser,
