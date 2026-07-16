@@ -1,6 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { describe, expect, it, vi } from "vitest";
 import {
+  ensureOwnGlobalProfile,
+  fetchOwnGlobalProfile,
   isProfileConflict,
   ProfileServiceError,
   updateOwnGlobalProfile,
@@ -49,6 +51,87 @@ describe("Batch 65 revisioned profile service", () => {
     expect(result.profileRevision).toBe(8);
     expect(result.contract.revision).toBe(8);
     expect(result.contract.languagePreferences.primary).toBe("ro");
+  });
+
+  it("creates or returns the owner profile through ensure_own_profile_v1", async () => {
+    const rpc = vi.fn().mockResolvedValue({
+      data: {
+        created: true,
+        profile_revision: 1,
+        profile: {
+          user_id: "f0af0b54-9cb4-4c23-827f-588ee8c2ee78",
+          profile_revision: 1,
+          primary_language: "pt",
+          languages: ["pt"],
+          preferred_locale: "pt",
+          user_type: "individual",
+          availability_status: "available",
+          timezone: "UTC",
+        },
+      },
+      error: null,
+    });
+    const client = { rpc } as unknown as SupabaseClient;
+
+    const result = await ensureOwnGlobalProfile(client, { routeLocale: "pt-BR" });
+
+    expect(rpc).toHaveBeenCalledWith("ensure_own_profile_v1", {
+      p_route_locale: "pt-BR",
+    });
+    expect(result.created).toBe(true);
+    expect(result.profileRevision).toBe(1);
+    expect(result.contract.languagePreferences.primary).toBe("pt");
+    expect(result.contract.legacyLanguages).toEqual(["pt"]);
+  });
+
+  it("repairs a missing profile during owner fetch and rejects identity mismatch", async () => {
+    const maybeSingle = vi.fn().mockResolvedValue({ data: null, error: null });
+    const eq = vi.fn().mockReturnValue({ maybeSingle });
+    const select = vi.fn().mockReturnValue({ eq });
+    const from = vi.fn().mockReturnValue({ select });
+    const rpc = vi.fn().mockResolvedValue({
+      data: {
+        created: true,
+        profile_revision: 1,
+        profile: {
+          user_id: "a63f22e6-ad41-4aac-bbe7-d111c7763900",
+          profile_revision: 1,
+          primary_language: "ro",
+          languages: ["ro"],
+        },
+      },
+      error: null,
+    });
+    const client = { from, rpc } as unknown as SupabaseClient;
+
+    const repaired = await fetchOwnGlobalProfile(
+      client,
+      "a63f22e6-ad41-4aac-bbe7-d111c7763900",
+      { routeLocale: "ro" },
+    );
+
+    expect(repaired?.contract.revision).toBe(1);
+    expect(rpc).toHaveBeenCalledWith("ensure_own_profile_v1", {
+      p_route_locale: "ro",
+    });
+
+    rpc.mockResolvedValueOnce({
+      data: {
+        created: true,
+        profile_revision: 1,
+        profile: {
+          user_id: "c2e04ec3-794b-452e-aa24-cda840de40ee",
+          profile_revision: 1,
+          primary_language: "en",
+        },
+      },
+      error: null,
+    });
+
+    await expect(fetchOwnGlobalProfile(
+      client,
+      "a63f22e6-ad41-4aac-bbe7-d111c7763900",
+    )).rejects.toMatchObject({ code: "PROFILE_BOOTSTRAP_ID_MISMATCH" });
   });
 
   it("preserves idempotent replay state returned by the server", async () => {
@@ -131,18 +214,26 @@ describe("Batch 65 revisioned profile service", () => {
     expect(rpc).not.toHaveBeenCalled();
   });
 
-  it("rejects malformed server responses rather than accepting partial profile state", async () => {
-    const client = {
-      rpc: vi.fn().mockResolvedValue({
+  it("rejects malformed update and bootstrap responses", async () => {
+    const rpc = vi.fn()
+      .mockResolvedValueOnce({
         data: { replayed: false, profile_revision: "2" },
         error: null,
-      }),
-    } as unknown as SupabaseClient;
+      })
+      .mockResolvedValueOnce({
+        data: { created: true, profile_revision: 1 },
+        error: null,
+      });
+    const client = { rpc } as unknown as SupabaseClient;
 
     await expect(updateOwnGlobalProfile(client, {
       expectedRevision: 1,
       idempotencyKey: "profile:invalid-response",
       payload: { primary_language: "ro" },
     })).rejects.toMatchObject({ code: "INVALID_PROFILE_RESPONSE" });
+
+    await expect(ensureOwnGlobalProfile(client, {
+      routeLocale: "ro",
+    })).rejects.toMatchObject({ code: "INVALID_PROFILE_BOOTSTRAP_RESPONSE" });
   });
 });
