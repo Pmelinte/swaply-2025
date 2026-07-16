@@ -1,6 +1,6 @@
 # Swaply — Current Project Handoff
 
-**Last updated:** 2026-07-15
+**Last updated:** 2026-07-16
 
 ## Status
 
@@ -17,8 +17,8 @@
 C4 sequence:
 
 - Batch 63.1 — canonical cancel authority: `CLOSED`;
-- Batch 63.2 — canonical dispute authority: `IN_PROGRESS` on draft PR `#471`;
-- Batch 63.3 — canonical report/block authority: `PLANNED`;
+- Batch 63.2 — canonical dispute authority: `CLOSED`;
+- Batch 63.3 — canonical report/block authority: `IN_PROGRESS` on draft PR `#472`;
 - Batch 63.4 — authenticated C4 closure: `PLANNED`.
 
 ## Rules
@@ -36,14 +36,19 @@ C4 sequence:
 ## Checkpoint
 
 - Repository: `Pmelinte/swaply-2025`.
-- Current `main`: `fac96cb0b0aee779513fbd61fe825fdd1bb51e55`.
+- Current `main`: `7cd2cf036a19c050ee8cee5d451f3c041d8601a3`.
 - Production: `https://www.swaply.world`.
-- PR `#469`: merged; C3 closed.
 - PR `#470`: merged; Batch 63.1 closed.
-- PR `#471`: `OPEN / DRAFT`, not merged.
-- Active branch: `agent/batch-63-2-dispute-authority`.
-- Supabase Production includes migration `20260715182419_batch_63_1_cancel_authority`.
-- Batch 63.2 migrations are repository-only and have not been applied to Production.
+- PR `#471`: merged; Batch 63.2 closed.
+- PR `#472`: `OPEN / DRAFT`, not merged.
+- Active branch: `agent/batch-63-3-report-block-authority`.
+- Supabase Production includes:
+  - `20260715182419_batch_63_1_cancel_authority`;
+  - `20260715231323_batch_63_2_dispute_foundation`;
+  - `20260715231400_batch_63_2_dispute_open_authority`;
+  - `20260715231430_batch_63_2_dispute_evidence_authority`;
+  - `20260715231502_batch_63_2_dispute_resolution_authority`.
+- Batch 63.3 migrations are repository-only and have not been applied to Production.
 
 ## C2
 
@@ -94,32 +99,53 @@ Evidence: `docs/batch-63-1-cancel-authority.md`.
 
 ### Batch 63.2 — disputes
 
-Audit found that the historical dispute migration existed only in the repository: `public.disputes` and `public.dispute_evidence` were absent from Supabase Production. Legacy APIs used application `service_role`, non-atomic writes and a non-canonical global `resolved` state.
+Canonical dispute opening, participant evidence and moderator resolution are atomic and exactly-once. The global Swap remains terminal `disputed`; investigation outcomes remain local to the dispute. Direct writes and generic transitions are blocked, exact Swap locks are cleaned at resolution and only the responsible participant receives a trust consequence.
 
-PR `#471` introduces:
+Production evidence:
 
-- one canonical dispute row per Swap;
-- participant evidence;
-- private idempotency and effect registries;
-- atomic participant-only dispute opening from `accepted` or `in_progress`;
-- participant-only evidence append;
-- admin/moderator-only resolution;
-- dispute-local outcomes while the global Swap remains terminal `disputed`;
-- targeted item cleanup, exact loser/rejected-initiator trust consequence and deduplicated notifications;
-- direct-write and generic-transition guards;
-- removal of client and service-role fallback writers.
+- four Batch 63.2 migrations applied;
+- authenticated participant, outsider, stale, replay, evidence, moderator and two-session concurrency audit: `PASS`;
+- all four resolution outcomes: `PASS`;
+- zero reward, Review and Story side effects: `PASS`;
+- immutable-ID cleanup: `PASS`;
+- PR `#471` merged at `7cd2cf036a19c050ee8cee5d451f3c041d8601a3`;
+- Vercel Production deployment `dpl_2zDjdLKWRgazsKXjdbdVGq9igDik`: `READY`;
+- `/en/exchange`: HTTP `200`;
+- inspected runtime errors: none.
 
 Evidence: `docs/batch-63-2-dispute-authority.md`.
 
+### Batch 63.3 — reports and blocks
+
+Audit found two incompatible report sources: user actions wrote `public.reports`, while the admin workflow used absent `public.abuse_reports`. Blocks were direct client writes, were not hydrated after login and did not create a server-side contact barrier. Unverified profile reports could also trigger automatic suspension before moderator review.
+
+PR `#472` introduces:
+
+- `public.reports` and `public.blocked_users` as the sole public safety sources;
+- private idempotency and report-resolution effect registries;
+- authenticated canonical report submission with validation, duplicate prevention and rate limiting;
+- admin/moderator-only atomic report investigation and resolution;
+- authenticated idempotent block/unblock;
+- bilateral block enforcement for new interests, conversations, messages and Swaps;
+- preservation of existing conversation history;
+- removal of unverified automatic sanctions and direct writers;
+- persisted block hydration and accurate UI success/error state;
+- canonical admin report listing, statistics and actions.
+
+Evidence: `docs/batch-63-3-report-block-authority.md`.
+
 ## Current closure gate
 
-Batch 63.2 remains `IN_PROGRESS` and PR `#471` remains draft until:
+Batch 63.3 remains `IN_PROGRESS` and PR `#472` remains draft until:
 
-- final CI and Preview pass on the latest head;
+- final CI and Vercel Preview pass on the latest head;
 - migration review against current Production is complete;
 - the migrations are applied only after explicit authorization;
-- authenticated participant, outsider, stale, replay, concurrency, evidence and moderator-resolution probes pass;
-- zero reward, Review and Story side effects are verified;
+- authenticated reporter, outsider, moderator, stale, replay, rate-limit and concurrency probes pass;
+- every moderator outcome passes;
+- block/unblock and contact-barrier enforcement pass in both directions;
+- existing history remains readable;
+- zero reward, Review, Story and trust side effects are verified;
 - immutable-ID cleanup is complete.
 
 No merge is authorized by this handoff.
