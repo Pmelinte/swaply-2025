@@ -455,6 +455,9 @@ select batch65_test.assert_true(
 
 commit;
 
+delete from public.profiles
+where user_id = '66666666-6666-4666-8666-666666666666';
+
 begin;
 set local role authenticated;
 select set_config('request.jwt.claim.sub', '66666666-6666-4666-8666-666666666666', true);
