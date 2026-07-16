@@ -6,20 +6,15 @@
 
 - Train A: `CLOSED`.
 - Train B: `CLOSED`.
-- Train C: `ACTIVE`.
+- Train C: `CLOSED` after C5 cumulative audit and closure documentation.
 - C1: `CLOSED`.
 - C2: `CLOSED`.
 - C3: `CLOSED`.
-- C4: `AUTHENTICATED PASS — CLOSURE PR PENDING`.
-- C5: `PLANNED` as the final Train C closure gate.
+- C4: `CLOSED`.
+- C5: `PASS — CLOSURE PR OPEN`.
+- Milestone reached: `CLOSED_BETA_READY_OBJECTS_ONE_TO_ONE`.
+- Train D: `PLANNED`; it starts only after the C5 closure PR passes CI/Preview and is explicitly merged.
 - Train E is terminal for v1; there is no Train F.
-
-C4 sequence:
-
-- Batch 63.1 — canonical cancel authority: `CLOSED`;
-- Batch 63.2 — canonical dispute authority: `CLOSED`;
-- Batch 63.3 — canonical report/block authority: `CLOSED`;
-- Batch 63.4 — authenticated C4 integration closure: `PASS`, awaiting closure CI/Preview and explicit merge.
 
 ## Rules
 
@@ -33,145 +28,152 @@ C4 sequence:
 - Merge only after Petru gives the exact `Merge #...` command.
 - After merge verify GitHub CI, Vercel Production, runtime and database evidence.
 
-## Checkpoint
+## Current checkpoint
 
 - Repository: `Pmelinte/swaply-2025`.
-- Current `main`: `44d20dbac30d2ce481d99a8510abb218afe39811`.
+- Audited `main`: `67081c613d49f7c6605525c5d438d349b59b6247`.
 - Production: `https://www.swaply.world`.
-- PR `#470`: merged; Batch 63.1 closed.
-- PR `#471`: merged; Batch 63.2 closed.
-- PR `#472`: merged; Batch 63.3 closed.
-- Active branch: `agent/batch-63-4-c4-integration-closure`.
-- Batch 63.4 introduces no database migration or new product behavior; it adds regression evidence and reconciles closure documentation.
-- Supabase Production includes:
-  - `20260715182419_batch_63_1_cancel_authority`;
-  - four Batch 63.2 dispute migrations;
-  - the Batch 63.3 legacy bridge and foundation;
-  - split report submit and resolution authorities;
-  - block authority, response hardening and cleanup guard;
-  - moderation action compatibility;
-  - post-audit `GREATEST` and `LEAST/GREATEST` fixes;
-  - terminal-effect foreign-key indexes.
-- Batch 63.4 authenticated Production integration audit: `PASS`.
-- All Batch 63.4 reports, disputes, effects, deterministic fixtures, worker functions and cron artifacts: cleaned.
-- Audited Production deployment: `dpl_A7Cb8NXFNKeLfKnw8qwGT2NiHnei`, commit `44d20dbac30d2ce481d99a8510abb218afe39811`, state `READY`.
-- `/en/exchange`: HTTP `200`; inspected runtime `error`, `warning` and `fatal`: none.
+- Active closure branch: `agent/batch-64-c5-train-c-closure`.
+- Batch 64 introduces no database migration and no new product behavior.
+- Batch 64 adds the final Train C closure report and reconciles canonical status documentation.
+- Train C closure report: `docs/TRAIN_C_CLOSURE_REPORT.md`.
 
-## C2
+## Train C summary
 
-C2 guarantees one canonical transition authority, expected-state CAS, participant authorization, immutable identity, bilateral completion and exactly-once structural effects.
+Train C delivered the real one-to-one exchange engine for Objects:
+
+`Profile → Object → Wanted/Favorite → Express Interest → Match → Chat → Bilateral Agreement → Create Exchange → Logistics → Bilateral Completion → Review`
+
+It also delivered controlled lifecycle branches for cancellation, dispute, report and block.
+
+## C1 — Explicit Exchange handoff
+
+C1 closed the Batch 60 sequence and demonstrated:
+
+- zero Exchange before the explicit user action;
+- exactly one Exchange after the explicit action;
+- the same Exchange ID for both participants;
+- retry without duplicates;
+- bilateral agreement revision checks;
+- consistent Match–conversation–Exchange links;
+- zero unintended token, reputation, item or notification effects;
+- immutable-ID cleanup.
+
+Evidence: `docs/batch-60-4-validation-closure.md`.
+
+## C2 — Canonical lifecycle
+
+C2 established:
+
+- one server-side transition authority;
+- expected-state CAS and stale-state denial;
+- participant-only mutation authority and outsider denial;
+- immutable Swap identity;
+- bilateral completion;
+- exactly-once structural effects;
+- controlled item locking and release;
+- persistence and immutable-ID cleanup.
 
 Evidence:
 
 - `docs/batch-61-2-single-transition-authority.md`;
 - `docs/batch-61-4-authenticated-completion-validation.md`.
 
-## C3
+## C3 — Feedback and post-completion effects
 
-### Batch 62.1
+C3 delivered:
 
-One canonical Review table and authority; derived participants; immutable Review; idempotent replay; direct writes blocked; reviewed participant controls response.
+- one canonical Review authority;
+- participant-only and immutable Reviews;
+- controlled response by the reviewed participant;
+- idempotent replay;
+- `+30` Swapleni per participant after canonical completion;
+- deduplicated notifications;
+- exactly-once counters and trust recalculation;
+- Realtime synchronization;
+- authenticated two-user closure and cleanup.
 
-Evidence: `docs/batch-62-1-canonical-review-authority.md`.
+Historical completed Swaps before the canonical cutover were intentionally not backfilled.
 
-### Batch 62.2
+Evidence:
 
-Each new canonical completion creates one private effect row, awards `+30` Swapleni per participant, sends four deduplicated notifications, updates counters and trust once, synchronizes notification read state and shares one transaction with structural effects. No historical backfill.
+- `docs/batch-62-1-canonical-review-authority.md`;
+- `docs/batch-62-2-post-completion-effects.md`;
+- `docs/batch-62-3-authenticated-c3-closure.md`.
 
-Evidence: `docs/batch-62-2-post-completion-effects.md`.
+## C4 — Safety lifecycle
 
-### Batch 62.3
+### Cancellation
 
-Authenticated two-user closure verified completion, reward, notification, Review, Realtime and immutable-ID cleanup contracts. PR `#469` was merged and post-merge Production checks passed.
-
-Evidence: `docs/batch-62-3-authenticated-c3-closure.md`.
-
-## C4
-
-### Batch 63.1 — cancellation
-
-Canonical participant-only cancellation is atomic and exactly-once. It uses expected-state CAS, reason validation, idempotency, targeted item reactivation, confirmation cleanup, conversation closure, actor-only post-acceptance cancellation counting, trust recalculation and two deduplicated notifications.
-
-Production evidence:
-
-- migration `20260715182419_batch_63_1_cancel_authority`;
-- authenticated participant, outsider, stale, replay and two-session concurrency audit: `PASS`;
-- immutable-ID cleanup: `PASS`;
-- PR `#470` merged at `fac96cb0b0aee779513fbd61fe825fdd1bb51e55`;
-- Vercel Production deployment `dpl_6REcL5UDEbBQZETBGVJzQgnNNmj7`: `READY`;
-- `/en/exchange`: HTTP `200`;
-- inspected runtime errors: none.
+Canonical cancellation is participant-only, atomic and exactly once. It validates expected status and reason, reactivates only the affected items, removes incomplete completion confirmations, closes the linked conversation, applies the allowed trust/counter effects and sends deduplicated notifications.
 
 Evidence: `docs/batch-63-1-cancel-authority.md`.
 
-### Batch 63.2 — disputes
+### Disputes
 
-Canonical dispute opening, participant evidence and moderator resolution are atomic and exactly-once. The global Swap remains terminal `disputed`; investigation outcomes remain local to the dispute. Direct writes and generic transitions are blocked, exact Swap locks are cleaned at resolution and only the responsible participant receives a trust consequence.
-
-Production evidence:
-
-- four Batch 63.2 migrations applied;
-- authenticated participant, outsider, stale, replay, evidence, moderator and two-session concurrency audit: `PASS`;
-- all four resolution outcomes: `PASS`;
-- zero reward, Review and Story side effects: `PASS`;
-- immutable-ID cleanup: `PASS`;
-- PR `#471` merged at `7cd2cf036a19c050ee8cee5d451f3c041d8601a3`;
-- Vercel Production deployment `dpl_2zDjdLKWRgazsKXjdbdVGq9igDik`: `READY`;
-- `/en/exchange`: HTTP `200`;
-- inspected runtime errors: none.
+Canonical dispute opening, evidence and moderator resolution are atomic and exactly once. The global Swap remains terminal `disputed`; local resolution outcomes do not rewrite that terminal state. Direct writes are blocked, locks are cleaned at resolution and only an explicitly responsible participant receives the defined trust consequence.
 
 Evidence: `docs/batch-63-2-dispute-authority.md`.
 
-### Batch 63.3 — reports and blocks
+### Reports and blocks
 
-`public.reports` and `public.blocked_users` are the sole public safety sources. Canonical report submission is authenticated, validated, rate-limited and side-effect free before moderation. Moderator resolution is atomic. Block/unblock is authenticated, private and idempotent, prevents future bilateral contact and preserves existing evidence and history.
-
-Production evidence:
-
-- all logical Batch 63.3 migrations applied; the long report authority was operationally split into submit and resolution units;
-- two SQL qualification defects found by real authenticated probes were repaired only through new follow-up migrations;
-- raw user/item report, self-target, own-item, missing target, duplicate, replay, conflict, RLS and direct-write probes: `PASS`;
-- ten-per-24h rate limit and eleventh rejection: `PASS`;
-- investigate, dismiss, warn, hide-item and seven-day suspension outcomes: `PASS`;
-- stale status, terminal replay and exactly-once effects: `PASS`;
-- bilateral block/unblock barriers for interests, conversations, messages and Swaps: `PASS`;
-- pre-existing history readable after block: `PASS`;
-- two-session same-key pg_cron concurrency: `PASS` with one block row, one request and one audit event;
-- zero Swapleni, Review, Story, notification and trust side effects outside the explicit confirmed moderation outcome: `PASS`;
-- immutable-ID and profile restoration cleanup: `PASS`;
-- security/performance advisors reviewed; three new FK index findings remediated;
-- PR `#472` merged at `44d20dbac30d2ce481d99a8510abb218afe39811`.
+`public.reports` and `public.blocked_users` are the canonical safety sources. Report submission is authenticated, validated, rate-limited and side-effect free before moderation. Moderator resolution is atomic. Block/unblock is authenticated, private and idempotent, prevents future bilateral contact and preserves historical evidence.
 
 Evidence: `docs/batch-63-3-report-block-authority.md`.
 
-### Batch 63.4 — integration closure
+### Integration closure
 
-Authenticated Production integration proved that the three C4 authorities coexist without contradictory terminal states or suppressed safety rights.
+Authenticated Production integration demonstrated:
 
-Verified:
-
-- cancellation and dispute are mutually exclusive terminal branches;
-- dispute after cancellation and cancellation after dispute are rejected with stale-state SQLSTATE `40001`;
-- block prevents new interests, conversations, messages and Swaps but does not prevent cancellation of an existing Swap;
-- block does not prevent dispute opening, evidence append or moderator resolution;
+- `cancelled` and `disputed` are mutually exclusive terminal branches;
+- stale cross-branch attempts are rejected;
+- block prevents new interests, conversations, messages and Swaps;
+- block does not prevent cancellation, dispute, evidence or moderator resolution for an existing Swap;
 - historical messages remain stored;
-- raw reports do not transition Swaps, block users, alter trust, increment counters, suspend users, notify targets, award Swapleni or create Reviews;
-- a real same-second cancel-versus-dispute race produced one winner, one terminal branch and no mixed effects;
-- exact Production cleanup restored borrowed E2E items, profiles, triggers, cron state and all C4 registries;
-- security and performance advisors showed no C4 correctness blocker;
-- Vercel Production remained `READY`, `/en/exchange` returned `200`, and runtime error/warning/fatal inspection was empty.
+- raw reports do not transition Swaps, alter trust, increment counters, suspend users, block users, notify targets, award Swapleni or create Reviews;
+- a real same-second cancel-versus-dispute race produced one winner and no mixed effects;
+- exact cleanup restored fixtures, items, profiles, workers and cron state.
 
 Evidence: `docs/batch-63-4-c4-integration-closure.md`.
 
-## Current closure gate
+## C5 — Final cumulative audit
 
-C4 has passed the authenticated Production integration audit. It becomes formally `CLOSED` only after the Batch 63.4 closure branch passes:
+C5 confirmed cumulatively:
 
-- Unit Tests, including `c4IntegrationClosure.test.ts`;
-- lint and TypeScript;
-- Next.js Production Build;
-- Public Visual Audit;
-- Vercel Preview and runtime-log inspection;
-- explicit `Merge #...` authorization.
+- canonical repository head and merged C4 closure;
+- required GitHub checks green on the audited head;
+- Vercel Production `READY`;
+- critical Production route HTTP `200`;
+- no relevant Vercel runtime `error`, `warning` or `fatal` entries in the inspected window;
+- Supabase Production `ACTIVE_HEALTHY`;
+- complete Train C migration chain, including follow-up fixes and indexes;
+- one canonical lifecycle and immutable identity;
+- reload persistence and Realtime evidence;
+- participant authorization and outsider denial;
+- idempotency and stale-state rejection;
+- real concurrent-session serialization;
+- exactly-once Reviews, rewards, notifications and trust effects;
+- zero orphan or duplicate canonical effects;
+- zero self-blocks or duplicate block pairs;
+- zero mixed cancelled/disputed terminal states;
+- zero residual Batch 63 cron jobs or temporary workers;
+- zero nonconforming canonical completions after cutover;
+- immutable-ID cleanup and restoration.
 
-After Batch 63.4 is merged, the next mandatory deliverable is **C5 — final Train C closure audit**. Train C remains `ACTIVE` until C5 is passed and explicitly merged.
+Detailed evidence: `docs/TRAIN_C_CLOSURE_REPORT.md`.
+
+## Train C closure verdict
+
+- C5: `PASS`.
+- Critical failures: `0`.
+- Residual audit artifacts: `0`.
+- Train C: `CLOSED` once this closure PR is explicitly merged.
+- Milestone: `CLOSED_BETA_READY_OBJECTS_ONE_TO_ONE`.
+
+## Next mandatory action
+
+1. Let the Batch 64 closure PR run all required GitHub CI and Vercel Preview checks.
+2. Do not merge automatically.
+3. Merge only after Petru gives the exact command `Merge #...`.
+4. After merge, verify GitHub CI, Vercel Production, runtime logs and the final repository checkpoint.
+5. Then begin Train D with D1: global-first profile, languages/fallback, media and approximate location.
