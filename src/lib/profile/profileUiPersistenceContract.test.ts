@@ -18,6 +18,18 @@ describe("Batch 65 Profile and Onboarding persistence integration", () => {
     expect(state).not.toContain('.from("profiles").update');
   });
 
+  it("bootstraps missing profiles through ensure_own_profile_v1 without direct upsert", () => {
+    const orchestrator = source("src/lib/state/index.tsx");
+
+    expect(orchestrator).toContain('supabase.rpc( "ensure_own_profile_v1"');
+    expect(orchestrator).toContain("{ p_route_locale: language }");
+    expect(orchestrator).toContain('"profile" in ensured');
+    expect(orchestrator).toContain("if (ensuredProfile) setUser(mapProfile(ensuredProfile))");
+    expect(orchestrator).not.toContain('.from("profiles").upsert');
+    expect(orchestrator).not.toContain('.from("profiles").update');
+    expect(orchestrator).not.toContain("languages: [\"ro\"]");
+  });
+
   it("keeps Profile saves behind the public revisioned updateProfile boundary", () => {
     const profile = source("src/app/[locale]/profile/ProfileClient.tsx");
 
