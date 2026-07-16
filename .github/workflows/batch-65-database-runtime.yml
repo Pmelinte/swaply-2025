@@ -9,6 +9,8 @@ on:
       - "supabase/migrations/20260716130000_batch_65_global_profile_contract.sql"
       - "supabase/migrations/20260716130100_batch_65_profile_revision_guard.sql"
       - "supabase/migrations/20260716130200_batch_65_locale_registry_completion.sql"
+      - "supabase/migrations/20260716130300_batch_65_1_profile_bootstrap_and_participant_projection.sql"
+      - "supabase/migrations/20260716130400_batch_65_1_remove_legacy_profile_update_privilege.sql"
       - "supabase/tests/batch_65_runtime_*.sql"
   workflow_dispatch:
 
@@ -61,7 +63,9 @@ jobs:
           for migration in \
             supabase/migrations/20260716130000_batch_65_global_profile_contract.sql \
             supabase/migrations/20260716130100_batch_65_profile_revision_guard.sql \
-            supabase/migrations/20260716130200_batch_65_locale_registry_completion.sql
+            supabase/migrations/20260716130200_batch_65_locale_registry_completion.sql \
+            supabase/migrations/20260716130300_batch_65_1_profile_bootstrap_and_participant_projection.sql \
+            supabase/migrations/20260716130400_batch_65_1_remove_legacy_profile_update_privilege.sql
           do
             echo "Applying $migration"
             psql "$LOCAL_DB_URL" -v ON_ERROR_STOP=1 -f "$migration"
