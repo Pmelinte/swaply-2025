@@ -34,6 +34,7 @@ describe("Batch 63.3 application contract", () => {
     expect(page).not.toContain("abuse_reports");
     expect(actions).toContain("resolveSafetyReport");
     expect(actions).not.toContain("abuse_reports");
+    expect(actions).not.toContain('.from("moderation_actions").insert');
     expect(stats).toContain('.from("reports")');
     expect(stats).not.toContain("abuse_reports");
   });
