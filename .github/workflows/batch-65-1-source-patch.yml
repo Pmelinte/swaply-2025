@@ -1,0 +1,242 @@
+name: Batch 65.1 Source Patch
+
+on:
+  push:
+    branches:
+      - agent/batch-65-global-profile-contract
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: ${{ !contains(github.event.head_commit.message, 'Batch 65.1: apply canonical bootstrap source patch') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/batch-65-global-profile-contract
+          fetch-depth: 0
+
+      - name: Patch bootstrap and runtime assertions
+        shell: python
+        run: |
+          from pathlib import Path
+
+          state_path = Path("src/lib/state/index.tsx")
+          state = state_path.read_text()
+          start = state.index("      if (profileData) {")
+          end = state.index("\n\n      const [", start)
+          replacement = '''      if (profileData) {
+            setUser(mapProfile(profileData));
+          } else if (supabaseConfigured) {
+            const { data: ensured, error: ensureError } = await supabase.rpc(
+              "ensure_own_profile_v1",
+              { p_route_locale: language },
+            );
+            if (ensureError) {
+              setLastError(ensureError.message);
+            } else {
+              const ensuredProfile =
+                ensured && typeof ensured === "object" && "profile" in ensured
+                  ? (ensured as { profile?: Record<string, unknown> }).profile
+                  : null;
+              if (ensuredProfile) setUser(mapProfile(ensuredProfile));
+            }
+          }'''
+          state = state[:start] + replacement + state[end:]
+          old_deps = "[mapItem, mapMessage, mapNotification, mapProfile, mapSwapIntent, supabase, supabaseConfigured],"
+          new_deps = "[language, mapItem, mapMessage, mapNotification, mapProfile, mapSwapIntent, supabase, supabaseConfigured],"
+          if old_deps not in state:
+            raise SystemExit("hydrate dependency list not found")
+          state = state.replace(old_deps, new_deps, 1)
+          state_path.write_text(state)
+
+          assertions_path = Path("supabase/tests/batch_65_runtime_assertions.sql")
+          assertions = assertions_path.read_text()
+
+          old_private = '''select batch65_test.assert_true(
+            not exists (
+              select 1 from public.public_profiles
+              where user_id = '33333333-3333-4333-8333-333333333333'
+            ),
+            'private profile is removed from public discovery during projection rebuild'
+          );'''
+          new_private = '''select batch65_test.assert_true(
+            (select is_public is false
+                    and bio is null
+                    and location = '{}'::jsonb
+                    and location_text is null
+                    and swap_intent is null
+                    and swap_context is null
+                    and swap_geo_range is null
+                    and open_to_types is null
+                    and user_type is null
+                    and availability_status is null
+             from public.public_profiles
+             where user_id = '33333333-3333-4333-8333-333333333333'),
+            'private profile is stored only as a minimal participant row and excluded from discovery by RLS'
+          );'''
+          if old_private not in assertions:
+            raise SystemExit("private projection assertion not found")
+          assertions = assertions.replace(old_private, new_private, 1)
+
+          old_hidden = '''select batch65_test.assert_true(
+            not exists (
+              select 1 from public.public_profiles
+              where user_id = '22222222-2222-4222-8222-222222222222'
+            ),
+            'publicProfile=false removes profile from public projection immediately'
+          );'''
+          new_hidden = '''select batch65_test.assert_true(
+            (select is_public is false
+                    and bio is null
+                    and location = '{}'::jsonb
+                    and location_text is null
+                    and swap_intent is null
+                    and user_type is null
+                    and availability_status is null
+             from public.public_profiles
+             where user_id = '22222222-2222-4222-8222-222222222222'),
+            'publicProfile=false reduces the row to participant-only minimal identity immediately'
+          );'''
+          if old_hidden not in assertions:
+            raise SystemExit("private update assertion not found")
+          assertions = assertions.replace(old_hidden, new_hidden, 1)
+
+          participant_anchor = '''select batch65_test.assert_true(
+            (select payload ->> 'display_name' = 'Private Participant'
+                    and payload ? 'languages'
+                    and not payload ? 'email'
+                    and not payload ? 'bio'
+                    and not payload ? 'date_of_birth'
+                    and not payload ? 'address_line1'
+                    and not payload ? 'address_lat'
+                    and not payload ? 'address_lon'
+                    and not payload ? 'stripe_customer_id'
+                    and not payload ? 'token_balance'
+                    and not payload ? 'api_key_hash'
+             from identity),
+            'existing swap participant receives minimal private-profile identity only'
+          );'''
+          participant_extra = participant_anchor + '''
+
+          select batch65_test.assert_true(
+            (select count(*) = 1
+             from public.public_profiles
+             where user_id = '33333333-3333-4333-8333-333333333333'
+               and is_public is false
+               and display_name = 'Private Participant'
+               and bio is null
+               and location = '{}'::jsonb),
+            'existing participant can resolve the minimal private row through the regular public_profiles consumer'
+          );'''
+          if participant_anchor not in assertions:
+            raise SystemExit("participant identity anchor not found")
+          assertions = assertions.replace(participant_anchor, participant_extra, 1)
+
+          outsider_anchor = '''select batch65_test.expect_error(
+            $sql$select public.get_profile_identity_v1('33333333-3333-4333-8333-333333333333')$sql$,
+            '42501',
+            'access denied'
+          );'''
+          outsider_extra = outsider_anchor + '''
+
+          select batch65_test.assert_true(
+            not exists (
+              select 1
+              from public.public_profiles
+              where user_id = '33333333-3333-4333-8333-333333333333'
+            ),
+            'outsider regular public_profiles query cannot resolve a private participant row'
+          );'''
+          if outsider_anchor not in assertions:
+            raise SystemExit("outsider identity anchor not found")
+          assertions = assertions.replace(outsider_anchor, outsider_extra, 1)
+
+          bootstrap_anchor = "commit;\n\nbegin;\nset local role authenticated;\nselect set_config('request.jwt.claim.sub', '11111111-1111-4111-8111-111111111111', true);"
+          bootstrap_test = '''commit;
+
+          begin;
+
+          insert into auth.users (
+            instance_id, id, aud, role, email, encrypted_password,
+            email_confirmed_at, raw_app_meta_data, raw_user_meta_data,
+            created_at, updated_at
+          ) values (
+            '00000000-0000-0000-0000-000000000000',
+            '77777777-7777-4777-8777-777777777777',
+            'authenticated',
+            'authenticated',
+            null,
+            '',
+            now(),
+            '{"provider":"email","providers":["email"]}',
+            '{"language":"es"}',
+            now(),
+            now()
+          );
+
+          delete from public.profiles
+          where user_id = '77777777-7777-4777-8777-777777777777';
+
+          set local role authenticated;
+          select set_config('request.jwt.claim.sub', '77777777-7777-4777-8777-777777777777', true);
+          select set_config('request.jwt.claim.role', 'authenticated', true);
+
+          with ensured as (
+            select public.ensure_own_profile_v1('pt-BR') as payload
+          )
+          select batch65_test.assert_true(
+            (select (payload ->> 'created')::boolean is true
+                    and (payload ->> 'profile_revision')::bigint = 1
+                    and payload -> 'profile' ->> 'primary_language' = 'pt'
+                    and payload -> 'profile' -> 'languages' = '["pt"]'::jsonb
+             from ensured),
+            'ensure_own_profile_v1 creates a missing profile with coherent route language and revision 1'
+          );
+
+          rollback;
+
+          begin;
+          set local role authenticated;
+          select set_config('request.jwt.claim.sub', '11111111-1111-4111-8111-111111111111', true);'''
+          if bootstrap_anchor not in assertions:
+            raise SystemExit("bootstrap insertion anchor not found")
+          assertions = assertions.replace(bootstrap_anchor, bootstrap_test, 1)
+
+          retention_anchor = '''select batch65_test.assert_true(
+            (select count(*) = 1
+             from public.profile_update_requests
+             where actor_id = '11111111-1111-4111-8111-111111111111'),
+            'owner idempotency registry contains exactly one completed request before concurrency test'
+          );'''
+          retention_extra = retention_anchor + '''
+
+          select batch65_test.assert_true(
+            (select response = jsonb_build_object('profile_revision', result_revision)
+                    and expires_at > created_at
+                    and expires_at <= created_at + interval '25 hours'
+             from public.profile_update_requests
+             where actor_id = '11111111-1111-4111-8111-111111111111'),
+            'idempotency registry keeps only a bounded revision marker, not a duplicated profile snapshot'
+          );'''
+          if retention_anchor not in assertions:
+            raise SystemExit("retention assertion anchor not found")
+          assertions = assertions.replace(retention_anchor, retention_extra, 1)
+
+          assertions_path.write_text(assertions)
+
+      - name: Commit source patch
+        shell: bash
+        run: |
+          if git diff --quiet; then
+            echo "No patch required"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/lib/state/index.tsx supabase/tests/batch_65_runtime_assertions.sql
+          git commit -m "Batch 65.1: apply canonical bootstrap source patch"
+          git push origin HEAD:agent/batch-65-global-profile-contract
