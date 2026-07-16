@@ -11,6 +11,8 @@ import type {
   SwapIntent,
   UserProfile,
 } from "../types";
+import { mapGlobalProfileContract } from "../profile/profileContract";
+import type { GlobalUserProfile } from "../profile/profileTypes";
 import {
   safeArray,
   safeBoolean,
@@ -51,7 +53,7 @@ export function resolveItemWishlist(row: Record<string, unknown>): string {
 }
 
 export function createMapProfile(userRef: MutableRef<UserProfile | null>) {
-  return (data: Partial<UserProfile> & Record<string, unknown>): UserProfile => {
+  return (data: Partial<UserProfile> & Record<string, unknown>): GlobalUserProfile => {
     const currentUser = userRef.current;
     const defaultStats: UserProfile["stats"] = currentUser?.stats ?? {
       tokens: 0,
@@ -75,6 +77,10 @@ export function createMapProfile(userRef: MutableRef<UserProfile | null>) {
       trustScore: safeNumber(data.trust_score, statsRaw.trustScore),
       completionRate,
     } as UserProfile["stats"];
+    const globalProfile = mapGlobalProfileContract(
+      data,
+      safeString(data.preferred_locale),
+    );
 
     return {
       id: safeString(
@@ -158,6 +164,8 @@ export function createMapProfile(userRef: MutableRef<UserProfile | null>) {
       noShowCount: safeNumber(data.no_show_count, data.noShowCount, currentUser?.noShowCount),
       disputeRate: safeNumber(data.dispute_rate, data.disputeRate, currentUser?.disputeRate),
       createdAt: safeString(data.created_at, safeString(data.createdAt as string | undefined)),
+      globalProfile,
+      profileRevision: globalProfile.revision,
     };
   };
 }
