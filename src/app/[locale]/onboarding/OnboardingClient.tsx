@@ -1,15 +1,20 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useLocale } from "next-intl";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useAppState } from "@/lib/state";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { getCountries } from "@/lib/lazy-imports";
 import { Plus, X } from "lucide-react";
 import type { LanguageCode } from "@/lib/types";
-import { languageNames, type Locale } from "@/i18n/config";
+import { languageNames, locales, type Locale } from "@/i18n/config";
+import {
+  buildCanonicalLanguagePayload,
+  normalizeProfileLocale,
+} from "@/lib/profile/profileContract";
+import { getGlobalProfileContract } from "@/lib/profile/userProfilePersistence";
+import { isProfileConflict } from "@/lib/profile/profileService";
 import { uploadItemPhoto } from "@/lib/storage";
 
 type SwapGeoRange = "local" | "regional" | "international" | "vacation";
@@ -25,6 +30,8 @@ interface StepData {
   address_country?: string;
   address_city?: string;
   languages?: LanguageCode[];
+  auto_translate_messages?: boolean;
+  show_original_language?: boolean;
   swap_geo_range?: SwapGeoRange;
   swap_context?: SwapContext[];
   open_to_types?: OpenToType[];
@@ -47,12 +54,15 @@ export function OnboardingClient() {
   const t = useTranslations("onboarding");
   const tp = useTranslations("profile");
   const tc = useTranslations("common");
-  const { user, loading } = useAppState();
+  const { user, loading, updateProfileFields } = useAppState();
 
   const navigatingRef = useRef(false);
+  const routeLanguage = normalizeProfileLocale(locale) ?? "en";
   const [currentStep, setCurrentStep] = useState(1);
   const [stepData, setStepData] = useState<StepData>({
-    languages: [locale as LanguageCode],
+    languages: [routeLanguage as LanguageCode],
+    auto_translate_messages: true,
+    show_original_language: false,
     swap_context: [],
     open_to_types: [],
     affinity_groups: [],
@@ -69,6 +79,28 @@ export function OnboardingClient() {
       window.location.href = `/${locale}/login?returnTo=/onboarding`;
     }
   }, [user, loading.auth, locale]);
+
+  useEffect(() => {
+    if (!user) return;
+    const contract = getGlobalProfileContract(user, locale);
+    const ordered = [
+      contract.languagePreferences.primary,
+      contract.languagePreferences.secondary,
+      contract.languagePreferences.tertiary,
+    ].filter((entry): entry is Locale => Boolean(entry));
+
+    setStepData((previous) => ({
+      ...previous,
+      display_name: previous.display_name ?? user.displayName,
+      first_name: previous.first_name ?? user.firstName,
+      avatar_url: previous.avatar_url ?? user.avatarUrl,
+      address_country: previous.address_country ?? user.location?.country,
+      address_city: previous.address_city ?? user.location?.city,
+      languages: ordered as unknown as LanguageCode[],
+      auto_translate_messages: contract.languagePreferences.autoTranslateMessages,
+      show_original_language: contract.languagePreferences.showOriginalLanguage,
+    }));
+  }, [locale, user]);
 
   useEffect(() => {
     if (user && !navigatingRef.current) {
@@ -90,16 +122,16 @@ export function OnboardingClient() {
 
   useEffect(() => {
     getCountries().then((list) => {
-      setCountries(list.map((c) => ({
-        isoCode: c.isoCode,
-        name: c.name,
+      setCountries(list.map((country) => ({
+        isoCode: country.isoCode,
+        name: country.name,
       })));
     });
   }, []);
 
   if (loading.auth) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen gap-3 py-12 text-zinc-400">
+      <div className="flex min-h-screen flex-col items-center justify-center gap-3 py-12 text-zinc-400">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-300 border-t-blue-500" />
         <p>{tc("loading")}</p>
       </div>
@@ -109,7 +141,7 @@ export function OnboardingClient() {
   if (!user) return null;
 
   const handleStepData = (key: keyof StepData, value: unknown) => {
-    setStepData((prev) => ({ ...prev, [key]: value }));
+    setStepData((previous) => ({ ...previous, [key]: value }));
   };
 
   const saveStep = async () => {
@@ -117,44 +149,70 @@ export function OnboardingClient() {
       setSaving(true);
       setError(null);
 
-      const supabase = getSupabaseClient();
-      if (!supabase) throw new Error("Supabase client not available");
-
-      const payload: Record<string, unknown> = { user_id: user.id };
+      const payload: Record<string, unknown> = {};
 
       switch (currentStep) {
-        case 1:
+        case 1: {
           if (!stepData.display_name || stepData.display_name.length < 2) {
-            setError(tp("displayNameRequired")); return;
+            setError(tp("displayNameRequired"));
+            return;
           }
           if (!stepData.date_of_birth) {
-            setError(tp("dateOfBirthRequired")); return;
+            setError(tp("dateOfBirthRequired"));
+            return;
           }
           const dob = new Date(stepData.date_of_birth);
           const today = new Date();
           const age = today.getFullYear() - dob.getFullYear();
           const monthDiff = today.getMonth() - dob.getMonth();
-          const actualAge = (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) ? age - 1 : age;
-          if (actualAge < 16) { setError(tp("ageMinimum")); return; }
+          const actualAge = monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())
+            ? age - 1
+            : age;
+          if (actualAge < 16) {
+            setError(tp("ageMinimum"));
+            return;
+          }
           payload.display_name = stepData.display_name;
           payload.first_name = stepData.first_name || null;
           payload.avatar_url = stepData.avatar_url || null;
           payload.date_of_birth = stepData.date_of_birth;
           break;
+        }
 
         case 2:
-          if (!stepData.address_country) { setError(tp("countryRequired")); return; }
+          if (!stepData.address_country) {
+            setError(tp("countryRequired"));
+            return;
+          }
           payload.address_country = stepData.address_country;
           payload.address_city = stepData.address_city || null;
-          payload.location = { city: stepData.address_city || null, country: stepData.address_country };
+          payload.location = {
+            city: stepData.address_city || null,
+            country: stepData.address_country,
+          };
           break;
 
-        case 3:
-          if (!stepData.languages || stepData.languages.length === 0) {
-            setError(tp("languageRequired")); return;
+        case 3: {
+          const ordered = (stepData.languages ?? [])
+            .map(normalizeProfileLocale)
+            .filter((entry): entry is Locale => Boolean(entry));
+          if (ordered.length === 0) {
+            setError(tp("languageRequired"));
+            return;
           }
-          payload.languages = stepData.languages;
+          if (new Set(ordered).size !== ordered.length || ordered.length > 3) {
+            setError("Choose up to three distinct languages in preference order.");
+            return;
+          }
+          Object.assign(payload, buildCanonicalLanguagePayload({
+            primary: ordered[0],
+            secondary: ordered[1] ?? null,
+            tertiary: ordered[2] ?? null,
+            autoTranslateMessages: stepData.auto_translate_messages ?? true,
+            showOriginalLanguage: stepData.show_original_language ?? false,
+          }));
           break;
+        }
 
         case 4:
           payload.swap_geo_range = stepData.swap_geo_range || "regional";
@@ -171,20 +229,19 @@ export function OnboardingClient() {
           break;
       }
 
-      const { error: updateError } = await supabase
-        .from("profiles")
-        .update(payload)
-        .eq("user_id", user.id);
-
-      if (updateError) throw updateError;
+      await updateProfileFields(payload);
 
       if (currentStep === 5) {
         await finializeOnboarding();
       } else {
-        setCurrentStep(currentStep + 1);
+        setCurrentStep((step) => step + 1);
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+    } catch (caught) {
+      if (isProfileConflict(caught)) {
+        setError("Your profile changed in another session. Fresh data was reloaded; review this step and continue again.");
+      } else {
+        setError(caught instanceof Error ? caught.message : "An error occurred");
+      }
     } finally {
       setSaving(false);
     }
@@ -195,8 +252,8 @@ export function OnboardingClient() {
       setSaving(true);
       setError(null);
       await finializeOnboarding();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "An error occurred");
       setSaving(false);
     }
   };
@@ -219,14 +276,14 @@ export function OnboardingClient() {
         navigatingRef.current = true;
         router.push("/objects/new");
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "An error occurred");
       setSaving(false);
     }
   };
 
   const handleBack = () => {
-    if (currentStep > 1) setCurrentStep(currentStep - 1);
+    if (currentStep > 1) setCurrentStep((step) => step - 1);
   };
 
   const handleAvatarUpload = async (file: File) => {
@@ -241,26 +298,26 @@ export function OnboardingClient() {
   };
 
   return (
-    <div className="bg-gradient-to-br from-zinc-50 to-blue-50 min-h-screen py-12 px-4">
-      <div className="max-w-lg mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-zinc-50 to-blue-50 px-4 py-12">
+      <div className="mx-auto max-w-lg">
         <div className="mb-8">
-          <div className="flex justify-between items-center mb-3">
+          <div className="mb-3 flex items-center justify-between">
             <span className="text-sm font-semibold text-zinc-700">{currentStep}/5</span>
             <span className="text-xs text-zinc-400">{[
-              t("wizardStep1Title"), t("wizardStep2Title"), t("wizardStep3Title"), t("wizardStep4Title"), t("step5Title")
+              t("wizardStep1Title"), t("wizardStep2Title"), t("wizardStep3Title"), t("wizardStep4Title"), t("step5Title"),
             ][currentStep - 1]}</span>
           </div>
-          <div className="w-full bg-zinc-200 rounded-full h-1 overflow-hidden">
+          <div className="h-1 w-full overflow-hidden rounded-full bg-zinc-200">
             <div
-              className="bg-blue-600 h-1 rounded-full transition-all duration-300"
+              className="h-1 rounded-full bg-blue-600 transition-all duration-300"
               style={{ width: `${(currentStep / 5) * 100}%` }}
             />
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm p-6">
+        <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+            <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
               {error}
             </div>
           )}
@@ -276,7 +333,7 @@ export function OnboardingClient() {
               <button
                 onClick={handleBack}
                 disabled={saving}
-                className="flex-1 border border-zinc-300 text-zinc-700 rounded-full px-8 py-3 font-semibold hover:border-zinc-400 disabled:opacity-50"
+                className="flex-1 rounded-full border border-zinc-300 px-8 py-3 font-semibold text-zinc-700 hover:border-zinc-400 disabled:opacity-50"
               >
                 {tc("back")}
               </button>
@@ -286,19 +343,19 @@ export function OnboardingClient() {
               <button
                 onClick={saveStep}
                 disabled={saving}
-                className="flex-1 bg-blue-600 text-white rounded-full px-8 py-3 font-semibold hover:bg-blue-700 disabled:opacity-50"
+                className="flex-1 rounded-full bg-blue-600 px-8 py-3 font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
               >
                 {saving ? tc("saving") : tc("next")}
               </button>
             ) : (
               <>
-                <button onClick={skipToEnd} disabled={saving} className="text-zinc-400 text-sm hover:text-zinc-600 py-3">
+                <button onClick={skipToEnd} disabled={saving} className="py-3 text-sm text-zinc-400 hover:text-zinc-600">
                   {t("completeLater")}
                 </button>
                 <button
                   onClick={saveStep}
                   disabled={saving}
-                  className="flex-1 bg-blue-600 text-white rounded-full px-8 py-3 font-semibold hover:bg-blue-700 disabled:opacity-50"
+                  className="flex-1 rounded-full bg-blue-600 px-8 py-3 font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
                 >
                   {saving ? tc("saving") : tc("next")}
                 </button>
@@ -325,7 +382,7 @@ function Step1({ data, onChange, onUpload, uploading }: {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-zinc-900">{t("wizardStep1Title")}</h2>
-        <p className="text-sm text-zinc-600 mt-1">{t("step1Subtitle")}</p>
+        <p className="mt-1 text-sm text-zinc-600">{t("step1Subtitle")}</p>
       </div>
 
       <div className="flex items-center gap-4">
@@ -344,7 +401,7 @@ function Step1({ data, onChange, onUpload, uploading }: {
             </div>
           )}
         </div>
-        <div className="space-y-2 flex-1">
+        <div className="flex-1 space-y-2">
           <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-100">
             <Plus className="h-3.5 w-3.5" />
             {tp("uploadAvatar")}
@@ -354,8 +411,8 @@ function Step1({ data, onChange, onUpload, uploading }: {
               accept="image/jpeg,image/png,image/webp,image/gif"
               className="hidden"
               disabled={uploading}
-              onChange={async (e) => {
-                const file = e.target.files?.[0];
+              onChange={async (event) => {
+                const file = event.target.files?.[0];
                 if (file) await onUpload(file);
               }}
             />
@@ -365,9 +422,9 @@ function Step1({ data, onChange, onUpload, uploading }: {
             <input
               type="url"
               value={data.avatar_url ?? ""}
-              onChange={(e) => onChange("avatar_url", e.target.value)}
+              onChange={(event) => onChange("avatar_url", event.target.value)}
               placeholder="https://example.com/avatar.jpg"
-              className="mt-1 w-full border border-zinc-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+              className="mt-1 w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
             />
           </label>
         </div>
@@ -379,9 +436,9 @@ function Step1({ data, onChange, onUpload, uploading }: {
           type="text"
           minLength={2}
           value={data.display_name ?? ""}
-          onChange={(e) => onChange("display_name", e.target.value)}
+          onChange={(event) => onChange("display_name", event.target.value)}
           placeholder="John Doe"
-          className="mt-1 w-full border border-zinc-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+          className="mt-1 w-full rounded-lg border border-zinc-200 px-3 py-2 focus:ring-2 focus:ring-blue-500"
         />
       </label>
 
@@ -390,9 +447,9 @@ function Step1({ data, onChange, onUpload, uploading }: {
         <input
           type="text"
           value={data.first_name ?? ""}
-          onChange={(e) => onChange("first_name", e.target.value)}
+          onChange={(event) => onChange("first_name", event.target.value)}
           placeholder="John"
-          className="mt-1 w-full border border-zinc-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+          className="mt-1 w-full rounded-lg border border-zinc-200 px-3 py-2 focus:ring-2 focus:ring-blue-500"
         />
       </label>
 
@@ -401,8 +458,8 @@ function Step1({ data, onChange, onUpload, uploading }: {
         <input
           type="date"
           value={data.date_of_birth ?? ""}
-          onChange={(e) => onChange("date_of_birth", e.target.value)}
-          className="mt-1 w-full border border-zinc-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+          onChange={(event) => onChange("date_of_birth", event.target.value)}
+          className="mt-1 w-full rounded-lg border border-zinc-200 px-3 py-2 focus:ring-2 focus:ring-blue-500"
         />
       </label>
     </div>
@@ -421,19 +478,19 @@ function Step2({ data, onChange, countries }: {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-zinc-900">{t("wizardStep2Title")}</h2>
-        <p className="text-sm text-zinc-600 mt-1">{t("step2Subtitle")}</p>
+        <p className="mt-1 text-sm text-zinc-600">{t("step2Subtitle")}</p>
       </div>
 
       <label className="block text-sm font-semibold text-zinc-700">
         {t("countryLabel")} *
         <select
           value={data.address_country ?? ""}
-          onChange={(e) => onChange("address_country", e.target.value)}
-          className="mt-1 w-full border border-zinc-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+          onChange={(event) => onChange("address_country", event.target.value)}
+          className="mt-1 w-full rounded-lg border border-zinc-200 px-3 py-2 focus:ring-2 focus:ring-blue-500"
         >
           <option value="">{tl("selectCountry")}</option>
-          {countries.map((c) => (
-            <option key={c.isoCode} value={c.isoCode}>{c.name}</option>
+          {countries.map((country) => (
+            <option key={country.isoCode} value={country.isoCode}>{country.name}</option>
           ))}
         </select>
       </label>
@@ -443,9 +500,9 @@ function Step2({ data, onChange, countries }: {
         <input
           type="text"
           value={data.address_city ?? ""}
-          onChange={(e) => onChange("address_city", e.target.value)}
+          onChange={(event) => onChange("address_city", event.target.value)}
           placeholder={t("cityPlaceholder")}
-          className="mt-1 w-full border border-zinc-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+          className="mt-1 w-full rounded-lg border border-zinc-200 px-3 py-2 focus:ring-2 focus:ring-blue-500"
         />
       </label>
     </div>
@@ -457,37 +514,95 @@ function Step3({ data, onChange }: {
   onChange: (key: keyof StepData, value: unknown) => void;
 }) {
   const t = useTranslations("onboarding");
-  const allLanguages: LanguageCode[] = [
-    "ro", "en", "fr", "de", "es", "it", "pt", "nl", "pl", "el",
-    "hu", "bg", "cs", "sk", "hr", "sl", "sr", "sv", "da", "fi",
-    "no", "lt", "lv", "et", "ru", "tr", "ar", "zh", "hi", "ja", "ko",
-  ];
+  const locale = useLocale();
+  const ordered = (data.languages ?? []) as unknown as Locale[];
+  const text = locale === "ro"
+    ? {
+        primary: "Limba principală",
+        secondary: "Limba secundară",
+        tertiary: "A treia limbă",
+        optional: "Opțional",
+        autoTranslate: "Tradu automat mesajele",
+        showOriginal: "Arată și textul original",
+      }
+    : {
+        primary: "Primary language",
+        secondary: "Secondary language",
+        tertiary: "Third language",
+        optional: "Optional",
+        autoTranslate: "Translate messages automatically",
+        showOriginal: "Also show the original text",
+      };
+
+  const setLanguage = (position: 0 | 1 | 2, value: string) => {
+    const next: Array<Locale | null> = [ordered[0] ?? null, ordered[1] ?? null, ordered[2] ?? null];
+    next[position] = value ? value as Locale : null;
+    if (position === 0 && !next[0]) return;
+    const compact = next.filter((entry): entry is Locale => Boolean(entry));
+    if (new Set(compact).size !== compact.length) return;
+    onChange("languages", compact as unknown as LanguageCode[]);
+  };
+
+  const selectLanguage = (
+    position: 0 | 1 | 2,
+    label: string,
+    value: Locale | undefined,
+    optional: boolean,
+  ) => {
+    const selectedElsewhere = new Set(ordered.filter((entry, index) => entry && index !== position));
+    return (
+      <label className="block text-sm font-semibold text-zinc-700">
+        {label}
+        <select
+          value={value ?? ""}
+          onChange={(event) => setLanguage(position, event.target.value)}
+          className="mt-1 w-full rounded-lg border border-zinc-200 px-3 py-2 focus:ring-2 focus:ring-blue-500"
+        >
+          {optional && <option value="">{text.optional}</option>}
+          {locales
+            .filter((candidate) => candidate === value || !selectedElsewhere.has(candidate))
+            .map((candidate) => (
+              <option key={candidate} value={candidate}>
+                {languageNames[candidate].nativeName} ({languageNames[candidate].name})
+              </option>
+            ))}
+        </select>
+      </label>
+    );
+  };
 
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-zinc-900">{t("wizardStep3Title")}</h2>
-        <p className="text-sm text-zinc-600 mt-1">{t("step3Subtitle")}</p>
+        <p className="mt-1 text-sm text-zinc-600">{t("step3Subtitle")}</p>
       </div>
-      <div className="flex flex-wrap gap-2">
-        {allLanguages.map((lang) => {
-          const isSelected = (data.languages || []).includes(lang);
-          const info = languageNames[lang as Locale];
-          return (
-            <button
-              key={lang}
-              onClick={() => {
-                const langs = data.languages || [];
-                onChange("languages", isSelected ? langs.filter((l) => l !== lang) : [...langs, lang]);
-              }}
-              className={`px-4 py-2 rounded-full font-semibold text-sm transition ${
-                isSelected ? "bg-blue-600 text-white" : "border border-zinc-200 text-zinc-700 hover:border-blue-300"
-              }`}
-            >
-              {info ? info.nativeName : lang.toUpperCase()}
-            </button>
-          );
-        })}
+
+      <div className="grid gap-3">
+        {selectLanguage(0, text.primary, ordered[0], false)}
+        {selectLanguage(1, text.secondary, ordered[1], true)}
+        {selectLanguage(2, text.tertiary, ordered[2], true)}
+      </div>
+
+      <div className="space-y-3 rounded-xl border border-blue-100 bg-blue-50/40 p-4">
+        <label className="flex items-start gap-2 text-sm text-zinc-700">
+          <input
+            type="checkbox"
+            checked={data.auto_translate_messages ?? true}
+            onChange={(event) => onChange("auto_translate_messages", event.target.checked)}
+            className="mt-0.5"
+          />
+          <span>{text.autoTranslate}</span>
+        </label>
+        <label className="flex items-start gap-2 text-sm text-zinc-700">
+          <input
+            type="checkbox"
+            checked={data.show_original_language ?? false}
+            onChange={(event) => onChange("show_original_language", event.target.checked)}
+            className="mt-0.5"
+          />
+          <span>{text.showOriginal}</span>
+        </label>
       </div>
     </div>
   );
@@ -531,43 +646,43 @@ function Step4({ data, onChange }: {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-zinc-900">{t("wizardStep4Title")}</h2>
-        <p className="text-sm text-zinc-600 mt-1">{t("step4Subtitle")}</p>
+        <p className="mt-1 text-sm text-zinc-600">{t("step4Subtitle")}</p>
       </div>
 
       <div>
-        <label className="block text-sm font-semibold text-zinc-700 mb-3">{t("geoRangeLabel")}</label>
+        <label className="mb-3 block text-sm font-semibold text-zinc-700">{t("geoRangeLabel")}</label>
         <div className="space-y-2">
-          {geoOptions.map((opt) => (
+          {geoOptions.map((option) => (
             <button
-              key={opt.value}
-              onClick={() => onChange("swap_geo_range", opt.value)}
-              className={`w-full px-4 py-3 rounded-lg font-semibold text-left transition ${
-                data.swap_geo_range === opt.value ? "bg-blue-600 text-white" : "border border-zinc-200 text-zinc-700 hover:border-blue-300"
+              key={option.value}
+              onClick={() => onChange("swap_geo_range", option.value)}
+              className={`w-full rounded-lg px-4 py-3 text-left font-semibold transition ${
+                data.swap_geo_range === option.value ? "bg-blue-600 text-white" : "border border-zinc-200 text-zinc-700 hover:border-blue-300"
               }`}
             >
-              {t(opt.labelKey as Parameters<typeof t>[0])}
+              {t(option.labelKey as Parameters<typeof t>[0])}
             </button>
           ))}
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-semibold text-zinc-700 mb-3">{t("swapContextLabel")}</label>
+        <label className="mb-3 block text-sm font-semibold text-zinc-700">{t("swapContextLabel")}</label>
         <div className="flex flex-wrap gap-2">
-          {contextOptions.map((opt) => {
-            const isSelected = (data.swap_context || []).includes(opt.value);
+          {contextOptions.map((option) => {
+            const isSelected = (data.swap_context || []).includes(option.value);
             return (
               <button
-                key={opt.value}
+                key={option.value}
                 onClick={() => {
                   const contexts = data.swap_context || [];
-                  onChange("swap_context", isSelected ? contexts.filter((c) => c !== opt.value) : [...contexts, opt.value]);
+                  onChange("swap_context", isSelected ? contexts.filter((context) => context !== option.value) : [...contexts, option.value]);
                 }}
-                className={`px-4 py-2 rounded-full font-semibold text-sm transition ${
+                className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
                   isSelected ? "bg-blue-600 text-white" : "border border-zinc-200 text-zinc-700 hover:border-blue-300"
                 }`}
               >
-                {t(opt.labelKey as Parameters<typeof t>[0])}
+                {t(option.labelKey as Parameters<typeof t>[0])}
               </button>
             );
           })}
@@ -575,22 +690,22 @@ function Step4({ data, onChange }: {
       </div>
 
       <div>
-        <label className="block text-sm font-semibold text-zinc-700 mb-3">{t("openToLabel")}</label>
+        <label className="mb-3 block text-sm font-semibold text-zinc-700">{t("openToLabel")}</label>
         <div className="flex flex-wrap gap-2">
-          {typeOptions.map((opt) => {
-            const isSelected = (data.open_to_types || []).includes(opt.value);
+          {typeOptions.map((option) => {
+            const isSelected = (data.open_to_types || []).includes(option.value);
             return (
               <button
-                key={opt.value}
+                key={option.value}
                 onClick={() => {
                   const types = data.open_to_types || [];
-                  onChange("open_to_types", isSelected ? types.filter((tp) => tp !== opt.value) : [...types, opt.value]);
+                  onChange("open_to_types", isSelected ? types.filter((type) => type !== option.value) : [...types, option.value]);
                 }}
-                className={`px-4 py-2 rounded-full font-semibold text-sm transition ${
+                className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
                   isSelected ? "bg-blue-600 text-white" : "border border-zinc-200 text-zinc-700 hover:border-blue-300"
                 }`}
               >
-                {t(opt.labelKey as Parameters<typeof t>[0])}
+                {t(option.labelKey as Parameters<typeof t>[0])}
               </button>
             );
           })}
@@ -598,19 +713,19 @@ function Step4({ data, onChange }: {
       </div>
 
       <div>
-        <label className="block text-sm font-semibold text-zinc-700 mb-3">{t("intentLabel")}</label>
+        <label className="mb-3 block text-sm font-semibold text-zinc-700">{t("intentLabel")}</label>
         <div className="grid gap-3 sm:grid-cols-2">
-          {intentOptions.map((opt) => (
+          {intentOptions.map((option) => (
             <button
-              key={opt.value}
-              onClick={() => onChange("swap_intent", opt.value)}
-              className={`p-3 rounded-lg text-left transition ${
-                data.swap_intent === opt.value ? "bg-blue-600 text-white" : "border border-zinc-200 text-zinc-700 hover:border-blue-300"
+              key={option.value}
+              onClick={() => onChange("swap_intent", option.value)}
+              className={`rounded-lg p-3 text-left transition ${
+                data.swap_intent === option.value ? "bg-blue-600 text-white" : "border border-zinc-200 text-zinc-700 hover:border-blue-300"
               }`}
             >
-              <div className="font-semibold text-sm">{t(opt.labelKey as Parameters<typeof t>[0])}</div>
-              <div className={`text-xs mt-1 ${data.swap_intent === opt.value ? "text-blue-100" : "text-zinc-500"}`}>
-                {t(opt.descKey as Parameters<typeof t>[0])}
+              <div className="text-sm font-semibold">{t(option.labelKey as Parameters<typeof t>[0])}</div>
+              <div className={`mt-1 text-xs ${data.swap_intent === option.value ? "text-blue-100" : "text-zinc-500"}`}>
+                {t(option.descKey as Parameters<typeof t>[0])}
               </div>
             </button>
           ))}
@@ -640,49 +755,54 @@ function Step5({ data, onChange }: {
 
   const removeTag = (type: "interests" | "affinity_groups", index: number) => {
     const current = (data[type] || []) as string[];
-    onChange(type, current.filter((_, i) => i !== index));
+    onChange(type, current.filter((_, currentIndex) => currentIndex !== index));
   };
 
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-zinc-900">{t("step5Title")}</h2>
-        <p className="text-sm text-zinc-600 mt-1">{t("step5Subtitle")}</p>
+        <p className="mt-1 text-sm text-zinc-600">{t("step5Subtitle")}</p>
       </div>
 
       <label className="block text-sm font-semibold text-zinc-700">
         {tp("bio")}
         <textarea
           value={data.bio ?? ""}
-          onChange={(e) => onChange("bio", e.target.value.slice(0, 500))}
+          onChange={(event) => onChange("bio", event.target.value.slice(0, 500))}
           placeholder={t("bioPlaceholder")}
           maxLength={500}
-          className="mt-1 w-full border border-zinc-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+          className="mt-1 w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
           rows={3}
         />
-        <p className="text-xs text-zinc-400 mt-1">{(data.bio || "").length}/500</p>
+        <p className="mt-1 text-xs text-zinc-400">{(data.bio || "").length}/500</p>
       </label>
 
       <div>
-        <label className="block text-sm font-semibold text-zinc-700 mb-2">{t("affinityLabel")}</label>
-        <div className="flex gap-2 mb-3">
+        <label className="mb-2 block text-sm font-semibold text-zinc-700">{t("affinityLabel")}</label>
+        <div className="mb-3 flex gap-2">
           <input
             type="text"
             value={affinityInput}
-            onChange={(e) => setAffinityInput(e.target.value)}
-            onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addTag("affinity_groups", affinityInput); } }}
+            onChange={(event) => setAffinityInput(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === ",") {
+                event.preventDefault();
+                addTag("affinity_groups", affinityInput);
+              }
+            }}
             placeholder={t("affinityPlaceholder")}
-            className="flex-1 border border-zinc-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+            className="flex-1 rounded-lg border border-zinc-200 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
           />
-          <button type="button" onClick={() => addTag("affinity_groups", affinityInput)} className="px-3 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100">
+          <button type="button" onClick={() => addTag("affinity_groups", affinityInput)} className="rounded-lg bg-blue-50 px-3 py-2 text-blue-700 hover:bg-blue-100">
             <Plus className="h-4 w-4" />
           </button>
         </div>
         <div className="flex flex-wrap gap-2">
-          {(data.affinity_groups || []).map((tag, i) => (
-            <span key={i} className="inline-flex items-center gap-1.5 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs">
+          {(data.affinity_groups || []).map((tag, index) => (
+            <span key={`${tag}-${index}`} className="inline-flex items-center gap-1.5 rounded-full bg-blue-100 px-3 py-1 text-xs text-blue-800">
               {tag}
-              <button type="button" onClick={() => removeTag("affinity_groups", i)} className="text-blue-600 hover:text-blue-900">
+              <button type="button" onClick={() => removeTag("affinity_groups", index)} className="text-blue-600 hover:text-blue-900">
                 <X className="h-3 w-3" />
               </button>
             </span>
@@ -691,25 +811,30 @@ function Step5({ data, onChange }: {
       </div>
 
       <div>
-        <label className="block text-sm font-semibold text-zinc-700 mb-2">{t("interestsLabel")}</label>
-        <div className="flex gap-2 mb-3">
+        <label className="mb-2 block text-sm font-semibold text-zinc-700">{t("interestsLabel")}</label>
+        <div className="mb-3 flex gap-2">
           <input
             type="text"
             value={interestInput}
-            onChange={(e) => setInterestInput(e.target.value)}
-            onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addTag("interests", interestInput); } }}
+            onChange={(event) => setInterestInput(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === ",") {
+                event.preventDefault();
+                addTag("interests", interestInput);
+              }
+            }}
             placeholder={t("interestsPlaceholder")}
-            className="flex-1 border border-zinc-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+            className="flex-1 rounded-lg border border-zinc-200 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
           />
-          <button type="button" onClick={() => addTag("interests", interestInput)} className="px-3 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100">
+          <button type="button" onClick={() => addTag("interests", interestInput)} className="rounded-lg bg-blue-50 px-3 py-2 text-blue-700 hover:bg-blue-100">
             <Plus className="h-4 w-4" />
           </button>
         </div>
         <div className="flex flex-wrap gap-2">
-          {(data.interests || []).map((tag, i) => (
-            <span key={i} className="inline-flex items-center gap-1.5 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs">
+          {(data.interests || []).map((tag, index) => (
+            <span key={`${tag}-${index}`} className="inline-flex items-center gap-1.5 rounded-full bg-blue-100 px-3 py-1 text-xs text-blue-800">
               {tag}
-              <button type="button" onClick={() => removeTag("interests", i)} className="text-blue-600 hover:text-blue-900">
+              <button type="button" onClick={() => removeTag("interests", index)} className="text-blue-600 hover:text-blue-900">
                 <X className="h-3 w-3" />
               </button>
             </span>
@@ -722,9 +847,9 @@ function Step5({ data, onChange }: {
         <input
           type="text"
           value={data.occupation ?? ""}
-          onChange={(e) => onChange("occupation", e.target.value)}
+          onChange={(event) => onChange("occupation", event.target.value)}
           placeholder={t("occupationPlaceholder")}
-          className="mt-1 w-full border border-zinc-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+          className="mt-1 w-full rounded-lg border border-zinc-200 px-3 py-2 focus:ring-2 focus:ring-blue-500"
         />
       </label>
     </div>
