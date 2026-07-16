@@ -20,6 +20,8 @@ describe("Batch 63.3 canonical report and block migrations", () => {
   it("keeps reports and blocked_users as the only public safety sources", () => {
     const sql = safetySql();
     expect(sql).toContain("drop table public.abuse_reports");
+    expect(sql).toContain("when 'fake_item' then 'scam'");
+    expect(sql).toContain("when 'action_taken' then 'resolved'");
     expect(sql).toContain("alter table public.reports");
     expect(sql).toContain("alter table public.blocked_users");
     expect(sql).toContain("create table if not exists public.safety_command_requests");
