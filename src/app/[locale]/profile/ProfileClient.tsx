@@ -6,9 +6,12 @@ import { useAppState } from "@/lib/state";
 import { CTAButton, NextStepRecommendation, SectionCard, StateShowcase } from "@/components/ui-custom";
 import { TrustProfileCard } from "@/components/trust/TrustProfileCard";
 import type { UserProfile } from "@/lib/types";
+import { getProfileRevision } from "@/lib/profile/userProfilePersistence";
+import { isProfileConflict } from "@/lib/profile/profileService";
 import ProfileTab from "./_components/ProfileTab";
 import PropertiesTab from "./_components/PropertiesTab";
 import AccountTab from "./_components/AccountTab";
+import GlobalProfileSettingsCard from "./_components/GlobalProfileSettingsCard";
 import ReputationTab from "./_components/ReputationTab";
 import AlertsTab from "./_components/AlertsTab";
 import NotificationSettingsTab from "./_components/NotificationSettingsTab";
@@ -26,11 +29,12 @@ export function ProfileClient() {
 
   const [draft, setDraft] = useState<UserProfile | null>(user);
   const [saving, setSaving] = useState(false);
-  const [saveMessage, setSaveMessage] = useState<string | null>(null);
+  const [saveMessage, setSaveMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const tss = useTranslations("savedSearches");
   const tn = useTranslations("notificationSettings");
   const [activeTab, setActiveTab] = useState<"profil" | "cont" | "reputatie" | "proprietati" | "alerte" | "notificari" | "verificare">("profil");
   const [loadingTimeout, setLoadingTimeout] = useState(false);
+  const userRevision = getProfileRevision(user);
 
   const profileTabs = [
     { key: "profil" as const, label: t("title") },
@@ -42,18 +46,16 @@ export function ProfileClient() {
     { key: "verificare" as const, label: t("verificationTitle") },
   ];
 
-  if (user && !draft) {
-    setDraft(user);
-  }
-  if (!loading.profile && loadingTimeout) {
-    setLoadingTimeout(false);
-  }
+  useEffect(() => {
+    if (user) setDraft(user);
+  }, [user, userRevision]);
 
   useEffect(() => {
     if (loading.profile) {
       const timer = setTimeout(() => setLoadingTimeout(true), 3000);
       return () => clearTimeout(timer);
     }
+    setLoadingTimeout(false);
   }, [loading.profile]);
 
   if (loading.auth) {
@@ -132,12 +134,15 @@ export function ProfileClient() {
         />
       )}
       {activeTab === "cont" && (
-        <AccountTab
-          user={user} draft={draft} update={update}
-          changeEmail={changeEmail} changePassword={changePassword}
-          deleteAccount={deleteAccount} exportUserData={exportUserData}
-          accountStatus={accountStatus} pauseAccount={pauseAccount} resumeAccount={resumeAccount}
-        />
+        <>
+          <GlobalProfileSettingsCard draft={draft} update={update} />
+          <AccountTab
+            user={user} draft={draft} update={update}
+            changeEmail={changeEmail} changePassword={changePassword}
+            deleteAccount={deleteAccount} exportUserData={exportUserData}
+            accountStatus={accountStatus} pauseAccount={pauseAccount} resumeAccount={resumeAccount}
+          />
+        </>
       )}
       {activeTab === "reputatie" && (
         <ReputationTab
@@ -167,10 +172,23 @@ export function ProfileClient() {
         <div className="flex flex-wrap items-center gap-2">
           <button type="button" disabled={saving}
             onClick={async () => {
-              setSaveMessage(null); setSaving(true);
-              try { await updateProfile(draft, { persist: true }); setSaveMessage(t("profileSaved")); }
-              catch { setSaveMessage(t("saveError")); }
-              finally { setSaving(false); }
+              setSaveMessage(null);
+              setSaving(true);
+              try {
+                await updateProfile(draft, { persist: true });
+                setSaveMessage({ type: "success", text: t("profileSaved") });
+              } catch (error) {
+                if (isProfileConflict(error)) {
+                  setSaveMessage({
+                    type: "error",
+                    text: "Profile changed in another session. Fresh data was reloaded; review it and save again.",
+                  });
+                } else {
+                  setSaveMessage({ type: "error", text: t("saveError") });
+                }
+              } finally {
+                setSaving(false);
+              }
             }}
             className="rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
           >
@@ -183,8 +201,10 @@ export function ProfileClient() {
           </button>
         </div>
         {saveMessage && (
-          <div role="alert" className={`rounded-xl p-3 text-sm font-medium ${lastError ? "bg-red-50 text-red-900 dark:bg-red-900/40 dark:text-red-100" : "bg-green-50 text-green-900 dark:bg-green-900/40 dark:text-green-100"}`}>
-            {lastError ? t("errorMessage", { error: lastError }) : saveMessage}
+          <div role="alert" className={`rounded-xl p-3 text-sm font-medium ${saveMessage.type === "error" ? "bg-red-50 text-red-900 dark:bg-red-900/40 dark:text-red-100" : "bg-green-50 text-green-900 dark:bg-green-900/40 dark:text-green-100"}`}>
+            {saveMessage.type === "error" && lastError
+              ? t("errorMessage", { error: lastError })
+              : saveMessage.text}
           </div>
         )}
       </SectionCard>
