@@ -79,55 +79,6 @@ export function useAdminActions() {
     [],
   );
 
-  // Manual moderation actions outside the report workflow.
-  const insertModerationAction = useCallback(
-    async (params: {
-      targetUserId: string;
-      action: string;
-      reason: string;
-      reportId?: string;
-      details?: Record<string, unknown>;
-    }): Promise<{ error?: string }> => {
-      const supabase = getSupabaseClient();
-      if (!supabase || !user?.id) return { error: "Not authenticated" };
-
-      const { error } = await supabase.from("moderation_actions").insert({
-        moderator_id: user.id,
-        target_type: "user",
-        target_id: params.targetUserId,
-        action: params.action,
-        reason: params.reason,
-        report_id: params.reportId ?? null,
-      });
-
-      if (error) return { error: error.message };
-
-      await logAudit(params.action, "user", params.targetUserId, {
-        reason: params.reason,
-        reportId: params.reportId,
-        details: params.details,
-      });
-      return {};
-    },
-    [logAudit, user?.id],
-  );
-
-  const warnUser = useCallback(
-    async (
-      targetUserId: string,
-      reason: string,
-      reportId?: string,
-    ): Promise<{ error?: string }> => {
-      return insertModerationAction({
-        targetUserId,
-        action: "warn",
-        reason,
-        reportId,
-      });
-    },
-    [insertModerationAction],
-  );
-
   const suspendUser = useCallback(
     async (
       targetUserId: string,
@@ -257,8 +208,6 @@ export function useAdminActions() {
 
   return {
     resolveReport,
-    insertModerationAction,
-    warnUser,
     suspendUser,
     banUser,
     unbanUser,
