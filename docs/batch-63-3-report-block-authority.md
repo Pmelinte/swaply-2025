@@ -92,38 +92,125 @@ Browser roles have SELECT-only access where required. INSERT, UPDATE and DELETE 
 - the admin overview counts `open` and `investigating` canonical reports;
 - application references to `abuse_reports` are removed.
 
+## Production migration record
+
+Production was explicitly authorized and migrated on 2026-07-16.
+
+The logical report-authority migration was applied as two operational units because the connector rejected the single long payload before execution:
+
+- `batch_63_3_report_submit_authority`;
+- `batch_63_3_report_resolution_authority`.
+
+All other canonical migrations were applied in order. Authenticated runtime probes then found two SQL qualification defects:
+
+1. `pg_catalog.greatest(...)` in the seven-day suspension outcome;
+2. `pg_catalog.least(...)` / `pg_catalog.greatest(...)` in the block pair-lock functions.
+
+Neither failed command committed a side effect. They were repaired only through new migrations:
+
+- `batch_63_3_resolution_greatest_fix`;
+- `batch_63_3_block_least_greatest_fix`.
+
+The performance advisor also identified the three new terminal-effect foreign keys without covering indexes. They were corrected through:
+
+- `batch_63_3_resolution_effect_indexes`.
+
+No applied migration was rewritten.
+
+## Authenticated Production audit
+
+### Report submission — PASS
+
+Authenticated reporter, reported user, outsider and administrator probes verified:
+
+- user and item reports;
+- self-target and own-item rejection;
+- missing-target rejection;
+- one active report per reporter and target;
+- same-payload replay;
+- changed-payload idempotency conflict;
+- direct-write rejection;
+- reporter-only and moderator RLS visibility;
+- non-moderator resolution rejection;
+- exactly two request rows and two audit events in the controlled rollback probe;
+- zero notification, Swapleni, Review, suspension, counter or trust effects from raw reports.
+
+The rate-limit probe accepted exactly ten reports in 24 hours and rejected the eleventh with SQLSTATE `54000`. The whole probe was rolled back.
+
+### Moderator lifecycle — PASS
+
+The real Production RPCs verified:
+
+- `open → investigating` with no terminal effect;
+- investigate replay;
+- stale expected-status rejection with SQLSTATE `40001`;
+- changed-payload idempotency rejection with SQLSTATE `23505`;
+- `dismissed` with exactly one terminal effect and no sanction;
+- `warning_issued` with one action, one effect and one confirmed counter increment;
+- `item_hidden` with one action, one effect and only the reported fixture item archived;
+- `user_suspended` with one normalized `suspend_user` action, one effect and a seven-day term;
+- terminal replay without duplicated effects;
+- trust unchanged and zero Swapleni, Review, Story or notification effects.
+
+Every profile, item and registry mutation used by the audit was restored or deleted immediately after verification.
+
+### Block lifecycle — PASS
+
+Authenticated A/B probes verified:
+
+- block and unblock;
+- same-payload replay;
+- changed-payload conflict;
+- self-block and missing-target rejection;
+- outgoing-only block visibility;
+- direct-write rejection;
+- pending-interest cleanup;
+- bilateral rejection of new interests, interest acceptance, conversations, messages and Swaps;
+- preservation and readability of pre-existing Swap, conversation and message history;
+- zero notification to the blocked user;
+- re-enabled contact after unblock.
+
+A pre-existing pending E2E interest changed by the block command was identified through the shared PostgreSQL transaction `xmin` and restored exactly to `pending`.
+
+### Real concurrency — PASS
+
+Two pg_cron sessions started in the same second with the same actor, target and idempotency key. Both completed successfully. The final state contained exactly:
+
+- one block row;
+- one idempotency request row;
+- one `safety.user_blocked` audit event.
+
+Repeated scheduled calls were replay-only. Both jobs were unscheduled, the block was removed, the affected interest was restored and all audit fixtures were deleted.
+
 ## Explicit non-effects
 
-Batch 63.3 does not create:
+Batch 63.3 created no:
 
 - Swapleni or token-ledger entries;
 - Reviews;
 - Stories or blog posts;
 - trust recalculation;
-- automatic sanctions from an unverified report;
-- block notifications;
-- deletion of conversation history.
+- automatic sanction from an unverified report;
+- block notification;
+- deletion of conversation history;
+- automatic cancellation of an existing Swap.
 
-## Validation gate
+## Advisors
 
-Before merge, the batch requires:
+Security advisor findings related to Batch 63.3 are intentional and verified:
 
-- unit, migration-contract, lint, TypeScript, build and public visual checks;
-- migration review against current Production;
-- explicit authorization before applying Production migrations;
-- authenticated reporter, outsider and moderator checks;
-- self-target, invalid target, duplicate, replay and changed-payload checks;
-- report rate-limit and stale-status checks;
-- every moderation outcome;
-- block/unblock replay and concurrency;
-- enforcement on interest, conversation, message and Swap creation;
-- preserved historical reads;
-- zero reward, Review, Story and trust side effects;
-- immutable-ID cleanup.
+- the canonical RPCs are `SECURITY DEFINER`, but authenticate with `auth.uid()`, enforce server-side role/participant rules and expose only the required signatures;
+- private registry tables use RLS with no browser policies, which is default-deny;
+- `private` schema objects are not exposed through PostgREST.
+
+Performance findings for the three new resolution-effect foreign keys were remediated. Other advisor warnings predate Batch 63.3 and remain outside this batch.
 
 ## Current state
 
 - Branch: `agent/batch-63-3-report-block-authority`.
 - PR: `#472`, draft.
-- Production: unchanged.
+- Production migrations: applied.
+- Authenticated Production audit: `PASS`.
+- Immutable-ID cleanup: `PASS`.
+- Remaining gate: final GitHub CI and Vercel Preview on the post-audit head.
 - Merge: not authorized.
