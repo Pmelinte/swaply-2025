@@ -2,9 +2,9 @@
 
 ## Status
 
-`IN PROGRESS — MIGRATION CONTRACT CHECKPOINT`
+`IN PROGRESS — LOCAL RUNTIME PASS`
 
-This checkpoint contains the repository migration contract and focused contract tests only. It does not apply any migration to Supabase Production and does not yet integrate the application UI or state layer.
+The repository migration contract, application integration, focused tests and isolated local Supabase runtime matrix are implemented. No migration has been applied to Supabase Production and no merge is authorized.
 
 ## Scope frozen for Batch 65
 
@@ -36,9 +36,19 @@ This checkpoint contains the repository migration contract and focused contract 
 3. `20260716130200_batch_65_locale_registry_completion.sql`
    - aligns the database normalizer with all 43 active application locales, including `yi`.
 
+## Application integration
+
+- `UserProfile` is enriched by a canonical `GlobalProfileContract`;
+- the mapper reconciles legacy and new language fields;
+- Profile and Onboarding save through the revisioned state boundary;
+- direct browser profile updates are removed from these flows;
+- stale revision conflicts reload fresh profile data;
+- ordered languages and translation preferences are visible in Profile;
+- user type, availability, timezone and public-field consent are explicit.
+
 ## Tests
 
-`src/lib/profile/globalProfileMigration.test.ts` verifies:
+Repository tests verify:
 
 - additive schema changes;
 - 43-locale parity;
@@ -49,12 +59,28 @@ This checkpoint contains the repository migration contract and focused contract 
 - direct UPDATE revocation;
 - revision protection;
 - participant-only minimal identity;
-- explicit `search_path` and narrow RPC grants.
+- explicit `search_path` and narrow RPC grants;
+- Profile and Onboarding use the canonical persistence boundary.
+
+The isolated local database workflow additionally executes:
+
+- owner, outsider, anonymous, admin and moderator runtime roles;
+- public/private projection behavior;
+- two-session CAS concurrency;
+- idempotency replay and conflict;
+- stale revision rejection;
+- privileged-field insertion guard;
+- fixture cleanup with zero residual rows;
+- container destruction.
+
+Detailed evidence: `docs/batch-65-local-runtime-evidence.md`.
 
 ## Safety boundary
 
-- no Supabase migration has been applied;
+- no Supabase cloud branch was created;
+- no Supabase subscription was changed;
+- no Supabase access token or Production credential is used by the local runtime workflow;
+- no Supabase Production migration has been applied;
 - no Production data has been changed;
-- no application code has been changed yet;
-- no merge is authorized;
-- the next checkpoint is application type, mapper and profile-service integration.
+- no Train C lifecycle behavior has been changed;
+- no merge is authorized.
