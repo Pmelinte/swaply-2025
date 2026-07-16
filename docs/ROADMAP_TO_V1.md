@@ -1,8 +1,8 @@
 # Swaply — Roadmap canonic până la v1.0
 
 **Document ID:** `SWAPLY-ROADMAP-TO-V1`  
-**Schema version:** `1.0.1`  
-**Last updated:** 2026-07-14  
+**Schema version:** `1.0.2`  
+**Last updated:** 2026-07-16  
 **Status:** canonical  
 **Repository:** `Pmelinte/swaply-2025`  
 **Production:** `https://www.swaply.world`
@@ -89,22 +89,23 @@ Revizia juridică calificată, revizia nativă a limbilor și mentenanța SEO su
 ## 7. Train C — Motorul real 1-la-1 pentru Objects
 
 **Status:** `active`  
-**Validated Production checkpoint:** `f422588e4c7480178e1faf8cdb6ba9d43ca2b105`  
-**Latest closed deliverable:** C1 / Batch 60.4 validation closure  
-**Current deliverable:** C2
+**Validated Production checkpoint:** `44d20dbac30d2ce481d99a8510abb218afe39811`  
+**Latest closed deliverable:** C3 / Batch 62.3  
+**Current deliverable:** C4 / Batch 63.4 integration closure  
+**Next deliverable:** C5 / final Train C closure audit
 
 ### Scop
 
 Doi utilizatori reali pot parcurge în siguranță:
 
-`Profil → Obiect → Wanted/Favorite → Express Interest → Match → Chat → Acord bilateral → Create Exchange → Logistică → Primire → Finalizare bilaterală → Feedback`, cu ramuri controlate pentru anulare și dispută.
+`Profil → Obiect → Wanted/Favorite → Express Interest → Match → Chat → Acord bilateral → Create Exchange → Logistică → Primire → Finalizare bilaterală → Feedback`, cu ramuri controlate pentru anulare, dispută, report și block.
 
 ### Deliverables fixe
 
 - **C1 — `closed`:** închiderea Batch 60 și reconcilierea documentației;
-- **C2 — `active`:** un singur lifecycle canonic, server-side, pentru Exchange;
-- **C3 — `planned`:** feedback, notificări, reputație și hardening pentru ledger;
-- **C4 — `planned`:** anulare, dispute, report și block;
+- **C2 — `closed`:** un singur lifecycle canonic, server-side, pentru Exchange;
+- **C3 — `closed`:** feedback, notificări, reputație și hardening pentru ledger;
+- **C4 — `authenticated pass / closure PR pending`:** anulare, dispute, report și block;
 - **C5 — `planned`:** closure audit Train C.
 
 ### C1 — dovezi de închidere
@@ -123,20 +124,72 @@ Batch 60.1–60.2 a livrat explicit Exchange handoff și hardening contra migrat
 
 Raport: `docs/batch-60-4-validation-closure.md`.
 
-Închiderea C1 nu închide Train C și nu dovedește lifecycle-ul de după creare.
+### C2 — dovezi de închidere
 
-### C2 — obiectiv curent
+C2 a stabilit un singur contract server-side pentru stările și tranzițiile Exchange:
 
-C2 trebuie să stabilească un singur contract server-side pentru stările și tranzițiile Exchange după creare, eliminând contradicțiile dintre UI, API routes, funcții SQL, triggers și stări legacy fără a elimina funcționalități aprobate.
+- o singură autoritate de tranziție;
+- expected-state CAS și stale-state denial;
+- participant-only authorization și outsider denial;
+- identitate structurală imutabilă;
+- finalizare bilaterală;
+- exact-once structural effects;
+- item locking și release controlate;
+- persistență și cleanup prin ID-uri imutabile.
 
-Înainte de implementare se auditează:
+Rapoarte principale:
 
-- toate stările Exchange/Swap existente și aliasurile legacy;
-- toate căile de tranziție din UI, API și SQL;
-- autorizarea participant-only și outsider denial;
-- efectele asupra itemelor, notificărilor, ledger-ului și Realtime;
-- idempotency, concurență, stale state și cleanup;
-- paritatea repo–Supabase–Production.
+- `docs/batch-61-2-single-transition-authority.md`;
+- `docs/batch-61-4-authenticated-completion-validation.md`.
+
+### C3 — dovezi de închidere
+
+C3 a livrat:
+
+- o singură autoritate Review, participant-only;
+- Review imutabil, idempotent și cu răspuns controlat de persoana evaluată;
+- `+30` Swapleni per participant numai după finalizarea canonică;
+- notificări deduplicate;
+- counters și trust actualizate exact-once;
+- Realtime pentru notificări;
+- audit autentificat cu doi utilizatori și cleanup complet.
+
+Rapoarte principale:
+
+- `docs/batch-62-1-canonical-review-authority.md`;
+- `docs/batch-62-2-post-completion-effects.md`;
+- `docs/batch-62-3-authenticated-c3-closure.md`.
+
+### C4 — dovezi și gate de închidere
+
+Batch 63.1–63.3 au livrat autorități canonice pentru:
+
+- cancellation participant-only, atomic și exactly-once;
+- dispute opening și evidence participant-only;
+- dispute resolution admin/moderator-only;
+- report submission autentificat și fără sancțiune înainte de moderare;
+- report resolution atomic;
+- block/unblock privat, idempotent și bilateral ca barieră de contact;
+- păstrarea istoricului și a drepturilor de safety pentru lifecycle existent.
+
+Batch 63.4 a demonstrat în Production:
+
+- `cancelled` și `disputed` sunt ramuri terminale mutual exclusive;
+- încercarea celeilalte ramuri după terminalizare este respinsă cu `40001`;
+- block oprește contactul nou, dar nu oprește cancel, dispute, evidence sau moderator resolution pe lifecycle existent;
+- raw report nu schimbă Swap, trust, counters, suspendarea, block-ul, Swapleni sau Reviews;
+- o cursă reală same-second `cancel` versus `dispute` produce un singur câștigător și zero efecte mixte;
+- toate fixture-urile, profilele, itemele, trigger-ele și joburile cron sunt restaurate exact;
+- Production și Vercel rămân sănătoase.
+
+Rapoarte principale:
+
+- `docs/batch-63-1-cancel-authority.md`;
+- `docs/batch-63-2-dispute-authority.md`;
+- `docs/batch-63-3-report-block-authority.md`;
+- `docs/batch-63-4-c4-integration-closure.md`.
+
+C4 devine `closed` numai după CI, Preview și merge-ul explicit al Batch 63.4.
 
 ### Gate de ieșire Train C
 
@@ -257,13 +310,13 @@ O funcție este `verified` numai dacă:
 
 ## 14. Următoarea ordine obligatorie
 
-1. Închide Batch 60.4 ca documentație-only, numai după CI verde și comanda explicită de merge.
-2. Începe C2 prin audit predictiv al lifecycle-ului Exchange; fără modificări până la inventarierea completă a contractelor și dependențelor.
-3. Implementează C2 în batch-uri mici, cu teste autentificate pentru participant, outsider, concurență, stale state, idempotency și cleanup.
-4. Continuă C3 și C4 numai după C2 verificat.
-5. Execută C5 și închide Train C înainte de Train D.
+1. Finalizează Batch 63.4 numai după CI, Preview și comanda explicită de merge.
+2. După merge, execută C5 ca audit final al întregului Train C.
+3. În C5 verifică cumulativ lifecycle, feedback, outsider denial, reload persistence, Realtime, immutable-ID cleanup și migration parity.
+4. Închide Train C numai după closure report C5 și merge explicit.
+5. Începe Train D numai după Train C `closed`.
 6. După Train D, execută Train E inclusiv registrul de datorii și auditul final E5.
 
 ## 15. Post-v1
 
-Growth, toate țările și providerii, calendarul de 52 de săptămâni, ideile extinse de monetizare și îmbunătățirile neblocante intră în `v1.x`. Ele nu creează Train F.
+Growth, toate țările și providerii, calendarul de 52 de săptămâni, ideile extinse de monetizare și îmbunătățirile neblocante intră în `v1.x`. Ele nu creaază Train F.
