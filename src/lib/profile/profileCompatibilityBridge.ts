@@ -51,23 +51,14 @@ export function isMissingProfileRpcError(
   error: SupabaseErrorLike | null | undefined,
   rpcName: "ensure_own_profile_v1" | "update_own_profile_v1",
 ): boolean {
-  if (!error) return false;
+  if (!error || !MISSING_RPC_CODES.has(error.code ?? "")) return false;
 
   const message = [error.message, error.details, error.hint]
     .filter(Boolean)
     .join(" ")
     .toLowerCase();
-  const mentionsRpc = message.includes(rpcName.toLowerCase());
 
-  if (MISSING_RPC_CODES.has(error.code ?? "")) {
-    return mentionsRpc;
-  }
-
-  return mentionsRpc && (
-    message.includes("could not find the function")
-    || message.includes("does not exist")
-    || message.includes("schema cache")
-  );
+  return message.includes(rpcName.toLowerCase());
 }
 
 export function createProfileBridgeIdempotencyKey(): string {
@@ -94,7 +85,10 @@ export async function ensureOwnProfileWithCompatibility(
     throw bridgeError(error);
   }
 
-  return legacyProfileUpsert(client, options.legacyPayload);
+  return legacyProfileUpsert(
+    client,
+    withDeterministicBootstrapUsername(options.legacyPayload),
+  );
 }
 
 export async function updateOwnProfileWithCompatibility(
@@ -128,6 +122,29 @@ export async function updateOwnProfileWithCompatibility(
   return legacyProfileUpsert(client, options.legacyPayload);
 }
 
+function withDeterministicBootstrapUsername(
+  payload: Record<string, unknown>,
+): Record<string, unknown> {
+  const userId = typeof payload.user_id === "string"
+    ? payload.user_id.trim()
+    : "";
+  const email = typeof payload.email === "string"
+    ? payload.email.trim()
+    : "";
+  const username = typeof payload.username === "string"
+    ? payload.username.trim()
+    : "";
+
+  if (!userId || (email && username && username !== "user")) {
+    return payload;
+  }
+
+  return {
+    ...payload,
+    username: `user_${userId.replace(/-/g, "")}`,
+  };
+}
+
 async function legacyProfileUpsert(
   client: SupabaseClient,
   payload: Record<string, unknown>,
@@ -149,7 +166,7 @@ async function legacyProfileUpsert(
   return {
     mode: "legacy",
     profileRow: data,
-    profileRevision: readPositiveRevision(data.profile_revision),
+    profileRevision: readLegacyRevision(data.profile_revision),
     replayed: false,
   };
 }
@@ -159,15 +176,10 @@ function parseRpcProfileResult(
   allowReplayFlag: boolean,
 ): ProfileBridgeResult {
   if (!isRecord(data) || !isRecord(data.profile)) {
-    throw new ProfileCompatibilityBridgeError(
-      "Profile RPC returned an invalid response.",
-      { code: "INVALID_PROFILE_RPC_RESPONSE" },
-    );
+    throw invalidRpcResponse();
   }
 
-  const profileRevision = readPositiveRevision(
-    data.profile_revision ?? data.profile.profile_revision,
-  );
+  const profileRevision = readStrictRpcRevision(data, data.profile);
 
   return {
     mode: "rpc",
@@ -177,10 +189,60 @@ function parseRpcProfileResult(
   };
 }
 
-function readPositiveRevision(value: unknown): number {
+function readStrictRpcRevision(
+  envelope: Record<string, unknown>,
+  profile: Record<string, unknown>,
+): number {
+  const hasEnvelopeRevision = Object.prototype.hasOwnProperty.call(
+    envelope,
+    "profile_revision",
+  );
+  const hasProfileRevision = Object.prototype.hasOwnProperty.call(
+    profile,
+    "profile_revision",
+  );
+
+  if (!hasEnvelopeRevision && !hasProfileRevision) {
+    throw invalidRpcResponse();
+  }
+
+  const envelopeRevision = hasEnvelopeRevision
+    ? readRequiredPositiveRevision(envelope.profile_revision)
+    : undefined;
+  const profileRevision = hasProfileRevision
+    ? readRequiredPositiveRevision(profile.profile_revision)
+    : undefined;
+
+  if (
+    envelopeRevision !== undefined
+    && profileRevision !== undefined
+    && envelopeRevision !== profileRevision
+  ) {
+    throw invalidRpcResponse();
+  }
+
+  return envelopeRevision ?? profileRevision ?? 1;
+}
+
+function readRequiredPositiveRevision(value: unknown): number {
+  if (typeof value === "number" && Number.isInteger(value) && value > 0) {
+    return value;
+  }
+
+  throw invalidRpcResponse();
+}
+
+function readLegacyRevision(value: unknown): number {
   return typeof value === "number" && Number.isInteger(value) && value > 0
     ? value
     : 1;
+}
+
+function invalidRpcResponse(): ProfileCompatibilityBridgeError {
+  return new ProfileCompatibilityBridgeError(
+    "Profile RPC returned an invalid response.",
+    { code: "INVALID_PROFILE_RPC_RESPONSE" },
+  );
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
