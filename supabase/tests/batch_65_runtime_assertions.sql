@@ -109,11 +109,19 @@ select batch65_test.assert_true(
 );
 
 select batch65_test.assert_true(
-  not exists (
-    select 1 from public.public_profiles
-    where user_id = '33333333-3333-4333-8333-333333333333'
-  ),
-  'private profile is removed from public discovery during projection rebuild'
+  (select is_public is false
+          and bio is null
+          and location = '{}'::jsonb
+          and location_text is null
+          and swap_intent is null
+          and swap_context is null
+          and swap_geo_range is null
+          and open_to_types is null
+          and user_type is null
+          and availability_status is null
+   from public.public_profiles
+   where user_id = '33333333-3333-4333-8333-333333333333'),
+  'private profile is stored only as a minimal participant row and excluded from discovery by RLS'
 );
 
 select batch65_test.assert_true(
@@ -130,6 +138,47 @@ select batch65_test.assert_true(
 );
 
 commit;
+
+begin;
+
+insert into auth.users (
+  instance_id, id, aud, role, email, encrypted_password,
+  email_confirmed_at, raw_app_meta_data, raw_user_meta_data,
+  created_at, updated_at
+) values (
+  '00000000-0000-0000-0000-000000000000',
+  '77777777-7777-4777-8777-777777777777',
+  'authenticated',
+  'authenticated',
+  null,
+  '',
+  now(),
+  '{"provider":"email","providers":["email"]}',
+  '{"language":"es"}',
+  now(),
+  now()
+);
+
+delete from public.profiles
+where user_id = '77777777-7777-4777-8777-777777777777';
+
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '77777777-7777-4777-8777-777777777777', true);
+select set_config('request.jwt.claim.role', 'authenticated', true);
+
+with ensured as (
+  select public.ensure_own_profile_v1('pt-BR') as payload
+)
+select batch65_test.assert_true(
+  (select (payload ->> 'created')::boolean is true
+          and (payload ->> 'profile_revision')::bigint = 1
+          and payload -> 'profile' ->> 'primary_language' = 'pt'
+          and payload -> 'profile' -> 'languages' = '["pt"]'::jsonb
+   from ensured),
+  'ensure_own_profile_v1 creates a missing profile with coherent route language and revision 1'
+);
+
+rollback;
 
 begin;
 set local role authenticated;
@@ -254,6 +303,17 @@ select batch65_test.assert_true(
   'existing swap participant receives minimal private-profile identity only'
 );
 
+select batch65_test.assert_true(
+  (select count(*) = 1
+   from public.public_profiles
+   where user_id = '33333333-3333-4333-8333-333333333333'
+     and is_public is false
+     and display_name = 'Private Participant'
+     and bio is null
+     and location = '{}'::jsonb),
+  'existing participant can resolve the minimal private row through the regular public_profiles consumer'
+);
+
 commit;
 
 begin;
@@ -281,6 +341,15 @@ select batch65_test.expect_error(
   'access denied'
 );
 
+select batch65_test.assert_true(
+  not exists (
+    select 1
+    from public.public_profiles
+    where user_id = '33333333-3333-4333-8333-333333333333'
+  ),
+  'outsider regular public_profiles query cannot resolve a private participant row'
+);
+
 with result as (
   select public.update_own_profile_v1(
     1,
@@ -303,11 +372,16 @@ select batch65_test.assert_true(
 );
 
 select batch65_test.assert_true(
-  not exists (
-    select 1 from public.public_profiles
-    where user_id = '22222222-2222-4222-8222-222222222222'
-  ),
-  'publicProfile=false removes profile from public projection immediately'
+  (select is_public is false
+          and bio is null
+          and location = '{}'::jsonb
+          and location_text is null
+          and swap_intent is null
+          and user_type is null
+          and availability_status is null
+   from public.public_profiles
+   where user_id = '22222222-2222-4222-8222-222222222222'),
+  'publicProfile=false reduces the row to participant-only minimal identity immediately'
 );
 
 begin;
@@ -437,6 +511,15 @@ select batch65_test.assert_true(
    from public.profile_update_requests
    where actor_id = '11111111-1111-4111-8111-111111111111'),
   'owner idempotency registry contains exactly one completed request before concurrency test'
+);
+
+select batch65_test.assert_true(
+  (select response = jsonb_build_object('profile_revision', result_revision)
+          and expires_at > created_at
+          and expires_at <= created_at + interval '25 hours'
+   from public.profile_update_requests
+   where actor_id = '11111111-1111-4111-8111-111111111111'),
+  'idempotency registry keeps only a bounded revision marker, not a duplicated profile snapshot'
 );
 
 select 'Batch 65 runtime assertions passed' as result;

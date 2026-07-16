@@ -443,28 +443,19 @@ export function AppStateProvider({ children, initialLocale }: { children: ReactN
       if (profileData) {
         setUser(mapProfile(profileData));
       } else if (supabaseConfigured) {
-        const session = await supabase.auth.getSession();
-        const email = session.data.session?.user.email ?? "";
-        const newProfile = mapProfile({ id: userId, email });
-        setUser(newProfile);
-
-        const emailLocal = email.split("@")[0] || "user";
-        const { error: insertError } = await supabase.from("profiles").upsert({
-          user_id: userId,
-          email,
-          username: emailLocal,
-          full_name: emailLocal,
-          display_name: emailLocal,
-          badge: "free",
-          languages: ["ro"],
-          location: {},
-          visibility: newProfile.visibility,
-          notifications: newProfile.notifications,
-          swap_preferences: newProfile.swapPreferences,
-          security: newProfile.security,
-          stats: newProfile.stats,
-        }, { onConflict: "user_id" });
-        if (insertError) setLastError(insertError.message);
+        const { data: ensured, error: ensureError } = await supabase.rpc(
+          "ensure_own_profile_v1",
+          { p_route_locale: language },
+        );
+        if (ensureError) {
+          setLastError(ensureError.message);
+        } else {
+          const ensuredProfile =
+            ensured && typeof ensured === "object" && "profile" in ensured
+              ? (ensured as { profile?: Record<string, unknown> }).profile
+              : null;
+          if (ensuredProfile) setUser(mapProfile(ensuredProfile));
+        }
       }
 
       const [
@@ -586,7 +577,7 @@ export function AppStateProvider({ children, initialLocale }: { children: ReactN
         hydratingRef.current = null;
       }
     },
-    [mapItem, mapMessage, mapNotification, mapProfile, mapSwapIntent, supabase, supabaseConfigured],
+    [language, mapItem, mapMessage, mapNotification, mapProfile, mapSwapIntent, supabase, supabaseConfigured],
   );
 
   // ── Auth listener ──
