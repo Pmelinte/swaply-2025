@@ -33,6 +33,16 @@ function makeLegacyClient(options: {
   };
 }
 
+const missingEnsureRpc = {
+  code: "PGRST202",
+  message: "Could not find the function public.ensure_own_profile_v1(p_route_locale) in the schema cache",
+};
+
+const missingUpdateRpc = {
+  code: "42883",
+  message: "function public.update_own_profile_v1(bigint, jsonb, text) does not exist",
+};
+
 describe("Batch 65.2 profile compatibility bridge", () => {
   it("uses ensure_own_profile_v1 when the RPC exists", async () => {
     const { client, rpc, from } = makeLegacyClient({
@@ -61,14 +71,16 @@ describe("Batch 65.2 profile compatibility bridge", () => {
 
   it("falls back to the legacy bootstrap only when ensure RPC is missing", async () => {
     const { client, from, upsert } = makeLegacyClient({
-      rpcError: {
-        code: "PGRST202",
-        message: "Could not find the function public.ensure_own_profile_v1(p_route_locale) in the schema cache",
-      },
+      rpcError: missingEnsureRpc,
       legacyData: { user_id: "u1", display_name: "legacy" },
     });
 
-    const legacyPayload = { user_id: "u1", display_name: "legacy" };
+    const legacyPayload = {
+      user_id: "u1",
+      email: "petru@example.com",
+      username: "petru",
+      display_name: "legacy",
+    };
     const result = await ensureOwnProfileWithCompatibility(client, {
       routeLocale: "ro",
       legacyPayload,
@@ -78,6 +90,34 @@ describe("Batch 65.2 profile compatibility bridge", () => {
     expect(upsert).toHaveBeenCalledWith(legacyPayload, { onConflict: "user_id" });
     expect(result.mode).toBe("legacy");
     expect(result.profileRevision).toBe(1);
+  });
+
+  it("uses a deterministic unique username for an email-less legacy bootstrap", async () => {
+    const userId = "11111111-2222-3333-4444-555555555555";
+    const { client, upsert } = makeLegacyClient({
+      rpcError: missingEnsureRpc,
+      legacyData: {
+        user_id: userId,
+        username: "user_11111111222233334444555555555555",
+      },
+    });
+
+    await ensureOwnProfileWithCompatibility(client, {
+      routeLocale: "en",
+      legacyPayload: {
+        user_id: userId,
+        email: "",
+        username: "user",
+        display_name: "Swaply User",
+      },
+    });
+
+    expect(upsert).toHaveBeenCalledWith({
+      user_id: userId,
+      email: "",
+      username: "user_11111111222233334444555555555555",
+      display_name: "Swaply User",
+    }, { onConflict: "user_id" });
   });
 
   it("does not bootstrap through legacy SQL for permission or RLS errors", async () => {
@@ -123,10 +163,7 @@ describe("Batch 65.2 profile compatibility bridge", () => {
 
   it("falls back to the legacy owner upsert only when update RPC is missing", async () => {
     const { client, upsert } = makeLegacyClient({
-      rpcError: {
-        code: "42883",
-        message: "function public.update_own_profile_v1(bigint, jsonb, text) does not exist",
-      },
+      rpcError: missingUpdateRpc,
       legacyData: { user_id: "u1", display_name: "Legacy save" },
     });
 
@@ -159,6 +196,45 @@ describe("Batch 65.2 profile compatibility bridge", () => {
     }
   });
 
+  it("rejects an RPC response that omits the revision", async () => {
+    const { client, from } = makeLegacyClient({
+      rpcData: {
+        profile: { user_id: "u1", display_name: "Missing revision" },
+      },
+    });
+
+    await expect(updateOwnProfileWithCompatibility(client, {
+      expectedRevision: 1,
+      canonicalPayload: { display_name: "Missing revision" },
+      legacyPayload: { user_id: "u1", display_name: "Missing revision" },
+    })).rejects.toMatchObject({ code: "INVALID_PROFILE_RPC_RESPONSE" });
+
+    expect(from).not.toHaveBeenCalled();
+  });
+
+  it("rejects invalid or contradictory RPC revisions", async () => {
+    for (const rpcData of [
+      {
+        profile_revision: 0,
+        profile: { user_id: "u1", profile_revision: 0 },
+      },
+      {
+        profile_revision: 3,
+        profile: { user_id: "u1", profile_revision: 4 },
+      },
+    ]) {
+      const { client, from } = makeLegacyClient({ rpcData });
+
+      await expect(updateOwnProfileWithCompatibility(client, {
+        expectedRevision: 2,
+        canonicalPayload: { display_name: "Invalid revision" },
+        legacyPayload: { user_id: "u1", display_name: "Invalid revision" },
+      })).rejects.toMatchObject({ code: "INVALID_PROFILE_RPC_RESPONSE" });
+
+      expect(from).not.toHaveBeenCalled();
+    }
+  });
+
   it("does not hide a malformed successful RPC response behind legacy fallback", async () => {
     const { client, from } = makeLegacyClient({
       rpcData: { profile_revision: 2 },
@@ -173,7 +249,7 @@ describe("Batch 65.2 profile compatibility bridge", () => {
     expect(from).not.toHaveBeenCalled();
   });
 
-  it("recognizes only function-specific missing-RPC errors", () => {
+  it("recognizes only coded, function-specific missing-RPC errors", () => {
     expect(isMissingProfileRpcError({
       code: "PGRST202",
       message: "Could not find the function public.update_own_profile_v1 in the schema cache",
@@ -182,6 +258,15 @@ describe("Batch 65.2 profile compatibility bridge", () => {
     expect(isMissingProfileRpcError({
       code: "PGRST202",
       message: "Could not find another function in the schema cache",
+    }, "update_own_profile_v1")).toBe(false);
+
+    expect(isMissingProfileRpcError({
+      message: "function public.update_own_profile_v1 does not exist",
+    }, "update_own_profile_v1")).toBe(false);
+
+    expect(isMissingProfileRpcError({
+      code: "42501",
+      message: "function public.update_own_profile_v1 does not exist",
     }, "update_own_profile_v1")).toBe(false);
   });
 });
