@@ -1,5 +1,6 @@
 name: Batch 65.1 Legacy State Patch
 
+# Temporary one-shot workflow. Removed after the source correction is committed.
 on:
   pull_request:
     branches:
