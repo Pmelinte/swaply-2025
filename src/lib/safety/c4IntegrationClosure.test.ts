@@ -123,9 +123,9 @@ describe("Batch 63.4 C4 integration closure", () => {
     const adminPage = source("src/app/[locale]/admin/reports/page.tsx");
     const adminActions = source("src/features/admin/useAdminActions.ts");
 
-    expect(service).toContain('client.rpc("submit_safety_report_v1"');
-    expect(service).toContain('client.rpc("set_user_block_v1"');
-    expect(service).toContain('client.rpc("resolve_safety_report_v1"');
+    expect(service).toContain('supabase.rpc("submit_safety_report_v1"');
+    expect(service).toContain('supabase.rpc("set_user_block_v1"');
+    expect(service).toContain('supabase.rpc("resolve_safety_report_v1"');
     expect(state).not.toContain('.from("reports").insert');
     expect(state).not.toContain('.from("blocked_users").insert');
     expect(state).not.toContain('.from("blocked_users").delete');
