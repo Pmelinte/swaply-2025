@@ -221,7 +221,12 @@ function readStrictRpcRevision(
     throw invalidRpcResponse();
   }
 
-  return envelopeRevision ?? profileRevision ?? 1;
+  const resolvedRevision = envelopeRevision ?? profileRevision;
+  if (resolvedRevision === undefined) {
+    throw invalidRpcResponse();
+  }
+
+  return resolvedRevision;
 }
 
 function readRequiredPositiveRevision(value: unknown): number {
