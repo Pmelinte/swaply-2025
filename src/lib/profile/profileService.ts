@@ -14,6 +14,12 @@ const profileUpdateResponseSchema = z.object({
   profile: z.record(z.unknown()),
 });
 
+const profileEnsureResponseSchema = z.object({
+  created: z.boolean(),
+  profile_revision: z.number().int().positive(),
+  profile: z.record(z.unknown()),
+});
+
 export class ProfileServiceError extends Error {
   readonly code?: string;
   readonly details?: string;
@@ -43,6 +49,17 @@ export interface FetchOwnProfileOptions {
   routeLocale?: string | null;
 }
 
+export interface EnsureOwnProfileOptions {
+  routeLocale?: string | null;
+}
+
+export interface EnsureOwnProfileResult {
+  created: boolean;
+  profileRevision: number;
+  profileRow: Record<string, unknown>;
+  contract: GlobalProfileContract;
+}
+
 export interface UpdateOwnProfileOptions {
   expectedRevision: number;
   payload: Record<string, unknown>;
@@ -57,6 +74,32 @@ export interface UpdateOwnProfileResult {
   contract: GlobalProfileContract;
 }
 
+export async function ensureOwnGlobalProfile(
+  client: SupabaseClient,
+  options: EnsureOwnProfileOptions = {},
+): Promise<EnsureOwnProfileResult> {
+  const { data, error } = await client.rpc("ensure_own_profile_v1", {
+    p_route_locale: options.routeLocale ?? null,
+  });
+
+  if (error) throw profileError(error);
+
+  const parsed = profileEnsureResponseSchema.safeParse(data);
+  if (!parsed.success) {
+    throw new ProfileServiceError("Invalid profile bootstrap response.", {
+      code: "INVALID_PROFILE_BOOTSTRAP_RESPONSE",
+      details: parsed.error.message,
+    });
+  }
+
+  return {
+    created: parsed.data.created,
+    profileRevision: parsed.data.profile_revision,
+    profileRow: parsed.data.profile,
+    contract: mapGlobalProfileContract(parsed.data.profile, options.routeLocale),
+  };
+}
+
 export async function fetchOwnGlobalProfile(
   client: SupabaseClient,
   userId: string,
@@ -69,7 +112,20 @@ export async function fetchOwnGlobalProfile(
     .maybeSingle();
 
   if (error) throw profileError(error);
-  if (!data) return null;
+
+  if (!data) {
+    const ensured = await ensureOwnGlobalProfile(client, options);
+    if (String(ensured.profileRow.user_id ?? "") !== userId) {
+      throw new ProfileServiceError("Profile bootstrap returned another user.", {
+        code: "PROFILE_BOOTSTRAP_ID_MISMATCH",
+      });
+    }
+
+    return {
+      row: ensured.profileRow,
+      contract: ensured.contract,
+    };
+  }
 
   const row = data as Record<string, unknown>;
   return {
