@@ -11,6 +11,10 @@ interface Props {
   targetItemId?: string;
 }
 
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : "Safety action failed";
+}
+
 export function ReportBlockButtons({ targetUserId, targetItemId }: Props) {
   const t = useTranslations("safety");
   const { user, reportUser, blockUser, unblockUser, blockedUsers } = useAppState();
@@ -30,25 +34,24 @@ export function ReportBlockButtons({ targetUserId, targetItemId }: Props) {
     setActionLoading("report");
     setActionError(null);
 
-    const result = await reportUser({
-      reportedUserId: targetUserId,
-      reportedItemId: targetItemId,
-      reason,
-      description,
-    });
-
-    setActionLoading(null);
-    if (result.error) {
-      setActionError(result.error);
-      return;
+    try {
+      await reportUser({
+        reportedUserId: targetUserId,
+        reportedItemId: targetItemId,
+        reason,
+        description,
+      });
+      setSubmitted(true);
+      setDescription("");
+      window.setTimeout(() => {
+        setShowReport(false);
+        setSubmitted(false);
+      }, 2000);
+    } catch (error) {
+      setActionError(errorMessage(error));
+    } finally {
+      setActionLoading(null);
     }
-
-    setSubmitted(true);
-    setDescription("");
-    window.setTimeout(() => {
-      setShowReport(false);
-      setSubmitted(false);
-    }, 2000);
   };
 
   const handleBlock = async () => {
@@ -56,12 +59,14 @@ export function ReportBlockButtons({ targetUserId, targetItemId }: Props) {
     setActionLoading("block");
     setActionError(null);
 
-    const result = isBlocked
-      ? await unblockUser(targetUserId)
-      : await blockUser(targetUserId);
-
-    setActionLoading(null);
-    if (result.error) setActionError(result.error);
+    try {
+      if (isBlocked) await unblockUser(targetUserId);
+      else await blockUser(targetUserId);
+    } catch (error) {
+      setActionError(errorMessage(error));
+    } finally {
+      setActionLoading(null);
+    }
   };
 
   return (
@@ -90,7 +95,7 @@ export function ReportBlockButtons({ targetUserId, targetItemId }: Props) {
       >
         <ShieldBan className="h-3.5 w-3.5" />
         {actionLoading === "block"
-          ? t("loading")
+          ? "…"
           : isBlocked
             ? t("unblock")
             : t("block")}
@@ -145,7 +150,7 @@ export function ReportBlockButtons({ targetUserId, targetItemId }: Props) {
                   disabled={actionLoading === "report"}
                   className="rounded-full bg-red-600 px-3 py-1 text-xs font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {actionLoading === "report" ? t("loading") : t("submitReport")}
+                  {actionLoading === "report" ? "…" : t("submitReport")}
                 </button>
                 <button
                   type="button"
