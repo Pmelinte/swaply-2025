@@ -128,6 +128,7 @@ import { useSwapChains } from "./useSwapChains";
 import { useVerification } from "./useVerification";
 import { useSearch } from "./useSearch";
 import { useImageGallery } from "./useImageGallery";
+import { mergeUserProfile, persistUserProfile } from "../profile/userProfilePersistence";
 
 // ── Re-export for backwards compatibility ──
 export { computeMatchesForUser } from "./matching";
@@ -888,51 +889,55 @@ export function AppStateProvider({ children, initialLocale }: { children: ReactN
   // ── Profile ──
   const updateProfile = useCallback(
     async (updates: Partial<UserProfile>, options?: { persist?: boolean }) => {
-      setUser((prev) => (prev ? { ...prev, ...updates } : prev));
       const currentUser = userRef.current;
-      if (options?.persist && supabaseConfigured && supabase) {
-        const userId = currentUser?.id ?? updates.id;
-        if (!userId) {
-          const msg = "Cannot save profile: user not loaded yet.";
-          setLastError(msg);
-          throw new Error(msg);
-        }
-        setLastError(null);
-        const merged = { ...currentUser, ...updates };
-        const emailLocal = (merged.email ?? "").split("@")[0] || "user";
-        const payload: Record<string, unknown> = {
-          user_id: userId, email: merged.email,
-          username: merged.username || merged.displayName?.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "") || emailLocal,
-          full_name: merged.fullName || [merged.displayName, merged.firstName].filter(Boolean).join(" ") || merged.displayName || emailLocal,
-          display_name: merged.displayName,
-          first_name: merged.firstName ?? null, avatar_url: merged.avatarUrl ?? null,
-          bio: merged.bio ?? null, badge: merged.badge, languages: merged.languages,
-          location: merged.location ?? {},
-          location_text: [merged.location?.city, merged.location?.country].filter(Boolean).join(", ") || null,
-          visibility: merged.visibility,
-          notifications: merged.notifications, swap_preferences: merged.swapPreferences,
-          security: merged.security, stats: merged.stats,
-          updated_at: new Date().toISOString(),
-        };
-        const { error, data } = await supabase.from("profiles").upsert(payload, { onConflict: "user_id" }).select().maybeSingle();
-        if (error) { setLastError(error.message); throw new Error(error.message); }
-        else if (data) setUser(mapProfile(data));
 
-        // Mark onboarding step_profile when full_name + avatar + location are all present
+      if (!currentUser) {
+        if (options?.persist) {
+          const message = "Cannot save profile: user not loaded yet.";
+          setLastError(message);
+          throw new Error(message);
+        }
+        return;
+      }
+
+      const merged = mergeUserProfile(currentUser, updates);
+      setUser(merged);
+
+      if (!options?.persist || !supabaseConfigured || !supabase) return;
+
+      setLastError(null);
+      try {
+        const saved = await persistUserProfile(supabase, merged, {
+          routeLocale: language,
+        });
+        setUser(saved);
+
+        // Mark onboarding step_profile when full name, avatar and location are present.
         if (merged.fullName && merged.avatarUrl && merged.location?.city) {
-          supabase.rpc("complete_onboarding_step", { p_user_id: userId, p_step: "profile" }).then(({ error: rpcErr }) => {
-            if (rpcErr) console.error("[onboarding] complete_onboarding_step error:", rpcErr.message);
+          supabase.rpc("complete_onboarding_step", {
+            p_user_id: merged.id,
+            p_step: "profile",
+          }).then(({ error: rpcErr }) => {
+            if (rpcErr) {
+              console.error("[onboarding] complete_onboarding_step error:", rpcErr.message);
+            }
           });
           supabase.from("onboarding_progress").upsert(
-            { user_id: userId, step_profile: true },
+            { user_id: merged.id, step_profile: true },
             { onConflict: "user_id" },
           ).then(({ error: obErr }) => {
-            if (obErr) console.error("[onboarding] step_profile update error:", obErr.message);
+            if (obErr) {
+              console.error("[onboarding] step_profile update error:", obErr.message);
+            }
           });
         }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Profile save failed.";
+        setLastError(message);
+        throw error;
       }
     },
-    [supabaseConfigured, mapProfile, supabase],
+    [language, supabaseConfigured, supabase],
   );
 
   // ── Feature slice hooks ──
