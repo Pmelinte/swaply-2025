@@ -1,0 +1,41 @@
+name: Batch 65.1 Source Patch PR
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/batch-65-1-source-patch-pr.yml"
+      - "scripts/apply-batch-65-1-source-patch.py"
+      - "src/lib/state/index.tsx"
+      - "supabase/tests/batch_65_runtime_assertions.sql"
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR head branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: Apply idempotent source patch
+        run: python scripts/apply-batch-65-1-source-patch.py
+
+      - name: Commit source patch
+        shell: bash
+        run: |
+          if git diff --quiet; then
+            echo "No patch required"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/lib/state/index.tsx supabase/tests/batch_65_runtime_assertions.sql
+          git commit -m "Batch 65.1: apply canonical bootstrap source patch"
+          git push origin HEAD:${{ github.head_ref }}
