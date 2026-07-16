@@ -38,11 +38,15 @@ begin
       legacy.reporter_id,
       case when legacy.reported_item_id is not null then 'item' else 'profile' end,
       coalesce(legacy.reported_item_id, legacy.reported_user_id),
-      legacy.reason,
+      case legacy.reason
+        when 'fake_item' then 'scam'
+        else legacy.reason
+      end,
       coalesce(legacy.description, ''),
       case legacy.status
         when 'pending' then 'open'
         when 'reviewed' then 'investigating'
+        when 'action_taken' then 'resolved'
         else legacy.status
       end,
       legacy.created_at
