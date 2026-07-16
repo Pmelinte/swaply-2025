@@ -10,7 +10,7 @@
 - C1: `CLOSED`.
 - C2: `CLOSED`.
 - C3: `CLOSED`.
-- C4: `ACTIVE`.
+- C4: `AUTHENTICATED PASS — CLOSURE PR PENDING`.
 - C5: `PLANNED` as the final Train C closure gate.
 - Train E is terminal for v1; there is no Train F.
 
@@ -18,8 +18,8 @@ C4 sequence:
 
 - Batch 63.1 — canonical cancel authority: `CLOSED`;
 - Batch 63.2 — canonical dispute authority: `CLOSED`;
-- Batch 63.3 — canonical report/block authority: `AUTHENTICATED PASS`, draft PR `#472`, awaiting final post-audit CI/Preview;
-- Batch 63.4 — authenticated C4 closure: `PLANNED`.
+- Batch 63.3 — canonical report/block authority: `CLOSED`;
+- Batch 63.4 — authenticated C4 integration closure: `PASS`, awaiting closure CI/Preview and explicit merge.
 
 ## Rules
 
@@ -36,12 +36,13 @@ C4 sequence:
 ## Checkpoint
 
 - Repository: `Pmelinte/swaply-2025`.
-- Current `main`: `7cd2cf036a19c050ee8cee5d451f3c041d8601a3`.
+- Current `main`: `44d20dbac30d2ce481d99a8510abb218afe39811`.
 - Production: `https://www.swaply.world`.
 - PR `#470`: merged; Batch 63.1 closed.
 - PR `#471`: merged; Batch 63.2 closed.
-- PR `#472`: `OPEN / DRAFT`, not merged.
-- Active branch: `agent/batch-63-3-report-block-authority`.
+- PR `#472`: merged; Batch 63.3 closed.
+- Active branch: `agent/batch-63-4-c4-integration-closure`.
+- Batch 63.4 introduces no database migration or new product behavior; it adds regression evidence and reconciles closure documentation.
 - Supabase Production includes:
   - `20260715182419_batch_63_1_cancel_authority`;
   - four Batch 63.2 dispute migrations;
@@ -51,8 +52,10 @@ C4 sequence:
   - moderation action compatibility;
   - post-audit `GREATEST` and `LEAST/GREATEST` fixes;
   - terminal-effect foreign-key indexes.
-- Batch 63.3 Production migration and authenticated audit: `PASS`.
-- All Batch 63.3 fixtures, temporary sanctions, block rows, cron jobs and private request/effect rows: cleaned.
+- Batch 63.4 authenticated Production integration audit: `PASS`.
+- All Batch 63.4 reports, disputes, effects, deterministic fixtures, worker functions and cron artifacts: cleaned.
+- Audited Production deployment: `dpl_A7Cb8NXFNKeLfKnw8qwGT2NiHnei`, commit `44d20dbac30d2ce481d99a8510abb218afe39811`, state `READY`.
+- `/en/exchange`: HTTP `200`; inspected runtime `error`, `warning` and `fatal`: none.
 
 ## C2
 
@@ -121,20 +124,7 @@ Evidence: `docs/batch-63-2-dispute-authority.md`.
 
 ### Batch 63.3 — reports and blocks
 
-The audit found two incompatible report sources: user actions wrote `public.reports`, while the admin workflow used absent `public.abuse_reports`. Blocks were direct client writes, were not hydrated after login and did not create a server-side contact barrier. Unverified profile reports could also trigger automatic suspension before moderator review.
-
-PR `#472` introduces:
-
-- `public.reports` and `public.blocked_users` as the sole public safety sources;
-- private idempotency and report-resolution effect registries;
-- authenticated canonical report submission with validation, duplicate prevention and rate limiting;
-- admin/moderator-only atomic report investigation and resolution;
-- authenticated idempotent block/unblock;
-- bilateral block enforcement for new interests, conversations, messages and Swaps;
-- preservation of existing conversation history;
-- removal of unverified automatic sanctions and direct writers;
-- persisted block hydration and accurate UI success/error state;
-- canonical admin report listing, statistics and actions.
+`public.reports` and `public.blocked_users` are the sole public safety sources. Canonical report submission is authenticated, validated, rate-limited and side-effect free before moderation. Moderator resolution is atomic. Block/unblock is authenticated, private and idempotent, prevents future bilateral contact and preserves existing evidence and history.
 
 Production evidence:
 
@@ -149,19 +139,39 @@ Production evidence:
 - two-session same-key pg_cron concurrency: `PASS` with one block row, one request and one audit event;
 - zero Swapleni, Review, Story, notification and trust side effects outside the explicit confirmed moderation outcome: `PASS`;
 - immutable-ID and profile restoration cleanup: `PASS`;
-- security/performance advisors reviewed; three new FK index findings remediated.
+- security/performance advisors reviewed; three new FK index findings remediated;
+- PR `#472` merged at `44d20dbac30d2ce481d99a8510abb218afe39811`.
 
 Evidence: `docs/batch-63-3-report-block-authority.md`.
 
+### Batch 63.4 — integration closure
+
+Authenticated Production integration proved that the three C4 authorities coexist without contradictory terminal states or suppressed safety rights.
+
+Verified:
+
+- cancellation and dispute are mutually exclusive terminal branches;
+- dispute after cancellation and cancellation after dispute are rejected with stale-state SQLSTATE `40001`;
+- block prevents new interests, conversations, messages and Swaps but does not prevent cancellation of an existing Swap;
+- block does not prevent dispute opening, evidence append or moderator resolution;
+- historical messages remain stored;
+- raw reports do not transition Swaps, block users, alter trust, increment counters, suspend users, notify targets, award Swapleni or create Reviews;
+- a real same-second cancel-versus-dispute race produced one winner, one terminal branch and no mixed effects;
+- exact Production cleanup restored borrowed E2E items, profiles, triggers, cron state and all C4 registries;
+- security and performance advisors showed no C4 correctness blocker;
+- Vercel Production remained `READY`, `/en/exchange` returned `200`, and runtime error/warning/fatal inspection was empty.
+
+Evidence: `docs/batch-63-4-c4-integration-closure.md`.
+
 ## Current closure gate
 
-Batch 63.3 has passed the Production authenticated audit. PR `#472` remains draft until the latest post-audit branch head passes:
+C4 has passed the authenticated Production integration audit. It becomes formally `CLOSED` only after the Batch 63.4 closure branch passes:
 
-- GitHub Unit Tests;
-- migration-contract tests;
+- Unit Tests, including `c4IntegrationClosure.test.ts`;
 - lint and TypeScript;
 - Next.js Production Build;
 - Public Visual Audit;
-- Vercel Preview and runtime-log inspection.
+- Vercel Preview and runtime-log inspection;
+- explicit `Merge #...` authorization.
 
-After those checks, Batch 63.3 may be considered ready for an explicit `Merge #472` command. No merge is authorized by this handoff.
+After Batch 63.4 is merged, the next mandatory deliverable is **C5 — final Train C closure audit**. Train C remains `ACTIVE` until C5 is passed and explicitly merged.
