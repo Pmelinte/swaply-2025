@@ -71,6 +71,16 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  if (toStatus === "disputed") {
+    return NextResponse.json(
+      {
+        error: "Dispute opening requires the canonical dispute endpoint",
+        code: "DISPUTE_AUTHORITY_REQUIRED",
+      },
+      { status: 409 },
+    );
+  }
+
   let expectedStatus: SwapStatus | undefined;
   if (body.expectedStatus !== undefined) {
     if (!isSwapStatus(body.expectedStatus)) {
