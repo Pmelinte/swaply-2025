@@ -1,0 +1,53 @@
+name: Batch 65.1 Guard Fixture Patch
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/batch-65-1-guard-fixture-patch.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR head branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: Keep direct-insert guard fixture independent from bootstrap backfill
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path("supabase/tests/batch_65_runtime_assertions.sql")
+          text = path.read_text()
+          marker = "delete from public.profiles\nwhere user_id = '66666666-6666-4666-8666-666666666666';\n\nbegin;\nset local role authenticated;\nselect set_config('request.jwt.claim.sub', '66666666-6666-4666-8666-666666666666', true);"
+          anchor = "begin;\nset local role authenticated;\nselect set_config('request.jwt.claim.sub', '66666666-6666-4666-8666-666666666666', true);"
+
+          if marker in text:
+            raise SystemExit(0)
+          if anchor not in text:
+            raise SystemExit("Guard fixture anchor not found")
+
+          text = text.replace(anchor, marker, 1)
+          path.write_text(text)
+
+      - name: Commit guard fixture correction
+        shell: bash
+        run: |
+          if git diff --quiet; then
+            echo "No correction required"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add supabase/tests/batch_65_runtime_assertions.sql
+          git commit -m "Batch 65.1: isolate privileged insert guard fixture"
+          git push origin HEAD:${{ github.head_ref }}
