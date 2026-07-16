@@ -1,0 +1,230 @@
+from pathlib import Path
+
+path = Path("src/lib/state/index.tsx")
+text = path.read_text()
+
+import_anchor = 'import { useImageGallery } from "./useImageGallery";\n'
+import_block = '''import {
+  ensureOwnProfileWithCompatibility,
+  updateOwnProfileWithCompatibility,
+} from "../profile/profileCompatibilityBridge";
+'''
+if import_block not in text:
+    if import_anchor not in text:
+        raise SystemExit("Import anchor not found")
+    text = text.replace(import_anchor, import_anchor + import_block, 1)
+
+ref_anchor = '''  const userRef = useRef<UserProfile | null>(null);
+  const hydratingRef = useRef<string | null>(null);'''
+ref_replacement = '''  const userRef = useRef<UserProfile | null>(null);
+  const hydratingRef = useRef<string | null>(null);
+  const profileRevisionRef = useRef(1);'''
+if ref_replacement not in text:
+    if ref_anchor not in text:
+        raise SystemExit("Profile revision ref anchor not found")
+    text = text.replace(ref_anchor, ref_replacement, 1)
+
+old_bootstrap = '''      if (profileData) {
+        setUser(mapProfile(profileData));
+      } else if (supabaseConfigured) {
+        const session = await supabase.auth.getSession();
+        const email = session.data.session?.user.email ?? "";
+        const newProfile = mapProfile({ id: userId, email });
+        setUser(newProfile);
+
+        const emailLocal = email.split("@")[0] || "user";
+        const { error: insertError } = await supabase.from("profiles").upsert({
+          user_id: userId,
+          email,
+          username: emailLocal,
+          full_name: emailLocal,
+          display_name: emailLocal,
+          badge: "free",
+          languages: ["ro"],
+          location: {},
+          visibility: newProfile.visibility,
+          notifications: newProfile.notifications,
+          swap_preferences: newProfile.swapPreferences,
+          security: newProfile.security,
+          stats: newProfile.stats,
+        }, { onConflict: "user_id" });
+        if (insertError) setLastError(insertError.message);
+      }'''
+new_bootstrap = '''      if (profileData) {
+        const rawRevision = (profileData as Record<string, unknown>).profile_revision;
+        profileRevisionRef.current =
+          typeof rawRevision === "number" && Number.isInteger(rawRevision) && rawRevision > 0
+            ? rawRevision
+            : 1;
+        setUser(mapProfile(profileData));
+      } else if (supabaseConfigured) {
+        const session = await supabase.auth.getSession();
+        const email = session.data.session?.user.email ?? "";
+        const newProfile = mapProfile({ id: userId, email });
+        const emailLocal = email.split("@")[0] || "user";
+        const legacyPayload: Record<string, unknown> = {
+          user_id: userId,
+          email,
+          username: emailLocal,
+          full_name: emailLocal,
+          display_name: emailLocal,
+          badge: "free",
+          languages: [language],
+          location: {},
+          visibility: newProfile.visibility,
+          notifications: newProfile.notifications,
+          swap_preferences: newProfile.swapPreferences,
+          security: newProfile.security,
+          stats: newProfile.stats,
+        };
+
+        setUser(newProfile);
+        try {
+          const ensured = await ensureOwnProfileWithCompatibility(supabase, {
+            routeLocale: language,
+            legacyPayload,
+          });
+          profileRevisionRef.current = ensured.profileRevision;
+          setUser(mapProfile(ensured.profileRow));
+        } catch (error) {
+          const message = error instanceof Error
+            ? error.message
+            : "Profile bootstrap failed.";
+          setLastError(message);
+        }
+      }'''
+if new_bootstrap not in text:
+    if old_bootstrap not in text:
+        raise SystemExit("Legacy bootstrap block not found")
+    text = text.replace(old_bootstrap, new_bootstrap, 1)
+
+start_marker = '  // ── Profile ──\n  const updateProfile = useCallback('
+end_marker = '\n\n  // ── Feature slice hooks ──'
+canonical_marker = 'updateOwnProfileWithCompatibility(supabase, {'
+
+if canonical_marker not in text:
+    start = text.find(start_marker)
+    if start < 0:
+        raise SystemExit("Profile save start marker not found")
+    end = text.find(end_marker, start)
+    if end < 0:
+        raise SystemExit("Profile save end marker not found")
+
+    replacement = '''  // ── Profile ──
+  const updateProfile = useCallback(
+    async (updates: Partial<UserProfile>, options?: { persist?: boolean }) => {
+      setUser((prev) => (prev ? { ...prev, ...updates } : prev));
+      const currentUser = userRef.current;
+
+      if (!options?.persist || !supabaseConfigured || !supabase) return;
+
+      const userId = currentUser?.id ?? updates.id;
+      if (!userId) {
+        const message = "Cannot save profile: user not loaded yet.";
+        setLastError(message);
+        throw new Error(message);
+      }
+
+      setLastError(null);
+      const merged = { ...currentUser, ...updates } as UserProfile;
+      const emailLocal = (merged.email ?? "").split("@")[0] || "user";
+      const username = merged.username
+        || merged.displayName?.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "")
+        || emailLocal;
+      const fullName = merged.fullName
+        || [merged.displayName, merged.firstName].filter(Boolean).join(" ")
+        || merged.displayName
+        || emailLocal;
+      const orderedLanguages = Array.from(new Set(
+        (merged.languages ?? []).filter(Boolean),
+      )).slice(0, 3);
+      if (orderedLanguages.length === 0) orderedLanguages.push(language);
+
+      const legacyPayload: Record<string, unknown> = {
+        user_id: userId,
+        email: merged.email,
+        username,
+        full_name: fullName,
+        display_name: merged.displayName,
+        first_name: merged.firstName ?? null,
+        avatar_url: merged.avatarUrl ?? null,
+        bio: merged.bio ?? null,
+        badge: merged.badge,
+        languages: orderedLanguages,
+        location: merged.location ?? {},
+        location_text: [merged.location?.city, merged.location?.country]
+          .filter(Boolean)
+          .join(", ") || null,
+        visibility: merged.visibility,
+        notifications: merged.notifications,
+        swap_preferences: merged.swapPreferences,
+        security: merged.security,
+        stats: merged.stats,
+        updated_at: new Date().toISOString(),
+      };
+      const canonicalPayload: Record<string, unknown> = {
+        username,
+        full_name: fullName,
+        display_name: merged.displayName,
+        first_name: merged.firstName ?? null,
+        avatar_url: merged.avatarUrl ?? null,
+        bio: merged.bio ?? null,
+        primary_language: orderedLanguages[0],
+        secondary_language: orderedLanguages[1] ?? null,
+        tertiary_language: orderedLanguages[2] ?? null,
+        location: merged.location ?? {},
+        location_text: [merged.location?.city, merged.location?.country]
+          .filter(Boolean)
+          .join(", ") || null,
+        visibility: merged.visibility,
+        notifications: merged.notifications,
+        swap_preferences: merged.swapPreferences,
+      };
+
+      try {
+        const saved = await updateOwnProfileWithCompatibility(supabase, {
+          expectedRevision: profileRevisionRef.current,
+          canonicalPayload,
+          legacyPayload,
+        });
+        profileRevisionRef.current = saved.profileRevision;
+        setUser(mapProfile(saved.profileRow));
+      } catch (error) {
+        const message = error instanceof Error
+          ? error.message
+          : "Profile save failed.";
+        setLastError(message);
+        throw error;
+      }
+
+      if (merged.fullName && merged.avatarUrl && merged.location?.city) {
+        supabase.rpc("complete_onboarding_step", {
+          p_user_id: userId,
+          p_step: "profile",
+        }).then(({ error: rpcErr }) => {
+          if (rpcErr) {
+            console.error("[onboarding] complete_onboarding_step error:", rpcErr.message);
+          }
+        });
+        supabase.from("onboarding_progress").upsert(
+          { user_id: userId, step_profile: true },
+          { onConflict: "user_id" },
+        ).then(({ error: obErr }) => {
+          if (obErr) {
+            console.error("[onboarding] step_profile update error:", obErr.message);
+          }
+        });
+      }
+    },
+    [language, mapProfile, supabase, supabaseConfigured],
+  );'''
+    text = text[:start] + replacement + text[end:]
+
+if 'ensureOwnProfileWithCompatibility(supabase' not in text:
+    raise SystemExit("Bridge bootstrap integration missing")
+if 'updateOwnProfileWithCompatibility(supabase' not in text:
+    raise SystemExit("Bridge update integration missing")
+if '.from("profiles").upsert' in text:
+    raise SystemExit("Direct profile upsert remains in application state")
+
+path.write_text(text)
