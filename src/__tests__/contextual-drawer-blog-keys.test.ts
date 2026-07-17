@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { contextualDrawerConfigs } from "@/lib/drawer/contextualDrawerConfig";
 
 describe("contextual drawer blog keys", () => {
-  it("does not use the missing about.blog key that produced Vercel runtime warnings", () => {
+  it("uses the existing blog translation keys", () => {
     const blogConfig = contextualDrawerConfigs.blog;
     const keys = [
       blogConfig.titleKey,
