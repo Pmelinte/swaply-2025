@@ -12,30 +12,6 @@ const screenshotRoot = path.join(process.cwd(), "playwright-audit-screenshots");
 const publicRoutes = getPublicVisualAuditRoutes("en");
 const drawerAuditRoutes = getPublicDrawerAuditRoutes("en");
 
-const guestExperienceRoutes = new Set([
-  "/en",
-  "/en/objects",
-  "/en/properties",
-  "/en/services",
-  "/en/events",
-  "/en/explore",
-  "/en/matching",
-  "/en/messages",
-  "/en/exchange",
-]);
-
-const foundationStackRoutes = new Set([
-  "/en",
-  "/en/objects",
-  "/en/properties",
-  "/en/services",
-  "/en/events",
-  "/en/explore",
-  "/en/matching",
-  "/en/messages",
-  "/en/exchange",
-]);
-
 const contextualCopyRoutes = new Set([
   "/en/objects",
   "/en/properties",
@@ -47,7 +23,13 @@ const contextualCopyRoutes = new Set([
   "/en/blog",
 ]);
 
-const bottomNavHrefs = new Set(["/en", "/en/explore", "/en/matching", "/en/messages", "/en/exchange"]);
+const forbiddenInternalCopy = [
+  /foundation stack/i,
+  /batch\s*\d/i,
+  /route guardrails/i,
+  /ai advisory/i,
+  /real action after login/i,
+];
 
 const viewports = [
   { name: "desktop", width: 1440, height: 1100 },
@@ -86,37 +68,10 @@ async function assertPublicPageIsHealthy(page: Page, route: string) {
   for (const pattern of FORBIDDEN_PUBLIC_LOGIN_WALL_PATTERNS) {
     expect(pattern.test(bodyText), `${route} must not be a blank login wall matching ${pattern}`).toBe(false);
   }
-}
 
-async function assertGuestExperienceIsVisible(page: Page, route: string) {
-  if (!guestExperienceRoutes.has(route)) return;
-
-  const guestSection = page.getByText("Guest experience").first();
-  await expect(guestSection, `${route} must render public guest proof examples`).toBeVisible();
-  await expect(page.getByTestId("guest-proof-card").first(), `${route} must show at least one guest proof card`).toBeVisible();
-}
-
-async function assertFoundationStackIsVisible(page: Page, route: string) {
-  if (!foundationStackRoutes.has(route)) return;
-
-  const section = page.getByTestId("foundation-stack-section").first();
-  await expect(section, `${route} must explain the Batch 8-17 foundation stack publicly`).toBeVisible();
-  await expect(
-    page.getByTestId("foundation-stack-card").first(),
-    `${route} must show at least one public foundation stack card`,
-  ).toBeVisible();
-  await expect(
-    section.locator('[data-track-id="ai_advisory"]').first(),
-    `${route} must show that AI remains advisory`,
-  ).toBeVisible();
-  await expect(
-    section.locator('[data-login-required="true"]').first(),
-    `${route} must show that real actions stay login-gated`,
-  ).toBeVisible();
-  await expect(
-    page.getByTestId("foundation-stack-route-coverage").first(),
-    `${route} must explain route-level guardrail coverage`,
-  ).toContainText(/route guardrails visible/i);
+  for (const pattern of forbiddenInternalCopy) {
+    expect(pattern.test(bodyText), `${route} must not expose internal project copy matching ${pattern}`).toBe(false);
+  }
 }
 
 async function assertDrawerIsHealthy(page: Page, route: string) {
@@ -127,14 +82,12 @@ async function assertDrawerIsHealthy(page: Page, route: string) {
     await expect(drawer, `${route} drawer must expose contextual menu copy`).toContainText(/Context Menu|Menu contextual/i);
   }
 
-  const drawerLinks = await drawer.locator("a[href]").evaluateAll((links) =>
-    links
-      .map((link) => link.getAttribute("href"))
-      .filter((href): href is string => Boolean(href)),
-  );
+  const drawerControls = drawer.locator('a[href], button:not([disabled])');
+  expect(await drawerControls.count(), `${route} drawer must expose useful navigation or actions`).toBeGreaterThan(1);
 
-  for (const href of drawerLinks) {
-    expect(bottomNavHrefs.has(href), `${route} drawer must not duplicate bottom nav href ${href}`).toBe(false);
+  const drawerText = await drawer.innerText();
+  for (const pattern of forbiddenInternalCopy) {
+    expect(pattern.test(drawerText), `${route} drawer must not expose internal project copy matching ${pattern}`).toBe(false);
   }
 }
 
@@ -146,8 +99,6 @@ test.describe("Swaply public visual audit", () => {
       for (const route of publicRoutes) {
         test(`renders ${route}`, async ({ page }, testInfo) => {
           await assertPublicPageIsHealthy(page, route);
-          await assertGuestExperienceIsVisible(page, route);
-          await assertFoundationStackIsVisible(page, route);
 
           const filePath = screenshotPath(viewport.name, route);
           await page.screenshot({ path: filePath, fullPage: true, animations: "disabled" });
