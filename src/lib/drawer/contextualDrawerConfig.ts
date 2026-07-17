@@ -1,5 +1,9 @@
 export const CONTEXTUAL_DRAWER_PAGES = [
+  "profile",
   "objects",
+  "my_items",
+  "item_detail",
+  "item_editor",
   "properties",
   "services",
   "events",
@@ -66,6 +70,47 @@ export const BOTTOM_NAV_HREFS = [
 ] as const;
 
 export const contextualDrawerConfigs: Record<ContextualDrawerPage, ContextualDrawerPageConfig> = {
+  profile: {
+    page: "profile",
+    titleKey: "profile.accountAndSettings",
+    descriptionKey: "profile.publicIdentityDescription",
+    sections: [
+      {
+        id: "page_context",
+        titleKey: "profile.profileNavigation",
+        items: [
+          { id: "profile-main", labelKey: "profile.publicIdentity", icon: "users", href: "/profile?tab=profil" },
+          { id: "profile-properties", labelKey: "profile.propertiesAndServices", icon: "home", href: "/profile?tab=proprietati" },
+          { id: "profile-account", labelKey: "profile.accountAndSettings", icon: "shield", href: "/profile?tab=cont" },
+        ],
+      },
+      {
+        id: "status",
+        titleKey: "profile.reputationAndTokens",
+        items: [
+          { id: "profile-reputation", labelKey: "profile.reputation", icon: "activity", href: "/profile?tab=reputatie" },
+          { id: "profile-verification", labelKey: "profile.verificationTitle", icon: "checklist", href: "/profile?tab=verificare" },
+        ],
+      },
+      {
+        id: "quick_actions",
+        titleKey: "profile.notificationSettings",
+        items: [
+          { id: "profile-notifications", labelKey: "notificationSettings.title", icon: "message", href: "/profile?tab=notificari" },
+          { id: "profile-alerts", labelKey: "savedSearches.tabTitle", icon: "search", href: "/profile?tab=alerte" },
+        ],
+      },
+      {
+        id: "ai_recommendations",
+        titleKey: "nav.quickNav",
+        items: [
+          { id: "profile-my-items", labelKey: "myObjects.title", icon: "activity", href: "/my-objects" },
+          { id: "profile-add-item", labelKey: "nav.addObject", icon: "plus", href: "/objects/new" },
+          { id: "profile-history", labelKey: "history.title", icon: "checklist", href: "/history" },
+        ],
+      },
+    ],
+  },
   objects: {
     page: "objects",
     titleKey: "branches.objects",
@@ -75,8 +120,10 @@ export const contextualDrawerConfigs: Record<ContextualDrawerPage, ContextualDra
         id: "filters",
         titleKey: "common.search",
         items: [
-          { id: "object-text-search", labelKey: "common.search", icon: "search" },
-          { id: "object-map-search", labelKey: "nav.searchOnMap", icon: "map" },
+          { id: "objects-all", labelKey: "objects.browseAll", icon: "search", href: "/objects" },
+          { id: "objects-only", labelKey: "objects.objectsType", icon: "activity", href: "/objects?type=object" },
+          { id: "objects-properties", labelKey: "objects.propertiesType", icon: "home", href: "/objects?type=property" },
+          { id: "objects-services", labelKey: "objects.servicesType", icon: "users", href: "/objects?type=service" },
         ],
       },
       {
@@ -84,13 +131,88 @@ export const contextualDrawerConfigs: Record<ContextualDrawerPage, ContextualDra
         titleKey: "nav.quickNav",
         items: [
           { id: "add-object", labelKey: "nav.addObject", icon: "plus", href: "/objects/new" },
-          { id: "view-objects", labelKey: "nav.viewObjects", icon: "activity" },
+          { id: "my-objects", labelKey: "myObjects.title", icon: "activity", href: "/my-objects" },
+          { id: "saved-items", labelKey: "favorites.title", icon: "book", href: "/favorites" },
         ],
       },
       {
-        id: "ai_recommendations",
-        titleKey: "common.recommendedNextStep",
-        items: [{ id: "object-ai-match", labelKey: "nav.analyzeMatches", icon: "sparkles" }],
+        id: "status",
+        titleKey: "common.nextStep",
+        items: [
+          { id: "object-matching", labelKey: "nav.analyzeMatches", icon: "sparkles", href: "/matching" },
+          { id: "object-wishlist", labelKey: "objects.desires", icon: "checklist", href: "/wishlist" },
+        ],
+      },
+    ],
+  },
+  my_items: {
+    page: "my_items",
+    titleKey: "myObjects.title",
+    descriptionKey: "myObjects.subtitle",
+    sections: [
+      {
+        id: "quick_actions",
+        titleKey: "nav.quickNav",
+        items: [
+          { id: "my-items-add", labelKey: "myObjects.addNew", icon: "plus", href: "/objects/new" },
+          { id: "my-items-browse", labelKey: "objects.browseAll", icon: "search", href: "/objects" },
+          { id: "my-items-matching", labelKey: "nav.analyzeMatches", icon: "sparkles", href: "/matching" },
+        ],
+      },
+      {
+        id: "status",
+        titleKey: "myObjects.insights",
+        items: [
+          { id: "my-items-history", labelKey: "history.title", icon: "checklist", href: "/history" },
+          { id: "my-items-profile", labelKey: "profile.title", icon: "users", href: "/profile" },
+        ],
+      },
+    ],
+  },
+  item_detail: {
+    page: "item_detail",
+    titleKey: "objectDetail.detailsAndActions",
+    sections: [
+      {
+        id: "quick_actions",
+        titleKey: "nav.quickNav",
+        items: [
+          { id: "item-detail-back", labelKey: "objectDetail.backToObjects", icon: "search", href: "/objects" },
+          { id: "item-detail-match", labelKey: "objectDetail.requestMatch", icon: "sparkles", href: "/matching" },
+          { id: "item-detail-messages", labelKey: "nav.messages", icon: "message", href: "/messages" },
+        ],
+      },
+      {
+        id: "page_context",
+        titleKey: "nav.info",
+        items: [
+          { id: "item-detail-owner-profile", labelKey: "objectDetail.owner", icon: "users", href: "/profile" },
+          { id: "item-detail-safety", labelKey: "legal.safetyTitle", icon: "shield", href: "/safety" },
+        ],
+      },
+    ],
+  },
+  item_editor: {
+    page: "item_editor",
+    titleKey: "objectNew.title",
+    descriptionKey: "objectNew.description",
+    sections: [
+      {
+        id: "page_context",
+        titleKey: "objectWizard.step5Title",
+        items: [
+          { id: "editor-my-items", labelKey: "myObjects.title", icon: "activity", href: "/my-objects" },
+          { id: "editor-browse", labelKey: "objects.browseAll", icon: "search", href: "/objects" },
+        ],
+      },
+      {
+        id: "quick_actions",
+        titleKey: "nav.info",
+        items: [
+          { id: "editor-profile", labelKey: "profile.localization", icon: "map", href: "/profile?tab=profil" },
+          { id: "editor-rules", labelKey: "legal.termsTitle", icon: "book", href: "/terms" },
+          { id: "editor-safety", labelKey: "legal.safetyTitle", icon: "shield", href: "/safety" },
+        ],
       },
     ],
   },
@@ -103,19 +225,22 @@ export const contextualDrawerConfigs: Record<ContextualDrawerPage, ContextualDra
         id: "filters",
         titleKey: "common.search",
         items: [
-          { id: "property-search", labelKey: "common.search", icon: "search" },
-          { id: "property-map", labelKey: "nav.searchOnMap", icon: "map" },
+          { id: "property-list", labelKey: "branches.properties", icon: "search", href: "/properties" },
+          { id: "property-map", labelKey: "nav.searchOnMap", icon: "map", href: "/explore?type=property" },
         ],
       },
       {
         id: "quick_actions",
         titleKey: "nav.quickNav",
-        items: [{ id: "add-property", labelKey: "common.add", icon: "plus", disabled: true }],
+        items: [
+          { id: "add-property", labelKey: "common.add", icon: "plus", href: "/properties/new" },
+          { id: "property-profile", labelKey: "profile.propertiesAndServices", icon: "home", href: "/profile?tab=proprietati" },
+        ],
       },
       {
-        id: "ai_recommendations",
-        titleKey: "common.recommendedNextStep",
-        items: [{ id: "property-ai-match", labelKey: "nav.analyzeMatches", icon: "sparkles" }],
+        id: "status",
+        titleKey: "common.nextStep",
+        items: [{ id: "property-match", labelKey: "nav.analyzeMatches", icon: "sparkles", href: "/matching" }],
       },
     ],
   },
@@ -128,19 +253,22 @@ export const contextualDrawerConfigs: Record<ContextualDrawerPage, ContextualDra
         id: "filters",
         titleKey: "common.search",
         items: [
-          { id: "service-search", labelKey: "common.search", icon: "search" },
-          { id: "service-remote-local", labelKey: "common.apply", icon: "sliders" },
+          { id: "service-list", labelKey: "branches.services", icon: "search", href: "/services" },
+          { id: "service-explore", labelKey: "nav.explore", icon: "map", href: "/explore?type=service" },
         ],
       },
       {
         id: "quick_actions",
         titleKey: "nav.quickNav",
-        items: [{ id: "add-service", labelKey: "common.add", icon: "plus", disabled: true }],
+        items: [
+          { id: "add-service", labelKey: "common.add", icon: "plus", href: "/services/new" },
+          { id: "service-profile", labelKey: "profile.propertiesAndServices", icon: "users", href: "/profile?tab=proprietati" },
+        ],
       },
       {
-        id: "ai_recommendations",
-        titleKey: "common.recommendedNextStep",
-        items: [{ id: "service-ai-match", labelKey: "nav.analyzeMatches", icon: "sparkles" }],
+        id: "status",
+        titleKey: "common.nextStep",
+        items: [{ id: "service-match", labelKey: "nav.analyzeMatches", icon: "sparkles", href: "/matching" }],
       },
     ],
   },
@@ -153,19 +281,19 @@ export const contextualDrawerConfigs: Record<ContextualDrawerPage, ContextualDra
         id: "filters",
         titleKey: "common.search",
         items: [
-          { id: "event-search", labelKey: "common.search", icon: "search" },
-          { id: "event-date", labelKey: "common.next", icon: "calendar" },
+          { id: "event-list", labelKey: "branches.events", icon: "search", href: "/events" },
+          { id: "event-explore", labelKey: "nav.explore", icon: "calendar", href: "/explore?type=event" },
         ],
       },
       {
         id: "quick_actions",
         titleKey: "nav.quickNav",
-        items: [{ id: "add-event", labelKey: "common.add", icon: "plus", disabled: true }],
+        items: [{ id: "add-event", labelKey: "common.add", icon: "plus", href: "/events/new" }],
       },
       {
-        id: "ai_recommendations",
-        titleKey: "common.recommendedNextStep",
-        items: [{ id: "event-ai-match", labelKey: "nav.analyzeMatches", icon: "sparkles" }],
+        id: "status",
+        titleKey: "common.nextStep",
+        items: [{ id: "event-match", labelKey: "nav.analyzeMatches", icon: "sparkles", href: "/matching" }],
       },
     ],
   },
@@ -260,38 +388,31 @@ export const contextualDrawerConfigs: Record<ContextualDrawerPage, ContextualDra
       {
         id: "page_context",
         titleKey: "nav.info",
-        items: [{ id: "blog-guides", labelKey: "blog.allArticles", icon: "book" }],
+        items: [{ id: "blog-guides", labelKey: "blog.allArticles", icon: "book", href: "/blog" }],
       },
       {
         id: "quick_actions",
         titleKey: "nav.quickNav",
-        items: [{ id: "blog-search", labelKey: "common.search", icon: "search" }],
-      },
-      {
-        id: "ai_recommendations",
-        titleKey: "common.recommendedNextStep",
-        items: [{ id: "blog-related", labelKey: "common.nextStep", icon: "sparkles" }],
+        items: [{ id: "blog-stories", labelKey: "info.successStories", icon: "users", href: "/stories" }],
       },
     ],
   },
   stories: {
     page: "stories",
-    titleKey: "home.announcements",
+    titleKey: "info.successStories",
     sections: [
       {
         id: "page_context",
         titleKey: "nav.info",
-        items: [{ id: "stories-context", labelKey: "home.announcements", icon: "users" }],
+        items: [
+          { id: "stories-list", labelKey: "info.successStories", icon: "users", href: "/stories" },
+          { id: "stories-blog", labelKey: "blog.pageTitle", icon: "book", href: "/blog" },
+        ],
       },
       {
         id: "quick_actions",
         titleKey: "nav.quickNav",
-        items: [{ id: "stories-safety", labelKey: "legal.safetyTitle", icon: "shield" }],
-      },
-      {
-        id: "ai_recommendations",
-        titleKey: "common.recommendedNextStep",
-        items: [{ id: "stories-ai", labelKey: "common.nextStep", icon: "sparkles" }],
+        items: [{ id: "stories-safety", labelKey: "legal.safetyTitle", icon: "shield", href: "/safety" }],
       },
     ],
   },
