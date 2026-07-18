@@ -40,7 +40,19 @@ jobs:
         run: npm run lint & npm run typecheck & wait
 
       - name: Verify all 43 locale catalogues
-        run: npm run i18n:check
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run i18n:check 2>&1 | tee i18n-contract-results.txt
+
+      - name: Upload i18n contract results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: i18n-contract-results
+          path: i18n-contract-results.txt
+          if-no-files-found: warn
+          retention-days: 14
 
   test:
     name: Unit Tests
