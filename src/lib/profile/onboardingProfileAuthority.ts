@@ -49,6 +49,11 @@ function isStaleRevisionError(error: unknown): boolean {
   return errorCode(error) === "40001" || /stale profile revision/i.test(errorMessage(error));
 }
 
+function isMissingProfileError(error: unknown): boolean {
+  return errorCode(error) === "PGRST116"
+    || /0 rows|no rows|json object requested, multiple \(or no\) rows returned/i.test(errorMessage(error));
+}
+
 export function sanitizeOnboardingProfilePayload(input: unknown): Record<string, unknown> {
   if (!input || typeof input !== "object" || Array.isArray(input)) {
     throw new OnboardingProfileAuthorityError(
@@ -87,6 +92,7 @@ function buildIdempotencyKey(prefix: string, revision: number): string {
 async function readOwnProfileRevision(
   supabase: SupabaseClient,
   userId: string,
+  allowBootstrap = true,
 ): Promise<number> {
   const { data, error } = await supabase
     .from("profiles")
@@ -95,6 +101,18 @@ async function readOwnProfileRevision(
     .single();
 
   if (error) {
+    if (allowBootstrap && isMissingProfileError(error)) {
+      const { error: bootstrapError } = await supabase.rpc("ensure_own_profile_v1", {
+        p_requested_locale: null,
+      });
+      if (bootstrapError) {
+        throw new OnboardingProfileAuthorityError(
+          errorCode(bootstrapError),
+          errorMessage(bootstrapError),
+        );
+      }
+      return readOwnProfileRevision(supabase, userId, false);
+    }
     throw new OnboardingProfileAuthorityError(errorCode(error), errorMessage(error));
   }
 
@@ -144,7 +162,7 @@ export async function updateOnboardingProfileWithAuthority(options: {
     }
 
     if (attempt === 0 && isStaleRevisionError(error)) {
-      revision = await readOwnProfileRevision(options.supabase, options.userId);
+      revision = await readOwnProfileRevision(options.supabase, options.userId, false);
       continue;
     }
 
