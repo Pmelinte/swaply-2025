@@ -172,16 +172,16 @@ begin
 
   if exists (
     select 1
-    from jsonb_array_elements_text(coalesce(p_payload -> 'swap_context', '[]'::jsonb)) as values(value)
-    where values.value not in ('permanent', 'vacation', 'temporary', 'urgent')
+    from jsonb_array_elements_text(coalesce(p_payload -> 'swap_context', '[]'::jsonb)) as contexts(value)
+    where contexts.value not in ('permanent', 'vacation', 'temporary', 'urgent')
   ) then
     raise exception using errcode = '22023', message = 'Unsupported swap context.';
   end if;
 
   if exists (
     select 1
-    from jsonb_array_elements_text(coalesce(p_payload -> 'open_to_types', '[]'::jsonb)) as values(value)
-    where values.value not in ('object', 'property', 'service', 'event')
+    from jsonb_array_elements_text(coalesce(p_payload -> 'open_to_types', '[]'::jsonb)) as asset_types(value)
+    where asset_types.value not in ('object', 'property', 'service', 'event')
   ) then
     raise exception using errcode = '22023', message = 'Unsupported open-to type.';
   end if;
@@ -255,8 +255,8 @@ begin
 
     v_languages := '{}'::text[];
     for v_language in
-      select values.value
-      from jsonb_array_elements_text(p_payload -> 'languages') as values(value)
+      select language_items.value
+      from jsonb_array_elements_text(p_payload -> 'languages') as language_items(value)
     loop
       v_normalized_language := public.normalize_swaply_locale(v_language);
       if v_normalized_language is null then
