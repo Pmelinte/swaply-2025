@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import { locales, type Locale } from "@/i18n/config";
+import { getLocaleDirection } from "@/i18n/direction";
 import { Providers } from "./providers";
 import { TopBar } from "@/components/layout/TopBar";
 import { BranchBar } from "@/components/layout/BranchBar";
@@ -105,14 +106,20 @@ export default async function LocaleLayout({ children, params }: Props) {
     notFound();
   }
 
+  const canonicalLocale = locale as Locale;
+
   // Enable static rendering for this locale
-  setRequestLocale(locale);
+  setRequestLocale(canonicalLocale);
 
   // Load messages server-side
   const messages = await getMessages();
 
   return (
-    <html lang={locale} suppressHydrationWarning>
+    <html
+      lang={canonicalLocale}
+      dir={getLocaleDirection(canonicalLocale)}
+      suppressHydrationWarning
+    >
       <head>
         <link rel="preconnect" href="https://maps.googleapis.com" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -149,9 +156,9 @@ export default async function LocaleLayout({ children, params }: Props) {
               prerender: [
                 {
                   urls: [
-                    `/${locale}/objects`,
-                    `/${locale}/login`,
-                    `/${locale}/register`,
+                    `/${canonicalLocale}/objects`,
+                    `/${canonicalLocale}/login`,
+                    `/${canonicalLocale}/register`,
                   ],
                   eagerness: "moderate",
                 },
@@ -178,8 +185,8 @@ export default async function LocaleLayout({ children, params }: Props) {
         suppressHydrationWarning
         className="bg-gradient-to-br from-zinc-50 to-blue-50 text-zinc-900 antialiased font-sans dark:from-zinc-950 dark:to-slate-900 dark:text-zinc-50"
       >
-        <NextIntlClientProvider locale={locale} messages={messages}>
-          <Providers locale={locale}>
+        <NextIntlClientProvider locale={canonicalLocale} messages={messages}>
+          <Providers locale={canonicalLocale}>
             <TopBar />
             <BranchBar />
             <ContextBar />
