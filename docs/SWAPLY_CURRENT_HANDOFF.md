@@ -1,179 +1,164 @@
 # Swaply — Current Project Handoff
 
-**Last updated:** 2026-07-16
+**Last updated:** 2026-07-18  
+**Repository:** `Pmelinte/swaply-2025`  
+**Production:** `https://www.swaply.world`
 
 ## Status
 
 - Train A: `CLOSED`.
 - Train B: `CLOSED`.
-- Train C: `CLOSED` after C5 cumulative audit and closure documentation.
-- C1: `CLOSED`.
-- C2: `CLOSED`.
-- C3: `CLOSED`.
-- C4: `CLOSED`.
-- C5: `PASS — CLOSURE PR OPEN`.
-- Milestone reached: `CLOSED_BETA_READY_OBJECTS_ONE_TO_ONE`.
-- Train D: `PLANNED`; it starts only after the C5 closure PR passes CI/Preview and is explicitly merged.
-- Train E is terminal for v1; there is no Train F.
-
-## Rules
-
-- Swaply remains global-first across Objects, Properties, Services and Events.
-- Global navigation and contextual drawers remain separate.
-- Blog and Stories remain separate.
-- Swapleni and trust rank remain separate.
-- AI is advisory and requires fallback.
-- Private data stays protected.
-- Historical migrations are never rewritten; every database change uses a new migration.
-- Merge only after Petru gives the exact `Merge #...` command.
-- After merge verify GitHub CI, Vercel Production, runtime and database evidence.
+- Train C: `CLOSED`.
+- Train C milestone: `CLOSED_BETA_READY_OBJECTS_ONE_TO_ONE`.
+- Train D: `ACTIVE`.
+- Current Train D deliverable: `D1 — global-first profile and common infrastructure`.
+- Current batch: `65 — profile audit and public/private contract`.
+- Batch 65 remains active after the current projection unit.
+- Train E remains the terminal Train for v1.0; there is no Train F.
 
 ## Current checkpoint
 
-- Repository: `Pmelinte/swaply-2025`.
-- Audited `main`: `67081c613d49f7c6605525c5d438d349b59b6247`.
-- Production: `https://www.swaply.world`.
-- Active closure branch: `agent/batch-64-c5-train-c-closure`.
-- Batch 64 introduces no database migration and no new product behavior.
-- Batch 64 adds the final Train C closure report and reconciles canonical status documentation.
-- Train C closure report: `docs/TRAIN_C_CLOSURE_REPORT.md`.
+- Verified `main` before this PR: `5adb2557e8f71152453c2a336f144537d8598093`.
+- Active branch: `agent/batch-65-4-public-profile-projection`.
+- Active PR: `#479 — Batch 65.4: Minimize public profile projection`.
+- Supabase Production project: `keaejxlwqtjjglijiplh`, status `ACTIVE_HEALTHY`.
+- Current Vercel Production deployment for `main`: `READY`.
+- The exact final PR head must still pass CI and Preview before automatic merge.
 
-## Train C summary
+## Execution authorization
 
-Train C delivered the real one-to-one exchange engine for Objects:
+Petru gave standing explicit authorization for Train D Autopilot, Batch 65 through Batch 92. Under this authorization, each small PR may be merged automatically only after all critical repository, Preview, Production, runtime, security and migration-parity gates are green.
 
-`Profile → Object → Wanted/Favorite → Express Interest → Match → Chat → Bilateral Agreement → Create Exchange → Logistics → Bilateral Completion → Review`
+The Autopilot must stop for:
 
-It also delivered controlled lifecycle branches for cancellation, dispute, report and block.
+- P0/P1;
+- risk of data loss or destructive migration;
+- new paid service, subscription or cost;
+- missing access;
+- a major ambiguous product decision.
 
-## C1 — Explicit Exchange handoff
+Only one batch unit and one PR may be active at a time.
 
-C1 closed the Batch 60 sequence and demonstrated:
+## Permanent product rules
 
-- zero Exchange before the explicit user action;
-- exactly one Exchange after the explicit action;
-- the same Exchange ID for both participants;
-- retry without duplicates;
-- bilateral agreement revision checks;
-- consistent Match–conversation–Exchange links;
-- zero unintended token, reputation, item or notification effects;
-- immutable-ID cleanup.
+- Swaply is global-first across Objects, Properties, Services and Events.
+- Global navigation and contextual drawers remain separate.
+- Blog and Stories remain separate.
+- Swapleni and trust rank remain separate.
+- AI is advisory, human-controlled and has a non-AI fallback.
+- Private profiles, messages, exact location, Story consent and ledgers remain protected.
+- Historical migrations are never rewritten; corrections use new forward-only migrations.
+- Repository and Supabase Production migration histories must remain aligned.
+- After every merge, verify GitHub CI, Vercel Production, critical routes, runtime logs and Supabase health/parity.
 
-Evidence: `docs/batch-60-4-validation-closure.md`.
+## Train C closure summary
 
-## C2 — Canonical lifecycle
+Train C delivered and verified the complete one-to-one Objects lifecycle:
 
-C2 established:
+`Profile → Object → Wanted/Favorite → Interest → Match → Chat → Bilateral Agreement → Explicit Exchange → Logistics → Bilateral Completion → Review`
 
-- one server-side transition authority;
-- expected-state CAS and stale-state denial;
-- participant-only mutation authority and outsider denial;
-- immutable Swap identity;
-- bilateral completion;
-- exactly-once structural effects;
-- controlled item locking and release;
-- persistence and immutable-ID cleanup.
+It also delivered controlled cancellation, dispute, report and block paths with participant authorization, stale-state protection, idempotency, concurrency evidence, exactly-once effects and immutable-ID cleanup.
 
-Evidence:
+Closure evidence: `docs/TRAIN_C_CLOSURE_REPORT.md`.
 
-- `docs/batch-61-2-single-transition-authority.md`;
-- `docs/batch-61-4-authenticated-completion-validation.md`.
+## Train D / Batch 65 progress
 
-## C3 — Feedback and post-completion effects
+### Batch 65.2 — profile compatibility bridge
 
-C3 delivered:
+Merged and live. Profile and onboarding persistence try the canonical owner RPCs first and use the legacy direct owner path only when the specific RPC is genuinely absent.
 
-- one canonical Review authority;
-- participant-only and immutable Reviews;
-- controlled response by the reviewed participant;
-- idempotent replay;
-- `+30` Swapleni per participant after canonical completion;
-- deduplicated notifications;
-- exactly-once counters and trust recalculation;
-- Realtime synchronization;
-- authenticated two-user closure and cleanup.
+### Batch 65.3 — revisioned profile authority
 
-Historical completed Swaps before the canonical cutover were intentionally not backfilled.
+Merged through PR #478 and verified in Production.
 
-Evidence:
+Delivered:
 
-- `docs/batch-62-1-canonical-review-authority.md`;
-- `docs/batch-62-2-post-completion-effects.md`;
-- `docs/batch-62-3-authenticated-c3-closure.md`.
+- canonical primary, secondary and tertiary languages;
+- automatic-translation and show-original preferences;
+- all 43 application locales supported by the profile authority;
+- deterministic profile bootstrap and historical missing-profile repair;
+- revisioned CAS owner updates;
+- idempotent replay and conflict denial;
+- concurrent same-profile update serialization;
+- explicit ownership, grants and search paths.
 
-## C4 — Safety lifecycle
+Production evidence:
 
-### Cancellation
+- Auth users: `1,077`;
+- profile rows: `1,077`;
+- missing profiles: `0` after repairing `120` historical users;
+- null primary languages: `0`;
+- unsupported locales: `0`;
+- duplicate canonical language selections: `0`;
+- invalid revisions: `0`.
 
-Canonical cancellation is participant-only, atomic and exactly once. It validates expected status and reason, reactivates only the affected items, removes incomplete completion confirmations, closes the linked conversation, applies the allowed trust/counter effects and sends deduplicated notifications.
+Production migrations:
 
-Evidence: `docs/batch-63-1-cancel-authority.md`.
+- `20260718180005_batch_65_3_profile_authority_activation`;
+- `20260718180050_batch_65_3_profile_authority_concurrency_hardening`.
 
-### Disputes
+### Batch 65.4 — privacy-minimized profile projection
 
-Canonical dispute opening, evidence and moderator resolution are atomic and exactly once. The global Swap remains terminal `disputed`; local resolution outcomes do not rewrite that terminal state. Direct writes are blocked, locks are cleaned at resolution and only an explicitly responsible participant receives the defined trust consequence.
+Production migrations are applied and authenticated privacy verification passes. The PR remains open until the final head passes CI and Vercel Preview.
 
-Evidence: `docs/batch-63-2-dispute-authority.md`.
+Delivered:
 
-### Reports and blocks
+- explicit `public_profiles.is_public` marker;
+- public discovery separated from private participant identity;
+- biography, interests, affinity groups, occupation, website and social links exposed only after explicit opt-in;
+- public location limited to city and country;
+- no exact coordinates, address or postal data in the projection;
+- private-profile identity allowed only for self, admin/moderator or a real Match, conversation or Swap relationship;
+- anonymous and unrelated authenticated users denied private rows;
+- raw counterparty profile remains denied;
+- relationship predicate moved to the non-exposed `private` schema;
+- direct authenticated owner UPDATE retained temporarily as the zero-downtime compatibility path.
 
-`public.reports` and `public.blocked_users` are the canonical safety sources. Report submission is authenticated, validated, rate-limited and side-effect free before moderation. Moderator resolution is atomic. Block/unblock is authenticated, private and idempotent, prevents future bilateral contact and preserves historical evidence.
+Production migrations:
 
-Evidence: `docs/batch-63-3-report-block-authority.md`.
+- `20260718185820_batch_65_4_public_profile_projection`;
+- `20260718194451_batch_65_4_private_profile_identity_predicate`.
 
-### Integration closure
+Production evidence:
 
-Authenticated Production integration demonstrated:
+- profile rows: `1,077`;
+- projection rows: `1,077`;
+- biographies exposed without opt-in: `0`;
+- occupations exposed without opt-in: `0`;
+- websites exposed without opt-in: `0`;
+- social links exposed without opt-in: `0`;
+- projected locations containing exact-coordinate, address or postal keys: `0`;
+- anonymous private-profile read: denied;
+- unrelated authenticated private-profile read: denied;
+- legitimate participant minimized identity read: allowed;
+- raw counterparty profile read: denied;
+- owner raw profile and own private projection read: allowed;
+- rollback audit restored all tested values and counts exactly.
 
-- `cancelled` and `disputed` are mutually exclusive terminal branches;
-- stale cross-branch attempts are rejected;
-- block prevents new interests, conversations, messages and Swaps;
-- block does not prevent cancellation, dispute, evidence or moderator resolution for an existing Swap;
-- historical messages remain stored;
-- raw reports do not transition Swaps, alter trust, increment counters, suspend users, block users, notify targets, award Swapleni or create Reviews;
-- a real same-second cancel-versus-dispute race produced one winner and no mixed effects;
-- exact cleanup restored fixtures, items, profiles, workers and cron state.
+Detailed evidence: `docs/batch-65-4-public-profile-projection.md`.
 
-Evidence: `docs/batch-63-4-c4-integration-closure.md`.
+## Current risk boundary
 
-## C5 — Final cumulative audit
+No open P0/P1 was found in Batch 65.4.
 
-C5 confirmed cumulatively:
+Known deliberate compatibility boundary:
 
-- canonical repository head and merged C4 closure;
-- required GitHub checks green on the audited head;
-- Vercel Production `READY`;
-- critical Production route HTTP `200`;
-- no relevant Vercel runtime `error`, `warning` or `fatal` entries in the inspected window;
-- Supabase Production `ACTIVE_HEALTHY`;
-- complete Train C migration chain, including follow-up fixes and indexes;
-- one canonical lifecycle and immutable identity;
-- reload persistence and Realtime evidence;
-- participant authorization and outsider denial;
-- idempotency and stale-state rejection;
-- real concurrent-session serialization;
-- exactly-once Reviews, rewards, notifications and trust effects;
-- zero orphan or duplicate canonical effects;
-- zero self-blocks or duplicate block pairs;
-- zero mixed cancelled/disputed terminal states;
-- zero residual Batch 63 cron jobs or temporary workers;
-- zero nonconforming canonical completions after cutover;
-- immutable-ID cleanup and restoration.
+- authenticated owners still possess the historical direct `UPDATE` path on `public.profiles`;
+- the application already prefers the canonical revisioned RPC;
+- revocation must occur only after browser persistence, onboarding, stale-revision behavior and recovery are proven on the final Production path.
 
-Detailed evidence: `docs/TRAIN_C_CLOSURE_REPORT.md`.
-
-## Train C closure verdict
-
-- C5: `PASS`.
-- Critical failures: `0`.
-- Residual audit artifacts: `0`.
-- Train C: `CLOSED` once this closure PR is explicitly merged.
-- Milestone: `CLOSED_BETA_READY_OBJECTS_ONE_TO_ONE`.
+Pre-existing advisor items not introduced by Batch 65.4 remain tracked separately, including leaked-password protection being disabled and one older mutable function search path. They do not change the current projection verdict but must be reconciled no later than the Train D security closure.
 
 ## Next mandatory action
 
-1. Let the Batch 64 closure PR run all required GitHub CI and Vercel Preview checks.
-2. Do not merge automatically.
-3. Merge only after Petru gives the exact command `Merge #...`.
-4. After merge, verify GitHub CI, Vercel Production, runtime logs and the final repository checkpoint.
-5. Then begin Train D with D1: global-first profile, languages/fallback, media and approximate location.
+Complete only the current Batch 65.4 PR:
+
+1. pass Unit Tests, Lint & Type Check, Build and Public Visual Audit on the exact final head;
+2. verify the exact Vercel Preview is `READY`;
+3. verify Preview routes and warning/error/fatal runtime logs;
+4. recheck Supabase security/performance advisors and migration parity;
+5. merge PR #479 only when every critical gate is green;
+6. verify post-merge GitHub CI, Vercel Production, critical routes, runtime logs and Supabase health/parity;
+7. then begin the next incomplete Batch 65 unit, without opening an overlapping PR.
+
+The next Batch 65 unit must close the remaining owner-write compatibility boundary and complete the profile contract evidence before Batch 66 begins.
