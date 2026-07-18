@@ -3,6 +3,7 @@
 -- The migration expands the existing owner RPC to cover every onboarding-owned
 -- profile field, then removes direct authenticated INSERT/UPDATE access to the
 -- base profile table. Existing rows and public read projections are preserved.
+-- Existing validation, idempotency and concurrency guarantees remain intact.
 
 begin;
 
@@ -50,12 +51,15 @@ begin
   if v_user_id is null then
     raise exception using errcode = '42501', message = 'Authentication required.';
   end if;
+
   if p_expected_revision is null or p_expected_revision < 1 then
     raise exception using errcode = '22023', message = 'A positive expected revision is required.';
   end if;
+
   if jsonb_typeof(p_payload) is distinct from 'object' then
     raise exception using errcode = '22023', message = 'Profile payload must be a JSON object.';
   end if;
+
   if p_idempotency_key is null
     or char_length(p_idempotency_key) not between 8 and 120
     or p_idempotency_key !~ '^[A-Za-z0-9._:-]+$'
@@ -63,18 +67,131 @@ begin
     raise exception using errcode = '22023', message = 'Invalid idempotency key.';
   end if;
 
-  select key
+  select keys.key
   into v_unknown_key
-  from jsonb_object_keys(p_payload) as key
-  where not (key = any(v_allowed_keys))
+  from jsonb_object_keys(p_payload) as keys(key)
+  where not (keys.key = any(v_allowed_keys))
   limit 1;
+
   if v_unknown_key is not null then
     raise exception using
       errcode = '22023',
       message = format('Unsupported profile field: %s', v_unknown_key);
   end if;
 
+  if p_payload ? 'auto_translate_messages'
+    and jsonb_typeof(p_payload -> 'auto_translate_messages') <> 'boolean'
+  then
+    raise exception using errcode = '22023', message = 'auto_translate_messages must be boolean.';
+  end if;
+
+  if p_payload ? 'show_original_language'
+    and jsonb_typeof(p_payload -> 'show_original_language') <> 'boolean'
+  then
+    raise exception using errcode = '22023', message = 'show_original_language must be boolean.';
+  end if;
+
+  if p_payload ? 'onboarding_completed'
+    and jsonb_typeof(p_payload -> 'onboarding_completed') <> 'boolean'
+  then
+    raise exception using errcode = '22023', message = 'onboarding_completed must be boolean.';
+  end if;
+
+  if p_payload ? 'username'
+    and nullif(btrim(p_payload ->> 'username'), '') is null
+  then
+    raise exception using errcode = '22023', message = 'Username cannot be empty.';
+  end if;
+
+  if p_payload ? 'user_type'
+    and (p_payload ->> 'user_type') not in ('individual', 'professional', 'organization')
+  then
+    raise exception using errcode = '22023', message = 'Unsupported user_type.';
+  end if;
+
+  if p_payload ? 'availability_status'
+    and (p_payload ->> 'availability_status') not in ('available', 'limited', 'away')
+  then
+    raise exception using errcode = '22023', message = 'Unsupported availability_status.';
+  end if;
+
+  if p_payload ? 'timezone'
+    and nullif(btrim(p_payload ->> 'timezone'), '') is null
+  then
+    raise exception using errcode = '22023', message = 'Timezone cannot be empty.';
+  end if;
+
+  if p_payload ? 'address_country'
+    and nullif(btrim(p_payload ->> 'address_country'), '') is not null
+    and btrim(p_payload ->> 'address_country') !~ '^[A-Za-z]{2}$'
+  then
+    raise exception using errcode = '22023', message = 'Country must be an ISO 3166-1 alpha-2 code.';
+  end if;
+
+  if p_payload ? 'swap_geo_range'
+    and (p_payload ->> 'swap_geo_range') not in ('local', 'regional', 'international', 'vacation')
+  then
+    raise exception using errcode = '22023', message = 'Unsupported swap_geo_range.';
+  end if;
+
+  if p_payload ? 'swap_intent'
+    and (p_payload ->> 'swap_intent') not in ('exploring', 'open', 'clear', 'serious')
+  then
+    raise exception using errcode = '22023', message = 'Unsupported swap_intent.';
+  end if;
+
+  if p_payload ? 'languages'
+    and jsonb_typeof(p_payload -> 'languages') <> 'array'
+  then
+    raise exception using errcode = '22023', message = 'Languages must be an array.';
+  end if;
+
+  if p_payload ? 'swap_context'
+    and jsonb_typeof(p_payload -> 'swap_context') <> 'array'
+  then
+    raise exception using errcode = '22023', message = 'Swap context must be an array.';
+  end if;
+
+  if p_payload ? 'open_to_types'
+    and jsonb_typeof(p_payload -> 'open_to_types') <> 'array'
+  then
+    raise exception using errcode = '22023', message = 'Open-to types must be an array.';
+  end if;
+
+  if p_payload ? 'affinity_groups'
+    and jsonb_typeof(p_payload -> 'affinity_groups') <> 'array'
+  then
+    raise exception using errcode = '22023', message = 'Affinity groups must be an array.';
+  end if;
+
+  if p_payload ? 'interests'
+    and jsonb_typeof(p_payload -> 'interests') <> 'array'
+  then
+    raise exception using errcode = '22023', message = 'Interests must be an array.';
+  end if;
+
+  if exists (
+    select 1
+    from jsonb_array_elements_text(coalesce(p_payload -> 'swap_context', '[]'::jsonb)) as values(value)
+    where values.value not in ('permanent', 'vacation', 'temporary', 'urgent')
+  ) then
+    raise exception using errcode = '22023', message = 'Unsupported swap context.';
+  end if;
+
+  if exists (
+    select 1
+    from jsonb_array_elements_text(coalesce(p_payload -> 'open_to_types', '[]'::jsonb)) as values(value)
+    where values.value not in ('object', 'property', 'service', 'event')
+  ) then
+    raise exception using errcode = '22023', message = 'Unsupported open-to type.';
+  end if;
+
   v_request_hash := md5(p_expected_revision::text || ':' || p_payload::text);
+
+  perform pg_catalog.pg_advisory_xact_lock(
+    pg_catalog.hashtextextended(v_user_id::text || ':' || p_idempotency_key, 0)
+  );
+
   select *
   into v_existing
   from public.profile_update_idempotency
@@ -87,13 +204,17 @@ begin
         errcode = '23505',
         message = 'Idempotency key was already used with a different request.';
     end if;
-    select * into strict v_current
+
+    select *
+    into strict v_current
     from public.profiles
     where user_id = v_user_id;
+
     return jsonb_build_object(
       'profile', to_jsonb(v_current),
       'profile_revision', v_current.profile_revision,
-      'replayed', true
+      'replayed', true,
+      'idempotent_result_revision', v_existing.response_revision
     );
   end if;
 
@@ -105,7 +226,8 @@ begin
 
   if not found then
     perform public.ensure_own_profile_v1(null);
-    select * into strict v_current
+    select *
+    into strict v_current
     from public.profiles
     where user_id = v_user_id
     for update;
@@ -122,9 +244,6 @@ begin
   end if;
 
   if p_payload ? 'languages' then
-    if jsonb_typeof(p_payload -> 'languages') <> 'array' then
-      raise exception using errcode = '22023', message = 'Languages must be an array.';
-    end if;
     if p_payload ? 'primary_language'
       or p_payload ? 'secondary_language'
       or p_payload ? 'tertiary_language'
@@ -136,12 +255,16 @@ begin
 
     v_languages := '{}'::text[];
     for v_language in
-      select value from jsonb_array_elements_text(p_payload -> 'languages')
+      select values.value
+      from jsonb_array_elements_text(p_payload -> 'languages') as values(value)
     loop
       v_normalized_language := public.normalize_swaply_locale(v_language);
-      if v_normalized_language is not null
-        and not (v_normalized_language = any(v_languages))
-      then
+      if v_normalized_language is null then
+        raise exception using
+          errcode = '22023',
+          message = format('Unsupported language: %s', v_language);
+      end if;
+      if not (v_normalized_language = any(v_languages)) then
         v_languages := array_append(v_languages, v_normalized_language);
       end if;
     end loop;
@@ -220,27 +343,6 @@ begin
       message = 'Profile JSON fields must be objects.';
   end if;
 
-  if p_payload ? 'swap_context'
-    and jsonb_typeof(p_payload -> 'swap_context') <> 'array'
-  then
-    raise exception using errcode = '22023', message = 'Swap context must be an array.';
-  end if;
-  if p_payload ? 'open_to_types'
-    and jsonb_typeof(p_payload -> 'open_to_types') <> 'array'
-  then
-    raise exception using errcode = '22023', message = 'Open-to types must be an array.';
-  end if;
-  if p_payload ? 'affinity_groups'
-    and jsonb_typeof(p_payload -> 'affinity_groups') <> 'array'
-  then
-    raise exception using errcode = '22023', message = 'Affinity groups must be an array.';
-  end if;
-  if p_payload ? 'interests'
-    and jsonb_typeof(p_payload -> 'interests') <> 'array'
-  then
-    raise exception using errcode = '22023', message = 'Interests must be an array.';
-  end if;
-
   v_swap_context := case
     when p_payload ? 'swap_context'
       then array(select jsonb_array_elements_text(p_payload -> 'swap_context'))
@@ -265,7 +367,7 @@ begin
   update public.profiles
   set
     username = case
-      when p_payload ? 'username' then nullif(btrim(p_payload ->> 'username'), '')
+      when p_payload ? 'username' then btrim(p_payload ->> 'username')
       else username
     end,
     full_name = case
@@ -320,7 +422,7 @@ begin
       else availability_status
     end,
     timezone = case
-      when p_payload ? 'timezone' then nullif(btrim(p_payload ->> 'timezone'), '')
+      when p_payload ? 'timezone' then btrim(p_payload ->> 'timezone')
       else timezone
     end,
     date_of_birth = case
@@ -330,7 +432,7 @@ begin
     end,
     address_country = case
       when p_payload ? 'address_country'
-        then upper(nullif(btrim(p_payload ->> 'address_country'), ''))::char(2)
+        then upper(nullif(btrim(p_payload ->> 'address_country'), ''))
       else address_country
     end,
     address_city = case
@@ -355,7 +457,7 @@ begin
     end,
     onboarding_completed = case
       when p_payload ? 'onboarding_completed'
-        then onboarding_completed or (p_payload ->> 'onboarding_completed')::boolean
+        then coalesce(onboarding_completed, false) or (p_payload ->> 'onboarding_completed')::boolean
       else onboarding_completed
     end,
     onboarding_step = case
@@ -385,7 +487,8 @@ begin
   return jsonb_build_object(
     'profile', to_jsonb(v_updated),
     'profile_revision', v_updated.profile_revision,
-    'replayed', false
+    'replayed', false,
+    'idempotent_result_revision', v_updated.profile_revision
   );
 end;
 $function$;
