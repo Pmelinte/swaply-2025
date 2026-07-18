@@ -22,7 +22,7 @@
 - Batch 65.6 delivery branch: `batch-65-6-onboarding-profile-authority`.
 - Batch 65.6 delivery PR: `#481 — close onboarding profile write authority`.
 - Supabase Production project: `keaejxlwqtjjglijiplh`.
-- Batch 65.6 migration: `20260719010000_batch_65_6_onboarding_profile_authority_closure`.
+- Batch 65.6 migration: `20260718230811_batch_65_6_onboarding_profile_authority_closure`.
 - Final merge, Vercel Production, route, runtime-log and migration-parity evidence is recorded on PR #481 and in the corresponding Autopilot completion report.
 
 ## Execution authorization
@@ -145,7 +145,7 @@ Delivered:
 
 Production migration:
 
-- `20260719010000_batch_65_6_onboarding_profile_authority_closure`.
+- `20260718230811_batch_65_6_onboarding_profile_authority_closure`.
 
 ## Batch 65 closure contract
 
