@@ -19,10 +19,20 @@ describe("route to drawer variant resolver", () => {
     expect(getDrawerVariantForPathname("/en/events")).toEqual({ type: "contextual", page: "events" });
   });
 
-  it("maps legacy object routes to the objects contextual drawer", () => {
-    expect(getDrawerVariantForPathname("/items/item-one")).toEqual({ type: "contextual", page: "objects" });
-    expect(getDrawerVariantForPathname("/my-objects")).toEqual({ type: "contextual", page: "objects" });
+  it("maps profile and item subpages to specific drawers", () => {
+    expect(getDrawerVariantForPathname("/profile")).toEqual({ type: "contextual", page: "profile" });
+    expect(getDrawerVariantForPathname("/profile/analytics")).toEqual({ type: "contextual", page: "profile" });
+    expect(getDrawerVariantForPathname("/my-objects")).toEqual({ type: "contextual", page: "my_items" });
+    expect(getDrawerVariantForPathname("/objects/new")).toEqual({ type: "contextual", page: "item_editor" });
+    expect(getDrawerVariantForPathname("/objects/item-one/edit")).toEqual({ type: "contextual", page: "item_editor" });
+    expect(getDrawerVariantForPathname("/objects/item-one")).toEqual({ type: "contextual", page: "item_detail" });
+    expect(getDrawerVariantForPathname("/items/item-one")).toEqual({ type: "contextual", page: "item_detail" });
     expect(getDrawerVariantForPathname("/wishlist")).toEqual({ type: "contextual", page: "objects" });
+  });
+
+  it("keeps category and city pages in the objects list context", () => {
+    expect(getDrawerVariantForPathname("/objects/category/electronics")).toEqual({ type: "contextual", page: "objects" });
+    expect(getDrawerVariantForPathname("/objects/city/bucharest")).toEqual({ type: "contextual", page: "objects" });
   });
 
   it("maps workflow routes to their drawer variants", () => {

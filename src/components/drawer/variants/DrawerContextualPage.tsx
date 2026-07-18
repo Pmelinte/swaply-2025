@@ -101,7 +101,7 @@ export default function DrawerContextualPage({ page }: { page: ContextualDrawerP
                   const content = (
                     <>
                       <Icon className="h-4 w-4 shrink-0" />
-                      <span className="min-w-0 flex-1 truncate">{translateKey(t, item.labelKey)}</span>
+                      <span className="min-w-0 flex-1">{translateKey(t, item.labelKey)}</span>
                     </>
                   );
 

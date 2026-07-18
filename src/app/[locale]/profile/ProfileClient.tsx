@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
-import { CTAButton, NextStepRecommendation, SectionCard, StateShowcase } from "@/components/ui-custom";
+import { CTAButton, NextStepRecommendation, SectionCard } from "@/components/ui-custom";
 import { TrustProfileCard } from "@/components/trust/TrustProfileCard";
 import type { UserProfile } from "@/lib/types";
 import ProfileTab from "./_components/ProfileTab";
@@ -14,9 +15,33 @@ import AlertsTab from "./_components/AlertsTab";
 import NotificationSettingsTab from "./_components/NotificationSettingsTab";
 import { ProfileVerification } from "@/features/verification/ProfileVerification";
 
+type ProfileTabKey =
+  | "profil"
+  | "cont"
+  | "reputatie"
+  | "proprietati"
+  | "alerte"
+  | "notificari"
+  | "verificare";
+
+const PROFILE_TAB_KEYS: readonly ProfileTabKey[] = [
+  "profil",
+  "proprietati",
+  "cont",
+  "reputatie",
+  "alerte",
+  "notificari",
+  "verificare",
+];
+
+function isProfileTabKey(value: string | null): value is ProfileTabKey {
+  return value !== null && PROFILE_TAB_KEYS.includes(value as ProfileTabKey);
+}
+
 export function ProfileClient() {
   const t = useTranslations("profile");
   const tc = useTranslations("common");
+  const searchParams = useSearchParams();
   const {
     user, updateProfile, changeEmail, changePassword, deleteAccount, loading, lastError,
     achievements, shopItems, purchaseShopItem, exportUserData, accountStatus, pauseAccount, resumeAccount, tokenLedger,
@@ -27,20 +52,10 @@ export function ProfileClient() {
   const [draft, setDraft] = useState<UserProfile | null>(user);
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<ProfileTabKey>("profil");
+  const [loadingTimeout, setLoadingTimeout] = useState(false);
   const tss = useTranslations("savedSearches");
   const tn = useTranslations("notificationSettings");
-  const [activeTab, setActiveTab] = useState<"profil" | "cont" | "reputatie" | "proprietati" | "alerte" | "notificari" | "verificare">("profil");
-  const [loadingTimeout, setLoadingTimeout] = useState(false);
-
-  const profileTabs = [
-    { key: "profil" as const, label: t("title") },
-    { key: "proprietati" as const, label: t("propertiesAndServices") },
-    { key: "cont" as const, label: t("accountAndSettings") },
-    { key: "reputatie" as const, label: t("reputation") },
-    { key: "alerte" as const, label: tss("alertsTab") },
-    { key: "notificari" as const, label: tn("tabLabel") },
-    { key: "verificare" as const, label: t("verificationTitle") },
-  ];
 
   if (user && !draft) {
     setDraft(user);
@@ -55,6 +70,13 @@ export function ProfileClient() {
       return () => clearTimeout(timer);
     }
   }, [loading.profile]);
+
+  useEffect(() => {
+    const requestedTab = searchParams.get("tab");
+    if (isProfileTabKey(requestedTab)) {
+      setActiveTab(requestedTab);
+    }
+  }, [searchParams]);
 
   if (loading.auth) {
     return (
@@ -198,15 +220,6 @@ export function ProfileClient() {
           { label: t("badgeBenefits"), href: "/info#monetizare", description: t("badgeBenefitsDescription") },
         ]}
       />
-
-      <StateShowcase
-        title="PROFILE States"
-        states={[
-          { key: "loading", title: "Loading profile", description: "Placeholder skeleton for fields + badge visible until user payload arrives." },
-          { key: "empty", title: "Incomplete profile", description: "Warning for missing location and save CTA. Missing data does not block the page." },
-          { key: "error", title: "Save error", description: "Dedicated message + retry recommendation; form values are not lost." },
-        ]}
-      />
     </aside>
   );
 
@@ -239,26 +252,6 @@ export function ProfileClient() {
           <p className="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400">{t("completeProfileHint")}</p>
         )}
       </div>
-
-      <nav aria-label={t("profileNavigation")}>
-        <div className="flex flex-wrap gap-2">
-          {profileTabs.map((tab) => (
-            <button
-              key={tab.key}
-              type="button"
-              onClick={() => setActiveTab(tab.key)}
-              aria-current={activeTab === tab.key ? "page" : undefined}
-              className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
-                activeTab === tab.key
-                  ? "bg-blue-600 text-white"
-                  : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-      </nav>
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
         {activePanel}

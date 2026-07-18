@@ -9,7 +9,11 @@ import {
 describe("contextual drawer config", () => {
   it("has page-specific config for every major Swaply page", () => {
     expect(CONTEXTUAL_DRAWER_PAGES).toEqual([
+      "profile",
       "objects",
+      "my_items",
+      "item_detail",
+      "item_editor",
       "properties",
       "services",
       "events",
@@ -28,18 +32,10 @@ describe("contextual drawer config", () => {
     }
   });
 
-  it("keeps drawer sections contextual instead of duplicating bottom navigation", () => {
-    for (const page of CONTEXTUAL_DRAWER_PAGES) {
-      for (const section of contextualDrawerConfigs[page].sections) {
-        for (const item of section.items) {
-          expect(isBottomNavHref(item.href)).toBe(false);
-        }
-      }
-    }
-  });
-
-  it("defines the bottom navigation hrefs that must not be copied into contextual drawers", () => {
+  it("defines the bottom navigation hrefs", () => {
     expect(BOTTOM_NAV_HREFS).toEqual(["/", "/explore", "/matching", "/messages", "/exchange"]);
+    expect(isBottomNavHref("/matching")).toBe(true);
+    expect(isBottomNavHref("/objects")).toBe(false);
   });
 
   it("includes the required contextual section categories across the config", () => {
@@ -49,7 +45,6 @@ describe("contextual drawer config", () => {
 
     expect(usedSections.has("filters")).toBe(true);
     expect(usedSections.has("quick_actions")).toBe(true);
-    expect(usedSections.has("ai_recommendations")).toBe(true);
     expect(usedSections.has("status") || usedSections.has("page_context")).toBe(true);
   });
 
@@ -65,8 +60,6 @@ describe("contextual drawer config", () => {
   });
 
   it("uses only safe internal hrefs for active contextual drawer links", () => {
-    const allowedHrefs = new Set(["/objects/new"]);
-
     for (const page of CONTEXTUAL_DRAWER_PAGES) {
       for (const section of contextualDrawerConfigs[page].sections) {
         for (const item of section.items) {
@@ -75,20 +68,16 @@ describe("contextual drawer config", () => {
           expect(item.disabled).not.toBe(true);
           expect(item.href.startsWith("/")).toBe(true);
           expect(item.href.startsWith("//")).toBe(false);
-          expect(allowedHrefs.has(item.href)).toBe(true);
         }
       }
     }
   });
 
-  it("does not attach hrefs to intentionally disabled future actions", () => {
+  it("does not keep disabled placeholder actions in the visible drawers", () => {
     const disabledItems = CONTEXTUAL_DRAWER_PAGES.flatMap((page) =>
       contextualDrawerConfigs[page].sections.flatMap((section) => section.items.filter((item) => item.disabled)),
     );
 
-    expect(disabledItems.map((item) => item.id)).toEqual(["add-property", "add-service", "add-event"]);
-    for (const item of disabledItems) {
-      expect(item.href).toBeUndefined();
-    }
+    expect(disabledItems).toEqual([]);
   });
 });

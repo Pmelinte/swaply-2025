@@ -14,7 +14,6 @@ import {
   LogOut,
   LogIn,
   UserPlus,
-  Coins,
   Tag,
   BookOpen,
   FileText,
@@ -23,6 +22,18 @@ import {
   ShieldAlert,
   AlertTriangle,
   Settings,
+  Package,
+  Building2,
+  Wrench,
+  CalendarDays,
+  Search,
+  Trophy,
+  Star,
+  UserRound,
+  Bell,
+  History,
+  Plus,
+  Users,
 } from "lucide-react";
 
 export default function DrawerHome() {
@@ -32,7 +43,6 @@ export default function DrawerHome() {
   const close = useDrawerStore((s) => s.close);
   const prevPathname = useRef(pathname);
 
-  // Close when pathname changes (navigated away)
   useEffect(() => {
     if (prevPathname.current !== pathname) {
       prevPathname.current = pathname;
@@ -53,25 +63,8 @@ export default function DrawerHome() {
     window.location.reload();
   };
 
-  const infoLinks = [
-    { href: "/about" as const, label: t("about.title"), icon: Info },
-    { href: "/blog" as const, label: "Blog", icon: BookOpen },
-    { href: "/contact" as const, label: t("contact.title"), icon: Mail },
-    { href: "/feedback" as const, label: t("feedback.title"), icon: MessageSquare },
-  ];
-
-  const legalLinks = [
-    { href: "/terms" as const, label: t("legal.termsTitle"), icon: FileText },
-    { href: "/privacy" as const, label: t("legal.privacyTitle"), icon: ShieldCheck },
-    { href: "/cookies" as const, label: t("legal.cookiesTitle"), icon: Lock },
-    { href: "/safety" as const, label: t("legal.safetyTitle"), icon: ShieldAlert },
-    { href: "/dmca" as const, label: t("legal.dmcaTitle"), icon: AlertTriangle },
-    { href: "/copyright" as const, label: t("legal.copyrightTitle"), icon: FileText },
-  ];
-
   return (
     <>
-      {/* Header */}
       <div className="flex items-center justify-between border-b border-zinc-200 px-4 py-3 dark:border-zinc-800">
         <Link href="/" className="flex items-center gap-2" onClick={handleLinkClick}>
           <Image src="/logo-swaply.svg" alt="Swaply" width={28} height={28} className="h-7 w-7" />
@@ -87,9 +80,7 @@ export default function DrawerHome() {
         </button>
       </div>
 
-      {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto">
-        {/* Auth / Profile section */}
         {user ? (
           <div className="border-b border-zinc-100 px-4 py-4 dark:border-zinc-800">
             <Link href="/profile" onClick={handleLinkClick} className="flex items-center gap-3">
@@ -115,10 +106,14 @@ export default function DrawerHome() {
                 </p>
               </div>
             </Link>
-            <nav className="mt-2 flex flex-col gap-0.5">
-              <DrawerLink href="/pricing" label={t("pricing.title")} icon={Tag} pathname={pathname} onClick={handleLinkClick} />
-              <DrawerLink href="/monetization" label="Swapleni" icon={Coins} pathname={pathname} onClick={handleLinkClick} />
-            </nav>
+            <Link
+              href="/objects/new"
+              onClick={handleLinkClick}
+              className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
+            >
+              <Plus className="h-4 w-4" />
+              {t("nav.addObject")}
+            </Link>
           </div>
         ) : (
           <div className="flex gap-2 border-b border-zinc-100 px-4 py-4 dark:border-zinc-800">
@@ -141,27 +136,52 @@ export default function DrawerHome() {
           </div>
         )}
 
-        {/* Info */}
-        <DrawerSection title={t("nav.info")}>
-          {infoLinks.map((link) => (
-            <DrawerLink key={link.href} {...link} pathname={pathname} onClick={handleLinkClick} />
-          ))}
+        <DrawerSection title={t("nav.explore")}>
+          <DrawerLink href="/objects" label={t("branches.objects")} icon={Package} pathname={pathname} onClick={handleLinkClick} />
+          <DrawerLink href="/properties" label={t("branches.properties")} icon={Building2} pathname={pathname} onClick={handleLinkClick} />
+          <DrawerLink href="/services" label={t("branches.services")} icon={Wrench} pathname={pathname} onClick={handleLinkClick} />
+          <DrawerLink href="/events" label={t("branches.events")} icon={CalendarDays} pathname={pathname} onClick={handleLinkClick} />
+          <DrawerLink href="/explore" label={t("nav.explore")} icon={Search} pathname={pathname} onClick={handleLinkClick} />
         </DrawerSection>
 
-        {/* Legal */}
+        {user && (
+          <DrawerSection title={t("common.myDesk")}>
+            <DrawerLink href="/profile" label={t("profile.title")} icon={UserRound} pathname={pathname} onClick={handleLinkClick} />
+            <DrawerLink href="/my-objects" label={t("myObjects.title")} icon={Package} pathname={pathname} onClick={handleLinkClick} />
+            <DrawerLink href="/notifications" label={t("notifications.title")} icon={Bell} pathname={pathname} onClick={handleLinkClick} />
+            <DrawerLink href="/history" label={t("history.title")} icon={History} pathname={pathname} onClick={handleLinkClick} />
+          </DrawerSection>
+        )}
+
+        <DrawerSection title={t("info.guideTitle")}>
+          <DrawerLink href="/info" label={t("info.pageTitle")} icon={Info} pathname={pathname} onClick={handleLinkClick} />
+          <DrawerLink href="/about" label={t("about.title")} icon={BookOpen} pathname={pathname} onClick={handleLinkClick} />
+          <DrawerLink href="/safety" label={t("legal.safetyTitle")} icon={ShieldAlert} pathname={pathname} onClick={handleLinkClick} />
+          <DrawerLink href="/terms" label={t("legal.termsTitle")} icon={FileText} pathname={pathname} onClick={handleLinkClick} />
+        </DrawerSection>
+
+        <DrawerSection title={t("profile.reputationAndTokens")}>
+          <DrawerLink href="/info#monetizare" label={t("profile.badgeBenefits")} icon={Star} pathname={pathname} onClick={handleLinkClick} />
+          <DrawerLink href="/pricing" label={t("pricing.title")} icon={Tag} pathname={pathname} onClick={handleLinkClick} />
+          <DrawerLink href="/stories" label={t("info.successStories")} icon={Users} pathname={pathname} onClick={handleLinkClick} />
+          <DrawerLink href="/info#leaderboard" label={t("leaderboard.title")} icon={Trophy} pathname={pathname} onClick={handleLinkClick} />
+        </DrawerSection>
+
+        <DrawerSection title={t("nav.info")}>
+          <DrawerLink href="/blog" label="Blog" icon={BookOpen} pathname={pathname} onClick={handleLinkClick} />
+          <DrawerLink href="/contact" label={t("contact.title")} icon={Mail} pathname={pathname} onClick={handleLinkClick} />
+          <DrawerLink href="/feedback" label={t("feedback.title")} icon={MessageSquare} pathname={pathname} onClick={handleLinkClick} />
+        </DrawerSection>
+
         <DrawerSection title="Legal">
-          {legalLinks.map((link) => (
-            <DrawerLink key={link.href} {...link} pathname={pathname} onClick={handleLinkClick} />
-          ))}
-          <DrawerButton
-            label={t("cookieConsent.settings")}
-            icon={Settings}
-            onClick={handleCookieSettings}
-          />
+          <DrawerLink href="/privacy" label={t("legal.privacyTitle")} icon={ShieldCheck} pathname={pathname} onClick={handleLinkClick} />
+          <DrawerLink href="/cookies" label={t("legal.cookiesTitle")} icon={Lock} pathname={pathname} onClick={handleLinkClick} />
+          <DrawerLink href="/dmca" label={t("legal.dmcaTitle")} icon={AlertTriangle} pathname={pathname} onClick={handleLinkClick} />
+          <DrawerLink href="/copyright" label={t("legal.copyrightTitle")} icon={FileText} pathname={pathname} onClick={handleLinkClick} />
+          <DrawerButton label={t("cookieConsent.settings")} icon={Settings} onClick={handleCookieSettings} />
         </DrawerSection>
       </div>
 
-      {/* Sticky Logout (logged in only) */}
       {user && (
         <div className="border-t border-zinc-200 px-4 py-3 dark:border-zinc-800">
           <button
@@ -202,7 +222,8 @@ function DrawerLink({
   pathname: string;
   onClick: () => void;
 }) {
-  const active = pathname === href || (href !== "/" && pathname.startsWith(`${href}/`));
+  const hrefPath = href.split(/[?#]/)[0] || "/";
+  const active = pathname === hrefPath || (hrefPath !== "/" && pathname.startsWith(`${hrefPath}/`));
   return (
     <Link
       href={href as "/"}

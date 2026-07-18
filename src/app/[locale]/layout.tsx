@@ -12,7 +12,6 @@ import { FooterNav } from "@/components/layout/FooterNav";
 import { UnifiedSideDrawer } from "@/components/drawer/UnifiedSideDrawer";
 import { ClientOverlays } from "@/components/ClientOverlays";
 import { TokenToast } from "@/components/tokens/TokenToast";
-import { PublicGuestExperienceSlot } from "@/components/public-pages/PublicGuestExperienceSlot";
 import Script from "next/script";
 import { CookieConsent } from "@/components/CookieConsent";
 import { ConditionalAnalytics } from "@/components/ConditionalAnalytics";
@@ -185,7 +184,6 @@ export default async function LocaleLayout({ children, params }: Props) {
             <BranchBar />
             <ContextBar />
             <main className="mx-auto min-h-screen max-w-6xl px-4 pb-24 pt-4 md:pb-8">
-              <PublicGuestExperienceSlot />
               {children}
             </main>
             <FooterNav />

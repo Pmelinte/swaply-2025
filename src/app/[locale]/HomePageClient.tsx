@@ -11,7 +11,6 @@ import {
 import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { LazyMapPreview } from "@/components/LazyMapPreview";
-import { GuestExperienceSection } from "@/components/public-pages/GuestExperienceSection";
 
 const BENEFITS_KEYS = [
   "directSwap",
@@ -24,10 +23,10 @@ const BENEFITS_KEYS = [
 ] as const;
 
 const BRANCH_CARDS = [
-  { href: "/objects",    emoji: "📦", label: "objects",     desc: "objectsDesc",     bg: "#E6F1FB", anim: "home-card-tl" },
-  { href: "/properties", emoji: "🏠", label: "properties",  desc: "propertiesDesc",  bg: "#EEEDFE", anim: "home-card-tr" },
-  { href: "/services",   emoji: "🔧", label: "services",    desc: "servicesDesc",    bg: "#E1F5EE", anim: "home-card-bl" },
-  { href: "/events",     emoji: "🎫", label: "events",      desc: "eventsDesc",      bg: "#FAEEDA", anim: "home-card-br" },
+  { href: "/objects", emoji: "📦", label: "objects", desc: "objectsDesc", bg: "#E6F1FB", anim: "home-card-tl" },
+  { href: "/properties", emoji: "🏠", label: "properties", desc: "propertiesDesc", bg: "#EEEDFE", anim: "home-card-tr" },
+  { href: "/services", emoji: "🔧", label: "services", desc: "servicesDesc", bg: "#E1F5EE", anim: "home-card-bl" },
+  { href: "/events", emoji: "🎫", label: "events", desc: "eventsDesc", bg: "#FAEEDA", anim: "home-card-br" },
 ] as const;
 
 export default function HomePageClient() {
@@ -77,14 +76,6 @@ export default function HomePageClient() {
           </ViewTransitionLink>
         ))}
       </section>
-
-      <GuestExperienceSection
-        page="home"
-        title="See what Swaply can combine"
-        subtitle="Public visitors can understand mixed exchanges across objects, services, properties and events before creating an account. Real proposals and chat still require login."
-        ctaHref={user ? "/objects" : "/register"}
-        ctaLabel={user ? tBranch("objects") : tGuest("bannerCta")}
-      />
 
       {/* ── 3. Benefits Banner (guest only) ── */}
       {!user && (
@@ -139,7 +130,7 @@ export default function HomePageClient() {
         </div>
         {!user && (
           <p className="text-center text-xs text-zinc-400 dark:text-zinc-500">
-            {tMap("guestTooltip")}{" "}
+            {tMap("guestTooltip")} {" "}
             <Link href="/register" className="font-semibold text-blue-600 hover:underline dark:text-blue-400">
               {tGuest("bannerCta")}
             </Link>

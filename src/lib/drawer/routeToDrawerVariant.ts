@@ -6,19 +6,40 @@ const ROUTE_ALIASES: Array<{
   variant: DrawerVariant;
 }> = [
   {
-    match: (pathname) => pathname === "/objects" || pathname.startsWith("/objects/"),
-    variant: { type: "contextual", page: "objects" },
-  },
-  {
-    match: (pathname) => pathname === "/items" || pathname.startsWith("/items/"),
-    variant: { type: "contextual", page: "objects" },
+    match: (pathname) => pathname === "/profile" || pathname.startsWith("/profile/"),
+    variant: { type: "contextual", page: "profile" },
   },
   {
     match: (pathname) => pathname === "/my-objects" || pathname.startsWith("/my-objects/"),
+    variant: { type: "contextual", page: "my_items" },
+  },
+  {
+    match: (pathname) =>
+      pathname === "/objects/new" ||
+      pathname === "/items/new" ||
+      /^\/(objects|items)\/[^/]+\/edit$/.test(pathname),
+    variant: { type: "contextual", page: "item_editor" },
+  },
+  {
+    match: (pathname) =>
+      pathname === "/objects" ||
+      pathname === "/items" ||
+      pathname.startsWith("/objects/category/") ||
+      pathname.startsWith("/objects/city/"),
     variant: { type: "contextual", page: "objects" },
   },
   {
+    match: (pathname) =>
+      (pathname.startsWith("/objects/") || pathname.startsWith("/items/")) &&
+      !pathname.endsWith("/edit"),
+    variant: { type: "contextual", page: "item_detail" },
+  },
+  {
     match: (pathname) => pathname === "/wishlist" || pathname.startsWith("/wishlist/"),
+    variant: { type: "contextual", page: "objects" },
+  },
+  {
+    match: (pathname) => pathname === "/favorites" || pathname.startsWith("/favorites/"),
     variant: { type: "contextual", page: "objects" },
   },
   {
