@@ -7,7 +7,7 @@ const migration = readFileSync(
     process.cwd(),
     "supabase",
     "migrations",
-    "20260718180100_batch_65_3_profile_authority_concurrency_hardening.sql",
+    "20260718180050_batch_65_3_profile_authority_concurrency_hardening.sql",
   ),
   "utf8",
 ).replace(/\s+/g, " ").trim();
