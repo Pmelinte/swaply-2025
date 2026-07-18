@@ -19,8 +19,36 @@ env:
   NEXT_TELEMETRY_DISABLED: "1"
 
 jobs:
+  i18n-contract:
+    name: 43-Locale Contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Verify all 43 locale catalogues
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run i18n:check 2>&1 | tee i18n-contract-results.txt
+
+      - name: Upload i18n contract results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: i18n-contract-results
+          path: i18n-contract-results.txt
+          if-no-files-found: warn
+          retention-days: 14
+
   checks:
-    name: Lint, Type & i18n Contract
+    name: Lint & Type
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
@@ -38,21 +66,6 @@ jobs:
 
       - name: Run ESLint & TypeScript in parallel
         run: npm run lint & npm run typecheck & wait
-
-      - name: Verify all 43 locale catalogues
-        shell: bash
-        run: |
-          set -o pipefail
-          npm run i18n:check 2>&1 | tee i18n-contract-results.txt
-
-      - name: Upload i18n contract results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: i18n-contract-results
-          path: i18n-contract-results.txt
-          if-no-files-found: warn
-          retention-days: 14
 
   test:
     name: Unit Tests
@@ -87,7 +100,7 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    needs: [checks, test]
+    needs: [i18n-contract, checks, test]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
