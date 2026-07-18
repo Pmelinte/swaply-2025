@@ -7,19 +7,11 @@ import {
   updateOwnProfileWithCompatibility,
 } from "./profileCompatibilityBridge";
 
-function makeLegacyClient(options: {
+function makeRpcClient(options: {
   rpcData?: unknown;
   rpcError?: Record<string, unknown> | null;
-  legacyData?: Record<string, unknown> | null;
-  legacyError?: Record<string, unknown> | null;
 }) {
-  const maybeSingle = vi.fn().mockResolvedValue({
-    data: options.legacyData ?? null,
-    error: options.legacyError ?? null,
-  });
-  const select = vi.fn().mockReturnValue({ maybeSingle });
-  const upsert = vi.fn().mockReturnValue({ select });
-  const from = vi.fn().mockReturnValue({ upsert });
+  const from = vi.fn();
   const rpc = vi.fn().mockResolvedValue({
     data: options.rpcData ?? null,
     error: options.rpcError ?? null,
@@ -29,7 +21,6 @@ function makeLegacyClient(options: {
     client: { rpc, from } as unknown as SupabaseClient,
     rpc,
     from,
-    upsert,
   };
 }
 
@@ -43,9 +34,9 @@ const missingUpdateRpc = {
   message: "function public.update_own_profile_v1(bigint, jsonb, text) does not exist",
 };
 
-describe("Batch 65.2 profile compatibility bridge", () => {
-  it("uses ensure_own_profile_v1 when the RPC exists", async () => {
-    const { client, rpc, from } = makeLegacyClient({
+describe("Batch 65.5 strict profile RPC authority", () => {
+  it("uses ensure_own_profile_v1 as the only bootstrap authority", async () => {
+    const { client, rpc, from } = makeRpcClient({
       rpcData: {
         created: true,
         profile_revision: 1,
@@ -55,7 +46,7 @@ describe("Batch 65.2 profile compatibility bridge", () => {
 
     const result = await ensureOwnProfileWithCompatibility(client, {
       routeLocale: "ro",
-      legacyPayload: { user_id: "u1", display_name: "legacy" },
+      legacyPayload: { user_id: "u1", display_name: "unused" },
     });
 
     expect(rpc).toHaveBeenCalledWith("ensure_own_profile_v1", {
@@ -69,59 +60,19 @@ describe("Batch 65.2 profile compatibility bridge", () => {
     });
   });
 
-  it("falls back to the legacy bootstrap only when ensure RPC is missing", async () => {
-    const { client, from, upsert } = makeLegacyClient({
-      rpcError: missingEnsureRpc,
-      legacyData: { user_id: "u1", display_name: "legacy" },
-    });
+  it("treats a missing ensure RPC as a hard rollout error", async () => {
+    const { client, from } = makeRpcClient({ rpcError: missingEnsureRpc });
 
-    const legacyPayload = {
-      user_id: "u1",
-      email: "petru@example.com",
-      username: "petru",
-      display_name: "legacy",
-    };
-    const result = await ensureOwnProfileWithCompatibility(client, {
+    await expect(ensureOwnProfileWithCompatibility(client, {
       routeLocale: "ro",
-      legacyPayload,
-    });
+      legacyPayload: { user_id: "u1", display_name: "must-not-write" },
+    })).rejects.toMatchObject({ code: "PGRST202" });
 
-    expect(from).toHaveBeenCalledWith("profiles");
-    expect(upsert).toHaveBeenCalledWith(legacyPayload, { onConflict: "user_id" });
-    expect(result.mode).toBe("legacy");
-    expect(result.profileRevision).toBe(1);
+    expect(from).not.toHaveBeenCalled();
   });
 
-  it("uses a deterministic unique username for an email-less legacy bootstrap", async () => {
-    const userId = "11111111-2222-3333-4444-555555555555";
-    const { client, upsert } = makeLegacyClient({
-      rpcError: missingEnsureRpc,
-      legacyData: {
-        user_id: userId,
-        username: "user_11111111222233334444555555555555",
-      },
-    });
-
-    await ensureOwnProfileWithCompatibility(client, {
-      routeLocale: "en",
-      legacyPayload: {
-        user_id: userId,
-        email: "",
-        username: "user",
-        display_name: "Swaply User",
-      },
-    });
-
-    expect(upsert).toHaveBeenCalledWith({
-      user_id: userId,
-      email: "",
-      username: "user_11111111222233334444555555555555",
-      display_name: "Swaply User",
-    }, { onConflict: "user_id" });
-  });
-
-  it("does not bootstrap through legacy SQL for permission or RLS errors", async () => {
-    const { client, from } = makeLegacyClient({
+  it("does not hide permission or RLS errors behind a browser write", async () => {
+    const { client, from } = makeRpcClient({
       rpcError: {
         code: "42501",
         message: "permission denied for function ensure_own_profile_v1",
@@ -137,7 +88,7 @@ describe("Batch 65.2 profile compatibility bridge", () => {
   });
 
   it("uses update_own_profile_v1 with revision and idempotency key", async () => {
-    const { client, rpc, from } = makeLegacyClient({
+    const { client, rpc, from } = makeRpcClient({
       rpcData: {
         replayed: false,
         profile_revision: 4,
@@ -149,7 +100,7 @@ describe("Batch 65.2 profile compatibility bridge", () => {
       expectedRevision: 3,
       idempotencyKey: "profile-bridge-test-0001",
       canonicalPayload: { display_name: "Updated" },
-      legacyPayload: { user_id: "u1", display_name: "Updated" },
+      legacyPayload: { user_id: "u1", display_name: "unused" },
     });
 
     expect(rpc).toHaveBeenCalledWith("update_own_profile_v1", {
@@ -161,43 +112,50 @@ describe("Batch 65.2 profile compatibility bridge", () => {
     expect(result).toMatchObject({ mode: "rpc", profileRevision: 4, replayed: false });
   });
 
-  it("falls back to the legacy owner upsert only when update RPC is missing", async () => {
-    const { client, upsert } = makeLegacyClient({
-      rpcError: missingUpdateRpc,
-      legacyData: { user_id: "u1", display_name: "Legacy save" },
-    });
+  it("treats a missing update RPC as a hard rollout error", async () => {
+    const { client, from } = makeRpcClient({ rpcError: missingUpdateRpc });
 
-    const legacyPayload = { user_id: "u1", display_name: "Legacy save" };
-    const result = await updateOwnProfileWithCompatibility(client, {
+    await expect(updateOwnProfileWithCompatibility(client, {
       expectedRevision: 1,
-      canonicalPayload: { display_name: "Legacy save" },
-      legacyPayload,
-    });
+      canonicalPayload: { display_name: "No fallback" },
+      legacyPayload: { user_id: "u1", display_name: "must-not-write" },
+    })).rejects.toMatchObject({ code: "42883" });
 
-    expect(upsert).toHaveBeenCalledWith(legacyPayload, { onConflict: "user_id" });
-    expect(result.mode).toBe("legacy");
+    expect(from).not.toHaveBeenCalled();
   });
 
-  it("never falls back for stale revision, validation or security errors", async () => {
+  it("propagates stale revision, validation and security errors", async () => {
     for (const error of [
       { code: "40001", message: "Stale profile revision" },
       { code: "22023", message: "Unsupported profile fields" },
       { code: "42501", message: "Profile update denied" },
     ]) {
-      const { client, from } = makeLegacyClient({ rpcError: error });
+      const { client, from } = makeRpcClient({ rpcError: error });
 
       await expect(updateOwnProfileWithCompatibility(client, {
         expectedRevision: 1,
         canonicalPayload: { display_name: "No fallback" },
-        legacyPayload: { user_id: "u1", display_name: "No fallback" },
+        legacyPayload: { user_id: "u1", display_name: "must-not-write" },
       })).rejects.toBeInstanceOf(ProfileCompatibilityBridgeError);
 
       expect(from).not.toHaveBeenCalled();
     }
   });
 
+  it("rejects an invalid expected revision before making a request", async () => {
+    const { client, rpc } = makeRpcClient({});
+
+    await expect(updateOwnProfileWithCompatibility(client, {
+      expectedRevision: 0,
+      canonicalPayload: { display_name: "Invalid" },
+      legacyPayload: { user_id: "u1" },
+    })).rejects.toMatchObject({ code: "INVALID_PROFILE_REVISION" });
+
+    expect(rpc).not.toHaveBeenCalled();
+  });
+
   it("rejects an RPC response that omits the revision", async () => {
-    const { client, from } = makeLegacyClient({
+    const { client, from } = makeRpcClient({
       rpcData: {
         profile: { user_id: "u1", display_name: "Missing revision" },
       },
@@ -206,7 +164,7 @@ describe("Batch 65.2 profile compatibility bridge", () => {
     await expect(updateOwnProfileWithCompatibility(client, {
       expectedRevision: 1,
       canonicalPayload: { display_name: "Missing revision" },
-      legacyPayload: { user_id: "u1", display_name: "Missing revision" },
+      legacyPayload: { user_id: "u1" },
     })).rejects.toMatchObject({ code: "INVALID_PROFILE_RPC_RESPONSE" });
 
     expect(from).not.toHaveBeenCalled();
@@ -223,30 +181,16 @@ describe("Batch 65.2 profile compatibility bridge", () => {
         profile: { user_id: "u1", profile_revision: 4 },
       },
     ]) {
-      const { client, from } = makeLegacyClient({ rpcData });
+      const { client, from } = makeRpcClient({ rpcData });
 
       await expect(updateOwnProfileWithCompatibility(client, {
         expectedRevision: 2,
         canonicalPayload: { display_name: "Invalid revision" },
-        legacyPayload: { user_id: "u1", display_name: "Invalid revision" },
+        legacyPayload: { user_id: "u1" },
       })).rejects.toMatchObject({ code: "INVALID_PROFILE_RPC_RESPONSE" });
 
       expect(from).not.toHaveBeenCalled();
     }
-  });
-
-  it("does not hide a malformed successful RPC response behind legacy fallback", async () => {
-    const { client, from } = makeLegacyClient({
-      rpcData: { profile_revision: 2 },
-    });
-
-    await expect(updateOwnProfileWithCompatibility(client, {
-      expectedRevision: 1,
-      canonicalPayload: { display_name: "Malformed" },
-      legacyPayload: { user_id: "u1", display_name: "Malformed" },
-    })).rejects.toMatchObject({ code: "INVALID_PROFILE_RPC_RESPONSE" });
-
-    expect(from).not.toHaveBeenCalled();
   });
 
   it("recognizes only coded, function-specific missing-RPC errors", () => {
