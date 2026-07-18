@@ -13,17 +13,17 @@
 - Train D: `ACTIVE`.
 - Current Train D deliverable: `D1 — global-first profile and common infrastructure`.
 - Current batch: `65 — profile audit and public/private contract`.
-- Batch 65 remains active after the current projection unit.
+- Batch 65 remains active after the strict shared profile RPC unit.
 - Train E remains the terminal Train for v1.0; there is no Train F.
 
 ## Current checkpoint
 
-- Verified `main` before this PR: `5adb2557e8f71152453c2a336f144537d8598093`.
-- Active branch: `agent/batch-65-4-public-profile-projection`.
-- Active PR: `#479 — Batch 65.4: Minimize public profile projection`.
-- Supabase Production project: `keaejxlwqtjjglijiplh`, status `ACTIVE_HEALTHY`.
-- Current Vercel Production deployment for `main`: `READY`.
-- The exact final PR head must still pass CI and Preview before automatic merge.
+- Verified `main` before this PR: `863ae30413681684ef7ef72154f18e85bef61d75`.
+- Active branch: `agent/batch-65-5-strict-profile-rpc`.
+- Active PR: `#480 — Batch 65.5: Remove legacy browser profile fallback`.
+- Supabase Production project: `keaejxlwqtjjglijiplh`, status `ACTIVE_HEALTHY` at the last verified checkpoint.
+- Current Vercel Production deployment for `main`: `READY` at the last verified checkpoint.
+- Batch 65.5 contains no database migration.
 
 ## Execution authorization
 
@@ -65,7 +65,7 @@ Closure evidence: `docs/TRAIN_C_CLOSURE_REPORT.md`.
 
 ### Batch 65.2 — profile compatibility bridge
 
-Merged and live. Profile and onboarding persistence try the canonical owner RPCs first and use the legacy direct owner path only when the specific RPC is genuinely absent.
+Merged and live. Profile and onboarding persistence initially tried the canonical owner RPCs first and retained a narrowly coded legacy path while Production authority was being activated.
 
 ### Batch 65.3 — revisioned profile authority
 
@@ -99,7 +99,7 @@ Production migrations:
 
 ### Batch 65.4 — privacy-minimized profile projection
 
-Production migrations are applied and authenticated privacy verification passes. The PR remains open until the final head passes CI and Vercel Preview.
+Merged through PR #479 and verified in Production.
 
 Delivered:
 
@@ -123,10 +123,7 @@ Production evidence:
 
 - profile rows: `1,077`;
 - projection rows: `1,077`;
-- biographies exposed without opt-in: `0`;
-- occupations exposed without opt-in: `0`;
-- websites exposed without opt-in: `0`;
-- social links exposed without opt-in: `0`;
+- biographies, occupations, websites and social links exposed without opt-in: `0`;
 - projected locations containing exact-coordinate, address or postal keys: `0`;
 - anonymous private-profile read: denied;
 - unrelated authenticated private-profile read: denied;
@@ -137,28 +134,42 @@ Production evidence:
 
 Detailed evidence: `docs/batch-65-4-public-profile-projection.md`.
 
+### Batch 65.5 — strict shared browser profile RPC boundary
+
+Delivery vehicle: PR #480.
+
+Delivered in the shared profile persistence service:
+
+- `ensure_own_profile_v1` is the sole missing-profile bootstrap authority;
+- `update_own_profile_v1` is the sole ordinary owner profile-save authority;
+- missing RPC, stale revision, validation, permission and malformed-response failures never fall back to a direct `public.profiles` write;
+- positive revision validation and idempotency remain mandatory;
+- the old caller payload is retained temporarily for source compatibility but is never sent to Supabase;
+- focused unit and integration-contract tests assert that the bridge contains no `.from("profiles")` path.
+
+Detailed contract: `docs/batch-65-5-strict-profile-rpc.md`.
+
 ## Current risk boundary
 
-No open P0/P1 was found in Batch 65.4.
+No open P0/P1 was found while defining Batch 65.5.
 
-Known deliberate compatibility boundary:
+Deliberate remaining compatibility boundary:
 
-- authenticated owners still possess the historical direct `UPDATE` path on `public.profiles`;
-- the application already prefers the canonical revisioned RPC;
-- revocation must occur only after browser persistence, onboarding, stale-revision behavior and recovery are proven on the final Production path.
+- the onboarding wizard still contains its historical direct owner profile update;
+- authenticated owners still possess historical direct `INSERT` and `UPDATE` permissions/policies on `public.profiles`;
+- these permissions must not be revoked until all onboarding fields are preserved through a canonical authority and browser persistence, stale-revision recovery and Production behavior are proven.
 
-Pre-existing advisor items not introduced by Batch 65.4 remain tracked separately, including leaked-password protection being disabled and one older mutable function search path. They do not change the current projection verdict but must be reconciled no later than the Train D security closure.
+Pre-existing advisor items remain tracked separately, including leaked-password protection being disabled and one older mutable function search path. They must be reconciled no later than the Train D security closure.
 
 ## Next mandatory action
 
-Complete only the current Batch 65.4 PR:
+Complete only PR #480:
 
 1. pass Unit Tests, Lint & Type Check, Build and Public Visual Audit on the exact final head;
 2. verify the exact Vercel Preview is `READY`;
 3. verify Preview routes and warning/error/fatal runtime logs;
-4. recheck Supabase security/performance advisors and migration parity;
-5. merge PR #479 only when every critical gate is green;
-6. verify post-merge GitHub CI, Vercel Production, critical routes, runtime logs and Supabase health/parity;
-7. then begin the next incomplete Batch 65 unit, without opening an overlapping PR.
+4. merge automatically only when every critical gate is green;
+5. verify post-merge GitHub CI, Vercel Production, critical routes, runtime logs and Supabase health/parity;
+6. then begin one non-overlapping Batch 65 onboarding-authority unit.
 
-The next Batch 65 unit must close the remaining owner-write compatibility boundary and complete the profile contract evidence before Batch 66 begins.
+The next Batch 65 unit must route onboarding through canonical owner authority, preserve every current onboarding field, prove browser persistence and stale-revision recovery, revoke direct authenticated profile `INSERT`/`UPDATE`, and close Batch 65 before Batch 66 begins.
