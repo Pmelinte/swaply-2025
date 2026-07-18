@@ -20,9 +20,9 @@ env:
 
 jobs:
   checks:
-    name: Lint & Type Check
+    name: Lint, Type & i18n Contract
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 12
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -38,6 +38,9 @@ jobs:
 
       - name: Run ESLint & TypeScript in parallel
         run: npm run lint & npm run typecheck & wait
+
+      - name: Verify all 43 locale catalogues
+        run: npm run i18n:check
 
   test:
     name: Unit Tests
@@ -106,9 +109,9 @@ jobs:
           retention-days: 7
 
   visual-audit:
-    name: Public Visual Audit
+    name: Public Visual & 43-Locale Audit
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     needs: build
     steps:
       - name: Checkout
@@ -129,6 +132,9 @@ jobs:
       - name: Run public visual audit
         run: npm run test:e2e:public
 
+      - name: Run 43-locale routing and global layout audit
+        run: npm run test:e2e:i18n
+
       - name: Upload visual audit screenshots
         if: always()
         uses: actions/upload-artifact@v4
@@ -138,11 +144,20 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+      - name: Upload global locale screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: swaply-i18n-43-locale-screenshots
+          path: playwright-i18n-screenshots/
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: swaply-public-visual-audit-report
+          name: swaply-public-and-i18n-audit-report
           path: playwright-report/
           if-no-files-found: warn
           retention-days: 14
@@ -151,7 +166,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: swaply-public-visual-audit-test-results
+          name: swaply-public-and-i18n-audit-test-results
           path: test-results/
           if-no-files-found: warn
           retention-days: 14
