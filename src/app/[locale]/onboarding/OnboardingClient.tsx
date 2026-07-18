@@ -117,13 +117,10 @@ export function OnboardingClient() {
       setSaving(true);
       setError(null);
 
-      const supabase = getSupabaseClient();
-      if (!supabase) throw new Error("Supabase client not available");
-
-      const payload: Record<string, unknown> = { user_id: user.id };
+      const payload: Record<string, unknown> = {};
 
       switch (currentStep) {
-        case 1:
+        case 1: {
           if (!stepData.display_name || stepData.display_name.length < 2) {
             setError(tp("displayNameRequired")); return;
           }
@@ -141,6 +138,7 @@ export function OnboardingClient() {
           payload.avatar_url = stepData.avatar_url || null;
           payload.date_of_birth = stepData.date_of_birth;
           break;
+        }
 
         case 2:
           if (!stepData.address_country) { setError(tp("countryRequired")); return; }
@@ -171,12 +169,19 @@ export function OnboardingClient() {
           break;
       }
 
-      const { error: updateError } = await supabase
-        .from("profiles")
-        .update(payload)
-        .eq("user_id", user.id);
+      const response = await fetch("/api/onboarding/profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          payload,
+          requestId: crypto.randomUUID(),
+        }),
+      });
 
-      if (updateError) throw updateError;
+      if (!response.ok) {
+        const body = await response.json().catch(() => null) as { error?: string } | null;
+        throw new Error(body?.error || "Unable to save onboarding profile");
+      }
 
       if (currentStep === 5) {
         await finializeOnboarding();

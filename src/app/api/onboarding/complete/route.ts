@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { getServerSupabase } from "@/lib/supabase/server";
 import { getServiceSupabase } from "@/lib/supabase/service";
+import {
+  OnboardingProfileAuthorityError,
+  updateOnboardingProfileWithAuthority,
+} from "@/lib/profile/onboardingProfileAuthority";
 
 export async function POST() {
   const session = await getServerSupabase();
@@ -15,27 +19,35 @@ export async function POST() {
     return NextResponse.json({ error: "Authentication required" }, { status: 401 });
   }
 
-  const service = getServiceSupabase();
-  if (!service) {
-    return NextResponse.json({ error: "Service unavailable" }, { status: 503 });
-  }
-
-  const { error: profileError } = await service
-    .from("profiles")
-    .update({
-      onboarding_completed: true,
-      onboarding_step: "done",
-    })
-    .eq("user_id", user.id);
-
-  if (profileError) {
+  try {
+    await updateOnboardingProfileWithAuthority({
+      supabase: session,
+      userId: user.id,
+      payload: {
+        onboarding_completed: true,
+        onboarding_step: "done",
+      },
+      idempotencyPrefix: `onboarding-complete-${user.id}`,
+    });
+  } catch (error) {
+    if (error instanceof OnboardingProfileAuthorityError) {
+      return NextResponse.json(
+        { error: "Unable to complete onboarding", code: error.code },
+        { status: error.code === "40001" ? 409 : 500 },
+      );
+    }
     return NextResponse.json(
       { error: "Unable to complete onboarding" },
       { status: 500 },
     );
   }
 
-  await service
+  const service = getServiceSupabase();
+  if (!service) {
+    return NextResponse.json({ error: "Service unavailable" }, { status: 503 });
+  }
+
+  const { error: progressError } = await service
     .from("onboarding_progress")
     .update({
       step_profile: true,
@@ -43,6 +55,13 @@ export async function POST() {
       updated_at: new Date().toISOString(),
     })
     .eq("user_id", user.id);
+
+  if (progressError) {
+    return NextResponse.json(
+      { error: "Unable to complete onboarding" },
+      { status: 500 },
+    );
+  }
 
   return NextResponse.json({ ok: true });
 }
