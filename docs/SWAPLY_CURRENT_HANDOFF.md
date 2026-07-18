@@ -1,6 +1,6 @@
 # Swaply — Current Project Handoff
 
-**Last updated:** 2026-07-18  
+**Last updated:** 2026-07-19  
 **Repository:** `Pmelinte/swaply-2025`  
 **Production:** `https://www.swaply.world`
 
@@ -12,18 +12,18 @@
 - Train C milestone: `CLOSED_BETA_READY_OBJECTS_ONE_TO_ONE`.
 - Train D: `ACTIVE`.
 - Current Train D deliverable: `D1 — global-first profile and common infrastructure`.
-- Current batch: `65 — profile audit and public/private contract`.
-- Batch 65 remains active after the strict shared profile RPC unit.
+- Batch 65: `CLOSED` through the Batch 65.6 closure unit and its post-merge Production verification.
+- Next incomplete batch: `66`; no Batch 66 implementation is included in the Batch 65.6 PR.
 - Train E remains the terminal Train for v1.0; there is no Train F.
 
 ## Current checkpoint
 
-- Verified `main` before this PR: `863ae30413681684ef7ef72154f18e85bef61d75`.
-- Active branch: `agent/batch-65-5-strict-profile-rpc`.
-- Active PR: `#480 — Batch 65.5: Remove legacy browser profile fallback`.
-- Supabase Production project: `keaejxlwqtjjglijiplh`, status `ACTIVE_HEALTHY` at the last verified checkpoint.
-- Current Vercel Production deployment for `main`: `READY` at the last verified checkpoint.
-- Batch 65.5 contains no database migration.
+- Verified `main` before Batch 65.6: `409655a7b7e0813bc6392fce477d7afb3e44c56c`.
+- Batch 65.6 delivery branch: `batch-65-6-onboarding-profile-authority`.
+- Batch 65.6 delivery PR: `#481 — close onboarding profile write authority`.
+- Supabase Production project: `keaejxlwqtjjglijiplh`.
+- Batch 65.6 migration: `20260719010000_batch_65_6_onboarding_profile_authority_closure`.
+- Final merge, Vercel Production, route, runtime-log and migration-parity evidence is recorded on PR #481 and in the corresponding Autopilot completion report.
 
 ## Execution authorization
 
@@ -61,11 +61,13 @@ It also delivered controlled cancellation, dispute, report and block paths with 
 
 Closure evidence: `docs/TRAIN_C_CLOSURE_REPORT.md`.
 
-## Train D / Batch 65 progress
+## Train D / Batch 65 closure summary
+
+Batch 65 established a global-first profile contract, separated public discovery from private participant identity and removed ordinary direct browser writes to the raw profile table.
 
 ### Batch 65.2 — profile compatibility bridge
 
-Merged and live. Profile and onboarding persistence initially tried the canonical owner RPCs first and retained a narrowly coded legacy path while Production authority was being activated.
+Merged and live. Profile and onboarding persistence initially tried canonical owner RPCs first and retained a narrowly coded compatibility path while Production authority was being activated.
 
 ### Batch 65.3 — revisioned profile authority
 
@@ -81,16 +83,6 @@ Delivered:
 - idempotent replay and conflict denial;
 - concurrent same-profile update serialization;
 - explicit ownership, grants and search paths.
-
-Production evidence:
-
-- Auth users: `1,077`;
-- profile rows: `1,077`;
-- missing profiles: `0` after repairing `120` historical users;
-- null primary languages: `0`;
-- unsupported locales: `0`;
-- duplicate canonical language selections: `0`;
-- invalid revisions: `0`.
 
 Production migrations:
 
@@ -110,33 +102,19 @@ Delivered:
 - no exact coordinates, address or postal data in the projection;
 - private-profile identity allowed only for self, admin/moderator or a real Match, conversation or Swap relationship;
 - anonymous and unrelated authenticated users denied private rows;
-- raw counterparty profile remains denied;
-- relationship predicate moved to the non-exposed `private` schema;
-- direct authenticated owner UPDATE retained temporarily as the zero-downtime compatibility path.
+- raw counterparty profile denied;
+- relationship predicate moved to the non-exposed `private` schema.
 
 Production migrations:
 
 - `20260718185820_batch_65_4_public_profile_projection`;
 - `20260718194451_batch_65_4_private_profile_identity_predicate`.
 
-Production evidence:
-
-- profile rows: `1,077`;
-- projection rows: `1,077`;
-- biographies, occupations, websites and social links exposed without opt-in: `0`;
-- projected locations containing exact-coordinate, address or postal keys: `0`;
-- anonymous private-profile read: denied;
-- unrelated authenticated private-profile read: denied;
-- legitimate participant minimized identity read: allowed;
-- raw counterparty profile read: denied;
-- owner raw profile and own private projection read: allowed;
-- rollback audit restored all tested values and counts exactly.
-
 Detailed evidence: `docs/batch-65-4-public-profile-projection.md`.
 
 ### Batch 65.5 — strict shared browser profile RPC boundary
 
-Delivery vehicle: PR #480.
+Merged through PR #480 as commit `409655a7b7e0813bc6392fce477d7afb3e44c56c` and verified in Production.
 
 Delivered in the shared profile persistence service:
 
@@ -144,32 +122,50 @@ Delivered in the shared profile persistence service:
 - `update_own_profile_v1` is the sole ordinary owner profile-save authority;
 - missing RPC, stale revision, validation, permission and malformed-response failures never fall back to a direct `public.profiles` write;
 - positive revision validation and idempotency remain mandatory;
-- the old caller payload is retained temporarily for source compatibility but is never sent to Supabase;
-- focused unit and integration-contract tests assert that the bridge contains no `.from("profiles")` path.
+- the old caller payload is retained only for source compatibility and is never sent to Supabase;
+- focused unit and integration-contract tests assert that the bridge contains no `.from("profiles")` write path.
 
 Detailed contract: `docs/batch-65-5-strict-profile-rpc.md`.
 
-## Current risk boundary
+### Batch 65.6 — onboarding profile authority closure
 
-No open P0/P1 was found while defining Batch 65.5.
+Delivered through PR #481.
 
-Deliberate remaining compatibility boundary:
+Delivered:
 
-- the onboarding wizard still contains its historical direct owner profile update;
-- authenticated owners still possess historical direct `INSERT` and `UPDATE` permissions/policies on `public.profiles`;
-- these permissions must not be revoked until all onboarding fields are preserved through a canonical authority and browser persistence, stale-revision recovery and Production behavior are proven.
+- every onboarding step writes through a session-authenticated server route and `update_own_profile_v1`;
+- onboarding completion uses the same revisioned owner authority;
+- every current onboarding-owned field is preserved, including languages, approximate location, swap range/context/types/intent, biography, affinity groups, interests and occupation;
+- language arrays are normalized globally and continue to preserve the full supported-language list while deriving the first three preferences;
+- stale profile revisions are re-read and retried once with a new revision-scoped idempotency key;
+- unsupported fields and non-concurrency authority failures remain explicit errors;
+- direct authenticated `INSERT` and `UPDATE` grants and policies on `public.profiles` are removed only after the replacement authority is complete;
+- owner `SELECT`, account deletion behavior, public profile projection and service-role authority remain intact;
+- focused unit tests cover allowlisting, RPC authority, stale-revision recovery and denial without fallback.
 
-Pre-existing advisor items remain tracked separately, including leaked-password protection being disabled and one older mutable function search path. They must be reconciled no later than the Train D security closure.
+Production migration:
+
+- `20260719010000_batch_65_6_onboarding_profile_authority_closure`.
+
+## Batch 65 closure contract
+
+Batch 65 is closed only with all of the following evidence attached to PR #481:
+
+1. exact final-head lint, typecheck, unit tests, build and applicable visual/authenticated checks are green;
+2. exact Vercel Preview is `READY` and the onboarding route is reachable;
+3. the forward-only migration is applied in Supabase Production;
+4. authenticated direct profile `INSERT`/`UPDATE` is absent after migration;
+5. owner RPC execution, RLS/policies, public projection and service-role authority remain correct;
+6. repository and Production migration histories are aligned;
+7. PR #481 is merged automatically only after the previous gates pass;
+8. post-merge GitHub CI, Vercel Production, multilingual onboarding routes, runtime logs and Supabase logs/parity are verified.
+
+No Train C scope was reopened, no destructive migration was introduced and no paid provider or subscription was added.
+
+## Tracked non-blocking items
+
+Pre-existing advisor items remain tracked separately, including leaked-password protection being disabled and one older mutable function search path. They must be reconciled no later than the Train D security closure unless a higher-severity finding requires an earlier batch.
 
 ## Next mandatory action
 
-Complete only PR #480:
-
-1. pass Unit Tests, Lint & Type Check, Build and Public Visual Audit on the exact final head;
-2. verify the exact Vercel Preview is `READY`;
-3. verify Preview routes and warning/error/fatal runtime logs;
-4. merge automatically only when every critical gate is green;
-5. verify post-merge GitHub CI, Vercel Production, critical routes, runtime logs and Supabase health/parity;
-6. then begin one non-overlapping Batch 65 onboarding-authority unit.
-
-The next Batch 65 unit must route onboarding through canonical owner authority, preserve every current onboarding field, prove browser persistence and stale-revision recovery, revoke direct authenticated profile `INSERT`/`UPDATE`, and close Batch 65 before Batch 66 begins.
+Begin only Batch 66 after Batch 65.6 is merged and every post-merge Production gate above is green. Batch 66 must be selected from the canonical Train D master plan and implemented as one small, non-overlapping PR.
