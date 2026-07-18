@@ -2,15 +2,20 @@
 
 ## Status
 
-Implementation PR. Supabase Production remains unchanged until repository CI and Vercel Preview are green.
+Supabase Production was applied and verified on 2026-07-18. Repository merge remains gated by final CI and Vercel Production verification.
+
+Production migration versions:
+
+- `20260718180005_batch_65_3_profile_authority_activation.sql`;
+- `20260718180050_batch_65_3_profile_authority_concurrency_hardening.sql`.
 
 ## Objective
 
-Activate the database contract already consumed by the merged profile compatibility bridge, without creating a write outage and without revoking the legacy authenticated `UPDATE` path before authenticated RPC verification.
+Activate the database contract already consumed by the merged profile compatibility bridge, without creating a write outage and without revoking the legacy authenticated `UPDATE` path before the remaining Batch 65 projection and browser-write gates are complete.
 
 ## Predictive audit
 
-Production baseline on 2026-07-18:
+Production baseline before apply:
 
 - Auth users: `1,077`;
 - profile rows: `957`;
@@ -18,11 +23,11 @@ Production baseline on 2026-07-18:
 - Batch 65 migrations present in Production: `0`;
 - `ensure_own_profile_v1`: absent;
 - `update_own_profile_v1`: absent;
-- existing Auth bootstrap creates welcome email only;
-- existing profile writes remain owner-scoped through RLS;
-- existing `public_profiles` projection remains unchanged in this sub-batch.
+- existing Auth bootstrap created the welcome email only;
+- existing profile writes were owner-scoped through RLS;
+- existing `public_profiles` projection was retained in this sub-batch.
 
-The application bridge is already merged in `main`. It attempts the canonical RPC first and falls back only when that exact RPC is missing. This permits an additive Production activation with no client deployment dependency.
+The application bridge was already merged in `main`. It attempts the canonical RPC first and falls back only when that exact RPC is missing, permitting an additive activation without a client write outage.
 
 ## Implemented scope
 
@@ -34,11 +39,54 @@ The application bridge is already merged in `main`. It attempts the canonical RP
 - deterministic language backfill while retaining legacy `languages` and `preferred_locale` compatibility;
 - owner-only `ensure_own_profile_v1`;
 - owner-only, allowlisted, revisioned `update_own_profile_v1`;
+- same-key concurrency serialization and compare-and-set protection;
 - request idempotency markers with 24-hour cleanup;
 - deterministic profile creation for new Auth users;
 - additive repair for the 120 historical Auth users without profiles;
 - protection of `profile_revision` and existing server-owned fields from direct compatibility writes;
 - explicit grants and `search_path` declarations.
+
+## Production verification
+
+After apply:
+
+- Auth users: `1,077`;
+- profile rows: `1,077`;
+- Auth users without a profile: `0`;
+- null primary languages: `0`;
+- unsupported canonical locales: `0`;
+- duplicate language choices: `0`;
+- invalid profile revisions: `0`;
+- canonical functions owned by `postgres` with explicit search paths;
+- `ensure_own_profile_v1` and `update_own_profile_v1` executable only by `authenticated` and `service_role`;
+- anonymous execution denied;
+- Auth profile bootstrap and welcome-email triggers coexist;
+- private idempotency markers remain inaccessible to authenticated callers.
+
+A transactional authenticated proof passed for:
+
+1. owner ensure;
+2. first revisioned update;
+3. same-key idempotent replay;
+4. stale-revision rejection;
+5. owner-only raw profile access;
+6. outsider exclusion;
+7. direct compatibility update retained without revision mutation.
+
+The proof rolled back its temporary profile change and idempotency marker.
+
+## Repository and Preview gates
+
+The implementation reached green on the pre-alignment head for:
+
+- Unit Tests;
+- Lint & Type Check;
+- Build;
+- Public Visual Audit;
+- Vercel Preview READY;
+- no Preview warning, error or fatal runtime entries.
+
+The final repository head must repeat those gates after aligning migration filenames with the exact Production versions.
 
 ## Deliberate exclusions
 
@@ -51,35 +99,11 @@ This sub-batch does **not**:
 - alter Train C lifecycle behavior;
 - create a paid Supabase branch or change billing.
 
-Those boundaries preserve a zero-downtime rollback path. Direct update revocation is allowed only after both RPCs are verified through an authenticated Production client and the browser no longer depends on fallback.
-
-## Required gates
-
-Before Production apply:
-
-1. Unit Tests — PASS.
-2. Lint & Type Check — PASS.
-3. Build — PASS.
-4. Public Visual Audit — PASS.
-5. Vercel Preview — READY with no relevant runtime error/fatal entry.
-
-Immediately after Production apply:
-
-1. migration recorded exactly once;
-2. Auth users equal profile rows;
-3. zero unsupported or duplicate canonical language choices;
-4. both RPCs have owner `postgres`, `SECURITY DEFINER`, explicit `search_path` and narrow grants;
-5. anonymous execution denied;
-6. owner ensure/update/replay/stale-revision behavior verified;
-7. outsider cannot select or mutate another raw profile;
-8. direct owner compatibility update remains available for rollback;
-9. Auth bootstrap trigger coexists with welcome/onboarding triggers;
-10. Supabase API/Auth/Postgres logs contain no relevant new errors;
-11. security and performance advisors reviewed.
+These boundaries preserve a zero-downtime correction path. Direct update revocation is allowed only after the public/participant projection and browser persistence paths pass their dedicated authenticated gates.
 
 ## Rollback and correction strategy
 
-The migration is additive and transactional. A SQL failure rolls back the entire migration. After a successful apply, correction is forward-only:
+The migrations are additive and transactional. Post-apply correction is forward-only:
 
 - disable the new Auth bootstrap trigger if account creation is affected;
 - revoke RPC execution if an authorization defect is detected;
@@ -89,4 +113,4 @@ The migration is additive and transactional. A SQL failure rolls back the entire
 
 ## Completion boundary
 
-Batch 65 remains active after this PR. The next safe unit is public/participant projection minimization plus authenticated RPC proof, followed by direct-update revocation only when all migration-order gates pass.
+Batch 65 remains active after this PR. The next safe unit is public/participant projection minimization and authenticated projection proof, followed by browser direct-update revocation only when all migration-order gates pass.
