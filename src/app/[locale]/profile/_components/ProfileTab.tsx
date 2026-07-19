@@ -11,7 +11,12 @@ import dynamic from "next/dynamic";
 
 const LocationPicker = dynamic(() => import("@/components/LocationPicker"), {
   ssr: false,
-  loading: () => <div className="h-20 animate-pulse rounded-lg bg-zinc-100 dark:bg-zinc-800" />,
+  loading: () => (
+    <div
+      aria-hidden="true"
+      className="h-20 animate-pulse rounded-lg bg-zinc-100 dark:bg-zinc-800"
+    />
+  ),
 });
 import { uploadItemPhoto } from "@/lib/storage";
 
@@ -39,7 +44,11 @@ export default function ProfileTab({ draft, update, userId }: ProfileTabProps) {
           <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full border-2 border-zinc-200 bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800">
             {draft.avatarUrl ? (
               /* eslint-disable-next-line @next/next/no-img-element */
-              <img src={draft.avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
+              <img
+                src={draft.avatarUrl}
+                alt={t("avatarUrl")}
+                className="h-full w-full object-cover"
+              />
             ) : (
               <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-zinc-400">
                 {draft.displayName?.charAt(0)?.toUpperCase() ?? "?"}
@@ -47,11 +56,14 @@ export default function ProfileTab({ draft, update, userId }: ProfileTabProps) {
             )}
             {avatarUploading && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-                <div className="h-6 w-6 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                <div
+                  aria-hidden="true"
+                  className="h-6 w-6 animate-spin rounded-full border-2 border-white border-t-transparent"
+                />
               </div>
             )}
           </div>
-          <div className="space-y-2">
+          <div className="min-w-0 space-y-2">
             <label className="block text-xs font-semibold text-zinc-500 dark:text-zinc-400">
               {t("avatarUrl")}
               <input
@@ -61,9 +73,9 @@ export default function ProfileTab({ draft, update, userId }: ProfileTabProps) {
                 className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
               />
             </label>
-            <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50">
-              <Plus className="h-3.5 w-3.5" />
-              {t("uploadAvatar")}
+            <label className="inline-flex max-w-full cursor-pointer items-center gap-2 rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50">
+              <Plus aria-hidden="true" focusable="false" className="h-3.5 w-3.5 shrink-0" />
+              <span className="min-w-0 break-words">{t("uploadAvatar")}</span>
               <input
                 type="file"
                 accept="image/jpeg,image/png,image/webp,image/gif"
@@ -118,52 +130,70 @@ export default function ProfileTab({ draft, update, userId }: ProfileTabProps) {
             rows={3}
           />
         </label>
-        <div>
-          <p className="mb-1.5 text-sm font-semibold text-zinc-700 dark:text-zinc-200">{t("spokenLanguages")}</p>
-          <div className="flex flex-wrap gap-2">
-            {draft.languages.map((lang) => {
-              const info = languageNames[lang as Locale];
-              return (
-                <span key={lang} className="inline-flex items-center gap-1.5 rounded-full bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900/40 dark:text-blue-200">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  {info && <img src={localeFlagUrl(lang as Locale)} alt="" width={16} height={12} className="rounded-sm" />}
-                  {info ? info.nativeName : lang.toUpperCase()}
-                  <button
-                    type="button"
-                    onClick={() => update({ languages: draft.languages.filter((l) => l !== lang) })}
-                    className="text-blue-600 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-100"
-                    aria-label={`${t("removeLanguage")} ${info ? info.nativeName : lang}`}
+        <div className="min-w-0">
+          <p className="mb-1.5 text-sm font-semibold text-zinc-700 dark:text-zinc-200">
+            {t("spokenLanguages")}
+          </p>
+          <div className="flex min-w-0 flex-wrap items-start gap-2">
+            <ul
+              aria-label={t("spokenLanguages")}
+              className="flex min-w-0 max-w-full flex-wrap gap-2"
+            >
+              {draft.languages.map((lang) => {
+                const info = languageNames[lang as Locale];
+                const languageLabel = info ? info.nativeName : lang.toUpperCase();
+
+                return (
+                  <li
+                    key={lang}
+                    className="inline-flex max-w-full min-w-0 items-center gap-1.5 rounded-full bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900/40 dark:text-blue-200"
                   >
-                    <X className="h-3 w-3" />
-                  </button>
-                </span>
-              );
-            })}
-            <div className="inline-flex items-center gap-1">
-              <select
-                value=""
-                onChange={(e) => {
-                  const val = e.target.value as LanguageCode;
-                  if (val && !draft.languages.includes(val)) {
-                    update({ languages: [...draft.languages, val] });
-                  }
-                }}
-                aria-label={t("addLanguage")}
-                className="w-40 rounded-lg border border-zinc-200 bg-white px-2 py-1 text-xs dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
-              >
-                <option value="">{t("addLanguage")}</option>
-                {locales
-                  .filter((loc) => !draft.languages.includes(loc as LanguageCode))
-                  .map((loc) => {
-                    const info = languageNames[loc];
-                    return (
-                      <option key={loc} value={loc}>
-                        {info.nativeName} ({info.name})
-                      </option>
-                    );
-                  })}
-              </select>
-            </div>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    {info && (
+                      <img
+                        src={localeFlagUrl(lang as Locale)}
+                        alt=""
+                        width={16}
+                        height={12}
+                        className="shrink-0 rounded-sm"
+                      />
+                    )}
+                    <span className="min-w-0 break-words">{languageLabel}</span>
+                    <button
+                      type="button"
+                      onClick={() => update({ languages: draft.languages.filter((l) => l !== lang) })}
+                      className="shrink-0 text-blue-600 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-100"
+                      aria-label={`${t("removeLanguage")} ${languageLabel}`}
+                    >
+                      <X aria-hidden="true" focusable="false" className="h-3 w-3" />
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+            <select
+              value=""
+              onChange={(e) => {
+                const val = e.target.value as LanguageCode;
+                if (val && !draft.languages.includes(val)) {
+                  update({ languages: [...draft.languages, val] });
+                }
+              }}
+              aria-label={t("addLanguage")}
+              className="w-40 max-w-full rounded-lg border border-zinc-200 bg-white px-2 py-1 text-xs dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+            >
+              <option value="">{t("addLanguage")}</option>
+              {locales
+                .filter((loc) => !draft.languages.includes(loc as LanguageCode))
+                .map((loc) => {
+                  const info = languageNames[loc];
+                  return (
+                    <option key={loc} value={loc}>
+                      {info.nativeName} ({info.name})
+                    </option>
+                  );
+                })}
+            </select>
           </div>
         </div>
       </SectionCard>
