@@ -18,19 +18,20 @@
 - Batch 66.3: delivered through PR `#484`.
 - Batch 66.4: delivered through PR `#485`.
 - Batch 66.5: delivered through PR `#486`.
-- Batch 66.6: delivered through PR `#487`; Batch 66 remains `ACTIVE` for the remaining language-engine closure units.
-- Next incomplete unit after PR #487: `Batch 66.7`.
+- Batch 66.6: delivered through PR `#487`.
+- Batch 66.7: delivered through PR `#488`; Batch 66 remains `ACTIVE` for the remaining language-engine closure units.
+- Next incomplete unit after PR #488: `Batch 66.8`.
 - Train E remains the terminal Train for v1.0; there is no Train F.
 
 ## Current checkpoint
 
-- Verified `main` before Batch 66.6: `803fa686e9cb95ba7e36378a234e8e4d79b7b02b`.
-- Batch 66.6 delivery branch: `train-d/batch-66-6-show-original-display-preference`.
-- Batch 66.6 delivery PR: `#487 — apply show-original display preference`.
+- Verified `main` before Batch 66.7: `de21f4f2aca081cf66e567d81d823c312493c49d`.
+- Batch 66.7 delivery branch: `train-d/batch-66-7-home-drawer-global-copy`.
+- Batch 66.7 delivery PR: `#488 — localize Home drawer global copy`.
 - Supabase Production project: `keaejxlwqtjjglijiplh`.
 - Latest Production migration remains: `20260718230811_batch_65_6_onboarding_profile_authority_closure`.
-- Batch 66.6 requires no database migration and does not change Auth, RLS, grants, storage or private profile visibility.
-- Final merge, Vercel Production, route, runtime-log and parity evidence is recorded on PR #487 and in the corresponding Autopilot completion report.
+- Batch 66.7 requires no database migration and does not change Auth, RLS, grants, storage or private profile visibility.
+- Final merge, Vercel Production, route, runtime-log and parity evidence must be recorded on PR #488 and in the corresponding Autopilot completion report.
 
 ## Execution authorization
 
@@ -315,6 +316,29 @@ Security and data impact:
 
 Detailed contract: `docs/batch-66-6-show-original-display-preference.md`.
 
+## Batch 66.7 — Home drawer global copy and RTL alignment
+
+Delivered through PR #488 as the next small, non-overlapping Batch 66 unit.
+
+Delivered:
+
+- the Home drawer Blog link uses the existing localized `blog.pageTitle` catalogue key;
+- the legal navigation section uses the existing localized `nav.termsAndGdpr` catalogue key;
+- the shared cookie-settings action uses logical `text-start` alignment for LTR and RTL locales;
+- no new message key or technical-fallback leaf was introduced;
+- focused application-contract coverage prevents the two hardcoded English labels and physical left alignment from returning.
+
+Security and data impact:
+
+- no Supabase migration;
+- no Auth, RLS, grants, storage or profile projection change;
+- no external translation or AI provider enabled;
+- no new paid service, subscription or cost;
+- no historical content rewrite;
+- no Train C scope reopened.
+
+Detailed contract: `docs/batch-66-7-home-drawer-global-copy.md`.
+
 Batch 66 remains active. Later units must reduce the measured translation debt, resolve remaining locale-specific overflow or hardcoded copy and produce final Batch 66 closure evidence.
 
 ## Batch 65 closure contract
@@ -340,4 +364,4 @@ Batch 66.1 also records, without hiding, the current per-locale English technica
 
 ## Next mandatory action
 
-After PR #487 is merged and its post-merge GitHub CI, Vercel Production, representative locale routes, runtime logs and Supabase parity are green, begin only Batch 66.7. Do not reopen Train C and do not create an overlapping PR.
+After PR #488 is merged and its post-merge GitHub CI, Vercel Production, representative locale routes, runtime logs and Supabase parity are green, begin only Batch 66.8. Do not reopen Train C and do not create an overlapping PR.
