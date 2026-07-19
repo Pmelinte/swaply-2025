@@ -16,19 +16,20 @@
 - Batch 66.1: delivered through PR `#482`.
 - Batch 66.2: delivered through PR `#483`.
 - Batch 66.3: delivered through PR `#484`.
-- Batch 66.4: delivered through PR `#485`; Batch 66 remains `ACTIVE` for the remaining language-engine closure units.
-- Next incomplete unit after PR #485: `Batch 66.5`.
+- Batch 66.4: delivered through PR `#485`.
+- Batch 66.5: delivered through PR `#486`; Batch 66 remains `ACTIVE` for the remaining language-engine closure units.
+- Next incomplete unit after PR #486: `Batch 66.6`.
 - Train E remains the terminal Train for v1.0; there is no Train F.
 
 ## Current checkpoint
 
-- Verified `main` before Batch 66.4: `00ef8be98a03fed56ceef71875e1d229148cda73`.
-- Batch 66.4 delivery branch: `train-d/batch-66-4-chat-panel-translation-adapter`.
-- Batch 66.4 delivery PR: `#485 — connect ChatPanel to failure-safe translation`.
+- Verified `main` before Batch 66.5: `a06cec9514dd695f36171ea0fec685be0f51a429`.
+- Batch 66.5 delivery branch: `train-d/batch-66-5-profile-translation-preferences`.
+- Batch 66.5 delivery PR: `#486 — hydrate and apply profile translation preferences`.
 - Supabase Production project: `keaejxlwqtjjglijiplh`.
 - Latest Production migration remains: `20260718230811_batch_65_6_onboarding_profile_authority_closure`.
-- Batch 66.4 requires no database migration and does not change Auth, RLS, grants, storage or private profile visibility.
-- Final merge, Vercel Production, route, runtime-log and parity evidence is recorded on PR #485 and in the corresponding Autopilot completion report.
+- Batch 66.5 requires no database migration and does not change Auth, RLS, grants, storage or private profile visibility.
+- Final merge, Vercel Production, route, runtime-log and parity evidence is recorded on PR #486 and in the corresponding Autopilot completion report.
 
 ## Execution authorization
 
@@ -263,7 +264,32 @@ Security and data impact:
 
 Detailed contract: `docs/batch-66-4-chat-panel-translation-adapter.md`.
 
-Batch 66 remains active. Later units must cover profile translation-preference hydration/application, reduction of the measured translation debt, remaining locale-specific overflow or hardcoded copy and final Batch 66 closure evidence.
+## Batch 66.5 — profile translation preference hydration and application
+
+Delivered through PR #486 as the next small, non-overlapping Batch 66 unit.
+
+Delivered:
+
+- authenticated profile hydration now carries canonical `auto_translate_messages` and `show_original_language` values into one application preference projection;
+- missing values retain the database-compatible defaults: automatic translation enabled and show-original disabled;
+- chat reads the authenticated automatic-translation preference and seeds each available conversation exactly once;
+- seeding toggles only a currently disabled conversation and does not enforce the preference on every render;
+- the existing per-conversation toggle remains user-controlled after the initial seed;
+- removed conversations are removed from the seed registry so later independent conversations initialize correctly;
+- focused hydration and static application-contract tests cover explicit values, defaults, one-time seeding and manual-toggle preservation.
+
+Security and data impact:
+
+- no Supabase migration;
+- no Auth, RLS, grants, storage or profile projection change;
+- no external translation or AI provider enabled;
+- no new paid service, subscription or cost;
+- no historical chat message or translation-cache rewrite;
+- no Train C scope reopened.
+
+Detailed contract: `docs/batch-66-5-profile-translation-preferences.md`.
+
+Batch 66 remains active. Later units must apply the hydrated show-original display preference, reduce the measured translation debt, resolve remaining locale-specific overflow or hardcoded copy and produce final Batch 66 closure evidence.
 
 ## Batch 65 closure contract
 
@@ -288,4 +314,4 @@ Batch 66.1 also records, without hiding, the current per-locale English technica
 
 ## Next mandatory action
 
-After PR #485 is merged and its post-merge GitHub CI, Vercel Production, representative locale routes, runtime logs and Supabase parity are green, begin only Batch 66.5. Do not reopen Train C and do not create an overlapping PR.
+After PR #486 is merged and its post-merge GitHub CI, Vercel Production, representative locale routes, runtime logs and Supabase parity are green, begin only Batch 66.6. Do not reopen Train C and do not create an overlapping PR.

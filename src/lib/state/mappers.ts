@@ -11,6 +11,10 @@ import type {
   SwapIntent,
   UserProfile,
 } from "../types";
+import {
+  getProfileTranslationPreferences,
+  type UserProfileWithTranslationPreferences,
+} from "../profile/profileTranslationPreferences";
 import { resolveProfileLanguages } from "../i18n/profileLanguagePreferences";
 import {
   safeArray,
@@ -54,6 +58,7 @@ export function resolveItemWishlist(row: Record<string, unknown>): string {
 export function createMapProfile(userRef: MutableRef<UserProfile | null>) {
   return (data: Partial<UserProfile> & Record<string, unknown>): UserProfile => {
     const currentUser = userRef.current;
+    const currentTranslationPreferences = getProfileTranslationPreferences(currentUser);
     const defaultStats: UserProfile["stats"] = currentUser?.stats ?? {
       tokens: 0,
       reputation: "starter",
@@ -77,7 +82,7 @@ export function createMapProfile(userRef: MutableRef<UserProfile | null>) {
       completionRate,
     } as UserProfile["stats"];
 
-    return {
+    const profile: UserProfileWithTranslationPreferences = {
       id: safeString(
         data.id,
         safeString(data.user_id, safeString(data.uid, nanoid())),
@@ -96,6 +101,16 @@ export function createMapProfile(userRef: MutableRef<UserProfile | null>) {
         data,
         currentUser?.languages?.[0] ?? "ro",
       ) as LanguageCode[],
+      translationPreferences: {
+        autoTranslateMessages: safeBoolean(
+          data.auto_translate_messages,
+          currentTranslationPreferences.autoTranslateMessages,
+        ),
+        showOriginalLanguage: safeBoolean(
+          data.show_original_language,
+          currentTranslationPreferences.showOriginalLanguage,
+        ),
+      },
       badge: safeBadgeTier(data.badge, currentUser?.badge ?? "free"),
       role: (data.role === "admin" || data.role === "moderator") ? data.role as "admin" | "moderator" : "user",
       location:
@@ -160,6 +175,8 @@ export function createMapProfile(userRef: MutableRef<UserProfile | null>) {
       disputeRate: safeNumber(data.dispute_rate, data.disputeRate, currentUser?.disputeRate),
       createdAt: safeString(data.created_at, safeString(data.createdAt as string | undefined)),
     };
+
+    return profile;
   };
 }
 
