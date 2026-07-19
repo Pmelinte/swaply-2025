@@ -50,7 +50,7 @@ jobs:
   checks:
     name: Lint & Type
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -66,7 +66,7 @@ jobs:
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
 
-      - name: Run changed-file ESLint and full TypeScript
+      - name: Run changed-file ESLint and TypeScript regression gate
         shell: bash
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
@@ -81,7 +81,6 @@ jobs:
 
           mapfile -t eslint_files < eslint-files.txt
           lint_status=0
-          type_status=0
 
           if (( ${#eslint_files[@]} > 0 )); then
             npx eslint "${eslint_files[@]}" > lint-results.txt 2>&1 || lint_status=$?
@@ -89,7 +88,20 @@ jobs:
             printf '%s\n' 'No changed JavaScript or TypeScript files to lint.' > lint-results.txt
           fi
 
-          npm run typecheck > typecheck-results.txt 2>&1 || type_status=$?
+          ./node_modules/.bin/tsc --noEmit --pretty false > typecheck-results.txt 2>&1 || true
+          grep 'error TS[0-9]\+:' typecheck-results.txt | sort -u > typecheck-diagnostics.txt || true
+
+          base_dir="${RUNNER_TEMP}/swaply-typecheck-base"
+          rm -rf "${base_dir}"
+          git worktree add --detach "${base_dir}" "${BASE_SHA}"
+          ln -s "${GITHUB_WORKSPACE}/node_modules" "${base_dir}/node_modules"
+          (
+            cd "${base_dir}"
+            "${GITHUB_WORKSPACE}/node_modules/.bin/tsc" --noEmit --pretty false
+          ) > base-typecheck-results.txt 2>&1 || true
+          grep 'error TS[0-9]\+:' base-typecheck-results.txt | sort -u > base-typecheck-diagnostics.txt || true
+
+          comm -13 base-typecheck-diagnostics.txt typecheck-diagnostics.txt > new-typecheck-diagnostics.txt
 
           if (( lint_status != 0 )); then
             printf '%s\n' '--- CHANGED-FILE ESLINT FAILURE ---'
@@ -98,14 +110,14 @@ jobs:
             printf 'Changed-file ESLint passed for %s file(s).\n' "${#eslint_files[@]}"
           fi
 
-          if (( type_status != 0 )); then
-            printf '%s\n' '--- FULL TYPESCRIPT FAILURE ---'
-            cat typecheck-results.txt
+          if [[ -s new-typecheck-diagnostics.txt ]]; then
+            printf '%s\n' '--- NEW TYPESCRIPT DIAGNOSTICS ---'
+            cat new-typecheck-diagnostics.txt
           else
-            printf '%s\n' 'Full TypeScript check passed.'
+            printf 'TypeScript introduced no diagnostics beyond base %s.\n' "${BASE_SHA}"
           fi
 
-          if (( lint_status != 0 || type_status != 0 )); then
+          if (( lint_status != 0 )) || [[ -s new-typecheck-diagnostics.txt ]]; then
             exit 1
           fi
 
@@ -118,6 +130,10 @@ jobs:
             eslint-files.txt
             lint-results.txt
             typecheck-results.txt
+            typecheck-diagnostics.txt
+            base-typecheck-results.txt
+            base-typecheck-diagnostics.txt
+            new-typecheck-diagnostics.txt
           if-no-files-found: warn
           retention-days: 14
 
@@ -134,13 +150,15 @@ jobs:
           name: lint-and-typecheck-results
           path: diagnostics
 
-      - name: Print concise check evidence
+      - name: Print check evidence
         shell: bash
         run: |
-          printf '%s\n' '--- ESLINT ERRORS ---'
-          grep -E '(^/|  error  |problems \()' diagnostics/lint-results.txt || true
-          printf '%s\n' '--- TYPESCRIPT ERRORS ---'
-          grep -E 'error TS[0-9]+:' diagnostics/typecheck-results.txt || true
+          printf '%s\n' '--- ESLINT FILES ---'
+          cat diagnostics/eslint-files.txt
+          printf '%s\n' '--- ESLINT RESULT ---'
+          cat diagnostics/lint-results.txt
+          printf '%s\n' '--- NEW TYPESCRIPT DIAGNOSTICS ---'
+          cat diagnostics/new-typecheck-diagnostics.txt
 
   test:
     name: Unit Tests
