@@ -11,6 +11,7 @@ import type {
   SwapIntent,
   UserProfile,
 } from "../types";
+import { resolveProfileLanguages } from "../i18n/profileLanguagePreferences";
 import {
   safeArray,
   safeBoolean,
@@ -91,10 +92,10 @@ export function createMapProfile(userRef: MutableRef<UserProfile | null>) {
       firstName: safeString(data.first_name, safeString(data.full_name, safeString(data.firstName))),
       avatarUrl: safeString(data.avatar_url, safeString(data.avatarUrl)),
       bio: safeString(data.bio, safeString(data.about_me)),
-      languages: safeArray<LanguageCode>(
-        data.languages,
-        currentUser?.languages ?? ["ro"],
-      ),
+      languages: resolveProfileLanguages(
+        data,
+        currentUser?.languages?.[0] ?? "ro",
+      ) as LanguageCode[],
       badge: safeBadgeTier(data.badge, currentUser?.badge ?? "free"),
       role: (data.role === "admin" || data.role === "moderator") ? data.role as "admin" | "moderator" : "user",
       location:
