@@ -13,19 +13,20 @@
 - Train D: `ACTIVE`.
 - Current Train D deliverable: `D1 — global-first profile and common infrastructure`.
 - Batch 65: `CLOSED` through the Batch 65.6 closure unit and its post-merge Production verification.
-- Batch 66.1: delivered through PR `#482`; Batch 66 remains `ACTIVE` for the remaining language-engine closure units.
-- Next incomplete unit after PR #482: `Batch 66.2`.
+- Batch 66.1: delivered through PR `#482`.
+- Batch 66.2: delivered through PR `#483`; Batch 66 remains `ACTIVE` for the remaining language-engine closure units.
+- Next incomplete unit after PR #483: `Batch 66.3`.
 - Train E remains the terminal Train for v1.0; there is no Train F.
 
 ## Current checkpoint
 
-- Verified `main` before Batch 66.1: `c967c33defce39dde6f3358456e4aba60c89881a`.
-- Batch 66.1 delivery branch: `batch-66-1-global-locale-contract`.
-- Batch 66.1 delivery PR: `#482 — enforce the global 43-locale contract`.
+- Verified `main` before Batch 66.2: `85fbe9862da3f8f7193dcb7bf1d9732acb817fad`.
+- Batch 66.2 delivery branch: `batch-66-2-authenticated-language-preferences`.
+- Batch 66.2 delivery PR: `#483 — persist authenticated language preferences`.
 - Supabase Production project: `keaejxlwqtjjglijiplh`.
 - Latest Production migration remains: `20260718230811_batch_65_6_onboarding_profile_authority_closure`.
-- Batch 66.1 requires no database migration and does not change Auth, RLS, grants, storage or private profile data.
-- Final merge, Vercel Production, route, runtime-log and parity evidence is recorded on PR #482 and in the corresponding Autopilot completion report.
+- Batch 66.2 requires no database migration and does not change Auth, RLS, grants, storage or private profile visibility.
+- Final merge, Vercel Production, route, runtime-log and parity evidence is recorded on PR #483 and in the corresponding Autopilot completion report.
 
 ## Execution authorization
 
@@ -179,7 +180,35 @@ Security and data impact:
 
 Detailed contract: `docs/batch-66-1-global-locale-contract.md`.
 
-Batch 66 remains active. Later units must cover authenticated preference persistence through login/reload, chat original/translated behavior under provider failure, reduction of the measured translation debt, remaining locale-specific overflow or hardcoded copy and final Batch 66 closure evidence.
+## Batch 66.2 — authenticated language preference persistence
+
+Delivered through PR #483 as the next small Batch 66 unit.
+
+Delivered:
+
+- profile hydration treats canonical `primary_language`, `secondary_language` and `tertiary_language` columns as authoritative;
+- the historical `languages` array remains only a compatibility fallback;
+- duplicate and unsupported locale values are removed deterministically;
+- all 43 registered locales are accepted, including Yiddish (`yi`);
+- choosing a locale promotes it to primary while retaining at most two ordered fallbacks;
+- authenticated selection persists through the existing revisioned `update_own_profile_v1` authority;
+- login and reload restore the canonical primary locale into application state, the `NEXT_LOCALE` cookie and localized routing;
+- country selection remains independent from language selection;
+- focused resolver and authenticated-hydration tests cover canonical ordering, legacy compatibility, RTL locale restoration and invalid-value fallback.
+
+Security and data impact:
+
+- no Supabase migration;
+- no Auth, RLS, grants, storage or public/private profile projection change;
+- no direct browser write to `public.profiles`;
+- no external translation or AI provider;
+- no new paid service, subscription or cost;
+- no historical user content rewrite;
+- no Train C scope reopened.
+
+Detailed contract: `docs/batch-66-2-authenticated-language-preferences.md`.
+
+Batch 66 remains active. Later units must cover chat original/translated behavior under provider failure, reduction of the measured translation debt, remaining locale-specific overflow or hardcoded copy and final Batch 66 closure evidence.
 
 ## Batch 65 closure contract
 
@@ -204,4 +233,4 @@ Batch 66.1 also records, without hiding, the current per-locale English technica
 
 ## Next mandatory action
 
-After PR #482 is merged and its post-merge GitHub CI, Vercel Production, representative locale routes, runtime logs and Supabase parity are green, begin only Batch 66.2. Do not reopen Train C and do not create an overlapping PR.
+After PR #483 is merged and its post-merge GitHub CI, Vercel Production, representative locale routes, runtime logs and Supabase parity are green, begin only Batch 66.3. Do not reopen Train C and do not create an overlapping PR.
