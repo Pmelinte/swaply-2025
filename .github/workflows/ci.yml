@@ -72,8 +72,6 @@ jobs:
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
-          set -o pipefail
-
           if [[ -z "${BASE_SHA}" || "${BASE_SHA}" =~ ^0+$ ]]; then
             BASE_SHA="$(git rev-parse "${HEAD_SHA}^")"
           fi
@@ -86,13 +84,26 @@ jobs:
           type_status=0
 
           if (( ${#eslint_files[@]} > 0 )); then
-            printf 'ESLint changed files:\n%s\n' "${eslint_files[*]}"
-            npx eslint "${eslint_files[@]}" 2>&1 | tee lint-results.txt || lint_status=${PIPESTATUS[0]}
+            npx eslint "${eslint_files[@]}" > lint-results.txt 2>&1 || lint_status=$?
           else
-            printf '%s\n' 'No changed JavaScript or TypeScript files to lint.' | tee lint-results.txt
+            printf '%s\n' 'No changed JavaScript or TypeScript files to lint.' > lint-results.txt
           fi
 
-          npm run typecheck 2>&1 | tee typecheck-results.txt || type_status=${PIPESTATUS[0]}
+          npm run typecheck > typecheck-results.txt 2>&1 || type_status=$?
+
+          if (( lint_status != 0 )); then
+            printf '%s\n' '--- CHANGED-FILE ESLINT FAILURE ---'
+            cat lint-results.txt
+          else
+            printf 'Changed-file ESLint passed for %s file(s).\n' "${#eslint_files[@]}"
+          fi
+
+          if (( type_status != 0 )); then
+            printf '%s\n' '--- FULL TYPESCRIPT FAILURE ---'
+            cat typecheck-results.txt
+          else
+            printf '%s\n' 'Full TypeScript check passed.'
+          fi
 
           if (( lint_status != 0 || type_status != 0 )); then
             exit 1
