@@ -134,15 +134,13 @@ jobs:
           name: lint-and-typecheck-results
           path: diagnostics
 
-      - name: Print check evidence
+      - name: Print concise check evidence
         shell: bash
         run: |
-          printf '%s\n' '--- ESLINT FILES ---'
-          cat diagnostics/eslint-files.txt
-          printf '%s\n' '--- ESLINT RESULT ---'
-          cat diagnostics/lint-results.txt
-          printf '%s\n' '--- TYPESCRIPT RESULT ---'
-          cat diagnostics/typecheck-results.txt
+          printf '%s\n' '--- ESLINT ERRORS ---'
+          grep -E '(^/|  error  |problems \()' diagnostics/lint-results.txt || true
+          printf '%s\n' '--- TYPESCRIPT ERRORS ---'
+          grep -E 'error TS[0-9]+:' diagnostics/typecheck-results.txt || true
 
   test:
     name: Unit Tests
