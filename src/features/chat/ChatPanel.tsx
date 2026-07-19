@@ -5,6 +5,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Conversation, ChatMessage } from "@/lib/types";
 import { useAppState } from "@/lib/state";
+import { getProfileTranslationPreferences } from "@/lib/profile/profileTranslationPreferences";
 import {
   likelyNeedsTranslation,
   translateMessage,
@@ -276,6 +277,7 @@ export function ChatPanel({
   const tc = useTranslations("chat");
   const { addMessage, toggleConversationTranslation, items, swaps, user, setTyping, markMessagesRead } = useAppState();
   const language = useLocale();
+  const { showOriginalLanguage } = getProfileTranslationPreferences(user);
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
   const [draft, setDraft] = useState("");
   const [moderationError, setModerationError] = useState<string | null>(null);
@@ -307,10 +309,13 @@ export function ChatPanel({
     };
   }, []);
 
-  // Toggle show-original for a specific message
+  // Toggle show-original for a specific message while respecting the profile default.
   const toggleShowOriginal = useCallback((messageId: string) => {
-    setShowOriginalMap((prev) => ({ ...prev, [messageId]: !prev[messageId] }));
-  }, []);
+    setShowOriginalMap((prev) => ({
+      ...prev,
+      [messageId]: !(prev[messageId] ?? showOriginalLanguage),
+    }));
+  }, [showOriginalLanguage]);
 
   // Filter conversations by search
   const filteredConversations = useMemo(() => {
@@ -687,7 +692,7 @@ export function ChatPanel({
                     isMe={msg.senderId !== active.participantId}
                     targetLang={language}
                     translationEnabled={active.translationEnabled}
-                    showOriginal={showOriginalMap[msg.id] ?? true}
+                    showOriginal={showOriginalMap[msg.id] ?? showOriginalLanguage}
                     onToggleOriginal={() => toggleShowOriginal(msg.id)}
                     onReact={(emoji) => handleReaction(msg.id, emoji)}
                   />
