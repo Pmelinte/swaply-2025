@@ -168,12 +168,12 @@ export default function DrawerHome() {
         </DrawerSection>
 
         <DrawerSection title={t("nav.info")}>
-          <DrawerLink href="/blog" label="Blog" icon={BookOpen} pathname={pathname} onClick={handleLinkClick} />
+          <DrawerLink href="/blog" label={t("blog.pageTitle")} icon={BookOpen} pathname={pathname} onClick={handleLinkClick} />
           <DrawerLink href="/contact" label={t("contact.title")} icon={Mail} pathname={pathname} onClick={handleLinkClick} />
           <DrawerLink href="/feedback" label={t("feedback.title")} icon={MessageSquare} pathname={pathname} onClick={handleLinkClick} />
         </DrawerSection>
 
-        <DrawerSection title="Legal">
+        <DrawerSection title={t("nav.termsAndGdpr")}>
           <DrawerLink href="/privacy" label={t("legal.privacyTitle")} icon={ShieldCheck} pathname={pathname} onClick={handleLinkClick} />
           <DrawerLink href="/cookies" label={t("legal.cookiesTitle")} icon={Lock} pathname={pathname} onClick={handleLinkClick} />
           <DrawerLink href="/dmca" label={t("legal.dmcaTitle")} icon={AlertTriangle} pathname={pathname} onClick={handleLinkClick} />
@@ -253,7 +253,7 @@ function DrawerButton({
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-zinc-700 transition hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+      className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-start text-sm font-medium text-zinc-700 transition hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
     >
       <Icon className="h-5 w-5 shrink-0" />
       {label}
