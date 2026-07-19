@@ -87,6 +87,31 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+  checks-diagnostics:
+    name: Lint & Type Diagnostics
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    needs: checks
+    if: always() && needs.checks.result == 'failure'
+    steps:
+      - name: Download lint and typecheck results
+        uses: actions/download-artifact@v4
+        with:
+          name: lint-and-typecheck-results
+          path: diagnostics
+
+      - name: Print lint and typecheck results
+        shell: bash
+        run: |
+          printf '%s\n' '--- ESLINT ---'
+          cat diagnostics/lint-results.txt
+          printf '%s\n' '--- TYPESCRIPT ---'
+          if [ -f diagnostics/typecheck-results.txt ]; then
+            cat diagnostics/typecheck-results.txt
+          else
+            printf '%s\n' 'TypeScript was not run because ESLint failed first.'
+          fi
+
   test:
     name: Unit Tests
     runs-on: ubuntu-latest
