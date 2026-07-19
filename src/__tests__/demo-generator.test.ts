@@ -53,7 +53,7 @@ describe("generateDemoData", () => {
       expect(["active", "paused", "reserved", "traded", "archived"]).toContain(item.status);
       expect(item.isDemo).toBe(true);
       expect(item.createdAt).toBeTruthy();
-      expect(item.photos.length).toBeGreaterThan(0);
+      expect(item.photos?.length ?? 0).toBeGreaterThan(0);
     }
   });
 

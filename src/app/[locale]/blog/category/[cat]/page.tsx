@@ -39,15 +39,19 @@ export default async function CategoryPage({ params }: Props) {
   const { locale, cat } = await params;
   const t = await getTranslations({ locale, namespace: "blog" });
   const category = decodeURIComponent(cat);
-  const rawPosts = getPostsByCategory(category);
+  const rawPosts = getPostsByCategory(category, locale);
 
-  // Translate post titles and descriptions server-side
-  // Posts have sourceLang indicating their actual language
+  // Translate post titles and descriptions server-side.
+  // LocalizedBlogPost exposes the actual source language explicitly.
   const posts = await Promise.all(
     rawPosts.map(async (post) => ({
       ...post,
-      title: await translateOnDemand(post.title, locale, (post as any).sourceLang ?? "en"),
-      description: await translateOnDemand(post.description, locale, (post as any).sourceLang ?? "en"),
+      title: await translateOnDemand(post.title, locale, post.sourceLang),
+      description: await translateOnDemand(
+        post.description,
+        locale,
+        post.sourceLang,
+      ),
     })),
   );
 
@@ -66,7 +70,11 @@ export default async function CategoryPage({ params }: Props) {
           {category}
         </h1>
         <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          {posts.length} {posts.length === 1 ? t("articleCount", { count: posts.length }) : t("articlesCount", { count: posts.length })} {t("inCategory")}
+          {posts.length}{" "}
+          {posts.length === 1
+            ? t("articleCount", { count: posts.length })
+            : t("articlesCount", { count: posts.length })}{" "}
+          {t("inCategory")}
         </p>
       </div>
 

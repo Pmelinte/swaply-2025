@@ -17,7 +17,9 @@ describe("Swaply AI facade", () => {
   it("returns safe fallbacks when no providers are configured", async () => {
     const metadataEvents: unknown[] = [];
     const facade = createFallbackOnlySwaplyAIFacade({
-      onSafeMetadata: (metadata) => metadataEvents.push(metadata),
+      onSafeMetadata: (metadata) => {
+        metadataEvents.push(metadata);
+      },
     });
 
     const result = await runAsServerSide(() =>

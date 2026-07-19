@@ -13,17 +13,19 @@
 - Train D: `ACTIVE`.
 - Current Train D deliverable: `D1 — global-first profile and common infrastructure`.
 - Batch 65: `CLOSED` through the Batch 65.6 closure unit and its post-merge Production verification.
-- Next incomplete batch: `66`; no Batch 66 implementation is included in the Batch 65.6 PR.
+- Batch 66.1: delivered through PR `#482`; Batch 66 remains `ACTIVE` for the remaining language-engine closure units.
+- Next incomplete unit after PR #482: `Batch 66.2`.
 - Train E remains the terminal Train for v1.0; there is no Train F.
 
 ## Current checkpoint
 
-- Verified `main` before Batch 65.6: `409655a7b7e0813bc6392fce477d7afb3e44c56c`.
-- Batch 65.6 delivery branch: `batch-65-6-onboarding-profile-authority`.
-- Batch 65.6 delivery PR: `#481 — close onboarding profile write authority`.
+- Verified `main` before Batch 66.1: `c967c33defce39dde6f3358456e4aba60c89881a`.
+- Batch 66.1 delivery branch: `batch-66-1-global-locale-contract`.
+- Batch 66.1 delivery PR: `#482 — enforce the global 43-locale contract`.
 - Supabase Production project: `keaejxlwqtjjglijiplh`.
-- Batch 65.6 migration: `20260718230811_batch_65_6_onboarding_profile_authority_closure`.
-- Final merge, Vercel Production, route, runtime-log and migration-parity evidence is recorded on PR #481 and in the corresponding Autopilot completion report.
+- Latest Production migration remains: `20260718230811_batch_65_6_onboarding_profile_authority_closure`.
+- Batch 66.1 requires no database migration and does not change Auth, RLS, grants, storage or private profile data.
+- Final merge, Vercel Production, route, runtime-log and parity evidence is recorded on PR #482 and in the corresponding Autopilot completion report.
 
 ## Execution authorization
 
@@ -129,7 +131,7 @@ Detailed contract: `docs/batch-65-5-strict-profile-rpc.md`.
 
 ### Batch 65.6 — onboarding profile authority closure
 
-Delivered through PR #481.
+Merged through PR #481 as commit `c967c33defce39dde6f3358456e4aba60c89881a` and verified in Production.
 
 Delivered:
 
@@ -147,9 +149,41 @@ Production migration:
 
 - `20260718230811_batch_65_6_onboarding_profile_authority_closure`.
 
+## Batch 66.1 — global locale contract and 43-locale runtime smoke
+
+Delivered through PR #482 as the first small, non-overlapping Batch 66 unit.
+
+Delivered:
+
+- one canonical registry of exactly 43 unique application locales;
+- deterministic validation that every registered locale has a parseable message catalogue;
+- leaf-type and ICU-placeholder compatibility checks against the English source catalogue;
+- English and Romanian catalogues retained as complete source catalogues;
+- the current technical-fallback debt of the other 41 catalogues measured and frozen at a maximum of 129 English fallback leaves per locale, so new untranslated source keys fail CI while real translations can only reduce the budget;
+- historical extra keys and five pre-existing ICU placeholder renames remain visible warnings instead of being deleted or machine-rewritten;
+- canonical document `lang` and `dir` attributes for every locale;
+- Arabic, Persian and Yiddish declared RTL, with all other active locales LTR;
+- Vitest coverage for the 43-locale registry, RTL direction, logged-in and guest fallback chains, weighted browser-language parsing and localized-value selection;
+- public Home and Objects routing smoke across all 43 locales;
+- deeper EN, RO, DE, AR, ZH and YI desktop-light and mobile-dark layout checks with mobile overflow assertions and screenshot artifacts;
+- the locale contract made a critical GitHub CI and Vercel build gate.
+
+Security and data impact:
+
+- no Supabase migration;
+- no Auth, RLS, grants, storage or private-profile change;
+- no external AI or translation provider;
+- no new paid service, subscription or cost;
+- no user content rewritten;
+- no Train C scope reopened.
+
+Detailed contract: `docs/batch-66-1-global-locale-contract.md`.
+
+Batch 66 remains active. Later units must cover authenticated preference persistence through login/reload, chat original/translated behavior under provider failure, reduction of the measured translation debt, remaining locale-specific overflow or hardcoded copy and final Batch 66 closure evidence.
+
 ## Batch 65 closure contract
 
-Batch 65 is closed only with all of the following evidence attached to PR #481:
+Batch 65 is closed with all of the following evidence attached to PR #481:
 
 1. exact final-head lint, typecheck, unit tests, build and applicable visual/authenticated checks are green;
 2. exact Vercel Preview is `READY` and the onboarding route is reachable;
@@ -157,8 +191,8 @@ Batch 65 is closed only with all of the following evidence attached to PR #481:
 4. authenticated direct profile `INSERT`/`UPDATE` is absent after migration;
 5. owner RPC execution, RLS/policies, public projection and service-role authority remain correct;
 6. repository and Production migration histories are aligned;
-7. PR #481 is merged automatically only after the previous gates pass;
-8. post-merge GitHub CI, Vercel Production, multilingual onboarding routes, runtime logs and Supabase logs/parity are verified.
+7. PR #481 was merged automatically only after the previous gates passed;
+8. post-merge GitHub CI, Vercel Production, multilingual onboarding routes, runtime logs and Supabase logs/parity were verified.
 
 No Train C scope was reopened, no destructive migration was introduced and no paid provider or subscription was added.
 
@@ -166,6 +200,8 @@ No Train C scope was reopened, no destructive migration was introduced and no pa
 
 Pre-existing advisor items remain tracked separately, including leaked-password protection being disabled and one older mutable function search path. They must be reconciled no later than the Train D security closure unless a higher-severity finding requires an earlier batch.
 
+Batch 66.1 also records, without hiding, the current per-locale English technical-fallback budget and the five known placeholder-rename warnings. These are measured translation debt, not a declaration that every catalogue is already complete.
+
 ## Next mandatory action
 
-Begin only Batch 66 after Batch 65.6 is merged and every post-merge Production gate above is green. Batch 66 must be selected from the canonical Train D master plan and implemented as one small, non-overlapping PR.
+After PR #482 is merged and its post-merge GitHub CI, Vercel Production, representative locale routes, runtime logs and Supabase parity are green, begin only Batch 66.2. Do not reopen Train C and do not create an overlapping PR.

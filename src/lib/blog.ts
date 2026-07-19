@@ -19,6 +19,8 @@ export interface BlogPost {
   content: string;
 }
 
+export type LocalizedBlogPost = BlogPost & { sourceLang: string };
+
 function parsePostFromPath(filePath: string, slug: string): BlogPost {
   const raw = fs.readFileSync(filePath, "utf-8");
   const { data, content } = matter(raw);
@@ -47,7 +49,7 @@ function parsePost(file: string): BlogPost {
  * Get all posts, preferring locale-specific versions when available.
  * Falls back to English (root) if no localized version exists.
  */
-export function getAllPosts(locale?: string): BlogPost[] {
+export function getAllPosts(locale?: string): LocalizedBlogPost[] {
   if (!fs.existsSync(BLOG_DIR)) return [];
 
   const enFiles = fs.readdirSync(BLOG_DIR).filter((f) => f.endsWith(".mdx"));
@@ -55,7 +57,7 @@ export function getAllPosts(locale?: string): BlogPost[] {
   const hasLocaleDir = localeDir && fs.existsSync(localeDir);
 
   return enFiles
-    .map((file) => {
+    .map((file): LocalizedBlogPost => {
       const slug = file.replace(/\.mdx$/, "");
       // Try locale-specific file first
       if (hasLocaleDir) {
@@ -73,7 +75,7 @@ export function getAllPosts(locale?: string): BlogPost[] {
 /**
  * Get a single post by slug, with locale fallback.
  */
-export function getPostBySlug(slug: string, locale?: string): (BlogPost & { sourceLang: string }) | null {
+export function getPostBySlug(slug: string, locale?: string): LocalizedBlogPost | null {
   // Try locale-specific version first
   if (locale && locale !== "en") {
     const localePath = path.join(BLOG_DIR, locale, `${slug}.mdx`);
@@ -87,7 +89,10 @@ export function getPostBySlug(slug: string, locale?: string): (BlogPost & { sour
   return { ...parsePost(`${slug}.mdx`), sourceLang: "en" };
 }
 
-export function getPostsByCategory(category: string, locale?: string): BlogPost[] {
+export function getPostsByCategory(
+  category: string,
+  locale?: string,
+): LocalizedBlogPost[] {
   return getAllPosts(locale).filter(
     (p) => p.category.toLowerCase() === category.toLowerCase(),
   );

@@ -19,13 +19,43 @@ env:
   NEXT_TELEMETRY_DISABLED: "1"
 
 jobs:
-  checks:
-    name: Lint & Type Check
+  i18n-contract:
+    name: 43-Locale Contract
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 5
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Verify all 43 locale catalogues
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run i18n:check 2>&1 | tee i18n-contract-results.txt
+
+      - name: Upload i18n contract results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: i18n-contract-results
+          path: i18n-contract-results.txt
+          if-no-files-found: warn
+          retention-days: 14
+
+  checks:
+    name: Lint & Type
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -36,8 +66,99 @@ jobs:
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
 
-      - name: Run ESLint & TypeScript in parallel
-        run: npm run lint & npm run typecheck & wait
+      - name: Run changed-file ESLint and TypeScript regression gate
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          if [[ -z "${BASE_SHA}" || "${BASE_SHA}" =~ ^0+$ ]]; then
+            BASE_SHA="$(git rev-parse "${HEAD_SHA}^")"
+          fi
+
+          git diff --name-only --diff-filter=ACMR "${BASE_SHA}" "${HEAD_SHA}" -- \
+            '*.js' '*.jsx' '*.mjs' '*.cjs' '*.ts' '*.tsx' > eslint-files.txt
+
+          mapfile -t eslint_files < eslint-files.txt
+          lint_status=0
+
+          if (( ${#eslint_files[@]} > 0 )); then
+            npx eslint "${eslint_files[@]}" > lint-results.txt 2>&1 || lint_status=$?
+          else
+            printf '%s\n' 'No changed JavaScript or TypeScript files to lint.' > lint-results.txt
+          fi
+
+          ./node_modules/.bin/tsc --noEmit --pretty false > typecheck-results.txt 2>&1 || true
+          grep 'error TS[0-9]\+:' typecheck-results.txt | sort -u > typecheck-diagnostics.txt || true
+
+          base_dir="${RUNNER_TEMP}/swaply-typecheck-base"
+          rm -rf "${base_dir}"
+          git worktree add --detach "${base_dir}" "${BASE_SHA}"
+          ln -s "${GITHUB_WORKSPACE}/node_modules" "${base_dir}/node_modules"
+          (
+            cd "${base_dir}"
+            "${GITHUB_WORKSPACE}/node_modules/.bin/tsc" --noEmit --pretty false
+          ) > base-typecheck-results.txt 2>&1 || true
+          grep 'error TS[0-9]\+:' base-typecheck-results.txt | sort -u > base-typecheck-diagnostics.txt || true
+
+          comm -13 base-typecheck-diagnostics.txt typecheck-diagnostics.txt > new-typecheck-diagnostics.txt
+
+          if (( lint_status != 0 )); then
+            printf '%s\n' '--- CHANGED-FILE ESLINT FAILURE ---'
+            cat lint-results.txt
+          else
+            printf 'Changed-file ESLint passed for %s file(s).\n' "${#eslint_files[@]}"
+          fi
+
+          if [[ -s new-typecheck-diagnostics.txt ]]; then
+            printf '%s\n' '--- NEW TYPESCRIPT DIAGNOSTICS ---'
+            cat new-typecheck-diagnostics.txt
+          else
+            printf 'TypeScript introduced no diagnostics beyond base %s.\n' "${BASE_SHA}"
+          fi
+
+          if (( lint_status != 0 )) || [[ -s new-typecheck-diagnostics.txt ]]; then
+            exit 1
+          fi
+
+      - name: Upload lint and typecheck results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-and-typecheck-results
+          path: |
+            eslint-files.txt
+            lint-results.txt
+            typecheck-results.txt
+            typecheck-diagnostics.txt
+            base-typecheck-results.txt
+            base-typecheck-diagnostics.txt
+            new-typecheck-diagnostics.txt
+          if-no-files-found: warn
+          retention-days: 14
+
+  checks-diagnostics:
+    name: Lint & Type Diagnostics
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    needs: checks
+    if: always() && needs.checks.result == 'failure'
+    steps:
+      - name: Download check evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: lint-and-typecheck-results
+          path: diagnostics
+
+      - name: Print check evidence
+        shell: bash
+        run: |
+          printf '%s\n' '--- ESLINT FILES ---'
+          cat diagnostics/eslint-files.txt
+          printf '%s\n' '--- ESLINT RESULT ---'
+          cat diagnostics/lint-results.txt
+          printf '%s\n' '--- NEW TYPESCRIPT DIAGNOSTICS ---'
+          cat diagnostics/new-typecheck-diagnostics.txt
 
   test:
     name: Unit Tests
@@ -72,7 +193,7 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    needs: [checks, test]
+    needs: [i18n-contract, checks, test]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -106,9 +227,9 @@ jobs:
           retention-days: 7
 
   visual-audit:
-    name: Public Visual Audit
+    name: Public Visual & 43-Locale Audit
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 40
     needs: build
     steps:
       - name: Checkout
@@ -129,6 +250,9 @@ jobs:
       - name: Run public visual audit
         run: npm run test:e2e:public
 
+      - name: Run 43-locale routing and global layout audit
+        run: npm run test:e2e:i18n
+
       - name: Upload visual audit screenshots
         if: always()
         uses: actions/upload-artifact@v4
@@ -138,11 +262,20 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+      - name: Upload global locale screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: swaply-i18n-43-locale-screenshots
+          path: playwright-i18n-screenshots/
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: swaply-public-visual-audit-report
+          name: swaply-public-and-i18n-audit-report
           path: playwright-report/
           if-no-files-found: warn
           retention-days: 14
@@ -151,7 +284,30 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: swaply-public-visual-audit-test-results
+          name: swaply-public-and-i18n-audit-test-results
           path: test-results/
           if-no-files-found: warn
           retention-days: 14
+
+  visual-audit-diagnostics:
+    name: Public Visual & 43-Locale Diagnostics
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: visual-audit
+    if: always() && needs.visual-audit.result == 'failure'
+    steps:
+      - name: Download Playwright test results
+        uses: actions/download-artifact@v4
+        with:
+          name: swaply-public-and-i18n-audit-test-results
+          path: diagnostics
+
+      - name: Print concise Playwright failure evidence
+        shell: bash
+        run: |
+          printf '%s\n' '--- PLAYWRIGHT LAST RUN ---'
+          find diagnostics -type f -name '.last-run.json' -print -exec cat {} \; || true
+          printf '%s\n' '--- PLAYWRIGHT ERROR CONTEXTS ---'
+          find diagnostics -type f -name 'error-context.md' -print -exec sed -n '1,240p' {} \; || true
+          printf '%s\n' '--- PLAYWRIGHT TRACE AND SCREENSHOT FILES ---'
+          find diagnostics -type f \( -name 'trace.zip' -o -name 'test-failed-*.png' \) -print || true
