@@ -5,6 +5,11 @@ import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Conversation, ChatMessage } from "@/lib/types";
 import { useAppState } from "@/lib/state";
+import {
+  likelyNeedsTranslation,
+  translateMessage,
+  type ChatTranslationResult,
+} from "@/lib/chat/chatTranslation";
 import { formatDate } from "@/lib/utils";
 import { Badge, Pill } from "@/components/ui-custom";
 import {
@@ -56,6 +61,7 @@ function MessageBubble({
   msg,
   isMe,
   targetLang,
+  translationEnabled,
   showOriginal,
   onToggleOriginal,
   onReact,
@@ -63,6 +69,7 @@ function MessageBubble({
   msg: ChatMessage;
   isMe: boolean;
   targetLang: string;
+  translationEnabled: boolean;
   showOriginal: boolean;
   onToggleOriginal: () => void;
   onReact: (emoji: string) => void;
@@ -70,37 +77,65 @@ function MessageBubble({
   const t = useTranslations("chatPanel");
   const tc = useTranslations("chat");
   const locale = useLocale();
-  const [translatedText, setTranslatedText] = useState<string | null>(null);
+  const [translationResult, setTranslationResult] = useState<ChatTranslationResult | null>(null);
+  const [translationFailed, setTranslationFailed] = useState(false);
+  const [translationAttempted, setTranslationAttempted] = useState(false);
   const [translating, setTranslating] = useState(false);
   const [showReactions, setShowReactions] = useState(false);
 
-  const handleTranslate = async () => {
+  const isLocation = msg.messageType === "location" && msg.locationData;
+  const canTranslate =
+    !isMe &&
+    !isLocation &&
+    likelyNeedsTranslation(msg.content, targetLang);
+  const translatedText =
+    translationResult?.status === "translated"
+      ? translationResult.translatedText
+      : null;
+
+  useEffect(() => {
+    setTranslationResult(null);
+    setTranslationFailed(false);
+    setTranslationAttempted(false);
+    setTranslating(false);
+  }, [msg.id, msg.content, targetLang]);
+
+  const handleTranslate = useCallback(async () => {
+    if (!canTranslate || translating) return;
+
+    setTranslationAttempted(true);
+    setTranslationFailed(false);
     setTranslating(true);
+
     try {
-      const detectLang = /[ăâîșț]/i.test(msg.content)
-        ? "ro"
-        : /[ñáéíóú]/i.test(msg.content)
-          ? "es"
-          : "en";
-      const res = await fetch("/api/translate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          text: msg.content,
-          from: detectLang,
-          to: targetLang,
-        }),
-      });
-      const data = await res.json();
-      setTranslatedText(data.translated);
+      const result = await translateMessage(msg.content, targetLang);
+      setTranslationResult(result);
+      setTranslationFailed(result.status === "fallback");
     } catch {
-      setTranslatedText(t("translationError"));
+      setTranslationResult(null);
+      setTranslationFailed(true);
     } finally {
       setTranslating(false);
     }
-  };
+  }, [canTranslate, msg.content, targetLang, translating]);
 
-  const isLocation = msg.messageType === "location" && msg.locationData;
+  useEffect(() => {
+    if (
+      translationEnabled &&
+      canTranslate &&
+      !translationAttempted &&
+      !translating
+    ) {
+      void handleTranslate();
+    }
+  }, [
+    canTranslate,
+    handleTranslate,
+    translating,
+    translationAttempted,
+    translationEnabled,
+  ]);
+
   const reactions = msg.reactions ?? {};
   const reactionEntries = Object.entries(reactions).filter(([, users]) => users.length > 0);
 
@@ -131,12 +166,15 @@ function MessageBubble({
       {/* Location message */}
       {isLocation ? (
         <LocationBubble lat={msg.locationData!.lat} lng={msg.locationData!.lng} label={msg.locationData!.label} />
-      ) : translatedText && !showOriginal ? (
-        <p className="mt-1 rounded-lg bg-purple-50 p-2 text-sm text-purple-800 dark:bg-purple-950/30 dark:text-purple-200">
-          {translatedText}
-        </p>
       ) : (
-        <p className="mt-1 text-sm text-zinc-800 dark:text-zinc-100">{msg.content}</p>
+        <>
+          <p className="mt-1 text-sm text-zinc-800 dark:text-zinc-100">{msg.content}</p>
+          {translatedText && !showOriginal ? (
+            <p className="mt-1 rounded-lg bg-purple-50 p-2 text-sm text-purple-800 dark:bg-purple-950/30 dark:text-purple-200">
+              {translatedText}
+            </p>
+          ) : null}
+        </>
       )}
       {/* Reactions display */}
       {reactionEntries.length > 0 && (
@@ -185,15 +223,33 @@ function MessageBubble({
             {att.name}
           </Pill>
         ))}
-        {!translatedText && !isLocation ? (
+        {canTranslate && !translatedText && !translationFailed ? (
           <button
             type="button"
             onClick={() => void handleTranslate()}
             disabled={translating}
-            className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-medium text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+            className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-medium text-zinc-600 hover:bg-zinc-200 disabled:cursor-wait disabled:opacity-60 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
           >
             {translating ? "..." : t("translate")}
           </button>
+        ) : null}
+        {translationFailed ? (
+          <>
+            <span
+              role="status"
+              className="text-[10px] font-medium text-amber-700 dark:text-amber-300"
+            >
+              {t("translationError")}
+            </span>
+            <button
+              type="button"
+              onClick={() => void handleTranslate()}
+              disabled={translating}
+              className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-800 hover:bg-amber-200 disabled:cursor-wait disabled:opacity-60 dark:bg-amber-900/40 dark:text-amber-200 dark:hover:bg-amber-900/60"
+            >
+              {translating ? "..." : t("translate")}
+            </button>
+          </>
         ) : null}
         {translatedText ? (
           <button
@@ -630,6 +686,7 @@ export function ChatPanel({
                     msg={enrichedMsg}
                     isMe={msg.senderId !== active.participantId}
                     targetLang={language}
+                    translationEnabled={active.translationEnabled}
                     showOriginal={showOriginalMap[msg.id] ?? true}
                     onToggleOriginal={() => toggleShowOriginal(msg.id)}
                     onReact={(emoji) => handleReaction(msg.id, emoji)}

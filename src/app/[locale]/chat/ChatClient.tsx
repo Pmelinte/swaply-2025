@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { CTAButton, NextStepRecommendation, SectionCard, StateShowcase } from "@/components/ui-custom";
 import { ChatPanel } from "@/features/chat/ChatPanel";
@@ -16,6 +16,7 @@ export function ChatClient({
   serverAuthenticated?: boolean;
 }) {
   const { user, loading, conversations, ensureConversation } = useAppState();
+  const locale = useLocale();
   const t = useTranslations("chat");
   const tc = useTranslations("common");
   const dmConversationId =
@@ -99,7 +100,11 @@ export function ChatClient({
         description={t("description")}
         action={<CTAButton href="/exchange">{t("confirmSwap")}</CTAButton>}
       >
-        <ChatPanel conversations={conversations} initialConversationId={initialConversationId} />
+        <ChatPanel
+          key={locale}
+          conversations={conversations}
+          initialConversationId={initialConversationId}
+        />
       </SectionCard>
       <SectionCard title={t("rules")} description={t("rulesDescription")}>
         <ul className="list-disc space-y-2 pl-5 text-sm text-zinc-700 dark:text-zinc-300">
@@ -140,4 +145,3 @@ export function ChatClient({
     </div>
   );
 }
-
