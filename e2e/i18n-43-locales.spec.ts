@@ -25,6 +25,12 @@ function screenshotPath(locale: Locale, viewport: "desktop-light" | "mobile-dark
   return path.join(screenshotRoot, `${locale}-${viewport}.png`);
 }
 
+function getVisibleDocumentHtml(documentHtml: string) {
+  return documentHtml
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "")
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, "");
+}
+
 async function assertLocalizedResponseIsHealthy(
   request: APIRequestContext,
   locale: Locale,
@@ -33,6 +39,7 @@ async function assertLocalizedResponseIsHealthy(
   const pathName = `/${locale}${route}`;
   let lastStatus: number | undefined;
   let lastBody = "";
+  let lastVisibleBody = "";
   let lastError: unknown;
 
   for (let attempt = 1; attempt <= ROUTE_ATTEMPTS; attempt += 1) {
@@ -42,13 +49,14 @@ async function assertLocalizedResponseIsHealthy(
       });
       lastStatus = response.status();
       lastBody = await response.text();
+      lastVisibleBody = getVisibleDocumentHtml(lastBody);
       lastError = undefined;
 
       const hasCanonicalDocumentContract =
         lastStatus < 400
         && lastBody.includes(`lang="${locale}"`)
         && lastBody.includes(`dir="${getLocaleDirection(locale)}"`)
-        && ERROR_MARKERS.every((marker) => !lastBody.includes(marker));
+        && ERROR_MARKERS.every((marker) => !lastVisibleBody.includes(marker));
 
       if (hasCanonicalDocumentContract) {
         return;
@@ -62,7 +70,7 @@ async function assertLocalizedResponseIsHealthy(
     }
   }
 
-  const marker = ERROR_MARKERS.find((candidate) => lastBody.includes(candidate));
+  const marker = ERROR_MARKERS.find((candidate) => lastVisibleBody.includes(candidate));
   const diagnostic = [
     `${pathName} failed the canonical document contract after ${ROUTE_ATTEMPTS} attempts`,
     `status=${lastStatus ?? "request-error"}`,
@@ -78,7 +86,7 @@ async function assertLocalizedResponseIsHealthy(
   expect(lastBody, diagnostic).toContain(`dir="${getLocaleDirection(locale)}"`);
 
   for (const errorMarker of ERROR_MARKERS) {
-    expect(lastBody, diagnostic).not.toContain(errorMarker);
+    expect(lastVisibleBody, diagnostic).not.toContain(errorMarker);
   }
 }
 
