@@ -288,3 +288,26 @@ jobs:
           path: test-results/
           if-no-files-found: warn
           retention-days: 14
+
+  visual-audit-diagnostics:
+    name: Public Visual & 43-Locale Diagnostics
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: visual-audit
+    if: always() && needs.visual-audit.result == 'failure'
+    steps:
+      - name: Download Playwright test results
+        uses: actions/download-artifact@v4
+        with:
+          name: swaply-public-and-i18n-audit-test-results
+          path: diagnostics
+
+      - name: Print concise Playwright failure evidence
+        shell: bash
+        run: |
+          printf '%s\n' '--- PLAYWRIGHT LAST RUN ---'
+          find diagnostics -type f -name '.last-run.json' -print -exec cat {} \; || true
+          printf '%s\n' '--- PLAYWRIGHT ERROR CONTEXTS ---'
+          find diagnostics -type f -name 'error-context.md' -print -exec sed -n '1,240p' {} \; || true
+          printf '%s\n' '--- PLAYWRIGHT TRACE AND SCREENSHOT FILES ---'
+          find diagnostics -type f \( -name 'trace.zip' -o -name 'test-failed-*.png' \) -print || true
