@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import { getProfileTranslationPreferences } from "../profile/profileTranslationPreferences";
 import { createMapProfile } from "./mappers";
 
 vi.mock("nanoid", () => ({ nanoid: () => "mock-id" }));
@@ -36,5 +37,29 @@ describe("authenticated profile language hydration", () => {
     });
 
     expect(profile.languages).toEqual(["de", "ro", "en"]);
+  });
+
+  it("hydrates the canonical chat translation preferences", () => {
+    const mapProfile = createMapProfile({ current: null });
+    const profile = mapProfile({
+      user_id: "translation-user",
+      auto_translate_messages: false,
+      show_original_language: true,
+    });
+
+    expect(getProfileTranslationPreferences(profile)).toEqual({
+      autoTranslateMessages: false,
+      showOriginalLanguage: true,
+    });
+  });
+
+  it("uses the database-compatible preference defaults when fields are absent", () => {
+    const mapProfile = createMapProfile({ current: null });
+    const profile = mapProfile({ user_id: "default-translation-user" });
+
+    expect(getProfileTranslationPreferences(profile)).toEqual({
+      autoTranslateMessages: true,
+      showOriginalLanguage: false,
+    });
   });
 });
