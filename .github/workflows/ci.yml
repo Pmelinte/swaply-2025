@@ -100,11 +100,21 @@ jobs:
           name: lint-and-typecheck-results
           path: diagnostics
 
-      - name: Print lint and typecheck results
+      - name: Print concise lint and typecheck failures
         shell: bash
         run: |
-          printf '%s\n' '--- ESLINT ---'
-          cat diagnostics/lint-results.txt
+          printf '%s\n' '--- ESLINT ERRORS ---'
+          awk '
+            /^\/.*$/ { current_file = $0 }
+            /  error  / {
+              if (current_file != last_file) {
+                print current_file
+                last_file = current_file
+              }
+              print
+            }
+            /✖ [0-9]+ problems/ { print }
+          ' diagnostics/lint-results.txt
           printf '%s\n' '--- TYPESCRIPT ---'
           if [ -f diagnostics/typecheck-results.txt ]; then
             cat diagnostics/typecheck-results.txt
