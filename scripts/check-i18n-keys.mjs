@@ -11,16 +11,15 @@
  * - translated values must preserve the English leaf type;
  * - ICU-style variable placeholders must match the English source.
  *
- * The repository still contains documented historical debt:
- * - canonical `chat.*` leaves not yet translated in all 41 non-source
- *   catalogues are supplied by the existing deep English technical fallback;
- * - older flat namespaces such as `chatAgenda.*` and `chatDrawer.*` remain for
- *   legacy call sites and are reported as extra keys;
- * - five pre-existing translations renamed ICU variables.
+ * Batch 66 starts with a measured translation-debt baseline rather than a
+ * machine-generated rewrite. English and Romanian are currently complete.
+ * Each of the other 41 catalogues may use at most 129 English technical
+ * fallback leaves — the exact pre-Batch-66 baseline. A new untranslated key
+ * therefore fails CI, while genuine translations can only lower the budget.
  *
- * These remain visible warnings so this gate blocks new regressions without
- * forcing a destructive or machine-translated rewrite of 41 catalogues in a
- * single batch. Extra translated keys are warnings for the same reason.
+ * Older flat chat namespaces remain for legacy call sites and are reported as
+ * extra keys. Five pre-existing ICU placeholder renames remain documented
+ * warnings. Later Batch 66 units must reduce these debt budgets toward zero.
  */
 
 import { readFileSync, readdirSync } from "node:fs";
@@ -29,7 +28,8 @@ import { join } from "node:path";
 const MESSAGES_DIR = "src/messages";
 const LOCALE_CONFIG_PATH = "src/i18n/config.ts";
 const EXPECTED_LOCALE_COUNT = 43;
-const KNOWN_TECHNICAL_FALLBACK_PREFIXES = ["chat."];
+const COMPLETE_SOURCE_LOCALES = new Set(["en", "ro"]);
+const MAX_TECHNICAL_FALLBACK_KEYS_PER_LOCALE = 129;
 
 const KNOWN_PLACEHOLDER_DEBT = new Set([
   "it:desk.deadlineProposalExpires",
@@ -90,10 +90,6 @@ function formatSample(values, limit = 6) {
   return `${values.slice(0, limit).join(", ")} ... +${values.length - limit} more`;
 }
 
-function isKnownTechnicalFallbackKey(key) {
-  return KNOWN_TECHNICAL_FALLBACK_PREFIXES.some((prefix) => key.startsWith(prefix));
-}
-
 const registeredLocales = readRegisteredLocales();
 const localeFiles = readdirSync(MESSAGES_DIR)
   .filter((file) => file.endsWith(".json"))
@@ -119,8 +115,10 @@ if (unregisteredFiles.length > 0) {
   failures.push(`Unregistered locale files: ${formatSample(unregisteredFiles)}`);
 }
 
-if (!registeredLocales.includes("en")) {
-  failures.push("The canonical English source locale is not registered");
+for (const sourceLocale of COMPLETE_SOURCE_LOCALES) {
+  if (!registeredLocales.includes(sourceLocale)) {
+    failures.push(`Complete source locale ${sourceLocale} is not registered`);
+  }
 }
 
 const catalogues = new Map();
@@ -142,6 +140,9 @@ if (!englishCatalogue) {
 
   console.log(`✓ Locale registry: ${registeredLocales.length}/${EXPECTED_LOCALE_COUNT}`);
   console.log(`✓ en.json: ${englishKeys.length} leaf keys`);
+  console.log(
+    `✓ Technical fallback regression budget: <=${MAX_TECHNICAL_FALLBACK_KEYS_PER_LOCALE} leaves per non-source locale`,
+  );
 
   for (const locale of registeredLocales) {
     const catalogue = catalogues.get(locale);
@@ -149,7 +150,7 @@ if (!englishCatalogue) {
 
     const leaves = flattenLeaves(catalogue);
     const keys = [...leaves.keys()].sort();
-    const missing = [];
+    const missingCompleteSourceKeys = [];
     const technicalFallbackKeys = [];
     const typeMismatches = [];
     const placeholderMismatches = [];
@@ -158,10 +159,10 @@ if (!englishCatalogue) {
 
     for (const key of englishKeys) {
       if (!leaves.has(key)) {
-        if (locale !== "en" && isKnownTechnicalFallbackKey(key)) {
-          technicalFallbackKeys.push(key);
+        if (COMPLETE_SOURCE_LOCALES.has(locale)) {
+          missingCompleteSourceKeys.push(key);
         } else {
-          missing.push(key);
+          technicalFallbackKeys.push(key);
         }
         continue;
       }
@@ -199,8 +200,15 @@ if (!englishCatalogue) {
 
     const extra = keys.filter((key) => !englishLeaves.has(key));
 
-    if (missing.length > 0) {
-      failures.push(`${locale}.json missing ${missing.length} unapproved keys: ${formatSample(missing)}`);
+    if (missingCompleteSourceKeys.length > 0) {
+      failures.push(
+        `${locale}.json is a complete source locale but misses ${missingCompleteSourceKeys.length} keys: ${formatSample(missingCompleteSourceKeys)}`,
+      );
+    }
+    if (technicalFallbackKeys.length > MAX_TECHNICAL_FALLBACK_KEYS_PER_LOCALE) {
+      failures.push(
+        `${locale}.json exceeds the technical fallback budget (${technicalFallbackKeys.length} > ${MAX_TECHNICAL_FALLBACK_KEYS_PER_LOCALE}): ${formatSample(technicalFallbackKeys)}`,
+      );
     }
     if (typeMismatches.length > 0) {
       failures.push(
@@ -219,7 +227,7 @@ if (!englishCatalogue) {
     }
     if (technicalFallbackKeys.length > 0) {
       warnings.push(
-        `${locale}.json uses the documented English technical fallback for ${technicalFallbackKeys.length} canonical chat keys: ${formatSample(technicalFallbackKeys)}`,
+        `${locale}.json uses English technical fallback for ${technicalFallbackKeys.length}/${MAX_TECHNICAL_FALLBACK_KEYS_PER_LOCALE} budgeted keys: ${formatSample(technicalFallbackKeys)}`,
       );
     }
     if (knownPlaceholderWarnings.length > 0) {
@@ -232,12 +240,15 @@ if (!englishCatalogue) {
     }
 
     if (
-      missing.length === 0 &&
+      missingCompleteSourceKeys.length === 0 &&
+      technicalFallbackKeys.length <= MAX_TECHNICAL_FALLBACK_KEYS_PER_LOCALE &&
       typeMismatches.length === 0 &&
       placeholderMismatches.length === 0 &&
       emptyValues.length === 0
     ) {
-      console.log(`✓ ${locale}.json: runtime-resolvable key, type and placeholder contract`);
+      console.log(
+        `✓ ${locale}.json: runtime-resolvable contract (${technicalFallbackKeys.length} technical fallback keys)`,
+      );
     }
   }
 }
