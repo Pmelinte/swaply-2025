@@ -57,6 +57,7 @@ export function TopBar() {
   const [langOpen, setLangOpen] = useState(false);
   const [langSearch, setLangSearch] = useState("");
   const langRef = useRef<HTMLDivElement>(null);
+  const drawerOpen = useDrawerStore((state) => state.open);
 
   const openContextualDrawer = useCallback(() => {
     useDrawerStore.getState().openWith(getDrawerVariantForPathname(pathname));
@@ -224,9 +225,12 @@ export function TopBar() {
             type="button"
             onClick={openContextualDrawer}
             className="inline-flex items-center justify-center rounded-lg p-1.5 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
-            aria-label="Open menu"
+            aria-label={t("nav.contextMenu")}
+            aria-haspopup="dialog"
+            aria-expanded={drawerOpen}
+            aria-controls="swaply-contextual-drawer"
           >
-            <Menu className="h-5 w-5" />
+            <Menu className="h-5 w-5" aria-hidden="true" />
           </button>
           <Link href="/" className="flex items-center gap-2" title="Swaply">
             <Image src="/logo-swaply.svg" alt="Swaply" width={28} height={28} className="h-7 w-7" priority />

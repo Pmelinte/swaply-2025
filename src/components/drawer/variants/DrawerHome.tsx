@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { Children, useCallback, useEffect, useId, useRef } from "react";
 import { usePathname, Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
@@ -76,7 +76,7 @@ export default function DrawerHome() {
           className="rounded-lg p-1.5 text-zinc-500 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
           aria-label={t("common.close")}
         >
-          <X className="h-5 w-5" />
+          <X className="h-5 w-5" aria-hidden="true" />
         </button>
       </div>
 
@@ -199,13 +199,25 @@ export default function DrawerHome() {
 }
 
 function DrawerSection({ title, children }: { title: string; children: React.ReactNode }) {
+  const headingId = useId();
+
   return (
-    <div className="border-b border-zinc-100 px-4 py-3 dark:border-zinc-800">
-      <h3 className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+    <section
+      className="border-b border-zinc-100 px-4 py-3 dark:border-zinc-800"
+      aria-labelledby={headingId}
+    >
+      <h2
+        id={headingId}
+        className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500"
+      >
         {title}
-      </h3>
-      <nav className="flex flex-col gap-0.5">{children}</nav>
-    </div>
+      </h2>
+      <ul className="flex flex-col gap-0.5">
+        {Children.toArray(children).map((child, index) => (
+          <li key={index}>{child}</li>
+        ))}
+      </ul>
+    </section>
   );
 }
 
