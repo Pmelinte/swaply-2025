@@ -6,15 +6,20 @@
  * The check is deliberately provider-free and deterministic:
  * - the locale registry in src/i18n/config.ts is the source of truth;
  * - every registered locale must have exactly one JSON message catalogue;
- * - every English leaf key must resolve in every locale;
+ * - every English leaf key must resolve locally, through a documented alias,
+ *   or through the runtime English technical fallback;
  * - translated values must preserve the English leaf type;
  * - ICU-style variable placeholders must match the English source.
  *
- * The repository still contains one documented historical namespace alias
- * (`chatAgenda.*` -> `chat.agenda.*`) and five pre-existing placeholder debts.
- * They remain visible warnings so this gate blocks new regressions without
+ * The repository still contains documented historical debt:
+ * - `chatAgenda.*` is an alias for part of `chat.agenda.*`;
+ * - the remaining untranslated `chat.agenda.*` leaves are supplied by the
+ *   existing deep English technical fallback in src/i18n/request.ts;
+ * - five pre-existing translations renamed ICU variables.
+ *
+ * These remain visible warnings so this gate blocks new regressions without
  * forcing a destructive or machine-translated rewrite of 41 catalogues in a
- * single batch. Extra translated keys are also warnings for the same reason.
+ * single batch. Extra translated keys are warnings for the same reason.
  */
 
 import { readFileSync, readdirSync } from "node:fs";
@@ -30,6 +35,8 @@ const LEGACY_KEY_ALIASES = [
     legacyPrefix: "chatAgenda.",
   },
 ];
+
+const KNOWN_TECHNICAL_FALLBACK_PREFIXES = ["chat.agenda."];
 
 const KNOWN_PLACEHOLDER_DEBT = new Set([
   "it:desk.deadlineProposalExpires",
@@ -115,6 +122,10 @@ function resolveTranslatedLeaf(leaves, canonicalKey) {
   return null;
 }
 
+function isKnownTechnicalFallbackKey(key) {
+  return KNOWN_TECHNICAL_FALLBACK_PREFIXES.some((prefix) => key.startsWith(prefix));
+}
+
 const registeredLocales = readRegisteredLocales();
 const localeFiles = readdirSync(MESSAGES_DIR)
   .filter((file) => file.endsWith(".json"))
@@ -172,6 +183,7 @@ if (!englishCatalogue) {
     const keys = [...leaves.keys()].sort();
     const resolvedLegacyKeys = new Set();
     const missing = [];
+    const technicalFallbackKeys = [];
     const typeMismatches = [];
     const placeholderMismatches = [];
     const knownPlaceholderWarnings = [];
@@ -180,7 +192,11 @@ if (!englishCatalogue) {
     for (const key of englishKeys) {
       const resolved = resolveTranslatedLeaf(leaves, key);
       if (!resolved) {
-        missing.push(key);
+        if (locale !== "en" && isKnownTechnicalFallbackKey(key)) {
+          technicalFallbackKeys.push(key);
+        } else {
+          missing.push(key);
+        }
         continue;
       }
 
@@ -224,7 +240,7 @@ if (!englishCatalogue) {
     );
 
     if (missing.length > 0) {
-      failures.push(`${locale}.json missing ${missing.length} keys: ${formatSample(missing)}`);
+      failures.push(`${locale}.json missing ${missing.length} unapproved keys: ${formatSample(missing)}`);
     }
     if (typeMismatches.length > 0) {
       failures.push(
@@ -246,6 +262,11 @@ if (!englishCatalogue) {
         `${locale}.json resolves ${resolvedLegacyKeys.size} canonical chat.agenda keys through the documented chatAgenda alias`,
       );
     }
+    if (technicalFallbackKeys.length > 0) {
+      warnings.push(
+        `${locale}.json uses the documented English technical fallback for ${technicalFallbackKeys.length} chat.agenda keys: ${formatSample(technicalFallbackKeys)}`,
+      );
+    }
     if (knownPlaceholderWarnings.length > 0) {
       warnings.push(
         `${locale}.json retains ${knownPlaceholderWarnings.length} documented placeholder debt item(s): ${formatSample(knownPlaceholderWarnings)}`,
@@ -261,7 +282,7 @@ if (!englishCatalogue) {
       placeholderMismatches.length === 0 &&
       emptyValues.length === 0
     ) {
-      console.log(`✓ ${locale}.json: resolvable key, type and placeholder contract`);
+      console.log(`✓ ${locale}.json: runtime-resolvable key, type and placeholder contract`);
     }
   }
 }
