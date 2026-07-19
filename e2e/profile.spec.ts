@@ -193,7 +193,10 @@ test.describe("Train C Batch 51 profile", () => {
       expect(persisted.city).toBe(temporaryLocation.city);
       expect(persisted.languageLabels).toContain(addedLanguageLabel);
 
-      await expectAvatarLoaded(page.getByRole("img", { name: "Avatar", exact: true }), temporaryAvatar);
+      await expectAvatarLoaded(
+        page.getByRole("img", { name: "Avatar (URL)", exact: true }),
+        temporaryAvatar,
+      );
     } catch (error) {
       primaryError = error;
     }
