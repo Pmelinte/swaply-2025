@@ -19,19 +19,20 @@
 - Batch 66.4: delivered through PR `#485`.
 - Batch 66.5: delivered through PR `#486`.
 - Batch 66.6: delivered through PR `#487`.
-- Batch 66.7: delivered through PR `#488`; Batch 66 remains `ACTIVE` for the remaining language-engine closure units.
-- Next incomplete unit after PR #488: `Batch 66.8`.
+- Batch 66.7: delivered through PR `#488`.
+- Batch 66.8: delivery candidate in PR `#489`; Batch 66 remains `ACTIVE` until exact-head and post-merge Production gates are complete.
+- The next incomplete Batch 66 unit must be derived by read-only scope discovery after PR #489 is Production-verified; no later unit is authorized by assumption.
 - Train E remains the terminal Train for v1.0; there is no Train F.
 
 ## Current checkpoint
 
-- Verified `main` before Batch 66.7: `de21f4f2aca081cf66e567d81d823c312493c49d`.
-- Batch 66.7 delivery branch: `train-d/batch-66-7-home-drawer-global-copy`.
-- Batch 66.7 delivery PR: `#488 — localize Home drawer global copy`.
+- Verified `main` before Batch 66.8: `bfb3c8b1fc9bcf7f9de0dae75f4fdea36f565be3`.
+- Batch 66.8 delivery branch: `train-d-batch-66-8-home-drawer-accessibility`.
+- Batch 66.8 delivery PR: `#489 — Home drawer accessibility and focus contract`.
 - Supabase Production project: `keaejxlwqtjjglijiplh`.
 - Latest Production migration remains: `20260718230811_batch_65_6_onboarding_profile_authority_closure`.
-- Batch 66.7 requires no database migration and does not change Auth, RLS, grants, storage or private profile visibility.
-- Final merge, Vercel Production, route, runtime-log and parity evidence must be recorded on PR #488 and in the corresponding Autopilot completion report.
+- Batch 66.8 requires no database migration and does not change Auth, RLS, grants, storage, lifecycle, dispute, rewards, ledgers or private profile visibility.
+- Final merge, Vercel Production, route, runtime-log and parity evidence must be recorded on PR #489 and in the corresponding Autopilot completion report.
 
 ## Execution authorization
 
@@ -339,6 +340,30 @@ Security and data impact:
 
 Detailed contract: `docs/batch-66-7-home-drawer-global-copy.md`.
 
+## Batch 66.8 — Home drawer accessibility and focus contract
+
+Delivery candidate in PR #489 as the next small, non-overlapping Batch 66 unit.
+
+Delivered contract:
+
+- the contextual drawer trigger reuses localized `nav.contextMenu` copy and exposes dialog ownership and expanded state;
+- the shared drawer is a labeled modal dialog with a localized close action;
+- opening moves focus into the modal, `Tab` and `Shift+Tab` remain trapped, `Escape` closes it and closing restores the opener;
+- drawer groups use labeled section headings and list semantics without adding duplicate navigation landmarks;
+- trigger and close labels are required across all 43 active locale catalogues;
+- deterministic Vitest and Playwright contracts prevent stale English-only selectors, focus regression and semantic regression.
+
+Security and data impact:
+
+- no Supabase migration;
+- no Auth, RLS, grants, storage, lifecycle, dispute, reward, ledger or private-data change;
+- no external translation or AI provider enabled;
+- no new paid service, subscription or cost;
+- no historical content rewrite;
+- no Train C scope reopened.
+
+Detailed contract: `docs/batch-66-8-home-drawer-accessibility.md`.
+
 Batch 66 remains active. Later units must reduce the measured translation debt, resolve remaining locale-specific overflow or hardcoded copy and produce final Batch 66 closure evidence.
 
 ## Batch 65 closure contract
@@ -364,4 +389,4 @@ Batch 66.1 also records, without hiding, the current per-locale English technica
 
 ## Next mandatory action
 
-After PR #488 is merged and its post-merge GitHub CI, Vercel Production, representative locale routes, runtime logs and Supabase parity are green, begin only Batch 66.8. Do not reopen Train C and do not create an overlapping PR.
+After PR #489 is merged and its post-merge GitHub CI, Vercel Production, representative LTR/RTL locale routes, runtime logs and Supabase parity are green, perform read-only scope discovery for the exact next incomplete Batch 66 unit. Do not invent a later unit, reopen Train C or create an overlapping PR.
