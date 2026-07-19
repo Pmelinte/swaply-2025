@@ -6,15 +6,16 @@
  * The check is deliberately provider-free and deterministic:
  * - the locale registry in src/i18n/config.ts is the source of truth;
  * - every registered locale must have exactly one JSON message catalogue;
- * - every English leaf key must resolve locally, through a documented alias,
- *   or through the runtime English technical fallback;
+ * - every English leaf key must resolve locally or through the runtime English
+ *   technical fallback already implemented in src/i18n/request.ts;
  * - translated values must preserve the English leaf type;
  * - ICU-style variable placeholders must match the English source.
  *
  * The repository still contains documented historical debt:
- * - legacy flat chat namespaces map to their canonical nested namespaces;
- * - the remaining untranslated `chat.agenda.*` leaves are supplied by the
- *   existing deep English technical fallback in src/i18n/request.ts;
+ * - canonical `chat.*` leaves not yet translated in all 41 non-source
+ *   catalogues are supplied by the existing deep English technical fallback;
+ * - older flat namespaces such as `chatAgenda.*` and `chatDrawer.*` remain for
+ *   legacy call sites and are reported as extra keys;
  * - five pre-existing translations renamed ICU variables.
  *
  * These remain visible warnings so this gate blocks new regressions without
@@ -28,19 +29,7 @@ import { join } from "node:path";
 const MESSAGES_DIR = "src/messages";
 const LOCALE_CONFIG_PATH = "src/i18n/config.ts";
 const EXPECTED_LOCALE_COUNT = 43;
-
-const LEGACY_KEY_ALIASES = [
-  {
-    canonicalPrefix: "chat.agenda.",
-    legacyPrefix: "chatAgenda.",
-  },
-  {
-    canonicalPrefix: "chat.drawer.",
-    legacyPrefix: "chatDrawer.",
-  },
-];
-
-const KNOWN_TECHNICAL_FALLBACK_PREFIXES = ["chat.agenda."];
+const KNOWN_TECHNICAL_FALLBACK_PREFIXES = ["chat."];
 
 const KNOWN_PLACEHOLDER_DEBT = new Set([
   "it:desk.deadlineProposalExpires",
@@ -99,31 +88,6 @@ function sameStringList(left, right) {
 function formatSample(values, limit = 6) {
   if (values.length <= limit) return values.join(", ");
   return `${values.slice(0, limit).join(", ")} ... +${values.length - limit} more`;
-}
-
-function resolveTranslatedLeaf(leaves, canonicalKey) {
-  if (leaves.has(canonicalKey)) {
-    return {
-      key: canonicalKey,
-      value: leaves.get(canonicalKey),
-      usedLegacyAlias: false,
-    };
-  }
-
-  for (const alias of LEGACY_KEY_ALIASES) {
-    if (!canonicalKey.startsWith(alias.canonicalPrefix)) continue;
-
-    const legacyKey = `${alias.legacyPrefix}${canonicalKey.slice(alias.canonicalPrefix.length)}`;
-    if (leaves.has(legacyKey)) {
-      return {
-        key: legacyKey,
-        value: leaves.get(legacyKey),
-        usedLegacyAlias: true,
-      };
-    }
-  }
-
-  return null;
 }
 
 function isKnownTechnicalFallbackKey(key) {
@@ -185,7 +149,6 @@ if (!englishCatalogue) {
 
     const leaves = flattenLeaves(catalogue);
     const keys = [...leaves.keys()].sort();
-    const resolvedLegacyKeys = new Set();
     const missing = [];
     const technicalFallbackKeys = [];
     const typeMismatches = [];
@@ -194,8 +157,7 @@ if (!englishCatalogue) {
     const emptyValues = [];
 
     for (const key of englishKeys) {
-      const resolved = resolveTranslatedLeaf(leaves, key);
-      if (!resolved) {
+      if (!leaves.has(key)) {
         if (locale !== "en" && isKnownTechnicalFallbackKey(key)) {
           technicalFallbackKeys.push(key);
         } else {
@@ -204,12 +166,8 @@ if (!englishCatalogue) {
         continue;
       }
 
-      if (resolved.usedLegacyAlias) {
-        resolvedLegacyKeys.add(resolved.key);
-      }
-
       const sourceValue = englishLeaves.get(key);
-      const translatedValue = resolved.value;
+      const translatedValue = leaves.get(key);
       const sourceType = Array.isArray(sourceValue) ? "array" : typeof sourceValue;
       const translatedType = Array.isArray(translatedValue) ? "array" : typeof translatedValue;
 
@@ -239,9 +197,7 @@ if (!englishCatalogue) {
       }
     }
 
-    const extra = keys.filter(
-      (key) => !englishLeaves.has(key) && !resolvedLegacyKeys.has(key),
-    );
+    const extra = keys.filter((key) => !englishLeaves.has(key));
 
     if (missing.length > 0) {
       failures.push(`${locale}.json missing ${missing.length} unapproved keys: ${formatSample(missing)}`);
@@ -261,14 +217,9 @@ if (!englishCatalogue) {
         `${locale}.json has ${emptyValues.length} empty values: ${formatSample(emptyValues)}`,
       );
     }
-    if (resolvedLegacyKeys.size > 0) {
-      warnings.push(
-        `${locale}.json resolves ${resolvedLegacyKeys.size} canonical chat keys through documented legacy aliases`,
-      );
-    }
     if (technicalFallbackKeys.length > 0) {
       warnings.push(
-        `${locale}.json uses the documented English technical fallback for ${technicalFallbackKeys.length} chat.agenda keys: ${formatSample(technicalFallbackKeys)}`,
+        `${locale}.json uses the documented English technical fallback for ${technicalFallbackKeys.length} canonical chat keys: ${formatSample(technicalFallbackKeys)}`,
       );
     }
     if (knownPlaceholderWarnings.length > 0) {
