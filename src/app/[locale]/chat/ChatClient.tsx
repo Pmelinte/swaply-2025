@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
+import { getProfileTranslationPreferences } from "@/lib/profile/profileTranslationPreferences";
 import { CTAButton, NextStepRecommendation, SectionCard, StateShowcase } from "@/components/ui-custom";
 import { ChatPanel } from "@/features/chat/ChatPanel";
 
@@ -15,10 +16,17 @@ export function ChatClient({
   conversationId?: string | null;
   serverAuthenticated?: boolean;
 }) {
-  const { user, loading, conversations, ensureConversation } = useAppState();
+  const {
+    user,
+    loading,
+    conversations,
+    ensureConversation,
+    toggleConversationTranslation,
+  } = useAppState();
   const locale = useLocale();
   const t = useTranslations("chat");
   const tc = useTranslations("common");
+  const translationPreferenceSeededRef = useRef(new Set<string>());
   const dmConversationId =
     to && user?.id ? `dm:${[user.id, to].sort().join(":")}` : undefined;
   const initialConversationId = (conversationId ?? dmConversationId) ?? undefined;
@@ -29,6 +37,26 @@ export function ChatClient({
     // Ensure the conversation exists in state (creates the shell + pulls participant profile if possible).
     void ensureConversation(to);
   }, [ensureConversation, to, user?.id]);
+
+  useEffect(() => {
+    const activeConversationIds = new Set(conversations.map((conversation) => conversation.id));
+    for (const seededId of translationPreferenceSeededRef.current) {
+      if (!activeConversationIds.has(seededId)) {
+        translationPreferenceSeededRef.current.delete(seededId);
+      }
+    }
+
+    const { autoTranslateMessages } = getProfileTranslationPreferences(user);
+    if (!user?.id || !autoTranslateMessages) return;
+
+    for (const conversation of conversations) {
+      if (translationPreferenceSeededRef.current.has(conversation.id)) continue;
+      translationPreferenceSeededRef.current.add(conversation.id);
+      if (!conversation.translationEnabled) {
+        toggleConversationTranslation(conversation.id);
+      }
+    }
+  }, [conversations, toggleConversationTranslation, user]);
 
   // Skip auth spinner when server already resolved auth status
   if (loading.auth && serverAuthenticated) {
