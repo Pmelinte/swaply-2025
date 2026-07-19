@@ -23,7 +23,7 @@ describe("Batch 66.5 profile translation preference application", () => {
     expect(chatClient).toContain("if (!user?.id || !autoTranslateMessages) return");
     expect(chatClient).toContain("if (!conversation.translationEnabled)");
     expect(chatClient).toContain("toggleConversationTranslation(conversation.id)");
-    expect(chatClient).not.toContain("conversations.map((conversation) => ({ ...conversation, translationEnabled: true"));
+    expect(chatClient).not.toContain("conversations.map((conversation) => ({ ...conversation, translationEnabled: true");
   });
 
   it("keeps manual translation toggles available after the initial seed", () => {
