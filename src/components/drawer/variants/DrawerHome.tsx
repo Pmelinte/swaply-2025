@@ -213,8 +213,8 @@ function DrawerSection({ title, children }: { title: string; children: React.Rea
         {title}
       </h2>
       <ul className="flex flex-col gap-0.5">
-        {Children.map(children, (child) => (
-          <li>{child}</li>
+        {Children.toArray(children).map((child, index) => (
+          <li key={index}>{child}</li>
         ))}
       </ul>
     </section>
