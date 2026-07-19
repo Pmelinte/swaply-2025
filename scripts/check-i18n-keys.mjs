@@ -12,7 +12,7 @@
  * - ICU-style variable placeholders must match the English source.
  *
  * The repository still contains documented historical debt:
- * - `chatAgenda.*` is an alias for part of `chat.agenda.*`;
+ * - legacy flat chat namespaces map to their canonical nested namespaces;
  * - the remaining untranslated `chat.agenda.*` leaves are supplied by the
  *   existing deep English technical fallback in src/i18n/request.ts;
  * - five pre-existing translations renamed ICU variables.
@@ -33,6 +33,10 @@ const LEGACY_KEY_ALIASES = [
   {
     canonicalPrefix: "chat.agenda.",
     legacyPrefix: "chatAgenda.",
+  },
+  {
+    canonicalPrefix: "chat.drawer.",
+    legacyPrefix: "chatDrawer.",
   },
 ];
 
@@ -259,7 +263,7 @@ if (!englishCatalogue) {
     }
     if (resolvedLegacyKeys.size > 0) {
       warnings.push(
-        `${locale}.json resolves ${resolvedLegacyKeys.size} canonical chat.agenda keys through the documented chatAgenda alias`,
+        `${locale}.json resolves ${resolvedLegacyKeys.size} canonical chat keys through documented legacy aliases`,
       );
     }
     if (technicalFallbackKeys.length > 0) {
