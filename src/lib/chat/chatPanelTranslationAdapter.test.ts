@@ -37,4 +37,12 @@ describe("Batch 66.4 chat panel translation adapter", () => {
     expect(chatPanel).toContain("{translationFailed ? (");
     expect(chatPanel).toContain("onClick={() => void handleTranslate()}");
   });
+
+  it("discards in-flight locale translations by remounting the chat panel", () => {
+    const chatClient = source("src/app/[locale]/chat/ChatClient.tsx");
+
+    expect(chatClient).toContain('import { useLocale, useTranslations } from "next-intl"');
+    expect(chatClient).toContain("const locale = useLocale()");
+    expect(chatClient).toContain("<ChatPanel key={locale}");
+  });
 });
