@@ -27,6 +27,11 @@ describe("chat translation failure contract", () => {
       .not.toBe(createChatTranslationCacheKey(`${prefix} two`, "en", "ro"));
   });
 
+  it("normalizes hyphenated and underscore locale tags consistently", () => {
+    expect(createChatTranslationCacheKey("Olá", "pt_BR", "ro_RO"))
+      .toBe(createChatTranslationCacheKey("Olá", "pt-BR", "ro-RO"));
+  });
+
   it("recognizes representative global scripts without forcing English", () => {
     expect(detectLikelyMessageLanguage("Bună, putem face schimbul?")).toBe("ro");
     expect(detectLikelyMessageLanguage("Está aquí para el intercambio")).toBe("es");
