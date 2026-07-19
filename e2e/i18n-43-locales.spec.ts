@@ -1,4 +1,9 @@
-import { expect, test, type Page } from "@playwright/test";
+import {
+  expect,
+  test,
+  type APIRequestContext,
+  type Page,
+} from "@playwright/test";
 import { mkdirSync } from "node:fs";
 import path from "node:path";
 import { locales, type Locale } from "../src/i18n/config";
@@ -6,10 +11,29 @@ import { getLocaleDirection } from "../src/i18n/direction";
 
 const screenshotRoot = path.join(process.cwd(), "playwright-i18n-screenshots");
 const deepAuditLocales = ["en", "ro", "de", "ar", "zh", "yi"] as const satisfies readonly Locale[];
+const ROUTE_BATCH_SIZE = 8;
 
 function screenshotPath(locale: Locale, viewport: "desktop-light" | "mobile-dark") {
   mkdirSync(screenshotRoot, { recursive: true });
   return path.join(screenshotRoot, `${locale}-${viewport}.png`);
+}
+
+async function assertLocalizedResponseIsHealthy(
+  request: APIRequestContext,
+  locale: Locale,
+  route = "",
+) {
+  const response = await request.get(`/${locale}${route}`);
+  const body = await response.text();
+
+  expect(response.status(), `${locale}${route} must not redirect to an error`).toBeLessThan(400);
+  expect(body).toContain(`lang="${locale}"`);
+  expect(body).toContain(`dir="${getLocaleDirection(locale)}"`);
+  expect(body).not.toContain("This page could not be found");
+  expect(body).not.toContain("Application error");
+  expect(body).not.toContain("Unhandled Runtime Error");
+  expect(body).not.toContain("MISSING_MESSAGE");
+  expect(body).not.toContain("IntlError");
 }
 
 async function assertLocalizedPageIsHealthy(page: Page, locale: Locale, route = "") {
@@ -35,12 +59,25 @@ async function assertLocalizedPageIsHealthy(page: Page, locale: Locale, route = 
 }
 
 test.describe("Batch 66 — 43 locale routing smoke", () => {
-  for (const locale of locales) {
-    test(`${locale} home and Objects routes load with the canonical document language`, async ({ page }) => {
-      await assertLocalizedPageIsHealthy(page, locale);
-      await assertLocalizedPageIsHealthy(page, locale, "/objects");
-    });
-  }
+  test("all locale-prefixed Home and Objects routes expose the canonical document contract", async ({
+    request,
+  }) => {
+    test.setTimeout(180_000);
+
+    const routeChecks = locales.flatMap((locale) => [
+      { locale, route: "" },
+      { locale, route: "/objects" },
+    ]);
+
+    for (let index = 0; index < routeChecks.length; index += ROUTE_BATCH_SIZE) {
+      const batch = routeChecks.slice(index, index + ROUTE_BATCH_SIZE);
+      await Promise.all(
+        batch.map(({ locale, route }) =>
+          assertLocalizedResponseIsHealthy(request, locale, route),
+        ),
+      );
+    }
+  });
 });
 
 test.describe("Batch 66 — deep global layout samples", () => {
