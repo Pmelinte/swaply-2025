@@ -38,7 +38,10 @@ function normalizeLocale(locale: string): string {
 
 export function detectLikelyMessageLanguage(text: string): string {
   if (/[ăâîșț]/i.test(text)) return "ro";
-  if (/[ñ¿¡]/i.test(text)) return "es";
+  // Keep Spanish-only accented vowels ahead of the broader French heuristic.
+  // A lone `é` remains ambiguous, but common text such as `está aquí` must not
+  // be misclassified as French or fall through to `auto`.
+  if (/[áíóúñ¿¡]/i.test(text)) return "es";
   if (/[äöüß]/i.test(text)) return "de";
   if (/[àâçéèêëîïôûùüÿœ]/i.test(text)) return "fr";
   if (/[Ѐ-ӿ]/u.test(text)) return "ru";
