@@ -54,6 +54,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -64,17 +66,37 @@ jobs:
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
 
-      - name: Run ESLint
+      - name: Run changed-file ESLint and full TypeScript
         shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           set -o pipefail
-          npm run lint 2>&1 | tee lint-results.txt
 
-      - name: Run TypeScript
-        shell: bash
-        run: |
-          set -o pipefail
-          npm run typecheck 2>&1 | tee typecheck-results.txt
+          if [[ -z "${BASE_SHA}" || "${BASE_SHA}" =~ ^0+$ ]]; then
+            BASE_SHA="$(git rev-parse "${HEAD_SHA}^")"
+          fi
+
+          git diff --name-only --diff-filter=ACMR "${BASE_SHA}" "${HEAD_SHA}" -- \
+            '*.js' '*.jsx' '*.mjs' '*.cjs' '*.ts' '*.tsx' > eslint-files.txt
+
+          mapfile -t eslint_files < eslint-files.txt
+          lint_status=0
+          type_status=0
+
+          if (( ${#eslint_files[@]} > 0 )); then
+            printf 'ESLint changed files:\n%s\n' "${eslint_files[*]}"
+            npx eslint "${eslint_files[@]}" 2>&1 | tee lint-results.txt || lint_status=${PIPESTATUS[0]}
+          else
+            printf '%s\n' 'No changed JavaScript or TypeScript files to lint.' | tee lint-results.txt
+          fi
+
+          npm run typecheck 2>&1 | tee typecheck-results.txt || type_status=${PIPESTATUS[0]}
+
+          if (( lint_status != 0 || type_status != 0 )); then
+            exit 1
+          fi
 
       - name: Upload lint and typecheck results
         if: always()
@@ -82,45 +104,11 @@ jobs:
         with:
           name: lint-and-typecheck-results
           path: |
+            eslint-files.txt
             lint-results.txt
             typecheck-results.txt
           if-no-files-found: warn
           retention-days: 14
-
-  checks-diagnostics:
-    name: Lint & Type Diagnostics
-    runs-on: ubuntu-latest
-    timeout-minutes: 3
-    needs: checks
-    if: always() && needs.checks.result == 'failure'
-    steps:
-      - name: Download lint and typecheck results
-        uses: actions/download-artifact@v4
-        with:
-          name: lint-and-typecheck-results
-          path: diagnostics
-
-      - name: Print concise lint and typecheck failures
-        shell: bash
-        run: |
-          printf '%s\n' '--- ESLINT ERRORS ---'
-          awk '
-            /^\/.*$/ { current_file = $0 }
-            /  error  / {
-              if (current_file != last_file) {
-                print current_file
-                last_file = current_file
-              }
-              print
-            }
-            /✖ [0-9]+ problems/ { print }
-          ' diagnostics/lint-results.txt
-          printf '%s\n' '--- TYPESCRIPT ---'
-          if [ -f diagnostics/typecheck-results.txt ]; then
-            cat diagnostics/typecheck-results.txt
-          else
-            printf '%s\n' 'TypeScript was not run because ESLint failed first.'
-          fi
 
   test:
     name: Unit Tests
