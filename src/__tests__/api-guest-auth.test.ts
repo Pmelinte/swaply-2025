@@ -25,13 +25,17 @@ vi.mock("next/headers", () => ({
   }),
 }));
 
-/** A minimal Supabase client stub that reports no authenticated user */
-function guestSupabase() {
+type ServerSupabaseClient = Awaited<
+  ReturnType<typeof supabaseServer.getServerSupabase>
+>;
+
+/** A minimal Supabase client stub that reports no authenticated user. */
+function guestSupabase(): ServerSupabaseClient {
   return {
     auth: {
       getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
     },
-  };
+  } as unknown as ServerSupabaseClient;
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────
