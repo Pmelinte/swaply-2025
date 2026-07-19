@@ -64,8 +64,10 @@ jobs:
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
 
-      - name: Run ESLint & TypeScript in parallel
-        run: npm run lint & npm run typecheck & wait
+      - name: Run ESLint and TypeScript
+        run: |
+          npm run lint
+          npm run typecheck
 
   test:
     name: Unit Tests
@@ -136,7 +138,7 @@ jobs:
   visual-audit:
     name: Public Visual & 43-Locale Audit
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
     needs: build
     steps:
       - name: Checkout
