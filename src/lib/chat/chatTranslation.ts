@@ -33,7 +33,7 @@ interface TranslateMessageOptions {
 const translationMemoryCache = new Map<string, ChatTranslationResult>();
 
 function normalizeLocale(locale: string): string {
-  return locale.trim().toLowerCase().split("-")[0] || "en";
+  return locale.trim().toLowerCase().replaceAll("_", "-").split("-")[0] || "en";
 }
 
 export function detectLikelyMessageLanguage(text: string): string {
