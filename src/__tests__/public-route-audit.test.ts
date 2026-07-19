@@ -11,18 +11,22 @@ import {
   getPublicVisualAuditRoutes,
   toLocalizedRoute,
   toSitemapPath,
+  type PublicRouteAuditEntry,
 } from "@/lib/public-pages/publicRouteAudit";
 import {
   PUBLIC_EXPERIENCE_PAGES,
   publicPageExperienceConfigs,
 } from "@/lib/public-pages/publicPageExperienceConfig";
 
+const routeAuditEntries: readonly PublicRouteAuditEntry[] =
+  PUBLIC_ROUTE_AUDIT_ENTRIES;
+
 describe("public route audit contract", () => {
   it("keeps route ids unique and paths internal", () => {
-    const ids = PUBLIC_ROUTE_AUDIT_ENTRIES.map((entry) => entry.id);
+    const ids = routeAuditEntries.map((entry) => entry.id);
     expect(new Set(ids).size).toBe(ids.length);
 
-    for (const entry of PUBLIC_ROUTE_AUDIT_ENTRIES) {
+    for (const entry of routeAuditEntries) {
       expect(entry.path.startsWith("/")).toBe(true);
       expect(entry.path.startsWith("//")).toBe(false);
     }
@@ -42,7 +46,9 @@ describe("public route audit contract", () => {
 
   it("covers every configured public experience page with a route entry", () => {
     const routedPages = new Set(
-      PUBLIC_ROUTE_AUDIT_ENTRIES.map((entry) => entry.page).filter(Boolean),
+      routeAuditEntries
+        .map((entry) => entry.page)
+        .filter((page): page is NonNullable<typeof page> => Boolean(page)),
     );
 
     for (const page of PUBLIC_EXPERIENCE_PAGES) {
@@ -51,19 +57,24 @@ describe("public route audit contract", () => {
   });
 
   it("marks all visual-audit routes as not login walls", () => {
-    for (const entry of PUBLIC_ROUTE_AUDIT_ENTRIES.filter((item) => item.visualAudit)) {
+    for (const entry of routeAuditEntries.filter((item) => item.visualAudit)) {
       expect(entry.mustNotBeLoginWall).toBe(true);
       expect(entry.requiresPageContext).not.toBe(true);
     }
   });
 
   it("keeps contextual pages visible, but exempts context-only routes from browser screenshots and sitemap", () => {
-    expect(getPublicRouteAuditEntry("chat-context")?.requiresPageContext).toBe(true);
-    expect(getPublicRouteAuditEntry("chat-context")?.visualAudit).toBe(false);
-    expect(getPublicRouteAuditEntry("chat-context")?.sitemapAudit).toBe(false);
-    expect(getPublicRouteAuditEntry("profile-context")?.requiresPageContext).toBe(true);
-    expect(getPublicRouteAuditEntry("profile-context")?.visualAudit).toBe(false);
-    expect(getPublicRouteAuditEntry("profile-context")?.sitemapAudit).toBe(false);
+    const chatContext: PublicRouteAuditEntry | undefined =
+      getPublicRouteAuditEntry("chat-context");
+    const profileContext: PublicRouteAuditEntry | undefined =
+      getPublicRouteAuditEntry("profile-context");
+
+    expect(chatContext?.requiresPageContext).toBe(true);
+    expect(chatContext?.visualAudit).toBe(false);
+    expect(chatContext?.sitemapAudit).toBe(false);
+    expect(profileContext?.requiresPageContext).toBe(true);
+    expect(profileContext?.visualAudit).toBe(false);
+    expect(profileContext?.sitemapAudit).toBe(false);
   });
 
   it("matches the visual audit route list used by Playwright", () => {
@@ -141,7 +152,7 @@ describe("public route audit contract", () => {
   });
 
   it("connects routed pages back to public-page experience requirements", () => {
-    for (const entry of PUBLIC_ROUTE_AUDIT_ENTRIES) {
+    for (const entry of routeAuditEntries) {
       if (!entry.page) continue;
       const config = publicPageExperienceConfigs[entry.page];
       expect(config).toBeDefined();
