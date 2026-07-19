@@ -14,19 +14,20 @@
 - Current Train D deliverable: `D1 — global-first profile and common infrastructure`.
 - Batch 65: `CLOSED` through the Batch 65.6 closure unit and its post-merge Production verification.
 - Batch 66.1: delivered through PR `#482`.
-- Batch 66.2: delivered through PR `#483`; Batch 66 remains `ACTIVE` for the remaining language-engine closure units.
-- Next incomplete unit after PR #483: `Batch 66.3`.
+- Batch 66.2: delivered through PR `#483`.
+- Batch 66.3: delivered through PR `#484`; Batch 66 remains `ACTIVE` for the remaining language-engine closure units.
+- Next incomplete unit after PR #484: `Batch 66.4`.
 - Train E remains the terminal Train for v1.0; there is no Train F.
 
 ## Current checkpoint
 
-- Verified `main` before Batch 66.2: `85fbe9862da3f8f7193dcb7bf1d9732acb817fad`.
-- Batch 66.2 delivery branch: `batch-66-2-authenticated-language-preferences`.
-- Batch 66.2 delivery PR: `#483 — persist authenticated language preferences`.
+- Verified `main` before Batch 66.3: `d77d8b26c462a522c0ac26761764de91940b9d02`.
+- Batch 66.3 delivery branch: `batch-66-3-chat-translation-failure-contract`.
+- Batch 66.3 delivery PR: `#484 — preserve original chat messages on translation failure`.
 - Supabase Production project: `keaejxlwqtjjglijiplh`.
 - Latest Production migration remains: `20260718230811_batch_65_6_onboarding_profile_authority_closure`.
-- Batch 66.2 requires no database migration and does not change Auth, RLS, grants, storage or private profile visibility.
-- Final merge, Vercel Production, route, runtime-log and parity evidence is recorded on PR #483 and in the corresponding Autopilot completion report.
+- Batch 66.3 requires no database migration and does not change Auth, RLS, grants, storage or private profile visibility.
+- Final merge, Vercel Production, route, runtime-log and parity evidence is recorded on PR #484 and in the corresponding Autopilot completion report.
 
 ## Execution authorization
 
@@ -208,7 +209,37 @@ Security and data impact:
 
 Detailed contract: `docs/batch-66-2-authenticated-language-preferences.md`.
 
-Batch 66 remains active. Later units must cover chat original/translated behavior under provider failure, reduction of the measured translation debt, remaining locale-specific overflow or hardcoded copy and final Batch 66 closure evidence.
+## Batch 66.3 — failure-safe realtime chat translation
+
+Delivered through PR #484 as the next small, non-overlapping Batch 66 unit.
+
+Delivered:
+
+- reusable realtime chat translation now returns structured `translated`, `same_language` and `fallback` states instead of an ambiguous string;
+- the original user message remains authoritative and visible at all times;
+- provider fallback or malformed output is never displayed as translated copy;
+- failed provider responses are not cached, allowing a later retry to recover;
+- successful translations and same-language no-ops may be cached in browser memory;
+- the cache key includes the complete message plus normalized source and target locales;
+- representative Romanian, Greek, Cyrillic, Yiddish, Arabic, Japanese, Chinese and Korean scripts are detected without forcing unknown Latin text to English;
+- original/translation switching is exposed only after a real successful translation;
+- localized failure status and retry remain available without hiding the original;
+- focused tests cover full-message cache separation, script detection, success and cache reuse, same-language no-op, provider fallback, HTTP failure and malformed responses.
+
+Security and data impact:
+
+- no Supabase migration;
+- no Auth, RLS, grants, storage or profile projection change;
+- no external translation or AI provider enabled;
+- no new paid service, subscription or cost;
+- no historical chat message or translation-cache rewrite;
+- no Train C scope reopened.
+
+The older state-backed `ChatPanel` translation adapter remains intentionally outside this unit and is tracked for the next non-overlapping Batch 66 unit.
+
+Detailed contract: `docs/batch-66-3-chat-translation-failure-contract.md`.
+
+Batch 66 remains active. Later units must cover the state-backed `ChatPanel` translation adapter and profile preference behavior, reduction of the measured translation debt, remaining locale-specific overflow or hardcoded copy and final Batch 66 closure evidence.
 
 ## Batch 65 closure contract
 
@@ -233,4 +264,4 @@ Batch 66.1 also records, without hiding, the current per-locale English technica
 
 ## Next mandatory action
 
-After PR #483 is merged and its post-merge GitHub CI, Vercel Production, representative locale routes, runtime logs and Supabase parity are green, begin only Batch 66.3. Do not reopen Train C and do not create an overlapping PR.
+After PR #484 is merged and its post-merge GitHub CI, Vercel Production, representative locale routes, runtime logs and Supabase parity are green, begin only Batch 66.4. Do not reopen Train C and do not create an overlapping PR.
