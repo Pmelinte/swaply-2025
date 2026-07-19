@@ -25,10 +25,75 @@ function screenshotPath(locale: Locale, viewport: "desktop-light" | "mobile-dark
   return path.join(screenshotRoot, `${locale}-${viewport}.png`);
 }
 
+function isTagBoundary(character: string | undefined) {
+  return character === undefined
+    || character === ">"
+    || character === "/"
+    || character === " "
+    || character === "\n"
+    || character === "\r"
+    || character === "\t"
+    || character === "\f";
+}
+
+function findElementTag(
+  lowerHtml: string,
+  tagName: "script" | "style",
+  startAt: number,
+  closing: boolean,
+) {
+  const prefix = closing ? `</${tagName}` : `<${tagName}`;
+  let index = lowerHtml.indexOf(prefix, startAt);
+
+  while (index >= 0) {
+    if (isTagBoundary(lowerHtml[index + prefix.length])) {
+      return index;
+    }
+
+    index = lowerHtml.indexOf(prefix, index + prefix.length);
+  }
+
+  return -1;
+}
+
 function getVisibleDocumentHtml(documentHtml: string) {
-  return documentHtml
-    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "")
-    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, "");
+  const lowerHtml = documentHtml.toLowerCase();
+  let cursor = 0;
+  let visibleHtml = "";
+
+  while (cursor < documentHtml.length) {
+    const scriptStart = findElementTag(lowerHtml, "script", cursor, false);
+    const styleStart = findElementTag(lowerHtml, "style", cursor, false);
+    const candidateStarts = [scriptStart, styleStart].filter((index) => index >= 0);
+
+    if (candidateStarts.length === 0) {
+      visibleHtml += documentHtml.slice(cursor);
+      break;
+    }
+
+    const elementStart = Math.min(...candidateStarts);
+    const tagName = elementStart === scriptStart ? "script" : "style";
+    visibleHtml += documentHtml.slice(cursor, elementStart);
+
+    const openingTagEnd = lowerHtml.indexOf(">", elementStart);
+    if (openingTagEnd < 0) {
+      break;
+    }
+
+    const closingTagStart = findElementTag(lowerHtml, tagName, openingTagEnd + 1, true);
+    if (closingTagStart < 0) {
+      break;
+    }
+
+    const closingTagEnd = lowerHtml.indexOf(">", closingTagStart);
+    if (closingTagEnd < 0) {
+      break;
+    }
+
+    cursor = closingTagEnd + 1;
+  }
+
+  return visibleHtml;
 }
 
 async function assertLocalizedResponseIsHealthy(
