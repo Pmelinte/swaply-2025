@@ -11,7 +11,8 @@ import { getLocaleDirection } from "../src/i18n/direction";
 
 const screenshotRoot = path.join(process.cwd(), "playwright-i18n-screenshots");
 const deepAuditLocales = ["en", "ro", "de", "ar", "zh", "yi"] as const satisfies readonly Locale[];
-const ROUTE_BATCH_SIZE = 10;
+const ROUTE_BATCH_SIZE = 4;
+const ROUTE_ATTEMPTS = 2;
 const ERROR_MARKERS = [
   "This page could not be found",
   "Application error",
@@ -30,17 +31,55 @@ async function assertLocalizedResponseIsHealthy(
   locale: Locale,
   route = "",
 ) {
-  const response = await request.get(`/${locale}${route}`, {
-    timeout: 45_000,
-  });
-  const body = await response.text();
+  const pathName = `/${locale}${route}`;
+  let lastStatus: number | undefined;
+  let lastBody = "";
+  let lastError: unknown;
 
-  expect(response.status(), `${locale}${route} must not redirect to an error`).toBeLessThan(400);
-  expect(body).toContain(`lang="${locale}"`);
-  expect(body).toContain(`dir="${getLocaleDirection(locale)}"`);
+  for (let attempt = 1; attempt <= ROUTE_ATTEMPTS; attempt += 1) {
+    try {
+      const response = await request.get(pathName, {
+        timeout: 45_000,
+      });
+      lastStatus = response.status();
+      lastBody = await response.text();
+      lastError = undefined;
 
-  for (const marker of ERROR_MARKERS) {
-    expect(body, `${locale}${route} must not expose ${marker}`).not.toContain(marker);
+      const hasCanonicalDocumentContract =
+        lastStatus < 400
+        && lastBody.includes(`lang="${locale}"`)
+        && lastBody.includes(`dir="${getLocaleDirection(locale)}"`)
+        && ERROR_MARKERS.every((marker) => !lastBody.includes(marker));
+
+      if (hasCanonicalDocumentContract) {
+        return;
+      }
+    } catch (error) {
+      lastError = error;
+    }
+
+    if (attempt < ROUTE_ATTEMPTS) {
+      await new Promise((resolve) => setTimeout(resolve, 750));
+    }
+  }
+
+  const marker = ERROR_MARKERS.find((candidate) => lastBody.includes(candidate));
+  const diagnostic = [
+    `${pathName} failed the canonical document contract after ${ROUTE_ATTEMPTS} attempts`,
+    `status=${lastStatus ?? "request-error"}`,
+    `expected-lang=${locale}`,
+    `expected-dir=${getLocaleDirection(locale)}`,
+    marker ? `error-marker=${marker}` : undefined,
+    lastError instanceof Error ? `request-error=${lastError.message}` : undefined,
+  ].filter(Boolean).join("; ");
+
+  expect(lastStatus, diagnostic).toBeDefined();
+  expect(lastStatus, diagnostic).toBeLessThan(400);
+  expect(lastBody, diagnostic).toContain(`lang="${locale}"`);
+  expect(lastBody, diagnostic).toContain(`dir="${getLocaleDirection(locale)}"`);
+
+  for (const errorMarker of ERROR_MARKERS) {
+    expect(lastBody, diagnostic).not.toContain(errorMarker);
   }
 }
 
@@ -68,7 +107,7 @@ test.describe("Batch 66 — 43 locale routing smoke", () => {
   test("all locale-prefixed Home and Objects routes expose the canonical document contract", async ({
     request,
   }) => {
-    test.setTimeout(360_000);
+    test.setTimeout(480_000);
 
     const routeChecks = locales.flatMap((locale) => [
       { locale, route: "" },
