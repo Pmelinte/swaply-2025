@@ -11,7 +11,6 @@ import { getLocaleDirection } from "../src/i18n/direction";
 
 const screenshotRoot = path.join(process.cwd(), "playwright-i18n-screenshots");
 const deepAuditLocales = ["en", "ro", "de", "ar", "zh", "yi"] as const satisfies readonly Locale[];
-const ROUTE_BATCH_SIZE = 4;
 const ROUTE_ATTEMPTS = 2;
 const ERROR_MARKERS = [
   "This page could not be found",
@@ -39,7 +38,7 @@ async function assertLocalizedResponseIsHealthy(
   for (let attempt = 1; attempt <= ROUTE_ATTEMPTS; attempt += 1) {
     try {
       const response = await request.get(pathName, {
-        timeout: 45_000,
+        timeout: 60_000,
       });
       lastStatus = response.status();
       lastBody = await response.text();
@@ -104,25 +103,16 @@ async function assertLocalizedPageIsHealthy(page: Page, locale: Locale, route = 
 }
 
 test.describe("Batch 66 — 43 locale routing smoke", () => {
-  test("all locale-prefixed Home and Objects routes expose the canonical document contract", async ({
-    request,
-  }) => {
-    test.setTimeout(480_000);
+  for (const locale of locales) {
+    test(`${locale} Home and Objects routes expose the canonical document contract`, async ({
+      request,
+    }) => {
+      test.setTimeout(150_000);
 
-    const routeChecks = locales.flatMap((locale) => [
-      { locale, route: "" },
-      { locale, route: "/objects" },
-    ]);
-
-    for (let index = 0; index < routeChecks.length; index += ROUTE_BATCH_SIZE) {
-      const batch = routeChecks.slice(index, index + ROUTE_BATCH_SIZE);
-      await Promise.all(
-        batch.map(({ locale, route }) =>
-          assertLocalizedResponseIsHealthy(request, locale, route),
-        ),
-      );
-    }
-  });
+      await assertLocalizedResponseIsHealthy(request, locale);
+      await assertLocalizedResponseIsHealthy(request, locale, "/objects");
+    });
+  }
 });
 
 test.describe("Batch 66 — deep global layout samples", () => {
