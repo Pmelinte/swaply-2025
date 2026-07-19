@@ -75,8 +75,8 @@ async function assertPublicPageIsHealthy(page: Page, route: string) {
 }
 
 async function assertDrawerIsHealthy(page: Page, route: string) {
-  const drawer = page.getByRole("dialog", { name: /side drawer/i });
-  await expect(drawer, `${route} drawer must be visible after hamburger click`).toBeVisible();
+  const drawer = page.getByRole("dialog", { name: /context menu/i });
+  await expect(drawer, `${route} drawer must be visible after contextual-menu click`).toBeVisible();
 
   if (contextualCopyRoutes.has(route)) {
     await expect(drawer, `${route} drawer must expose contextual menu copy`).toContainText(/Context Menu|Menu contextual/i);
@@ -117,7 +117,7 @@ test.describe("Swaply public visual audit", () => {
     for (const route of drawerAuditRoutes) {
       test(`opens route-specific drawer on ${route}`, async ({ page }, testInfo) => {
         await assertPublicPageIsHealthy(page, route);
-        await page.getByLabel("Open menu").first().click();
+        await page.getByRole("button", { name: /context menu/i }).first().click();
         await assertDrawerIsHealthy(page, route);
 
         const filePath = screenshotPath("drawer", route);
