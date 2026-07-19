@@ -29,6 +29,7 @@ describe("chat translation failure contract", () => {
 
   it("recognizes representative global scripts without forcing English", () => {
     expect(detectLikelyMessageLanguage("Bună, putem face schimbul?")).toBe("ro");
+    expect(detectLikelyMessageLanguage("Está aquí para el intercambio")).toBe("es");
     expect(detectLikelyMessageLanguage("שלום, תודה")).toBe("yi");
     expect(detectLikelyMessageLanguage("مرحبا")).toBe("ar");
     expect(detectLikelyMessageLanguage("交換できますか")).toBe("ja");
