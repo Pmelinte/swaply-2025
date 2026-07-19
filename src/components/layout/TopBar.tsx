@@ -17,12 +17,17 @@ import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { locales, languageNames, flagUrl, type Locale } from "@/i18n/config";
 import type { LanguageCode } from "@/lib/types";
+import { promoteProfileLanguage } from "@/lib/i18n/profileLanguagePreferences";
 import { TokensDisplay } from "@/components/tokens/TokensDisplay";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 
 /* ── Cookie utility ── */
 function setCountryCookie(countryCode: string) {
   document.cookie = `user_country=${countryCode};path=/;max-age=${365 * 24 * 60 * 60};SameSite=Lax`;
+}
+
+function setLocaleCookie(locale: Locale) {
+  document.cookie = `NEXT_LOCALE=${locale};path=/;max-age=${365 * 24 * 60 * 60};SameSite=Lax`;
 }
 
 function getStoredCountry(): string | null {
@@ -39,7 +44,14 @@ export function TopBar() {
   const t = useTranslations();
   const router = useRouter();
   const pathname = usePathname();
-  const { user, logout, language, setLanguage } = useAppState();
+  const {
+    user,
+    dataSource,
+    logout,
+    language,
+    setLanguage,
+    updateProfile,
+  } = useAppState();
 
   const [loggingOut, setLoggingOut] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
@@ -71,6 +83,33 @@ export function TopBar() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // After authenticated hydration, the canonical profile primary language wins.
+  // This restores the same locale after login or reload without changing the
+  // independently selected country.
+  const profilePrimaryLocale = user?.languages?.[0];
+  useEffect(() => {
+    if (dataSource !== "supabase" || !user?.id || !profilePrimaryLocale) return;
+    if (!locales.includes(profilePrimaryLocale as Locale)) return;
+
+    const preferredLocale = profilePrimaryLocale as Locale;
+    if (language === preferredLocale) {
+      setLocaleCookie(preferredLocale);
+      return;
+    }
+
+    setLanguage(preferredLocale as LanguageCode);
+    setLocaleCookie(preferredLocale);
+    router.replace(pathname, { locale: preferredLocale });
+  }, [
+    dataSource,
+    language,
+    pathname,
+    profilePrimaryLocale,
+    router,
+    setLanguage,
+    user?.id,
+  ]);
 
   const handleLogout = async () => {
     setLoggingOut(true);
@@ -117,15 +156,29 @@ export function TopBar() {
     );
   });
 
-  const handleSelectEntry = (loc: Locale, countryCode: string) => {
+  const handleSelectEntry = async (loc: Locale, countryCode: string) => {
+    const nextLanguages = promoteProfileLanguage(loc, user?.languages ?? []);
+
     setLanguage(loc as LanguageCode);
     setCountry(countryCode);
     setLangOpen(false);
     setLangSearch("");
-    // Persist locale preference in cookie so middleware picks it up
-    document.cookie = `NEXT_LOCALE=${loc};path=/;max-age=${365 * 24 * 60 * 60};SameSite=Lax`;
-    // Navigate to the same page in the new locale
+    setLocaleCookie(loc);
+
+    // Navigate immediately; profile persistence continues through the canonical
+    // revisioned owner RPC and keeps the selected locale primary after reload.
     router.replace(pathname, { locale: loc });
+
+    if (user) {
+      try {
+        await updateProfile(
+          { languages: nextLanguages as LanguageCode[] },
+          { persist: dataSource === "supabase" },
+        );
+      } catch (error) {
+        console.error("[language-preference] profile persistence failed", error);
+      }
+    }
   };
 
   // Current display values
@@ -221,7 +274,7 @@ export function TopBar() {
                       <button
                         key={entry.locale}
                         type="button"
-                        onClick={() => handleSelectEntry(entry.locale, entry.countryCode)}
+                        onClick={() => void handleSelectEntry(entry.locale, entry.countryCode)}
                         className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm transition ${
                           isActive
                             ? "bg-blue-50 font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
