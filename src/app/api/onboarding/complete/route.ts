@@ -5,6 +5,11 @@ import {
   OnboardingProfileAuthorityError,
   updateOnboardingProfileWithAuthority,
 } from "@/lib/profile/onboardingProfileAuthority";
+import {
+  isAtLeastSixteen,
+  validateRequiredOnboardingProfile,
+  type OnboardingProfileState,
+} from "@/lib/profile/onboardingState";
 
 export async function POST() {
   const session = await getServerSupabase();
@@ -12,11 +17,35 @@ export async function POST() {
     return NextResponse.json({ error: "Authentication required" }, { status: 401 });
   }
 
-  const {
-    data: { user },
-  } = await session.auth.getUser();
+  const { data: { user } } = await session.auth.getUser();
   if (!user) {
     return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+  }
+
+  const { data: profile, error: profileError } = await session
+    .from("profiles")
+    .select("display_name,date_of_birth,address_country,languages,onboarding_completed")
+    .eq("user_id", user.id)
+    .single();
+
+  if (profileError || !profile) {
+    return NextResponse.json({ error: "Unable to validate onboarding profile" }, { status: 500 });
+  }
+
+  if (profile.onboarding_completed) {
+    return NextResponse.json({ ok: true, alreadyCompleted: true });
+  }
+
+  const missing = validateRequiredOnboardingProfile(profile as OnboardingProfileState);
+  if (missing.length > 0) {
+    return NextResponse.json(
+      { error: "Required onboarding data is incomplete", missing },
+      { status: 400 },
+    );
+  }
+
+  if (!isAtLeastSixteen(String(profile.date_of_birth))) {
+    return NextResponse.json({ error: "User must be at least 16 years old" }, { status: 400 });
   }
 
   try {
@@ -36,31 +65,19 @@ export async function POST() {
         { status: error.code === "40001" ? 409 : 500 },
       );
     }
-    return NextResponse.json(
-      { error: "Unable to complete onboarding" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Unable to complete onboarding" }, { status: 500 });
   }
 
   const service = getServiceSupabase();
-  if (!service) {
-    return NextResponse.json({ error: "Service unavailable" }, { status: 503 });
-  }
-
-  const { error: progressError } = await service
-    .from("onboarding_progress")
-    .update({
-      step_profile: true,
-      current_step: "first_item",
-      updated_at: new Date().toISOString(),
-    })
-    .eq("user_id", user.id);
-
-  if (progressError) {
-    return NextResponse.json(
-      { error: "Unable to complete onboarding" },
-      { status: 500 },
-    );
+  if (service) {
+    await service
+      .from("onboarding_progress")
+      .update({
+        step_profile: true,
+        current_step: "first_item",
+        updated_at: new Date().toISOString(),
+      })
+      .eq("user_id", user.id);
   }
 
   return NextResponse.json({ ok: true });
