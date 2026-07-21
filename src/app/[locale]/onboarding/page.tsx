@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
-import { OnboardingClient } from "./OnboardingClient";
+
+import { ResumableOnboardingClient } from "./ResumableOnboardingClient";
 
 export default async function OnboardingPage() {
-  return <OnboardingClient />;
+  return <ResumableOnboardingClient />;
 }
