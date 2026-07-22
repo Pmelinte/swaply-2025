@@ -115,7 +115,7 @@ export function ServiceWizard() {
     setLoading(true);
     setError(null);
     try {
-      const data = await submitServiceWizard(form, user.id);
+      const data = await submitServiceWizard(form);
       localStorage.removeItem(SERVICE_DRAFT_KEY);
       setSuccess(true);
       const itemId = data?.[0]?.id;
