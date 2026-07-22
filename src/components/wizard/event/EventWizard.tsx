@@ -112,7 +112,7 @@ export function EventWizard() {
     setLoading(true);
     setError(null);
     try {
-      const data = await submitEventWizard(form, user.id);
+      const data = await submitEventWizard(form);
       localStorage.removeItem(EVENT_DRAFT_KEY);
       setSuccess(true);
       const itemId = data?.[0]?.id;

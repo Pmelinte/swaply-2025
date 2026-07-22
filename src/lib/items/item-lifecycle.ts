@@ -128,3 +128,32 @@ export function publicItemSelect(): string {
     "ai_metadata",
   ].join(", ");
 }
+
+export type EventOwnerEditInput = {
+  title: string;
+  description: string;
+  eventData?: Record<string, unknown> | null;
+  swapWantsDescription?: string | null;
+  perceivedValueTier?: string | null;
+};
+
+export function eventOwnerEditPatch(input: EventOwnerEditInput): Record<string, unknown> {
+  const title = input.title.trim();
+  const description = input.description.trim();
+  const eventData = { ...(input.eventData ?? {}) };
+
+  return {
+    title,
+    description,
+    category: "event",
+    item_type: "event",
+    event_data: {
+      ...eventData,
+      event_title: title,
+      event_description: description,
+    },
+    swap_wants_description: input.swapWantsDescription?.trim() || null,
+    perceived_value_tier: input.perceivedValueTier?.trim() || null,
+    updated_at: new Date().toISOString(),
+  };
+}
