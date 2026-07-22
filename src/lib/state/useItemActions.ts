@@ -7,6 +7,7 @@ import { createEmptyItem } from "../mock-data";
 import type { SharedDeps } from "./shared-deps";
 import { showTokenToast } from "@/components/tokens/TokenToast";
 import { getSupabaseClient } from "@/lib/supabase/client";
+import { itemEditPayload } from "@/lib/items/item-lifecycle";
 
 export function useItemActions(deps: Pick<SharedDeps, "user" | "dataSource" | "supabase" | "setLastError" | "mapItem" | "items" | "setItems">) {
   const { user, dataSource, supabase, setLastError, mapItem, items, setItems } = deps;
@@ -22,26 +23,7 @@ export function useItemActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
       });
 
       if (dataSource === "supabase" && supabase && user?.id) {
-        const payload = {
-          id: item.id, owner_id: user.id, title: item.title,
-          category: item.category, condition: item.condition,
-          description: item.description,
-          status: item.status === "traded" ? "traded" : item.status,
-          is_active: item.isActive ?? true,
-          is_demo: item.isDemo ?? false, location: item.location,
-          tags: item.userFinalTags ?? item.aiSuggestedTags ?? [],
-          images: (item.photos ?? []).map((url: string) => url),
-          image_url: (item.photos ?? [])[0] ?? null,
-          ai_metadata: {
-            intent: item.intent ?? null, flexibility: item.flexibility ?? null,
-            perceivedValue: item.perceivedValue ?? null, clarity: item.clarity ?? null,
-            context: item.context ?? null, acceptsBundle: item.acceptsBundle ?? false,
-            recipientMatters: item.recipientMatters ?? false,
-            conditionImpact: item.conditionImpact ?? [], aiNote: item.aiNote ?? null,
-            wishlist: item.wishlist ?? null,
-          },
-          updated_at: new Date().toISOString(),
-        };
+        const payload = itemEditPayload(item, user.id);
 
         const query = item.id
           ? supabase.from("items").upsert(payload).select().maybeSingle()
@@ -153,12 +135,14 @@ export function useItemActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
       setItems((prev) => prev.filter((i) => i.id !== id));
 
       if (dataSource === "supabase" && supabase) {
-        const { error } = await supabase
-          .from("items")
-          .update({ is_active: false, status: "archived", updated_at: new Date().toISOString() })
-          .eq("id", id);
-        if (error) {
-          setLastError(error.message);
+        const response = await fetch(`/api/items/${id}/status`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "archived" }),
+        });
+        if (!response.ok) {
+          const body = (await response.json().catch(() => null)) as { error?: string } | null;
+          setLastError(body?.error ?? "Failed to archive item");
           setItems(previousItems);
         }
       }
@@ -177,8 +161,24 @@ export function useItemActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
   const setItemStatus = useCallback(async (id: string, status: Item["status"]) => {
     const item = items.find((i) => i.id === id);
     if (!item) return;
-    await upsertItem({ ...item, status, isActive: status === "active" });
-  }, [items, upsertItem]);
+    if (status === "active" || status === "paused" || status === "archived") {
+      const previousItems = items;
+      const nextItem = { ...item, status, isActive: status === "active" };
+      setItems((prev) => prev.map((candidate) => (candidate.id === id ? nextItem : candidate)));
+      const response = await fetch(`/api/items/${id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      if (!response.ok) {
+        const body = (await response.json().catch(() => null)) as { error?: string } | null;
+        setLastError(body?.error ?? "Failed to update item status");
+        setItems(previousItems);
+      }
+      return;
+    }
+    await upsertItem({ ...item, status, isActive: false });
+  }, [items, setItems, setLastError, upsertItem]);
 
   const startNewItem = useCallback(() => {
     if (!user) return null;

@@ -30,6 +30,7 @@ import { NO_IMAGE_URL } from "@/lib/storage";
 import { BoostPanel } from "@/components/BoostPanel";
 import { TranslateButton } from "@/components/TranslateButton";
 import { getSupabaseClient } from "@/lib/supabase/client";
+import { publicItemSelect } from "@/lib/items/item-lifecycle";
 import { sendGAEvent } from "@next/third-parties/google";
 import { trackItemEvent } from "@/lib/item-analytics";
 import {
@@ -110,32 +111,32 @@ export default function ObjectDetailClient() {
       if (!supabase) return null;
       const { data } = await supabase
         .from("items")
-        .select("*")
+        .select(publicItemSelect())
         .eq("id", params.id)
         .eq("is_active", true)
         .maybeSingle();
       if (!data) return null;
-      const photos = Array.isArray(data.photos)
-        ? (data.photos as (string | { url?: string })[]).map((img) =>
-            typeof img === "string" ? img : String((img as Record<string, unknown>)?.url ?? ""),
-          ).filter(Boolean)
-        : [];
-      const aiMeta = (typeof data.ai_metadata === "object" && data.ai_metadata ? data.ai_metadata : {}) as Record<string, unknown>;
+      const row = data as unknown as Record<string, unknown>;
+      const rawPhotos = Array.isArray(row.images) ? row.images : [];
+      const photos = (rawPhotos as (string | { url?: string })[]).map((img) =>
+        typeof img === "string" ? img : String((img as Record<string, unknown>)?.url ?? ""),
+      ).filter(Boolean);
+      const aiMeta = (typeof row.ai_metadata === "object" && row.ai_metadata ? row.ai_metadata : {}) as Record<string, unknown>;
       return {
-        id: String(data.id),
-        ownerId: String(data.owner_id),
-        title: String(data.title ?? ""),
-        category: String(data.category ?? ""),
-        condition: (String(data.condition ?? "good") as import("@/lib/types").Item["condition"]),
-        description: String(data.description ?? ""),
-        wishlist: String(data.wishlist ?? ""),
-        status: (String(data.status ?? "active") as import("@/lib/types").Item["status"]),
-        isDemo: Boolean(data.is_demo),
-        isActive: Boolean(data.is_active),
-        createdAt: String(data.created_at ?? ""),
-        location: String(data.location ?? ""),
-        aiSuggestedTags: Array.isArray(data.ai_suggested_tags) ? data.ai_suggested_tags as string[] : [],
-        userFinalTags: Array.isArray(data.user_final_tags) ? data.user_final_tags as string[] : [],
+        id: String(row.id),
+        ownerId: String(row.owner_id),
+        title: String(row.title ?? ""),
+        category: String(row.category ?? ""),
+        condition: (String(row.condition ?? "good") as import("@/lib/types").Item["condition"]),
+        description: String(row.description ?? ""),
+        wishlist: String(row.wishlist ?? ""),
+        status: (String(row.status ?? "active") as import("@/lib/types").Item["status"]),
+        isDemo: Boolean(row.is_demo),
+        isActive: Boolean(row.is_active),
+        createdAt: String(row.created_at ?? ""),
+        location: String(row.location ?? ""),
+        aiSuggestedTags: Array.isArray(row.ai_suggested_tags) ? row.ai_suggested_tags as string[] : [],
+        userFinalTags: Array.isArray(row.user_final_tags) ? row.user_final_tags as string[] : [],
         photos,
         intent: (String(aiMeta.intent ?? "") || undefined) as import("@/lib/types").Item["intent"],
         flexibility: (String(aiMeta.flexibility ?? "") || undefined) as import("@/lib/types").Item["flexibility"],
