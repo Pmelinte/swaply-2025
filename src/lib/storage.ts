@@ -102,6 +102,25 @@ async function uploadToSupabase(
 }
 
 /**
+ * Upload a profile avatar and clean up the previous app-owned avatar after the
+ * replacement is available. External URLs are left untouched because they may be
+ * shared or require provider-side signed deletion.
+ */
+export async function uploadProfileAvatar(
+  file: File,
+  ownerId: string,
+  previousAvatarUrl?: string | null,
+): Promise<UploadResult> {
+  const result = await uploadItemPhoto(file, ownerId);
+
+  if (result.url && previousAvatarUrl && previousAvatarUrl !== result.url) {
+    await deleteItemPhoto(previousAvatarUrl);
+  }
+
+  return result;
+}
+
+/**
  * Delete an image. Handles Cloudinary, Supabase and blob URLs gracefully.
  */
 export async function deleteItemPhoto(url: string): Promise<void> {
