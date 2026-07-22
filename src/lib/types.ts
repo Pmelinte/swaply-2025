@@ -5,7 +5,7 @@ export type LanguageCode =
   | "hu" | "bg" | "cs" | "sk" | "hr" | "sl" | "sr" | "sv" | "da" | "fi"
   | "no" | "lt" | "lv" | "et" | "ga" | "mt" | "ru" | "tr" | "ar" | "zh"
   | "hi" | "bn" | "ja" | "ko" | "vi" | "th" | "id" | "ms" | "fil" | "fa"
-  | "mn" | "uk";
+  | "mn" | "uk" | "yi";
 
 export interface UserProfile {
   id: string;
@@ -17,6 +17,10 @@ export interface UserProfile {
   avatarUrl?: string;
   bio?: string;
   languages: LanguageCode[];
+  translationPreferences?: {
+    autoTranslateMessages: boolean;
+    showOriginalLanguage: boolean;
+  };
   badge: BadgeTier;
   role?: "user" | "admin" | "moderator";
   location?: {

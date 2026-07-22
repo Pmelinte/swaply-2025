@@ -18,7 +18,7 @@ const LocationPicker = dynamic(() => import("@/components/LocationPicker"), {
     />
   ),
 });
-import { uploadItemPhoto } from "@/lib/storage";
+import { uploadProfileAvatar } from "@/lib/storage";
 
 interface ProfileTabProps {
   draft: UserProfile;
@@ -86,7 +86,7 @@ export default function ProfileTab({ draft, update, userId }: ProfileTabProps) {
                   if (!file) return;
                   setAvatarUploading(true);
                   try {
-                    const result = await uploadItemPhoto(file, userId);
+                    const result = await uploadProfileAvatar(file, userId, draft.avatarUrl);
                     if (result.error) {
                       setSaveMessage(result.error);
                     } else if (result.url) {

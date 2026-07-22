@@ -978,6 +978,8 @@ export function AppStateProvider({ children, initialLocale }: { children: ReactN
         primary_language: orderedLanguages[0],
         secondary_language: orderedLanguages[1] ?? null,
         tertiary_language: orderedLanguages[2] ?? null,
+        auto_translate_messages: merged.translationPreferences?.autoTranslateMessages ?? true,
+        show_original_language: merged.translationPreferences?.showOriginalLanguage ?? false,
         location: merged.location ?? {},
         location_text: [merged.location?.city, merged.location?.country]
           .filter(Boolean)

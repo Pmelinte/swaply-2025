@@ -1,6 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 // Mock the supabase client module before importing storage
+const removeMock = vi.fn(async () => ({ error: null }));
+const uploadMock = vi.fn(async () => ({ error: null }));
+const getPublicUrlMock = vi.fn(() => ({ data: { publicUrl: "https://example.test/storage/v1/object/public/item-photos/user-1/new.jpg" } }));
+
 vi.mock("@/lib/supabase/client", () => ({
   getSupabaseClient: vi.fn(() => null),
 }));
@@ -9,6 +13,9 @@ describe("Storage: uploadItemPhoto", () => {
   beforeEach(() => {
     vi.unstubAllEnvs();
     vi.stubEnv("NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME", "");
+    removeMock.mockClear();
+    uploadMock.mockClear();
+    getPublicUrlMock.mockClear();
   });
 
   it("rejects invalid file types", async () => {
@@ -98,5 +105,54 @@ describe("Storage: constants", () => {
   it("NO_IMAGE_URL is defined", async () => {
     const { NO_IMAGE_URL } = await import("@/lib/storage");
     expect(NO_IMAGE_URL).toBe("/no-image.svg");
+  });
+});
+
+
+describe("Storage: uploadProfileAvatar", () => {
+  beforeEach(() => {
+    vi.resetModules();
+    vi.unstubAllEnvs();
+    vi.stubEnv("NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME", "");
+    removeMock.mockClear();
+    uploadMock.mockClear();
+    getPublicUrlMock.mockClear();
+  });
+
+  it("replaces the previous Supabase-hosted avatar after a valid upload", async () => {
+    const clientModule = await import("@/lib/supabase/client");
+    vi.mocked(clientModule.getSupabaseClient).mockReturnValue({
+      storage: {
+        from: vi.fn(() => ({
+          upload: uploadMock,
+          remove: removeMock,
+          getPublicUrl: getPublicUrlMock,
+        })),
+      },
+    } as unknown as ReturnType<typeof clientModule.getSupabaseClient>);
+
+    const { uploadProfileAvatar } = await import("@/lib/storage");
+    const file = new File(["data"], "new.jpg", { type: "image/jpeg" });
+
+    const result = await uploadProfileAvatar(
+      file,
+      "user-1",
+      "https://example.test/storage/v1/object/public/item-photos/user-1/old.jpg",
+    );
+
+    expect(result.error).toBeNull();
+    expect(result.url).toContain("/item-photos/user-1/new.jpg");
+    expect(removeMock).toHaveBeenCalledWith(["user-1/old.jpg"]);
+  });
+
+  it("keeps the previous avatar when replacement validation fails", async () => {
+    const { uploadProfileAvatar } = await import("@/lib/storage");
+    const file = new File(["bad"], "bad.svg", { type: "image/svg+xml" });
+
+    const result = await uploadProfileAvatar(file, "user-1", "blob:http://localhost/old");
+
+    expect(result.url).toBeNull();
+    expect(result.error).toContain("Format neacceptat");
+    expect(removeMock).not.toHaveBeenCalled();
   });
 });
