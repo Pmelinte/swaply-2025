@@ -246,7 +246,6 @@ function ServiceCard({ row, mode }: { row: ServiceRow; mode: BrowseMode }) {
 }
 
 export default function ServicesPage() {
-  const router = useRouter();
   const { user, items, loading: stateLoading } = useAppState();
   const { favoriteIds: favorites, toggleFavorite } = useFavorites(user?.id);
   const t = useTranslations("objects");
@@ -256,6 +255,10 @@ export default function ServicesPage() {
   const [browseMode, setBrowseMode] = useState<BrowseMode>("grid");
   const [search, setSearch] = useState("");
   const [locationFilter, setLocationFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [modalityFilter, setModalityFilter] = useState("");
+  const [availabilityFilter, setAvailabilityFilter] = useState("");
+  const [sortBy, setSortBy] = useState<"newest" | "title">("newest");
   const [showFilters, setShowFilters] = useState(false);
   const [visibleCount, setVisibleCount] = useState(20);
 
@@ -356,10 +359,19 @@ export default function ServicesPage() {
       const loc = locationFilter.toLowerCase();
       result = result.filter((s) => (s.location || "").toLowerCase().includes(loc));
     }
+    if (categoryFilter) result = result.filter((s) => getCategoryL1(s) === categoryFilter);
+    if (modalityFilter) result = result.filter((s) => getModality(s) === modalityFilter);
+    if (availabilityFilter) result = result.filter((s) => s.service_data?.availability_days?.includes(availabilityFilter));
+    result = [...result].sort((a, b) => sortBy === "title"
+      ? getTitle(a).localeCompare(getTitle(b))
+      : String(b.created_at ?? "").localeCompare(String(a.created_at ?? "")));
     return result;
-  }, [allServices, search, locationFilter]);
+  }, [allServices, search, locationFilter, categoryFilter, modalityFilter, availabilityFilter, sortBy]);
 
-  const hasFilters = !!search || !!locationFilter;
+  const categoryOptions = useMemo(() => Array.from(new Set(allServices.map(getCategoryL1).filter(Boolean))).sort(), [allServices]);
+  const modalityOptions = useMemo(() => Array.from(new Set(allServices.map(getModality).filter(Boolean))).sort(), [allServices]);
+  const availabilityOptions = useMemo(() => Array.from(new Set(allServices.flatMap((s) => s.service_data?.availability_days ?? []))).sort(), [allServices]);
+  const hasFilters = !!search || !!locationFilter || !!categoryFilter || !!modalityFilter || !!availabilityFilter || sortBy !== "newest";
   const isLoading = loadingServices && stateLoading.items;
   const serviceLabel = tb("services");
   const addServiceLabel = `${tc("add")} ${serviceLabel}`;
@@ -437,6 +449,10 @@ export default function ServicesPage() {
         {showFilters && (
           <div className="mb-4 rounded-xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-800/50">
             <div className="flex flex-wrap gap-4">
+              <FilterSelect label="Category" value={categoryFilter} onChange={setCategoryFilter} options={categoryOptions} />
+              <FilterSelect label="Delivery" value={modalityFilter} onChange={setModalityFilter} options={modalityOptions} />
+              <FilterSelect label="Availability" value={availabilityFilter} onChange={setAvailabilityFilter} options={availabilityOptions} />
+              <FilterSelect label="Sort" value={sortBy} onChange={(value) => setSortBy(value === "title" ? "title" : "newest")} options={["newest", "title"]} />
               <div>
                 <p className="mb-1.5 text-xs font-semibold uppercase text-zinc-500">{t("filterLocation")}</p>
                 <div className="relative">
@@ -458,7 +474,7 @@ export default function ServicesPage() {
             </div>
             {hasFilters && (
               <button
-                onClick={() => { setSearch(""); setLocationFilter(""); }}
+                onClick={() => { setSearch(""); setLocationFilter(""); setCategoryFilter(""); setModalityFilter(""); setAvailabilityFilter(""); setSortBy("newest"); }}
                 className="mt-3 text-xs font-medium text-green-600 hover:text-green-800 dark:text-green-400"
               >
                 {t("clearFilters")}
@@ -506,7 +522,7 @@ export default function ServicesPage() {
                 <div className="flex flex-wrap items-center gap-3">
                   {hasFilters && (
                     <button
-                      onClick={() => { setSearch(""); setLocationFilter(""); }}
+                      onClick={() => { setSearch(""); setLocationFilter(""); setCategoryFilter(""); setModalityFilter(""); setAvailabilityFilter(""); setSortBy("newest"); }}
                       className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
                     >
                       {t("clearFilters")}
@@ -620,5 +636,18 @@ export default function ServicesPage() {
         )}
       </div>
     </div>
+  );
+}
+
+
+function FilterSelect({ label, value, onChange, options }: { label: string; value: string; onChange: (value: string) => void; options: string[] }) {
+  return (
+    <label className="text-xs font-semibold uppercase text-zinc-500">
+      {label}
+      <select value={value} onChange={(event) => onChange(event.target.value)} className="mt-1 block rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs normal-case text-zinc-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100">
+        <option value="">Any</option>
+        {options.map((option) => <option key={option} value={option}>{option}</option>)}
+      </select>
+    </label>
   );
 }

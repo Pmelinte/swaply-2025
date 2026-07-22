@@ -76,6 +76,36 @@ export function itemEditPayload(item: Item, ownerId: string): Record<string, unk
   };
 }
 
+export type ServiceOwnerEditInput = {
+  title: string;
+  description: string;
+  serviceData?: Record<string, unknown> | null;
+  swapWantsDescription?: string | null;
+  perceivedValueTier?: string | null;
+};
+
+export function serviceOwnerEditPatch(input: ServiceOwnerEditInput): Record<string, unknown> {
+  const title = input.title.trim();
+  const description = input.description.trim();
+  const serviceData = { ...(input.serviceData ?? {}) };
+
+  return {
+    title,
+    description,
+    category: "service",
+    item_type: "service",
+    wizard_type: "service",
+    service_data: {
+      ...serviceData,
+      service_title: title,
+      service_full_description: description,
+    },
+    swap_wants_description: input.swapWantsDescription?.trim() || null,
+    perceived_value_tier: input.perceivedValueTier?.trim() || null,
+    updated_at: new Date().toISOString(),
+  };
+}
+
 export function publicItemSelect(): string {
   return [
     "id",

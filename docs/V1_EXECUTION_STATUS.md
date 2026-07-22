@@ -37,3 +37,8 @@
 | 33     | Crearea unui serviciu                     | IMPLEMENTED | PENDING | PENDING | Wizard-ul Services publică prin endpoint autentificat server-side care derivă owner_id din sesiune și redirecționează către detaliu. |
 | 34     | Disponibilitate și tarif orientativ servicii | IMPLEMENTED | PENDING | PENDING | Disponibilitatea, durata și valoarea orientativă sunt normalizate în service_data/perceived_value_tier fără flow de vânzare. |
 | 35     | Portofoliu și certificări servicii        | IMPLEMENTED | PENDING | PENDING | Portofoliul și certificările sunt persistate și afișate condițional pe pagina publică de detaliu serviciu. |
+| 36     | Editarea și administrarea serviciilor     | IMPLEMENTED | PENDING | PENDING | Endpointul owner-only pentru servicii editează date canonice și lifecycle-ul existent active/paused/archived refuză outsiderii prin owner_id din sesiune. |
+| 37     | Pagina detaliată a serviciului            | IMPLEMENTED | PENDING | PENDING | Detaliul serviciului afișează descriere, livrare, disponibilitate, portofoliu/certificări și CTA de propunere schimb servicii cu stări loading/error. |
+| 38     | Explorarea serviciilor                    | IMPLEMENTED | PENDING | PENDING | Explorarea listează servicii active reale din items/services cu loading, empty, favorite și load-more existente. |
+| 39     | Căutare și filtre pentru servicii         | IMPLEMENTED | PENDING | PENDING | Filtrele client-side acoperă categorie, livrare, disponibilitate, locație și sortare fără audit locale. |
+| 40     | Propunere de schimb de servicii           | IMPLEMENTED | PENDING | PENDING | CTA-ul de detaliu creează matching_interests pentru service-for-service folosind utilizatorul autentificat și primul serviciu activ propriu. |
