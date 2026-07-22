@@ -17,3 +17,8 @@
 | 13 | Export și închidere cont | IMPLEMENTED | PENDING | PENDING | Exportul JSON canonic autentificat, cererile GDPR owner-only și protecția CSRF pentru cereri sunt integrate. |
 | 14 | Crearea unui obiect | IMPLEMENTED | PENDING | PENDING | Wizard-ul de obiect folosește normalizarea canonică, owner_id din sesiunea client autentificată și revenire după publicare. |
 | 15 | Fotografii și media pentru obiecte | IMPLEMENTED | PENDING | PENDING | Uploadul media validează tip/mărime, folosește storage owner-folder și păstrează fallback-ul no-image. |
+| 16 | Asistență AI la descrierea obiectului | IMPLEMENTED | PENDING | PENDING | Gateway-ul AI server-side existent este reutilizat pentru clasificare/tagging, cu fallback deterministic și fără blocarea publicării. |
+| 17 | Editarea unui obiect | IMPLEMENTED | PENDING | PENDING | Editarea păstrează hidratarea owner-only și refolosește payload-ul canonic owner-bound pentru persistarea obiectelor. |
+| 18 | Activare, dezactivare și arhivare obiect | IMPLEMENTED | PENDING | PENDING | Ciclul de viață active/paused/archived este expus prin endpoint server-side owner-only și migrație RLS-safe fără ștergere accidentală. |
+| 19 | Pagina detaliată a obiectului | IMPLEMENTED | PENDING | PENDING | Detaliul public folosește o proiecție limitată și media canonică din images, cu stări existente de loading/not-found. |
+| 20 | Explorarea obiectelor | IMPLEMENTED | PENDING | PENDING | Explorarea obiectelor active refolosește filtrele existente, stările empty/loading și paginarea Load more. |

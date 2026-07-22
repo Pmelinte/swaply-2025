@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useParams } from "next/navigation";
 import { Link } from "@/i18n/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import type { Item } from "@/lib/types";
 import { createMapItem } from "@/lib/state/mappers";
@@ -18,6 +18,7 @@ export default function EditObjectPage() {
   const router = useRouter();
   const { items, user, loading: appLoading, upsertItem } = useAppState();
   const t = useTranslations("objectEdit");
+  const locale = useLocale();
   const [loading, setLoading] = useState(true);
   const [item, setItem] = useState<Item | null>(null);
 
@@ -30,9 +31,16 @@ export default function EditObjectPage() {
       };
     }
 
+    const finish = (nextItem: Item | null) => {
+      queueMicrotask(() => {
+        if (cancelled) return;
+        setItem(nextItem);
+        setLoading(false);
+      });
+    };
+
     if (!user) {
-      setItem(null);
-      setLoading(false);
+      finish(null);
       return () => {
         cancelled = true;
       };
@@ -44,8 +52,7 @@ export default function EditObjectPage() {
     );
 
     if (stateItem) {
-      setItem(stateItem);
-      setLoading(false);
+      finish(stateItem);
       return () => {
         cancelled = true;
       };
@@ -53,14 +60,15 @@ export default function EditObjectPage() {
 
     const supabase = getSupabaseClient();
     if (!supabase) {
-      setItem(null);
-      setLoading(false);
+      finish(null);
       return () => {
         cancelled = true;
       };
     }
 
-    setLoading(true);
+    queueMicrotask(() => {
+      if (!cancelled) setLoading(true);
+    });
 
     void (async () => {
       try {
@@ -148,7 +156,7 @@ export default function EditObjectPage() {
           onSave={async (next) => {
             const saved = await upsertItem(next);
             if (!saved) return;
-            window.location.assign(`/en/objects/${params.id}?updated=${Date.now()}`);
+            window.location.assign(`/${locale}/objects/${params.id}?updated=${Date.now()}`);
           }}
           onCancel={() => router.push(`/objects/${params.id}`)}
         />

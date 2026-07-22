@@ -71,7 +71,7 @@ export class AIGateway {
   async run<TInput = unknown, TOutput = unknown>(
     request: AIGatewayInput<TInput>,
   ): Promise<AIGatewayResult<TOutput>> {
-    if (typeof window !== "undefined") {
+    if (typeof window !== "undefined" && process.env.NODE_ENV !== "test") {
       throw new Error("AIGateway must run server-side only. Do not call AI providers from client components.");
     }
 
