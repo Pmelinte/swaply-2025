@@ -24,6 +24,8 @@ export default function ServiceDetailPage() {
   const params = useParams<{ id: string }>();
   const [service, setService] = useState<ServiceRow | null>(null);
   const [loading, setLoading] = useState(true);
+  const [interestStatus, setInterestStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [interestMessage, setInterestMessage] = useState("");
 
   useEffect(() => {
     const supabase = getSupabaseClient();
@@ -49,6 +51,20 @@ export default function ServiceDetailPage() {
   const certifications = stringArray(data.certifications);
   const portfolioUrls = stringArray(data.portfolio_urls);
 
+  async function proposeServiceExchange() {
+    setInterestStatus("sending");
+    setInterestMessage("");
+    const response = await fetch(`/api/items/services/${params.id}/interest`, { method: "POST" });
+    if (response.ok) {
+      setInterestStatus("sent");
+      setInterestMessage("Service exchange proposal sent. The owner can accept it from matching interests.");
+      return;
+    }
+    const body = (await response.json().catch(() => null)) as { error?: string } | null;
+    setInterestStatus("error");
+    setInterestMessage(body?.error ?? "Could not send the service exchange proposal.");
+  }
+
   if (loading) return <div className="p-8 text-center text-zinc-400">Loading service…</div>;
   if (!service) return <div className="p-8 text-center text-zinc-400">This service is unavailable.</div>;
 
@@ -61,7 +77,14 @@ export default function ServiceDetailPage() {
         <p className="text-sm font-semibold text-emerald-600">{String(data.service_category_l1 ?? "Service")}</p>
         <h1 className="mt-1 text-2xl font-bold text-zinc-900 dark:text-zinc-50">{service.title}</h1>
         <p className="mt-3 whitespace-pre-line text-sm text-zinc-600 dark:text-zinc-300">{service.description}</p>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+          <button type="button" onClick={proposeServiceExchange} disabled={interestStatus === "sending" || interestStatus === "sent"} className="rounded-full bg-emerald-600 px-5 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-emerald-300">
+            {interestStatus === "sending" ? "Sending proposal…" : interestStatus === "sent" ? "Proposal sent" : "Propose service exchange"}
+          </button>
+          <a href="#availability" className="rounded-full border border-zinc-300 px-5 py-2 text-center text-sm font-semibold text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-800">Check availability</a>
+        </div>
+        {interestMessage && <p className={`mt-2 text-sm ${interestStatus === "error" ? "text-red-600" : "text-emerald-600"}`}>{interestMessage}</p>}
+        <div id="availability" className="mt-4 grid gap-3 sm:grid-cols-2">
           <Info label="Delivery" value={String(data.service_modality ?? "Flexible")} />
           <Info label="Availability" value={stringArray(data.availability_days).join(", ")} />
           <Info label="Duration" value={stringArray(data.service_duration).join(", ")} />
