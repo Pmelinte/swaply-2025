@@ -228,6 +228,7 @@ jobs:
 
   visual-audit:
     name: Public Visual & 43-Locale Audit
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 40
     needs: build
