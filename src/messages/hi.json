@@ -654,7 +654,12 @@
     "status_traded": "विनिमय",
     "status_paused": "रुका",
     "status_archived": "संग्रहीत",
-    "shareButton": "साझा करें"
+    "shareButton": "साझा करें",
+    "filterValue": "Value",
+    "value_small": "Small",
+    "value_medium": "Medium",
+    "value_large": "Large",
+    "value_sentimental": "Sentimental"
   },
   "objectDetail": {
     "loading": "वस्तु लोड हो रही है",

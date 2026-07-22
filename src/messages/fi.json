@@ -654,7 +654,12 @@
     "status_traded": "Vaihdettu",
     "status_paused": "Tauolla",
     "status_archived": "Arkistoitu",
-    "shareButton": "Jaa"
+    "shareButton": "Jaa",
+    "filterValue": "Value",
+    "value_small": "Small",
+    "value_medium": "Medium",
+    "value_large": "Large",
+    "value_sentimental": "Sentimental"
   },
   "objectDetail": {
     "loading": "Ladataan esinettä",

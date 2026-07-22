@@ -654,7 +654,12 @@
     "status_traded": "แลกเปลี่ยนแล้ว",
     "status_paused": "หยุดชั่วคราว",
     "status_archived": "เก็บถาวร",
-    "shareButton": "แชร์"
+    "shareButton": "แชร์",
+    "filterValue": "Value",
+    "value_small": "Small",
+    "value_medium": "Medium",
+    "value_large": "Large",
+    "value_sentimental": "Sentimental"
   },
   "objectDetail": {
     "loading": "กำลังโหลดสิ่งของ",

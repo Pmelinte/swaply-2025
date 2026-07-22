@@ -654,7 +654,12 @@
     "status_traded": "Đã trao đổi",
     "status_paused": "Tạm dừng",
     "status_archived": "Đã lưu trữ",
-    "shareButton": "Chia sẻ"
+    "shareButton": "Chia sẻ",
+    "filterValue": "Value",
+    "value_small": "Small",
+    "value_medium": "Medium",
+    "value_large": "Large",
+    "value_sentimental": "Sentimental"
   },
   "objectDetail": {
     "loading": "Đang tải đồ vật",

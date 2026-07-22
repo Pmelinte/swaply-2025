@@ -654,7 +654,12 @@
     "status_traded": "Napalitan",
     "status_paused": "Naka-pause",
     "status_archived": "Naka-archive",
-    "shareButton": "Ibahagi"
+    "shareButton": "Ibahagi",
+    "filterValue": "Value",
+    "value_small": "Small",
+    "value_medium": "Medium",
+    "value_large": "Large",
+    "value_sentimental": "Sentimental"
   },
   "objectDetail": {
     "loading": "Naglo-load ng bagay",

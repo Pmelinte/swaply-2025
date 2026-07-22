@@ -654,7 +654,12 @@
     "status_traded": "Zamenjano",
     "status_paused": "Zaustavljeno",
     "status_archived": "Arhiviran",
-    "shareButton": "Deli"
+    "shareButton": "Deli",
+    "filterValue": "Value",
+    "value_small": "Small",
+    "value_medium": "Medium",
+    "value_large": "Large",
+    "value_sentimental": "Sentimental"
   },
   "objectDetail": {
     "loading": "Nalaganje predmeta",

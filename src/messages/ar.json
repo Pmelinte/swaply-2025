@@ -654,7 +654,12 @@
     "status_traded": "تم التبادل",
     "status_paused": "متوقف",
     "status_archived": "مؤرشف",
-    "shareButton": "مشاركة"
+    "shareButton": "مشاركة",
+    "filterValue": "Value",
+    "value_small": "Small",
+    "value_medium": "Medium",
+    "value_large": "Large",
+    "value_sentimental": "Sentimental"
   },
   "objectDetail": {
     "loading": "جارٍ تحميل الغرض",

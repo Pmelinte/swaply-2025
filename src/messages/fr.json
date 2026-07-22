@@ -654,7 +654,12 @@
     "status_traded": "Échangé",
     "status_paused": "En pause",
     "status_archived": "Archivé",
-    "shareButton": "Partager"
+    "shareButton": "Partager",
+    "filterValue": "Value",
+    "value_small": "Small",
+    "value_medium": "Medium",
+    "value_large": "Large",
+    "value_sentimental": "Sentimental"
   },
   "objectDetail": {
     "loading": "Chargement de l'objet",

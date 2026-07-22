@@ -654,7 +654,12 @@
     "status_traded": "Elcserélt",
     "status_paused": "Szünetel",
     "status_archived": "Archivált",
-    "shareButton": "Megosztás"
+    "shareButton": "Megosztás",
+    "filterValue": "Value",
+    "value_small": "Small",
+    "value_medium": "Medium",
+    "value_large": "Large",
+    "value_sentimental": "Sentimental"
   },
   "objectDetail": {
     "loading": "Tárgy betöltése",

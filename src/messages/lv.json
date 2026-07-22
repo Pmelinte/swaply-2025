@@ -654,7 +654,12 @@
     "status_traded": "Apmainīts",
     "status_paused": "Apturēts",
     "status_archived": "Arhivēts",
-    "shareButton": "Dalīties"
+    "shareButton": "Dalīties",
+    "filterValue": "Value",
+    "value_small": "Small",
+    "value_medium": "Medium",
+    "value_large": "Large",
+    "value_sentimental": "Sentimental"
   },
   "objectDetail": {
     "loading": "Ielādē objektu",

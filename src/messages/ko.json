@@ -654,7 +654,12 @@
     "status_traded": "교환됨",
     "status_paused": "일시중지",
     "status_archived": "보관됨",
-    "shareButton": "공유"
+    "shareButton": "공유",
+    "filterValue": "Value",
+    "value_small": "Small",
+    "value_medium": "Medium",
+    "value_large": "Large",
+    "value_sentimental": "Sentimental"
   },
   "objectDetail": {
     "loading": "물건 로딩 중",

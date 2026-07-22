@@ -5,7 +5,10 @@ import { useRouter } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { CheckCircle2, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
-import { INITIAL_FORM, DRAFT_STORAGE_KEY } from "@/lib/wizard/propertyWizardStore";
+import {
+  INITIAL_FORM,
+  DRAFT_STORAGE_KEY,
+} from "@/lib/wizard/propertyWizardStore";
 import type { PropertyFormData } from "@/lib/wizard/propertyWizardStore";
 import { submitPropertyWizard } from "@/lib/wizard/propertyWizardSubmit";
 import { PropertyWizardProgress } from "./PropertyWizardProgress";
@@ -19,6 +22,11 @@ import { Step7Rules } from "./steps/Step7Rules";
 import { Step8Confirmation } from "./steps/Step8Confirmation";
 
 const WIZARD_STEPS = 8;
+
+function isInvalidAvailabilityRange(start: string, end: string): boolean {
+  if (!start || !end) return false;
+  return new Date(start).getTime() > new Date(end).getTime();
+}
 
 function validateStep(step: number, form: PropertyFormData): string | null {
   if (step === 1) {
@@ -37,6 +45,13 @@ function validateStep(step: number, form: PropertyFormData): string | null {
   }
   if (step === 6) {
     if (!form.exchange_type) return "Exchange type is required";
+    if (
+      isInvalidAvailabilityRange(
+        form.available_start_date,
+        form.available_end_date,
+      )
+    )
+      return "Availability start date must be before the end date";
     if (!form.desired_exchange_description.trim())
       return "Please describe what you are looking for in return";
   }
@@ -47,8 +62,10 @@ function validateStep(step: number, form: PropertyFormData): string | null {
       return "CCTV disclosure is required (GDPR)";
   }
   if (step === 8) {
-    if (!form.confirm_vacation_only) return "You must confirm vacation-only use";
-    if (!form.confirm_accurate_info) return "You must confirm the information is accurate";
+    if (!form.confirm_vacation_only)
+      return "You must confirm vacation-only use";
+    if (!form.confirm_accurate_info)
+      return "You must confirm the information is accurate";
     if (!form.confirm_terms) return "You must accept the Terms of Use";
   }
   return null;
@@ -73,7 +90,8 @@ export function PropertyWizard() {
       if (raw) {
         const { step: savedStep, data } = JSON.parse(raw);
         if (data) setForm((prev) => ({ ...prev, ...data }));
-        if (savedStep && savedStep > 1 && savedStep <= WIZARD_STEPS) setStep(savedStep);
+        if (savedStep && savedStep > 1 && savedStep <= WIZARD_STEPS)
+          setStep(savedStep);
       }
     } catch {
       // ignore corrupt draft
@@ -85,8 +103,13 @@ export function PropertyWizard() {
       const next = { ...prev, ...updates };
       // Persist draft
       try {
-        localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify({ step, data: next }));
-      } catch {/* quota exceeded — ignore */}
+        localStorage.setItem(
+          DRAFT_STORAGE_KEY,
+          JSON.stringify({ step, data: next }),
+        );
+      } catch {
+        /* quota exceeded — ignore */
+      }
       return next;
     });
   };
@@ -108,8 +131,13 @@ export function PropertyWizard() {
     setError(null);
     // Save progress with updated step
     try {
-      localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify({ step: step + 1, data: form }));
-    } catch {/* ignore */}
+      localStorage.setItem(
+        DRAFT_STORAGE_KEY,
+        JSON.stringify({ step: step + 1, data: form }),
+      );
+    } catch {
+      /* ignore */
+    }
     goToStep(step + 1);
   };
 
@@ -142,7 +170,10 @@ export function PropertyWizard() {
         }
       }, 1500);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Failed to save property. Please try again.";
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Failed to save property. Please try again.";
       setError(message);
     } finally {
       setLoading(false);
@@ -180,14 +211,20 @@ export function PropertyWizard() {
           )}
 
           {/* Steps */}
-          {step === 1 && <Step1TypeClassification form={form} updateForm={updateForm} />}
+          {step === 1 && (
+            <Step1TypeClassification form={form} updateForm={updateForm} />
+          )}
           {step === 2 && <Step2Location form={form} updateForm={updateForm} />}
           {step === 3 && <Step3Structure form={form} updateForm={updateForm} />}
           {step === 4 && <Step4Amenities form={form} updateForm={updateForm} />}
           {step === 5 && <Step5Utilities form={form} updateForm={updateForm} />}
-          {step === 6 && <Step6ExchangeTerms form={form} updateForm={updateForm} />}
+          {step === 6 && (
+            <Step6ExchangeTerms form={form} updateForm={updateForm} />
+          )}
           {step === 7 && <Step7Rules form={form} updateForm={updateForm} />}
-          {step === 8 && <Step8Confirmation form={form} updateForm={updateForm} />}
+          {step === 8 && (
+            <Step8Confirmation form={form} updateForm={updateForm} />
+          )}
         </div>
 
         {/* Navigation */}
@@ -225,9 +262,7 @@ export function PropertyWizard() {
                   Saving…
                 </>
               ) : (
-                <>
-                  ✅ {t("publish")}
-                </>
+                <>✅ {t("publish")}</>
               )}
             </button>
           )}

@@ -1,24 +1,29 @@
 # Swaply V1 Execution Status
 
-| Prompt | Functionalitate | Status | PR | Teste | Dovadă |
-|---|---|---|---|---|---|
-| 1 | Înregistrare utilizator | CLOSED | #492 | CI PASS | Flux email/parolă integrat și merge-uit. |
-| 2 | Autentificare, logout și sesiune | CLOSED | #493 | CI PASS | Restaurare sesiune și logout integrate. |
-| 3 | Recuperare și schimbare parolă | BLOCKED | NONE | NOT RUN | Branch inițial existent, fără PR și fără închidere. |
-| 4 | Protecția rutelor private | CLOSED | #494 | CI PASS | Protecție coerentă și verificare production. |
-| 5 | Onboarding utilizator | IMPLEMENTED | PENDING | PENDING | Stare reluabilă server-side, validare obligatorie și finalizare autorizată. |
-| 6 | Profil public și profil privat | IMPLEMENTED | PENDING | PENDING | Proiecția publică minimizată și accesul privat owner/participant sunt integrate cu teste de migrație. |
-| 7 | Editarea și persistența profilului | IMPLEMENTED | PENDING | PENDING | Profilul owner-only se salvează prin RPC revisionat/idempotent și se rehidratează după reload. |
-| 8 | Preferințe lingvistice globale | IMPLEMENTED | PENDING | PENDING | Limbile primară/secundară/terțiară și preferințele de traducere se hidratează și persistă canonic. |
-| 9 | Locație aproximativă și confidențialitate | IMPLEMENTED | PENDING | PENDING | Proiecția publică expune doar oraș/țară și elimină coordonate exacte/date poștale. |
-| 10 | Avatar și media de profil | IMPLEMENTED | PENDING | PENDING | Uploadul avatarului validează tip/mărime, persistă URL-ul și înlocuiește avatarul Supabase vechi. |
-| 11 | Setări personale și de confidențialitate | IMPLEMENTED | PENDING | PENDING | Setările owner-only existente au fost reutilizate, cu persistare profil și acces privat prin sesiunea autentificată. |
-| 12 | Preferințe de notificare | IMPLEMENTED | PENDING | PENDING | Preferințele de notificare au RLS owner-only, granturi autentificate și timestamp actualizat automat. |
-| 13 | Export și închidere cont | IMPLEMENTED | PENDING | PENDING | Exportul JSON canonic autentificat, cererile GDPR owner-only și protecția CSRF pentru cereri sunt integrate. |
-| 14 | Crearea unui obiect | IMPLEMENTED | PENDING | PENDING | Wizard-ul de obiect folosește normalizarea canonică, owner_id din sesiunea client autentificată și revenire după publicare. |
-| 15 | Fotografii și media pentru obiecte | IMPLEMENTED | PENDING | PENDING | Uploadul media validează tip/mărime, folosește storage owner-folder și păstrează fallback-ul no-image. |
-| 16 | Asistență AI la descrierea obiectului | IMPLEMENTED | PENDING | PENDING | Gateway-ul AI server-side existent este reutilizat pentru clasificare/tagging, cu fallback deterministic și fără blocarea publicării. |
-| 17 | Editarea unui obiect | IMPLEMENTED | PENDING | PENDING | Editarea păstrează hidratarea owner-only și refolosește payload-ul canonic owner-bound pentru persistarea obiectelor. |
-| 18 | Activare, dezactivare și arhivare obiect | IMPLEMENTED | PENDING | PENDING | Ciclul de viață active/paused/archived este expus prin endpoint server-side owner-only și migrație RLS-safe fără ștergere accidentală. |
-| 19 | Pagina detaliată a obiectului | IMPLEMENTED | PENDING | PENDING | Detaliul public folosește o proiecție limitată și media canonică din images, cu stări existente de loading/not-found. |
-| 20 | Explorarea obiectelor | IMPLEMENTED | PENDING | PENDING | Explorarea obiectelor active refolosește filtrele existente, stările empty/loading și paginarea Load more. |
+| Prompt | Functionalitate                           | Status      | PR      | Teste   | Dovadă                                                                                                                                                       |
+| ------ | ----------------------------------------- | ----------- | ------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1      | Înregistrare utilizator                   | CLOSED      | #492    | CI PASS | Flux email/parolă integrat și merge-uit.                                                                                                                     |
+| 2      | Autentificare, logout și sesiune          | CLOSED      | #493    | CI PASS | Restaurare sesiune și logout integrate.                                                                                                                      |
+| 3      | Recuperare și schimbare parolă            | BLOCKED     | NONE    | NOT RUN | Branch inițial existent, fără PR și fără închidere.                                                                                                          |
+| 4      | Protecția rutelor private                 | CLOSED      | #494    | CI PASS | Protecție coerentă și verificare production.                                                                                                                 |
+| 5      | Onboarding utilizator                     | IMPLEMENTED | PENDING | PENDING | Stare reluabilă server-side, validare obligatorie și finalizare autorizată.                                                                                  |
+| 6      | Profil public și profil privat            | IMPLEMENTED | PENDING | PENDING | Proiecția publică minimizată și accesul privat owner/participant sunt integrate cu teste de migrație.                                                        |
+| 7      | Editarea și persistența profilului        | IMPLEMENTED | PENDING | PENDING | Profilul owner-only se salvează prin RPC revisionat/idempotent și se rehidratează după reload.                                                               |
+| 8      | Preferințe lingvistice globale            | IMPLEMENTED | PENDING | PENDING | Limbile primară/secundară/terțiară și preferințele de traducere se hidratează și persistă canonic.                                                           |
+| 9      | Locație aproximativă și confidențialitate | IMPLEMENTED | PENDING | PENDING | Proiecția publică expune doar oraș/țară și elimină coordonate exacte/date poștale.                                                                           |
+| 10     | Avatar și media de profil                 | IMPLEMENTED | PENDING | PENDING | Uploadul avatarului validează tip/mărime, persistă URL-ul și înlocuiește avatarul Supabase vechi.                                                            |
+| 11     | Setări personale și de confidențialitate  | IMPLEMENTED | PENDING | PENDING | Setările owner-only existente au fost reutilizate, cu persistare profil și acces privat prin sesiunea autentificată.                                         |
+| 12     | Preferințe de notificare                  | IMPLEMENTED | PENDING | PENDING | Preferințele de notificare au RLS owner-only, granturi autentificate și timestamp actualizat automat.                                                        |
+| 13     | Export și închidere cont                  | IMPLEMENTED | PENDING | PENDING | Exportul JSON canonic autentificat, cererile GDPR owner-only și protecția CSRF pentru cereri sunt integrate.                                                 |
+| 14     | Crearea unui obiect                       | IMPLEMENTED | PENDING | PENDING | Wizard-ul de obiect folosește normalizarea canonică, owner_id din sesiunea client autentificată și revenire după publicare.                                  |
+| 15     | Fotografii și media pentru obiecte        | IMPLEMENTED | PENDING | PENDING | Uploadul media validează tip/mărime, folosește storage owner-folder și păstrează fallback-ul no-image.                                                       |
+| 16     | Asistență AI la descrierea obiectului     | IMPLEMENTED | PENDING | PENDING | Gateway-ul AI server-side existent este reutilizat pentru clasificare/tagging, cu fallback deterministic și fără blocarea publicării.                        |
+| 17     | Editarea unui obiect                      | IMPLEMENTED | PENDING | PENDING | Editarea păstrează hidratarea owner-only și refolosește payload-ul canonic owner-bound pentru persistarea obiectelor.                                        |
+| 18     | Activare, dezactivare și arhivare obiect  | IMPLEMENTED | PENDING | PENDING | Ciclul de viață active/paused/archived este expus prin endpoint server-side owner-only și migrație RLS-safe fără ștergere accidentală.                       |
+| 19     | Pagina detaliată a obiectului             | IMPLEMENTED | PENDING | PENDING | Detaliul public folosește o proiecție limitată și media canonică din images, cu stări existente de loading/not-found.                                        |
+| 20     | Explorarea obiectelor                     | IMPLEMENTED | PENDING | PENDING | Explorarea obiectelor active refolosește filtrele existente, stările empty/loading și paginarea Load more.                                                   |
+| 21     | Căutare și filtre pentru obiecte          | IMPLEMENTED | PENDING | PENDING | Filtrele obiectelor hidratează și persistă q/type/category/condition/value/location/sort în URL; filtrul de valoare folosește perceivedValue.                |
+| 22     | Wanted și wishlist pentru obiecte         | REUSED      | PENDING | PENDING | API-ul wanted derivă user_id din sesiunea autentificată, validează offer_item_ids owner-only și lista publică/mine respectă RLS.                             |
+| 23     | Administrarea obiectelor proprii          | REUSED      | PENDING | PENDING | Pagina My Objects filtrează ownerId, expune acțiuni rapide/statusuri și refolosește mutațiile owner-only existente.                                          |
+| 24     | Crearea unei proprietăți                  | REUSED      | PENDING | PENDING | Wizard-ul Properties validează pașii, salvează draftul, publică modelul canonic property și redirecționează după salvare.                                    |
+| 25     | Calendar și disponibilitate proprietăți   | IMPLEMENTED | PENDING | PENDING | Disponibilitatea proprietății persistă în property_data, iar wizard-ul refuză intervalele inversate start/end pentru a preveni suprapuneri invalide de bază. |

@@ -654,7 +654,12 @@
     "status_traded": "Skambjat",
     "status_paused": "Ppaużat",
     "status_archived": "Arkivjat",
-    "shareButton": "Aqsam"
+    "shareButton": "Aqsam",
+    "filterValue": "Value",
+    "value_small": "Small",
+    "value_medium": "Medium",
+    "value_large": "Large",
+    "value_sentimental": "Sentimental"
   },
   "objectDetail": {
     "loading": "Qed jillowdja l-oġġett",

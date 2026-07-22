@@ -654,7 +654,12 @@
     "status_traded": "Vahetatud",
     "status_paused": "Peatatud",
     "status_archived": "Arhiivitud",
-    "shareButton": "Jaga"
+    "shareButton": "Jaga",
+    "filterValue": "Value",
+    "value_small": "Small",
+    "value_medium": "Medium",
+    "value_large": "Large",
+    "value_sentimental": "Sentimental"
   },
   "objectDetail": {
     "loading": "Objekti laadimine",

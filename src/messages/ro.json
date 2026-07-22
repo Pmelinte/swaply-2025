@@ -685,7 +685,12 @@
     "status_traded": "Schimbat",
     "status_paused": "Pauză",
     "status_archived": "Arhivat",
-    "shareButton": "Distribuie"
+    "shareButton": "Distribuie",
+    "filterValue": "Value",
+    "value_small": "Small",
+    "value_medium": "Medium",
+    "value_large": "Large",
+    "value_sentimental": "Sentimental"
   },
   "objectDetail": {
     "loading": "Se încarcă obiectul",
