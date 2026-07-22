@@ -28,133 +28,25 @@ import {
 } from "lucide-react";
 import { CAT } from "@/lib/categoryColors";
 
-interface PropertyRow {
-  id: string;
-  title?: string;
-  status?: string;
-  created_at?: string;
-  owner_id?: string;
-  city?: string;
-  country?: string;
-  region?: string;
-  property_type?: string;
-  property_category?: string;
-  property_subtype?: string;
-  bedrooms?: number;
-  bathrooms?: number;
-  total_area_sqm?: number;
-  photos?: string[] | null;
-  images?: (string | { url?: string; order?: number })[] | null;
-  image_url?: string | null;
-  description?: string;
-  exchange_type?: string;
-  desired_exchange_description?: string;
-  // items table fallback fields
-  category?: string;
-  location?: string;
-  is_active?: boolean;
-  wizard_type?: string;
-  property_data?: Record<string, unknown>;
-  items?: {
-    title?: string;
-    image_url?: string | null;
-    images?: (string | { url?: string; order?: number })[] | null;
-    description?: string;
-  } | null;
-}
+/* Property helpers centralize canonical item/property_data reads. */
+import type { PropertyRow } from "@/lib/properties";
+import {
+  getPropertyPhotos as getPhotos,
+  getPropertyLocation as getLocation,
+  getPropertyTitle as getTitle,
+  getPropertyNumber,
+  getPropertyString,
+  propertyMatchesFilters,
+  getApproximateMapLabel,
+} from "@/lib/properties";
 
 type BrowseMode = "grid" | "list";
 
-function getPhotos(row: PropertyRow): string[] {
-  if (Array.isArray(row.photos)) {
-    const strings = row.photos.filter((p): p is string => typeof p === "string");
-    if (strings.length > 0) return strings;
-  }
-  if (Array.isArray(row.images)) {
-    const urls = row.images
-      .map((p) => (typeof p === "string" ? p : p?.url))
-      .filter((u): u is string => typeof u === "string" && u.length > 0);
-    if (urls.length > 0) return urls;
-  }
-  if (row.image_url) return [row.image_url];
-  const it = row.items;
-  if (it?.image_url) return [it.image_url];
-  if (Array.isArray(it?.images)) {
-    const urls = (it.images as (string | { url?: string })[])
-      .map((p) => (typeof p === "string" ? p : p?.url))
-      .filter((u): u is string => typeof u === "string" && u.length > 0);
-    if (urls.length > 0) return urls;
-  }
-  return [];
-}
-
-function getLocation(row: PropertyRow): string {
-  if (row.city && row.country) return `${row.city}, ${row.country}`;
-  if (row.city) return row.city;
-  if (row.country) return row.country;
-  if (row.location) return row.location;
-  // try property_data
-  const pd = row.property_data;
-  if (pd && typeof pd === "object") {
-    const city = (pd as Record<string, unknown>).city;
-    const country = (pd as Record<string, unknown>).country;
-    if (city && country) return `${city}, ${country}`;
-    if (city) return String(city);
-    if (country) return String(country);
-  }
-  return "";
-}
-
-function getPropertyType(row: PropertyRow): string {
-  if (row.property_type) return row.property_type;
-  const pd = row.property_data;
-  if (pd && typeof pd === "object") {
-    const pt = (pd as Record<string, unknown>).property_type;
-    if (pt) return String(pt);
-  }
-  return "";
-}
-
-function getBedrooms(row: PropertyRow): number | null {
-  if (typeof row.bedrooms === "number") return row.bedrooms;
-  const pd = row.property_data;
-  if (pd && typeof pd === "object") {
-    const b = (pd as Record<string, unknown>).bedrooms;
-    if (typeof b === "number") return b;
-  }
-  return null;
-}
-
-function getBathrooms(row: PropertyRow): number | null {
-  if (typeof row.bathrooms === "number") return row.bathrooms;
-  const pd = row.property_data;
-  if (pd && typeof pd === "object") {
-    const b = (pd as Record<string, unknown>).bathrooms;
-    if (typeof b === "number") return b;
-  }
-  return null;
-}
-
-function getArea(row: PropertyRow): number | null {
-  if (typeof row.total_area_sqm === "number") return row.total_area_sqm;
-  const pd = row.property_data;
-  if (pd && typeof pd === "object") {
-    const a = (pd as Record<string, unknown>).total_area_sqm;
-    if (typeof a === "number") return a;
-  }
-  return null;
-}
-
-function getTitle(row: PropertyRow): string {
-  if (row.title) return row.title;
-  if (row.items?.title) return row.items.title;
-  const type = getPropertyType(row);
-  const loc = getLocation(row);
-  if (type && loc) return `${type} in ${loc}`;
-  if (type) return type;
-  if (loc) return loc;
-  return "Property listing";
-}
+const getPropertyType = (row: PropertyRow) =>
+  getPropertyString(row, "property_type");
+const getBedrooms = (row: PropertyRow) => getPropertyNumber(row, "bedrooms");
+const getBathrooms = (row: PropertyRow) => getPropertyNumber(row, "bathrooms");
+const getArea = (row: PropertyRow) => getPropertyNumber(row, "total_area_sqm");
 
 function PropertyCard({ row, mode }: { row: PropertyRow; mode: BrowseMode }) {
   const router = useRouter();
@@ -165,7 +57,12 @@ function PropertyCard({ row, mode }: { row: PropertyRow; mode: BrowseMode }) {
   const bathrooms = getBathrooms(row);
   const area = getArea(row);
   const title = getTitle(row);
-  const description = row.description || row.desired_exchange_description || "";
+  const description = String(
+    row.description || row.desired_exchange_description || "",
+  );
+  const exchangeType = String(
+    row.exchange_type || getPropertyString(row, "exchange_type") || "",
+  );
 
   if (mode === "list") {
     return (
@@ -184,7 +81,9 @@ function PropertyCard({ row, mode }: { row: PropertyRow; mode: BrowseMode }) {
           />
         </div>
         <div className="min-w-0 flex-1">
-          <h3 className="truncate font-semibold text-zinc-900 dark:text-zinc-50">{title}</h3>
+          <h3 className="truncate font-semibold text-zinc-900 dark:text-zinc-50">
+            {title}
+          </h3>
           <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-zinc-500">
             {propType && (
               <span className="rounded-full bg-purple-100 px-2 py-0.5 font-medium text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
@@ -193,27 +92,33 @@ function PropertyCard({ row, mode }: { row: PropertyRow; mode: BrowseMode }) {
             )}
             {bedrooms !== null && (
               <span className="flex items-center gap-0.5">
-                <BedDouble className="h-3 w-3" />{bedrooms}
+                <BedDouble className="h-3 w-3" />
+                {bedrooms}
               </span>
             )}
             {bathrooms !== null && (
               <span className="flex items-center gap-0.5">
-                <Bath className="h-3 w-3" />{bathrooms}
+                <Bath className="h-3 w-3" />
+                {bathrooms}
               </span>
             )}
             {area !== null && (
               <span className="flex items-center gap-0.5">
-                <Maximize2 className="h-3 w-3" />{area} m²
+                <Maximize2 className="h-3 w-3" />
+                {area} m²
               </span>
             )}
             {location && (
               <span className="flex items-center gap-0.5">
-                <MapPin className="h-3 w-3" />{location}
+                <MapPin className="h-3 w-3" />
+                {location}
               </span>
             )}
           </div>
           {description && (
-            <p className="mt-1 truncate text-xs text-blue-600 dark:text-blue-400">{description}</p>
+            <p className="mt-1 truncate text-xs text-blue-600 dark:text-blue-400">
+              {description}
+            </p>
           )}
         </div>
       </button>
@@ -225,7 +130,9 @@ function PropertyCard({ row, mode }: { row: PropertyRow; mode: BrowseMode }) {
       onClick={() => router.push(`/properties/${row.id}`)}
       className={`item-card group flex w-full flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm transition hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800 ${CAT.properties.topBorder}`}
     >
-      <div className={`item-card__image relative aspect-[4/3] w-full overflow-hidden dark:bg-zinc-700 ${CAT.properties.placeholder}`}>
+      <div
+        className={`item-card__image relative aspect-[4/3] w-full overflow-hidden dark:bg-zinc-700 ${CAT.properties.placeholder}`}
+      >
         <SafeImage
           src={photos[0] || NO_IMAGE_URL}
           alt={title}
@@ -235,42 +142,53 @@ function PropertyCard({ row, mode }: { row: PropertyRow; mode: BrowseMode }) {
           unoptimized={!photos[0]}
         />
         {propType && (
-          <span className={`absolute left-2 top-2 rounded-full px-2 py-0.5 text-[10px] font-semibold backdrop-blur ${CAT.properties.badge}`}>
-            <Home className="inline h-2.5 w-2.5 mr-0.5" />{propType}
+          <span
+            className={`absolute left-2 top-2 rounded-full px-2 py-0.5 text-[10px] font-semibold backdrop-blur ${CAT.properties.badge}`}
+          >
+            <Home className="inline h-2.5 w-2.5 mr-0.5" />
+            {propType}
           </span>
         )}
-        {row.exchange_type && (
+        {exchangeType && (
           <span className="absolute right-2 top-2 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-zinc-700 backdrop-blur dark:bg-zinc-900/80 dark:text-zinc-200">
-            {row.exchange_type}
+            {exchangeType}
           </span>
         )}
       </div>
       <div className="item-card__body flex flex-1 flex-col p-3">
-        <h3 className="item-card__title truncate text-sm font-semibold text-zinc-900 dark:text-zinc-50">{title}</h3>
+        <h3 className="item-card__title truncate text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+          {title}
+        </h3>
         <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-zinc-500">
           {bedrooms !== null && (
             <span className="flex items-center gap-0.5">
-              <BedDouble className="h-3 w-3" />{bedrooms} bed
+              <BedDouble className="h-3 w-3" />
+              {bedrooms} bed
             </span>
           )}
           {bathrooms !== null && (
             <span className="flex items-center gap-0.5">
-              <Bath className="h-3 w-3" />{bathrooms} bath
+              <Bath className="h-3 w-3" />
+              {bathrooms} bath
             </span>
           )}
           {area !== null && (
             <span className="flex items-center gap-0.5">
-              <Maximize2 className="h-3 w-3" />{area} m²
+              <Maximize2 className="h-3 w-3" />
+              {area} m²
             </span>
           )}
         </div>
         {location && (
           <p className="item-card__location mt-1 flex items-center gap-0.5 text-xs text-zinc-400">
-            <MapPin className="h-3 w-3" />{location}
+            <MapPin className="h-3 w-3" />
+            {location}
           </p>
         )}
         {description && (
-          <p className="mt-1.5 line-clamp-2 text-xs text-blue-600 dark:text-blue-400">{description}</p>
+          <p className="mt-1.5 line-clamp-2 text-xs text-blue-600 dark:text-blue-400">
+            {description}
+          </p>
         )}
       </div>
     </button>
@@ -278,7 +196,6 @@ function PropertyCard({ row, mode }: { row: PropertyRow; mode: BrowseMode }) {
 }
 
 export default function PropertiesPage() {
-  const router = useRouter();
   const { user, items, loading: stateLoading } = useAppState();
   const { favoriteIds: favorites, toggleFavorite } = useFavorites(user?.id);
   const t = useTranslations("objects");
@@ -289,6 +206,10 @@ export default function PropertiesPage() {
   const [search, setSearch] = useState("");
   const [locationFilter, setLocationFilter] = useState("");
   const [showFilters, setShowFilters] = useState(false);
+  const [guestsFilter, setGuestsFilter] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [amenityFilters, setAmenityFilters] = useState<string[]>([]);
   const [visibleCount, setVisibleCount] = useState(20);
 
   const [properties, setProperties] = useState<PropertyRow[]>([]);
@@ -329,7 +250,9 @@ export default function PropertiesPage() {
       const { data: itemsData } = await supabase
         .from("items")
         .select("*")
-        .or("category.eq.property,wizard_type.eq.property,item_type.eq.property")
+        .or(
+          "category.eq.property,wizard_type.eq.property,item_type.eq.property",
+        )
         .eq("status", "active")
         .eq("is_active", true)
         .order("created_at", { ascending: false })
@@ -342,12 +265,20 @@ export default function PropertiesPage() {
     }
 
     fetchProperties();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // Also include property items already loaded in state (merged, deduped)
   const stateProperties = useMemo(
-    () => items.filter((i) => (i.category === "property" || i.listingType === "property") && i.isActive && i.status === "active"),
+    () =>
+      items.filter(
+        (i) =>
+          (i.category === "property" || i.listingType === "property") &&
+          i.isActive &&
+          i.status === "active",
+      ),
     [items],
   );
 
@@ -373,25 +304,34 @@ export default function PropertiesPage() {
   }, [properties, stateProperties]);
 
   const filtered = useMemo(() => {
-    let result = allProperties;
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      result = result.filter((p) => {
-        const title = getTitle(p).toLowerCase();
-        const loc = getLocation(p).toLowerCase();
-        const type = getPropertyType(p).toLowerCase();
-        const desc = (p.description || p.desired_exchange_description || "").toLowerCase();
-        return title.includes(q) || loc.includes(q) || type.includes(q) || desc.includes(q);
-      });
-    }
-    if (locationFilter.trim()) {
-      const loc = locationFilter.toLowerCase();
-      result = result.filter((p) => getLocation(p).toLowerCase().includes(loc));
-    }
-    return result;
-  }, [allProperties, search, locationFilter]);
+    const result = allProperties;
+    return result.filter((p) =>
+      propertyMatchesFilters(p, {
+        q: search.trim(),
+        location: locationFilter.trim(),
+        guests: guestsFilter ? Number(guestsFilter) : undefined,
+        start: startDate,
+        end: endDate,
+        amenities: amenityFilters,
+      }),
+    );
+  }, [
+    allProperties,
+    search,
+    locationFilter,
+    guestsFilter,
+    startDate,
+    endDate,
+    amenityFilters,
+  ]);
 
-  const hasFilters = !!search || !!locationFilter;
+  const hasFilters =
+    !!search ||
+    !!locationFilter ||
+    !!guestsFilter ||
+    !!startDate ||
+    !!endDate ||
+    amenityFilters.length > 0;
   const isLoading = loadingProps && stateLoading.items;
   const propertyLabel = tb("properties");
   const addPropertyLabel = `${tc("add")} ${propertyLabel}`;
@@ -405,12 +345,18 @@ export default function PropertiesPage() {
         {/* Header */}
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{propertyLabel}</h1>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">{tb("propertiesDesc")}</p>
+            <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
+              {propertyLabel}
+            </h1>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+              {tb("propertiesDesc")}
+            </p>
           </div>
           <div className="flex items-center gap-2">
             <Link
-              href={user ? "/properties/new" : "/register?returnTo=/properties/new"}
+              href={
+                user ? "/properties/new" : "/register?returnTo=/properties/new"
+              }
               className="inline-flex items-center gap-1.5 rounded-xl bg-cat-prop px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500"
             >
               <Plus className="h-4 w-4" />
@@ -446,7 +392,10 @@ export default function PropertiesPage() {
               className="w-full rounded-xl border border-zinc-200 bg-white py-2 pl-10 pr-4 text-sm outline-none focus:border-purple-400 focus:ring-1 focus:ring-purple-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
             />
             {search && (
-              <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600">
+              <button
+                onClick={() => setSearch("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
+              >
                 <X className="h-4 w-4" />
               </button>
             )}
@@ -461,7 +410,9 @@ export default function PropertiesPage() {
             }`}
           >
             <SlidersHorizontal className="h-3.5 w-3.5" />
-            {hasFilters && <span className="h-1.5 w-1.5 rounded-full bg-purple-600" />}
+            {hasFilters && (
+              <span className="h-1.5 w-1.5 rounded-full bg-purple-600" />
+            )}
           </button>
         </div>
 
@@ -470,7 +421,9 @@ export default function PropertiesPage() {
           <div className="mb-4 rounded-xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-800/50">
             <div className="flex flex-wrap gap-4">
               <div>
-                <p className="mb-1.5 text-xs font-semibold uppercase text-zinc-500">{t("filterLocation")}</p>
+                <p className="mb-1.5 text-xs font-semibold uppercase text-zinc-500">
+                  {t("filterLocation")}
+                </p>
                 <div className="relative">
                   <MapPin className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-400" />
                   <input
@@ -481,16 +434,92 @@ export default function PropertiesPage() {
                     className="w-full rounded-lg border border-zinc-200 bg-white py-1.5 pl-8 pr-3 text-xs outline-none focus:border-purple-400 focus:ring-1 focus:ring-purple-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
                   />
                   {locationFilter && (
-                    <button onClick={() => setLocationFilter("")} className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600">
+                    <button
+                      onClick={() => setLocationFilter("")}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
+                    >
                       <X className="h-3.5 w-3.5" />
                     </button>
                   )}
                 </div>
               </div>
+
+              <div>
+                <p className="mb-1.5 text-xs font-semibold uppercase text-zinc-500">
+                  Dates
+                </p>
+                <div className="flex gap-2">
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs dark:border-zinc-700 dark:bg-zinc-800"
+                  />
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs dark:border-zinc-700 dark:bg-zinc-800"
+                  />
+                </div>
+              </div>
+              <div>
+                <p className="mb-1.5 text-xs font-semibold uppercase text-zinc-500">
+                  Guests
+                </p>
+                <input
+                  type="number"
+                  min="1"
+                  value={guestsFilter}
+                  onChange={(e) => setGuestsFilter(e.target.value)}
+                  placeholder="2"
+                  className="w-24 rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs dark:border-zinc-700 dark:bg-zinc-800"
+                />
+              </div>
+              <div>
+                <p className="mb-1.5 text-xs font-semibold uppercase text-zinc-500">
+                  Amenities
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    ["has_swimming_pool", "Pool"],
+                    ["has_garden", "Garden"],
+                    ["ev_charging", "EV"],
+                    ["has_sauna", "Sauna"],
+                  ].map(([key, label]) => (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() =>
+                        setAmenityFilters((prev) =>
+                          prev.includes(key)
+                            ? prev.filter((x) => x !== key)
+                            : [...prev, key],
+                        )
+                      }
+                      className={`rounded-full border px-3 py-1 text-xs ${amenityFilters.includes(key) ? "border-purple-500 bg-purple-100 text-purple-700" : "border-zinc-200 text-zinc-600 dark:border-zinc-700"}`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 rounded-xl border border-purple-100 bg-purple-50 p-3 text-xs text-purple-800 dark:border-purple-900/50 dark:bg-purple-950/20 dark:text-purple-200">
+              Map preview uses approximate city/region areas only; exact
+              coordinates and addresses are not shown publicly.{" "}
+              {filtered.slice(0, 3).map(getApproximateMapLabel).join(" • ")}
             </div>
             {hasFilters && (
               <button
-                onClick={() => { setSearch(""); setLocationFilter(""); }}
+                onClick={() => {
+                  setSearch("");
+                  setLocationFilter("");
+                  setGuestsFilter("");
+                  setStartDate("");
+                  setEndDate("");
+                  setAmenityFilters([]);
+                }}
                 className="mt-3 text-xs font-medium text-purple-600 hover:text-purple-800 dark:text-purple-400"
               >
                 {t("clearFilters")}
@@ -503,7 +532,10 @@ export default function PropertiesPage() {
         {isLoading && filtered.length === 0 && (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="animate-pulse overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-800">
+              <div
+                key={i}
+                className="animate-pulse overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-800"
+              >
                 <div className="aspect-[4/3] w-full bg-zinc-200 dark:bg-zinc-700" />
                 <div className="space-y-2.5 p-3">
                   <div className="h-4 w-4/5 rounded bg-zinc-200 dark:bg-zinc-700" />
@@ -533,12 +565,21 @@ export default function PropertiesPage() {
                   {hasFilters ? t("emptyLoggedTitle") : propertyLabel}
                 </p>
                 <p className="mb-4 max-w-sm text-center text-sm text-zinc-500 dark:text-zinc-400">
-                  {hasFilters ? t("emptyLoggedSubFilters") : tb("propertiesDesc")}
+                  {hasFilters
+                    ? t("emptyLoggedSubFilters")
+                    : tb("propertiesDesc")}
                 </p>
                 <div className="flex flex-wrap items-center gap-3">
                   {hasFilters && (
                     <button
-                      onClick={() => { setSearch(""); setLocationFilter(""); }}
+                      onClick={() => {
+                        setSearch("");
+                        setLocationFilter("");
+                        setGuestsFilter("");
+                        setStartDate("");
+                        setEndDate("");
+                        setAmenityFilters([]);
+                      }}
                       className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
                     >
                       {t("clearFilters")}
@@ -580,18 +621,30 @@ export default function PropertiesPage() {
           <>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
               {filtered.slice(0, visibleCount).map((row) => (
-                <div key={row.id} className="item-card-container relative" style={{ containerType: "inline-size" }}>
+                <div
+                  key={row.id}
+                  className="item-card-container relative"
+                  style={{ containerType: "inline-size" }}
+                >
                   <PropertyCard row={row} mode="grid" />
                   {user ? (
                     <button
                       type="button"
-                      onClick={(e) => { e.stopPropagation(); toggleFavorite(row.id); }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleFavorite(row.id);
+                      }}
                       className="absolute right-3 top-3 z-10 rounded-full bg-white/90 p-1.5 shadow-sm backdrop-blur hover:bg-white dark:bg-zinc-900/80 dark:hover:bg-zinc-800"
                     >
-                      <Heart className={`h-3.5 w-3.5 ${favorites.has(row.id) ? "fill-red-500 text-red-500" : "text-zinc-400"}`} />
+                      <Heart
+                        className={`h-3.5 w-3.5 ${favorites.has(row.id) ? "fill-red-500 text-red-500" : "text-zinc-400"}`}
+                      />
                     </button>
                   ) : (
-                    <AuthGateModal returnTo="/register?returnTo=/properties" gaEvent="favorite_click_guest">
+                    <AuthGateModal
+                      returnTo="/register?returnTo=/properties"
+                      gaEvent="favorite_click_guest"
+                    >
                       <button
                         type="button"
                         className="absolute right-3 top-3 z-10 rounded-full bg-white/90 p-1.5 shadow-sm backdrop-blur hover:bg-white dark:bg-zinc-900/80 dark:hover:bg-zinc-800"
@@ -605,8 +658,13 @@ export default function PropertiesPage() {
             </div>
             {visibleCount < filtered.length && (
               <div className="mt-4 flex justify-center">
-                <button type="button" onClick={loadMore} className="rounded-full bg-purple-600 px-6 py-2 text-sm font-semibold text-white hover:bg-purple-700">
-                  {t("loadMoreItems")} ({filtered.length - visibleCount} {t("remainingItems")})
+                <button
+                  type="button"
+                  onClick={loadMore}
+                  className="rounded-full bg-purple-600 px-6 py-2 text-sm font-semibold text-white hover:bg-purple-700"
+                >
+                  {t("loadMoreItems")} ({filtered.length - visibleCount}{" "}
+                  {t("remainingItems")})
                 </button>
               </div>
             )}
@@ -623,13 +681,21 @@ export default function PropertiesPage() {
                   {user ? (
                     <button
                       type="button"
-                      onClick={(e) => { e.stopPropagation(); toggleFavorite(row.id); }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleFavorite(row.id);
+                      }}
                       className="absolute right-3 top-3 z-10 rounded-full bg-white/90 p-1.5 shadow-sm backdrop-blur hover:bg-white dark:bg-zinc-900/80 dark:hover:bg-zinc-800"
                     >
-                      <Heart className={`h-3.5 w-3.5 ${favorites.has(row.id) ? "fill-red-500 text-red-500" : "text-zinc-400"}`} />
+                      <Heart
+                        className={`h-3.5 w-3.5 ${favorites.has(row.id) ? "fill-red-500 text-red-500" : "text-zinc-400"}`}
+                      />
                     </button>
                   ) : (
-                    <AuthGateModal returnTo="/register?returnTo=/properties" gaEvent="favorite_click_guest">
+                    <AuthGateModal
+                      returnTo="/register?returnTo=/properties"
+                      gaEvent="favorite_click_guest"
+                    >
                       <button
                         type="button"
                         className="absolute right-3 top-3 z-10 rounded-full bg-white/90 p-1.5 shadow-sm backdrop-blur hover:bg-white dark:bg-zinc-900/80 dark:hover:bg-zinc-800"
@@ -643,8 +709,13 @@ export default function PropertiesPage() {
             </div>
             {visibleCount < filtered.length && (
               <div className="mt-4 flex justify-center">
-                <button type="button" onClick={loadMore} className="rounded-full bg-purple-600 px-6 py-2 text-sm font-semibold text-white hover:bg-purple-700">
-                  {t("loadMoreItems")} ({filtered.length - visibleCount} {t("remainingItems")})
+                <button
+                  type="button"
+                  onClick={loadMore}
+                  className="rounded-full bg-purple-600 px-6 py-2 text-sm font-semibold text-white hover:bg-purple-700"
+                >
+                  {t("loadMoreItems")} ({filtered.length - visibleCount}{" "}
+                  {t("remainingItems")})
                 </button>
               </div>
             )}
