@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { rateLimit } from "@/lib/rate-limit";
 import { moderateSchema, validateBody } from "@/lib/validation";
 import { requestLogger } from "@/lib/logger";
+import { createServerAIGateway } from "@/lib/ai/server";
 
 /** Words/patterns that indicate content needing moderation */
 const BLOCKED_PATTERNS = [
@@ -75,34 +76,14 @@ export async function POST(request: Request) {
   if (/(.)\1{5,}/.test(text)) flags.push("spam_caractere");
   if ((text.match(/https?:\/\//g) || []).length > 2) flags.push("spam_linkuri");
 
-  // HuggingFace sentiment analysis for toxic content (optional)
-  const hfKey = process.env.HUGGINGFACE_API_KEY;
-  if (hfKey && flags.length === 0) {
-    try {
-      const res = await fetch(
-        "https://api-inference.huggingface.co/models/unitary/toxic-bert",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${hfKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ inputs: text }),
-        },
-      );
-      if (res.ok) {
-        const data = await res.json();
-        // toxic-bert returns [[{label, score},...]]
-        const results = Array.isArray(data?.[0]) ? data[0] : [];
-        for (const r of results) {
-          if (r.label === "toxic" && r.score > 0.7) {
-            flags.push("toxic_ai");
-          }
-        }
-      }
-    } catch {
-      // AI moderation is optional, don't block on failure
-    }
+  // Optional provider moderation is routed through the server-side AI gateway.
+  if (flags.length === 0) {
+    const result = await createServerAIGateway().run({
+      taskType: "moderate_chat",
+      input: { text },
+    });
+    const output = result.output as { safe?: boolean; flags?: string[] } | undefined;
+    if (output?.flags?.length) flags.push(...output.flags);
   }
 
   return NextResponse.json({

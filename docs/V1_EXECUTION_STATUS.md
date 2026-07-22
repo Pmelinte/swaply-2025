@@ -12,3 +12,8 @@
 | 8 | Preferințe lingvistice globale | IMPLEMENTED | PENDING | PENDING | Limbile primară/secundară/terțiară și preferințele de traducere se hidratează și persistă canonic. |
 | 9 | Locație aproximativă și confidențialitate | IMPLEMENTED | PENDING | PENDING | Proiecția publică expune doar oraș/țară și elimină coordonate exacte/date poștale. |
 | 10 | Avatar și media de profil | IMPLEMENTED | PENDING | PENDING | Uploadul avatarului validează tip/mărime, persistă URL-ul și înlocuiește avatarul Supabase vechi. |
+| 11 | Setări personale și de confidențialitate | IMPLEMENTED | PENDING | PENDING | Setările owner-only existente au fost reutilizate, cu persistare profil și acces privat prin sesiunea autentificată. |
+| 12 | Preferințe de notificare | IMPLEMENTED | PENDING | PENDING | Preferințele de notificare au RLS owner-only, granturi autentificate și timestamp actualizat automat. |
+| 13 | Export și închidere cont | IMPLEMENTED | PENDING | PENDING | Exportul JSON canonic autentificat, cererile GDPR owner-only și protecția CSRF pentru cereri sunt integrate. |
+| 14 | Crearea unui obiect | IMPLEMENTED | PENDING | PENDING | Wizard-ul de obiect folosește normalizarea canonică, owner_id din sesiunea client autentificată și revenire după publicare. |
+| 15 | Fotografii și media pentru obiecte | IMPLEMENTED | PENDING | PENDING | Uploadul media validează tip/mărime, folosește storage owner-folder și păstrează fallback-ul no-image. |
