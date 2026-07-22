@@ -654,7 +654,12 @@
     "status_traded": "Ditukar",
     "status_paused": "Dijeda",
     "status_archived": "Diarsipkan",
-    "shareButton": "Bagikan"
+    "shareButton": "Bagikan",
+    "filterValue": "Value",
+    "value_small": "Small",
+    "value_medium": "Medium",
+    "value_large": "Large",
+    "value_sentimental": "Sentimental"
   },
   "objectDetail": {
     "loading": "Memuat objek",

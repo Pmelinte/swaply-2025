@@ -654,7 +654,12 @@
     "status_traded": "已交换",
     "status_paused": "暂停",
     "status_archived": "已归档",
-    "shareButton": "分享"
+    "shareButton": "分享",
+    "filterValue": "Value",
+    "value_small": "Small",
+    "value_medium": "Medium",
+    "value_large": "Large",
+    "value_sentimental": "Sentimental"
   },
   "objectDetail": {
     "loading": "正在加载物品",

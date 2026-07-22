@@ -654,7 +654,12 @@
     "status_traded": "Ανταλλαγμένο",
     "status_paused": "Σε παύση",
     "status_archived": "Αρχειοθετημένο",
-    "shareButton": "Κοινοποίηση"
+    "shareButton": "Κοινοποίηση",
+    "filterValue": "Value",
+    "value_small": "Small",
+    "value_medium": "Medium",
+    "value_large": "Large",
+    "value_sentimental": "Sentimental"
   },
   "objectDetail": {
     "loading": "Φόρτωση αντικειμένου",

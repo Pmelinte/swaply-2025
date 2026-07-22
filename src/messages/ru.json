@@ -654,7 +654,12 @@
     "status_traded": "Обменян",
     "status_paused": "Приостановлен",
     "status_archived": "В архиве",
-    "shareButton": "Поделиться"
+    "shareButton": "Поделиться",
+    "filterValue": "Value",
+    "value_small": "Small",
+    "value_medium": "Medium",
+    "value_large": "Large",
+    "value_sentimental": "Sentimental"
   },
   "objectDetail": {
     "loading": "Загрузка объекта",

@@ -654,7 +654,12 @@
     "status_traded": "Солигдсон",
     "status_paused": "Түр зогсоосон",
     "status_archived": "Архивлагдсан",
-    "shareButton": "Хуваалцах"
+    "shareButton": "Хуваалцах",
+    "filterValue": "Value",
+    "value_small": "Small",
+    "value_medium": "Medium",
+    "value_large": "Large",
+    "value_sentimental": "Sentimental"
   },
   "objectDetail": {
     "loading": "Зүйл ачааллаж байна",

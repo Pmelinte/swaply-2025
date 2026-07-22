@@ -654,7 +654,12 @@
     "status_traded": "Vymenený",
     "status_paused": "Pozastavený",
     "status_archived": "Archivovaný",
-    "shareButton": "Zdieľať"
+    "shareButton": "Zdieľať",
+    "filterValue": "Value",
+    "value_small": "Small",
+    "value_medium": "Medium",
+    "value_large": "Large",
+    "value_sentimental": "Sentimental"
   },
   "objectDetail": {
     "loading": "Načítavanie objektu",

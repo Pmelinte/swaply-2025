@@ -654,7 +654,12 @@
     "status_traded": "مبادله شده",
     "status_paused": "متوقف",
     "status_archived": "بایگانی شده",
-    "shareButton": "اشتراک"
+    "shareButton": "اشتراک",
+    "filterValue": "Value",
+    "value_small": "Small",
+    "value_medium": "Medium",
+    "value_large": "Large",
+    "value_sentimental": "Sentimental"
   },
   "objectDetail": {
     "loading": "در حال بارگذاری شیء",

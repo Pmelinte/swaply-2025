@@ -654,7 +654,12 @@
     "status_traded": "Iškeista",
     "status_paused": "Pristabdyta",
     "status_archived": "Archyvuotas",
-    "shareButton": "Dalintis"
+    "shareButton": "Dalintis",
+    "filterValue": "Value",
+    "value_small": "Small",
+    "value_medium": "Medium",
+    "value_large": "Large",
+    "value_sentimental": "Sentimental"
   },
   "objectDetail": {
     "loading": "Kraunamas daiktas",

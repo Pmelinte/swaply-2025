@@ -654,7 +654,12 @@
     "status_traded": "Byttet",
     "status_paused": "Pauset",
     "status_archived": "Arkivert",
-    "shareButton": "Del"
+    "shareButton": "Del",
+    "filterValue": "Value",
+    "value_small": "Small",
+    "value_medium": "Medium",
+    "value_large": "Large",
+    "value_sentimental": "Sentimental"
   },
   "objectDetail": {
     "loading": "Laster gjenstand",

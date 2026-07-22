@@ -654,7 +654,12 @@
     "status_traded": "Takas edildi",
     "status_paused": "Duraklatıldı",
     "status_archived": "Arşivlendi",
-    "shareButton": "Paylaş"
+    "shareButton": "Paylaş",
+    "filterValue": "Value",
+    "value_small": "Small",
+    "value_medium": "Medium",
+    "value_large": "Large",
+    "value_sentimental": "Sentimental"
   },
   "objectDetail": {
     "loading": "Nesne yükleniyor",

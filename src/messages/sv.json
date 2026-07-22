@@ -1624,7 +1624,12 @@
     "status_traded": "Bytt",
     "status_paused": "Pausad",
     "status_archived": "Arkiverad",
-    "shareButton": "Dela"
+    "shareButton": "Dela",
+    "filterValue": "Value",
+    "value_small": "Small",
+    "value_medium": "Medium",
+    "value_large": "Large",
+    "value_sentimental": "Sentimental"
   },
   "objectDetail": {
     "loading": "Laddar objekt",

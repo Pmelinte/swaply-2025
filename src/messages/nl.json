@@ -654,7 +654,12 @@
     "status_traded": "Geruild",
     "status_paused": "Gepauzeerd",
     "status_archived": "Gearchiveerd",
-    "shareButton": "Delen"
+    "shareButton": "Delen",
+    "filterValue": "Value",
+    "value_small": "Small",
+    "value_medium": "Medium",
+    "value_large": "Large",
+    "value_sentimental": "Sentimental"
   },
   "objectDetail": {
     "loading": "Object laden",

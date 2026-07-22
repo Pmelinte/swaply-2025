@@ -654,7 +654,12 @@
     "status_traded": "Размењено",
     "status_paused": "Паузирано",
     "status_archived": "Архивирано",
-    "shareButton": "Подели"
+    "shareButton": "Подели",
+    "filterValue": "Value",
+    "value_small": "Small",
+    "value_medium": "Medium",
+    "value_large": "Large",
+    "value_sentimental": "Sentimental"
   },
   "objectDetail": {
     "loading": "Učitavanje predmeta",

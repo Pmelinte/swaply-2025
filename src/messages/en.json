@@ -685,7 +685,12 @@
     "status_traded": "Traded",
     "status_paused": "Paused",
     "status_archived": "Archived",
-    "shareButton": "Share"
+    "shareButton": "Share",
+    "filterValue": "Value",
+    "value_small": "Small",
+    "value_medium": "Medium",
+    "value_large": "Large",
+    "value_sentimental": "Sentimental"
   },
   "objectDetail": {
     "loading": "Loading object",

@@ -654,7 +654,12 @@
     "status_traded": "বিনিময়",
     "status_paused": "বিরতি",
     "status_archived": "আর্কাইভ করা",
-    "shareButton": "শেয়ার"
+    "shareButton": "শেয়ার",
+    "filterValue": "Value",
+    "value_small": "Small",
+    "value_medium": "Medium",
+    "value_large": "Large",
+    "value_sentimental": "Sentimental"
   },
   "objectDetail": {
     "loading": "বস্তু লোড হচ্ছে",

@@ -654,7 +654,12 @@
     "status_traded": "Malartaithe",
     "status_paused": "Ar sos",
     "status_archived": "Cartlannaithe",
-    "shareButton": "Roinn"
+    "shareButton": "Roinn",
+    "filterValue": "Value",
+    "value_small": "Small",
+    "value_medium": "Medium",
+    "value_large": "Large",
+    "value_sentimental": "Sentimental"
   },
   "objectDetail": {
     "loading": "Ag luchtú ruda",

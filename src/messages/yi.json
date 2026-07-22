@@ -683,7 +683,12 @@
     "status_traded": "אויסגעביטן",
     "status_paused": "פּויזירט",
     "status_archived": "אַרכיווירט",
-    "shareButton": "טיילן"
+    "shareButton": "טיילן",
+    "filterValue": "Value",
+    "value_small": "Small",
+    "value_medium": "Medium",
+    "value_large": "Large",
+    "value_sentimental": "Sentimental"
   },
   "objectDetail": {
     "loading": "לאָדן אָבייעקט",
