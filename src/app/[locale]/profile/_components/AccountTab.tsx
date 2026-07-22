@@ -7,10 +7,11 @@ import {
   Download, Pause, Play, Shield, AlertTriangle, Trash2,
 } from "lucide-react";
 import { Pill, SectionCard } from "@/components/ui-custom";
-import { subscribeToPush, unsubscribeFromPush, isPushSubscribed } from "@/lib/push";
+import { subscribeToPush, unsubscribeFromPush } from "@/lib/push";
 import { isWebAuthnSupported, registerPasskey } from "@/lib/webauthn";
 import type { UserProfile, AccountStatus } from "@/lib/types";
 import { getSupabaseClient } from "@/lib/supabase/client";
+import { CSRF_HEADER_NAME, getCsrfTokenFromCookie } from "@/lib/csrf";
 
 interface AccountTabProps {
   user: UserProfile;
@@ -47,6 +48,19 @@ export default function AccountTab({
   const [gdprLoading, setGdprLoading] = useState(false);
   const [showGdprDeleteConfirm, setShowGdprDeleteConfirm] = useState(false);
   const [gdprDeleteConfirmText, setGdprDeleteConfirmText] = useState("");
+
+  const csrfHeaders = (): Record<string, string> => {
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    const token = getCsrfTokenFromCookie();
+    if (token) headers[CSRF_HEADER_NAME] = token;
+    return headers;
+  };
+
+  const downloadCanonicalExport = async () => {
+    const res = await fetch("/api/gdpr/export", { method: "GET" });
+    if (!res.ok) return exportUserData();
+    return JSON.stringify(await res.json(), null, 2);
+  };
 
   // Login history (mock)
   const loginHistory = [
@@ -382,7 +396,7 @@ export default function AccountTab({
           <div className="flex flex-wrap gap-2">
             <button type="button"
               onClick={async () => {
-                const json = await exportUserData();
+                const json = await downloadCanonicalExport();
                 const blob = new Blob([json], { type: "application/json" });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement("a"); a.href = url;
@@ -397,7 +411,7 @@ export default function AccountTab({
                 if (!user?.id) return;
                 setGdprLoading(true); setGdprMessage(null);
                 try {
-                  const res = await fetch("/api/gdpr/export", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userId: user.id }) });
+                  const res = await fetch("/api/gdpr/export", { method: "POST", headers: csrfHeaders(), body: JSON.stringify({}) });
                   const data = await res.json();
                   if (!res.ok) setGdprMessage({ type: "error", text: data.error ?? t("genericError") });
                   else { setGdprMessage({ type: "success", text: t("gdprExportSuccess") }); setGdprExportPending(new Date().toISOString()); }
@@ -436,7 +450,7 @@ export default function AccountTab({
                   if (!user?.id) return;
                   setGdprLoading(true); setGdprMessage(null);
                   try {
-                    const res = await fetch("/api/gdpr/delete", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userId: user.id }) });
+                    const res = await fetch("/api/gdpr/delete", { method: "POST", headers: csrfHeaders(), body: JSON.stringify({}) });
                     const data = await res.json();
                     if (!res.ok) setGdprMessage({ type: "error", text: data.error ?? t("genericError") });
                     else { setGdprMessage({ type: "success", text: t("gdprDeleteSuccess") }); setGdprDeletePending(new Date().toISOString()); }

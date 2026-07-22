@@ -129,7 +129,6 @@ type FormData = {
 
 export function ObjectWizardClient() {
   const t = useTranslations("objectWizard");
-  const tc = useTranslations("common");
   const { user } = useAppState();
   const router = useRouter();
   const locale = useLocale();
@@ -425,8 +424,8 @@ export function ObjectWizardClient() {
           router.push(`/${locale}/objects/${data[0].id}`);
         }, 1500);
       }
-    } catch (err: any) {
-      setError(err?.message || "Failed to save item. Please try again.");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to save item. Please try again.");
     } finally {
       setLoading(false);
     }

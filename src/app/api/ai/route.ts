@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { CATEGORIES_TAXONOMY, CATEGORY_NAMES } from "@/lib/categories";
+import { CATEGORIES_TAXONOMY } from "@/lib/categories";
 import { rateLimit } from "@/lib/rate-limit";
 import { aiClassifySchema, validateBody } from "@/lib/validation";
 import { requestLogger } from "@/lib/logger";
 import { getFeatureFlag } from "@/lib/feature-flags";
+import { createServerAIGateway } from "@/lib/ai/server";
 
-const CATEGORIES = CATEGORY_NAMES;
 
 const TAG_CANDIDATES = [
   "tech", "gaming", "audio", "video", "laptop", "phone", "tablet", "monitor",
@@ -44,90 +44,38 @@ export async function POST(request: Request) {
     return NextResponse.json({ status: "error", message: "Titlu sau descriere lipsa" });
   }
 
-  const hfKey = process.env.HUGGINGFACE_API_KEY || process.env.HUGGINGFACE_API_TOKEN;
-  const hfEnabled = await getFeatureFlag("ai_matching");
-
-  // Fallback: keyword-based matching when HF is not available
-  if (!hfKey || !hfEnabled) {
-    return NextResponse.json({
-      status: "fallback",
-      category: keywordCategory(text),
-      tags: keywordTags(text),
-    });
-  }
-
+  const aiEnabled = await getFeatureFlag("ai_matching");
   const effectiveAction = action || "both";
 
-  try {
-    const results: { category?: string; tags?: string[] } = {};
-
-    // Category classification via zero-shot
-    if (effectiveAction === "classify" || effectiveAction === "both") {
-      const catRes = await fetch(
-        "https://api-inference.huggingface.co/models/facebook/bart-large-mnli",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${hfKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            inputs: text,
-            parameters: { candidate_labels: CATEGORIES },
-          }),
-        },
-      );
-      if (catRes.ok) {
-        const catData = await catRes.json();
-        results.category = catData.labels?.[0] ?? keywordCategory(text);
-      } else {
-        results.category = keywordCategory(text);
-      }
-    }
-
-    // Tag suggestion via zero-shot on tag candidates
-    if (effectiveAction === "tags" || effectiveAction === "both") {
-      const tagRes = await fetch(
-        "https://api-inference.huggingface.co/models/facebook/bart-large-mnli",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${hfKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            inputs: text,
-            parameters: {
-              candidate_labels: TAG_CANDIDATES,
-              multi_label: true,
-            },
-          }),
-        },
-      );
-      if (tagRes.ok) {
-        const tagData = await tagRes.json();
-        // Take top 5 tags with score > 0.15
-        const labels: string[] = tagData.labels ?? [];
-        const scores: number[] = tagData.scores ?? [];
-        results.tags = labels
-          .filter((_, i) => scores[i] > 0.15)
-          .slice(0, 5);
-        if (results.tags.length === 0) {
-          results.tags = keywordTags(text);
-        }
-      } else {
-        results.tags = keywordTags(text);
-      }
-    }
-
-    return NextResponse.json({ status: "ok", ...results });
-  } catch {
+  if (!aiEnabled) {
     return NextResponse.json({
       status: "fallback",
       category: keywordCategory(text),
       tags: keywordTags(text),
     });
   }
+
+  const gateway = createServerAIGateway();
+  const result = await gateway.run({
+    taskType: "classify_item",
+    input: { titleHint: title, descriptionHint: description },
+  });
+
+  if (result.output && typeof result.output === "object") {
+    const output = result.output as { category?: string; tags?: string[] };
+    const response: { status: string; category?: string; tags?: string[] } = {
+      status: result.status === "ok" ? "ok" : "fallback",
+    };
+    if (effectiveAction === "classify" || effectiveAction === "both") response.category = output.category ?? keywordCategory(text);
+    if (effectiveAction === "tags" || effectiveAction === "both") response.tags = output.tags?.length ? output.tags : keywordTags(text);
+    return NextResponse.json(response);
+  }
+
+  return NextResponse.json({
+    status: "fallback",
+    category: keywordCategory(text),
+    tags: keywordTags(text),
+  });
 }
 
 /** Keyword-based category matching using taxonomy — checks subcategories first for precision */
