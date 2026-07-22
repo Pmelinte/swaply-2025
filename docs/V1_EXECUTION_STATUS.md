@@ -42,3 +42,9 @@
 | 38     | Explorarea serviciilor                    | IMPLEMENTED | PENDING | PENDING | Explorarea listează servicii active reale din items/services cu loading, empty, favorite și load-more existente. |
 | 39     | Căutare și filtre pentru servicii         | IMPLEMENTED | PENDING | PENDING | Filtrele client-side acoperă categorie, livrare, disponibilitate, locație și sortare fără audit locale. |
 | 40     | Propunere de schimb de servicii           | IMPLEMENTED | PENDING | PENDING | CTA-ul de detaliu creează matching_interests pentru service-for-service folosind utilizatorul autentificat și primul serviciu activ propriu. |
+
+| 41      | Exchange complet pentru servicii          | REUSED      | PENDING | PENDING | Workspace-ul Exchange/Chat existent pentru swapuri acceptate include servicii suport, confirmare, anulare, completare și feedback pentru schimburile de servicii. |
+| 42      | Crearea unui eveniment                    | IMPLEMENTED | PENDING | PENDING | Wizard-ul Events publică prin endpoint autentificat server-side care derivează owner_id din sesiune și redirecționează la detaliu. |
+| 43      | Transferabilitate și reguli eveniment     | IMPLEMENTED | PENDING | PENDING | Regulile de transferabilitate, deadline, eligibilitate/ID și avertismente sunt persistate în event_data și afișate pe detaliu. |
+| 44      | Pachete asociate evenimentului            | IMPLEMENTED | PENDING | PENDING | Beneficiile opționale transport/cazare/masă/echipament sunt persistate și afișate ca pachet opțional fără servicii plătite obligatorii. |
+| 45      | Editarea și administrarea evenimentelor   | IMPLEMENTED | PENDING | PENDING | Endpointul owner-only editează datele canonice și statusurile active/paused/archived, iar pagina de management refuză utilizatorii neautentificați. |

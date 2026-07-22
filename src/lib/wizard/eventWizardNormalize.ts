@@ -1,0 +1,100 @@
+import type { EventFormData } from "./eventWizardStore";
+
+const optionalArray = (values: string[]) => (values.length > 0 ? values : null);
+const optionalString = (value: string) => {
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+};
+const optionalFloat = (value: string) => (value.trim() ? parseFloat(value) : null);
+const optionalInt = (value: string) => (value.trim() ? parseInt(value, 10) : null);
+
+export function normalizeEventWizardItemInsert(form: EventFormData, ownerId: string) {
+  return {
+    owner_id: ownerId,
+    title: form.event_title.trim(),
+    description: form.event_description.trim(),
+    category: "event",
+    condition: "good",
+    status: "active",
+    item_type: "event",
+    wizard_type: form.event_type_l1 || "event",
+    wizard_step: 5,
+    swap_open_to: optionalArray(form.swap_for_type),
+    swap_wants_description: optionalString(form.swap_wants_description),
+    swap_value_match: optionalString(form.swap_value_match),
+    swap_geo_preference: optionalString(form.swap_geo_preference),
+    swap_chain_allowed: form.chain_swap_allowed,
+    cross_category_swap: form.cross_category_swap,
+    swap_partial_allowed: form.swap_partial_allowed,
+    swap_partial_topup_eur: optionalFloat(form.swap_partial_topup_eur),
+    perceived_value_tier: optionalString(form.perceived_value_tier),
+    event_data: normalizeEventData(form),
+  };
+}
+
+export function normalizeEventData(form: EventFormData) {
+  return {
+    event_title: form.event_title.trim(),
+    event_type_l1: form.event_type_l1,
+    event_type_l2: optionalString(form.event_type_l2),
+    is_online: form.is_online,
+    start_date: optionalString(form.start_date),
+    start_time: optionalString(form.start_time),
+    end_date: optionalString(form.end_date),
+    end_time: optionalString(form.end_time),
+    timezone: optionalString(form.timezone),
+    season: optionalArray(form.season),
+    recurrence: form.recurrence,
+    event_description: form.event_description.trim(),
+    language_of_event: optionalArray(form.language_of_event),
+    country: optionalString(form.country),
+    region: optionalString(form.region),
+    city: optionalString(form.city),
+    venue_name: optionalString(form.venue_name),
+    lat: optionalFloat(form.lat),
+    lon: optionalFloat(form.lon),
+    location_type: optionalString(form.location_type),
+    route_type: optionalString(form.route_type),
+    route_start_city: optionalString(form.route_start_city),
+    route_end_city: optionalString(form.route_end_city),
+    route_waypoints: optionalString(form.route_waypoints),
+    route_total_km: optionalFloat(form.route_total_km),
+    route_gpx_url: optionalString(form.route_gpx_url),
+    transport_mode: optionalString(form.transport_mode),
+    booking_reference: optionalString(form.booking_reference),
+    departure_city: optionalString(form.departure_city),
+    arrival_city: optionalString(form.arrival_city),
+    seat_class: optionalString(form.seat_class),
+    seats_available: form.seats_available,
+    face_value_eur: optionalFloat(form.face_value_eur),
+    is_transferable: form.is_transferable,
+    baggage_included: form.baggage_included,
+    rail_pass_type: optionalString(form.rail_pass_type),
+    rail_pass_days_remaining: form.rail_pass_days_remaining,
+    sport_type: optionalString(form.sport_type),
+    competition_name: optionalString(form.competition_name),
+    venue_sector: optionalString(form.venue_sector),
+    venue_row: optionalString(form.venue_row),
+    seat_number: optionalString(form.seat_number),
+    hospitality_included: form.hospitality_included,
+    capacity_total: form.capacity_total,
+    capacity_available: form.capacity_available,
+    group_size_min: form.group_size_min,
+    group_size_max: form.group_size_max,
+    age_restriction: form.age_restriction,
+    age_min: optionalInt(form.age_min),
+    kid_friendly: form.kid_friendly,
+    pet_friendly: form.pet_friendly,
+    includes_accommodation: form.includes_accommodation,
+    includes_transport: form.includes_transport,
+    includes_meals: form.includes_meals,
+    includes_equipment: form.includes_equipment,
+    equipment_list: optionalString(form.equipment_list),
+    dress_code: optionalString(form.dress_code),
+    id_required: form.id_required,
+    booking_deadline_date: optionalString(form.booking_deadline_date),
+    advance_booking_months: form.advance_booking_months,
+    escrow_accepted: form.escrow_accepted,
+    exchange_points: optionalFloat(form.exchange_points),
+  };
+}
