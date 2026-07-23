@@ -53,3 +53,8 @@
 | 48      | Căutare și filtre pentru evenimente       | IMPLEMENTED | PENDING | PENDING | Filtrele pentru tip, dată, locație, locuri disponibile și sortare reutilizează filtrarea canonică testată. |
 | 49      | Propunere de schimb pentru evenimente     | REUSED      | PENDING | PENDING | CTA-ul evenimentului trimite utilizatorii autentificați în matching pentru schimb de bilete/rezervări, cu server-side owner derivat în API-urile existente. |
 | 50      | Exchange complet pentru evenimente        | REUSED      | PENDING | PENDING | Exchange/Chat existent gestionează transferul, confirmările, anularea și feedback-ul pentru swapurile create din matching. |
+| 51      | Explore global cross-domain               | IMPLEMENTED | PENDING | PASS | Explore global listează obiecte, proprietăți, servicii și evenimente active într-un feed unic cu stări loading/empty și filtrare URL reutilizată. |
+| 52      | Căutare globală                           | IMPLEMENTED | PENDING | PASS | Căutarea client-side unificată acoperă titlu, descriere, categorie, wishlist, locație aproximativă și domeniu fără câmpuri privilegiate din client. |
+| 53      | Filtre globale și drawer contextual       | REUSED      | PENDING | PASS | Drawer-ul Explore existent aplică filtre contextualizate prin URL, fără duplicarea navigației globale. |
+| 54      | Hartă globală cu locație aproximativă     | IMPLEMENTED | PENDING | PASS | Harta Explore existentă rămâne fallback embed pe zonă, iar feed-ul expune doar locație aproximativă derivată din textul public. |
+| 55      | Favorite și colecții cross-domain         | IMPLEMENTED | PENDING | PASS | Favoritele cross-domain folosesc API server-side autentificat care derivă user_id din sesiune și păstrează RLS owner-only. |
