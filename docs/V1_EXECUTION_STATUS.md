@@ -118,3 +118,14 @@ without disabling lint rules or changing Supabase/Vercel/Production state.
 ## Prompt 102.2 — Password recovery remediation
 
 Batch 102.2 closes Prompt 3 on top of canonical base `051432f659a7f762d4e1eafe348648fb7d1ff08e` without cherry-picking the stale local commit. Prompt 102 remains `PARTIAL`; this batch only adds the password recovery helper, reset-password page, state integration, focused tests, and required i18n keys. PR remains `PENDING` until creation.
+
+## Prompt 102.3 — Sitemap index and chunking remediation
+
+Batch 102.3 keeps Prompt 102 `PARTIAL` and remediates only the oversized
+Production sitemap risk. The canonical `/sitemap.xml` response is now a sitemap
+index pointing at deterministic chunked sitemap route handlers for static,
+blog, and objects URL sources. Individual sitemap generation deduplicates URLs,
+uses only absolute `https://www.swaply.world` URLs, excludes query strings and
+non-canonical hosts, and degrades to public programmatic object URLs when a
+dynamic source is unavailable. No Supabase schema, RLS, Vercel, Production,
+tag, release, or deployment changes are part of this batch.
