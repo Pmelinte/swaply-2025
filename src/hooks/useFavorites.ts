@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import { getSupabaseClient } from "@/lib/supabase/client";
 import { trackItemEvent } from "@/lib/item-analytics";
 
 const LS_KEY = "swaply_favorites";
@@ -42,84 +41,60 @@ function applyFavoriteOperations(
 
 export function useFavorites(userId: string | null | undefined) {
   const [favoriteIds, setFavoriteIds] = useState<Set<string>>(readLocalStorage);
-  const [loaded, setLoaded] = useState(!userId || !getSupabaseClient());
+  const [loaded, setLoaded] = useState(!userId);
   const [error, setError] = useState<string | null>(null);
   const [pendingItemIds, setPendingItemIds] = useState<Set<string>>(new Set());
   const migratedUserRef = useRef<string | null>(null);
   const optimisticDuringLoadRef = useRef<Map<string, FavoriteOperation>>(new Map());
 
   useEffect(() => {
-    const sb = getSupabaseClient();
+    let cancelled = false;
 
-    if (!userId || !sb) {
+    if (!userId) {
       migratedUserRef.current = null;
       optimisticDuringLoadRef.current.clear();
-      setFavoriteIds(readLocalStorage());
-      setLoaded(true);
-      setError(null);
-      return;
+      queueMicrotask(() => {
+        if (cancelled) return;
+        setFavoriteIds(readLocalStorage());
+        setLoaded(true);
+        setError(null);
+      });
+      return () => { cancelled = true; };
     }
 
-    let cancelled = false;
     optimisticDuringLoadRef.current.clear();
-    setLoaded(false);
-    setError(null);
 
     void (async () => {
-      const { data, error: fetchError } = await sb
-        .from("user_favorites")
-        .select("item_id")
-        .eq("user_id", userId);
-
+      setLoaded(false);
+      setError(null);
+      const res = await fetch("/api/favorites", { credentials: "same-origin" });
       if (cancelled) return;
-      if (fetchError) {
-        optimisticDuringLoadRef.current.clear();
-        setError(fetchError.message);
+      if (!res.ok) {
+        setError("Favorites service is unavailable");
         setLoaded(true);
         return;
       }
-
-      const serverIds = new Set<string>(
-        (data ?? []).map((row: { item_id: string }) => row.item_id),
-      );
+      const payload = (await res.json()) as { itemIds?: string[] };
+      const serverIds = new Set(payload.itemIds ?? []);
       const localIds = readLocalStorage();
       const toMigrate = [...localIds].filter((id) => !serverIds.has(id));
-
       if (toMigrate.length > 0 && migratedUserRef.current !== userId) {
-        const rows = toMigrate.map((item_id) => ({ user_id: userId, item_id }));
-        const { error: migrationError } = await sb
-          .from("user_favorites")
-          .upsert(rows, { onConflict: "user_id,item_id" });
-
-        if (cancelled) return;
-        if (migrationError) {
-          setError(migrationError.message);
-          setFavoriteIds(
-            applyFavoriteOperations(
-              new Set([...serverIds, ...localIds]),
-              optimisticDuringLoadRef.current,
-            ),
-          );
-          optimisticDuringLoadRef.current.clear();
-          setLoaded(true);
-          return;
-        }
-
+        await Promise.all(toMigrate.map((itemId) => fetch("/api/favorites", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ itemId, favorite: true }),
+        })));
         toMigrate.forEach((id) => serverIds.add(id));
         migratedUserRef.current = userId;
       }
-
       if (localIds.size > 0) localStorage.removeItem(LS_KEY);
-      setFavoriteIds(
-        applyFavoriteOperations(serverIds, optimisticDuringLoadRef.current),
-      );
+      setFavoriteIds(applyFavoriteOperations(serverIds, optimisticDuringLoadRef.current));
       optimisticDuringLoadRef.current.clear();
       setLoaded(true);
     })();
 
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [userId]);
 
   const toggleFavorite = useCallback(
@@ -153,40 +128,16 @@ export function useFavorites(userId: string | null | undefined) {
         return;
       }
 
-      const sb = getSupabaseClient();
-      if (!sb) {
+      const result = await fetch("/api/favorites", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ itemId, favorite: !removing }),
+      });
+
+      if (!result.ok) {
         optimisticDuringLoadRef.current.delete(itemId);
         setError("Favorites service is unavailable");
-        setFavoriteIds((prev) => {
-          const next = new Set(prev);
-          if (removing) next.add(itemId);
-          else next.delete(itemId);
-          return next;
-        });
-        setPendingItemIds((prev) => {
-          const next = new Set(prev);
-          next.delete(itemId);
-          return next;
-        });
-        return;
-      }
-
-      const result = removing
-        ? await sb
-            .from("user_favorites")
-            .delete()
-            .eq("user_id", userId)
-            .eq("item_id", itemId)
-        : await sb
-            .from("user_favorites")
-            .upsert(
-              { user_id: userId, item_id: itemId },
-              { onConflict: "user_id,item_id" },
-            );
-
-      if (result.error) {
-        optimisticDuringLoadRef.current.delete(itemId);
-        setError(result.error.message);
         setFavoriteIds((prev) => {
           const next = new Set(prev);
           if (removing) next.add(itemId);

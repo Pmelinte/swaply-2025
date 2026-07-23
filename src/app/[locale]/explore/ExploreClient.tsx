@@ -8,6 +8,7 @@ import { WantsZone } from "@/components/explore/WantsZone";
 import { OffersZone } from "@/components/explore/OffersZone";
 import { MapSection } from "@/components/explore/MapSection";
 import { TrendingFeed } from "@/components/explore/TrendingFeed";
+import { GlobalExploreFeed } from "@/components/explore/GlobalExploreFeed";
 import { CategoryPickerSheet } from "@/components/explore/CategoryPickerSheet";
 import {
   EXPLORE_APPLY_EVENT,
@@ -41,6 +42,8 @@ export function ExploreClient() {
         <WantsZone onAddWant={() => setAddWantOpen(true)} />
 
         <MapSection />
+
+        <GlobalExploreFeed />
 
         <TrendingFeed />
 

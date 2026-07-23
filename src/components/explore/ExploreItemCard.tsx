@@ -26,12 +26,13 @@ export function ExploreItemCard({
   const t = useTranslations("objects");
   const tCat = useTranslations("categories");
   const titleOut = useTranslatedText(item.title);
+  const detailPath = "detailPath" in item && typeof item.detailPath === "string" ? item.detailPath : `/objects/${item.id}`;
 
   if (mode === "list") {
     return (
       <button
         type="button"
-        onClick={() => router.push(`/objects/${item.id}`)}
+        onClick={() => router.push(detailPath)}
         className="flex w-full items-center gap-3 rounded-xl border border-zinc-200 bg-white p-3 text-left shadow-sm transition hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800"
       >
         <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-700">
@@ -75,7 +76,7 @@ export function ExploreItemCard({
   return (
     <button
       type="button"
-      onClick={() => router.push(`/objects/${item.id}`)}
+      onClick={() => router.push(detailPath)}
       className={`group flex w-full flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm transition hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800 ${CAT[cat].topBorder}`}
     >
       <div className={`relative aspect-[4/3] w-full overflow-hidden dark:bg-zinc-700 ${CAT[cat].placeholder}`}>
