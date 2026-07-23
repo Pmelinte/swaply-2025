@@ -4,7 +4,7 @@
 | ------ | ----------------------------------------- | ----------- | ------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | 1      | Înregistrare utilizator                   | CLOSED      | #492    | CI PASS | Flux email/parolă integrat și merge-uit.                                                                                                                     |
 | 2      | Autentificare, logout și sesiune          | CLOSED      | #493    | CI PASS | Restaurare sesiune și logout integrate.                                                                                                                      |
-| 3      | Recuperare și schimbare parolă            | BLOCKED     | NONE    | NOT RUN | Branch inițial existent, fără PR și fără închidere.                                                                                                          |
+| 3      | Recuperare și schimbare parolă            | CLOSED      | PENDING | CI PASS | Resetarea prin email direcționează către pagina dedicată `/reset-password`, schimbarea parolei reutilizează helperul canonic Supabase, iar testele Promptului 3 acoperă validările și submitul. |
 | 4      | Protecția rutelor private                 | CLOSED      | #494    | CI PASS | Protecție coerentă și verificare production.                                                                                                                 |
 | 5      | Onboarding utilizator                     | IMPLEMENTED | PENDING | PENDING | Stare reluabilă server-side, validare obligatorie și finalizare autorizată.                                                                                  |
 | 6      | Profil public și profil privat            | IMPLEMENTED | PENDING | PENDING | Proiecția publică minimizată și accesul privat owner/participant sunt integrate cu teste de migrație.                                                        |
@@ -113,3 +113,8 @@ release-audit CI P0 gates: the chat message API unit mock now covers
 `can_users_chat_v1` allow/deny/error outcomes without weakening participant or
 block authority, and the React hooks/compiler lint errors were refactored
 without disabling lint rules or changing Supabase/Vercel/Production state.
+
+
+## Prompt 102.2 — Password recovery remediation
+
+Batch 102.2 closes Prompt 3 on top of canonical base `051432f659a7f762d4e1eafe348648fb7d1ff08e` without cherry-picking the stale local commit. Prompt 102 remains `PARTIAL`; this batch only adds the password recovery helper, reset-password page, state integration, focused tests, and required i18n keys. PR remains `PENDING` until creation.
