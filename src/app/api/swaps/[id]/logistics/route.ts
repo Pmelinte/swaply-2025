@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
+import { isExactLocationPayload } from "@/lib/chat/chatDelivery";
 import { getServerSupabase } from "@/lib/supabase/server";
 import {
   getExchangeLogistics,
+  setLocalHandoverPlan,
   setExchangeMethod,
   updateExchangeStatus,
 } from "@/lib/exchange/exchangeLogisticsPersistence";
@@ -37,11 +39,15 @@ export async function POST(
 
   const { id } = await params;
   const body = (await request.json().catch(() => ({}))) as {
-    action?: "set_method" | "set_status";
+    action?: "set_method" | "set_status" | "set_local_handover";
     method?: ExchangeMethod;
     status?: ExchangeStatus;
     title?: string;
     description?: string;
+    areaLabel?: string;
+    scheduledAt?: string | null;
+    city?: string;
+    country?: string;
   };
 
   if (body.action === "set_method" && body.method) {
@@ -63,6 +69,22 @@ export async function POST(
       description: body.description,
     });
     if (!logistics) return NextResponse.json({ error: "Could not update exchange status" }, { status: 400 });
+    return NextResponse.json({ logistics });
+  }
+
+  if (body.action === "set_local_handover" && typeof body.areaLabel === "string") {
+    if (isExactLocationPayload(body)) {
+      return NextResponse.json({ error: "Exact location is not accepted" }, { status: 400 });
+    }
+    const logistics = await setLocalHandoverPlan(supabase, {
+      swapId: id,
+      actorId: user.id,
+      areaLabel: body.areaLabel,
+      scheduledAt: body.scheduledAt ?? null,
+      city: body.city,
+      country: body.country,
+    });
+    if (!logistics) return NextResponse.json({ error: "Could not update local handover" }, { status: 400 });
     return NextResponse.json({ logistics });
   }
 

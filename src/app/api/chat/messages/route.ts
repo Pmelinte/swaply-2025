@@ -1,4 +1,8 @@
 import { NextResponse } from "next/server";
+import {
+  canParticipantsChat,
+  createChatMessageNotification,
+} from "@/lib/chat/chatDelivery";
 import { moderateText } from "@/lib/moderation/moderationEngine";
 import { getServerSupabase } from "@/lib/supabase/server";
 
@@ -121,6 +125,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "recipient_not_found" }, { status: 400 });
   }
 
+  const canChat = await canParticipantsChat(supabase, user.id, recipientId);
+  if (!canChat) {
+    return NextResponse.json({ error: "blocked_conversation" }, { status: 403 });
+  }
+
   const moderation = content ? moderateText(content) : null;
   if (moderation?.recommended_action === "block") {
     return NextResponse.json(
@@ -162,6 +171,17 @@ export async function POST(req: Request) {
     .from("conversations")
     .update({ updated_at: new Date().toISOString() })
     .eq("id", conversation.id);
+
+  await createChatMessageNotification(supabase, {
+    recipientId,
+    senderId: user.id,
+    conversationId: conversation.id,
+    swapId: conversation.swap_id ?? null,
+    matchId: conversation.match_id ?? null,
+    messageId: message.id,
+    preview: content || "New media message",
+    flagged: (moderation?.risk_score ?? 0) >= 30,
+  });
 
   return NextResponse.json({ message });
 }

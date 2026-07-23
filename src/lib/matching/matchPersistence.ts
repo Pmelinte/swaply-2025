@@ -181,6 +181,11 @@ export async function convertMatchToSwap(
   }
 
   const row = match as MatchRow;
+  if (actorId !== row.initiator_id && actorId !== row.target_user_id) {
+    console.error("convertMatchToSwap actor is not a participant");
+    return null;
+  }
+
   if (row.converted_swap_id) {
     const { data: existingSwap } = await supabase
       .from("swaps")
@@ -193,11 +198,6 @@ export async function convertMatchToSwap(
       swapId: row.converted_swap_id,
       conversationId: (existingSwap as { conversation_id?: string | null } | null)?.conversation_id ?? "",
     };
-  }
-
-  if (actorId !== row.initiator_id && actorId !== row.target_user_id) {
-    console.error("convertMatchToSwap actor is not a participant");
-    return null;
   }
 
   if (!row.initiator_item_id) {
@@ -253,6 +253,7 @@ export async function convertMatchToSwap(
     .from("conversations")
     .insert({
       swap_id: swapId,
+      match_id: row.id,
       participant_ids: [row.initiator_id, row.target_user_id],
       item_ids: [row.initiator_item_id, row.target_item_id],
       status: "active",
