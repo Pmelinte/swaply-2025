@@ -129,3 +129,7 @@ uses only absolute `https://www.swaply.world` URLs, excludes query strings and
 non-canonical hosts, and degrades to public programmatic object URLs when a
 dynamic source is unavailable. No Supabase schema, RLS, Vercel, Production,
 tag, release, or deployment changes are part of this batch.
+
+## Prompt 102.4R1 — Explore INSUFFICIENT_PATH remediation
+
+Batch 102.4R1 keeps Prompt 102 `PARTIAL`. The confirmed Explore runtime error was caused by `GlobalExploreFeed` calling `t("filterDrawer")` in the `explore` namespace even though `explore.filterDrawer` is a nested filter-drawer namespace object in all 43 locale catalogues. The component now calls the terminal `explore.filterDrawer.title` message for the feed helper text and filter button label, preserving each locale's existing translation structure. Focused regression coverage inventories the Explore tree translation keys across all 43 locale files and renders `GlobalExploreFeed` per locale without `INSUFFICIENT_PATH`, `MISSING_MESSAGE`, `INVALID_MESSAGE`, or render exceptions. Prompt 102 remains `PARTIAL`.
