@@ -11,7 +11,7 @@ import { SafeImage } from "@/components/SafeImage";
 import { GuestBanner } from "@/components/GuestBanner";
 import { AuthGateModal } from "@/components/AuthGateModal";
 import { AdBanner } from "@/components/AdBanner";
-import { getSupabaseClient } from "@/lib/supabase/client";
+import { filterEventListings } from "@/lib/events/eventListings";
 import {
   Search,
   LayoutGrid,
@@ -227,6 +227,11 @@ export default function EventsPage() {
   const [browseMode, setBrowseMode] = useState<BrowseMode>("grid");
   const [search, setSearch] = useState("");
   const [locationFilter, setLocationFilter] = useState("");
+  const [typeFilter, setTypeFilter] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [minSeats, setMinSeats] = useState("");
+  const [sort, setSort] = useState<"newest" | "soonest" | "seats">("soonest");
   const [showFilters, setShowFilters] = useState(false);
   const [visibleCount, setVisibleCount] = useState(20);
 
@@ -243,24 +248,12 @@ export default function EventsPage() {
     async function fetchEvents() {
       setLoading(true);
 
-      const supabase = getSupabaseClient();
-      if (!supabase) {
-        setLoading(false);
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from("events_listings")
-        .select("*, items(title, image_url, images, description)")
-        .eq("status", "active")
-        .order("created_at", { ascending: false })
-        .limit(500);
-
-      if (!cancelled) {
-        if (!error && data) {
-          setEvents(data as EventRow[]);
-        }
-        setLoading(false);
+      try {
+        const response = await fetch("/api/items/events", { cache: "no-store" });
+        const body = await response.json().catch(() => null);
+        if (!cancelled && response.ok) setEvents((body?.events ?? []) as EventRow[]);
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     }
 
@@ -269,25 +262,18 @@ export default function EventsPage() {
   }, []);
 
   const filtered = useMemo(() => {
-    let result = events;
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      result = result.filter((e) => {
-        const title = getTitle(e).toLowerCase();
-        const loc = getLocation(e).toLowerCase();
-        const cat = (e.event_type_l1 || e.event_type_l2 || "").toLowerCase();
-        const desc = getDescription(e).toLowerCase();
-        return title.includes(q) || loc.includes(q) || cat.includes(q) || desc.includes(q);
-      });
-    }
-    if (locationFilter.trim()) {
-      const loc = locationFilter.toLowerCase();
-      result = result.filter((e) => getLocation(e).toLowerCase().includes(loc));
-    }
-    return result;
-  }, [events, search, locationFilter]);
+    return filterEventListings(events, {
+      search,
+      location: locationFilter,
+      type: typeFilter,
+      dateFrom,
+      dateTo,
+      minSeats: minSeats ? Number(minSeats) : undefined,
+      sort,
+    }) as EventRow[];
+  }, [events, search, locationFilter, typeFilter, dateFrom, dateTo, minSeats, sort]);
 
-  const hasFilters = !!search || !!locationFilter;
+  const hasFilters = !!search || !!locationFilter || !!typeFilter || !!dateFrom || !!dateTo || !!minSeats || sort !== "soonest";
   const eventLabel = tb("events");
   const addEventLabel = `${tc("add")} ${eventLabel}`;
   const searchEventsPlaceholder = `${tc("search")} ${eventLabel}…`;
@@ -368,6 +354,10 @@ export default function EventsPage() {
           <div className="mb-4 rounded-xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-800/50">
             <div className="flex flex-wrap gap-4">
               <div>
+                <p className="mb-1.5 text-xs font-semibold uppercase text-zinc-500">Event type</p>
+                <input value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} placeholder="Concert, sport, conference…" className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+              </div>
+              <div>
                 <p className="mb-1.5 text-xs font-semibold uppercase text-zinc-500">{t("filterLocation")}</p>
                 <div className="relative">
                   <MapPin className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-400" />
@@ -385,10 +375,30 @@ export default function EventsPage() {
                   )}
                 </div>
               </div>
+              <div>
+                <p className="mb-1.5 text-xs font-semibold uppercase text-zinc-500">Date from</p>
+                <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+              </div>
+              <div>
+                <p className="mb-1.5 text-xs font-semibold uppercase text-zinc-500">Date to</p>
+                <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+              </div>
+              <div>
+                <p className="mb-1.5 text-xs font-semibold uppercase text-zinc-500">Minimum seats</p>
+                <input type="number" min="0" value={minSeats} onChange={(e) => setMinSeats(e.target.value)} className="w-28 rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+              </div>
+              <div>
+                <p className="mb-1.5 text-xs font-semibold uppercase text-zinc-500">Sort</p>
+                <select value={sort} onChange={(e) => setSort(e.target.value as typeof sort)} className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100">
+                  <option value="soonest">Soonest</option>
+                  <option value="newest">Newest</option>
+                  <option value="seats">Most seats</option>
+                </select>
+              </div>
             </div>
             {hasFilters && (
               <button
-                onClick={() => { setSearch(""); setLocationFilter(""); }}
+                onClick={() => { setSearch(""); setLocationFilter(""); setTypeFilter(""); setDateFrom(""); setDateTo(""); setMinSeats(""); setSort("soonest"); }}
                 className="mt-3 text-xs font-medium text-amber-600 hover:text-amber-800 dark:text-amber-400"
               >
                 {t("clearFilters")}
@@ -436,7 +446,7 @@ export default function EventsPage() {
                 <div className="flex flex-wrap items-center gap-3">
                   {hasFilters && (
                     <button
-                      onClick={() => { setSearch(""); setLocationFilter(""); }}
+                      onClick={() => { setSearch(""); setLocationFilter(""); setTypeFilter(""); setDateFrom(""); setDateTo(""); setMinSeats(""); setSort("soonest"); }}
                       className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
                     >
                       {t("clearFilters")}
