@@ -118,15 +118,11 @@ export function useNotifications(userId: string | undefined) {
   useEffect(() => {
     let cancelled = false;
 
-    if (!userId) {
-      setNotifications([]);
-      setLoading(false);
-      return;
+    if (userId) {
+      void Promise.resolve().then(loadNotifications).then(() => {
+        if (cancelled) return;
+      });
     }
-
-    void loadNotifications().then(() => {
-      if (cancelled) return;
-    });
 
     return () => {
       cancelled = true;
@@ -137,13 +133,9 @@ export function useNotifications(userId: string | undefined) {
   useEffect(() => {
     let cancelled = false;
 
-    if (!userId) {
-      setPreferences(null);
-      setPrefsLoading(false);
-      return;
-    }
-
     (async () => {
+      if (!userId) return;
+
       const sb = getSupabaseClient();
       if (!sb) return;
 
@@ -182,18 +174,19 @@ export function useNotifications(userId: string | undefined) {
   // A reconciliation fetch after SUBSCRIBED closes the fetch/join race window.
   useEffect(() => {
     if (!userId) {
-      setRealtimeStatus("IDLE");
       return;
     }
 
     const sb = getSupabaseClient();
     if (!sb) {
-      setRealtimeStatus("CLOSED");
+      void Promise.resolve().then(() => setRealtimeStatus("CLOSED"));
       return;
     }
 
     let active = true;
-    setRealtimeStatus("CONNECTING");
+    void Promise.resolve().then(() => {
+      if (active) setRealtimeStatus("CONNECTING");
+    });
 
     const channel = sb
       .channel(`notifications-ui:${userId}`)

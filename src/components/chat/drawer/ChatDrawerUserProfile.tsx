@@ -27,7 +27,7 @@ export function ChatDrawerUserProfile({ partnerId, partnerName }: Props) {
 
   useEffect(() => {
     const supabase = getSupabaseClient();
-    if (!supabase || !partnerId) { setLoading(false); return; }
+    if (!supabase || !partnerId) return;
 
     supabase
       .from("public_profiles")
@@ -50,7 +50,9 @@ export function ChatDrawerUserProfile({ partnerId, partnerName }: Props) {
       });
   }, [partnerId, partnerName]);
 
-  if (loading) {
+  const isLoading = loading && Boolean(partnerId);
+
+  if (isLoading) {
     return <div className="h-32 animate-pulse rounded-2xl bg-zinc-100 dark:bg-zinc-800" />;
   }
 

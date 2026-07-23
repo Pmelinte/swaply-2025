@@ -221,14 +221,15 @@ export function useSwapActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
   );
 
   const confirmDelivery = useCallback(async (swapId: string, _side: "requester" | "responder") => {
-    if (!user?.id) return;
+    const userId = user?.id;
+    if (!userId) return;
     const swap = swaps.find((s) => s.id === swapId);
     if (!swap) return;
 
     setLastError(null);
 
     if (dataSource === "supabase") {
-      const idempotencyKey = `completion:${swapId}:${user.id}:delivery`;
+      const idempotencyKey = `completion:${swapId}:${userId}:delivery`;
       try {
         const response = await fetch(`/api/swaps/${encodeURIComponent(swapId)}/complete`, {
           method: "POST",
@@ -251,7 +252,7 @@ export function useSwapActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
 
         trackEvent("swap_delivery_confirmed", {
           swapId,
-          actorId: user.id,
+          actorId: userId,
           bothConfirmed: Boolean(result.both_confirmed),
           replayed: Boolean(result.replayed),
         });
@@ -262,8 +263,8 @@ export function useSwapActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
       }
     }
 
-    const isRequester = swap.requesterId === user.id;
-    const isResponder = swap.responderId === user.id;
+    const isRequester = swap.requesterId === userId;
+    const isResponder = swap.responderId === userId;
     if (!isRequester && !isResponder) {
       setLastError("Only swap participants may confirm completion.");
       return;
@@ -278,8 +279,8 @@ export function useSwapActions(deps: Pick<SharedDeps, "user" | "dataSource" | "s
       updated.status = "completed";
     }
     setSwaps((prev) => prev.map((entry) => entry.id === swapId ? updated : entry));
-    trackEvent("swap_delivery_confirmed", { swapId, actorId: user.id, bothConfirmed: updated.status === "completed" });
-  }, [user?.id, swaps, dataSource, mapSwapIntent, trackEvent, setLastError, setSwaps]);
+    trackEvent("swap_delivery_confirmed", { swapId, actorId: userId, bothConfirmed: updated.status === "completed" });
+  }, [user, swaps, dataSource, mapSwapIntent, trackEvent, setLastError, setSwaps]);
 
   const fileDispute = useCallback(async (
     swapId: string,

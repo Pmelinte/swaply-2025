@@ -58,19 +58,20 @@ export default function DrawerExchange({ swapId }: Props) {
 
   const handleToggle = useCallback(
     async (key: ServiceType) => {
-      if (!user?.id) return;
+      const userId = user?.id;
+      if (!userId) return;
 
       if (activeServices.includes(key)) {
-        await removeService(swapId, user.id, key);
+        await removeService(swapId, userId, key);
         setActiveServices((prev) => prev.filter((s) => s !== key));
         setBilateralActive((prev) => prev.filter((s) => s !== key));
       } else {
         const def = SERVICE_DEFS.find((s) => s.key === key);
-        await upsertService(swapId, user.id, key, {}, def?.bilateral ?? false);
+        await upsertService(swapId, userId, key, {}, def?.bilateral ?? false);
         setActiveServices((prev) => [...prev, key]);
       }
     },
-    [swapId, user?.id, activeServices],
+    [swapId, user, activeServices],
   );
 
   const groups = [

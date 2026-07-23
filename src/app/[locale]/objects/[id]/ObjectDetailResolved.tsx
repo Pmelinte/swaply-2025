@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
@@ -23,13 +23,11 @@ export default function ObjectDetailResolved({
   const queryClient = useQueryClient();
   const { items, user, loading } = useAppState();
   const t = useTranslations("objectDetail");
-  const [seededItemId, setSeededItemId] = useState<string | null>(null);
   const stateItem = items.find((candidate) => candidate.id === itemId) ?? null;
   const resolvedItem = initialItem ?? stateItem;
 
   useEffect(() => {
     queryClient.setQueryData(["item", itemId], resolvedItem);
-    setSeededItemId(itemId);
   }, [itemId, queryClient, resolvedItem]);
 
   if (!resolvedItem) {
@@ -59,7 +57,7 @@ export default function ObjectDetailResolved({
         stateItem.status !== initialItem.status ||
         stateItem.isActive !== initialItem.isActive),
   );
-  const showResolvedShell = seededItemId !== itemId || loading.items || stateIsStale;
+  const showResolvedShell = loading.items || stateIsStale;
 
   if (showResolvedShell) {
     const coverPhoto = resolvedItem.photos?.[0];

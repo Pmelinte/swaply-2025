@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { useTranslations } from "next-intl";
 
 type ConsentValue = "accepted" | "rejected" | null;
@@ -8,43 +8,32 @@ type ConsentValue = "accepted" | "rejected" | null;
 const STORAGE_KEY = "cookie_consent";
 
 export function useCookieConsent(): ConsentValue {
-  const [consent, setConsent] = useState<ConsentValue>(null);
+  return useSyncExternalStore(
+    (onStoreChange) => {
+      window.addEventListener("storage", onStoreChange);
+      return () => window.removeEventListener("storage", onStoreChange);
+    },
+    () => (localStorage.getItem(STORAGE_KEY) as ConsentValue) ?? null,
+    () => null,
+  );
+}
 
-  useEffect(() => {
-    setConsent(
-      (localStorage.getItem(STORAGE_KEY) as ConsentValue) ?? null,
-    );
-
-    const handler = () =>
-      setConsent(
-        (localStorage.getItem(STORAGE_KEY) as ConsentValue) ?? null,
-      );
-    window.addEventListener("storage", handler);
-    return () => window.removeEventListener("storage", handler);
-  }, []);
-
-  return consent;
+function useCookieConsentVisible(): boolean {
+  const consent = useCookieConsent();
+  return consent === null;
 }
 
 export function CookieConsent() {
   const t = useTranslations("cookieConsent");
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    if (!localStorage.getItem(STORAGE_KEY)) {
-      setVisible(true);
-    }
-  }, []);
+  const visible = useCookieConsentVisible();
 
   function accept() {
     localStorage.setItem(STORAGE_KEY, "accepted");
-    setVisible(false);
     window.dispatchEvent(new Event("storage"));
   }
 
   function reject() {
     localStorage.setItem(STORAGE_KEY, "rejected");
-    setVisible(false);
     window.dispatchEvent(new Event("storage"));
   }
 
