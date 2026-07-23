@@ -51,14 +51,11 @@ export function useReviews({ userId, swaps, trackEvent }: UseReviewsParams) {
   const [loadingReviews, setLoadingReviews] = useState(false);
 
   useEffect(() => {
-    if (!userId) {
-      setReviews([]);
-      setLoadingReviews(false);
-      return;
-    }
+    if (!userId) return;
 
     let cancelled = false;
-    setLoadingReviews(true);
+
+    void Promise.resolve().then(() => setLoadingReviews(true));
 
     void fetch(`/api/reviews?user_id=${encodeURIComponent(userId)}`, {
       cache: "no-store",

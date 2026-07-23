@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import Image, { type ImageProps } from "next/image";
 import { NO_IMAGE_URL } from "@/lib/storage";
 import { getItemImageUrl } from "@/lib/item-image-src";
@@ -11,13 +11,9 @@ import { getItemImageUrl } from "@/lib/item-image-src";
  */
 export const SafeImage = memo(function SafeImage({ src, alt, onError, ...props }: ImageProps) {
   const normalizedSrc = useMemo(() => getItemImageUrl(src) || NO_IMAGE_URL, [src]);
-  const [hasError, setHasError] = useState(false);
+  const [erroredSrc, setErroredSrc] = useState<string | null>(null);
 
-  useEffect(() => {
-    setHasError(false);
-  }, [normalizedSrc]);
-
-  const imgSrc = hasError ? NO_IMAGE_URL : normalizedSrc;
+  const imgSrc = erroredSrc === normalizedSrc ? NO_IMAGE_URL : normalizedSrc;
 
   return (
     <Image
@@ -25,7 +21,7 @@ export const SafeImage = memo(function SafeImage({ src, alt, onError, ...props }
       src={imgSrc}
       alt={alt}
       onError={(e) => {
-        setHasError(true);
+        setErroredSrc(normalizedSrc);
         onError?.(e);
       }}
       unoptimized={imgSrc === NO_IMAGE_URL || props.unoptimized}

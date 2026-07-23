@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocale } from "next-intl";
 
 /**
@@ -15,20 +15,24 @@ export function useTranslatedText(
   sourceLang = "ro",
 ): string {
   const locale = useLocale();
-  const [translated, setTranslated] = useState(originalText);
+  const shouldUseOriginal = !originalText.trim() || locale === sourceLang;
+  const [translatedState, setTranslatedState] = useState({
+    key: `${originalText}::${locale}::${sourceLang}`,
+    value: originalText,
+  });
   const cacheRef = useRef<Map<string, string>>(new Map());
 
   useEffect(() => {
-    if (!originalText.trim() || locale === sourceLang) {
-      setTranslated(originalText);
-      return;
-    }
+    if (shouldUseOriginal) return;
 
     // Check in-memory cache first
     const cacheKey = `${originalText}::${locale}`;
     const cached = cacheRef.current.get(cacheKey);
     if (cached) {
-      setTranslated(cached);
+      setTranslatedState({
+        key: `${originalText}::${locale}::${sourceLang}`,
+        value: cached,
+      });
       return;
     }
 
@@ -43,15 +47,22 @@ export function useTranslatedText(
       .then((data) => {
         if (!cancelled && data?.translated) {
           cacheRef.current.set(cacheKey, data.translated);
-          setTranslated(data.translated);
+          setTranslatedState({
+            key: `${originalText}::${locale}::${sourceLang}`,
+            value: data.translated,
+          });
         }
       })
       .catch(() => { /* keep original */ });
 
     return () => { cancelled = true; };
-  }, [originalText, locale, sourceLang]);
+  }, [originalText, locale, sourceLang, shouldUseOriginal]);
 
-  return translated;
+  if (shouldUseOriginal) return originalText;
+
+  return translatedState.key === `${originalText}::${locale}::${sourceLang}`
+    ? translatedState.value
+    : originalText;
 }
 
 /**

@@ -105,3 +105,11 @@
 | 100     | AI pentru vision, traducere și moderare  | REUSED      | PENDING | PASS | Utilizările AI aprobate reutilizează endpointurile image/match/chat/translate/moderate, benchmarkurile `ai-evals` și fallback-uri non-AI pentru vision, traducere și moderare. |
 | 101     | Securitate, performanță, accesibilitate și observabilitate V1 | REUSED | PENDING | PASS | Closure-ul V1 reutilizează testele `security`, `api-health`, `homeDrawerAccessibility`, `profileLanguageAccessibility`, logger-ul JSON, analytics condițional și documentele existente de security/release readiness fără audit repetitiv Public Visual/43 locale. |
 | 102     | Lansarea Swaply V1.0                    | PARTIAL     | PENDING | PASS | Release readiness este pregătită prin `docs/release-readiness.md`, `docs/security-final-audit.md`, `src/lib/release/releaseReadiness` și testul dedicat; tag/release/Production rămân `BLOCKED — requires explicit owner authorization after PR merge`. |
+
+## Prompt 102.1 — CI P0 gates remediation
+
+Remediation Batch 102.1 keeps Prompt 102 `PARTIAL` and only addresses the
+release-audit CI P0 gates: the chat message API unit mock now covers
+`can_users_chat_v1` allow/deny/error outcomes without weakening participant or
+block authority, and the React hooks/compiler lint errors were refactored
+without disabling lint rules or changing Supabase/Vercel/Production state.

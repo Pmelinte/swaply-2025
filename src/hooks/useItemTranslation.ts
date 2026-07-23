@@ -41,14 +41,19 @@ export function useItemTranslation(
 ): UseItemTranslationResult {
   const locale = useLocale();
   const canRequestTranslation = locale !== "ro" && !!itemId && isDatabaseItemId(itemId);
-  const [translation, setTranslation] = useState<ItemTranslation | null>(null);
-  const [isLoading, setIsLoading] = useState(canRequestTranslation);
+  const requestKey = `${itemId}:${locale}`;
+  const [translationState, setTranslationState] = useState<{
+    key: string;
+    translation: ItemTranslation | null;
+    isLoading: boolean;
+  }>({
+    key: requestKey,
+    translation: null,
+    isLoading: canRequestTranslation,
+  });
   const [showingOriginal, setShowingOriginal] = useState(false);
 
   useEffect(() => {
-    setTranslation(null);
-    setIsLoading(canRequestTranslation);
-
     // Don't translate Romanian, missing ids, or local/demo ids that cannot exist in the DB.
     if (!canRequestTranslation) return;
 
@@ -62,25 +67,41 @@ export function useItemTranslation(
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (!cancelled && data?.title) {
-          setTranslation({ title: data.title, description: data.description ?? "" });
+          setTranslationState({
+            key: requestKey,
+            translation: { title: data.title, description: data.description ?? "" },
+            isLoading: false,
+          });
         }
       })
       .catch(() => {
         // Silently fail — show original content
       })
       .finally(() => {
-        if (!cancelled) setIsLoading(false);
+        if (!cancelled) {
+          setTranslationState((current) =>
+            current.key === requestKey
+              ? { ...current, isLoading: false }
+              : current,
+          );
+        }
       });
 
     return () => {
       cancelled = true;
     };
-  }, [itemId, locale, canRequestTranslation]);
+  }, [itemId, locale, canRequestTranslation, requestKey]);
 
   const toggleOriginal = useCallback(() => {
     setShowingOriginal((prev) => !prev);
   }, []);
 
+  const translation =
+    translationState.key === requestKey ? translationState.translation : null;
+  const isLoading =
+    translationState.key === requestKey
+      ? translationState.isLoading
+      : canRequestTranslation;
   const isTranslated = translation !== null && locale !== "ro";
   const useTranslated = isTranslated && !showingOriginal;
 

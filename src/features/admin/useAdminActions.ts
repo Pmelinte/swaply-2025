@@ -37,7 +37,7 @@ export function useAdminActions() {
         }),
       }).catch(() => {});
     },
-    [user?.id],
+    [user],
   );
 
   const adminUserAction = useCallback(
