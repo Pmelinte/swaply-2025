@@ -21,6 +21,7 @@ import {
 } from "react";
 import { nanoid } from "nanoid";
 import { getSupabaseClient, resetSupabaseClient } from "../supabase/client";
+import { requestPasswordRecovery, updateRecoveredPassword } from "../auth/password";
 import type {
   AccountStatus,
   Achievement,
@@ -877,26 +878,21 @@ export function AppStateProvider({ children, initialLocale }: { children: ReactN
 
   const changePassword = useCallback(async (newPassword: string): Promise<{ error?: string }> => {
     setLastError(null);
-    if (newPassword.length < 6) { const error = "Parola trebuie să aibă cel puțin 6 caractere."; setLastError(error); return { error }; }
-    if (supabaseConfigured && supabase) {
-      const { error } = await supabase.auth.updateUser({ password: newPassword });
-      if (error) { setLastError(error.message); return { error: error.message }; }
-      return {};
-    }
-    return {};
+    const result = await updateRecoveredPassword(supabaseConfigured ? supabase : null, newPassword);
+    if (result.error) setLastError(result.error);
+    return result;
   }, [supabaseConfigured, supabase]);
 
   const resetPassword = useCallback(async (email: string): Promise<{ error?: string }> => {
     setLastError(null);
-    if (!email.trim()) { const error = "Introduceți adresa de email."; setLastError(error); return { error }; }
-    if (supabaseConfigured && supabase) {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${typeof window !== "undefined" ? window.location.origin : ""}/login`,
-      });
-      if (error) { setLastError(error.message); return { error: error.message }; }
-      return {};
-    }
-    return {};
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    const result = await requestPasswordRecovery(
+      supabaseConfigured ? supabase : null,
+      email,
+      `${origin}/reset-password`,
+    );
+    if (result.error) setLastError(result.error);
+    return result;
   }, [supabaseConfigured, supabase]);
 
   const deleteAccount = useCallback(async (): Promise<{ error?: string }> => {

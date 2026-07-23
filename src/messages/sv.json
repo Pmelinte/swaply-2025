@@ -4473,5 +4473,18 @@
       "submit": "Submit feedback",
       "submitted": "Feedback submitted — thank you!"
     }
+  },
+  "resetPassword": {
+    "title": "Reset password",
+    "description": "Choose a new password after opening the recovery link from your email.",
+    "newPassword": "New password",
+    "newPasswordPlaceholder": "Minimum 6 characters",
+    "confirmPassword": "Confirm password",
+    "confirmPasswordPlaceholder": "Repeat new password",
+    "submit": "Change password",
+    "saving": "Changing password…",
+    "success": "Password changed successfully.",
+    "backToLogin": "Back to login",
+    "loading": "Loading password recovery form…"
   }
 }
