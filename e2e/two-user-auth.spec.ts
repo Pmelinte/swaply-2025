@@ -7,6 +7,38 @@ import {
   userBAuthFile,
 } from "./two-user-auth.setup";
 
+type NavUiContract = {
+  logout: string;
+  profile: string;
+  settings: string;
+};
+
+type ProfileUiContract = {
+  currentEmail: string;
+};
+
+async function loadMessages(page: Page): Promise<{ nav: NavUiContract; profile: ProfileUiContract }> {
+  const locale = new URL(page.url()).pathname.split("/").filter(Boolean)[0] || "en";
+  const messages = (await import(`../src/messages/${locale}.json`)).default as {
+    nav: NavUiContract;
+    profile: ProfileUiContract;
+  };
+  return { nav: messages.nav, profile: messages.profile };
+}
+
+async function profileUrl(page: Page, tab: "profil" | "cont" = "profil") {
+  const locale = new URL(page.url()).pathname.split("/").filter(Boolean)[0] || "en";
+  return `/${locale}/profile?tab=${tab}`;
+}
+
+async function openProfileMenu(page: Page) {
+  const { nav } = await loadMessages(page);
+  const trigger = page.getByRole("button", { name: nav.profile, exact: true });
+  await expect(trigger).toBeVisible({ timeout: 20_000 });
+  await trigger.click();
+  return { nav };
+}
+
 type RequiredCredential =
   | "E2E_USER_A_EMAIL"
   | "E2E_USER_A_PASSWORD"
@@ -34,11 +66,11 @@ async function ensureReusableSession(
     await page.context().storageState({ path: authFile });
   }
 
-  await page.goto("/en/profile", { waitUntil: "domcontentloaded" });
+  await page.goto("/en/profile?tab=profil", { waitUntil: "domcontentloaded" });
   await expectAuthenticatedSession(page, label);
 
   const profileMenu = page.getByRole("button", {
-    name: "Profile & Settings",
+    name: (await loadMessages(page)).nav.profile,
     exact: true,
   });
 
@@ -95,33 +127,42 @@ test.describe("Train C two-user authenticated baseline", () => {
       ]);
 
       await Promise.all([
-        expect(pageA).toHaveURL(/\/en\/profile/),
-        expect(pageB).toHaveURL(/\/en\/profile/),
+        expect(pageA).toHaveURL(/\/[a-z-]+\/profile/),
+        expect(pageB).toHaveURL(/\/[a-z-]+\/profile/),
         expect(pageA.locator('input[type="email"]')).toHaveCount(0),
         expect(pageB.locator('input[type="email"]')).toHaveCount(0),
       ]);
 
       await Promise.all([
-        pageA
-          .getByRole("button", {
-            name: "Account & Settings",
-            exact: true,
-          })
-          .click(),
-        pageB
-          .getByRole("button", {
-            name: "Account & Settings",
-            exact: true,
-          })
-          .click(),
+        openProfileMenu(pageA),
+        openProfileMenu(pageB),
       ]);
 
+      const [{ nav: navA }, { nav: navB }] = await Promise.all([
+        loadMessages(pageA),
+        loadMessages(pageB),
+      ]);
+
+      await Promise.all([
+        expect(pageA.getByRole("menuitem", { name: navA.settings, exact: true })).toBeVisible(),
+        expect(pageB.getByRole("menuitem", { name: navB.settings, exact: true })).toBeVisible(),
+      ]);
+
+      await Promise.all([
+        pageA.goto(await profileUrl(pageA, "cont"), { waitUntil: "domcontentloaded" }),
+        pageB.goto(await profileUrl(pageB, "cont"), { waitUntil: "domcontentloaded" }),
+      ]);
+
+      const [{ profile: profileA }, { profile: profileB }] = await Promise.all([
+        loadMessages(pageA),
+        loadMessages(pageB),
+      ]);
       const currentEmailA = pageA
         .locator("p")
-        .filter({ hasText: "Current email:" });
+        .filter({ hasText: profileA.currentEmail });
       const currentEmailB = pageB
         .locator("p")
-        .filter({ hasText: "Current email:" });
+        .filter({ hasText: profileB.currentEmail });
 
       await Promise.all([
         expect(currentEmailA).toContainText(userAEmail),
@@ -181,11 +222,11 @@ test.describe("Train C two-user authenticated baseline", () => {
         "User B before logout",
       );
 
-      await page
-        .getByRole("button", { name: "Profile & Settings", exact: true })
-        .click();
+      await openProfileMenu(page);
       logoutTriggered = true;
-      await page.getByRole("menuitem", { name: "Logout", exact: true }).click();
+      await page
+        .getByRole("menuitem", { name: (await loadMessages(page)).nav.logout, exact: true })
+        .click();
 
       await expect(
         page.getByRole("link", { name: "Login", exact: true }),

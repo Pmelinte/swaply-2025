@@ -15,9 +15,34 @@ type LocationSelection = Pick<
   "city" | "countryCode" | "regionCode"
 >;
 
-const profilePath = "/en/profile";
+const profilePath = "/en/profile?tab=profil";
 const profileActionTimeout = 15_000;
 const profileRestoreTimeout = 60_000;
+
+type ProfileUiContract = {
+  addLanguage: string;
+  avatarUrl: string;
+  bio: string;
+  displayName: string;
+  localization: string;
+  profileSaved: string;
+  publicIdentity: string;
+  removeLanguage: string;
+  saveProfile: string;
+};
+
+const profileMessages = new Map<string, ProfileUiContract>();
+
+async function loadProfileUiContract(page: Page): Promise<ProfileUiContract> {
+  const locale = new URL(page.url()).pathname.split("/").filter(Boolean)[0] || "en";
+  if (profileMessages.has(locale)) return profileMessages.get(locale)!;
+
+  const messages = (await import(`../src/messages/${locale}.json`)).default as {
+    profile: ProfileUiContract;
+  };
+  profileMessages.set(locale, messages.profile);
+  return messages.profile;
+}
 
 async function hideCookieBanners(page: Page) {
   await page.addInitScript(() => {
@@ -26,30 +51,32 @@ async function hideCookieBanners(page: Page) {
   });
 }
 
-function profileControls(page: Page) {
+async function profileControls(page: Page) {
+  const labels = await loadProfileUiContract(page);
   const publicIdentitySection = page.locator("section").filter({
-    has: page.getByRole("heading", { name: "Public identity", exact: true }),
+    has: page.getByRole("heading", { name: labels.publicIdentity, exact: true }),
   });
   const locationSection = page.locator("section").filter({
-    has: page.getByRole("heading", { name: "Localization", exact: true }),
+    has: page.getByRole("heading", { name: labels.localization, exact: true }),
   });
   const locationSelects = locationSection.locator("select");
 
   return {
-    addLanguage: publicIdentitySection.getByLabel("Add language", { exact: true }),
-    avatarUrl: publicIdentitySection.getByLabel("Avatar (URL)", { exact: true }),
-    bio: publicIdentitySection.locator("textarea"),
+    addLanguage: publicIdentitySection.getByLabel(labels.addLanguage, { exact: true }),
+    avatarUrl: publicIdentitySection.getByLabel(labels.avatarUrl, { exact: true }),
+    bio: publicIdentitySection.getByLabel(labels.bio, { exact: true }),
     city: locationSelects.nth(2),
     country: locationSelects.nth(0),
-    displayName: publicIdentitySection.getByLabel("Display name", { exact: true }),
+    displayName: publicIdentitySection.getByLabel(labels.displayName, { exact: true }),
     region: locationSelects.nth(1),
-    save: page.getByRole("button", { name: "Save profile", exact: true }),
+    save: page.getByRole("button", { name: labels.saveProfile, exact: true }),
   };
 }
 
 async function languageLabels(page: Page): Promise<string[]> {
+  const labels = await loadProfileUiContract(page);
   return page
-    .getByRole("button", { name: /^Remove language / })
+    .getByRole("button", { name: new RegExp(`^${labels.removeLanguage} `) })
     .evaluateAll((buttons) =>
       buttons
         .map((button) => button.getAttribute("aria-label"))
@@ -58,7 +85,7 @@ async function languageLabels(page: Page): Promise<string[]> {
 }
 
 async function readProfile(page: Page): Promise<ProfileSnapshot> {
-  const controls = profileControls(page);
+  const controls = await profileControls(page);
 
   await expect(controls.displayName).toBeVisible();
   await expect(controls.bio).toBeVisible({ timeout: profileActionTimeout });
@@ -76,7 +103,7 @@ async function readProfile(page: Page): Promise<ProfileSnapshot> {
 }
 
 async function setLocation(page: Page, location: LocationSelection) {
-  const controls = profileControls(page);
+  const controls = await profileControls(page);
 
   await controls.country.selectOption(location.countryCode, { timeout: profileActionTimeout });
   if (!location.countryCode) return;
@@ -101,12 +128,12 @@ async function saveProfile(page: Page) {
     { timeout: profileActionTimeout },
   );
 
-  await profileControls(page).save.click({ timeout: profileActionTimeout });
+  await (await profileControls(page)).save.click({ timeout: profileActionTimeout });
   const response = await responsePromise;
   const responseBody = response.ok() ? "" : await response.text();
 
   expect(response.ok(), `Profile save failed: ${response.status()} ${responseBody}`).toBe(true);
-  await expect(page.getByText("Profile saved successfully!", { exact: true })).toBeVisible({
+  await expect(page.getByText((await loadProfileUiContract(page)).profileSaved, { exact: true })).toBeVisible({
     timeout: profileActionTimeout,
   });
 }
@@ -134,10 +161,10 @@ test.describe("Train C Batch 51 profile", () => {
 
     await hideCookieBanners(page);
     await page.goto(profilePath, { waitUntil: "domcontentloaded" });
-    await expect(page).toHaveURL(/\/en\/profile/);
+    await expect(page).toHaveURL(/\/[a-z-]+\/profile/);
 
     const original = await readProfile(page);
-    const controls = profileControls(page);
+    const controls = await profileControls(page);
     const origin = new URL(page.url()).origin;
     const primaryAvatar = `${origin}/icons/icon-512x512.png`;
     const alternateAvatar = `${origin}/logo-swaply.svg`;
@@ -194,7 +221,7 @@ test.describe("Train C Batch 51 profile", () => {
       expect(persisted.languageLabels).toContain(addedLanguageLabel);
 
       await expectAvatarLoaded(
-        page.getByRole("img", { name: "Avatar (URL)", exact: true }),
+        page.getByRole("img", { name: (await loadProfileUiContract(page)).avatarUrl, exact: true }),
         temporaryAvatar,
       );
     } catch (error) {
@@ -209,7 +236,7 @@ test.describe("Train C Batch 51 profile", () => {
       try {
         await test.step("restore the original profile", async () => {
           await page.goto(profilePath, { waitUntil: "domcontentloaded" });
-          const restoreControls = profileControls(page);
+          const restoreControls = await profileControls(page);
 
           await expect(restoreControls.displayName).toBeVisible();
           await restoreControls.displayName.fill(original.displayName, {

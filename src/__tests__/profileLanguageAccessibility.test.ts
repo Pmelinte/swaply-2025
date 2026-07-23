@@ -32,10 +32,10 @@ describe("Batch 66.9 profile language accessibility contract", () => {
     expect(profileTab).toContain('<X aria-hidden="true" focusable="false"');
   });
 
-  it("keeps the authenticated profile E2E selector aligned with localized English copy", () => {
+  it("keeps the authenticated profile E2E selector aligned with the active locale copy", () => {
     const profileE2e = source("e2e/profile.spec.ts");
 
-    expect(profileE2e).toContain('page.getByRole("img", { name: "Avatar (URL)", exact: true })');
+    expect(profileE2e).toContain('page.getByRole("img", { name: (await loadProfileUiContract(page)).avatarUrl, exact: true })');
     expect(profileE2e).not.toContain('page.getByRole("img", { name: "Avatar", exact: true })');
   });
 });
