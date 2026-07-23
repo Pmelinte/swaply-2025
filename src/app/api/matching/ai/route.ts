@@ -8,7 +8,6 @@ import {
 
 type RequestBody = {
   myItemId?: string;
-  userId?: string;
   excludeIds?: string[];
 };
 
@@ -97,8 +96,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "invalid body" }, { status: 400 });
   }
 
-  const { myItemId, userId, excludeIds = [] } = body;
-  if (!myItemId || !userId) {
+  const { myItemId, excludeIds = [] } = body;
+  if (!myItemId) {
     return NextResponse.json({ error: "missing parameters" }, { status: 400 });
   }
 
@@ -108,7 +107,7 @@ export async function POST(req: Request) {
   }
 
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user || user.id !== userId) {
+  if (!user) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
@@ -117,7 +116,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "item not found" }, { status: 404 });
   }
 
-  const allCandidates = await fetchCandidateItems(supabase, userId, 100);
+  if (myItem.owner_id !== user.id) {
+    return NextResponse.json({ error: "item not found" }, { status: 404 });
+  }
+
+  const allCandidates = await fetchCandidateItems(supabase, user.id, 100);
   const excludeSet = new Set(excludeIds);
   const candidates = allCandidates.filter((c) => !excludeSet.has(c.id)).slice(0, 50);
 
@@ -131,7 +134,14 @@ export async function POST(req: Request) {
     const parsed = raw ? parseJsonish(raw) : null;
 
     if (!parsed || parsed.length === 0) {
-      return NextResponse.json({ error: "AI unavailable" }, { status: 502 });
+      return NextResponse.json({
+        suggestions: candidates.slice(0, 2).map((item, index) => ({
+          item,
+          score: Math.max(50, 72 - index * 6),
+          reasoning: "Fallback deterministic: potrivire bazată pe categorie, disponibilitate și date publice.",
+          source: "deterministic_fallback",
+        })),
+      });
     }
 
     const candidateById = new Map(candidates.map((c) => [c.id, c] as const));

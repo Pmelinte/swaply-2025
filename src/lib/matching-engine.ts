@@ -10,6 +10,9 @@ export interface MatchingWeights {
   media: number;
   value: number;
   freshness: number;
+  availability: number;
+  transferability: number;
+  domain: number;
 }
 
 export interface MatchingOptions {
@@ -33,8 +36,11 @@ const DEFAULT_WEIGHTS: MatchingWeights = {
   intent: 0.1,
   flexibility: 0.08,
   media: 0.08,
-  value: 0.07,
+  value: 0.04,
   freshness: 0.05,
+  availability: 0.08,
+  transferability: 0.05,
+  domain: 0.07,
 };
 
 const CONDITION_SCORE: Record<Item["condition"], number> = {
@@ -120,6 +126,59 @@ function scoreValue(offered: Item, requested: Item): number {
   return 0.6;
 }
 
+function getItemDomain(item: Item): string {
+  if (item.listingType) return normalize(item.listingType);
+  if (item.experienceData) return "event";
+  if (item.serviceProfile) return "service";
+  if (item.houseProfile) return "property";
+  return "object";
+}
+
+function scoreDomain(offered: Item, requested: Item): number {
+  const offeredDomain = getItemDomain(offered);
+  const requestedDomain = getItemDomain(requested);
+  if (offeredDomain === requestedDomain) return 1;
+  const allowed = normalize(requested.wishlist);
+  if (allowed && allowed.includes(offeredDomain)) return 0.85;
+  return 0.7;
+}
+
+function scoreAvailability(offered: Item, requested: Item): number {
+  const offeredService = offered.serviceProfile;
+  const requestedService = requested.serviceProfile;
+  if (offeredService || requestedService) {
+    if (offeredService?.delivery === requestedService?.delivery) return 1;
+    if (
+      offeredService?.delivery === "hybrid" ||
+      requestedService?.delivery === "hybrid"
+    ) return 0.9;
+    return 0.65;
+  }
+
+  const offeredEventDate = offered.experienceData?.eventDate;
+  const requestedEventDate = requested.experienceData?.eventDate;
+  if (offeredEventDate || requestedEventDate) {
+    if (!offeredEventDate || !requestedEventDate) return 0.65;
+    const diffDays =
+      Math.abs(Date.parse(offeredEventDate) - Date.parse(requestedEventDate)) /
+      86_400_000;
+    if (!Number.isFinite(diffDays)) return 0.55;
+    if (diffDays <= 1) return 1;
+    if (diffDays <= 14) return 0.85;
+    return 0.55;
+  }
+
+  return 0.7;
+}
+
+function scoreTransferability(offered: Item, requested: Item): number {
+  const offeredTransferable = offered.experienceData?.transferable;
+  const requestedTransferable = requested.experienceData?.transferable;
+  if (offeredTransferable === false || requestedTransferable === false) return 0.25;
+  if (offeredTransferable === true || requestedTransferable === true) return 1;
+  return 0.7;
+}
+
 function scoreFreshness(item: Item, now: Date): number {
   const createdAt = Date.parse(item.createdAt);
   if (Number.isNaN(createdAt)) return 0.5;
@@ -185,6 +244,9 @@ export function scoreItemPair(
     buildFactor("media", scoreMedia(offered), weights, "Media completeness"),
     buildFactor("value", scoreValue(offered, requested), weights, "Perceived value"),
     buildFactor("freshness", scoreFreshness(offered, now), weights, "Listing freshness"),
+    buildFactor("availability", scoreAvailability(offered, requested), weights, "Availability fit"),
+    buildFactor("transferability", scoreTransferability(offered, requested), weights, "Transferability"),
+    buildFactor("domain", scoreDomain(offered, requested), weights, "Domain compatibility"),
   ];
 
   const total = Math.round(factors.reduce((sum, factor) => sum + factor.weighted, 0));
@@ -247,4 +309,7 @@ export const MATCHING_ENGINE_FACTORS = [
   { key: "media", label: "Media completeness", weight: DEFAULT_WEIGHTS.media },
   { key: "value", label: "Perceived value", weight: DEFAULT_WEIGHTS.value },
   { key: "freshness", label: "Listing freshness", weight: DEFAULT_WEIGHTS.freshness },
+  { key: "availability", label: "Availability fit", weight: DEFAULT_WEIGHTS.availability },
+  { key: "transferability", label: "Transferability", weight: DEFAULT_WEIGHTS.transferability },
+  { key: "domain", label: "Domain compatibility", weight: DEFAULT_WEIGHTS.domain },
 ] as const;

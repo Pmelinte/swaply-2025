@@ -100,7 +100,6 @@ describe("Guest auth: /api/matching/ai", () => {
     const res = await POST(
       jsonRequest("http://localhost/api/matching/ai", {
         myItemId: "item-uuid",
-        userId: "user-uuid",
       }),
     );
     expect(res.status).toBe(401);

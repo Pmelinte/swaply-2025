@@ -82,7 +82,7 @@ export type ItemConditionImpact = "affects_value" | "affects_usage" | "affects_d
 export type ItemClarity = "exploring" | "have_idea" | "know_exactly";
 export type ItemContext = "permanent" | "vacation" | "temporary" | "urgent";
 
-export type ListingType = "object" | "property" | "service";
+export type ListingType = "object" | "property" | "service" | "event";
 
 export interface Item {
   id: string;
