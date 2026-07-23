@@ -314,9 +314,6 @@ export function ChatPage({ conversationId }: Props) {
       }
 
       if (!user) return;
-      const supabase = getSupabaseClient();
-      if (!supabase) return;
-
       const messageType = media?.type ?? "text";
 
       const optimistic: RealtimeMessage & { content: string } = {
@@ -332,28 +329,30 @@ export function ChatPage({ conversationId }: Props) {
       };
       setMessages((prev) => [...prev, optimistic]);
 
-      const { data, error } = await supabase
-        .from("messages")
-        .insert({
-          conversation_id: conversationId,
-          struct_conv_id: conversationId,
-          sender_id: user.id,
+      const res = await fetch("/api/chat/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          conversationId,
           content: text,
-          message_type: messageType,
-          media_url: media?.previewUrl ?? null,
-        })
-        .select("*")
-        .maybeSingle();
+          messageType,
+          mediaUrl: media?.previewUrl ?? null,
+        }),
+      });
 
-      if (error) {
+      if (!res.ok) {
         setMessages((prev) => prev.filter((m) => m.id !== optimistic.id));
         return;
       }
 
-      if (data) {
+      const { message } = (await res.json()) as {
+        message?: RealtimeMessage & { content?: string };
+      };
+
+      if (message) {
         setMessages((prev) =>
           prev.map((m) =>
-            m.id === optimistic.id ? { ...data, content: data.content ?? "" } : m,
+            m.id === optimistic.id ? { ...message, content: message.content ?? "" } : m,
           ),
         );
       }
