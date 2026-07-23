@@ -11,6 +11,7 @@ type EventRow = { id: string; title: string | null; description: string | null; 
 function text(value: unknown, fallback = "—") { return typeof value === "string" && value.trim() ? value : fallback; }
 function bool(value: unknown) { return value ? "Yes" : "No"; }
 function Info({ label, value }: { label: string; value: string }) { return <div className="rounded-xl border border-zinc-200 p-3 text-sm dark:border-zinc-800"><p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">{label}</p><p className="mt-1 text-zinc-900 dark:text-zinc-100">{value}</p></div>; }
+function approximateLocation(data: Record<string, unknown>) { return data.is_online ? "Online" : [data.city, data.region, data.country].filter(Boolean).join(", ") || "Approximate area shared after match"; }
 
 export default function EventDetailPage() {
   const params = useParams<{ id: string }>();
@@ -40,7 +41,7 @@ export default function EventDetailPage() {
       <p className="mt-3 whitespace-pre-line text-sm text-zinc-600 dark:text-zinc-300">{event.description}</p>
       <div className="mt-5 grid gap-3 sm:grid-cols-2">
         <Info label="Date" value={`${text(data.start_date)} ${text(data.start_time, "")}`.trim()} />
-        <Info label="Location" value={data.is_online ? "Online" : [data.venue_name, data.city, data.country].filter(Boolean).join(", ") || "To be coordinated"} />
+        <Info label="Approximate location" value={approximateLocation(data)} />
         <Info label="Capacity" value={`${data.capacity_available ?? "—"}/${data.capacity_total ?? "—"} places`} />
         <Info label="Transferable" value={bool(data.is_transferable)} />
         <Info label="Booking deadline" value={text(data.booking_deadline_date, "Coordinate before exchange")} />
@@ -48,6 +49,14 @@ export default function EventDetailPage() {
         <Info label="Optional package" value={[data.includes_transport && "transport", data.includes_accommodation && "accommodation", data.includes_meals && "meals", data.includes_equipment && "equipment"].filter(Boolean).join(", ") || "No required paid package"} />
         <Info label="Wants in return" value={event.swap_wants_description ?? "Open to fair swaps"} />
       </div>
+    </section>
+    <section className="grid gap-3 sm:grid-cols-2">
+      <Link href={user ? `/${locale}/matching?target=${event.id}` : `/${locale}/register?returnTo=/events/${event.id}`} className="rounded-2xl bg-amber-500 px-5 py-4 text-center text-sm font-bold text-white shadow-sm hover:bg-amber-600">
+        Propose ticket or reservation swap
+      </Link>
+      <Link href={user ? `/${locale}/exchange` : `/${locale}/register?returnTo=/events/${event.id}`} className="rounded-2xl border border-zinc-200 px-5 py-4 text-center text-sm font-semibold text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-800">
+        Continue in chat and exchange after match
+      </Link>
     </section>
   </main>;
 }

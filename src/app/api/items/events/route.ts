@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { filterEventListings } from "@/lib/events/eventListings";
 import { getServerSupabase } from "@/lib/supabase/server";
 import type { EventFormData } from "@/lib/wizard/eventWizardStore";
 import { normalizeEventWizardItemInsert } from "@/lib/wizard/eventWizardNormalize";
@@ -10,6 +11,21 @@ function validateEventForm(form: EventFormData) {
   eventStep3Schema.parse(form);
   eventStep4Schema.parse(form);
   eventStep5Schema.parse(form);
+}
+
+export async function GET() {
+  const supabase = await getServerSupabase();
+  if (!supabase) return NextResponse.json({ error: "Supabase not configured" }, { status: 503 });
+
+  const { data, error } = await supabase
+    .from("events_listings")
+    .select("*, items(title, image_url, images, description)")
+    .eq("status", "active")
+    .order("start_date", { ascending: true, nullsFirst: false })
+    .limit(500);
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json({ events: filterEventListings(data ?? [], { sort: "soonest" }) });
 }
 
 export async function POST(request: Request) {
