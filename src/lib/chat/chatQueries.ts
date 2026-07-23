@@ -1,4 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import {
+  canParticipantsChat,
+  createChatMessageNotification,
+} from "@/lib/chat/chatDelivery";
 import { moderateText } from "@/lib/moderation/moderationEngine";
 
 export const MATCH_CONVERSATION_STAGES = [
@@ -382,6 +386,13 @@ export async function sendConversationMessage(
     return null;
   }
 
+  const canChat = await canParticipantsChat(
+    supabase,
+    input.senderId,
+    recipientId,
+  );
+  if (!canChat) return null;
+
   const { data, error } = await supabase
     .from("messages")
     .insert({
@@ -415,41 +426,31 @@ export async function sendConversationMessage(
     .update({ updated_at: new Date().toISOString() })
     .eq("id", input.conversation.id);
 
-  if (!isMatchConversation && input.conversation.swap_id && moderation) {
+  await createChatMessageNotification(supabase, {
+    recipientId,
+    senderId: input.senderId,
+    conversationId: input.conversation.id,
+    swapId: input.conversation.swap_id,
+    matchId: input.conversation.match_id,
+    messageId: (data as MessageRow).id,
+    preview: content,
+    flagged: (moderation?.risk_score ?? 0) >= 30,
+  });
+
+  if (!isMatchConversation && moderation && moderation.risk_score >= 50) {
     await supabase.from("notifications").insert({
-      user_id: recipientId,
-      type: moderation.risk_score >= 30 ? "message_flagged" : "message",
-      title:
-        moderation.risk_score >= 30
-          ? "Potentially risky message"
-          : "New Swaply message",
-      body: content.slice(0, 140),
+      user_id: input.senderId,
+      type: "trust_warning",
+      title: "Message flagged by safety systems",
+      body: "Your recent message triggered Swaply safety checks.",
       data: {
         conversation_id: input.conversation.id,
-        swap_id: input.conversation.swap_id,
-        message_id: data.id,
         moderation,
       },
       read: false,
       is_read: false,
-      priority: moderation.risk_score >= 50 ? "high" : "normal",
+      priority: "high",
     });
-
-    if (moderation.risk_score >= 50) {
-      await supabase.from("notifications").insert({
-        user_id: input.senderId,
-        type: "trust_warning",
-        title: "Message flagged by safety systems",
-        body: "Your recent message triggered Swaply safety checks.",
-        data: {
-          conversation_id: input.conversation.id,
-          moderation,
-        },
-        read: false,
-        is_read: false,
-        priority: "high",
-      });
-    }
   }
 
   return data as MessageRow;

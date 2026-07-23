@@ -73,3 +73,8 @@
 | 68      | Traducerea mesajelor                    | REUSED      | PENDING | PASS | Traducerea la cerere/automată și afișarea originalului refolosesc adapterele existente și fallback-ul non-AI deja testat. |
 | 69      | Agenda și checklist-ul schimbului       | REUSED      | PENDING | PASS | Checklist-ul/agenda și legătura către Exchange refolosesc state-ul existent și RPC-urile de handoff/agreement participant-only. |
 | 70      | Moderarea mesajelor                     | IMPLEMENTED | PENDING | PASS | Mesajele sunt validate server-side cu rate limit în memorie, limită de lungime și fallback deterministic de moderare înainte de insert. |
+| 71      | Blocarea unui utilizator în chat        | IMPLEMENTED | PENDING | PASS | Chat delivery verifică server-side blocarea reciprocă prin RPC participant-only înainte de insert și refuză conversațiile blocate. |
+| 72      | Notificări pentru chat                   | IMPLEMENTED | PENDING | PASS | Trimiterea mesajelor creează notificări unread cu preferințe chat in-app/email/push și dedupe pe mesaj. |
+| 73      | Crearea canonică a Exchange              | IMPLEMENTED | PENDING | PASS | Conversia match-to-swap validează participantul înainte de replay idempotent și leagă conversația de match-ul canonic. |
+| 74      | Acord bilateral                          | REUSED      | PENDING | PASS | RPC-ul existent update_match_conversation_agreement rămâne autoritatea bilaterală cu revision check și confirmări strict pentru participanții match-ului acceptat. |
+| 75      | Logistică pentru predare locală          | IMPLEMENTED | PENDING | PASS | Endpointul de logistică acceptă doar zonă aproximativă/data și confirmări participant-only, fără coordonate sau adresă exactă. |

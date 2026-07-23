@@ -29,8 +29,11 @@ export type ExchangeLogisticsState = {
   method: ExchangeMethod;
   status: ExchangeStatus;
   meetup_location?: {
-    lat: number;
-    lng: number;
+    area_label: string;
+    city?: string;
+    country?: string;
+    exact_location_confirmed_by?: string[];
+    scheduled_at?: string | null;
     label?: string;
   } | null;
   courier?: {

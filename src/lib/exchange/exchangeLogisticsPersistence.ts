@@ -6,6 +6,7 @@ import {
   type ExchangeMethod,
   type ExchangeStatus,
 } from "@/lib/exchange/exchangeLogistics";
+import { isExactLocationPayload } from "@/lib/chat/chatDelivery";
 
 type SwapLogisticsRow = {
   id: string;
@@ -160,6 +161,74 @@ export async function updateExchangeStatus(
       priority: "normal",
     },
   ]);
+
+  return next;
+}
+
+export async function setLocalHandoverPlan(
+  supabase: SupabaseClient,
+  input: {
+    swapId: string;
+    actorId: string;
+    areaLabel: string;
+    scheduledAt?: string | null;
+    city?: string;
+    country?: string;
+  },
+): Promise<ExchangeLogisticsState | null> {
+  if (isExactLocationPayload(input)) return null;
+  const areaLabel = input.areaLabel.trim().slice(0, 160);
+  if (!areaLabel) return null;
+
+  const { data, error } = await supabase
+    .from("swaps")
+    .select("id, requester_id, responder_id, swap_metadata")
+    .eq("id", input.swapId)
+    .maybeSingle();
+
+  if (error || !data) {
+    console.error("setLocalHandoverPlan lookup failed", error);
+    return null;
+  }
+
+  const row = data as SwapLogisticsRow;
+  if (input.actorId !== row.requester_id && input.actorId !== row.responder_id) return null;
+
+  const existing = getLogistics(row.swap_metadata) ?? createInitialExchangeState(input.swapId, "local_meetup");
+  const confirmedBy = new Set(existing.meetup_location?.exact_location_confirmed_by ?? []);
+  confirmedBy.add(input.actorId);
+  const next = appendExchangeEvent(
+    {
+      ...existing,
+      method: "local_meetup",
+      meetup_location: {
+        area_label: areaLabel,
+        city: input.city?.trim().slice(0, 80) || undefined,
+        country: input.country?.trim().slice(0, 80) || undefined,
+        scheduled_at: input.scheduledAt ?? null,
+        exact_location_confirmed_by: Array.from(confirmedBy),
+      },
+    },
+    {
+      type: "meeting_scheduled",
+      title: "Local handover plan updated",
+      description: areaLabel,
+      actor_id: input.actorId,
+    },
+  );
+
+  const { error: updateError } = await supabase
+    .from("swaps")
+    .update({
+      swap_metadata: { ...(row.swap_metadata ?? {}), exchange_logistics: next },
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", input.swapId);
+
+  if (updateError) {
+    console.error("setLocalHandoverPlan update failed", updateError);
+    return null;
+  }
 
   return next;
 }
