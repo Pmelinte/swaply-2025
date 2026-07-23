@@ -8,6 +8,7 @@ export type ExpressedInterestRow = {
   to_user_id: string;
   to_item_id: string;
   match_score: number | null;
+  status?: string | null;
 };
 
 export type ReceivedInterestRow = {
@@ -78,31 +79,6 @@ export async function fetchReceivedInterests(
   return (data ?? []) as ReceivedInterestRow[];
 }
 
-async function persistMatchingSession(
-  supabase: SupabaseClient,
-  userId: string,
-  sourceItemId: string,
-): Promise<string | null> {
-  const { data, error } = await supabase
-    .from("matching_sessions")
-    .upsert(
-      {
-        user_id: userId,
-        slot_1_item_id: sourceItemId,
-      },
-      { onConflict: "user_id" },
-    )
-    .select("id")
-    .single();
-
-  if (error) {
-    console.error("persistMatchingSession failed", error);
-    return null;
-  }
-
-  return (data as { id: string }).id;
-}
-
 export async function persistExpressedInterest(
   supabase: SupabaseClient,
   input: PersistInterestInput,
@@ -117,47 +93,13 @@ export async function persistExpressedInterest(
     return null;
   }
 
-  const matchingSessionId = await persistMatchingSession(
-    supabase,
-    input.userId,
-    input.sourceItem.id,
-  );
-
-  if (!matchingSessionId) return null;
-
-  const { data: existing, error: existingError } = await supabase
-    .from("matching_interests")
-    .select("id, to_user_id, to_item_id, match_score")
-    .eq("from_user_id", input.userId)
-    .eq("to_user_id", input.candidate.item.owner_id)
-    .eq("from_item_id", input.sourceItem.id)
-    .eq("to_item_id", input.candidate.item.id)
-    .eq("status", "pending")
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  if (existingError) {
-    console.error("persistExpressedInterest lookup failed", existingError);
-    return null;
-  }
-
-  if (existing) {
-    return existing as ExpressedInterestRow;
-  }
-
   const { data, error } = await supabase
-    .from("matching_interests")
-    .insert({
-      from_user_id: input.userId,
-      to_user_id: input.candidate.item.owner_id,
-      from_item_id: input.sourceItem.id,
-      to_item_id: input.candidate.item.id,
-      match_score: input.candidate.score,
-      source: input.source ?? "browsing",
-      status: "pending",
+    .rpc("express_matching_interest", {
+      p_from_item_id: input.sourceItem.id,
+      p_to_item_id: input.candidate.item.id,
+      p_match_score: input.candidate.score,
+      p_source: input.source ?? "browsing",
     })
-    .select("id, to_user_id, to_item_id, match_score")
     .single();
 
   if (error) {

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -237,6 +238,7 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
           geoScore: 0,
           trustScore: 0,
           activityScore: 0,
+          availabilityScore: 0,
           total: 0,
         },
       }));
@@ -384,6 +386,7 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
                   geoScore: 0,
                   trustScore: 0,
                   activityScore: 0,
+                  availabilityScore: 0,
                   total: score,
                 },
               });
