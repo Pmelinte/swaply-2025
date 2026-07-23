@@ -7,11 +7,19 @@ import { useAppState } from "@/lib/state";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { ExchangeSummary } from "./ExchangeSummary";
 import { ExchangeServices } from "./ExchangeServices";
+import { ExchangeLogisticsPanel } from "./ExchangeLogisticsPanel";
 import { ExchangePDFGenerator } from "./ExchangePDFGenerator";
 import { ExchangeConfirmation } from "./ExchangeConfirmation";
 import { ExchangeDrawer } from "./ExchangeDrawer";
-import { upsertService, removeService, SERVICE_DEFS } from "@/lib/exchange/exchangeServices";
-import type { ServiceType, SupportService } from "@/lib/exchange/exchangeServices";
+import {
+  upsertService,
+  removeService,
+  SERVICE_DEFS,
+} from "@/lib/exchange/exchangeServices";
+import type {
+  ServiceType,
+  SupportService,
+} from "@/lib/exchange/exchangeServices";
 import type { ExchangeSwap } from "@/lib/exchange/exchangeQuery";
 import type { SwapSummary } from "@/lib/chat/chatSummary";
 
@@ -27,7 +35,12 @@ const DEMO_SUMMARY: SwapSummary = {
   agreedItems: ["exchange_mode", "location", "escrow"],
   pendingItems: [],
   services: { escrow: true, insurance: false },
-  logistics: { exchangeMode: true, location: true, inPerson: false, deliveryAddresses: true },
+  logistics: {
+    exchangeMode: true,
+    location: true,
+    inPerson: false,
+    deliveryAddresses: true,
+  },
   approvedBy: [],
 };
 
@@ -53,7 +66,9 @@ export function ExchangePage({ swapId }: Props) {
   const [swap, setSwap] = useState<ExchangeSwap | null>(null);
   const [summary, setSummary] = useState<SwapSummary | null>(null);
   const [myServices, setMyServices] = useState<SupportService[]>([]);
-  const [partnerServiceTypes, setPartnerServiceTypes] = useState<Set<ServiceType>>(new Set());
+  const [partnerServiceTypes, setPartnerServiceTypes] = useState<
+    Set<ServiceType>
+  >(new Set());
   const [loading, setLoading] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -76,7 +91,10 @@ export function ExchangePage({ swapId }: Props) {
         if (swapError) {
           console.error("[exchange] swap lookup failed:", swapError);
         }
-        if (!swapRow) { setLoading(false); return; }
+        if (!swapRow) {
+          setLoading(false);
+          return;
+        }
 
         const row = swapRow as Record<string, unknown>;
         const requesterId = String(row.requester_id ?? "");
@@ -91,7 +109,10 @@ export function ExchangePage({ swapId }: Props) {
         }
 
         const byId = Object.fromEntries(
-          (profiles ?? []).map((p: Record<string, unknown>) => [p.user_id as string, p]),
+          (profiles ?? []).map((p: Record<string, unknown>) => [
+            p.user_id as string,
+            p,
+          ]),
         );
 
         let swapSummary: SwapSummary | null = null;
@@ -120,8 +141,12 @@ export function ExchangePage({ swapId }: Props) {
           completedAt: (row.completed_at as string) ?? null,
           conversationId: (row.conversation_id as string) ?? null,
           summary: swapSummary,
-          requesterName: (byId[requesterId]?.display_name as string) ?? requesterId.slice(0, 8),
-          responderName: (byId[responderId]?.display_name as string) ?? responderId.slice(0, 8),
+          requesterName:
+            (byId[requesterId]?.display_name as string) ??
+            requesterId.slice(0, 8),
+          responderName:
+            (byId[responderId]?.display_name as string) ??
+            responderId.slice(0, 8),
         });
 
         // Load services for both participants (needed for bilateral matching)
@@ -140,7 +165,7 @@ export function ExchangePage({ swapId }: Props) {
             swapId: String(s.swap_id ?? ""),
             userId,
             serviceType: s.service_type as ServiceType,
-            isBilateral: !!(s.is_bilateral),
+            isBilateral: !!s.is_bilateral,
             provider: (s.provider as string) ?? null,
             details: (s.details as Record<string, unknown>) ?? {},
             costEur: (s.cost_eur as number) ?? null,
@@ -173,7 +198,10 @@ export function ExchangePage({ swapId }: Props) {
     const out: ServiceType[] = [];
     for (const def of SERVICE_DEFS) {
       if (!def.bilateral) continue;
-      if (activeServices.includes(def.key) && partnerServiceTypes.has(def.key)) {
+      if (
+        activeServices.includes(def.key) &&
+        partnerServiceTypes.has(def.key)
+      ) {
         out.push(def.key);
       }
     }
@@ -191,40 +219,60 @@ export function ExchangePage({ swapId }: Props) {
   ];
 
   // ── Save service details ──
-  const handleSave = useCallback(async (
-    type: ServiceType,
-    details: Record<string, unknown>,
-    cost?: number,
-  ) => {
-    if (!user) return;
-    const isBilateral = SERVICE_DEFS.find((s) => s.key === type)?.bilateral ?? false;
-    const result = await upsertService(swapId, user.id, type, details, isBilateral, cost);
-    if (result) {
-      setMyServices((prev) => {
-        const idx = prev.findIndex((s) => s.serviceType === type);
-        if (idx >= 0) {
-          const next = [...prev];
-          next[idx] = result;
-          return next;
-        }
-        return [...prev, result];
-      });
-    }
-  }, [user, swapId]);
+  const handleSave = useCallback(
+    async (
+      type: ServiceType,
+      details: Record<string, unknown>,
+      cost?: number,
+    ) => {
+      if (!user) return;
+      const isBilateral =
+        SERVICE_DEFS.find((s) => s.key === type)?.bilateral ?? false;
+      const result = await upsertService(
+        swapId,
+        user.id,
+        type,
+        details,
+        isBilateral,
+        cost,
+      );
+      if (result) {
+        setMyServices((prev) => {
+          const idx = prev.findIndex((s) => s.serviceType === type);
+          if (idx >= 0) {
+            const next = [...prev];
+            next[idx] = result;
+            return next;
+          }
+          return [...prev, result];
+        });
+      }
+    },
+    [user, swapId],
+  );
 
   // ── Toggle service from drawer ──
-  const handleToggleService = useCallback(async (type: ServiceType) => {
-    if (!user) return;
-    const alreadyActive = activeServices.includes(type);
-    if (alreadyActive) {
-      await removeService(swapId, user.id, type);
-      setMyServices((prev) => prev.filter((s) => s.serviceType !== type));
-    } else {
-      const def = SERVICE_DEFS.find((s) => s.key === type);
-      const result = await upsertService(swapId, user.id, type, {}, def?.bilateral ?? false);
-      if (result) setMyServices((prev) => [...prev, result]);
-    }
-  }, [user, swapId, activeServices]);
+  const handleToggleService = useCallback(
+    async (type: ServiceType) => {
+      if (!user) return;
+      const alreadyActive = activeServices.includes(type);
+      if (alreadyActive) {
+        await removeService(swapId, user.id, type);
+        setMyServices((prev) => prev.filter((s) => s.serviceType !== type));
+      } else {
+        const def = SERVICE_DEFS.find((s) => s.key === type);
+        const result = await upsertService(
+          swapId,
+          user.id,
+          type,
+          {},
+          def?.bilateral ?? false,
+        );
+        if (result) setMyServices((prev) => [...prev, result]);
+      }
+    },
+    [user, swapId, activeServices],
+  );
 
   // ── Unauthenticated: demo view (no redirects, no side-effects) ──
   if (!user) {
@@ -236,7 +284,11 @@ export function ExchangePage({ swapId }: Props) {
         <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
           🔄 {t("pageTitle")}
         </h1>
-        <ExchangeSummary swap={DEMO_SWAP} summary={DEMO_SUMMARY} myRole="requester" />
+        <ExchangeSummary
+          swap={DEMO_SWAP}
+          summary={DEMO_SUMMARY}
+          myRole="requester"
+        />
         <ExchangeServices
           swapId={swapId}
           activeServices={["escrow"] as ServiceType[]}
@@ -247,7 +299,9 @@ export function ExchangePage({ swapId }: Props) {
   }
 
   if (loading) {
-    return <div className="p-8 text-center text-zinc-400">{t("loadingSwap")}</div>;
+    return (
+      <div className="p-8 text-center text-zinc-400">{t("loadingSwap")}</div>
+    );
   }
 
   if (!swap) {
@@ -255,11 +309,17 @@ export function ExchangePage({ swapId }: Props) {
   }
 
   if (swap.requesterId !== user.id && swap.responderId !== user.id) {
-    return <div className="p-8 text-center text-zinc-400">{t("notParticipant")}</div>;
+    return (
+      <div className="p-8 text-center text-zinc-400">{t("notParticipant")}</div>
+    );
   }
 
-  const myRole: "requester" | "responder" = swap.requesterId === user.id ? "requester" : "responder";
-  const partnerName = myRole === "requester" ? (swap.responderName ?? "") : (swap.requesterName ?? "");
+  const myRole: "requester" | "responder" =
+    swap.requesterId === user.id ? "requester" : "responder";
+  const partnerName =
+    myRole === "requester"
+      ? (swap.responderName ?? "")
+      : (swap.requesterName ?? "");
 
   return (
     <div className="mx-auto flex max-w-5xl gap-6 px-4 py-6">
@@ -281,13 +341,18 @@ export function ExchangePage({ swapId }: Props) {
 
         <ExchangeSummary swap={swap} summary={summary} myRole={myRole} />
 
+        <ExchangeLogisticsPanel swapId={swapId} />
+
         <ExchangeServices
           swapId={swapId}
           activeServices={shownServices}
           onSave={handleSave}
         />
 
-        <ExchangePDFGenerator swapId={swapId} initialPdfUrl={swap.pdfUrl ?? null} />
+        <ExchangePDFGenerator
+          swapId={swapId}
+          initialPdfUrl={swap.pdfUrl ?? null}
+        />
 
         <ExchangeConfirmation
           swapId={swapId}

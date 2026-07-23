@@ -39,7 +39,27 @@ export type ExchangeLogisticsState = {
   courier?: {
     provider?: string;
     tracking_code?: string;
+    packaging?: string;
+    package_notes?: string;
     estimated_delivery?: string;
+  } | null;
+  property?: {
+    check_in?: string;
+    check_out?: string;
+    rules?: string;
+    confirmed_by?: string[];
+  } | null;
+  service?: {
+    deliverables?: string;
+    deadline?: string;
+    session_url?: string;
+    confirmed_by?: string[];
+  } | null;
+  event?: {
+    transfer_deadline?: string;
+    proof_label?: string;
+    transfer_notes?: string;
+    confirmed_by?: string[];
   } | null;
   vacation?: {
     city?: string;
@@ -78,6 +98,9 @@ export function createInitialExchangeState(
     status: "planning",
     meetup_location: null,
     courier: null,
+    property: null,
+    service: null,
+    event: null,
     vacation: null,
     timeline: [
       {

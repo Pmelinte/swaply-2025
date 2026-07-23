@@ -78,3 +78,8 @@
 | 73      | Crearea canonică a Exchange              | IMPLEMENTED | PENDING | PASS | Conversia match-to-swap validează participantul înainte de replay idempotent și leagă conversația de match-ul canonic. |
 | 74      | Acord bilateral                          | REUSED      | PENDING | PASS | RPC-ul existent update_match_conversation_agreement rămâne autoritatea bilaterală cu revision check și confirmări strict pentru participanții match-ului acceptat. |
 | 75      | Logistică pentru predare locală          | IMPLEMENTED | PENDING | PASS | Endpointul de logistică acceptă doar zonă aproximativă/data și confirmări participant-only, fără coordonate sau adresă exactă. |
+| 76      | Logistică pentru curier                  | IMPLEMENTED | PENDING | PASS | Exchange Logistics persistă provider/tracking manual/ambalare/ETA în swap_metadata, participant-only, fără integrare plătită obligatorie. |
+| 77      | Logistică pentru proprietăți             | IMPLEMENTED | PENDING | PASS | Exchange Logistics persistă check-in/check-out/reguli/confirmări pentru proprietăți cu actor derivat server-side. |
+| 78      | Logistică pentru servicii                | IMPLEMENTED | PENDING | PASS | Exchange Logistics persistă livrabile/termen/sesiune opțională pentru servicii, participant-only. |
+| 79      | Logistică pentru evenimente              | IMPLEMENTED | PENDING | PASS | Exchange Logistics persistă deadline transfer/dovadă/note pentru evenimente, participant-only. |
+| 80      | Finalizare bilaterală                    | REUSED      | PENDING | PASS | Finalizarea bilaterală reutilizează RPC-ul canonic confirm_swap_completion_v1 cu idempotency key și efecte doar după confirmarea ambilor participanți. |
