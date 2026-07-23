@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { scoreItemPair } from "@/lib/matching-engine";
 import type { Item } from "@/lib/types";
 
@@ -8,6 +9,7 @@ export type ScoreBreakdown = {
   geoScore: number;
   trustScore: number;
   activityScore: number;
+  availabilityScore: number;
   total: number;
 };
 
@@ -90,6 +92,31 @@ function profileActivityScore(theirProfile: any): number {
   return Math.round(Math.max(0, Math.min(100, 100 - daysSince * 5)));
 }
 
+function getPropertyData(row: any): Record<string, unknown> {
+  return row?.property_data && typeof row.property_data === "object" ? row.property_data : {};
+}
+
+function toDate(value: unknown): Date | null {
+  if (typeof value !== "string" || !value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function availabilityScore(myItem: any, theirItem: any): number {
+  if (myItem?.item_type !== "property" || theirItem?.item_type !== "property") return 100;
+  const mine = getPropertyData(myItem);
+  const theirs = getPropertyData(theirItem);
+  const myStart = toDate(mine.available_start_date);
+  const myEnd = toDate(mine.available_end_date);
+  const theirStart = toDate(theirs.available_start_date);
+  const theirEnd = toDate(theirs.available_end_date);
+
+  if (!myStart && !myEnd && !theirStart && !theirEnd) return 60;
+  if (!myStart || !myEnd || !theirStart || !theirEnd) return 70;
+
+  return myStart <= theirEnd && theirStart <= myEnd ? 100 : 20;
+}
+
 function factorScore(candidate: ReturnType<typeof scoreItemPair>, key: string): number {
   const factor = candidate.weightedScore?.factors.find((entry) => entry.key === key);
   return factor?.raw ?? 0;
@@ -105,8 +132,11 @@ export function calculateMatchScore(
   const geoScore = profileGeoScore(myProfile, theirProfile);
   const trustScore = profileTrustScore(theirProfile);
   const activityScore = profileActivityScore(theirProfile);
+  const propertyAvailabilityScore = availabilityScore(myItem, theirItem);
 
-  const objectScore = engineCandidate.compatibilityScore;
+  const objectScore = Math.round(
+    engineCandidate.compatibilityScore * 0.85 + propertyAvailabilityScore * 0.15,
+  );
   const userScore = Math.round(geoScore * 0.45 + trustScore * 0.35 + activityScore * 0.2);
   const total = Math.round(objectScore * 0.75 + userScore * 0.25);
 
@@ -117,6 +147,7 @@ export function calculateMatchScore(
     geoScore,
     trustScore,
     activityScore,
+    availabilityScore: propertyAvailabilityScore,
     total,
   };
 }
