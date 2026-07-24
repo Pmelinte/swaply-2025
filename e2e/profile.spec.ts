@@ -1,4 +1,5 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
+import { readFileSync } from "node:fs";
 
 type ProfileSnapshot = {
   avatarUrl: string;
@@ -37,7 +38,12 @@ async function loadProfileUiContract(page: Page): Promise<ProfileUiContract> {
   const locale = new URL(page.url()).pathname.split("/").filter(Boolean)[0] || "en";
   if (profileMessages.has(locale)) return profileMessages.get(locale)!;
 
-  const messages = (await import(`../src/messages/${locale}.json`)).default as {
+  const messages = JSON.parse(
+    readFileSync(
+      new URL(`../src/messages/${locale}.json`, import.meta.url),
+      "utf8",
+    ),
+  ) as {
     profile: ProfileUiContract;
   };
   profileMessages.set(locale, messages.profile);
