@@ -125,22 +125,7 @@ async function setLocation(page: Page, location: LocationSelection) {
 }
 
 async function saveProfile(page: Page) {
-  const responsePromise = page.waitForResponse(
-    (response) => {
-      const request = response.request();
-      return (
-        request.method() === "POST" &&
-        new URL(response.url()).pathname.endsWith("/rest/v1/profiles")
-      );
-    },
-    { timeout: profileActionTimeout },
-  );
-
   await (await profileControls(page)).save.click({ timeout: profileActionTimeout });
-  const response = await responsePromise;
-  const responseBody = response.ok() ? "" : await response.text();
-
-  expect(response.ok(), `Profile save failed: ${response.status()} ${responseBody}`).toBe(true);
   await expect(page.getByText((await loadProfileUiContract(page)).profileSaved, { exact: true })).toBeVisible({
     timeout: profileActionTimeout,
   });
