@@ -108,10 +108,6 @@ function isItemsWriteResponse(response: Response, itemId?: string) {
   return body.includes(itemId) || url.searchParams.get("id") === `eq.${itemId}`;
 }
 
-function isFavoriteMutation(response: Response) {
-  return response.request().method() === "POST" && new URL(response.url()).pathname === "/api/favorites";
-}
-
 function isWantedMutation(response: Response, requestId?: string, method?: string) {
   const request = response.request();
   if (method && request.method() !== method) return false;
@@ -231,12 +227,6 @@ async function favoriteButton(page: Page) {
   return button;
 }
 
-async function isFavorite(page: Page) {
-  const button = await favoriteButton(page);
-  const iconClass = (await button.locator("svg").getAttribute("class")) ?? "";
-  return iconClass.includes("fill-red-500");
-}
-
 async function serverFavoriteIds(page: Page): Promise<string[]> {
   const response = await page.request.get("/api/favorites");
   const body = await response.text();
@@ -245,16 +235,20 @@ async function serverFavoriteIds(page: Page): Promise<string[]> {
   return payload.itemIds ?? [];
 }
 
+async function setServerFavoriteState(page: Page, itemId: string, expected: boolean) {
+  const response = await page.request.post("/api/favorites", {
+    data: { itemId, favorite: expected },
+  });
+  const body = await response.text();
+  expect(response.ok(), `Favorite mutation failed: ${response.status()} ${body}`).toBe(true);
+}
+
 async function ensureFavoriteState(page: Page, path: string, itemId: string, expected: boolean) {
   await page.goto(path, { waitUntil: "domcontentloaded" });
-  const button = await favoriteButton(page);
+  await favoriteButton(page);
 
-  if ((await isFavorite(page)) !== expected) {
-    const responsePromise = page.waitForResponse(isFavoriteMutation, { timeout: actionTimeout });
-    await button.click();
-    const response = await responsePromise;
-    const body = await response.text();
-    expect(response.ok(), `Favorite mutation failed: ${response.status()} ${body}`).toBe(true);
+  if ((await serverFavoriteIds(page)).includes(itemId) !== expected) {
+    await setServerFavoriteState(page, itemId, expected);
   }
 
   await expect
@@ -295,25 +289,9 @@ async function createWantedThroughUi(page: Page, title: string, description: str
   return requestId!;
 }
 
-async function showMine(page: Page) {
-  const toggleGroup = mainContent(page).locator("div.flex.gap-2").first();
-  await toggleGroup.locator("button").nth(1).click();
-}
-
 async function deleteWantedBestEffort(page: Page, requestId: string) {
   try {
-    await openWanted(page);
-    await showMine(page);
-    const card = page.getByTestId(`wanted-request-${requestId}`);
-    if (!(await card.isVisible({ timeout: 5_000 }).catch(() => false))) return;
-
-    const responsePromise = page.waitForResponse(
-      (response) => isWantedMutation(response, requestId, "DELETE"),
-      { timeout: actionTimeout },
-    );
-    await card.locator("button").last().click();
-    const response = await responsePromise;
-    expect(response.ok()).toBe(true);
+    await page.request.delete(`/api/wanted/${requestId}`, { timeout: 5_000 });
   } catch {
     // Cleanup must not replace the lifecycle assertion.
   }
