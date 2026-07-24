@@ -6,10 +6,10 @@ import {
   userBAuthFile,
 } from "./two-user-auth.setup";
 
-const objectCreatePath = "/en/objects/new";
-const myObjectsPath = "/en/my-objects";
-const matchingPath = "/en/matching";
-const profilePath = "/en/profile";
+const objectCreateRoute = "/objects/new";
+const myObjectsRoute = "/my-objects";
+const matchingRoute = "/matching";
+const profileRoute = "/profile";
 const actionTimeout = 20_000;
 
 function readStorageState(path: string) {
@@ -18,6 +18,23 @@ function readStorageState(path: string) {
 
 function mainContent(page: Page) {
   return page.getByRole("main");
+}
+
+function currentLocale(page: Page) {
+  const [, firstSegment] = new URL(page.url()).pathname.split("/");
+  return firstSegment || "en";
+}
+
+function localizedPath(page: Page, route: string) {
+  const normalizedRoute = route.startsWith("/") ? route : `/${route}`;
+  return `/${currentLocale(page)}${normalizedRoute === "/" ? "" : normalizedRoute}`;
+}
+
+async function establishLocale(page: Page) {
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await expect
+    .poll(() => new URL(page.url()).pathname.split("/")[1] || "", { timeout: actionTimeout })
+    .not.toBe("");
 }
 
 async function preparePage(page: Page) {
@@ -56,6 +73,8 @@ async function preparePage(page: Page) {
 }
 
 async function expectReusableSession(page: Page, label: string) {
+  await establishLocale(page);
+  const profilePath = localizedPath(page, profileRoute);
   await page.goto(profilePath, { waitUntil: "domcontentloaded" });
   await expect
     .poll(() => new URL(page.url()).pathname, { timeout: actionTimeout })
@@ -100,8 +119,8 @@ function isInterestWriteResponse(response: Response, method: "POST" | "PATCH") {
 }
 
 async function createObject(page: Page, title: string, description: string): Promise<string> {
-  await page.goto(objectCreatePath, { waitUntil: "domcontentloaded" });
-  await expect(page).toHaveURL(/\/en\/objects\/new/);
+  await page.goto(localizedPath(page, objectCreateRoute), { waitUntil: "domcontentloaded" });
+  await expect(page).toHaveURL(/\/[^/]+\/objects\/new/);
 
   const origin = new URL(page.url()).origin;
   const imageUrl = `${origin}/icons/icon-512x512.png`;
@@ -153,13 +172,14 @@ async function createObject(page: Page, title: string, description: string): Pro
 
   await expect
     .poll(() => new URL(page.url()).pathname, { timeout: actionTimeout })
-    .toBe(`/en/objects/${itemId}`);
+    .toBe(localizedPath(page, `/objects/${itemId}`));
 
   return itemId!;
 }
 
 async function archiveObject(page: Page, itemId: string, label: string) {
   await expectAuthenticatedSession(page, `${label} before object cleanup`);
+  const myObjectsPath = localizedPath(page, myObjectsRoute);
   await page.goto(myObjectsPath, { waitUntil: "domcontentloaded" });
   await expect
     .poll(() => new URL(page.url()).pathname, { timeout: actionTimeout })
@@ -241,6 +261,7 @@ test.describe("Train C Batch 54 Express Interest", () => {
         expect(sourceItemId).toBeTruthy();
         expect(targetItemId).toBeTruthy();
 
+        const matchingPath = localizedPath(pageA, matchingRoute);
         const candidatesResponsePromise = pageA.waitForResponse(isMatchingCandidateResponse, {
           timeout: actionTimeout,
         });
@@ -301,7 +322,7 @@ test.describe("Train C Batch 54 Express Interest", () => {
       });
 
       await test.step("User B sees the received interest", async () => {
-        await pageB.goto(matchingPath, { waitUntil: "domcontentloaded" });
+        await pageB.goto(localizedPath(pageB, matchingRoute), { waitUntil: "domcontentloaded" });
         await expect(pageB.getByTestId("interests-received")).toBeVisible({
           timeout: actionTimeout,
         });
@@ -311,7 +332,8 @@ test.describe("Train C Batch 54 Express Interest", () => {
       });
 
       await test.step("nonparticipant User C cannot see the private interest", async () => {
-        await pageC.goto(matchingPath, { waitUntil: "domcontentloaded" });
+        await establishLocale(pageC);
+        await pageC.goto(localizedPath(pageC, matchingRoute), { waitUntil: "domcontentloaded" });
         await expect(pageC.getByTestId(`received-interest-${interestId}`)).toHaveCount(0);
         await expect(pageC.getByTestId(`express-interest-${targetItemId}`)).toHaveCount(0);
       });
