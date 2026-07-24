@@ -59,7 +59,6 @@ export function itemEditPayload(item: Item, ownerId: string): Record<string, unk
     tags: item.userFinalTags ?? item.aiSuggestedTags ?? [],
     images: photos,
     image_url: photos[0] ?? null,
-    wishlist: item.wishlist ?? null,
     ai_metadata: {
       intent: item.intent ?? null,
       flexibility: item.flexibility ?? null,
@@ -117,7 +116,6 @@ export function publicItemSelect(): string {
     "location",
     "images",
     "image_url",
-    "wishlist",
     "tags",
     "ai_suggested_tags",
     "user_final_tags",
