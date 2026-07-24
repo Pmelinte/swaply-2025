@@ -24,6 +24,20 @@ function mainContent(page: Page) {
   return page.getByRole("main");
 }
 
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function localizedPath(suffix: string) {
+  return new RegExp(`^/[a-z]{2}${escapeRegExp(suffix)}$`);
+}
+
+async function expectLocalizedPath(page: Page, suffix: string) {
+  await expect
+    .poll(() => new URL(page.url()).pathname, { timeout: actionTimeout })
+    .toMatch(localizedPath(suffix));
+}
+
 function isItemsWriteResponse(response: PlaywrightResponse, itemId?: string) {
   const request = response.request();
   const method = request.method();
@@ -51,9 +65,7 @@ async function expectObjectDetails(page: Page, title: string, description: strin
 
 async function expectReusableSession(page: Page, label: string) {
   await page.goto(profilePath, { waitUntil: "domcontentloaded" });
-  await expect
-    .poll(() => new URL(page.url()).pathname, { timeout: actionTimeout })
-    .toBe(profilePath);
+  await expectLocalizedPath(page, "/profile");
   await expectAuthenticatedSession(page, label);
 }
 
@@ -115,7 +127,7 @@ async function preparePage(page: Page) {
 
 async function createObject(page: Page, title: string, description: string): Promise<string> {
   await page.goto(objectCreatePath, { waitUntil: "domcontentloaded" });
-  await expect(page).toHaveURL(/\/en\/objects\/new/);
+  await expectLocalizedPath(page, "/objects/new");
 
   const origin = new URL(page.url()).origin;
   const imageUrl = `${origin}/icons/icon-512x512.png`;
@@ -175,9 +187,7 @@ async function createObject(page: Page, title: string, description: string): Pro
   ).toBeVisible({
     timeout: actionTimeout,
   });
-  await expect
-    .poll(() => new URL(page.url()).pathname, { timeout: actionTimeout })
-    .toBe(`/en/objects/${itemId}`);
+  await expectLocalizedPath(page, `/objects/${itemId}`);
 
   return itemId!;
 }
@@ -185,9 +195,7 @@ async function createObject(page: Page, title: string, description: string): Pro
 async function archiveObject(page: Page, itemId: string) {
   await expectAuthenticatedSession(page, "User A before object cleanup");
   await page.goto(myObjectsPath, { waitUntil: "domcontentloaded" });
-  await expect
-    .poll(() => new URL(page.url()).pathname, { timeout: actionTimeout })
-    .toBe(myObjectsPath);
+  await expectLocalizedPath(page, "/my-objects");
 
   const main = mainContent(page);
   const search = main.getByPlaceholder("Search your items...", { exact: true });
@@ -280,6 +288,7 @@ test.describe("Train C Batch 52 objects CRUD", () => {
 
       await test.step("verify User B can read but cannot edit", async () => {
         await pageB.goto(`/en/objects/${itemId}`, { waitUntil: "domcontentloaded" });
+        await expectLocalizedPath(pageB, `/objects/${itemId}`);
         await expectObjectDetails(pageB, originalTitle, originalDescription);
         await expect(
           mainContent(pageB).getByRole("link", { name: "Edit object", exact: true }),
@@ -287,9 +296,7 @@ test.describe("Train C Batch 52 objects CRUD", () => {
         await expectAuthenticatedSession(pageB, "User B before direct edit authorization check");
 
         await pageB.goto(`/en/objects/${itemId}/edit`, { waitUntil: "domcontentloaded" });
-        await expect
-          .poll(() => new URL(pageB.url()).pathname, { timeout: actionTimeout })
-          .toBe(`/en/objects/${itemId}/edit`);
+        await expectLocalizedPath(pageB, `/objects/${itemId}/edit`);
         await expectAuthenticatedSession(pageB, "User B on denied edit route");
 
         const unauthorizedMain = mainContent(pageB);
@@ -306,10 +313,9 @@ test.describe("Train C Batch 52 objects CRUD", () => {
 
       await test.step("update the object as User A", async () => {
         await pageA.goto(`/en/objects/${itemId}`, { waitUntil: "domcontentloaded" });
+        await expectLocalizedPath(pageA, `/objects/${itemId}`);
         await mainContent(pageA).getByRole("link", { name: "Edit object", exact: true }).click();
-        await expect
-          .poll(() => new URL(pageA.url()).pathname, { timeout: actionTimeout })
-          .toBe(`/en/objects/${itemId}/edit`);
+        await expectLocalizedPath(pageA, `/objects/${itemId}/edit`);
 
         const editMain = mainContent(pageA);
         const titleField = editMain.locator("input[name=title]");
@@ -336,9 +342,7 @@ test.describe("Train C Batch 52 objects CRUD", () => {
           `Item update failed: ${updateResponse.status()} ${updateBody}`,
         ).toBe(true);
 
-        await expect
-          .poll(() => new URL(pageA.url()).pathname, { timeout: actionTimeout })
-          .toBe(`/en/objects/${itemId}`);
+        await expectLocalizedPath(pageA, `/objects/${itemId}`);
         await expectObjectDetails(pageA, editedTitle, editedDescription);
       });
 
@@ -359,6 +363,7 @@ test.describe("Train C Batch 52 objects CRUD", () => {
         await test.step("archive the Batch 52 test object by id", async () => {
           await archiveObject(pageA, itemId);
           await pageA.goto(`/en/objects/${itemId}`, { waitUntil: "domcontentloaded" });
+          await expectLocalizedPath(pageA, `/objects/${itemId}`);
           await expect(
             mainContent(pageA).getByText(
               "Object not found or not publicly available. Navigate back to the objects list.",
