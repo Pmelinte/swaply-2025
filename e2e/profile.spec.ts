@@ -26,9 +26,7 @@ type ProfileUiContract = {
   avatarUrl: string;
   bio: string;
   displayName: string;
-  localization: string;
   profileSaved: string;
-  publicIdentity: string;
   removeLanguage: string;
   saveProfile: string;
 };
@@ -60,10 +58,7 @@ async function hideCookieBanners(page: Page) {
 
 async function profileControls(page: Page) {
   const labels = await loadProfileUiContract(page);
-  await expect(page.getByRole("heading", { name: labels.publicIdentity, exact: true })).toBeVisible();
-  await expect(page.getByRole("heading", { name: labels.localization, exact: true })).toBeVisible();
-
-  return {
+  const controls = {
     addLanguage: page.getByTestId("profile-add-language"),
     avatarUrl: page.getByTestId("profile-avatar-url"),
     bio: page.getByTestId("profile-bio"),
@@ -73,6 +68,17 @@ async function profileControls(page: Page) {
     region: page.getByTestId("profile-location-region"),
     save: page.getByRole("button", { name: labels.saveProfile, exact: true }),
   };
+
+  await Promise.all([
+    expect(controls.displayName).toBeVisible(),
+    expect(controls.avatarUrl).toBeVisible(),
+    expect(controls.bio).toBeVisible(),
+    expect(controls.country).toBeVisible(),
+    expect(controls.region).toBeVisible(),
+    expect(controls.city).toBeVisible(),
+  ]);
+
+  return controls;
 }
 
 async function languageLabels(page: Page): Promise<string[]> {
