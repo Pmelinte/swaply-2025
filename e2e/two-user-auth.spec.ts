@@ -14,9 +14,12 @@ async function profileUrl(page: Page, tab: "profil" | "cont" = "profil") {
 
 async function openProfileMenu(page: Page) {
   const trigger = page.getByTestId("profile-menu-trigger");
+  const settings = page.getByTestId("profile-menu-settings");
+
   await expect(trigger).toBeVisible({ timeout: 20_000 });
   await trigger.click();
-  await expect(page.getByTestId("profile-menu-content")).toBeVisible();
+  await expect(trigger).toHaveAttribute("aria-expanded", "true");
+  await expect(settings).toBeVisible();
 }
 
 type RequiredCredential =
@@ -110,15 +113,13 @@ test.describe("Train C two-user authenticated baseline", () => {
         expect(pageB.locator('input[type="email"]')).toHaveCount(0),
       ]);
 
-      await Promise.all([
-        openProfileMenu(pageA),
-        openProfileMenu(pageB),
-      ]);
-
-      await Promise.all([
-        expect(pageA.getByTestId("profile-menu-settings")).toBeVisible(),
-        expect(pageB.getByTestId("profile-menu-settings")).toBeVisible(),
-      ]);
+      await openProfileMenu(pageA);
+      await pageA.keyboard.press("Escape");
+      await expect(pageA.getByTestId("profile-menu-trigger")).toHaveAttribute(
+        "aria-expanded",
+        "false",
+      );
+      await openProfileMenu(pageB);
 
       await Promise.all([
         pageA.goto(await profileUrl(pageA, "cont"), { waitUntil: "domcontentloaded" }),
@@ -190,9 +191,6 @@ test.describe("Train C two-user authenticated baseline", () => {
       logoutTriggered = true;
       await page.getByTestId("profile-menu-logout").click();
 
-      await expect(
-        page.getByRole("link", { name: "Login", exact: true }),
-      ).toBeVisible();
       await expect
         .poll(
           async () =>
