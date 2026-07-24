@@ -1,5 +1,6 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { readFileSync } from "node:fs";
+import path from "node:path";
 
 type ProfileSnapshot = {
   avatarUrl: string;
@@ -40,7 +41,7 @@ async function loadProfileUiContract(page: Page): Promise<ProfileUiContract> {
 
   const messages = JSON.parse(
     readFileSync(
-      new URL(`../src/messages/${locale}.json`, import.meta.url),
+      path.join(process.cwd(), "src", "messages", `${locale}.json`),
       "utf8",
     ),
   ) as {

@@ -1,5 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import { readFileSync } from "node:fs";
+import path from "node:path";
 import {
   authenticateAndSave,
   expectAuthenticatedSession,
@@ -21,7 +22,7 @@ async function loadMessages(page: Page): Promise<{ nav: NavUiContract; profile: 
   const locale = new URL(page.url()).pathname.split("/").filter(Boolean)[0] || "en";
   const messages = JSON.parse(
     readFileSync(
-      new URL(`../src/messages/${locale}.json`, import.meta.url),
+      path.join(process.cwd(), "src", "messages", `${locale}.json`),
       "utf8",
     ),
   ) as {
