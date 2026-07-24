@@ -14,11 +14,7 @@ type NavUiContract = {
   settings: string;
 };
 
-type ProfileUiContract = {
-  currentEmail: string;
-};
-
-async function loadMessages(page: Page): Promise<{ nav: NavUiContract; profile: ProfileUiContract }> {
+async function loadMessages(page: Page): Promise<{ nav: NavUiContract }> {
   const locale = new URL(page.url()).pathname.split("/").filter(Boolean)[0] || "en";
   const messages = JSON.parse(
     readFileSync(
@@ -27,9 +23,8 @@ async function loadMessages(page: Page): Promise<{ nav: NavUiContract; profile: 
     ),
   ) as {
     nav: NavUiContract;
-    profile: ProfileUiContract;
   };
-  return { nav: messages.nav, profile: messages.profile };
+  return { nav: messages.nav };
 }
 
 async function profileUrl(page: Page, tab: "profil" | "cont" = "profil") {
@@ -158,16 +153,8 @@ test.describe("Train C two-user authenticated baseline", () => {
         pageB.goto(await profileUrl(pageB, "cont"), { waitUntil: "domcontentloaded" }),
       ]);
 
-      const [{ profile: profileA }, { profile: profileB }] = await Promise.all([
-        loadMessages(pageA),
-        loadMessages(pageB),
-      ]);
-      const currentEmailA = pageA
-        .locator("p")
-        .filter({ hasText: profileA.currentEmail });
-      const currentEmailB = pageB
-        .locator("p")
-        .filter({ hasText: profileB.currentEmail });
+      const currentEmailA = pageA.getByTestId("profile-current-email");
+      const currentEmailB = pageB.getByTestId("profile-current-email");
 
       await Promise.all([
         expect(currentEmailA).toContainText(userAEmail),

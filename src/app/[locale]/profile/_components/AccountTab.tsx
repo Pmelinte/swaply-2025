@@ -208,7 +208,7 @@ export default function AccountTab({
       </SectionCard>
 
       <SectionCard title={t("emailChange")} description={t("emailChangeDescription")}>
-        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+        <p data-testid="profile-current-email" className="text-xs text-zinc-500 dark:text-zinc-400">
           {t("currentEmail")}: <span className="font-semibold text-zinc-700 dark:text-zinc-200">{user.email}</span>
         </p>
         <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
