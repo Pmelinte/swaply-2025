@@ -336,6 +336,7 @@ export function TopBar() {
                     type="button"
                     className="inline-flex items-center justify-center rounded-full p-2 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
                     aria-label={t("nav.profile")}
+                    data-testid="profile-menu-trigger"
                   >
                     {user.avatarUrl ? (
                       <Image
@@ -352,7 +353,7 @@ export function TopBar() {
                     )}
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuContent align="end" className="w-48" data-testid="profile-menu-content">
                   <DropdownMenuItem asChild>
                     <Link href="/profile" className="flex items-center gap-2">
                       <User className="h-4 w-4" />
@@ -360,7 +361,7 @@ export function TopBar() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/profile?tab=account" className="flex items-center gap-2">
+                    <Link href="/profile?tab=cont" className="flex items-center gap-2" data-testid="profile-menu-settings">
                       <Settings className="h-4 w-4" />
                       {t("nav.settings")}
                     </Link>

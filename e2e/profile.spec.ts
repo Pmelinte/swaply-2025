@@ -60,22 +60,17 @@ async function hideCookieBanners(page: Page) {
 
 async function profileControls(page: Page) {
   const labels = await loadProfileUiContract(page);
-  const publicIdentitySection = page.locator("section").filter({
-    has: page.getByRole("heading", { name: labels.publicIdentity, exact: true }),
-  });
-  const locationSection = page.locator("section").filter({
-    has: page.getByRole("heading", { name: labels.localization, exact: true }),
-  });
-  const locationSelects = locationSection.locator("select");
+  await expect(page.getByRole("heading", { name: labels.publicIdentity, exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: labels.localization, exact: true })).toBeVisible();
 
   return {
-    addLanguage: publicIdentitySection.getByLabel(labels.addLanguage, { exact: true }),
-    avatarUrl: publicIdentitySection.getByLabel(labels.avatarUrl, { exact: true }),
-    bio: publicIdentitySection.getByLabel(labels.bio, { exact: true }),
-    city: locationSelects.nth(2),
-    country: locationSelects.nth(0),
-    displayName: publicIdentitySection.getByLabel(labels.displayName, { exact: true }),
-    region: locationSelects.nth(1),
+    addLanguage: page.getByTestId("profile-add-language"),
+    avatarUrl: page.getByTestId("profile-avatar-url"),
+    bio: page.getByTestId("profile-bio"),
+    city: page.getByTestId("profile-location-city"),
+    country: page.getByTestId("profile-location-country"),
+    displayName: page.getByTestId("profile-display-name"),
+    region: page.getByTestId("profile-location-region"),
     save: page.getByRole("button", { name: labels.saveProfile, exact: true }),
   };
 }

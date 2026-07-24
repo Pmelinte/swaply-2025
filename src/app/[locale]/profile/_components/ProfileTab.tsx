@@ -70,6 +70,7 @@ export default function ProfileTab({ draft, update, userId }: ProfileTabProps) {
                 value={draft.avatarUrl ?? ""}
                 onChange={(e) => update({ avatarUrl: e.target.value })}
                 placeholder={t("avatarPlaceholder")}
+                data-testid="profile-avatar-url"
                 className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
               />
             </label>
@@ -109,6 +110,7 @@ export default function ProfileTab({ draft, update, userId }: ProfileTabProps) {
             <input
               value={draft.displayName}
               onChange={(e) => update({ displayName: e.target.value })}
+              data-testid="profile-display-name"
               className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
             />
           </label>
@@ -126,6 +128,7 @@ export default function ProfileTab({ draft, update, userId }: ProfileTabProps) {
           <textarea
             value={draft.bio ?? ""}
             onChange={(e) => update({ bio: e.target.value })}
+            data-testid="profile-bio"
             className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
             rows={3}
           />
@@ -180,6 +183,7 @@ export default function ProfileTab({ draft, update, userId }: ProfileTabProps) {
                 }
               }}
               aria-label={t("addLanguage")}
+              data-testid="profile-add-language"
               className="w-40 max-w-full rounded-lg border border-zinc-200 bg-white px-2 py-1 text-xs dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
             >
               <option value="">{t("addLanguage")}</option>
@@ -214,6 +218,7 @@ export default function ProfileTab({ draft, update, userId }: ProfileTabProps) {
           country={draft.location?.country ?? ""}
           region={draft.location?.region ?? ""}
           city={draft.location?.city ?? ""}
+          testIdPrefix="profile-location"
           onChange={({ country, region, city }) =>
             update({
               location: {
