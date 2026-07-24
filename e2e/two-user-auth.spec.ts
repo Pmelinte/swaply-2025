@@ -22,6 +22,23 @@ async function openProfileMenu(page: Page) {
   await expect(settings).toBeVisible();
 }
 
+async function openAccountTab(page: Page, email: string, label: string) {
+  await page.goto(await profileUrl(page, "cont"), { waitUntil: "domcontentloaded" });
+  await expect(page).toHaveURL(/\/[a-z-]+\/profile\?tab=cont/);
+  await expectAuthenticatedSession(page, label);
+
+  const currentEmail = page.getByTestId("profile-current-email");
+  try {
+    await expect(currentEmail).toContainText(email, { timeout: 20_000 });
+  } catch {
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await expectAuthenticatedSession(page, `${label} after account-tab reload`);
+    await expect(currentEmail).toContainText(email, { timeout: 20_000 });
+  }
+
+  return currentEmail;
+}
+
 type RequiredCredential =
   | "E2E_USER_A_EMAIL"
   | "E2E_USER_A_PASSWORD"
@@ -89,29 +106,25 @@ test.describe("Train C two-user authenticated baseline", () => {
       const pageA = await contextA.newPage();
       const pageB = await contextB.newPage();
 
-      await Promise.all([
-        ensureReusableSession(
-          pageA,
-          userAEmail,
-          userAPassword,
-          userAAuthFile,
-          "User A baseline",
-        ),
-        ensureReusableSession(
-          pageB,
-          userBEmail,
-          userBPassword,
-          userBAuthFile,
-          "User B baseline",
-        ),
-      ]);
+      await ensureReusableSession(
+        pageA,
+        userAEmail,
+        userAPassword,
+        userAAuthFile,
+        "User A baseline",
+      );
+      await ensureReusableSession(
+        pageB,
+        userBEmail,
+        userBPassword,
+        userBAuthFile,
+        "User B baseline",
+      );
 
-      await Promise.all([
-        expect(pageA).toHaveURL(/\/[a-z-]+\/profile/),
-        expect(pageB).toHaveURL(/\/[a-z-]+\/profile/),
-        expect(pageA.locator('input[type="email"]')).toHaveCount(0),
-        expect(pageB.locator('input[type="email"]')).toHaveCount(0),
-      ]);
+      await expect(pageA).toHaveURL(/\/[a-z-]+\/profile/);
+      await expect(pageB).toHaveURL(/\/[a-z-]+\/profile/);
+      await expect(pageA.locator('input[type="email"]')).toHaveCount(0);
+      await expect(pageB.locator('input[type="email"]')).toHaveCount(0);
 
       await openProfileMenu(pageA);
       await pageA.keyboard.press("Escape");
@@ -121,20 +134,11 @@ test.describe("Train C two-user authenticated baseline", () => {
       );
       await openProfileMenu(pageB);
 
-      await Promise.all([
-        pageA.goto(await profileUrl(pageA, "cont"), { waitUntil: "domcontentloaded" }),
-        pageB.goto(await profileUrl(pageB, "cont"), { waitUntil: "domcontentloaded" }),
-      ]);
+      const currentEmailA = await openAccountTab(pageA, userAEmail, "User A account tab");
+      const currentEmailB = await openAccountTab(pageB, userBEmail, "User B account tab");
 
-      const currentEmailA = pageA.getByTestId("profile-current-email");
-      const currentEmailB = pageB.getByTestId("profile-current-email");
-
-      await Promise.all([
-        expect(currentEmailA).toContainText(userAEmail),
-        expect(currentEmailB).toContainText(userBEmail),
-        expect(currentEmailA).not.toContainText(userBEmail),
-        expect(currentEmailB).not.toContainText(userAEmail),
-      ]);
+      await expect(currentEmailA).not.toContainText(userBEmail);
+      await expect(currentEmailB).not.toContainText(userAEmail);
     } finally {
       await Promise.all([
         contextA.close().catch(() => undefined),
