@@ -276,7 +276,10 @@ export default function WantedClient() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6 px-4 py-6">
+    <div
+      className="mx-auto max-w-4xl space-y-6 px-4 py-6"
+      data-testid="wanted-page"
+    >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{t("title")}</h1>
@@ -285,6 +288,7 @@ export default function WantedClient() {
         {authenticatedUserId && (
           <button
             type="button"
+            data-testid="wanted-post-request"
             onClick={() => (showForm ? resetForm() : setShowForm(true))}
             className="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
           >
@@ -323,6 +327,7 @@ export default function WantedClient() {
           </button>
           <button
             type="button"
+            data-testid="wanted-filter-mine"
             onClick={() => setShowMine(true)}
             className={`rounded-full px-3 py-1.5 text-sm font-medium ${
               showMine
@@ -341,14 +346,14 @@ export default function WantedClient() {
             {editingId ? tc("edit") : t("newRequestTitle")}
           </h2>
           <div className="space-y-3">
-            <input value={formTitle} onChange={(e) => setFormTitle(e.target.value)} placeholder={t("whatLookingFor")} className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
-            <textarea value={formDesc} onChange={(e) => setFormDesc(e.target.value)} placeholder={t("descriptionPlaceholder")} rows={3} className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+            <input data-testid="wanted-title" value={formTitle} onChange={(e) => setFormTitle(e.target.value)} placeholder={t("whatLookingFor")} className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+            <textarea data-testid="wanted-description" value={formDesc} onChange={(e) => setFormDesc(e.target.value)} placeholder={t("descriptionPlaceholder")} rows={3} className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
             <div className="grid gap-3 sm:grid-cols-3">
               <input value={formCategory} onChange={(e) => setFormCategory(e.target.value)} placeholder={t("categoryPlaceholder")} className="rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
               <input value={formCity} onChange={(e) => setFormCity(e.target.value)} placeholder={t("cityPlaceholder")} className="rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
               <input value={formOffer} onChange={(e) => setFormOffer(e.target.value)} placeholder={t("offerPlaceholder")} className="rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
             </div>
-            <button type="button" onClick={() => void handleSubmit()} disabled={!formTitle.trim() || saving} className="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50">
+            <button type="button" data-testid="wanted-publish" onClick={() => void handleSubmit()} disabled={!formTitle.trim() || saving} className="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50">
               {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
               {editingId ? tc("save") : t("publishRequest")}
             </button>
@@ -358,7 +363,7 @@ export default function WantedClient() {
 
       <div className="relative">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
-        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t("searchPlaceholder")} className="w-full rounded-xl border border-zinc-200 bg-white py-2 pl-10 pr-4 text-sm outline-none focus:border-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+        <input data-testid="wanted-search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t("searchPlaceholder")} className="w-full rounded-xl border border-zinc-200 bg-white py-2 pl-10 pr-4 text-sm outline-none focus:border-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
       </div>
 
       {categories.length > 0 && (
@@ -406,16 +411,16 @@ export default function WantedClient() {
                   {!owner && status === "active" && <Link href="/chat" className="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-3.5 py-2 text-xs font-semibold text-white hover:bg-blue-700"><MessageCircle className="h-3.5 w-3.5" />{t("proposeSwap")}</Link>}
                   {owner && (
                     <>
-                      <button type="button" onClick={() => startEdit(request)} disabled={pending} aria-label={tc("edit")} className="rounded-lg border border-zinc-200 p-2 text-zinc-600 hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"><Pencil className="h-3.5 w-3.5" /></button>
+                      <button type="button" data-testid={`wanted-edit-${request.id}`} onClick={() => startEdit(request)} disabled={pending} aria-label={tc("edit")} className="rounded-lg border border-zinc-200 p-2 text-zinc-600 hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"><Pencil className="h-3.5 w-3.5" /></button>
                       {status === "active" ? (
                         <>
-                          <button type="button" onClick={() => void mutateRequest(request.id, "fulfilled")} disabled={pending} aria-label={tc("success")} className="rounded-lg border border-green-200 p-2 text-green-700 hover:bg-green-50 disabled:opacity-50 dark:border-green-900 dark:text-green-300 dark:hover:bg-green-950/30">{pending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}</button>
+                          <button type="button" data-testid={`wanted-fulfill-${request.id}`} onClick={() => void mutateRequest(request.id, "fulfilled")} disabled={pending} aria-label={tc("success")} className="rounded-lg border border-green-200 p-2 text-green-700 hover:bg-green-50 disabled:opacity-50 dark:border-green-900 dark:text-green-300 dark:hover:bg-green-950/30">{pending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}</button>
                           <button type="button" onClick={() => void mutateRequest(request.id, "cancelled")} disabled={pending} aria-label={tc("cancel")} className="rounded-lg border border-amber-200 p-2 text-amber-700 hover:bg-amber-50 disabled:opacity-50 dark:border-amber-900 dark:text-amber-300 dark:hover:bg-amber-950/30"><X className="h-3.5 w-3.5" /></button>
                         </>
                       ) : (
                         <button type="button" onClick={() => void mutateRequest(request.id, "active")} disabled={pending} aria-label={tc("retry")} className="rounded-lg border border-blue-200 p-2 text-blue-700 hover:bg-blue-50 disabled:opacity-50 dark:border-blue-900 dark:text-blue-300 dark:hover:bg-blue-950/30">{pending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RotateCcw className="h-3.5 w-3.5" />}</button>
                       )}
-                      <button type="button" onClick={() => void mutateRequest(request.id, "delete")} disabled={pending} aria-label={tc("delete")} className="rounded-lg border border-red-200 p-2 text-red-700 hover:bg-red-50 disabled:opacity-50 dark:border-red-900 dark:text-red-300 dark:hover:bg-red-950/30"><Trash2 className="h-3.5 w-3.5" /></button>
+                      <button type="button" data-testid={`wanted-delete-${request.id}`} onClick={() => void mutateRequest(request.id, "delete")} disabled={pending} aria-label={tc("delete")} className="rounded-lg border border-red-200 p-2 text-red-700 hover:bg-red-50 disabled:opacity-50 dark:border-red-900 dark:text-red-300 dark:hover:bg-red-950/30"><Trash2 className="h-3.5 w-3.5" /></button>
                     </>
                   )}
                 </div>
