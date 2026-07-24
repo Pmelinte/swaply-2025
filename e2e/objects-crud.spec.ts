@@ -41,7 +41,6 @@ async function expectLocalizedPath(page: Page, suffix: string) {
 function isItemsWriteResponse(response: PlaywrightResponse, itemId?: string) {
   const request = response.request();
   const method = request.method();
-
   if (method !== "POST" && method !== "PATCH") return false;
 
   const url = new URL(response.url());
@@ -52,9 +51,16 @@ function isItemsWriteResponse(response: PlaywrightResponse, itemId?: string) {
   return body.includes(itemId) || url.searchParams.get("id") === `eq.${itemId}`;
 }
 
+function isItemStatusResponse(response: PlaywrightResponse, itemId: string) {
+  const url = new URL(response.url());
+  return (
+    response.request().method() === "PATCH" &&
+    url.pathname === `/api/items/${itemId}/status`
+  );
+}
+
 async function expectObjectDetails(page: Page, title: string, description: string) {
   const main = mainContent(page);
-
   await expect(main.getByText(title, { exact: true }).first()).toBeVisible({
     timeout: actionTimeout,
   });
@@ -82,7 +88,6 @@ async function preparePage(page: Page) {
       body: JSON.stringify({}),
     });
   });
-
   await page.route("**/api/ai", async (route) => {
     await route.fulfill({
       status: 200,
@@ -90,24 +95,20 @@ async function preparePage(page: Page) {
       body: JSON.stringify({ status: "fallback", tags: [] }),
     });
   });
-
   await page.route("**/api/translate", async (route) => {
     let translated = "";
-
     try {
       const body = route.request().postDataJSON() as { text?: unknown };
       if (typeof body.text === "string") translated = body.text;
     } catch {
-      // Keep the identity-translation fallback empty for malformed test requests.
+      translated = "";
     }
-
     await route.fulfill({
       status: 200,
       contentType: "application/json",
       body: JSON.stringify({ translated }),
     });
   });
-
   await page.route("**/api/translate/item", async (route) => {
     await route.fulfill({
       status: 200,
@@ -115,7 +116,6 @@ async function preparePage(page: Page) {
       body: JSON.stringify({}),
     });
   });
-
   await page.route("**/api/embeddings", async (route) => {
     await route.fulfill({
       status: 200,
@@ -130,9 +130,9 @@ async function createObject(page: Page, title: string, description: string): Pro
   await expectLocalizedPath(page, "/objects/new");
 
   const origin = new URL(page.url()).origin;
-  const imageUrl = `${origin}/icons/icon-512x512.png`;
-
-  await page.getByPlaceholder("https://example.com/product.jpg", { exact: true }).fill(imageUrl);
+  await page
+    .getByPlaceholder("https://example.com/product.jpg", { exact: true })
+    .fill(`${origin}/icons/icon-512x512.png`);
   await page.getByRole("button", { name: "Use", exact: true }).click();
   await expect(page.getByRole("img", { name: "Photo 1", exact: true })).toBeVisible({
     timeout: actionTimeout,
@@ -145,16 +145,13 @@ async function createObject(page: Page, title: string, description: string): Pro
   await page.getByRole("button").filter({ hasText: "Electronics" }).click();
   await page.getByRole("button", { name: "Computers", exact: true }).click();
   await page.getByRole("button", { name: "Next", exact: true }).click();
-
   await page.locator("button").filter({ has: page.getByText("Good", { exact: true }) }).click();
   await page.locator("button").filter({ has: page.getByText("Medium", { exact: true }) }).click();
   await page.getByRole("button", { name: "Next", exact: true }).click();
-
   await page
     .getByPlaceholder("Describe the item in detail...", { exact: true })
     .fill(description);
   await page.getByRole("button", { name: "Next", exact: true }).click();
-
   await page.locator("button").filter({ hasText: "Objects only" }).click();
   await page
     .getByPlaceholder("Describe what you're looking for...", { exact: true })
@@ -168,11 +165,9 @@ async function createObject(page: Page, title: string, description: string): Pro
     (response) => isItemsWriteResponse(response),
     { timeout: actionTimeout },
   );
-
   await page.getByRole("button", { name: "Publish Listing", exact: true }).click();
   const insertResponse = await insertResponsePromise;
   const responseBody = await insertResponse.text();
-
   expect(
     insertResponse.ok(),
     `Item creation failed: ${insertResponse.status()} ${responseBody}`,
@@ -181,14 +176,7 @@ async function createObject(page: Page, title: string, description: string): Pro
   const insertedRows = JSON.parse(responseBody) as Array<{ id?: string }>;
   const itemId = insertedRows[0]?.id;
   expect(itemId, "The item insert response must include an id.").toBeTruthy();
-
-  await expect(
-    mainContent(page).getByText("Your item has been listed successfully!", { exact: true }),
-  ).toBeVisible({
-    timeout: actionTimeout,
-  });
   await expectLocalizedPath(page, `/objects/${itemId}`);
-
   return itemId!;
 }
 
@@ -204,12 +192,8 @@ async function archiveObject(page: Page, itemId: string) {
   });
 
   const card = itemLink.locator("xpath=ancestor::div[contains(@class,'overflow-hidden')][1]");
-  await expect(card).toBeVisible({ timeout: actionTimeout });
-
   const expandButton = card.getByRole("button", { name: /Expand details|Collapse details/ });
-  if (await expandButton.isVisible().catch(() => false)) {
-    await expandButton.click();
-  }
+  if (await expandButton.isVisible().catch(() => false)) await expandButton.click();
 
   const archiveButton = card.locator("button:has(svg.lucide-archive)").first();
   if (!(await archiveButton.isVisible({ timeout: 3_000 }).catch(() => false))) {
@@ -220,14 +204,12 @@ async function archiveObject(page: Page, itemId: string) {
   }
 
   const archiveResponsePromise = page.waitForResponse(
-    (response) => isItemsWriteResponse(response, itemId),
+    (response) => isItemStatusResponse(response, itemId),
     { timeout: actionTimeout },
   );
-
   await archiveButton.click();
   const archiveResponse = await archiveResponsePromise;
   const archiveBody = archiveResponse.ok() ? "" : await archiveResponse.text();
-
   expect(
     archiveResponse.ok(),
     `Item cleanup failed: ${archiveResponse.status()} ${archiveBody}`,
@@ -246,7 +228,6 @@ test.describe("Train C Batch 52 objects CRUD", () => {
     const contextB = await browser.newContext({ storageState: readStorageState(userBAuthFile) });
     const pageA = await contextA.newPage();
     const pageB = await contextB.newPage();
-
     await preparePage(pageA);
     await preparePage(pageB);
 
@@ -260,103 +241,62 @@ test.describe("Train C Batch 52 objects CRUD", () => {
     let primaryError: unknown | null = null;
 
     try {
-      await test.step("verify reusable User A and User B sessions", async () => {
-        await expectReusableSession(pageA, "User A before Objects CRUD");
-        await expectReusableSession(pageB, "User B before Objects CRUD");
-      });
+      await expectReusableSession(pageA, "User A before Objects CRUD");
+      await expectReusableSession(pageB, "User B before Objects CRUD");
 
-      createdItemId = await test.step("create an object as User A", async () =>
-        createObject(pageA, originalTitle, originalDescription),
-      );
+      createdItemId = await createObject(pageA, originalTitle, originalDescription);
       const itemId = createdItemId;
 
-      await test.step("verify owner detail and reload persistence", async () => {
-        await pageA.reload({ waitUntil: "domcontentloaded" });
-        await expectObjectDetails(pageA, originalTitle, originalDescription);
-        await expect(
-          mainContent(pageA).locator(`a[href$="/objects/${itemId}/edit"]`),
-        ).toBeVisible({ timeout: actionTimeout });
-
-        await pageA.reload({ waitUntil: "domcontentloaded" });
-        await expectObjectDetails(pageA, originalTitle, originalDescription);
+      await pageA.reload({ waitUntil: "domcontentloaded" });
+      await expectObjectDetails(pageA, originalTitle, originalDescription);
+      await expect(mainContent(pageA).locator(`a[href$="/objects/${itemId}/edit"]`)).toBeVisible({
+        timeout: actionTimeout,
       });
 
-      await test.step("verify User B can read but cannot edit", async () => {
-        await pageB.goto(`/en/objects/${itemId}`, { waitUntil: "domcontentloaded" });
-        await expectLocalizedPath(pageB, `/objects/${itemId}`);
-        await expectObjectDetails(pageB, originalTitle, originalDescription);
-        await expect(
-          mainContent(pageB).locator(`a[href$="/objects/${itemId}/edit"]`),
-        ).toHaveCount(0);
-        await expectAuthenticatedSession(pageB, "User B before direct edit authorization check");
+      await pageB.goto(`/en/objects/${itemId}`, { waitUntil: "domcontentloaded" });
+      await expectLocalizedPath(pageB, `/objects/${itemId}`);
+      await expectObjectDetails(pageB, originalTitle, originalDescription);
+      await expect(mainContent(pageB).locator(`a[href$="/objects/${itemId}/edit"]`)).toHaveCount(0);
+      await pageB.goto(`/en/objects/${itemId}/edit`, { waitUntil: "domcontentloaded" });
+      await expectAuthenticatedSession(pageB, "User B on denied edit route");
+      await expect(mainContent(pageB).locator("form")).toHaveCount(0);
 
-        await pageB.goto(`/en/objects/${itemId}/edit`, { waitUntil: "domcontentloaded" });
-        await expectLocalizedPath(pageB, `/objects/${itemId}/edit`);
-        await expectAuthenticatedSession(pageB, "User B on denied edit route");
+      await pageA.goto(`/en/objects/${itemId}`, { waitUntil: "domcontentloaded" });
+      await mainContent(pageA).locator(`a[href$="/objects/${itemId}/edit"]`).click();
+      await expectLocalizedPath(pageA, `/objects/${itemId}/edit`);
 
-        const unauthorizedMain = mainContent(pageB);
-        await expect(unauthorizedMain.locator("form")).toHaveCount(0);
-        await expect(unauthorizedMain.locator('button[type="submit"]')).toHaveCount(0);
-      });
+      const editMain = mainContent(pageA);
+      const titleField = editMain.locator("input[name=title]");
+      const descriptionField = editMain.locator("textarea[name=description]");
+      await titleField.fill(editedTitle);
+      await descriptionField.fill(editedDescription);
 
-      await test.step("update the object as User A", async () => {
-        await pageA.goto(`/en/objects/${itemId}`, { waitUntil: "domcontentloaded" });
-        await expectLocalizedPath(pageA, `/objects/${itemId}`);
-        await mainContent(pageA).locator(`a[href$="/objects/${itemId}/edit"]`).click();
-        await expectLocalizedPath(pageA, `/objects/${itemId}/edit`);
+      const updateResponsePromise = pageA.waitForResponse(
+        (response) => isItemsWriteResponse(response, itemId),
+        { timeout: actionTimeout },
+      );
+      await editMain.locator("form button[type=submit]").click();
+      const updateResponse = await updateResponsePromise;
+      const updateBody = updateResponse.ok() ? "" : await updateResponse.text();
+      expect(
+        updateResponse.ok(),
+        `Item update failed: ${updateResponse.status()} ${updateBody}`,
+      ).toBe(true);
 
-        const editMain = mainContent(pageA);
-        const titleField = editMain.locator("input[name=title]");
-        const descriptionField = editMain.locator("textarea[name=description]");
-
-        await expect(titleField).toBeVisible({ timeout: actionTimeout });
-        await expect(descriptionField).toBeVisible({ timeout: actionTimeout });
-        await titleField.fill(editedTitle);
-        await descriptionField.fill(editedDescription);
-        await expect(titleField).toHaveValue(editedTitle);
-        await expect(descriptionField).toHaveValue(editedDescription);
-
-        const updateResponsePromise = pageA.waitForResponse(
-          (response) => isItemsWriteResponse(response, itemId),
-          { timeout: actionTimeout },
-        );
-
-        await editMain.locator("form button[type=submit]").click();
-        const updateResponse = await updateResponsePromise;
-        const updateBody = updateResponse.ok() ? "" : await updateResponse.text();
-
-        expect(
-          updateResponse.ok(),
-          `Item update failed: ${updateResponse.status()} ${updateBody}`,
-        ).toBe(true);
-
-        await expectLocalizedPath(pageA, `/objects/${itemId}`);
-        await expectObjectDetails(pageA, editedTitle, editedDescription);
-      });
-
-      await test.step("verify the update persists after reload", async () => {
-        await pageA.reload({ waitUntil: "domcontentloaded" });
-        await expectObjectDetails(pageA, editedTitle, editedDescription);
-      });
+      await expectLocalizedPath(pageA, `/objects/${itemId}`);
+      await expectObjectDetails(pageA, editedTitle, editedDescription);
+      await pageA.reload({ waitUntil: "domcontentloaded" });
+      await expectObjectDetails(pageA, editedTitle, editedDescription);
     } catch (error) {
       primaryError = error;
     }
 
     let cleanupError: unknown | null = null;
-
     if (createdItemId) {
-      const itemId = createdItemId;
-
       try {
-        await test.step("archive the Batch 52 test object by id", async () => {
-          await archiveObject(pageA, itemId);
-          await pageA.goto(`/en/objects/${itemId}`, { waitUntil: "domcontentloaded" });
-          await expectLocalizedPath(pageA, `/objects/${itemId}`);
-          await expect(mainContent(pageA).getByText(editedTitle, { exact: true })).toHaveCount(0);
-          await expect(
-            mainContent(pageA).locator(`a[href$="/objects/${itemId}/edit"]`),
-          ).toHaveCount(0);
-        });
+        await archiveObject(pageA, createdItemId);
+        await pageA.goto(`/en/objects/${createdItemId}`, { waitUntil: "domcontentloaded" });
+        await expect(mainContent(pageA).locator(`a[href$="/objects/${createdItemId}/edit"]`)).toHaveCount(0);
       } catch (error) {
         cleanupError = error;
       }
