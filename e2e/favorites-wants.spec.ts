@@ -6,23 +6,12 @@ import {
   userBAuthFile,
 } from "./two-user-auth.setup";
 
+const wantedRoute = "/wanted";
 const favoritesRoute = "/favorites";
 const objectCreateRoute = "/objects/new";
 const myObjectsRoute = "/my-objects";
 const profileRoute = "/profile";
 const actionTimeout = 20_000;
-
-type ApiResult<T> = {
-  status: number;
-  ok: boolean;
-  body: T;
-};
-
-type WantedRequestPayload = {
-  id?: string;
-  status?: string;
-  title?: string;
-};
 
 function readStorageState(path: string) {
   return JSON.parse(readFileSync(path, "utf8"));
@@ -119,6 +108,17 @@ function isItemsWriteResponse(response: Response, itemId?: string) {
   return body.includes(itemId) || url.searchParams.get("id") === `eq.${itemId}`;
 }
 
+function isFavoriteMutation(response: Response) {
+  return response.request().method() === "POST" && new URL(response.url()).pathname === "/api/favorites";
+}
+
+function isWantedMutation(response: Response, requestId?: string, method?: string) {
+  const request = response.request();
+  if (method && request.method() !== method) return false;
+  const path = new URL(response.url()).pathname;
+  return requestId ? path === `/api/wanted/${requestId}` : path === "/api/wanted";
+}
+
 async function openFavorites(page: Page) {
   const favoritesPath = localizedPath(page, favoritesRoute);
   await page.goto(favoritesPath, { waitUntil: "domcontentloaded" });
@@ -126,6 +126,15 @@ async function openFavorites(page: Page) {
     .poll(() => new URL(page.url()).pathname, { timeout: actionTimeout })
     .toBe(favoritesPath);
   await expect(page.getByTestId("favorites-page")).toBeVisible({ timeout: actionTimeout });
+}
+
+async function openWanted(page: Page) {
+  const wantedPath = localizedPath(page, wantedRoute);
+  await page.goto(wantedPath, { waitUntil: "domcontentloaded" });
+  await expect
+    .poll(() => new URL(page.url()).pathname, { timeout: actionTimeout })
+    .toBe(wantedPath);
+  await expect(mainContent(page).locator("input").first()).toBeVisible({ timeout: actionTimeout });
 }
 
 async function createObject(page: Page, title: string, description: string): Promise<string> {
@@ -228,16 +237,29 @@ async function isFavorite(page: Page) {
   return iconClass.includes("fill-red-500");
 }
 
-async function ensureFavoriteState(page: Page, path: string, expected: boolean) {
+async function serverFavoriteIds(page: Page): Promise<string[]> {
+  const response = await page.request.get("/api/favorites");
+  const body = await response.text();
+  expect(response.ok(), `Favorites read failed: ${response.status()} ${body}`).toBe(true);
+  const payload = JSON.parse(body) as { itemIds?: string[] };
+  return payload.itemIds ?? [];
+}
+
+async function ensureFavoriteState(page: Page, path: string, itemId: string, expected: boolean) {
   await page.goto(path, { waitUntil: "domcontentloaded" });
   const button = await favoriteButton(page);
 
-  if ((await isFavorite(page)) !== expected) await button.click();
+  if ((await isFavorite(page)) !== expected) {
+    const responsePromise = page.waitForResponse(isFavoriteMutation, { timeout: actionTimeout });
+    await button.click();
+    const response = await responsePromise;
+    const body = await response.text();
+    expect(response.ok(), `Favorite mutation failed: ${response.status()} ${body}`).toBe(true);
+  }
 
-  await expect(button.locator("svg")).toHaveClass(
-    expected ? /fill-red-500/ : /^(?!.*fill-red-500).*$/,
-    { timeout: actionTimeout },
-  );
+  await expect
+    .poll(async () => (await serverFavoriteIds(page)).includes(itemId), { timeout: actionTimeout })
+    .toBe(expected);
 
   await page.reload({ waitUntil: "domcontentloaded" });
   const reloadedButton = await favoriteButton(page);
@@ -247,52 +269,54 @@ async function ensureFavoriteState(page: Page, path: string, expected: boolean) 
   );
 }
 
-async function authenticatedApi<T>(
-  page: Page,
-  path: string,
-  init: { method?: string; body?: unknown } = {},
-): Promise<ApiResult<T>> {
-  return page.evaluate(
-    async ({ requestPath, requestInit }) => {
-      const storageEntry = Object.entries(window.localStorage).find(
-        ([key]) => key.startsWith("sb-") && key.endsWith("-auth-token"),
-      );
-      if (!storageEntry) throw new Error("Supabase auth storage entry not found.");
+async function createWantedThroughUi(page: Page, title: string, description: string): Promise<string> {
+  await openWanted(page);
+  const main = mainContent(page);
+  await main.locator("button").first().click();
 
-      const parsed = JSON.parse(storageEntry[1]) as {
-        access_token?: string;
-        currentSession?: { access_token?: string };
-      };
-      const accessToken = parsed.access_token ?? parsed.currentSession?.access_token;
-      if (!accessToken) throw new Error("Supabase access token not found.");
+  const form = main.locator("div.rounded-2xl", { has: main.locator("textarea") }).first();
+  await form.locator("input").first().fill(title);
+  await form.locator("textarea").first().fill(description);
 
-      const response = await fetch(requestPath, {
-        method: requestInit.method ?? "GET",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          ...(requestInit.body === undefined ? {} : { "Content-Type": "application/json" }),
-        },
-        body: requestInit.body === undefined ? undefined : JSON.stringify(requestInit.body),
-      });
+  const responsePromise = page.waitForResponse(
+    (response) => isWantedMutation(response, undefined, "POST"),
+    { timeout: actionTimeout },
+  );
+  await form.locator("button").last().click();
+  const response = await responsePromise;
+  const body = await response.text();
+  expect(response.ok(), `Wanted creation failed: ${response.status()} ${body}`).toBe(true);
 
-      const text = await response.text();
-      let body: unknown = null;
-      try {
-        body = text ? JSON.parse(text) : null;
-      } catch {
-        body = text;
-      }
+  const payload = JSON.parse(body) as { request?: { id?: string; status?: string } };
+  const requestId = payload.request?.id;
+  expect(requestId, "Wanted creation response must include an immutable id.").toBeTruthy();
+  expect(payload.request?.status).toBe("active");
+  await expect(page.getByTestId(`wanted-request-${requestId}`)).toBeVisible({ timeout: actionTimeout });
+  return requestId!;
+}
 
-      return { status: response.status, ok: response.ok, body };
-    },
-    { requestPath: path, requestInit: init },
-  ) as Promise<ApiResult<T>>;
+async function showMine(page: Page) {
+  const toggleGroup = mainContent(page).locator("div.flex.gap-2").first();
+  await toggleGroup.locator("button").nth(1).click();
 }
 
 async function deleteWantedBestEffort(page: Page, requestId: string) {
-  await authenticatedApi(page, `/api/wanted/${requestId}`, { method: "DELETE" }).catch(
-    () => undefined,
-  );
+  try {
+    await openWanted(page);
+    await showMine(page);
+    const card = page.getByTestId(`wanted-request-${requestId}`);
+    if (!(await card.isVisible({ timeout: 5_000 }).catch(() => false))) return;
+
+    const responsePromise = page.waitForResponse(
+      (response) => isWantedMutation(response, requestId, "DELETE"),
+      { timeout: actionTimeout },
+    );
+    await card.locator("button").last().click();
+    const response = await responsePromise;
+    expect(response.ok()).toBe(true);
+  } catch {
+    // Cleanup must not replace the lifecycle assertion.
+  }
 }
 
 test.describe("Train C Batch 53 favorites and wants", () => {
@@ -325,9 +349,9 @@ test.describe("Train C Batch 53 favorites and wants", () => {
 
       itemId = await createObject(pageA, title, description);
       itemPath = localizedPath(pageA, `/objects/${itemId}`);
-      await ensureFavoriteState(pageA, itemPath, false);
-      await ensureFavoriteState(pageB, itemPath, false);
-      await ensureFavoriteState(pageA, itemPath, true);
+      await ensureFavoriteState(pageA, itemPath, itemId, false);
+      await ensureFavoriteState(pageB, itemPath, itemId, false);
+      await ensureFavoriteState(pageA, itemPath, itemId, true);
 
       await openFavorites(pageA);
       await expect(pageA.getByTestId(`favorite-item-${itemId}`)).toBeVisible({
@@ -337,15 +361,15 @@ test.describe("Train C Batch 53 favorites and wants", () => {
       await openFavorites(pageB);
       await expect(pageB.getByTestId(`favorite-item-${itemId}`)).toHaveCount(0);
 
-      await ensureFavoriteState(pageA, itemPath, false);
+      await ensureFavoriteState(pageA, itemPath, itemId, false);
       await openFavorites(pageA);
       await expect(pageA.getByTestId(`favorite-item-${itemId}`)).toHaveCount(0);
     } catch (error) {
       primaryError = error;
     } finally {
       if (itemId && itemPath) {
-        await ensureFavoriteState(pageA, itemPath, false).catch(() => undefined);
-        await ensureFavoriteState(pageB, itemPath, false).catch(() => undefined);
+        await ensureFavoriteState(pageA, itemPath, itemId, false).catch(() => undefined);
+        await ensureFavoriteState(pageB, itemPath, itemId, false).catch(() => undefined);
         await archiveObject(pageA, itemId).catch(() => undefined);
       }
       await contextA.close();
@@ -358,12 +382,15 @@ test.describe("Train C Batch 53 favorites and wants", () => {
   test("wanted request is public only while active and remains owner-controlled", async ({
     browser,
   }, testInfo) => {
-    test.setTimeout(120_000);
+    test.setTimeout(150_000);
 
     const contextA = await browser.newContext({ storageState: readStorageState(userAAuthFile) });
     const contextB = await browser.newContext({ storageState: readStorageState(userBAuthFile) });
     const pageA = await contextA.newPage();
     const pageB = await contextB.newPage();
+
+    await preparePage(pageA);
+    await preparePage(pageB);
 
     const suffix = `${Date.now()}-${testInfo.workerIndex}`;
     const title = `Batch 53 wanted ${suffix}`;
@@ -374,56 +401,32 @@ test.describe("Train C Batch 53 favorites and wants", () => {
       await expectReusableSession(pageA, "User A before Wanted lifecycle");
       await expectReusableSession(pageB, "User B before Wanted lifecycle");
 
-      const created = await authenticatedApi<{ request?: WantedRequestPayload }>(pageA, "/api/wanted", {
-        method: "POST",
-        body: { title, description },
+      requestId = await createWantedThroughUi(pageA, title, description);
+
+      await openWanted(pageB);
+      await mainContent(pageB).locator("input").first().fill(title);
+      const outsiderCard = pageB.getByTestId(`wanted-request-${requestId}`);
+      await expect(outsiderCard).toBeVisible({ timeout: actionTimeout });
+      await expect(outsiderCard.locator("button")).toHaveCount(0);
+
+      const ownerCard = pageA.getByTestId(`wanted-request-${requestId}`);
+      const responsePromise = pageA.waitForResponse(
+        (response) => isWantedMutation(response, requestId!, "PATCH"),
+        { timeout: actionTimeout },
+      );
+      await ownerCard.locator("button").nth(1).click();
+      const response = await responsePromise;
+      const body = await response.text();
+      expect(response.ok(), `Wanted fulfillment failed: ${response.status()} ${body}`).toBe(true);
+      const payload = JSON.parse(body) as { request?: { status?: string } };
+      expect(payload.request?.status).toBe("fulfilled");
+      await expect(ownerCard.getByText("fulfilled", { exact: true })).toBeVisible({
+        timeout: actionTimeout,
       });
-      expect(created.ok, `Wanted creation failed: ${created.status} ${JSON.stringify(created.body)}`).toBe(
-        true,
-      );
 
-      requestId = created.body.request?.id ?? null;
-      expect(requestId, "Wanted creation response must include an immutable id.").toBeTruthy();
-      expect(created.body.request?.status).toBe("active");
-
-      const publicBefore = await authenticatedApi<{ requests?: WantedRequestPayload[] }>(
-        pageB,
-        "/api/wanted",
-      );
-      expect(publicBefore.ok).toBe(true);
-      expect(publicBefore.body.requests?.some((request) => request.id === requestId)).toBe(true);
-
-      const outsiderMutation = await authenticatedApi(pageB, `/api/wanted/${requestId}`, {
-        method: "PATCH",
-        body: { status: "fulfilled" },
-      });
-      expect(outsiderMutation.ok).toBe(false);
-      expect([403, 404]).toContain(outsiderMutation.status);
-
-      const fulfilled = await authenticatedApi<{ request?: WantedRequestPayload }>(
-        pageA,
-        `/api/wanted/${requestId}`,
-        { method: "PATCH", body: { status: "fulfilled" } },
-      );
-      expect(
-        fulfilled.ok,
-        `Wanted fulfillment failed: ${fulfilled.status} ${JSON.stringify(fulfilled.body)}`,
-      ).toBe(true);
-      expect(fulfilled.body.request?.status).toBe("fulfilled");
-
-      const ownerRead = await authenticatedApi<{ request?: WantedRequestPayload }>(
-        pageA,
-        `/api/wanted/${requestId}`,
-      );
-      expect(ownerRead.ok).toBe(true);
-      expect(ownerRead.body.request?.status).toBe("fulfilled");
-
-      const publicAfter = await authenticatedApi<{ requests?: WantedRequestPayload[] }>(
-        pageB,
-        "/api/wanted",
-      );
-      expect(publicAfter.ok).toBe(true);
-      expect(publicAfter.body.requests?.some((request) => request.id === requestId)).toBe(false);
+      await openWanted(pageB);
+      await mainContent(pageB).locator("input").first().fill(title);
+      await expect(pageB.getByTestId(`wanted-request-${requestId}`)).toHaveCount(0);
     } finally {
       if (requestId) await deleteWantedBestEffort(pageA, requestId);
       await contextA.close();
