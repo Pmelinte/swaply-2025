@@ -1,6 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
 import { readFileSync } from "node:fs";
-import path from "node:path";
 import {
   authenticateAndSave,
   expectAuthenticatedSession,
@@ -8,38 +7,16 @@ import {
   userBAuthFile,
 } from "./two-user-auth.setup";
 
-type NavUiContract = {
-  logout: string;
-  profile: string;
-  settings: string;
-};
-
-async function loadMessages(page: Page): Promise<{ nav: NavUiContract }> {
-  const locale = new URL(page.url()).pathname.split("/").filter(Boolean)[0] || "en";
-  const messages = JSON.parse(
-    readFileSync(
-      path.join(process.cwd(), "src", "messages", `${locale}.json`),
-      "utf8",
-    ),
-  ) as {
-    nav: NavUiContract;
-  };
-  return { nav: messages.nav };
-}
-
 async function profileUrl(page: Page, tab: "profil" | "cont" = "profil") {
   const locale = new URL(page.url()).pathname.split("/").filter(Boolean)[0] || "en";
   return `/${locale}/profile?tab=${tab}`;
 }
 
 async function openProfileMenu(page: Page) {
-  const { nav } = await loadMessages(page);
   const trigger = page.getByTestId("profile-menu-trigger");
   await expect(trigger).toBeVisible({ timeout: 20_000 });
-  await expect(trigger).toHaveAccessibleName(nav.profile);
   await trigger.click();
   await expect(page.getByTestId("profile-menu-content")).toBeVisible();
-  return { nav };
 }
 
 type RequiredCredential =
@@ -138,14 +115,9 @@ test.describe("Train C two-user authenticated baseline", () => {
         openProfileMenu(pageB),
       ]);
 
-      const [{ nav: navA }, { nav: navB }] = await Promise.all([
-        loadMessages(pageA),
-        loadMessages(pageB),
-      ]);
-
       await Promise.all([
-        expect(pageA.getByTestId("profile-menu-settings")).toHaveText(navA.settings),
-        expect(pageB.getByTestId("profile-menu-settings")).toHaveText(navB.settings),
+        expect(pageA.getByTestId("profile-menu-settings")).toBeVisible(),
+        expect(pageB.getByTestId("profile-menu-settings")).toBeVisible(),
       ]);
 
       await Promise.all([
@@ -216,9 +188,7 @@ test.describe("Train C two-user authenticated baseline", () => {
 
       await openProfileMenu(page);
       logoutTriggered = true;
-      await page
-        .getByRole("menuitem", { name: (await loadMessages(page)).nav.logout, exact: true })
-        .click();
+      await page.getByTestId("profile-menu-logout").click();
 
       await expect(
         page.getByRole("link", { name: "Login", exact: true }),

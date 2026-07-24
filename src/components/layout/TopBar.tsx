@@ -371,6 +371,7 @@ export function TopBar() {
                     onClick={() => void handleLogout()}
                     disabled={loggingOut}
                     className="text-red-600 focus:text-red-700 dark:text-red-400 dark:focus:text-red-300"
+                    data-testid="profile-menu-logout"
                   >
                     <LogOut className="h-4 w-4" />
                     {t("nav.logout")}
