@@ -9,6 +9,7 @@ interface LocationPickerProps {
   region?: string;
   city?: string;
   onChange: (location: { country: string; region: string; city: string }) => void;
+  testIdPrefix?: string;
 }
 
 const selectClass =
@@ -19,6 +20,7 @@ export default function LocationPicker({
   region = "",
   city = "",
   onChange,
+  testIdPrefix,
 }: LocationPickerProps) {
   const t = useTranslations("location");
   const allCountries = useMemo(() => Country.getAllCountries(), []);
@@ -90,6 +92,7 @@ export default function LocationPicker({
         <select
           value={selectedCountryCode}
           onChange={(e) => handleCountryChange(e.target.value)}
+          data-testid={testIdPrefix ? `${testIdPrefix}-country` : undefined}
           className={selectClass}
         >
           <option value="">{t("selectCountry")}</option>
@@ -106,6 +109,7 @@ export default function LocationPicker({
         <select
           value={selectedStateCode}
           onChange={(e) => handleStateChange(e.target.value)}
+          data-testid={testIdPrefix ? `${testIdPrefix}-region` : undefined}
           disabled={!selectedCountryCode}
           className={selectClass}
         >
@@ -125,6 +129,7 @@ export default function LocationPicker({
         <select
           value={city}
           onChange={(e) => handleCityChange(e.target.value)}
+          data-testid={testIdPrefix ? `${testIdPrefix}-city` : undefined}
           disabled={!selectedStateCode}
           className={selectClass}
         >

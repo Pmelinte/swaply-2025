@@ -39,9 +39,11 @@ async function profileUrl(page: Page, tab: "profil" | "cont" = "profil") {
 
 async function openProfileMenu(page: Page) {
   const { nav } = await loadMessages(page);
-  const trigger = page.getByRole("button", { name: nav.profile, exact: true });
+  const trigger = page.getByTestId("profile-menu-trigger");
   await expect(trigger).toBeVisible({ timeout: 20_000 });
+  await expect(trigger).toHaveAccessibleName(nav.profile);
   await trigger.click();
+  await expect(page.getByTestId("profile-menu-content")).toBeVisible();
   return { nav };
 }
 
@@ -75,10 +77,7 @@ async function ensureReusableSession(
   await page.goto("/en/profile?tab=profil", { waitUntil: "domcontentloaded" });
   await expectAuthenticatedSession(page, label);
 
-  const profileMenu = page.getByRole("button", {
-    name: (await loadMessages(page)).nav.profile,
-    exact: true,
-  });
+  const profileMenu = page.getByTestId("profile-menu-trigger");
 
   try {
     await expect(profileMenu).toBeVisible({ timeout: 20_000 });
@@ -150,8 +149,8 @@ test.describe("Train C two-user authenticated baseline", () => {
       ]);
 
       await Promise.all([
-        expect(pageA.getByRole("menuitem", { name: navA.settings, exact: true })).toBeVisible(),
-        expect(pageB.getByRole("menuitem", { name: navB.settings, exact: true })).toBeVisible(),
+        expect(pageA.getByTestId("profile-menu-settings")).toHaveText(navA.settings),
+        expect(pageB.getByTestId("profile-menu-settings")).toHaveText(navB.settings),
       ]);
 
       await Promise.all([
