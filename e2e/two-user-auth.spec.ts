@@ -19,7 +19,12 @@ type ProfileUiContract = {
 
 async function loadMessages(page: Page): Promise<{ nav: NavUiContract; profile: ProfileUiContract }> {
   const locale = new URL(page.url()).pathname.split("/").filter(Boolean)[0] || "en";
-  const messages = (await import(`../src/messages/${locale}.json`)).default as {
+  const messages = JSON.parse(
+    readFileSync(
+      new URL(`../src/messages/${locale}.json`, import.meta.url),
+      "utf8",
+    ),
+  ) as {
     nav: NavUiContract;
     profile: ProfileUiContract;
   };
