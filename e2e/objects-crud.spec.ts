@@ -302,8 +302,10 @@ test.describe("Train C Batch 52 objects CRUD", () => {
       }
     }
 
-    await contextA.close();
-    await contextB.close();
+    await Promise.all([
+      contextA.close().catch(() => undefined),
+      contextB.close().catch(() => undefined),
+    ]);
 
     if (primaryError !== null) {
       if (cleanupError !== null) {
