@@ -290,11 +290,19 @@ async function createWantedThroughUi(
 ): Promise<WantedCreateResult> {
   await openWanted(page);
   const main = mainContent(page);
-  await main.locator("button").first().click();
 
-  const form = main.locator("div.rounded-2xl", { has: main.locator("textarea") }).first();
-  await form.locator("input").first().fill(title);
-  await form.locator("textarea").first().fill(description);
+  const postRequestButton = main.locator("button:has(svg.lucide-plus)").first();
+  await expect(postRequestButton).toBeVisible({ timeout: actionTimeout });
+  await postRequestButton.click();
+
+  const descriptionInput = main.locator("textarea").first();
+  await expect(descriptionInput).toBeVisible({ timeout: actionTimeout });
+  const form = descriptionInput.locator("xpath=parent::*");
+  const titleInput = descriptionInput.locator("xpath=preceding-sibling::input[1]");
+
+  await expect(titleInput).toBeVisible({ timeout: actionTimeout });
+  await titleInput.fill(title);
+  await descriptionInput.fill(description);
 
   const responsePromise = page.waitForResponse(
     (response) => isWantedRequest(response, "POST"),
