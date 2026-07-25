@@ -114,8 +114,16 @@ function isMatchingCandidateResponse(response: Response) {
 
 function isInterestWriteResponse(response: Response, method: "POST" | "PATCH") {
   const request = response.request();
-  const url = new URL(response.url());
-  return request.method() === method && url.pathname.endsWith("/rest/v1/matching_interests");
+  const pathname = new URL(response.url()).pathname;
+
+  if (method === "POST") {
+    return (
+      request.method() === "POST" &&
+      pathname.endsWith("/rest/v1/rpc/express_matching_interest")
+    );
+  }
+
+  return request.method() === "PATCH" && pathname.endsWith("/rest/v1/matching_interests");
 }
 
 async function createObject(page: Page, title: string, description: string): Promise<string> {
