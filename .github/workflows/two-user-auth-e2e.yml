@@ -1,5 +1,5 @@
 name: Train C Authenticated E2E
-run-name: Train C Authenticated E2E — ${{ github.event_name == 'pull_request' && format('PR #{0}', github.event.pull_request.number) || (inputs.base_url || 'automatic Preview') }}
+run-name: Train C Authenticated E2E
 
 on:
   pull_request:
