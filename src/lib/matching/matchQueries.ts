@@ -13,9 +13,6 @@ export type MatchingItemRow = Record<string, unknown> & {
   image_url: string | null;
   photos: string[] | null;
   estimated_value: number | null;
-  property_data?: Record<string, unknown> | null;
-  service_data?: Record<string, unknown> | null;
-  event_data?: Record<string, unknown> | null;
   created_at: string | null;
   is_active?: boolean;
   status?: string | null;
@@ -32,7 +29,7 @@ export type MatchingProfileRow = Record<string, unknown> & {
 };
 
 const ITEM_COLUMNS =
-  "id, owner_id, title, description, category, item_type, perceived_value_tier, swap_open_to, images, image_url, estimated_value, swap_wants_category_l1, property_data, service_data, event_data, created_at, is_active, status";
+  "id, owner_id, title, description, category, item_type, perceived_value_tier, swap_open_to, images, image_url, estimated_value, swap_wants_category_l1, created_at, is_active, status";
 
 const PROFILE_COLUMNS =
   "user_id, username, display_name, avatar_url, trust_score, location, last_active_at";
