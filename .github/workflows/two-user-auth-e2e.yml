@@ -1,7 +1,9 @@
 name: Train C Authenticated E2E
-run-name: Train C Authenticated E2E — ${{ inputs.base_url || 'automatic Preview' }}
+run-name: Train C Authenticated E2E — ${{ github.event_name == 'pull_request' && format('PR #{0}', github.event.pull_request.number) || (inputs.base_url || 'automatic Preview') }}
 
 on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
     inputs:
       base_url:
@@ -12,6 +14,10 @@ on:
 
 permissions:
   contents: read
+
+concurrency:
+  group: train-c-authenticated-e2e-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 env:
   NODE_VERSION: "22"
@@ -29,8 +35,22 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - name: Checkout
+      - name: Resolve tested commit
+        id: revision
+        shell: bash
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          tested_sha="${PR_HEAD_SHA:-$GITHUB_SHA}"
+          echo "sha=$tested_sha" >> "$GITHUB_OUTPUT"
+          echo "TESTED_SHA=$tested_sha" >> "$GITHUB_ENV"
+          echo "Tested commit: $tested_sha"
+
+      - name: Checkout exact tested commit
         uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.revision.outputs.sha }}
 
       - name: Resolve Preview target
         id: target
@@ -85,7 +105,6 @@ jobs:
             )
           fi
 
-          expected_sha="$GITHUB_SHA"
           build_info_url="${PLAYWRIGHT_BASE_URL}/api/build-info"
 
           for attempt in $(seq 1 30); do
@@ -103,9 +122,9 @@ jobs:
               });
             ')"
 
-            echo "Deployment check $attempt/30: expected=$expected_sha deployed=${deployed_sha:-unavailable}"
+            echo "Deployment check $attempt/30: expected=$TESTED_SHA deployed=${deployed_sha:-unavailable}"
 
-            if [ "$deployed_sha" = "$expected_sha" ]; then
+            if [ "$deployed_sha" = "$TESTED_SHA" ]; then
               echo "Exact Preview deployment is ready."
               exit 0
             fi
@@ -113,7 +132,7 @@ jobs:
             sleep 10
           done
 
-          echo "::error::Preview alias did not reach commit $expected_sha. Refusing to run tests against stale code."
+          echo "::error::Preview alias did not reach commit $TESTED_SHA. Refusing to run tests against stale code."
           exit 1
 
       - name: Setup Node.js
