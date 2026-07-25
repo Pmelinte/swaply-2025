@@ -22,6 +22,32 @@ async function openProfileMenu(page: Page) {
   await expect(settings).toBeVisible();
 }
 
+async function triggerProfileLogout(page: Page) {
+  let lastError: unknown = null;
+
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      const trigger = page.getByTestId("profile-menu-trigger");
+      if ((await trigger.getAttribute("aria-expanded")) !== "true") {
+        await openProfileMenu(page);
+      }
+
+      const logout = page.getByTestId("profile-menu-logout");
+      await expect(logout).toBeVisible({ timeout: 10_000 });
+      await logout.dispatchEvent("click");
+      return;
+    } catch (error) {
+      lastError = error;
+      await page.keyboard.press("Escape").catch(() => undefined);
+      await page.waitForTimeout(250);
+    }
+  }
+
+  throw lastError instanceof Error
+    ? lastError
+    : new Error("Unable to trigger profile logout after three attempts.");
+}
+
 async function openAccountTab(page: Page, email: string, label: string) {
   await page.goto(await profileUrl(page, "cont"), { waitUntil: "domcontentloaded" });
   await expect(page).toHaveURL(/\/[a-z-]+\/profile\?tab=cont/);
@@ -179,7 +205,6 @@ test.describe("Train C two-user authenticated baseline", () => {
     const context = await browser.newContext({ storageState: userBAuthFile });
     const page = await context.newPage();
 
-    let logoutTriggered = false;
     let primaryError: unknown | null = null;
 
     try {
@@ -192,8 +217,7 @@ test.describe("Train C two-user authenticated baseline", () => {
       );
 
       await openProfileMenu(page);
-      logoutTriggered = true;
-      await page.getByTestId("profile-menu-logout").click();
+      await triggerProfileLogout(page);
 
       await expect
         .poll(
@@ -211,8 +235,15 @@ test.describe("Train C two-user authenticated baseline", () => {
     }
 
     let restoreError: unknown | null = null;
+    let sessionStatus: number | null = null;
 
-    if (logoutTriggered) {
+    try {
+      sessionStatus = (await context.request.get("/api/tokens/balance", { timeout: 10_000 })).status();
+    } catch {
+      sessionStatus = null;
+    }
+
+    if (sessionStatus !== 200) {
       try {
         await test.step("restore the reusable User B fixture", async () => {
           await ensureReusableSession(
@@ -228,7 +259,7 @@ test.describe("Train C two-user authenticated baseline", () => {
       }
     }
 
-    await context.close();
+    await context.close().catch(() => undefined);
 
     if (primaryError !== null) {
       if (restoreError !== null) {
