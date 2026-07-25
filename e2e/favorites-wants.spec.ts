@@ -1,4 +1,4 @@
-import { expect, test, type Page, type Response } from "@playwright/test";
+import { expect, test, type BrowserContext, type Page, type Response } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import {
   expectAuthenticatedSession,
@@ -12,6 +12,11 @@ const objectCreateRoute = "/objects/new";
 const myObjectsRoute = "/my-objects";
 const profileRoute = "/profile";
 const actionTimeout = 20_000;
+
+type WantedCreateResult = {
+  requestId: string;
+  authorization: string;
+};
 
 function readStorageState(path: string) {
   return JSON.parse(readFileSync(path, "utf8"));
@@ -108,11 +113,10 @@ function isItemsWriteResponse(response: Response, itemId?: string) {
   return body.includes(itemId) || url.searchParams.get("id") === `eq.${itemId}`;
 }
 
-function isWantedMutation(response: Response, requestId?: string, method?: string) {
-  const request = response.request();
-  if (method && request.method() !== method) return false;
-  const path = new URL(response.url()).pathname;
-  return requestId ? path === `/api/wanted/${requestId}` : path === "/api/wanted";
+function isWantedRequest(response: Response, method: string, requestId?: string) {
+  if (response.request().method() !== method) return false;
+  const pathname = new URL(response.url()).pathname;
+  return requestId ? pathname === `/api/wanted/${requestId}` : pathname === "/api/wanted";
 }
 
 async function openFavorites(page: Page) {
@@ -131,6 +135,22 @@ async function openWanted(page: Page) {
     .poll(() => new URL(page.url()).pathname, { timeout: actionTimeout })
     .toBe(wantedPath);
   await expect(mainContent(page).locator("input").first()).toBeVisible({ timeout: actionTimeout });
+}
+
+async function openWantedAndCaptureAuthorization(page: Page): Promise<string> {
+  const requestPromise = page.waitForRequest(
+    (request) =>
+      request.method() === "GET" &&
+      new URL(request.url()).pathname === "/api/wanted" &&
+      Boolean(request.headers()["authorization"]),
+    { timeout: actionTimeout },
+  );
+
+  await openWanted(page);
+  const request = await requestPromise;
+  const authorization = request.headers()["authorization"];
+  expect(authorization, "Wanted GET must carry the reusable Supabase bearer token.").toBeTruthy();
+  return authorization!;
 }
 
 async function createObject(page: Page, title: string, description: string): Promise<string> {
@@ -263,7 +283,11 @@ async function ensureFavoriteState(page: Page, path: string, itemId: string, exp
   );
 }
 
-async function createWantedThroughUi(page: Page, title: string, description: string): Promise<string> {
+async function createWantedThroughUi(
+  page: Page,
+  title: string,
+  description: string,
+): Promise<WantedCreateResult> {
   await openWanted(page);
   const main = mainContent(page);
   await main.locator("button").first().click();
@@ -273,7 +297,7 @@ async function createWantedThroughUi(page: Page, title: string, description: str
   await form.locator("textarea").first().fill(description);
 
   const responsePromise = page.waitForResponse(
-    (response) => isWantedMutation(response, undefined, "POST"),
+    (response) => isWantedRequest(response, "POST"),
     { timeout: actionTimeout },
   );
   await form.locator("button").last().click();
@@ -285,16 +309,47 @@ async function createWantedThroughUi(page: Page, title: string, description: str
   const requestId = payload.request?.id;
   expect(requestId, "Wanted creation response must include an immutable id.").toBeTruthy();
   expect(payload.request?.status).toBe("active");
+
+  const authorization = response.request().headers()["authorization"];
+  expect(authorization, "Wanted creation must carry the reusable Supabase bearer token.").toBeTruthy();
+
   await expect(page.getByTestId(`wanted-request-${requestId}`)).toBeVisible({ timeout: actionTimeout });
-  return requestId!;
+  return { requestId: requestId!, authorization: authorization! };
 }
 
-async function deleteWantedBestEffort(page: Page, requestId: string) {
-  try {
-    await page.request.delete(`/api/wanted/${requestId}`, { timeout: 5_000 });
-  } catch {
-    // Cleanup must not replace the lifecycle assertion.
-  }
+async function patchWanted(
+  page: Page,
+  requestId: string,
+  authorization: string,
+  status: "fulfilled" | "cancelled" | "active",
+) {
+  const response = await page.request.patch(`/api/wanted/${requestId}`, {
+    headers: { Authorization: authorization },
+    data: { status },
+    timeout: actionTimeout,
+  });
+  const body = await response.text();
+  return { response, body };
+}
+
+async function deleteWanted(
+  page: Page,
+  requestId: string,
+  authorization: string,
+) {
+  const response = await page.request.delete(`/api/wanted/${requestId}`, {
+    headers: { Authorization: authorization },
+    timeout: actionTimeout,
+  });
+  const body = await response.text();
+  expect(response.ok(), `Wanted cleanup failed: ${response.status()} ${body}`).toBe(true);
+}
+
+async function closeContextBestEffort(context: BrowserContext) {
+  await context.close().catch((error: unknown) => {
+    const message = error instanceof Error ? error.message : String(error);
+    if (!/Target page, context or browser has been closed/i.test(message)) throw error;
+  });
 }
 
 test.describe("Train C Batch 53 favorites and wants", () => {
@@ -345,13 +400,13 @@ test.describe("Train C Batch 53 favorites and wants", () => {
     } catch (error) {
       primaryError = error;
     } finally {
-      if (itemId && itemPath) {
+      if (itemId && itemPath && !pageA.isClosed() && !pageB.isClosed()) {
         await ensureFavoriteState(pageA, itemPath, itemId, false).catch(() => undefined);
         await ensureFavoriteState(pageB, itemPath, itemId, false).catch(() => undefined);
         await archiveObject(pageA, itemId).catch(() => undefined);
       }
-      await contextA.close();
-      await contextB.close();
+      await closeContextBestEffort(contextA);
+      await closeContextBestEffort(contextB);
     }
 
     if (primaryError) throw primaryError;
@@ -374,41 +429,70 @@ test.describe("Train C Batch 53 favorites and wants", () => {
     const title = `Batch 53 wanted ${suffix}`;
     const description = "Batch 53 verifies public visibility and owner-only lifecycle controls.";
     let requestId: string | null = null;
+    let ownerAuthorization: string | null = null;
+    let primaryError: unknown = null;
 
     try {
       await expectReusableSession(pageA, "User A before Wanted lifecycle");
       await expectReusableSession(pageB, "User B before Wanted lifecycle");
 
-      requestId = await createWantedThroughUi(pageA, title, description);
+      const created = await createWantedThroughUi(pageA, title, description);
+      requestId = created.requestId;
+      ownerAuthorization = created.authorization;
 
-      await openWanted(pageB);
+      const outsiderAuthorization = await openWantedAndCaptureAuthorization(pageB);
       await mainContent(pageB).locator("input").first().fill(title);
       const outsiderCard = pageB.getByTestId(`wanted-request-${requestId}`);
       await expect(outsiderCard).toBeVisible({ timeout: actionTimeout });
       await expect(outsiderCard.locator("button")).toHaveCount(0);
 
-      const ownerCard = pageA.getByTestId(`wanted-request-${requestId}`);
-      const responsePromise = pageA.waitForResponse(
-        (response) => isWantedMutation(response, requestId!, "PATCH"),
-        { timeout: actionTimeout },
+      const outsiderMutation = await patchWanted(
+        pageB,
+        requestId,
+        outsiderAuthorization,
+        "fulfilled",
       );
-      await ownerCard.locator("button").nth(1).click();
-      const response = await responsePromise;
-      const body = await response.text();
-      expect(response.ok(), `Wanted fulfillment failed: ${response.status()} ${body}`).toBe(true);
-      const payload = JSON.parse(body) as { request?: { status?: string } };
-      expect(payload.request?.status).toBe("fulfilled");
-      await expect(ownerCard.getByText("fulfilled", { exact: true })).toBeVisible({
-        timeout: actionTimeout,
-      });
+      expect([403, 404]).toContain(outsiderMutation.response.status());
+
+      const ownerMutation = await patchWanted(
+        pageA,
+        requestId,
+        ownerAuthorization,
+        "fulfilled",
+      );
+      expect(
+        ownerMutation.response.ok(),
+        `Wanted fulfillment failed: ${ownerMutation.response.status()} ${ownerMutation.body}`,
+      ).toBe(true);
+      const fulfilledPayload = JSON.parse(ownerMutation.body) as {
+        request?: { status?: string };
+      };
+      expect(fulfilledPayload.request?.status).toBe("fulfilled");
 
       await openWanted(pageB);
       await mainContent(pageB).locator("input").first().fill(title);
       await expect(pageB.getByTestId(`wanted-request-${requestId}`)).toHaveCount(0);
+
+      await openWanted(pageA);
+      await mainContent(pageA).locator("button").nth(1).click();
+      await expect(pageA.getByTestId(`wanted-request-${requestId}`)).toBeVisible({
+        timeout: actionTimeout,
+      });
+      await expect(
+        pageA.getByTestId(`wanted-request-${requestId}`).getByText("fulfilled", { exact: true }),
+      ).toBeVisible({ timeout: actionTimeout });
+    } catch (error) {
+      primaryError = error;
     } finally {
-      if (requestId) await deleteWantedBestEffort(pageA, requestId);
-      await contextA.close();
-      await contextB.close();
+      if (requestId && ownerAuthorization && !pageA.isClosed()) {
+        await deleteWanted(pageA, requestId, ownerAuthorization).catch((cleanupError) => {
+          if (!primaryError) primaryError = cleanupError;
+        });
+      }
+      await closeContextBestEffort(contextA);
+      await closeContextBestEffort(contextB);
     }
+
+    if (primaryError) throw primaryError;
   });
 });
