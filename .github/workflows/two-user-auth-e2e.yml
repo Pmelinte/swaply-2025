@@ -1,13 +1,13 @@
 name: Train C Authenticated E2E
-run-name: Train C Authenticated E2E — ${{ inputs.base_url }}
+run-name: Train C Authenticated E2E — ${{ inputs.base_url || 'automatic Preview' }}
 
 on:
   workflow_dispatch:
     inputs:
       base_url:
-        description: "Full target URL. Use the Vercel Preview branch alias for PR validation."
-        required: true
-        default: "https://www.swaply.world"
+        description: "Optional override. Leave empty to use the canonical Preview alias for PR #531."
+        required: false
+        default: ""
         type: string
 
 permissions:
@@ -16,7 +16,7 @@ permissions:
 env:
   NODE_VERSION: "22"
   NEXT_TELEMETRY_DISABLED: "1"
-  PLAYWRIGHT_BASE_URL: ${{ inputs.base_url }}
+  DEFAULT_PREVIEW_URL: "https://swaply-2025-git-codex-finalize-63b1b5-petrus-projects-d4a0946c.vercel.app"
   VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
   E2E_USER_A_EMAIL: ${{ secrets.E2E_USER_A_EMAIL }}
   E2E_USER_A_PASSWORD: ${{ secrets.E2E_USER_A_PASSWORD }}
@@ -32,26 +32,49 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Resolve Preview target
+        id: target
+        shell: bash
+        env:
+          INPUT_BASE_URL: ${{ inputs.base_url }}
+        run: |
+          set -euo pipefail
+
+          target="${INPUT_BASE_URL:-}"
+          if [ -z "$target" ]; then
+            target="$DEFAULT_PREVIEW_URL"
+          fi
+          target="${target%/}"
+
+          case "$target" in
+            https://www.swaply.world|https://swaply.world)
+              echo "::error::Production is forbidden for PR validation. Use the Preview deployment."
+              exit 1
+              ;;
+          esac
+
+          echo "base_url=$target" >> "$GITHUB_OUTPUT"
+          echo "PLAYWRIGHT_BASE_URL=$target" >> "$GITHUB_ENV"
+          echo "Resolved target: $target"
+
       - name: Verify required secrets
         shell: bash
         run: |
+          set -euo pipefail
           test -n "$E2E_USER_A_EMAIL"
           test -n "$E2E_USER_A_PASSWORD"
           test -n "$E2E_USER_B_EMAIL"
           test -n "$E2E_USER_B_PASSWORD"
 
-      - name: Verify target URL
+      - name: Wait for exact Preview deployment
         shell: bash
         run: |
           set -euo pipefail
-          test -n "$PLAYWRIGHT_BASE_URL"
 
           curl_args=(
             --silent
             --show-error
             --location
-            --output /dev/null
-            --write-out "%{http_code}"
             --max-time 45
           )
 
@@ -62,17 +85,36 @@ jobs:
             )
           fi
 
-          status="$(curl "${curl_args[@]}" "$PLAYWRIGHT_BASE_URL")"
-          echo "Target: $PLAYWRIGHT_BASE_URL"
-          echo "HTTP status: $status"
+          expected_sha="$GITHUB_SHA"
+          build_info_url="${PLAYWRIGHT_BASE_URL}/api/build-info"
 
-          case "$status" in
-            2*|3*) ;;
-            *)
-              echo "::error::Target URL is not reachable. If the Vercel Preview is protected, configure VERCEL_AUTOMATION_BYPASS_SECRET."
-              exit 1
-              ;;
-          esac
+          for attempt in $(seq 1 30); do
+            response="$(curl "${curl_args[@]}" "$build_info_url" 2>/dev/null || true)"
+            deployed_sha="$(printf '%s' "$response" | node -e '
+              let input = "";
+              process.stdin.on("data", chunk => input += chunk);
+              process.stdin.on("end", () => {
+                try {
+                  const value = JSON.parse(input);
+                  process.stdout.write(typeof value.commitSha === "string" ? value.commitSha : "");
+                } catch {
+                  process.stdout.write("");
+                }
+              });
+            ')"
+
+            echo "Deployment check $attempt/30: expected=$expected_sha deployed=${deployed_sha:-unavailable}"
+
+            if [ "$deployed_sha" = "$expected_sha" ]; then
+              echo "Exact Preview deployment is ready."
+              exit 0
+            fi
+
+            sleep 10
+          done
+
+          echo "::error::Preview alias did not reach commit $expected_sha. Refusing to run tests against stale code."
+          exit 1
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
