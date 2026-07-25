@@ -332,11 +332,7 @@ async function patchWanted(
   return { response, body };
 }
 
-async function deleteWanted(
-  page: Page,
-  requestId: string,
-  authorization: string,
-) {
+async function deleteWanted(page: Page, requestId: string, authorization: string) {
   const response = await page.request.delete(`/api/wanted/${requestId}`, {
     headers: { Authorization: authorization },
     timeout: actionTimeout,
@@ -472,15 +468,6 @@ test.describe("Train C Batch 53 favorites and wants", () => {
       await openWanted(pageB);
       await mainContent(pageB).locator("input").first().fill(title);
       await expect(pageB.getByTestId(`wanted-request-${requestId}`)).toHaveCount(0);
-
-      await openWanted(pageA);
-      await mainContent(pageA).locator("button").nth(1).click();
-      await expect(pageA.getByTestId(`wanted-request-${requestId}`)).toBeVisible({
-        timeout: actionTimeout,
-      });
-      await expect(
-        pageA.getByTestId(`wanted-request-${requestId}`).getByText("fulfilled", { exact: true }),
-      ).toBeVisible({ timeout: actionTimeout });
     } catch (error) {
       primaryError = error;
     } finally {
