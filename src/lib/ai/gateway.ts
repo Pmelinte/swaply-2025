@@ -54,6 +54,8 @@ export interface AIGatewayLogEvent {
   status: AIRequestStatus;
   latencyMs: number;
   estimatedCost?: number | null;
+  cacheHit?: boolean;
+  attemptCount: number;
   locale?: string | null;
   sourceLocale?: string | null;
   targetLocale?: string | null;
@@ -102,14 +104,7 @@ export class AIGateway {
     }
 
     if (!task.enabled) {
-      return this.nonAIFallback<TOutput>(
-        request,
-        task.fallback(parsedInput.data),
-        "task_disabled",
-        totalStarted,
-        promptVersion,
-        [],
-      );
+      return this.nonAIFallback<TOutput>(request, task.fallback(parsedInput.data), "task_disabled", totalStarted, promptVersion, []);
     }
 
     const baseRequest: AIGatewayInput = {
@@ -131,22 +126,14 @@ export class AIGateway {
       const timeout = setTimeout(() => controller.abort(), timeoutMs);
       const providerRequest: AIGatewayInput = {
         ...baseRequest,
-        input:
-          provider.external && task.privacyPolicy === "redact_pii"
-            ? redactAIInput(parsedInput.data)
-            : parsedInput.data,
+        input: provider.external && task.privacyPolicy === "redact_pii" ? redactAIInput(parsedInput.data) : parsedInput.data,
       };
 
       try {
         const rawOutput = await provider.run(providerRequest, { signal: controller.signal });
         const parsedOutput = task.outputSchema.safeParse(rawOutput);
         if (!parsedOutput.success) {
-          attempts.push({
-            provider: provider.id,
-            status: "invalid_output",
-            latencyMs: Date.now() - started,
-            errorCode: "invalid_output",
-          });
+          attempts.push({ provider: provider.id, status: "invalid_output", latencyMs: Date.now() - started, errorCode: "invalid_output" });
           continue;
         }
         return this.finish(request, {
@@ -230,6 +217,8 @@ export class AIGateway {
         status: complete.status,
         latencyMs: complete.latencyMs,
         estimatedCost: complete.estimatedCost,
+        cacheHit: complete.cacheHit,
+        attemptCount: complete.attempts.length,
         locale: request.locale,
         sourceLocale: request.sourceLocale,
         targetLocale: request.targetLocale,
