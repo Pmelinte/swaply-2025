@@ -12,7 +12,12 @@ describe("E1.3 AI observability", () => {
       supports: () => true,
       run: async () => ({ safe: true, flags: [] }),
     };
-    const gateway = new AIGateway({ providers: [provider], onLog: (event) => collector.record(event) });
+    const gateway = new AIGateway({
+      providers: [provider],
+      onLog: (event) => {
+        collector.record(event);
+      },
+    });
 
     await gateway.run({
       taskType: "moderate_chat",
