@@ -14,6 +14,7 @@ export async function proposeTranslation(
 
   if (request.sourceLocale === request.targetLocale) {
     return {
+      text,
       originalText: text,
       translatedText: text,
       sourceLocale: request.sourceLocale,
@@ -37,6 +38,7 @@ export async function proposeTranslation(
 
   return {
     ...result.output,
+    text: result.output.translatedText,
     status: result.output.source === "ai" && result.status === "ok" ? "translated" : "fallback",
     requiresHumanConfirmation: true,
   };
