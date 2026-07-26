@@ -8,5 +8,6 @@ export * from "./safeTaskMetadata";
 export * from "./swaplyAIFacade";
 export * from "./task-router";
 export * from "./taskTypes";
+export * from "./translation";
 export * from "./providers";
 export * from "./server";
