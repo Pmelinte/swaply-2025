@@ -83,7 +83,7 @@ const translateExpandedOutputSchema = z.object({
 
 const translateLegacyOutputSchema = z.object({
   text: z.string(),
-  source: z.enum(["ai", "fallback"]).optional().default("ai"),
+  source: z.enum(["ai", "fallback"]).optional(),
 });
 
 const translateOutputSchema = z.union([
