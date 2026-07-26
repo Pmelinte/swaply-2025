@@ -21,11 +21,19 @@ function mainContent(page: Page) {
   return page.getByRole("main");
 }
 
-async function expectReusableSession(page: Page, label: string) {
-  await page.goto(profilePath, { waitUntil: "domcontentloaded" });
+function localizedPath(suffix: string) {
+  return new RegExp(`^/[a-z]{2}${suffix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`);
+}
+
+async function expectLocalizedPath(page: Page, suffix: string) {
   await expect
     .poll(() => new URL(page.url()).pathname, { timeout: actionTimeout })
-    .toBe(profilePath);
+    .toMatch(localizedPath(suffix));
+}
+
+async function expectReusableSession(page: Page, label: string) {
+  await page.goto(profilePath, { waitUntil: "domcontentloaded" });
+  await expectLocalizedPath(page, "/profile");
   await expectAuthenticatedSession(page, label);
 }
 
@@ -97,6 +105,9 @@ function isFavoriteWriteResponse(response: Response, itemId: string) {
   if (method !== "POST" && method !== "DELETE") return false;
 
   const url = new URL(response.url());
+  if (method === "POST" && url.pathname === "/api/favorites") {
+    return (request.postData() ?? "").includes(itemId);
+  }
   if (!url.pathname.endsWith("/rest/v1/user_favorites")) return false;
 
   const body = request.postData() ?? "";
@@ -109,6 +120,13 @@ function isItemsWriteResponse(response: Response, itemId?: string) {
   if (method !== "POST" && method !== "PATCH") return false;
 
   const url = new URL(response.url());
+  if (
+    itemId &&
+    method === "PATCH" &&
+    url.pathname.endsWith(`/api/items/${itemId}/status`)
+  ) {
+    return true;
+  }
   if (!url.pathname.endsWith("/rest/v1/items")) return false;
   if (!itemId) return true;
 
@@ -118,19 +136,15 @@ function isItemsWriteResponse(response: Response, itemId?: string) {
 
 async function openWanted(page: Page) {
   await page.goto(wantedPath, { waitUntil: "domcontentloaded" });
-  await expect
-    .poll(() => new URL(page.url()).pathname, { timeout: actionTimeout })
-    .toBe(wantedPath);
-  await expect(page.getByRole("button", { name: "Post Request", exact: true })).toBeVisible({
+  await expectLocalizedPath(page, "/wanted");
+  await expect(page.getByTestId("wanted-post-request")).toBeVisible({
     timeout: actionTimeout,
   });
 }
 
 async function openFavorites(page: Page) {
   await page.goto(favoritesPath, { waitUntil: "domcontentloaded" });
-  await expect
-    .poll(() => new URL(page.url()).pathname, { timeout: actionTimeout })
-    .toBe(favoritesPath);
+  await expectLocalizedPath(page, "/favorites");
   await expect(page.getByTestId("favorites-page")).toBeVisible({ timeout: actionTimeout });
 }
 
@@ -196,7 +210,7 @@ async function createObject(page: Page, title: string, description: string): Pro
   ).toBeVisible({ timeout: actionTimeout });
   await expect
     .poll(() => new URL(page.url()).pathname, { timeout: actionTimeout })
-    .toBe(`/en/objects/${itemId}`);
+    .toMatch(localizedPath(`/objects/${itemId}`));
 
   return itemId!;
 }
@@ -204,9 +218,7 @@ async function createObject(page: Page, title: string, description: string): Pro
 async function archiveObject(page: Page, itemId: string) {
   await expectAuthenticatedSession(page, "User A before Favorites object cleanup");
   await page.goto(myObjectsPath, { waitUntil: "domcontentloaded" });
-  await expect
-    .poll(() => new URL(page.url()).pathname, { timeout: actionTimeout })
-    .toBe(myObjectsPath);
+  await expectLocalizedPath(page, "/my-objects");
 
   const main = mainContent(page);
   const search = main.getByPlaceholder("Search your items...", { exact: true });
@@ -298,7 +310,7 @@ test.describe("Train C Batch 53 favorites and wants", () => {
 
       await test.step("create an isolated favorite test object as User A", async () => {
         itemId = await createObject(pageA, title, description);
-        itemPath = `/en/objects/${itemId}`;
+        itemPath = new URL(pageA.url()).pathname;
 
         await ensureNotFavorite(pageA, itemPath, itemId);
         await ensureNotFavorite(pageB, itemPath, itemId);
@@ -404,16 +416,14 @@ test.describe("Train C Batch 53 favorites and wants", () => {
 
       await test.step("User A creates a wanted request", async () => {
         await openWanted(pageA);
-        await pageA.getByRole("button", { name: "Post Request", exact: true }).click();
-        await pageA.getByPlaceholder("What are you looking for?", { exact: true }).fill(title);
-        await pageA
-          .getByPlaceholder("Describe what you need, condition, budget range...", { exact: true })
-          .fill(description);
+        await pageA.getByTestId("wanted-post-request").click();
+        await pageA.getByTestId("wanted-title").fill(title);
+        await pageA.getByTestId("wanted-description").fill(description);
 
         const createResponsePromise = pageA.waitForResponse(isWantedCreateResponse, {
           timeout: actionTimeout,
         });
-        await pageA.getByRole("button", { name: "Publish Request", exact: true }).click();
+        await pageA.getByTestId("wanted-publish").click();
         const response = await createResponsePromise;
         const body = await response.text();
         expect(response.ok(), `Wanted creation failed: ${response.status()} ${body}`).toBe(true);
@@ -429,20 +439,20 @@ test.describe("Train C Batch 53 favorites and wants", () => {
 
       await test.step("User B sees the active request without owner controls", async () => {
         await openWanted(pageB);
-        await pageB.getByPlaceholder("Search wanted requests...", { exact: true }).fill(title);
+        await pageB.getByTestId("wanted-search").fill(title);
         const card = pageB.getByTestId(`wanted-request-${requestId}`);
         await expect(card).toBeVisible({ timeout: actionTimeout });
         await expect(card.getByText(title, { exact: false })).toBeVisible();
-        await expect(card.getByRole("button", { name: "Edit", exact: true })).toHaveCount(0);
-        await expect(card.getByRole("button", { name: "Delete", exact: true })).toHaveCount(0);
+        await expect(pageB.getByTestId(`wanted-edit-${requestId}`)).toHaveCount(0);
+        await expect(pageB.getByTestId(`wanted-delete-${requestId}`)).toHaveCount(0);
       });
 
       await test.step("User A marks the request fulfilled", async () => {
         await openWanted(pageA);
-        await pageA.getByRole("button", { name: "You", exact: true }).click();
+        await pageA.getByTestId("wanted-filter-mine").click();
         const card = pageA.getByTestId(`wanted-request-${requestId}`);
         await expect(card).toBeVisible({ timeout: actionTimeout });
-        await card.getByRole("button", { name: "Success", exact: true }).click();
+        await pageA.getByTestId(`wanted-fulfill-${requestId}`).click();
         await expect(card.getByText("fulfilled", { exact: true })).toBeVisible({
           timeout: actionTimeout,
         });
@@ -450,8 +460,16 @@ test.describe("Train C Batch 53 favorites and wants", () => {
 
       await test.step("fulfilled request disappears from User B public list", async () => {
         await openWanted(pageB);
-        await pageB.getByPlaceholder("Search wanted requests...", { exact: true }).fill(title);
+        await pageB.getByTestId("wanted-search").fill(title);
         await expect(pageB.getByTestId(`wanted-request-${requestId}`)).toHaveCount(0);
+      });
+
+      await test.step("User A deletes the fulfilled request", async () => {
+        await pageA.getByTestId(`wanted-delete-${requestId}`).click();
+        await expect(pageA.getByTestId(`wanted-request-${requestId}`)).toHaveCount(0, {
+          timeout: actionTimeout,
+        });
+        requestId = null;
       });
     } catch (error) {
       primaryError = error;
@@ -459,12 +477,12 @@ test.describe("Train C Batch 53 favorites and wants", () => {
       if (requestId) {
         try {
           await openWanted(pageA);
-          await pageA.getByRole("button", { name: "You", exact: true }).click();
+          await pageA.getByTestId("wanted-filter-mine").click();
           const card = pageA.getByTestId(`wanted-request-${requestId}`);
           await expect(card, `Cleanup could not find wanted request ${requestId}.`).toBeVisible({
             timeout: actionTimeout,
           });
-          await card.getByRole("button", { name: "Delete", exact: true }).click();
+          await pageA.getByTestId(`wanted-delete-${requestId}`).click();
           await expect(card).toHaveCount(0, { timeout: actionTimeout });
         } catch (cleanupError) {
           if (!primaryError) primaryError = cleanupError;
