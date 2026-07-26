@@ -83,7 +83,16 @@ export interface TranslateTextRequest {
 }
 
 export interface TranslateTextResult {
-  /** Backward-compatible alias for the text shown to the caller. */
+  text: string;
+  originalText?: string;
+  translatedText?: string;
+  sourceLocale?: string;
+  targetLocale?: string;
+  source: AIFallbackSource;
+  warning?: string;
+}
+
+export interface TranslationProposal {
   text: string;
   originalText: string;
   translatedText: string;
@@ -91,9 +100,6 @@ export interface TranslateTextResult {
   targetLocale: string;
   source: AIFallbackSource;
   warning?: string;
-}
-
-export interface TranslationProposal extends TranslateTextResult {
   requiresHumanConfirmation: true;
   status: "translated" | "same_language" | "fallback";
 }
