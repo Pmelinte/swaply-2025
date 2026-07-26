@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { CATEGORIES_TAXONOMY } from "@/lib/categories";
 import type { AITaskType } from "./taskTypes";
+import { fallbackGenerateItemDescription } from "./fallbacks";
 
 export type AIPrivacyPolicy = "metadata_only" | "redact_pii";
 
@@ -21,10 +22,21 @@ const unavailable = (taskType: AITaskType) => ({
   reason: "non_ai_fallback",
 });
 
+const imageReferenceSchema = z.object({
+  url: z.string().url().optional(),
+  cloudinaryPublicId: z.string().min(1).optional(),
+  mimeType: z.string().min(1).optional(),
+}).refine((image) => Boolean(image.url || image.cloudinaryPublicId), {
+  message: "Image reference requires a URL or Cloudinary public ID.",
+});
+
 const classifyInputSchema = z.object({
-  titleHint: z.string().optional(),
-  descriptionHint: z.string().optional(),
-  locale: z.string().optional(),
+  titleHint: z.string().max(240).optional(),
+  descriptionHint: z.string().max(5_000).optional(),
+  images: z.array(imageReferenceSchema).max(8).optional(),
+  locale: z.string().max(20).optional(),
+}).refine((input) => Boolean(input.titleHint?.trim() || input.descriptionHint?.trim() || input.images?.length), {
+  message: "Classification requires text or at least one image reference.",
 });
 
 const classifyOutputSchema = z.object({
@@ -34,6 +46,22 @@ const classifyOutputSchema = z.object({
   confidence: z.number().min(0).max(1),
   source: z.enum(["ai", "fallback"]),
   notes: z.string(),
+});
+
+const descriptionInputSchema = z.object({
+  title: z.string().min(1).max(240),
+  category: z.string().nullable().optional(),
+  subcategory: z.string().nullable().optional(),
+  condition: z.string().nullable().optional(),
+  userNotes: z.string().max(5_000).nullable().optional(),
+  locale: z.string().max(20).optional(),
+});
+
+const descriptionOutputSchema = z.object({
+  title: z.string().min(1).max(240),
+  description: z.string().min(1).max(10_000),
+  tags: z.array(z.string()).max(8),
+  source: z.enum(["ai", "fallback"]),
 });
 
 const moderateInputSchema = z.object({ text: z.string() });
@@ -48,7 +76,7 @@ const definitions: Record<AITaskType, AITaskDefinition> = {
     enabled: true,
     inputSchema: classifyInputSchema,
     outputSchema: classifyOutputSchema,
-    promptVersion: "classify-item-v1",
+    promptVersion: "classify-item-v2",
     timeoutMs: 12_000,
     providerPolicy: ["huggingface"],
     privacyPolicy: "redact_pii",
@@ -65,7 +93,16 @@ const definitions: Record<AITaskType, AITaskDefinition> = {
     fallback: fallbackModerate,
   },
   search_by_photo: genericTask("search_by_photo", "search-photo-v1", 15_000),
-  generate_item_description: genericTask("generate_item_description", "item-description-v1", 12_000),
+  generate_item_description: {
+    enabled: true,
+    inputSchema: descriptionInputSchema,
+    outputSchema: descriptionOutputSchema,
+    promptVersion: "item-description-v2",
+    timeoutMs: 12_000,
+    providerPolicy: [],
+    privacyPolicy: "redact_pii",
+    fallback: (input: unknown) => fallbackGenerateItemDescription(descriptionInputSchema.parse(input)),
+  },
   estimate_value: genericTask("estimate_value", "estimate-value-v1", 12_000),
   translate: genericTask("translate", "translate-v1", 12_000),
   match: genericTask("match", "match-v1", 12_000),
@@ -89,7 +126,7 @@ function genericTask(taskType: AITaskType, promptVersion: string, timeoutMs: num
 }
 
 function fallbackClassify(input: unknown) {
-  const parsed = classifyInputSchema.catch({}).parse(input);
+  const parsed = classifyInputSchema.parse(input);
   const text = [parsed.titleHint, parsed.descriptionHint].filter(Boolean).join(". ");
   const normalized = text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
@@ -100,14 +137,24 @@ function fallbackClassify(input: unknown) {
     (category) => category.level === 0 && category.keywords.some((keyword) => normalized.includes(keyword)),
   );
 
+  const warnings = parsed.images?.length && !text
+    ? "Image references were received, but no vision provider is active; manual review is required."
+    : "Deterministic non-AI fallback.";
+
   return classifyOutputSchema.parse({
-    category: subcategory?.name ?? topCategory?.name ?? "hobby_games",
+    category: subcategory?.name ?? topCategory?.name ?? "objects",
     subcategory: subcategory?.name ?? null,
-    tags: [],
-    confidence: 0.45,
+    tags: fallbackTags(text),
+    confidence: text ? 0.45 : 0,
     source: "fallback",
-    notes: "Deterministic non-AI fallback.",
+    notes: warnings,
   });
+}
+
+function fallbackTags(text: string) {
+  return Array.from(new Set(
+    text.toLowerCase().split(/[^a-z0-9ăâîșț]+/iu).filter((word) => word.length >= 3),
+  )).slice(0, 5);
 }
 
 function fallbackModerate(input: unknown) {
