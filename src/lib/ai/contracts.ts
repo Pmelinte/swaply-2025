@@ -83,9 +83,17 @@ export interface TranslateTextRequest {
 }
 
 export interface TranslateTextResult {
-  text: string;
+  originalText: string;
+  translatedText: string;
+  sourceLocale: string;
+  targetLocale: string;
   source: AIFallbackSource;
   warning?: string;
+}
+
+export interface TranslationProposal extends TranslateTextResult {
+  requiresHumanConfirmation: true;
+  status: "translated" | "same_language" | "fallback";
 }
 
 export interface MatchExplanationRequest {
