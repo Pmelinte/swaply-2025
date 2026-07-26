@@ -36,9 +36,19 @@ export async function proposeTranslation(
     throw new Error(result.errorCode ?? "translation_failed");
   }
 
+  const translatedText = result.output.translatedText ?? result.output.text;
+  const originalText = result.output.originalText ?? text;
+  const sourceLocale = result.output.sourceLocale ?? request.sourceLocale;
+  const targetLocale = result.output.targetLocale ?? request.targetLocale;
+
   return {
-    ...result.output,
-    text: result.output.translatedText,
+    text: translatedText,
+    originalText,
+    translatedText,
+    sourceLocale,
+    targetLocale,
+    source: result.output.source,
+    warning: result.output.warning,
     status: result.output.source === "ai" && result.status === "ok" ? "translated" : "fallback",
     requiresHumanConfirmation: true,
   };
