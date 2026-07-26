@@ -4,7 +4,7 @@ export * from "./gateway";
 export * from "./model-registry";
 export * from "./safeTaskMetadata";
 export * from "./swaplyAIFacade";
+export * from "./task-router";
 export * from "./taskTypes";
-
 export * from "./providers";
 export * from "./server";
