@@ -1,22 +1,21 @@
+import { createHash } from "crypto";
 import { NextResponse } from "next/server";
 import { kvRateLimit, getClientIp, tooManyRequests } from "@/lib/kv-rate-limit";
 import { translateSchema, validateBody } from "@/lib/validation";
 import { requestLogger } from "@/lib/logger";
 import { getServiceSupabase } from "@/lib/supabase/service";
 import { getServerSupabase } from "@/lib/supabase/server";
-import { createHash } from "crypto";
-import { translateText } from "@/lib/translate";
+import { createServerAIGateway } from "@/lib/ai/server";
+import { proposeTranslation } from "@/lib/ai/translation";
 
-function hashText(text: string, targetLang: string): string {
-  return createHash("sha256").update(`${text}::${targetLang}`).digest("hex");
+function hashText(text: string, sourceLang: string, targetLang: string): string {
+  return createHash("sha256").update(`${sourceLang}::${targetLang}::${text}`).digest("hex");
 }
 
-/** Get a Supabase client — prefer service role, fall back to server (anon) */
 async function getSupabase() {
   return getServiceSupabase() ?? (await getServerSupabase());
 }
 
-/** Try to get cached translation from Supabase */
 async function getCachedTranslation(
   textHash: string,
   targetLang: string,
@@ -36,7 +35,6 @@ async function getCachedTranslation(
   }
 }
 
-/** Cache a translation in Supabase (uses defaultToNull for proper upsert) */
 async function cacheTranslation(
   textHash: string,
   sourceLang: string,
@@ -47,18 +45,16 @@ async function cacheTranslation(
   if (!supabase) return;
   try {
     await supabase.from("translation_cache").upsert(
-      [
-        {
-          source_text_hash: textHash,
-          source_lang: sourceLang,
-          target_lang: targetLang,
-          translated_text: translatedText,
-        },
-      ],
+      [{
+        source_text_hash: textHash,
+        source_lang: sourceLang,
+        target_lang: targetLang,
+        translated_text: translatedText,
+      }],
       { onConflict: "source_text_hash,target_lang", defaultToNull: false },
     );
   } catch {
-    // Cache write is best-effort
+    // Cache write is best-effort and never changes the translation response.
   }
 }
 
@@ -69,37 +65,58 @@ export async function POST(request: Request) {
 
   const log = requestLogger(request);
   const body = await request.json().catch(() => ({}));
-  const { data: validated, error: validationError } = validateBody(
-    body,
-    translateSchema,
-  );
+  const { data: validated, error: validationError } = validateBody(body, translateSchema);
   if (validationError) {
     log.warn("Validation failed", { error: validationError });
     return NextResponse.json({ error: validationError }, { status: 400 });
   }
+
   const { text, from, to } = validated!;
-
   if (from === to) {
-    return NextResponse.json({ translated: text, status: "same_language" });
-  }
-
-  // ── Check cache first ─────────────────────────────────────────────
-  const textHash = hashText(text, to);
-  const cached = await getCachedTranslation(textHash, to);
-  if (cached) {
     return NextResponse.json({
-      translated: cached,
-      status: "ok",
-      source: "cache",
+      original: text,
+      translated: text,
+      sourceLocale: from,
+      targetLocale: to,
+      status: "same_language",
+      source: "fallback",
+      requiresHumanConfirmation: true,
     });
   }
 
-  // ── Translate via Claude Haiku ────────────────────────────────────
-  const result = await translateText(text, to, from);
-  if (result) {
-    void cacheTranslation(textHash, from, to, result);
-    return NextResponse.json({ translated: result, status: "ok" });
+  const textHash = hashText(text, from, to);
+  const cached = await getCachedTranslation(textHash, to);
+  if (cached) {
+    return NextResponse.json({
+      original: text,
+      translated: cached,
+      sourceLocale: from,
+      targetLocale: to,
+      status: "translated",
+      source: "cache",
+      requiresHumanConfirmation: true,
+    });
   }
 
-  return NextResponse.json({ translated: text, status: "fallback" });
+  const proposal = await proposeTranslation(createServerAIGateway(), {
+    text,
+    sourceLocale: from,
+    targetLocale: to,
+    preserveTone: true,
+  });
+
+  if (proposal.status === "translated" && proposal.translatedText !== proposal.originalText) {
+    void cacheTranslation(textHash, from, to, proposal.translatedText);
+  }
+
+  return NextResponse.json({
+    original: proposal.originalText,
+    translated: proposal.translatedText,
+    sourceLocale: proposal.sourceLocale,
+    targetLocale: proposal.targetLocale,
+    status: proposal.status,
+    source: proposal.source,
+    warning: proposal.warning,
+    requiresHumanConfirmation: proposal.requiresHumanConfirmation,
+  });
 }
