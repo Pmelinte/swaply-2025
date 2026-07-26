@@ -59,6 +59,7 @@ export function fallbackEstimateValue(request: EstimateValueRequest): EstimateVa
 
 export function fallbackTranslateText(request: TranslateTextRequest): TranslateTextResult {
   return {
+    text: request.text,
     originalText: request.text,
     translatedText: request.text,
     sourceLocale: request.sourceLocale,
