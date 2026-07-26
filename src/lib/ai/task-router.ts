@@ -16,7 +16,11 @@ export interface AITaskDefinition {
   fallback: (input: unknown) => unknown;
 }
 
-const unavailable = (taskType: AITaskType) => ({ available: false, taskType, reason: "non_ai_fallback" });
+const unavailable = (taskType: AITaskType) => ({
+  available: false,
+  taskType,
+  reason: "non_ai_fallback",
+});
 
 const imageReferenceSchema = z.object({
   url: z.string().url().optional(),
@@ -62,13 +66,13 @@ const descriptionOutputSchema = z.object({
 
 const translateInputSchema = z.object({
   text: z.string().min(1).max(5_000),
-  sourceLocale: z.string().min(2).max(20),
-  targetLocale: z.string().min(2).max(20),
+  sourceLocale: z.string().min(2).max(20).optional(),
+  targetLocale: z.string().min(2).max(20).optional(),
   preserveTone: z.boolean().optional(),
 });
 
-const translateOutputSchema = z.object({
-  text: z.string(),
+const translateExpandedOutputSchema = z.object({
+  text: z.string().optional(),
   originalText: z.string(),
   translatedText: z.string(),
   sourceLocale: z.string(),
@@ -76,6 +80,16 @@ const translateOutputSchema = z.object({
   source: z.enum(["ai", "fallback"]),
   warning: z.string().optional(),
 });
+
+const translateLegacyOutputSchema = z.object({
+  text: z.string(),
+  source: z.enum(["ai", "fallback"]).optional().default("ai"),
+});
+
+const translateOutputSchema = z.union([
+  translateExpandedOutputSchema,
+  translateLegacyOutputSchema,
+]);
 
 const moderateInputSchema = z.object({ text: z.string() });
 const moderateOutputSchema = z.object({
@@ -125,7 +139,15 @@ const definitions: Record<AITaskType, AITaskDefinition> = {
     timeoutMs: 12_000,
     providerPolicy: [],
     privacyPolicy: "redact_pii",
-    fallback: (input: unknown) => fallbackTranslateText(translateInputSchema.parse(input)),
+    fallback: (input: unknown) => {
+      const parsed = translateInputSchema.parse(input);
+      return fallbackTranslateText({
+        text: parsed.text,
+        sourceLocale: parsed.sourceLocale ?? "und",
+        targetLocale: parsed.targetLocale ?? "und",
+        preserveTone: parsed.preserveTone,
+      });
+    },
   },
   match: genericTask("match", "match-v1", 12_000),
   summarize_chat: genericTask("summarize_chat", "summarize-chat-v1", 12_000),
@@ -151,15 +173,18 @@ function fallbackClassify(input: unknown) {
   const parsed = classifyInputSchema.parse(input);
   const text = [parsed.titleHint, parsed.descriptionHint].filter(Boolean).join(". ");
   const normalized = text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
   const subcategory = CATEGORIES_TAXONOMY.find(
     (category) => category.level === 1 && category.keywords.some((keyword) => normalized.includes(keyword)),
   );
   const topCategory = CATEGORIES_TAXONOMY.find(
     (category) => category.level === 0 && category.keywords.some((keyword) => normalized.includes(keyword)),
   );
+
   const warnings = parsed.images?.length && !text
     ? "Image references were received, but no vision provider is active; manual review is required."
     : "Deterministic non-AI fallback.";
+
   return classifyOutputSchema.parse({
     category: subcategory?.name ?? topCategory?.name ?? "objects",
     subcategory: subcategory?.name ?? null,
@@ -184,10 +209,12 @@ function fallbackModerate(input: unknown) {
     /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/.test(text) ||
     text.includes("[email]") ||
     text.includes("[phone]");
+
   if (containsPII) flags.push("date_personale");
   if (text.length > 500) flags.push("mesaj_prea_lung");
   if (/(.)\1{5,}/.test(text)) flags.push("spam_caractere");
   if ((text.match(/https?:\/\//g) || []).length > 2) flags.push("spam_linkuri");
+
   return moderateOutputSchema.parse({
     safe: flags.length === 0,
     flags,
