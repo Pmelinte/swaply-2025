@@ -122,5 +122,5 @@ export function createFallbackOnlySwaplyAIFacade(options?: {
 }
 
 function isSuccessful(result: AIGatewayResult) {
-  return result.status === "ok" || result.status === "fallback";
+  return result.status === "ok" || result.status === "provider_fallback" || result.status === "non_ai_fallback";
 }
