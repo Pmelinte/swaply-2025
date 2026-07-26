@@ -40,6 +40,7 @@ export async function proposeTranslation(
   const originalText = result.output.originalText ?? text;
   const sourceLocale = result.output.sourceLocale ?? request.sourceLocale;
   const targetLocale = result.output.targetLocale ?? request.targetLocale;
+  const source = result.output.source ?? (result.status === "ok" || result.status === "provider_fallback" ? "ai" : "fallback");
 
   return {
     text: translatedText,
@@ -47,9 +48,11 @@ export async function proposeTranslation(
     translatedText,
     sourceLocale,
     targetLocale,
-    source: result.output.source,
+    source,
     warning: result.output.warning,
-    status: result.output.source === "ai" && result.status === "ok" ? "translated" : "fallback",
+    status: source === "ai" && (result.status === "ok" || result.status === "provider_fallback")
+      ? "translated"
+      : "fallback",
     requiresHumanConfirmation: true,
   };
 }
