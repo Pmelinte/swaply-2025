@@ -101,7 +101,7 @@ const definitions: Record<AITaskType, AITaskDefinition> = {
     timeoutMs: 12_000,
     providerPolicy: [],
     privacyPolicy: "redact_pii",
-    fallback: fallbackGenerateItemDescription,
+    fallback: (input: unknown) => fallbackGenerateItemDescription(descriptionInputSchema.parse(input)),
   },
   estimate_value: genericTask("estimate_value", "estimate-value-v1", 12_000),
   translate: genericTask("translate", "translate-v1", 12_000),
