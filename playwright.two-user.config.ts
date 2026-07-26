@@ -77,7 +77,7 @@ export default defineConfig({
     },
     {
       name: "match-conversation-base",
-      testMatch: /(?:^|[\\/])match-conversation\.spec\.ts$/,
+      testMatch: /(?:^|[\\/])match-conversation-canonical\.spec\.ts$/,
       use: { ...devices["Desktop Chrome"] },
       dependencies: ["match-creation"],
     },
