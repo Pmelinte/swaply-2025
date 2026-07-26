@@ -16,6 +16,14 @@ export interface AIEvalResult {
   estimatedCost: number;
 }
 
+export interface AIEvalSummary {
+  total: number;
+  passed: number;
+  failed: number;
+  averageLatencyMs: number;
+  totalEstimatedCost: number;
+}
+
 export async function runLocalAIEvals(cases: AIEvalCase[]): Promise<AIEvalResult[]> {
   const gateway = new AIGateway({ providers: [] });
   return Promise.all(cases.map(async (testCase) => {
@@ -29,4 +37,17 @@ export async function runLocalAIEvals(cases: AIEvalCase[]): Promise<AIEvalResult
       estimatedCost: result.estimatedCost ?? 0,
     };
   }));
+}
+
+export function summarizeLocalAIEvals(results: readonly AIEvalResult[]): AIEvalSummary {
+  const passed = results.filter((result) => result.schemaCorrect && result.fallbackCorrect && result.localeCovered).length;
+  const totalLatency = results.reduce((sum, result) => sum + result.latencyMs, 0);
+  const totalEstimatedCost = results.reduce((sum, result) => sum + result.estimatedCost, 0);
+  return {
+    total: results.length,
+    passed,
+    failed: results.length - passed,
+    averageLatencyMs: results.length ? Math.round((totalLatency / results.length) * 100) / 100 : 0,
+    totalEstimatedCost: Math.round(totalEstimatedCost * 100_000_000) / 100_000_000,
+  };
 }
