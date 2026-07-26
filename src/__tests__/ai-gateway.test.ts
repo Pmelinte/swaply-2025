@@ -6,94 +6,45 @@ import { selectModelsForTask } from "@/lib/ai/model-registry";
 async function runAsServerSide<T>(callback: () => Promise<T>) {
   const originalWindow = globalThis.window;
   vi.stubGlobal("window", undefined);
-
-  try {
-    return await callback();
-  } finally {
-    vi.stubGlobal("window", originalWindow);
-  }
+  try { return await callback(); } finally { vi.stubGlobal("window", originalWindow); }
 }
 
 describe("AI gateway foundation", () => {
   it("defines the Swaply task types from the product memory", () => {
     expect(AI_TASK_TYPES).toEqual([
-      "classify_item",
-      "search_by_photo",
-      "generate_item_description",
-      "estimate_value",
-      "translate",
-      "match",
-      "moderate_chat",
-      "summarize_chat",
-      "story_assist",
-      "blog_assist",
-      "global_first_audit",
+      "classify_item", "search_by_photo", "generate_item_description", "estimate_value", "translate", "match",
+      "moderate_chat", "summarize_chat", "story_assist", "blog_assist", "global_first_audit",
     ]);
   });
 
   it("falls back to the next provider when the primary provider fails", async () => {
-    const primary: AIProvider = {
-      id: "primary",
-      supports: (taskType) => taskType === "translate",
-      run: async () => {
-        throw new Error("primary failed");
-      },
-    };
-
-    const fallback: AIProvider = {
-      id: "fallback",
-      model: "fallback-model",
-      supports: (taskType) => taskType === "translate",
-      run: async () => ({ text: "bonjour" }),
-    };
-
+    const primary: AIProvider = { id: "primary", supports: (taskType) => taskType === "translate", run: async () => { throw new Error("primary failed"); } };
+    const fallback: AIProvider = { id: "fallback", model: "fallback-model", supports: (taskType) => taskType === "translate", run: async () => ({ text: "bonjour" }) };
     const events: string[] = [];
-    const gateway = new AIGateway({
-      providers: [primary, fallback],
-      onLog: (event) => {
-        events.push(`${event.provider}:${event.status}`);
-      },
-    });
-
-    const result = await runAsServerSide(() =>
-      gateway.run({
-        taskType: "translate",
-        input: { text: "hello" },
-        sourceLocale: "en",
-        targetLocale: "fr",
-      }),
-    );
-
-    expect(result.status).toBe("fallback");
+    const gateway = new AIGateway({ providers: [primary, fallback], onLog: (event) => { events.push(`${event.provider}:${event.status}`); } });
+    const result = await runAsServerSide(() => gateway.run({ taskType: "translate", input: { text: "hello" }, sourceLocale: "en", targetLocale: "fr" }));
+    expect(result.status).toBe("provider_fallback");
     expect(result.provider).toBe("fallback");
     expect(result.output).toEqual({ text: "bonjour" });
-    expect(events).toEqual(["primary:error", "fallback:fallback"]);
+    expect(result.attempts[0]).toMatchObject({ provider: "primary", status: "error" });
+    expect(events).toEqual(["fallback:provider_fallback"]);
   });
 
-  it("returns an error when no provider supports the task", async () => {
-    const provider: AIProvider = {
-      id: "unsupported",
-      supports: () => false,
-      run: async () => ({ ok: true }),
-    };
-
+  it("uses a non-AI fallback when no provider supports the task", async () => {
+    const provider: AIProvider = { id: "unsupported", supports: () => false, run: async () => ({ ok: true }) };
     const gateway = new AIGateway({ providers: [provider] });
     const result = await runAsServerSide(() => gateway.run({ taskType: "match", input: {} }));
-
-    expect(result.status).toBe("error");
+    expect(result.status).toBe("non_ai_fallback");
     expect(result.errorCode).toBe("no_provider");
+    expect(result.estimatedCost).toBe(0);
   });
 
   it("selects enabled model registry entries by priority", () => {
-    const models = selectModelsForTask(
-      [
-        { provider: "b", model: "slow", taskTypes: ["translate"], priority: 20, enabled: true },
-        { provider: "a", model: "fast", taskTypes: ["translate"], priority: 10, enabled: true },
-        { provider: "c", model: "disabled", taskTypes: ["translate"], priority: 1, enabled: false },
-      ],
-      "translate",
-    );
-
+    const models = selectModelsForTask([
+      { provider: "b", model: "slow", taskTypes: ["translate"], priority: 20, enabled: true },
+      { provider: "a", model: "fast", taskTypes: ["translate"], priority: 10, enabled: true },
+      { provider: "c", model: "disabled", taskTypes: ["translate"], priority: 1, enabled: false },
+    ], "translate");
     expect(models.map((entry) => entry.model)).toEqual(["fast", "slow"]);
   });
 });

@@ -1,6 +1,8 @@
 import type { AITaskType } from "./taskTypes";
+import type { AIModelRegistryEntry } from "./model-registry";
+import { getAITaskDefinition, redactAIInput } from "./task-router";
 
-export type AIRequestStatus = "ok" | "fallback" | "error" | "timeout";
+export type AIRequestStatus = "ok" | "provider_fallback" | "non_ai_fallback" | "error" | "timeout";
 
 export interface AIGatewayInput<TInput = unknown> {
   taskType: AITaskType;
@@ -13,6 +15,13 @@ export interface AIGatewayInput<TInput = unknown> {
   promptVersion?: string | null;
 }
 
+export interface AIProviderAttempt {
+  provider: string;
+  status: "error" | "timeout" | "invalid_output";
+  latencyMs: number;
+  errorCode: string;
+}
+
 export interface AIGatewayResult<TOutput = unknown> {
   status: AIRequestStatus;
   taskType: AITaskType;
@@ -23,15 +32,16 @@ export interface AIGatewayResult<TOutput = unknown> {
   latencyMs: number;
   estimatedCost?: number | null;
   cacheHit?: boolean;
+  attempts: AIProviderAttempt[];
+  promptVersion: string;
 }
 
-export interface AIProviderRunContext {
-  signal: AbortSignal;
-}
+export interface AIProviderRunContext { signal: AbortSignal; }
 
 export interface AIProvider<TInput = unknown, TOutput = unknown> {
   id: string;
   model?: string | null;
+  external?: boolean;
   supports: (taskType: AITaskType) => boolean;
   run: (request: AIGatewayInput<TInput>, context: AIProviderRunContext) => Promise<TOutput>;
   estimateCost?: (request: AIGatewayInput<TInput>) => number | null;
@@ -47,126 +57,190 @@ export interface AIGatewayLogEvent {
   locale?: string | null;
   sourceLocale?: string | null;
   targetLocale?: string | null;
-  userId?: string | null;
   errorCode?: string | null;
+  promptVersion: string;
 }
 
 export interface AIGatewayOptions {
   providers: AIProvider[];
+  registry?: AIModelRegistryEntry[];
   timeoutMs?: number;
   onLog?: (event: AIGatewayLogEvent) => void | Promise<void>;
 }
 
 export class AIGateway {
   private readonly providers: AIProvider[];
-  private readonly timeoutMs: number;
+  private readonly registry?: AIModelRegistryEntry[];
+  private readonly timeoutMs?: number;
   private readonly onLog?: (event: AIGatewayLogEvent) => void | Promise<void>;
 
   constructor(options: AIGatewayOptions) {
     this.providers = options.providers;
-    this.timeoutMs = options.timeoutMs ?? 12_000;
+    this.registry = options.registry;
+    this.timeoutMs = options.timeoutMs;
     this.onLog = options.onLog;
   }
 
-  async run<TInput = unknown, TOutput = unknown>(
-    request: AIGatewayInput<TInput>,
-  ): Promise<AIGatewayResult<TOutput>> {
+  async run<TInput = unknown, TOutput = unknown>(request: AIGatewayInput<TInput>): Promise<AIGatewayResult<TOutput>> {
     if (typeof window !== "undefined" && process.env.NODE_ENV !== "test") {
       throw new Error("AIGateway must run server-side only. Do not call AI providers from client components.");
     }
 
-    const candidates = this.providers.filter((provider) => provider.supports(request.taskType));
-    if (candidates.length === 0) {
-      return this.buildErrorResult<TOutput>(request, "none", "no_provider", 0);
+    const totalStarted = Date.now();
+    const task = getAITaskDefinition(request.taskType);
+    const promptVersion = request.promptVersion ?? task.promptVersion;
+    const parsedInput = task.inputSchema.safeParse(request.input);
+    if (!parsedInput.success) {
+      return this.finish(request, {
+        status: "error",
+        provider: "none",
+        errorCode: "invalid_input",
+        latencyMs: Date.now() - totalStarted,
+        attempts: [],
+        promptVersion,
+      });
     }
 
-    let lastErrorCode: string | null = null;
+    if (!task.enabled) {
+      return this.nonAIFallback<TOutput>(
+        request,
+        task.fallback(parsedInput.data),
+        "task_disabled",
+        totalStarted,
+        promptVersion,
+        [],
+      );
+    }
+
+    const baseRequest: AIGatewayInput = {
+      taskType: request.taskType,
+      input: parsedInput.data,
+      locale: request.locale,
+      sourceLocale: request.sourceLocale,
+      targetLocale: request.targetLocale,
+      promptVersion,
+    };
+
+    const candidates = this.orderedProviders(request.taskType, task.providerPolicy);
+    const attempts: AIProviderAttempt[] = [];
+    const timeoutMs = this.timeoutMs ?? task.timeoutMs;
 
     for (const [index, provider] of candidates.entries()) {
       const started = Date.now();
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
+      const timeout = setTimeout(() => controller.abort(), timeoutMs);
+      const providerRequest: AIGatewayInput = {
+        ...baseRequest,
+        input:
+          provider.external && task.privacyPolicy === "redact_pii"
+            ? redactAIInput(parsedInput.data)
+            : parsedInput.data,
+      };
 
       try {
-        const output = await provider.run(request, { signal: controller.signal });
-        const latencyMs = Date.now() - started;
-        const result: AIGatewayResult<TOutput> = {
-          status: index === 0 ? "ok" : "fallback",
-          taskType: request.taskType,
+        const rawOutput = await provider.run(providerRequest, { signal: controller.signal });
+        const parsedOutput = task.outputSchema.safeParse(rawOutput);
+        if (!parsedOutput.success) {
+          attempts.push({
+            provider: provider.id,
+            status: "invalid_output",
+            latencyMs: Date.now() - started,
+            errorCode: "invalid_output",
+          });
+          continue;
+        }
+        return this.finish(request, {
+          status: index === 0 ? "ok" : "provider_fallback",
           provider: provider.id,
           model: provider.model,
-          output: output as TOutput,
-          latencyMs,
-          estimatedCost: provider.estimateCost?.(request) ?? null,
+          output: parsedOutput.data as TOutput,
+          latencyMs: Date.now() - totalStarted,
+          estimatedCost: provider.estimateCost?.(providerRequest) ?? null,
           cacheHit: false,
-        };
-        await this.log(request, result);
-        return result;
+          attempts,
+          promptVersion,
+        });
       } catch (error) {
-        const latencyMs = Date.now() - started;
-        lastErrorCode = controller.signal.aborted ? "timeout" : errorToCode(error);
-        await this.log(request, {
-          status: controller.signal.aborted ? "timeout" : "error",
-          taskType: request.taskType,
+        const timedOut = controller.signal.aborted;
+        attempts.push({
           provider: provider.id,
-          model: provider.model,
-          latencyMs,
-          errorCode: lastErrorCode,
-          estimatedCost: provider.estimateCost?.(request) ?? null,
-          cacheHit: false,
+          status: timedOut ? "timeout" : "error",
+          latencyMs: Date.now() - started,
+          errorCode: timedOut ? "timeout" : errorToCode(error),
         });
       } finally {
         clearTimeout(timeout);
       }
     }
 
-    return this.buildErrorResult<TOutput>(
+    return this.nonAIFallback<TOutput>(
       request,
-      candidates.at(-1)?.id ?? "none",
-      lastErrorCode ?? "provider_failed",
-      0,
+      task.fallback(parsedInput.data),
+      candidates.length ? "providers_failed" : "no_provider",
+      totalStarted,
+      promptVersion,
+      attempts,
     );
   }
 
-  private async log<TOutput>(request: AIGatewayInput, result: AIGatewayResult<TOutput>) {
-    if (!this.onLog) return;
-    await this.onLog({
-      taskType: request.taskType,
-      provider: result.provider,
-      model: result.model,
-      status: result.status,
-      latencyMs: result.latencyMs,
-      estimatedCost: result.estimatedCost,
-      locale: request.locale,
-      sourceLocale: request.sourceLocale,
-      targetLocale: request.targetLocale,
-      userId: request.userId,
-      errorCode: result.errorCode,
+  private orderedProviders(taskType: AITaskType, policy: string[]): AIProvider[] {
+    const supported = this.providers.filter((provider) => provider.supports(taskType));
+    const registryOrder = (this.registry ?? [])
+      .filter((entry) => entry.enabled && entry.taskTypes.includes(taskType))
+      .sort((a, b) => a.priority - b.priority)
+      .map((entry) => entry.provider);
+    const order = registryOrder.length ? registryOrder : policy;
+    if (!order.length) return supported;
+    return supported.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
+  }
+
+  private nonAIFallback<TOutput>(
+    request: AIGatewayInput,
+    output: unknown,
+    errorCode: string,
+    totalStarted: number,
+    promptVersion: string,
+    attempts: AIProviderAttempt[],
+  ) {
+    const task = getAITaskDefinition(request.taskType);
+    const parsed = task.outputSchema.safeParse(output);
+    return this.finish<TOutput>(request, {
+      status: "non_ai_fallback",
+      provider: "non-ai",
+      output: (parsed.success ? parsed.data : output) as TOutput,
+      errorCode,
+      latencyMs: Date.now() - totalStarted,
+      estimatedCost: 0,
+      cacheHit: false,
+      attempts,
+      promptVersion,
     });
   }
 
-  private async buildErrorResult<TOutput = unknown>(
+  private async finish<TOutput>(
     request: AIGatewayInput,
-    provider: string,
-    errorCode: string,
-    latencyMs: number,
+    result: Omit<AIGatewayResult<TOutput>, "taskType">,
   ): Promise<AIGatewayResult<TOutput>> {
-    const result: AIGatewayResult<TOutput> = {
-      status: "error",
-      taskType: request.taskType,
-      provider,
-      errorCode,
-      latencyMs,
-      cacheHit: false,
-    };
-    await this.log(request, result);
-    return result;
+    const complete = { ...result, taskType: request.taskType };
+    if (this.onLog) {
+      await this.onLog({
+        taskType: request.taskType,
+        provider: complete.provider,
+        model: complete.model,
+        status: complete.status,
+        latencyMs: complete.latencyMs,
+        estimatedCost: complete.estimatedCost,
+        locale: request.locale,
+        sourceLocale: request.sourceLocale,
+        targetLocale: request.targetLocale,
+        errorCode: complete.errorCode,
+        promptVersion: complete.promptVersion,
+      });
+    }
+    return complete;
   }
 }
 
 function errorToCode(error: unknown): string {
-  if (error instanceof Error) {
-    return error.name || "provider_error";
-  }
-  return "provider_error";
+  return error instanceof Error ? error.name || "provider_error" : "provider_error";
 }

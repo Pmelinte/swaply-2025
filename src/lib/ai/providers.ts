@@ -40,6 +40,7 @@ export function createHuggingFaceProvider(apiKey: string | undefined): AIProvide
   return {
     id: "huggingface",
     model: "facebook/bart-large-mnli+unitary/toxic-bert",
+    external: true,
     supports: (taskType) => taskType === "classify_item" || taskType === "moderate_chat",
     async run(request, context) {
       if (!apiKey) throw new Error("missing_huggingface_key");
