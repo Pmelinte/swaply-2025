@@ -42,7 +42,7 @@ export class SwaplyAIFacade {
       locale: request.locale,
     });
 
-    return result.output && isSuccessful(result) ? result.output : fallbackClassifyItem(request);
+    return result.output && isProviderSuccess(result) ? result.output : fallbackClassifyItem(request);
   }
 
   async generateItemDescription(
@@ -55,7 +55,7 @@ export class SwaplyAIFacade {
       locale: request.locale,
     });
 
-    return result.output && isSuccessful(result) ? result.output : fallbackGenerateItemDescription(request);
+    return result.output && isProviderSuccess(result) ? result.output : fallbackGenerateItemDescription(request);
   }
 
   async estimateValue(request: EstimateValueRequest): Promise<EstimateValueResult> {
@@ -65,7 +65,7 @@ export class SwaplyAIFacade {
       input: request,
     });
 
-    return result.output && isSuccessful(result) ? result.output : fallbackEstimateValue(request);
+    return result.output && isProviderSuccess(result) ? result.output : fallbackEstimateValue(request);
   }
 
   async translateText(request: TranslateTextRequest): Promise<TranslateTextResult> {
@@ -77,7 +77,7 @@ export class SwaplyAIFacade {
       targetLocale: request.targetLocale,
     });
 
-    return result.output && isSuccessful(result) ? result.output : fallbackTranslateText(request);
+    return result.output && isProviderSuccess(result) ? result.output : fallbackTranslateText(request);
   }
 
   async explainMatch(request: MatchExplanationRequest): Promise<MatchExplanationResult> {
@@ -88,7 +88,7 @@ export class SwaplyAIFacade {
       locale: request.locale,
     });
 
-    return result.output && isSuccessful(result) ? result.output : fallbackMatchExplanation(request);
+    return result.output && isProviderSuccess(result) ? result.output : fallbackMatchExplanation(request);
   }
 
   private async logSafeMetadata(
@@ -121,6 +121,6 @@ export function createFallbackOnlySwaplyAIFacade(options?: {
   });
 }
 
-function isSuccessful(result: AIGatewayResult) {
-  return result.status === "ok" || result.status === "provider_fallback" || result.status === "non_ai_fallback";
+function isProviderSuccess(result: AIGatewayResult) {
+  return result.status === "ok" || result.status === "provider_fallback";
 }
