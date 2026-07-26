@@ -38,6 +38,27 @@ export interface GenerateItemDescriptionResult {
   source: AIFallbackSource;
 }
 
+export interface ItemEnrichmentRequest {
+  title?: string;
+  description?: string;
+  condition?: string | null;
+  images?: AIImageReference[];
+  locale?: string;
+}
+
+export interface ItemEnrichmentProposal {
+  suggestedTitle: string;
+  suggestedDescription: string;
+  suggestedCategory: string;
+  suggestedSubcategory: string | null;
+  suggestedTags: string[];
+  confidence: number;
+  classificationSource: AIFallbackSource;
+  descriptionSource: AIFallbackSource;
+  requiresHumanConfirmation: true;
+  warnings: string[];
+}
+
 export interface EstimateValueRequest {
   title: string;
   category?: string | null;
