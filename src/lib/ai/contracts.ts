@@ -83,6 +83,8 @@ export interface TranslateTextRequest {
 }
 
 export interface TranslateTextResult {
+  /** Backward-compatible alias for the text shown to the caller. */
+  text: string;
   originalText: string;
   translatedText: string;
   sourceLocale: string;
