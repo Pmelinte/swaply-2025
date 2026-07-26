@@ -1,6 +1,7 @@
 export * from "./contracts";
 export * from "./fallbacks";
 export * from "./gateway";
+export * from "./item-enrichment";
 export * from "./model-registry";
 export * from "./observability";
 export * from "./safeTaskMetadata";
