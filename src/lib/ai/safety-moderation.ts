@@ -21,6 +21,20 @@ interface ProviderModerationOutput {
   message?: string;
 }
 
+const PERSONAL_DATA_PATTERNS = [
+  /\b\d{10,}\b/,
+  /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/,
+  /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/,
+  /\bIBAN\b/i,
+  /\b[A-Z]{2}\d{2}[A-Z0-9]{4}\d{7}([A-Z0-9]?){0,16}\b/,
+];
+
+const PROFANITY = [
+  "prost", "idiot", "cretin", "imbecil", "tampit", "fraier", "suge", "futu", "cacat", "rahat", "curva", "tarfa",
+  "fuck", "shit", "ass", "bitch", "damn", "stupid", "moron",
+  "mierda", "puta", "joder", "idiota", "estupido", "culo", "cabron",
+];
+
 export async function proposeMessageModeration(
   gateway: AIGateway,
   text: string,
@@ -29,15 +43,22 @@ export async function proposeMessageModeration(
   if (!normalizedText) return emptyProposal();
 
   const deterministic = moderateText(normalizedText);
-  const deterministicAction = normalizeAction(deterministic.recommended_action);
+  const legacyFlags = detectLegacyFlags(normalizedText);
+  const deterministicFlags = Array.from(new Set([...deterministic.flags, ...legacyFlags]));
+  const hasLegacyBlock = legacyFlags.length > 0;
+  const deterministicRisk = Math.max(deterministic.risk_score, hasLegacyBlock ? 50 : 0);
+  const deterministicAction = strongerAction(
+    normalizeAction(deterministic.recommended_action),
+    hasLegacyBlock ? "manual_review" : "allow",
+  );
 
   // High-risk deterministic findings remain server-authoritative and are not
   // sent to an external provider. This reduces data exposure and cost.
   if (deterministicAction === "block" || deterministicAction === "manual_review") {
     return buildProposal({
-      category: deterministic.category,
-      riskScore: deterministic.risk_score,
-      flags: deterministic.flags,
+      category: categoryForFlags(deterministic.category, deterministicFlags),
+      riskScore: deterministicRisk,
+      flags: deterministicFlags,
       action: deterministicAction,
       source: "deterministic",
     });
@@ -49,13 +70,13 @@ export async function proposeMessageModeration(
   });
   const provider = gatewayResult.output;
   const providerFlags = provider?.flags ?? [];
-  const flags = Array.from(new Set([...deterministic.flags, ...providerFlags]));
+  const flags = Array.from(new Set([...deterministicFlags, ...providerFlags]));
   const providerRisk = provider?.safe === false ? Math.max(50, providerFlags.length * 20) : providerFlags.length * 15;
-  const riskScore = Math.min(100, Math.max(deterministic.risk_score, providerRisk));
+  const riskScore = Math.min(100, Math.max(deterministicRisk, providerRisk));
   const action = strongerAction(deterministicAction, actionForRisk(riskScore));
 
   return buildProposal({
-    category: deterministic.category === "safe" && flags.length > 0 ? "suspicious" : deterministic.category,
+    category: categoryForFlags(deterministic.category, flags),
     riskScore,
     flags,
     action,
@@ -64,6 +85,26 @@ export async function proposeMessageModeration(
       : "deterministic",
     message: provider?.message,
   });
+}
+
+function detectLegacyFlags(text: string): string[] {
+  const flags: string[] = [];
+  const lower = text.toLowerCase();
+
+  if (PERSONAL_DATA_PATTERNS.some((pattern) => pattern.test(text))) flags.push("date_personale");
+  if (PROFANITY.some((word) => lower.includes(word))) flags.push("limbaj_inadecvat");
+  if (text.length > 500) flags.push("mesaj_prea_lung");
+  if (/(.)\1{5,}/.test(text)) flags.push("spam_caractere");
+  if ((text.match(/https?:\/\//g) || []).length > 2) flags.push("spam_linkuri");
+
+  return flags;
+}
+
+function categoryForFlags(category: ModerationCategory, flags: string[]): ModerationCategory {
+  if (category !== "safe") return category;
+  if (flags.includes("limbaj_inadecvat")) return "toxicity";
+  if (flags.some((flag) => flag.startsWith("spam_") || flag === "mesaj_prea_lung")) return "spam";
+  return flags.length > 0 ? "suspicious" : "safe";
 }
 
 function emptyProposal(): SafetyModerationProposal {
@@ -91,7 +132,7 @@ function buildProposal(input: {
   return {
     safe,
     flags: input.flags,
-    message: input.message ?? (input.flags.length > 0 ? `Mesaj semnalat: ${input.flags.join(", ")}` : undefined),
+    message: input.message ?? (input.flags.length > 0 ? `Mesaj blocat: ${input.flags.join(", ")}` : undefined),
     category: input.category,
     riskScore: Math.min(100, Math.max(0, Math.round(input.riskScore))),
     recommendedAction: input.action,
