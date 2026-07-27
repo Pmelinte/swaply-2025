@@ -1,5 +1,5 @@
-import { AIGateway } from "@/lib/ai/gateway";
-import type { AITaskType } from "@/lib/ai/taskTypes";
+import { AIGateway } from "../ai/gateway";
+import type { AITaskType } from "../ai/taskTypes";
 
 export interface AIEvalCase {
   name: string;
