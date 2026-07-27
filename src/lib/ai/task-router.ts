@@ -107,15 +107,20 @@ const semanticMatchItemSchema = z.object({
 });
 
 const matchInputSchema = z.object({
-  offeredItem: semanticMatchItemSchema,
-  requestedItem: semanticMatchItemSchema,
-  baseScore: z.number().min(0).max(100),
+  offeredItem: semanticMatchItemSchema.optional(),
+  requestedItem: semanticMatchItemSchema.optional(),
+  baseScore: z.number().min(0).max(100).optional(),
   algorithmicReasons: z.array(z.string().max(500)).max(20).optional(),
   distanceKm: z.number().min(0).max(50_000).nullable().optional(),
   locale: z.string().max(20).optional(),
+  offeredTitle: z.string().max(240).optional(),
+  requestedTitle: z.string().max(240).optional(),
+  offeredCategory: z.string().max(120).nullable().optional(),
+  requestedCategory: z.string().max(120).nullable().optional(),
 });
 
 const matchOutputSchema = z.object({
+  score: z.number(),
   semanticScore: z.number().min(0).max(100),
   scoreAdjustment: z.number().min(-10).max(10),
   summary: z.string().min(1).max(1_000),
