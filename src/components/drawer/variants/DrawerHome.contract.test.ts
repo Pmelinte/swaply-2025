@@ -9,28 +9,50 @@ const source = readFileSync(
 );
 
 describe("canonical Home drawer", () => {
-  it("has a dedicated Home identity and stable audit hooks", () => {
+  it("has a dedicated Home identity and separate guest/authenticated states", () => {
     expect(source).toContain('data-drawer-page="home"');
-    expect(source).toContain('sectionId="home-dashboard"');
-    expect(source).toContain('sectionId="home-get-started"');
-    expect(source).toContain('sectionId="home-reputation"');
+    expect(source).toContain('data-home-state="guest"');
+    expect(source).toContain('data-home-state="authenticated"');
+    expect(source).toContain('data-drawer-section="home-onboarding"');
+    expect(source).toContain('data-drawer-section="home-profile-status"');
   });
 
-  it("keeps authenticated Home actions focused on the user dashboard", () => {
-    for (const href of [
-      "/profile",
-      "/my-objects",
-      "/notifications",
-      "/matching",
-      "/exchange",
-      "/history",
+  it("covers the canonical authenticated Home responsibilities", () => {
+    for (const action of [
+      "home-profile",
+      "home-notifications",
+      "home-active-objects",
+      "home-active-exchanges",
+      "home-ai-recommendations",
+      "home-rank-tokens",
+      "home-blog",
+      "home-stories",
     ]) {
-      expect(source).toContain(`href="${href}"`);
+      expect(source).toContain(`data-drawer-action="${action}"`);
     }
   });
 
-  it("does not duplicate the global branch navigation", () => {
-    for (const href of ["/objects", "/properties", "/services", "/events", "/explore"]) {
+  it("keeps the guest drawer focused on onboarding, safety, guides and stories", () => {
+    for (const action of [
+      "home-register",
+      "home-login",
+      "home-how-it-works",
+      "home-safety",
+      "home-blog",
+      "home-stories",
+    ]) {
+      expect(source).toContain(`actionId="${action}"`);
+    }
+  });
+
+  it("does not duplicate global or domain navigation", () => {
+    for (const href of ["/objects", "/properties", "/services", "/events", "/explore", "/messages"]) {
+      expect(source).not.toContain(`href="${href}"`);
+    }
+  });
+
+  it("does not turn the contextual Home drawer into a legal site map", () => {
+    for (const href of ["/privacy", "/cookies", "/terms", "/dmca", "/copyright"]) {
       expect(source).not.toContain(`href="${href}"`);
     }
   });
