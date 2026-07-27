@@ -19,12 +19,13 @@ export async function proposeSemanticMatchExplanation(
     throw new Error(result.errorCode ?? "semantic_match_failed");
   }
 
+  const baseScore = request.baseScore ?? 0;
   const adjustment = clamp(result.output.scoreAdjustment, -10, 10);
-  const suggestedScore = clamp(Math.round(request.baseScore + adjustment), 0, 100);
+  const suggestedScore = clamp(Math.round(baseScore + adjustment), 0, 100);
 
   return {
     ...result.output,
-    baseScore: request.baseScore,
+    baseScore,
     suggestedScore,
     affectsRanking: false,
     requiresHumanConfirmation: true,
