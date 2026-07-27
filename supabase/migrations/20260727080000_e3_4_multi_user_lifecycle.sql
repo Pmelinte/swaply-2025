@@ -67,19 +67,27 @@ begin
     raise exception 'Exchange lifecycle is not active' using errcode = '23514';
   end if;
 
-  select leg.*,
-         source_participant.user_id,
-         target_participant.user_id
-  into current_leg, source_user_id, target_user_id
+  select leg.*
+  into current_leg
   from public.swap_legs leg
-  join public.swap_participants source_participant on source_participant.id = leg.from_participant_id
-  join public.swap_participants target_participant on target_participant.id = leg.to_participant_id
   where leg.id = target_leg_id
     and leg.swap_id = target_swap_id
-  for update of leg;
+  for update;
 
   if not found then
     raise exception 'Swap leg not found' using errcode = 'P0002';
+  end if;
+
+  select source_participant.user_id,
+         target_participant.user_id
+  into source_user_id, target_user_id
+  from public.swap_participants source_participant
+  join public.swap_participants target_participant
+    on target_participant.id = current_leg.to_participant_id
+  where source_participant.id = current_leg.from_participant_id;
+
+  if source_user_id is null or target_user_id is null then
+    raise exception 'Swap leg participants not found' using errcode = 'P0002';
   end if;
 
   if current_leg.state in ('disputed', 'cancelled') then
