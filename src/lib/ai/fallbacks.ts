@@ -70,19 +70,26 @@ export function fallbackTranslateText(request: TranslateTextRequest): TranslateT
 }
 
 export function fallbackMatchExplanation(request: MatchExplanationRequest): MatchExplanationResult {
-  const offered = normalizeText(request.offeredTitle) || "offered item";
-  const requested = normalizeText(request.requestedTitle) || "requested item";
+  const offered = normalizeText(request.offeredItem.title) || "offered item";
+  const requested = normalizeText(request.requestedItem.title) || "requested item";
+  const offeredCategory = normalizeText(request.offeredItem.category);
+  const requestedCategory = normalizeText(request.requestedItem.category);
+  const sameCategory = Boolean(offeredCategory && requestedCategory && offeredCategory === requestedCategory);
   const distanceReason = typeof request.distanceKm === "number"
     ? `Approximate distance: ${Math.round(request.distanceKm)} km.`
     : "Distance was not available.";
+  const semanticScore = Math.max(0, Math.min(100, Math.round(request.baseScore)));
 
   return {
-    score: 0,
+    semanticScore,
+    scoreAdjustment: 0,
+    summary: `Manual review is required for the proposed swap between ${offered} and ${requested}.`,
     reasons: [
-      `Manual review needed between ${offered} and ${requested}.`,
+      sameCategory ? "The items share the same category." : "The local algorithm remains the source of truth.",
       distanceReason,
     ],
-    risks: ["AI match explanation is unavailable, so the user should verify value, condition and logistics manually."],
+    risks: ["No active semantic provider analysed the descriptions, value, condition or logistics."],
+    confidence: "low",
     source: "fallback",
   };
 }
