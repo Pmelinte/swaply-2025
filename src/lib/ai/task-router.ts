@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { CATEGORIES_TAXONOMY } from "@/lib/categories";
 import type { AITaskType } from "./taskTypes";
-import { fallbackGenerateItemDescription } from "./fallbacks";
+import { fallbackGenerateItemDescription, fallbackTranslateText } from "./fallbacks";
 
 export type AIPrivacyPolicy = "metadata_only" | "redact_pii";
 
@@ -64,6 +64,33 @@ const descriptionOutputSchema = z.object({
   source: z.enum(["ai", "fallback"]),
 });
 
+const translateInputSchema = z.object({
+  text: z.string().min(1).max(5_000),
+  sourceLocale: z.string().min(2).max(20).optional(),
+  targetLocale: z.string().min(2).max(20).optional(),
+  preserveTone: z.boolean().optional(),
+});
+
+const translateExpandedOutputSchema = z.object({
+  text: z.string().optional(),
+  originalText: z.string(),
+  translatedText: z.string(),
+  sourceLocale: z.string(),
+  targetLocale: z.string(),
+  source: z.enum(["ai", "fallback"]),
+  warning: z.string().optional(),
+});
+
+const translateLegacyOutputSchema = z.object({
+  text: z.string(),
+  source: z.enum(["ai", "fallback"]).optional(),
+});
+
+const translateOutputSchema = z.union([
+  translateExpandedOutputSchema,
+  translateLegacyOutputSchema,
+]);
+
 const moderateInputSchema = z.object({ text: z.string() });
 const moderateOutputSchema = z.object({
   safe: z.boolean(),
@@ -104,7 +131,24 @@ const definitions: Record<AITaskType, AITaskDefinition> = {
     fallback: (input: unknown) => fallbackGenerateItemDescription(descriptionInputSchema.parse(input)),
   },
   estimate_value: genericTask("estimate_value", "estimate-value-v1", 12_000),
-  translate: genericTask("translate", "translate-v1", 12_000),
+  translate: {
+    enabled: true,
+    inputSchema: translateInputSchema,
+    outputSchema: translateOutputSchema,
+    promptVersion: "translate-v2",
+    timeoutMs: 12_000,
+    providerPolicy: [],
+    privacyPolicy: "redact_pii",
+    fallback: (input: unknown) => {
+      const parsed = translateInputSchema.parse(input);
+      return fallbackTranslateText({
+        text: parsed.text,
+        sourceLocale: parsed.sourceLocale ?? "und",
+        targetLocale: parsed.targetLocale ?? "und",
+        preserveTone: parsed.preserveTone,
+      });
+    },
+  },
   match: genericTask("match", "match-v1", 12_000),
   summarize_chat: genericTask("summarize_chat", "summarize-chat-v1", 12_000),
   story_assist: genericTask("story_assist", "story-assist-v1", 12_000),
