@@ -70,21 +70,24 @@ export function fallbackTranslateText(request: TranslateTextRequest): TranslateT
 }
 
 export function fallbackMatchExplanation(request: MatchExplanationRequest): MatchExplanationResult {
-  const offered = normalizeText(request.offeredItem.title) || "offered item";
-  const requested = normalizeText(request.requestedItem.title) || "requested item";
-  const offeredCategory = normalizeText(request.offeredItem.category);
-  const requestedCategory = normalizeText(request.requestedItem.category);
+  const offered = normalizeText(request.offeredItem?.title ?? request.offeredTitle) || "offered item";
+  const requested = normalizeText(request.requestedItem?.title ?? request.requestedTitle) || "requested item";
+  const offeredCategory = normalizeText(request.offeredItem?.category ?? request.offeredCategory);
+  const requestedCategory = normalizeText(request.requestedItem?.category ?? request.requestedCategory);
   const sameCategory = Boolean(offeredCategory && requestedCategory && offeredCategory === requestedCategory);
   const distanceReason = typeof request.distanceKm === "number"
     ? `Approximate distance: ${Math.round(request.distanceKm)} km.`
     : "Distance was not available.";
-  const semanticScore = Math.max(0, Math.min(100, Math.round(request.baseScore)));
+  const baseScore = typeof request.baseScore === "number" ? request.baseScore : 0;
+  const semanticScore = Math.max(0, Math.min(100, Math.round(baseScore)));
 
   return {
+    score: 0,
     semanticScore,
     scoreAdjustment: 0,
-    summary: `Manual review is required for the proposed swap between ${offered} and ${requested}.`,
+    summary: `Semantic analysis unavailable; manual review is required for the proposed swap between ${offered} and ${requested}.`,
     reasons: [
+      `Manual review needed between ${offered} and ${requested}.`,
       sameCategory ? "The items share the same category." : "The local algorithm remains the source of truth.",
       distanceReason,
     ],
