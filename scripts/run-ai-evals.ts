@@ -54,41 +54,43 @@ const cases: AIEvalCase[] = [
   },
 ];
 
-try {
-  const results = await runLocalAIEvals(cases);
-  const summary = summarizeLocalAIEvals(results);
+async function main() {
+  try {
+    const results = await runLocalAIEvals(cases);
+    const summary = summarizeLocalAIEvals(results);
 
-  await Promise.all([
-    writeJson("ai-eval-results.json", results),
-    writeJson("ai-eval-summary.json", summary),
-  ]);
+    await Promise.all([
+      writeJson("ai-eval-results.json", results),
+      writeJson("ai-eval-summary.json", summary),
+    ]);
 
-  console.table(results.map((result) => ({
-    task: result.taskType,
-    name: result.name,
-    passed: result.passed,
-    status: result.status,
-    latencyMs: result.latencyMs,
-    estimatedCost: result.estimatedCost,
-  })));
-  console.log("AI evaluation summary", summary);
+    console.table(results.map((result) => ({
+      task: result.taskType,
+      name: result.name,
+      passed: result.passed,
+      status: result.status,
+      latencyMs: result.latencyMs,
+      estimatedCost: result.estimatedCost,
+    })));
+    console.log("AI evaluation summary", summary);
 
-  if (!passesAIEvalGate(summary)) {
+    if (!passesAIEvalGate(summary)) {
+      process.exitCode = 1;
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.stack ?? error.message : String(error);
+    const failure = {
+      fatal: true,
+      message,
+      generatedAt: new Date().toISOString(),
+    };
+    console.error("AI evaluation runner failed", message);
+    await Promise.all([
+      writeJson("ai-eval-results.json", []),
+      writeJson("ai-eval-summary.json", failure),
+    ]);
     process.exitCode = 1;
   }
-} catch (error) {
-  const message = error instanceof Error ? error.stack ?? error.message : String(error);
-  const failure = {
-    fatal: true,
-    message,
-    generatedAt: new Date().toISOString(),
-  };
-  console.error("AI evaluation runner failed", message);
-  await Promise.all([
-    writeJson("ai-eval-results.json", []),
-    writeJson("ai-eval-summary.json", failure),
-  ]);
-  process.exitCode = 1;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -98,3 +100,5 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 async function writeJson(path: string, value: unknown) {
   await writeFile(path, `${JSON.stringify(value, null, 2)}\n`, "utf8");
 }
+
+void main();
