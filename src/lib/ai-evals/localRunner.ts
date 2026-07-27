@@ -56,7 +56,7 @@ export const DEFAULT_AI_EVAL_GATE: AIEvalGate = {
 export async function runLocalAIEvals(cases: AIEvalCase[]): Promise<AIEvalResult[]> {
   const gateway = new AIGateway({ providers: [] });
 
-  return Promise.all(cases.map(async (testCase) => {
+  return Promise.all(cases.map(async (testCase): Promise<AIEvalResult> => {
     const result = await gateway.run({
       taskType: testCase.taskType,
       input: testCase.input,
@@ -89,7 +89,7 @@ export async function runLocalAIEvals(cases: AIEvalCase[]): Promise<AIEvalResult
       latencyMs: result.latencyMs,
       estimatedCost,
       status: result.status,
-      errorCode: result.errorCode,
+      ...(result.errorCode ? { errorCode: result.errorCode } : {}),
       passed,
     };
   }));
