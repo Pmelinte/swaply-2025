@@ -85,7 +85,7 @@ export function fallbackMatchExplanation(request: MatchExplanationRequest): Matc
     score: 0,
     semanticScore,
     scoreAdjustment: 0,
-    summary: `Semantic analysis unavailable; manual review is required for the proposed swap between ${offered} and ${requested}.`,
+    summary: `Manual review is required because semantic analysis is unavailable for the proposed swap between ${offered} and ${requested}.`,
     reasons: [
       `Manual review needed between ${offered} and ${requested}.`,
       sameCategory ? "The items share the same category." : "The local algorithm remains the source of truth.",
