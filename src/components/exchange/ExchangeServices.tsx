@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { EscrowService } from "./services/EscrowService";
 import { PackagingService } from "./services/PackagingService";
@@ -39,6 +40,22 @@ function toCommercialOffer(type: ServiceType, service?: SupportService): Commerc
   };
 }
 
+function savedCommercialOffer(type: ServiceType, cost: number): CommercialServiceOffer {
+  const subtotalMinor = Math.max(0, Math.round(cost * 100));
+  return {
+    id: `pending-${type}`,
+    providerId: "external provider",
+    serviceType: type,
+    title: type.replaceAll("_", " "),
+    disclosure: "third-party",
+    currency: "EUR",
+    subtotalMinor,
+    commissionMinor: 0,
+    totalMinor: subtotalMinor,
+    optional: true,
+  };
+}
+
 export function ExchangeServices({
   swapId,
   activeServices,
@@ -48,6 +65,18 @@ export function ExchangeServices({
   onSave,
 }: Props) {
   const t = useTranslations("exchange.services");
+  const [sessionOffers, setSessionOffers] = useState<Partial<Record<ServiceType, CommercialServiceOffer>>>({});
+
+  async function saveService(
+    type: ServiceType,
+    details: Record<string, unknown>,
+    cost?: number,
+  ): Promise<void> {
+    await onSave(type, details, cost);
+    if (cost !== undefined && Number.isFinite(cost) && cost >= 0) {
+      setSessionOffers((current) => ({ ...current, [type]: savedCommercialOffer(type, cost) }));
+    }
+  }
 
   if (activeServices.length === 0) {
     return (
@@ -61,20 +90,20 @@ export function ExchangeServices({
     <div className="space-y-4">
       {activeServices.map((type) => {
         const service = services.find((candidate) => candidate.serviceType === type);
-        const offer = toCommercialOffer(type, service);
+        const offer = toCommercialOffer(type, service) ?? sessionOffers[type] ?? null;
         const content = (
           <>
             {type === "escrow" && (
               <EscrowService
                 swapId={swapId}
-                onSave={(d, c) => onSave("escrow", d, c)}
+                onSave={(d, c) => saveService("escrow", d, c)}
               />
             )}
             {type === "packaging" && (
-              <PackagingService onSave={(d) => onSave("packaging", d)} />
+              <PackagingService onSave={(d) => saveService("packaging", d)} />
             )}
             {type === "transport" && (
-              <TransportService onSave={(d, c) => onSave("transport", d, c)} />
+              <TransportService onSave={(d, c) => saveService("transport", d, c)} />
             )}
             {type === "accommodation" && (
               <AccommodationService partnerCity={partnerCity} agreedDate={agreedDate} />
@@ -83,7 +112,7 @@ export function ExchangeServices({
               <RestaurantService partnerCity={partnerCity} agreedDate={agreedDate} />
             )}
             {type === "insurance" && (
-              <InsuranceService onSave={(d, c) => onSave("insurance", d, c)} />
+              <InsuranceService onSave={(d, c) => saveService("insurance", d, c)} />
             )}
             {(type === "legal" || type === "ai_valuation") && (
               <div className="py-2 text-center text-sm text-zinc-400">
