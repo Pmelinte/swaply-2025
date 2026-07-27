@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import { executeProviderCall } from '@/lib/integrations/provider-executor';
+import {
+  executeProviderCall,
+  type ProviderCircuitState,
+} from '@/lib/integrations/provider-executor';
 import {
   PROVIDER_REGISTRY,
   getProvidersForCapability,
@@ -102,7 +105,7 @@ describe('E4.2 provider registry and integration layer', () => {
   });
 
   it('opens the circuit after repeated failures and never blocks the core swap', async () => {
-    const circuitState = { failures: 1 };
+    const circuitState: ProviderCircuitState = { failures: 1 };
     let now = 1_000;
 
     const failed = await executeProviderCall({
