@@ -1,7 +1,11 @@
 import { z } from "zod";
 import { CATEGORIES_TAXONOMY } from "@/lib/categories";
 import type { AITaskType } from "./taskTypes";
-import { fallbackGenerateItemDescription, fallbackTranslateText } from "./fallbacks";
+import {
+  fallbackGenerateItemDescription,
+  fallbackMatchExplanation,
+  fallbackTranslateText,
+} from "./fallbacks";
 
 export type AIPrivacyPolicy = "metadata_only" | "redact_pii";
 
@@ -91,6 +95,41 @@ const translateOutputSchema = z.union([
   translateLegacyOutputSchema,
 ]);
 
+const semanticMatchItemSchema = z.object({
+  title: z.string().min(1).max(240),
+  category: z.string().max(120).nullable().optional(),
+  condition: z.string().max(120).nullable().optional(),
+  description: z.string().max(5_000).nullable().optional(),
+  wishlist: z.string().max(2_000).nullable().optional(),
+  tags: z.array(z.string().max(80)).max(20).optional(),
+  location: z.string().max(240).nullable().optional(),
+  perceivedValue: z.string().max(120).nullable().optional(),
+});
+
+const matchInputSchema = z.object({
+  offeredItem: semanticMatchItemSchema.optional(),
+  requestedItem: semanticMatchItemSchema.optional(),
+  baseScore: z.number().min(0).max(100).optional(),
+  algorithmicReasons: z.array(z.string().max(500)).max(20).optional(),
+  distanceKm: z.number().min(0).max(50_000).nullable().optional(),
+  locale: z.string().max(20).optional(),
+  offeredTitle: z.string().max(240).optional(),
+  requestedTitle: z.string().max(240).optional(),
+  offeredCategory: z.string().max(120).nullable().optional(),
+  requestedCategory: z.string().max(120).nullable().optional(),
+});
+
+const matchOutputSchema = z.object({
+  score: z.number(),
+  semanticScore: z.number().min(0).max(100),
+  scoreAdjustment: z.number().min(-10).max(10),
+  summary: z.string().min(1).max(1_000),
+  reasons: z.array(z.string().max(500)).max(10),
+  risks: z.array(z.string().max(500)).max(10),
+  confidence: z.enum(["high", "medium", "low"]),
+  source: z.enum(["ai", "fallback"]),
+});
+
 const moderateInputSchema = z.object({ text: z.string() });
 const moderateOutputSchema = z.object({
   safe: z.boolean(),
@@ -149,7 +188,16 @@ const definitions: Record<AITaskType, AITaskDefinition> = {
       });
     },
   },
-  match: genericTask("match", "match-v1", 12_000),
+  match: {
+    enabled: true,
+    inputSchema: matchInputSchema,
+    outputSchema: matchOutputSchema,
+    promptVersion: "semantic-match-v2",
+    timeoutMs: 12_000,
+    providerPolicy: [],
+    privacyPolicy: "redact_pii",
+    fallback: (input: unknown) => fallbackMatchExplanation(matchInputSchema.parse(input)),
+  },
   summarize_chat: genericTask("summarize_chat", "summarize-chat-v1", 12_000),
   story_assist: genericTask("story_assist", "story-assist-v1", 12_000),
   blog_assist: genericTask("blog_assist", "blog-assist-v1", 12_000),

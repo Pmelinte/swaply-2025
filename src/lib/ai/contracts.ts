@@ -104,20 +104,46 @@ export interface TranslationProposal {
   status: "translated" | "same_language" | "fallback";
 }
 
+export interface SemanticMatchItem {
+  title: string;
+  category?: string | null;
+  condition?: string | null;
+  description?: string | null;
+  wishlist?: string | null;
+  tags?: string[];
+  location?: string | null;
+  perceivedValue?: string | null;
+}
+
 export interface MatchExplanationRequest {
-  offeredTitle: string;
-  requestedTitle: string;
-  offeredCategory?: string | null;
-  requestedCategory?: string | null;
+  offeredItem?: SemanticMatchItem;
+  requestedItem?: SemanticMatchItem;
+  baseScore?: number;
+  algorithmicReasons?: string[];
   distanceKm?: number | null;
   locale?: string;
+  offeredTitle?: string;
+  requestedTitle?: string;
+  offeredCategory?: string | null;
+  requestedCategory?: string | null;
 }
 
 export interface MatchExplanationResult {
   score: number;
+  semanticScore: number;
+  scoreAdjustment: number;
+  summary: string;
   reasons: string[];
   risks: string[];
+  confidence: "high" | "medium" | "low";
   source: AIFallbackSource;
+}
+
+export interface SemanticMatchProposal extends MatchExplanationResult {
+  baseScore: number;
+  suggestedScore: number;
+  affectsRanking: false;
+  requiresHumanConfirmation: true;
 }
 
 export type SwaplyAITaskRequest =
