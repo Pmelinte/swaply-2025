@@ -116,15 +116,20 @@ export interface SemanticMatchItem {
 }
 
 export interface MatchExplanationRequest {
-  offeredItem: SemanticMatchItem;
-  requestedItem: SemanticMatchItem;
-  baseScore: number;
+  offeredItem?: SemanticMatchItem;
+  requestedItem?: SemanticMatchItem;
+  baseScore?: number;
   algorithmicReasons?: string[];
   distanceKm?: number | null;
   locale?: string;
+  offeredTitle?: string;
+  requestedTitle?: string;
+  offeredCategory?: string | null;
+  requestedCategory?: string | null;
 }
 
 export interface MatchExplanationResult {
+  score: number;
   semanticScore: number;
   scoreAdjustment: number;
   summary: string;
