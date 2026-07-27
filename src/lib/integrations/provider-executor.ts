@@ -74,7 +74,8 @@ export async function executeProviderCall<T>(input: {
   context?: ProviderExecutionContext;
 }): Promise<ProviderExecutionResult<T>> {
   const now = input.context?.now ?? Date.now;
-  const sleep = input.context?.sleep ?? ((ms: number) => new Promise((resolve) => setTimeout(resolve, ms)));
+  const sleep = input.context?.sleep ??
+    ((ms: number) => new Promise((resolve) => setTimeout(resolve, ms)));
   const circuit = input.context?.circuitState ?? { failures: 0 };
   const startedAt = now();
   const blockedByState = stateFailure(input.provider.state);
@@ -132,7 +133,7 @@ export async function executeProviderCall<T>(input: {
           input.provider.retry.retryableStatusCodes.includes(result.statusCode));
 
       if (!retryable || attempt === input.provider.retry.maxAttempts) break;
-    } catch (error) {
+    } catch {
       lastFailure = controller.signal.aborted ? 'timeout' : 'provider-error';
       if (attempt === input.provider.retry.maxAttempts) break;
     } finally {
