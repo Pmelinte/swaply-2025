@@ -5,6 +5,7 @@ export * from "./item-enrichment";
 export * from "./model-registry";
 export * from "./observability";
 export * from "./safeTaskMetadata";
+export * from "./safety-moderation";
 export * from "./semantic-match";
 export * from "./swaplyAIFacade";
 export * from "./task-router";
