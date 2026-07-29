@@ -1,15 +1,47 @@
 import { NextResponse } from "next/server";
 import { POST as analyzeImageSecurely } from "../ai/image/route";
+import { resolveVisionLocale } from "@/lib/ai/vision-analysis";
 
 /**
  * Backward-compatible wrapper for the object wizard.
  *
- * The legacy implementation fetched arbitrary URLs and exposed provider debug
- * details. All analysis now goes through the authenticated, validated and
- * rate-limited /api/ai/image implementation.
+ * The object wizard still posts to /api/analyze-image. This wrapper enriches
+ * the request with the active route locale, converts its legacy data-URL field
+ * to the secure base64 contract and delegates provider access, validation,
+ * SSRF protection and rate limiting to /api/ai/image.
  */
 export async function POST(request: Request) {
-  const response = await analyzeImageSecurely(request);
+  const rawBody = await request.json().catch(() => ({}));
+  const body = isRecord(rawBody) ? rawBody : {};
+  const locale = resolveVisionLocale({
+    explicitLocale: body.locale,
+    referer: request.headers.get("referer"),
+    acceptLanguage: request.headers.get("accept-language"),
+  });
+
+  const delegatedBody: Record<string, unknown> = { ...body, locale };
+  if (
+    typeof delegatedBody.imageUrl === "string" &&
+    delegatedBody.imageUrl.startsWith("data:image/")
+  ) {
+    delegatedBody.imageBase64 = delegatedBody.imageUrl;
+    delete delegatedBody.imageUrl;
+  }
+
+  const headers = new Headers(request.headers);
+  headers.set("content-type", "application/json");
+  headers.delete("content-length");
+
+  const delegatedRequest = new Request(
+    new URL("/api/ai/image", request.url),
+    {
+      method: "POST",
+      headers,
+      body: JSON.stringify(delegatedBody),
+    },
+  );
+
+  const response = await analyzeImageSecurely(delegatedRequest);
   const data = (await response.json().catch(() => ({}))) as Record<
     string,
     unknown
@@ -22,18 +54,43 @@ export async function POST(request: Request) {
         description: "",
         category_l1: "",
         category_l2: "",
-        error: typeof data.message === "string" ? data.message : "Image analysis failed",
+        locale,
+        error:
+          typeof data.message === "string"
+            ? data.message
+            : "Image analysis failed",
+        error_code:
+          typeof data.code === "string" ? data.code : "image_analysis_failed",
       },
       { status: response.status >= 400 ? response.status : 502 },
     );
   }
 
+  const categoryL1 = firstString(data.categoryL1, data.category);
+  const categoryL2 = firstString(data.categoryL2);
+
   return NextResponse.json({
-    title: typeof data.title === "string" ? data.title.slice(0, 80) : "",
-    description:
-      typeof data.caption === "string" ? data.caption.slice(0, 500) : "",
-    category_l1:
-      typeof data.category === "string" ? data.category : "",
-    category_l2: "",
+    status: data.status,
+    title: firstString(data.title).slice(0, 80),
+    description: firstString(data.caption).slice(0, 500),
+    category_l1: categoryL1,
+    category_l2: categoryL2,
+    confidence:
+      typeof data.confidence === "number" ? data.confidence : null,
+    locale: firstString(data.locale) || locale,
+    provider: firstString(data.provider),
+    model: firstString(data.model),
+    manual_completion_required: data.manualCompletionRequired === true,
   });
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function firstString(...values: unknown[]): string {
+  for (const value of values) {
+    if (typeof value === "string" && value.trim()) return value.trim();
+  }
+  return "";
 }

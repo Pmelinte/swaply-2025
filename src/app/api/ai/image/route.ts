@@ -1,12 +1,20 @@
 import { NextResponse } from "next/server";
-import { CATEGORIES_TAXONOMY } from "@/lib/categories";
 import { rateLimit } from "@/lib/rate-limit";
 import { aiImageSchema, validateBody } from "@/lib/validation";
 import { requestLogger, captureError } from "@/lib/logger";
 import { getFeatureFlag } from "@/lib/feature-flags";
+import {
+  DEFAULT_GEMINI_VISION_MODEL,
+  DEFAULT_GROQ_VISION_MODEL,
+  DEFAULT_HUGGINGFACE_VISION_MODEL,
+  buildVisionPrompt,
+  fallbackVisionFromUrl,
+  normalizeVisionLocale,
+  parseVisionResponse,
+  type VisionAnalysisData,
+} from "@/lib/ai/vision-analysis";
 
-/** All category names (top-level + subcategories) for AI matching */
-const ALL_CATEGORY_NAMES = CATEGORIES_TAXONOMY.map((c) => c.name);
+const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 
 /** Allow server-side downloads only from explicitly trusted image hosts. */
 function isPublicUrl(url: string): boolean {
@@ -34,11 +42,22 @@ function isPublicUrl(url: string): boolean {
   }
 }
 
+type AiResult =
+  | { ok: true; data: VisionAnalysisData; model: string }
+  | { ok: false; error: string; model: string };
+
 export async function POST(request: Request) {
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
   const { allowed } = rateLimit(ip, { limit: 10, windowMs: 60_000 });
   if (!allowed) {
-    return NextResponse.json({ status: "error", message: "Prea multe cereri. Încearcă din nou în 1 minut." }, { status: 429 });
+    return NextResponse.json(
+      {
+        status: "error",
+        code: "rate_limited",
+        message: "Prea multe cereri. Încearcă din nou în 1 minut.",
+      },
+      { status: 429 },
+    );
   }
 
   const log = requestLogger(request);
@@ -46,200 +65,260 @@ export async function POST(request: Request) {
   const { data: validated, error: validationError } = validateBody(body, aiImageSchema);
   if (validationError) {
     log.warn("Validation failed", { error: validationError });
-    return NextResponse.json({ status: "error", message: validationError }, { status: 400 });
+    return NextResponse.json(
+      { status: "error", code: "invalid_input", message: validationError },
+      { status: 400 },
+    );
   }
-  const { imageUrl, imageBase64 } = validated!;
 
+  const { imageUrl, imageBase64 } = validated!;
+  const locale = normalizeVisionLocale(validated!.locale);
   const attempted: string[] = [];
 
   try {
-    // Get image as raw base64 (without data URI prefix) and mime type
-    let base64Data: string;
-    let mimeType: string;
+    let base64Data = "";
+    let mimeType = "image/jpeg";
 
     if (imageBase64) {
-      if (imageBase64.includes(",")) {
-        const [header, data] = imageBase64.split(",");
-        base64Data = data;
-        mimeType = header.match(/data:([^;]+)/)?.[1] || "image/jpeg";
-      } else {
-        base64Data = imageBase64;
-        mimeType = "image/jpeg";
+      const parsedImage = parseBase64Image(imageBase64);
+      if (!parsedImage.ok) {
+        return NextResponse.json(
+          { status: "error", code: parsedImage.code, message: parsedImage.message },
+          { status: parsedImage.status },
+        );
       }
+      base64Data = parsedImage.base64Data;
+      mimeType = parsedImage.mimeType;
     } else if (imageUrl) {
       if (!isPublicUrl(imageUrl)) {
-        return NextResponse.json({ status: "error", message: "URL invalid sau blocat." }, { status: 400 });
+        return NextResponse.json(
+          { status: "error", code: "blocked_image_url", message: "URL invalid sau blocat." },
+          { status: 400 },
+        );
       }
-      try {
-        const imgRes = await fetch(imageUrl, { signal: AbortSignal.timeout(10000) });
-        if (!imgRes.ok) {
-          attempted.push(`fetch-url: HTTP ${imgRes.status}`);
-          const fallback = fallbackFromUrl(imageUrl);
-          return NextResponse.json({ status: "fallback", ...fallback, attempted });
-        }
-        const contentType = imgRes.headers.get("content-type") || "";
-        const contentLength = Number(imgRes.headers.get("content-length") || "0");
-        const maxImageBytes = 10 * 1024 * 1024;
 
+      try {
+        const imageResponse = await fetch(imageUrl, {
+          signal: AbortSignal.timeout(10_000),
+        });
+        if (!imageResponse.ok) {
+          attempted.push(`fetch-url:http_${imageResponse.status}`);
+          return fallbackResponse(imageUrl, locale, attempted);
+        }
+
+        const contentType = imageResponse.headers.get("content-type") || "";
+        const contentLength = Number(imageResponse.headers.get("content-length") || "0");
         if (!contentType.toLowerCase().startsWith("image/")) {
           return NextResponse.json(
-            { status: "error", message: "URL-ul nu indică o imagine validă." },
+            {
+              status: "error",
+              code: "invalid_image_content_type",
+              message: "URL-ul nu indică o imagine validă.",
+            },
             { status: 400 },
           );
         }
-        if (contentLength > maxImageBytes) {
+        if (contentLength > MAX_IMAGE_BYTES) {
           return NextResponse.json(
-            { status: "error", message: "Imaginea depășește limita de 10 MB." },
+            {
+              status: "error",
+              code: "image_too_large",
+              message: "Imaginea depășește limita de 10 MB.",
+            },
             { status: 413 },
           );
         }
 
-        const buffer = Buffer.from(await imgRes.arrayBuffer());
-        if (buffer.byteLength > maxImageBytes) {
+        const buffer = Buffer.from(await imageResponse.arrayBuffer());
+        if (buffer.byteLength > MAX_IMAGE_BYTES) {
           return NextResponse.json(
-            { status: "error", message: "Imaginea depășește limita de 10 MB." },
+            {
+              status: "error",
+              code: "image_too_large",
+              message: "Imaginea depășește limita de 10 MB.",
+            },
             { status: 413 },
           );
         }
 
         base64Data = buffer.toString("base64");
-        mimeType = contentType;
-      } catch (fetchErr) {
-        attempted.push(`fetch-url: ${String(fetchErr).slice(0, 100)}`);
-        const fallback = fallbackFromUrl(imageUrl);
-        return NextResponse.json({ status: "fallback", ...fallback, attempted });
+        mimeType = contentType.split(";")[0]?.trim() || "image/jpeg";
+      } catch (fetchError) {
+        log.warn("AI image download failed", {
+          code: providerErrorCode(fetchError),
+        });
+        attempted.push(`fetch-url:${providerErrorCode(fetchError)}`);
+        return fallbackResponse(imageUrl, locale, attempted);
       }
     } else {
-      return NextResponse.json({ status: "error", message: "Lipsă imagine." });
+      return NextResponse.json(
+        { status: "error", code: "missing_image", message: "Lipsă imagine." },
+        { status: 400 },
+      );
     }
 
     const dataUri = `data:${mimeType};base64,${base64Data}`;
+    const prompt = buildVisionPrompt(locale);
 
-    // 1. Try Groq first (free, fast, no regional restrictions)
     const groqKey = (process.env.GROQ_API_KEY || "").trim();
+    const groqModel =
+      process.env.GROQ_VISION_MODEL?.trim() || DEFAULT_GROQ_VISION_MODEL;
     if (groqKey) {
-      const result = await analyzeWithGroq(dataUri, groqKey);
+      const result = await analyzeWithGroq(dataUri, groqKey, groqModel, prompt, locale);
       if (result.ok) {
-        return NextResponse.json({ status: "ok", ...result.data, attempted: [...attempted, "groq: ok"] });
+        return successResponse("groq", result, attempted);
       }
-      attempted.push(`groq: ${result.error}`);
+      log.warn("Groq vision analysis failed", {
+        provider: "groq",
+        model: result.model,
+        code: providerErrorCode(result.error),
+      });
+      attempted.push(`groq:${providerErrorCode(result.error)}`);
     } else {
-      attempted.push("groq: no API key");
+      attempted.push("groq:not_configured");
     }
 
-    // 2. Fallback to Gemini
     const geminiKey = (process.env.GEMINI_API_KEY || "").trim();
+    const geminiModel =
+      process.env.GEMINI_VISION_MODEL?.trim() || DEFAULT_GEMINI_VISION_MODEL;
     if (geminiKey) {
-      let result = await analyzeWithGemini(base64Data, mimeType, geminiKey);
-      if (!result.ok && result.error.includes("429")) {
-        await new Promise((r) => setTimeout(r, 3000));
-        result = await analyzeWithGemini(base64Data, mimeType, geminiKey);
+      let result = await analyzeWithGemini(
+        base64Data,
+        mimeType,
+        geminiKey,
+        geminiModel,
+        prompt,
+        locale,
+      );
+      if (!result.ok && result.error.includes("HTTP 429")) {
+        await new Promise((resolve) => setTimeout(resolve, 1_500));
+        result = await analyzeWithGemini(
+          base64Data,
+          mimeType,
+          geminiKey,
+          geminiModel,
+          prompt,
+          locale,
+        );
       }
       if (result.ok) {
-        return NextResponse.json({ status: "ok", ...result.data, attempted: [...attempted, "gemini: ok"] });
+        return successResponse("gemini", result, attempted);
       }
-      attempted.push(`gemini: ${result.error}`);
+      log.warn("Gemini vision analysis failed", {
+        provider: "gemini",
+        model: result.model,
+        code: providerErrorCode(result.error),
+      });
+      attempted.push(`gemini:${providerErrorCode(result.error)}`);
     } else {
-      attempted.push("gemini: no key");
+      attempted.push("gemini:not_configured");
     }
 
-    // 3. Fallback to HuggingFace
-    const hfKey = (process.env.HUGGINGFACE_API_KEY || process.env.HUGGINGFACE_API_TOKEN || "").trim();
-    const hfEnabled = await getFeatureFlag("ai_matching");
-    if (hfKey && hfEnabled) {
-      const result = await analyzeWithHuggingFace(dataUri, hfKey);
+    const huggingFaceKey = (
+      process.env.HUGGINGFACE_API_KEY ||
+      process.env.HUGGINGFACE_API_TOKEN ||
+      ""
+    ).trim();
+    const huggingFaceModel =
+      process.env.HUGGINGFACE_VISION_MODEL?.trim() ||
+      DEFAULT_HUGGINGFACE_VISION_MODEL;
+    const huggingFaceEnabled = await getFeatureFlag("ai_matching");
+    if (huggingFaceKey && huggingFaceEnabled) {
+      const result = await analyzeWithHuggingFace(
+        dataUri,
+        huggingFaceKey,
+        huggingFaceModel,
+        prompt,
+        locale,
+      );
       if (result.ok) {
-        return NextResponse.json({ status: "ok", ...result.data, attempted: [...attempted, "hf: ok"] });
+        return successResponse("huggingface", result, attempted);
       }
-      attempted.push(`hf: ${result.error}`);
+      log.warn("Hugging Face vision analysis failed", {
+        provider: "huggingface",
+        model: result.model,
+        code: providerErrorCode(result.error),
+      });
+      attempted.push(`huggingface:${providerErrorCode(result.error)}`);
     } else {
-      attempted.push(`hf: ${!hfKey ? "no key" : "disabled"}`);
+      attempted.push(
+        `huggingface:${!huggingFaceKey ? "not_configured" : "disabled"}`,
+      );
     }
 
-    // All AI failed
-    const fallback = fallbackFromUrl(imageUrl);
-    return NextResponse.json({ status: "fallback", ...fallback, attempted });
-  } catch (err) {
-    captureError(err, { route: "/api/ai/image" });
-    attempted.push(`exception: ${String(err).slice(0, 100)}`);
-    const fallback = fallbackFromUrl(imageUrl);
-    return NextResponse.json({ status: "fallback", ...fallback, attempted });
+    return fallbackResponse(imageUrl, locale, attempted);
+  } catch (error) {
+    captureError(error, { route: "/api/ai/image" });
+    attempted.push(`exception:${providerErrorCode(error)}`);
+    return fallbackResponse(imageUrl, locale, attempted);
   }
 }
 
-type AiResult =
-  | { ok: true; data: { caption: string; title: string; category: string } }
-  | { ok: false; error: string };
-
-/** Analyze image with Groq (Llama 4 Scout — multimodal, 128K context) */
 async function analyzeWithGroq(
   imageDataUri: string,
   apiKey: string,
+  model: string,
+  prompt: string,
+  locale: string,
 ): Promise<AiResult> {
-  const categoriesList = ALL_CATEGORY_NAMES.join(", ");
-
   try {
-    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "meta-llama/llama-4-scout-17b-16e-instruct",
+        model,
         messages: [
           {
             role: "user",
             content: [
-              {
-                type: "image_url",
-                image_url: { url: imageDataUri },
-              },
-              {
-                type: "text",
-                text: `Analyze this image of an item for a swap/barter platform. Respond with ONLY a JSON object (no markdown, no code blocks):
-{"description": "short description in Romanian (3-8 words)", "category": "EXACTLY one of: ${categoriesList}"}
-
-Pick the most specific matching category.`,
-              },
+              { type: "text", text: prompt },
+              { type: "image_url", image_url: { url: imageDataUri } },
             ],
           },
         ],
-        max_tokens: 200,
-        temperature: 0.3,
+        response_format: { type: "json_object" },
+        reasoning_effort: "none",
+        max_completion_tokens: 500,
       }),
-      signal: AbortSignal.timeout(15000),
+      signal: AbortSignal.timeout(20_000),
     });
 
-    if (!res.ok) {
-      const errText = await res.text().catch(() => "");
-      return { ok: false, error: `HTTP ${res.status}: ${errText.slice(0, 150)}` };
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => "");
+      return {
+        ok: false,
+        model,
+        error: `HTTP ${response.status}: ${errorText.slice(0, 160)}`,
+      };
     }
 
-    const data = await res.json();
+    const data = await response.json();
     const text = data?.choices?.[0]?.message?.content?.trim();
+    if (!text) return { ok: false, model, error: "empty_response" };
 
-    if (!text) return { ok: false, error: "empty response" };
-
-    const parsed = parseAiResponse(text);
-    if (parsed) return { ok: true, data: parsed };
-    return { ok: false, error: `parse failed: ${text.slice(0, 100)}` };
-  } catch (err) {
-    return { ok: false, error: String(err).slice(0, 150) };
+    const parsed = parseVisionResponse(text, locale);
+    return parsed
+      ? { ok: true, data: parsed, model }
+      : { ok: false, model, error: "invalid_json_response" };
+  } catch (error) {
+    return { ok: false, model, error: String(error).slice(0, 160) };
   }
 }
 
-/** Analyze image with Google Gemini */
 async function analyzeWithGemini(
   base64Data: string,
   mimeType: string,
   apiKey: string,
+  model: string,
+  prompt: string,
+  locale: string,
 ): Promise<AiResult> {
-  const categoriesList = ALL_CATEGORY_NAMES.join(", ");
-
   try {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -247,12 +326,7 @@ async function analyzeWithGemini(
           contents: [
             {
               parts: [
-                {
-                  text: `Analyze this image of an item for a swap/barter platform. Respond with ONLY a JSON object (no markdown, no code blocks):
-{"description": "short description in Romanian (3-8 words)", "category": "EXACTLY one of: ${categoriesList}"}
-
-Pick the most specific matching category.`,
-                },
+                { text: prompt },
                 {
                   inline_data: {
                     mime_type: mimeType,
@@ -262,183 +336,168 @@ Pick the most specific matching category.`,
               ],
             },
           ],
+          generationConfig: {
+            responseMimeType: "application/json",
+            maxOutputTokens: 500,
+          },
         }),
-        signal: AbortSignal.timeout(15000),
+        signal: AbortSignal.timeout(20_000),
       },
     );
 
-    if (!res.ok) {
-      const errText = await res.text().catch(() => "");
-      return { ok: false, error: `HTTP ${res.status}: ${errText.slice(0, 200)}` };
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => "");
+      return {
+        ok: false,
+        model,
+        error: `HTTP ${response.status}: ${errorText.slice(0, 160)}`,
+      };
     }
 
-    const data = await res.json();
+    const data = await response.json();
     const text = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-
     if (!text) {
-      const blockReason = data?.candidates?.[0]?.finishReason || data?.promptFeedback?.blockReason || "no text";
-      return { ok: false, error: `empty: ${blockReason}` };
+      const blockReason =
+        data?.candidates?.[0]?.finishReason ||
+        data?.promptFeedback?.blockReason ||
+        "empty_response";
+      return { ok: false, model, error: String(blockReason) };
     }
 
-    const parsed = parseAiResponse(text);
-    if (parsed) return { ok: true, data: parsed };
-    return { ok: false, error: `parse failed: ${text.slice(0, 100)}` };
-  } catch (err) {
-    return { ok: false, error: String(err).slice(0, 150) };
+    const parsed = parseVisionResponse(text, locale);
+    return parsed
+      ? { ok: true, data: parsed, model }
+      : { ok: false, model, error: "invalid_json_response" };
+  } catch (error) {
+    return { ok: false, model, error: String(error).slice(0, 160) };
   }
 }
 
-/** Fallback: analyze image with HuggingFace vision models */
 async function analyzeWithHuggingFace(
   imageDataUri: string,
-  hfKey: string,
+  apiKey: string,
+  model: string,
+  prompt: string,
+  locale: string,
 ): Promise<AiResult> {
-  const categoriesList = ALL_CATEGORY_NAMES.join(", ");
-  const prompt = `Analyze this image and respond with ONLY a JSON object: {"description": "short item description in Romanian", "category": "one of: ${categoriesList}"}`;
-
-  const models = [
-    { url: "https://router.huggingface.co/together/v1/chat/completions", model: "meta-llama/Llama-Vision-Free" },
-    { url: "https://router.huggingface.co/hf-inference/models/meta-llama/Llama-3.2-11B-Vision-Instruct/v1/chat/completions", model: "meta-llama/Llama-3.2-11B-Vision-Instruct" },
-  ];
-
-  const errors: string[] = [];
-
-  for (const { url, model } of models) {
-    try {
-      const res = await fetch(url, {
+  try {
+    const response = await fetch(
+      "https://router.huggingface.co/v1/chat/completions",
+      {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${hfKey}`,
+          Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           model,
-          messages: [{ role: "user", content: [
-            { type: "image_url", image_url: { url: imageDataUri } },
-            { type: "text", text: prompt },
-          ]}],
-          max_tokens: 200,
+          messages: [
+            {
+              role: "user",
+              content: [
+                { type: "text", text: prompt },
+                { type: "image_url", image_url: { url: imageDataUri } },
+              ],
+            },
+          ],
+          max_tokens: 500,
         }),
-        signal: AbortSignal.timeout(30000),
-      });
+        signal: AbortSignal.timeout(30_000),
+      },
+    );
 
-      if (res.ok) {
-        const data = await res.json();
-        const text = data?.choices?.[0]?.message?.content?.trim();
-        if (text) {
-          const parsed = parseAiResponse(text);
-          if (parsed) return { ok: true, data: parsed };
-          errors.push(`${model}: parse failed`);
-        } else {
-          errors.push(`${model}: empty`);
-        }
-      } else {
-        errors.push(`${model}: HTTP ${res.status}`);
-      }
-    } catch (err) {
-      errors.push(`${model}: ${String(err).slice(0, 60)}`);
-    }
-  }
-
-  return { ok: false, error: errors.join("; ") };
-}
-
-/** Parse AI response (JSON or plain text) into title + category */
-function parseAiResponse(text: string): { caption: string; title: string; category: string } | null {
-  try {
-    const cleaned = text.replace(/```json?\s*/g, "").replace(/```/g, "").trim();
-    const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
-
-    if (jsonMatch) {
-      const parsed = JSON.parse(jsonMatch[0]);
-      const description = parsed.description || parsed.desc || text;
-      let category = parsed.category || "";
-
-      if (!ALL_CATEGORY_NAMES.includes(category)) {
-        category = matchCategory(category) || keywordCategory(description);
-      }
-
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => "");
       return {
-        caption: description,
-        title: formatTitle(description),
-        category,
+        ok: false,
+        model,
+        error: `HTTP ${response.status}: ${errorText.slice(0, 160)}`,
       };
     }
-  } catch {
-    // JSON parse failed
-  }
 
-  return {
-    caption: text,
-    title: formatTitle(text),
-    category: keywordCategory(text),
-  };
+    const data = await response.json();
+    const text = data?.choices?.[0]?.message?.content?.trim();
+    if (!text) return { ok: false, model, error: "empty_response" };
+
+    const parsed = parseVisionResponse(text, locale);
+    return parsed
+      ? { ok: true, data: parsed, model }
+      : { ok: false, model, error: "invalid_json_response" };
+  } catch (error) {
+    return { ok: false, model, error: String(error).slice(0, 160) };
+  }
 }
 
-/** Fuzzy-match category name to our taxonomy */
-function matchCategory(aiCategory: string): string {
-  if (!aiCategory) return "";
-  const norm = aiCategory.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-
-  for (const name of ALL_CATEGORY_NAMES) {
-    const nameNorm = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-    if (nameNorm === norm) return name;
-  }
-
-  for (const name of ALL_CATEGORY_NAMES) {
-    const nameNorm = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-    if (nameNorm.includes(norm) || norm.includes(nameNorm)) return name;
-  }
-
-  return "";
+function successResponse(
+  provider: "groq" | "gemini" | "huggingface",
+  result: Extract<AiResult, { ok: true }>,
+  attempted: string[],
+) {
+  return NextResponse.json({
+    status: "ok",
+    ...result.data,
+    provider,
+    model: result.model,
+    attempted: [...attempted, `${provider}:ok`],
+  });
 }
 
-/** Fallback: extract hints from image URL or filename */
-function fallbackFromUrl(imageUrl?: string): { title: string; category: string; caption: string } {
-  if (!imageUrl) {
-    return { title: "", category: "", caption: "Completează manual titlul și categoria." };
-  }
-
-  let filename = "";
-  try {
-    const urlObj = new URL(imageUrl);
-    filename = decodeURIComponent(urlObj.pathname.split("/").pop() || "");
-  } catch {
-    filename = imageUrl.split("/").pop() || "";
-  }
-
-  const cleaned = filename
-    .replace(/\.[^.]+$/, "")
-    .replace(/[-_]+/g, " ")
-    .replace(/\b\d{3,}\b/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
-
-  const isUseful = cleaned.length >= 3 && /[a-zA-Z]{3,}/.test(cleaned) && !/^[a-z0-9]{15,}$/i.test(cleaned);
-  const category = isUseful ? keywordCategory(cleaned) : "";
-  const title = isUseful ? cleaned.charAt(0).toUpperCase() + cleaned.slice(1) : "";
-
-  return {
-    title: title.slice(0, 120),
-    category,
-    caption: title
-      ? `Din numele fișierului: "${title}". Poți modifica.`
-      : "AI indisponibil. Completează manual titlul și categoria.",
-  };
+function fallbackResponse(
+  imageUrl: string | undefined,
+  locale: string,
+  attempted: string[],
+) {
+  return NextResponse.json({
+    status: "fallback",
+    ...fallbackVisionFromUrl(imageUrl, locale),
+    provider: "deterministic",
+    model: "swaply-filename-rules-v2",
+    attempted,
+  });
 }
 
-function formatTitle(caption: string): string {
-  let title = caption.trim();
-  title = title.replace(/^(there is |there are |a photo of |an image of |a picture of |arafed |this is |the image shows |an? )/i, "");
-  title = title.charAt(0).toUpperCase() + title.slice(1);
-  if (title.length > 120) title = title.slice(0, 117) + "...";
-  return title;
+function parseBase64Image(imageBase64: string):
+  | { ok: true; base64Data: string; mimeType: string }
+  | { ok: false; code: string; message: string; status: number } {
+  let base64Data = imageBase64.trim();
+  let mimeType = "image/jpeg";
+
+  if (base64Data.startsWith("data:")) {
+    const separatorIndex = base64Data.indexOf(",");
+    const header = separatorIndex >= 0 ? base64Data.slice(0, separatorIndex) : "";
+    base64Data = separatorIndex >= 0 ? base64Data.slice(separatorIndex + 1) : "";
+    mimeType = header.match(/^data:([^;]+);base64$/i)?.[1]?.toLowerCase() || "";
+
+    if (!mimeType.startsWith("image/") || !base64Data) {
+      return {
+        ok: false,
+        code: "invalid_image_data_uri",
+        message: "Imagine base64 invalidă.",
+        status: 400,
+      };
+    }
+  }
+
+  const estimatedBytes = Math.ceil((base64Data.length * 3) / 4);
+  if (estimatedBytes > MAX_IMAGE_BYTES) {
+    return {
+      ok: false,
+      code: "image_too_large",
+      message: "Imaginea depășește limita de 10 MB.",
+      status: 413,
+    };
+  }
+
+  return { ok: true, base64Data, mimeType };
 }
 
-function keywordCategory(text: string): string {
-  const t = text.toLowerCase();
-  for (const node of CATEGORIES_TAXONOMY) {
-    if (node.keywords.some((kw) => t.includes(kw))) return node.name;
-  }
-  return "";
+function providerErrorCode(error: unknown): string {
+  const text = String(error).toLowerCase();
+  const httpStatus = text.match(/http\s+(\d{3})/)?.[1];
+  if (httpStatus) return `http_${httpStatus}`;
+  if (text.includes("timeout") || text.includes("aborted")) return "timeout";
+  if (text.includes("invalid_json")) return "invalid_json";
+  if (text.includes("empty_response")) return "empty_response";
+  if (text.includes("network") || text.includes("fetch")) return "network_error";
+  return "provider_error";
 }

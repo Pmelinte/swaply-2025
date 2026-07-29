@@ -1,5 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { POST } from "@/app/api/ai/image/route";
+import {
+  DEFAULT_GEMINI_VISION_MODEL,
+  DEFAULT_GROQ_VISION_MODEL,
+} from "@/lib/ai/vision-analysis";
 
 function makeRequest(body: object, ip: string = "test-ip") {
   return new Request("http://localhost/api/ai/image", {
@@ -12,23 +16,49 @@ function makeRequest(body: object, ip: string = "test-ip") {
   });
 }
 
+function providerResponse(content: object) {
+  return new Response(
+    JSON.stringify({
+      choices: [{ message: { content: JSON.stringify(content) } }],
+    }),
+    { status: 200, headers: { "Content-Type": "application/json" } },
+  );
+}
+
 describe("POST /api/ai/image", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     vi.unstubAllEnvs();
     vi.stubEnv("GROQ_API_KEY", "");
+    vi.stubEnv("GROQ_VISION_MODEL", "");
     vi.stubEnv("GEMINI_API_KEY", "");
+    vi.stubEnv("GEMINI_VISION_MODEL", "");
     vi.stubEnv("HUGGINGFACE_API_KEY", "");
+    vi.stubEnv("HUGGINGFACE_VISION_MODEL", "");
     vi.stubEnv("NEXT_PUBLIC_HF_ENABLED", "false");
     vi.stubEnv("AI_IMAGE_ALLOWED_HOSTS", "");
     vi.resetModules();
   });
 
-  it("returns error when no image provided", async () => {
+  it("returns error when no image is provided", async () => {
     const res = await POST(makeRequest({}));
     const data = await res.json();
+    expect(res.status).toBe(400);
     expect(data.status).toBe("error");
     expect(data.message).toContain("imageUrl");
+  });
+
+  it("rejects malformed locales", async () => {
+    const res = await POST(
+      makeRequest(
+        { imageBase64: "data:image/jpeg;base64,/9j/4AAQ==", locale: "../ro" },
+        "invalid-locale",
+      ),
+    );
+    const data = await res.json();
+    expect(res.status).toBe(400);
+    expect(data.code).toBe("invalid_input");
+    expect(data.message).toContain("Locale BCP-47 invalid");
   });
 
   it("blocks SSRF: localhost", async () => {
@@ -99,13 +129,132 @@ describe("POST /api/ai/image", () => {
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
-  it("returns fallback from URL filename when an allowlisted image download fails", async () => {
+  it("uses the current Groq vision model and requested locale", async () => {
+    vi.stubEnv("GROQ_API_KEY", "groq-test-key");
+    const fetchSpy = vi
+      .spyOn(global, "fetch")
+      .mockResolvedValue(
+        providerResponse({
+          title: "Appareil photo numérique Sony",
+          description: "Un appareil photo numérique noir avec objectif.",
+          category_l1: "Cameras & Optics",
+          category_l2: "Digital Cameras",
+          confidence: 0.93,
+        }),
+      );
+
+    const res = await POST(
+      makeRequest(
+        {
+          imageBase64: "data:image/jpeg;base64,/9j/4AAQ==",
+          locale: "fr",
+        },
+        "groq-fr",
+      ),
+    );
+    const data = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(data.status).toBe("ok");
+    expect(data.provider).toBe("groq");
+    expect(data.model).toBe(DEFAULT_GROQ_VISION_MODEL);
+    expect(data.locale).toBe("fr");
+    expect(data.categoryL1).toBe("Cameras & Optics");
+    expect(data.categoryL2).toBe("Digital Cameras");
+    expect(data.confidence).toBe(0.93);
+
+    const [, init] = fetchSpy.mock.calls[0];
+    const providerBody = JSON.parse(String(init?.body));
+    expect(providerBody.model).toBe(DEFAULT_GROQ_VISION_MODEL);
+    expect(providerBody.response_format).toEqual({ type: "json_object" });
+    expect(providerBody.messages[0].content[0].text).toContain("locale fr");
+    expect(providerBody.messages[0].content[0].text).not.toContain("Romanian");
+  });
+
+  it("honours a Groq vision model override", async () => {
+    vi.stubEnv("GROQ_API_KEY", "groq-test-key");
+    vi.stubEnv("GROQ_VISION_MODEL", "custom/multimodal-model");
+    const fetchSpy = vi
+      .spyOn(global, "fetch")
+      .mockResolvedValue(
+        providerResponse({
+          title: "Laptop",
+          description: "Portable computer.",
+          category_l1: "Electronics",
+          category_l2: "Computers",
+          confidence: 0.8,
+        }),
+      );
+
+    const res = await POST(
+      makeRequest(
+        { imageBase64: "data:image/jpeg;base64,/9j/4AAQ==", locale: "en" },
+        "groq-model-override",
+      ),
+    );
+    const data = await res.json();
+    const [, init] = fetchSpy.mock.calls[0];
+    const providerBody = JSON.parse(String(init?.body));
+
+    expect(data.model).toBe("custom/multimodal-model");
+    expect(providerBody.model).toBe("custom/multimodal-model");
+  });
+
+  it("uses the current Gemini fallback model when Groq is unavailable", async () => {
+    vi.stubEnv("GEMINI_API_KEY", "gemini-test-key");
+    const fetchSpy = vi.spyOn(global, "fetch").mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          candidates: [
+            {
+              content: {
+                parts: [
+                  {
+                    text: JSON.stringify({
+                      title: "Căști fără fir",
+                      description: "O pereche de căști audio fără fir.",
+                      category_l1: "Electronics",
+                      category_l2: "Audio",
+                      confidence: 0.88,
+                    }),
+                  },
+                ],
+              },
+            },
+          ],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+
+    const res = await POST(
+      makeRequest(
+        { imageBase64: "data:image/jpeg;base64,/9j/4AAQ==", locale: "ro" },
+        "gemini-ro",
+      ),
+    );
+    const data = await res.json();
+
+    expect(data.provider).toBe("gemini");
+    expect(data.model).toBe(DEFAULT_GEMINI_VISION_MODEL);
+    expect(data.locale).toBe("ro");
+    expect(data.categoryL2).toBe("Audio");
+    expect(String(fetchSpy.mock.calls[0][0])).toContain(
+      `/models/${DEFAULT_GEMINI_VISION_MODEL}:generateContent`,
+    );
+    expect(String(fetchSpy.mock.calls[0][0])).not.toContain("gemini-2.0-flash");
+  });
+
+  it("returns a canonical deterministic fallback when an allowlisted download fails", async () => {
     vi.stubEnv("AI_IMAGE_ALLOWED_HOSTS", "example.com");
     vi.spyOn(global, "fetch").mockRejectedValue(new Error("network error"));
 
     const res = await POST(
       makeRequest(
-        { imageUrl: "https://example.com/photos/laptop-dell-2024.jpg" },
+        {
+          imageUrl: "https://example.com/photos/laptop-dell-2024.jpg",
+          locale: "de",
+        },
         "fallback-url",
       ),
     );
@@ -113,24 +262,49 @@ describe("POST /api/ai/image", () => {
 
     expect(res.status).toBe(200);
     expect(data.status).toBe("fallback");
+    expect(data.provider).toBe("deterministic");
     expect(data.title).toBe("Laptop dell");
-    expect(data.caption).toContain("Laptop dell");
+    expect(data.caption).toBe("Laptop dell");
+    expect(data.categoryL1).toBe("Electronics");
+    expect(data.categoryL2).toBe("Computers");
+    expect(data.locale).toBe("de");
+    expect(data.manualCompletionRequired).toBe(true);
     expect(data.attempted).toEqual(
       expect.arrayContaining([expect.stringContaining("fetch-url")]),
     );
   });
 
-  it("handles base64 image with data URI prefix", async () => {
-    const res = await POST(makeRequest({ imageBase64: "data:image/jpeg;base64,/9j/4AAQ==" }, "base64-uri"));
+  it("handles a base64 image with a data URI prefix", async () => {
+    const res = await POST(
+      makeRequest(
+        { imageBase64: "data:image/jpeg;base64,/9j/4AAQ==", locale: "en" },
+        "base64-uri",
+      ),
+    );
     const data = await res.json();
-    // All AI providers missing — returns fallback or error depending on parsing
-    expect(["fallback", "error"]).toContain(data.status);
+    expect(data.status).toBe("fallback");
+    expect(data.locale).toBe("en");
+    expect(data.caption).toBe("");
   });
 
-  it("handles raw base64 without prefix", async () => {
-    const res = await POST(makeRequest({ imageBase64: "/9j/4AAQ==" }, "base64-raw"));
+  it("rejects non-image data URIs", async () => {
+    const res = await POST(
+      makeRequest(
+        { imageBase64: "data:text/plain;base64,dGVzdA==", locale: "en" },
+        "base64-invalid-mime",
+      ),
+    );
     const data = await res.json();
-    expect(["fallback", "error"]).toContain(data.status);
+    expect(res.status).toBe(400);
+    expect(data.code).toBe("invalid_image_data_uri");
+  });
+
+  it("handles raw base64 without a prefix", async () => {
+    const res = await POST(
+      makeRequest({ imageBase64: "/9j/4AAQ==", locale: "en" }, "base64-raw"),
+    );
+    const data = await res.json();
+    expect(data.status).toBe("fallback");
   });
 
   it("rate limits at 10 requests per minute", async () => {
@@ -138,7 +312,9 @@ describe("POST /api/ai/image", () => {
     const mod = await import("@/app/api/ai/image/route");
     let lastRes;
     for (let i = 0; i < 11; i++) {
-      lastRes = await mod.POST(makeRequest({ imageBase64: "dGVzdA==" }, "rl-image"));
+      lastRes = await mod.POST(
+        makeRequest({ imageBase64: "dGVzdA==", locale: "en" }, "rl-image-v2"),
+      );
     }
     expect(lastRes!.status).toBe(429);
   });
