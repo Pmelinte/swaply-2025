@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { Children, useCallback, useEffect, useId, useRef } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import {
@@ -200,10 +200,22 @@ function AuthenticatedHome({
 }
 
 function HomePanel({ title, sectionId, children }: { title: string; sectionId: string; children: React.ReactNode }) {
+  const headingId = useId();
+
   return (
-    <section className="rounded-2xl border border-zinc-200 bg-white p-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-900" data-drawer-section={sectionId}>
-      <h3 className="mb-2 px-1 text-[11px] font-bold uppercase tracking-[0.14em] text-zinc-500 dark:text-zinc-400">{title}</h3>
-      <div className="space-y-1">{children}</div>
+    <section
+      className="rounded-2xl border border-zinc-200 bg-white p-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
+      data-drawer-section={sectionId}
+      aria-labelledby={headingId}
+    >
+      <h2 id={headingId} className="mb-2 px-1 text-[11px] font-bold uppercase tracking-[0.14em] text-zinc-500 dark:text-zinc-400">
+        {title}
+      </h2>
+      <ul className="flex flex-col gap-0.5">
+        {Children.toArray(children).map((child, index) => (
+          <li key={index}>{child}</li>
+        ))}
+      </ul>
     </section>
   );
 }
