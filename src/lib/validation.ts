@@ -21,6 +21,14 @@ export const aiClassifySchema = z.object({
 export const aiImageSchema = z.object({
   imageUrl: z.string().url().max(2048).optional(),
   imageBase64: z.string().max(10_000_000).optional(), // ~7.5MB base64
+  locale: z
+    .string()
+    .trim()
+    .min(2)
+    .max(35)
+    .regex(/^[A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$/, "Locale BCP-47 invalid")
+    .optional()
+    .default("en"),
 }).refine(
   (data) => data.imageUrl || data.imageBase64,
   { message: "Trimite imageUrl sau imageBase64" },
