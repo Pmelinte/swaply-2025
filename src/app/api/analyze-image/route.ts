@@ -6,8 +6,9 @@ import { resolveVisionLocale } from "@/lib/ai/vision-analysis";
  * Backward-compatible wrapper for the object wizard.
  *
  * The object wizard still posts to /api/analyze-image. This wrapper enriches
- * the request with the active route locale and delegates all provider access,
- * validation, SSRF protection and rate limiting to /api/ai/image.
+ * the request with the active route locale, converts its legacy data-URL field
+ * to the secure base64 contract and delegates provider access, validation,
+ * SSRF protection and rate limiting to /api/ai/image.
  */
 export async function POST(request: Request) {
   const rawBody = await request.json().catch(() => ({}));
@@ -18,6 +19,15 @@ export async function POST(request: Request) {
     acceptLanguage: request.headers.get("accept-language"),
   });
 
+  const delegatedBody: Record<string, unknown> = { ...body, locale };
+  if (
+    typeof delegatedBody.imageUrl === "string" &&
+    delegatedBody.imageUrl.startsWith("data:image/")
+  ) {
+    delegatedBody.imageBase64 = delegatedBody.imageUrl;
+    delete delegatedBody.imageUrl;
+  }
+
   const headers = new Headers(request.headers);
   headers.set("content-type", "application/json");
   headers.delete("content-length");
@@ -27,7 +37,7 @@ export async function POST(request: Request) {
     {
       method: "POST",
       headers,
-      body: JSON.stringify({ ...body, locale }),
+      body: JSON.stringify(delegatedBody),
     },
   );
 
