@@ -10,7 +10,7 @@
 | Owner | `ChatGPT / Petru` |
 | Application base SHA | `b81480e4c2d6275ad03e78b33c1715f8ca781c6b` |
 | Working branch | `agent/v1-02-r5-migration-epoch-ci-guard` |
-| Active PR | assigned after creation |
+| Active PR | `#563` |
 | Start date | `2026-07-30` |
 | Last update | `2026-07-30T19:14:38+03:00` |
 | Canonical product version | `v2.0.0` |
@@ -106,7 +106,7 @@ docs/V1_02_R5_MIGRATION_EPOCH_CI_GUARD.md
 
 ## 7. Implementation plan
 
-1. Store the normalized R4 snapshot and epoch configuration.
+1. Store the normalized R4 classification snapshot and epoch configuration.
 2. Add a Node-core guard for inventory, versions, diff immutability and forbidden automation.
 3. Add negative self-tests.
 4. Add a dedicated PR/main workflow and package commands.
