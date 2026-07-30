@@ -18,6 +18,12 @@ function closureMigration() {
   return migrationEndingWith("_batch_62_3_authenticated_e2e_cleanup.sql");
 }
 
+function r1AuthorityMigration() {
+  return migrationEndingWith(
+    "_v1_02_r1_restrict_production_e2e_cleanup_authority.sql",
+  );
+}
+
 function notificationsRealtimeMigration() {
   return migrationEndingWith("_batch_62_3_notifications_realtime.sql");
 }
@@ -40,6 +46,23 @@ describe("Batch 62.3 authenticated C3 closure migrations", () => {
     expect(sql).toContain("v_registered_participants <> 2");
     expect(sql).toContain("Cleanup is restricted to registered C3 E2E participants");
     expect(sql).toContain("grant execute on function public.cleanup_c3_e2e_fixture_v1(uuid) to authenticated");
+  });
+
+  it("preserves the historical cleanup body while R1 removes all API-role execution", () => {
+    const historicalSql = closureMigration();
+    const r1Sql = r1AuthorityMigration();
+
+    expect(historicalSql).toContain(
+      "grant execute on function public.cleanup_c3_e2e_fixture_v1(uuid) to authenticated",
+    );
+    expect(r1Sql).toContain(
+      "revoke all on function public.cleanup_c3_e2e_fixture_v1(uuid) from public, anon, authenticated, service_role",
+    );
+    expect(r1Sql).not.toContain("grant execute on function");
+    expect(r1Sql).not.toContain("create or replace function");
+    expect(r1Sql).toContain(
+      "Production-retained E2E cleanup helper. V1-02-R1: executable only by the PostgreSQL owner; unavailable to PUBLIC, anon, authenticated and service_role.",
+    );
   });
 
   it("validates exact C3 cardinality before deleting immutable-ID effects", () => {
