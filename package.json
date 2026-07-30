@@ -17,7 +17,7 @@
     "ci:quality": "npm run typecheck && npm run lint && npm run test && npm run build",
     "i18n:check": "node scripts/check-i18n-keys.mjs && node scripts/check-i18n-usage.mjs",
     "migration:guard": "node scripts/check-migration-governance.mjs",
-    "migration:guard:self-test": "node scripts/check-migration-governance.mjs --self-test",
+    "migration:guard:self-test": "node scripts/check-migration-governance-self-test.mjs",
     "release:env": "node scripts/check-release-env.mjs",
     "update:images": "npx tsx scripts/update-demo-images.ts",
     "generate:embeddings": "npx tsx scripts/generate-embeddings.ts",
