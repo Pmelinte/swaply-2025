@@ -50,6 +50,12 @@
       "version": "20260730234500",
       "name": "v1_02_r10_1_align_completed_dispute_transition_guard",
       "kind": "FORWARD_ONLY"
+    },
+    {
+      "path": "supabase/migrations/20260730235700_v1_02_r10_2_allow_completed_dispute_effect_status.sql",
+      "version": "20260730235700",
+      "name": "v1_02_r10_2_allow_completed_dispute_effect_status",
+      "kind": "FORWARD_ONLY"
     }
   ]
 }
