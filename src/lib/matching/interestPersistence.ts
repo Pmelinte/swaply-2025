@@ -142,21 +142,16 @@ export async function acceptReceivedInterest(
 export async function withdrawExpressedInterest(
   supabase: SupabaseClient,
   interestId: string,
-  userId: string,
+  _userId: string,
 ): Promise<boolean> {
-  const { data, error } = await supabase
-    .from("matching_interests")
-    .update({ status: "refused" })
-    .eq("id", interestId)
-    .eq("from_user_id", userId)
-    .eq("status", "pending")
-    .select("id")
-    .maybeSingle();
+  const { data, error } = await supabase.rpc("withdraw_matching_interest_v1", {
+    p_interest_id: interestId,
+  });
 
   if (error) {
     console.error("withdrawExpressedInterest failed", error);
     return false;
   }
 
-  return Boolean(data);
+  return data === true;
 }
