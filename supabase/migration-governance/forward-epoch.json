@@ -38,6 +38,12 @@
       "version": "20260730223500",
       "name": "v1_02_r9_legacy_least_privilege_grant_hardening",
       "kind": "FORWARD_ONLY"
+    },
+    {
+      "path": "supabase/migrations/20260730232000_v1_02_r10_completed_swap_dispute_story_closure.sql",
+      "version": "20260730232000",
+      "name": "v1_02_r10_completed_swap_dispute_story_closure",
+      "kind": "FORWARD_ONLY"
     }
   ]
 }
