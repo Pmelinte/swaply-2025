@@ -56,6 +56,12 @@
       "version": "20260730235700",
       "name": "v1_02_r10_2_allow_completed_dispute_effect_status",
       "kind": "FORWARD_ONLY"
+    },
+    {
+      "path": "supabase/migrations/20260731013000_v1_04_2b1_canonical_interest_withdrawal.sql",
+      "version": "20260731013000",
+      "name": "v1_04_2b1_canonical_interest_withdrawal",
+      "kind": "FORWARD_ONLY"
     }
   ]
 }
