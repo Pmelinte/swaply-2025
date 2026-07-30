@@ -167,11 +167,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: messageError.message }, { status: 500 });
   }
 
-  await supabase
-    .from("conversations")
-    .update({ updated_at: new Date().toISOString() })
-    .eq("id", conversation.id);
-
   await createChatMessageNotification(supabase, {
     recipientId,
     senderId: user.id,
