@@ -1,5 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
-import { persistExpressedInterest } from "@/lib/matching/interestPersistence";
+import {
+  persistExpressedInterest,
+  withdrawExpressedInterest,
+} from "@/lib/matching/interestPersistence";
 
 function rpcClient(result: unknown, error: unknown = null) {
   return {
@@ -7,6 +10,12 @@ function rpcClient(result: unknown, error: unknown = null) {
       single: vi.fn(async () => ({ data: result, error })),
     })),
   } as unknown as Parameters<typeof persistExpressedInterest>[0];
+}
+
+function directRpcClient(result: unknown, error: unknown = null) {
+  return {
+    rpc: vi.fn(async () => ({ data: result, error })),
+  } as unknown as Parameters<typeof withdrawExpressedInterest>[0];
 }
 
 const sourceItem = {
@@ -79,5 +88,30 @@ describe("persistExpressedInterest", () => {
     });
 
     expect(result).toBeNull();
+  });
+});
+
+describe("withdrawExpressedInterest", () => {
+  it("uses canonical server authority and sends only the immutable interest id", async () => {
+    const client = directRpcClient(true);
+
+    const result = await withdrawExpressedInterest(
+      client,
+      "interest-id",
+      "client-controlled-user-id",
+    );
+
+    expect(result).toBe(true);
+    expect(client.rpc).toHaveBeenCalledWith("withdraw_matching_interest_v1", {
+      p_interest_id: "interest-id",
+    });
+  });
+
+  it("returns false when the server rejects the withdrawal", async () => {
+    const client = directRpcClient(null, { message: "INTEREST_INITIATOR_REQUIRED" });
+
+    const result = await withdrawExpressedInterest(client, "interest-id", "outsider-id");
+
+    expect(result).toBe(false);
   });
 });
