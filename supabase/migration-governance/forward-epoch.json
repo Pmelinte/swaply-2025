@@ -20,6 +20,12 @@
       "version": "20260730205500",
       "name": "v1_02_r7_stories_privacy_consent_foundation",
       "kind": "FORWARD_ONLY"
+    },
+    {
+      "path": "supabase/migrations/20260730211500_v1_02_r7_1_story_privacy_filter_and_republish_fix.sql",
+      "version": "20260730211500",
+      "name": "v1_02_r7_1_story_privacy_filter_and_republish_fix",
+      "kind": "FORWARD_ONLY"
     }
   ]
 }
