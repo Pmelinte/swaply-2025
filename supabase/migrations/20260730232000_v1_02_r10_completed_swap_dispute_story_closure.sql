@@ -39,7 +39,7 @@ begin
     new_fragment
   );
 
-  execute function_definition;
+  execute pg_catalog.format('%s', function_definition);
 end;
 $$;
 
@@ -69,7 +69,7 @@ begin
     new_fragment
   );
 
-  execute function_definition;
+  execute pg_catalog.format('%s', function_definition);
 end;
 $$;
 
