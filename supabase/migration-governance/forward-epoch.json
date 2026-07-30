@@ -38,6 +38,24 @@
       "version": "20260730223500",
       "name": "v1_02_r9_legacy_least_privilege_grant_hardening",
       "kind": "FORWARD_ONLY"
+    },
+    {
+      "path": "supabase/migrations/20260730232000_v1_02_r10_completed_swap_dispute_story_closure.sql",
+      "version": "20260730232000",
+      "name": "v1_02_r10_completed_swap_dispute_story_closure",
+      "kind": "FORWARD_ONLY"
+    },
+    {
+      "path": "supabase/migrations/20260730234500_v1_02_r10_1_align_completed_dispute_transition_guard.sql",
+      "version": "20260730234500",
+      "name": "v1_02_r10_1_align_completed_dispute_transition_guard",
+      "kind": "FORWARD_ONLY"
+    },
+    {
+      "path": "supabase/migrations/20260730235700_v1_02_r10_2_allow_completed_dispute_effect_status.sql",
+      "version": "20260730235700",
+      "name": "v1_02_r10_2_allow_completed_dispute_effect_status",
+      "kind": "FORWARD_ONLY"
     }
   ]
 }
