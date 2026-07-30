@@ -11,9 +11,9 @@
 | Application base SHA | `b81480e4c2d6275ad03e78b33c1715f8ca781c6b` |
 | Working branch | `agent/v1-02-r5-migration-epoch-ci-guard` |
 | Active PR | `#563` |
-| Verified PR head before this evidence-only update | `0bc1730644e7e7bba35de149a400fa43c5d55a1d` |
+| Verified implementation head before this final evidence correction | `34a7abacd4ca0f818e0e4d13ef8de9c11c214322` |
 | Start date | `2026-07-30` |
-| Last update | `2026-07-30T19:38:51+03:00` |
+| Last update | `2026-07-30T19:45:00+03:00` |
 | Canonical product version | `v2.0.0` |
 | Production target | `https://www.swaply.world` |
 
@@ -56,7 +56,7 @@ GA-05, GA-06, GA-07, RG-10
 | Production history | 138 rows, zero duplicate versions | Supabase read-only query |
 | Historical collision | version `20260324200000` used by two repository files | R4 evidence |
 | CI guard | absent | repository inspection |
-| Package manifest | `reading-time` declared as unavailable `^5.1.0`, while the lockfile records `^1.5.0` | first R5 CI dependency-install failure plus lockfile inspection |
+| Package dependencies | base `package.json` and `package-lock.json` use `reading-time: ^1.5.0` | final base-to-head diff and lockfile inspection |
 | Supabase write needed | no | R4 verdict |
 
 ## 5. Predictive audit
@@ -84,7 +84,7 @@ docs/V1_02_R5_MIGRATION_EPOCH_CI_GUARD.md
 | Historical SQL edited | High | CI git-diff rejection | PR diff guard |
 | Historical directory replayed automatically | Critical | executable automation scan | negative self-test |
 | R5 accidentally changes Production | Critical | no migration/apply operation | Supabase history remains unchanged |
-| Dependency install fails because package manifest and lockfile diverge | High | restore `reading-time: ^1.5.0` to match the existing lockfile | clean `npm ci --legacy-peer-deps` in CI |
+| Full-file replacement changes an unrelated package declaration | High | compare final package manifest to base and lockfile | final diff contains only the two R5 npm commands |
 
 ## 6. Scope
 
@@ -96,7 +96,7 @@ docs/V1_02_R5_MIGRATION_EPOCH_CI_GUARD.md
 - negative guard self-tests;
 - database-governance documentation;
 - dedicated GitHub Actions check;
-- package-manifest correction required to restore consistency with the existing lockfile and permit CI installation.
+- two npm commands exposing the guard and its self-tests.
 
 ### Explicit non-scope
 
@@ -107,7 +107,7 @@ docs/V1_02_R5_MIGRATION_EPOCH_CI_GUARD.md
 - no legacy grant hardening;
 - no application runtime behavior change;
 - no Vercel configuration change;
-- no dependency upgrade beyond restoring the lockfile-aligned `reading-time` declaration.
+- no dependency-version change in the final PR diff.
 
 ## 7. Implementation plan
 
@@ -117,7 +117,7 @@ docs/V1_02_R5_MIGRATION_EPOCH_CI_GUARD.md
 4. Add a dedicated PR/main workflow and package commands.
 5. Document the permanent policy and update the technical baseline.
 6. Open one draft PR and run applicable CI.
-7. Correct the detected package-manifest/lockfile inconsistency and rerun the complete applicable check set.
+7. Correct an intermediate R5 transcription error before the final diff and rerun the complete check set.
 
 Rollback is a repository revert. There is no database rollback because R5 performs no database change.
 
@@ -168,24 +168,25 @@ NONE
 
 ## 12. Required checks and observed results
 
-Final verified application head before this evidence-only update:
+Verified implementation head before this final evidence correction:
 
 ```text
-0bc1730644e7e7bba35de149a400fa43c5d55a1d
+34a7abacd4ca0f818e0e4d13ef8de9c11c214322
 ```
 
 | Check | Result | Evidence |
 |---|---|---|
-| Migration Epoch Guard — inventory and PR diff | `PASS` | GitHub run `30562104586` |
-| Migration Epoch Guard — negative self-tests | `PASS` | GitHub run `30562104586` |
-| 43-Locale Contract | `PASS` | CI run `30562105360` |
-| Lint & Type | `PASS` | CI run `30562105360` |
-| Unit Tests / Vitest | `PASS` | CI run `30562105360` |
-| Build | `PASS` | CI run `30562105360` |
-| AI Evaluation & Regression Gate | `PASS` | GitHub run `30562107003` |
-| Vercel Preview status | `PASS` | GitHub/Vercel status for head `0bc1730644...` |
+| Migration Epoch Guard — inventory and PR diff | `PASS` | GitHub run `30562489792` |
+| Migration Epoch Guard — negative self-tests | `PASS` | GitHub run `30562489792` |
+| 43-Locale Contract | `PASS` | CI run `30562489551` |
+| Lint & Type | `PASS` | CI run `30562489551` |
+| Unit Tests / Vitest | `PASS` | CI run `30562489551` |
+| Build | `PASS` | CI run `30562489551` |
+| AI Evaluation & Regression Gate | `PASS` | GitHub run `30562489526` |
+| Vercel Preview status | `PASS` | GitHub/Vercel status for head `34a7abacd4...` |
+| Supabase non-write check | `PASS` | 138 rows; R1 remains head; zero R5 rows; zero duplicate Production versions |
 
-The first CI attempt on the earlier head failed during dependency installation because `package.json` declared nonexistent `reading-time@^5.1.0`, while `package-lock.json` already declared and locked `^1.5.0`. R5 restored the manifest to `^1.5.0`; the complete rerun then passed. The failed run is superseded, not hidden.
+The first CI attempt on an earlier intermediate R5 head failed because the full-file `package.json` replacement accidentally transcribed `reading-time` as nonexistent `^5.1.0`. The base repository and lockfile both use `^1.5.0`. The accidental branch change was removed, and the complete check set then passed. The final base-to-head diff changes `package.json` only by adding the two R5 commands. The failed run is preserved as superseded evidence, not presented as a defect inherited from `main`.
 
 ## 13. Evidence plan
 
@@ -230,7 +231,7 @@ No merge without the explicit command `Merge #563`.
 - [x] the documented historical duplicate remains accepted only in its exact form;
 - [x] forbidden automated replay fails;
 - [x] applicable CI is green on the implementation head;
-- [ ] Supabase history remains unchanged after the final PR head and immediately before merge verification;
+- [x] Supabase history remains unchanged after the implementation head;
 - [ ] merge occurs only after explicit authorization;
 - [ ] post-merge Production/Vercel verification and RC re-freeze are complete.
 
@@ -243,5 +244,5 @@ VERDICT: PR_OPEN / CI_PASS — merge not authorised
 ### Next single step
 
 ```text
-Verify the evidence-only final head, then wait for Petru's explicit command `Merge #563`.
+Wait for Petru's explicit command `Merge #563`.
 ```
