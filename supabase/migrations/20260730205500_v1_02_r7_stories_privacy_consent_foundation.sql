@@ -48,7 +48,8 @@ create table if not exists public.story_consents (
   withdrawn_at timestamptz,
   updated_at timestamptz not null default clock_timestamp(),
   primary key (story_id, user_id),
-  foreign key (story_id, revision) references public.story_revisions(story_id, revision) on delete cascade
+  foreign key (story_id, revision)
+    references public.story_revisions(story_id, revision) on delete cascade
 );
 
 create table if not exists public.story_moderation (
@@ -58,26 +59,35 @@ create table if not exists public.story_moderation (
   moderation_notes text,
   decided_by uuid references auth.users(id) on delete set null,
   decided_at timestamptz not null default clock_timestamp(),
-  foreign key (story_id, revision) references public.story_revisions(story_id, revision) on delete cascade
+  foreign key (story_id, revision)
+    references public.story_revisions(story_id, revision) on delete cascade
 );
 
 create table if not exists public.story_publications (
-  story_id uuid primary key references public.stories(id) on delete restrict,
+  story_id uuid not null references public.stories(id) on delete restrict,
   revision integer not null check (revision > 0),
-  public_slug text not null unique check (public_slug ~ '^[a-z0-9]+(?:-[a-z0-9]+)*$'),
+  public_slug text not null unique
+    check (public_slug ~ '^[a-z0-9]+(?:-[a-z0-9]+)*$'),
   title text not null,
   body text not null,
   is_visible boolean not null default true,
   published_at timestamptz not null default clock_timestamp(),
   hidden_at timestamptz,
-  foreign key (story_id, revision) references public.story_revisions(story_id, revision) on delete restrict
+  primary key (story_id, revision),
+  foreign key (story_id, revision)
+    references public.story_revisions(story_id, revision) on delete restrict
 );
 
-create index if not exists stories_created_by_idx on public.stories(created_by);
-create index if not exists stories_status_idx on public.stories(status);
-create index if not exists story_participants_user_idx on public.story_participants(user_id);
-create index if not exists story_revisions_story_created_idx on public.story_revisions(story_id, created_at desc);
-create index if not exists story_publications_visible_idx on public.story_publications(is_visible, published_at desc);
+create index if not exists stories_created_by_idx
+  on public.stories(created_by);
+create index if not exists stories_status_idx
+  on public.stories(status);
+create index if not exists story_participants_user_idx
+  on public.story_participants(user_id);
+create index if not exists story_revisions_story_created_idx
+  on public.story_revisions(story_id, created_at desc);
+create index if not exists story_publications_visible_idx
+  on public.story_publications(is_visible, published_at desc);
 
 alter table public.stories enable row level security;
 alter table public.story_participants enable row level security;
@@ -161,7 +171,13 @@ as $$
     select 1
       from public.disputes dispute_row
      where dispute_row.swap_id = p_swap_id
-       and dispute_row.status not in ('resolved_requester', 'resolved_responder', 'resolved_split', 'rejected', 'closed')
+       and dispute_row.status not in (
+         'resolved_requester',
+         'resolved_responder',
+         'resolved_split',
+         'rejected',
+         'closed'
+       )
   );
 $$;
 
@@ -195,6 +211,17 @@ begin
     raise exception 'Completed participant swap required' using errcode = '42501';
   end if;
 
+  select existing_story.id into story_id
+    from public.stories existing_story
+   where existing_story.swap_id = p_swap_id;
+
+  if story_id is not null then
+    if not private.is_story_participant_v1(story_id, caller_id) then
+      raise exception 'Story participant required' using errcode = '42501';
+    end if;
+    return story_id;
+  end if;
+
   insert into public.stories (swap_id, created_by, status, visibility)
   values (p_swap_id, caller_id, 'pending_consent', 'participants')
   returning id into story_id;
@@ -202,12 +229,28 @@ begin
   insert into public.story_participants (story_id, user_id, participant_role)
   values
     (story_id, caller_id, 'author'),
-    (story_id,
-      case when caller_id = swap_row.requester_id then swap_row.responder_id else swap_row.requester_id end,
-      'partner');
+    (
+      story_id,
+      case
+        when caller_id = swap_row.requester_id then swap_row.responder_id
+        else swap_row.requester_id
+      end,
+      'partner'
+    );
 
-  insert into public.story_revisions (story_id, revision, title, body, created_by)
-  values (story_id, 1, btrim(p_title), btrim(p_body), caller_id);
+  insert into public.story_revisions (
+    story_id,
+    revision,
+    title,
+    body,
+    created_by
+  ) values (
+    story_id,
+    1,
+    btrim(p_title),
+    btrim(p_body),
+    caller_id
+  );
 
   return story_id;
 end;
@@ -249,14 +292,29 @@ begin
   returning current_revision into next_revision;
 
   if next_revision is null then
-    raise exception 'Story revision is stale or caller is not the author' using errcode = '40001';
+    raise exception 'Story revision is stale or caller is not the author'
+      using errcode = '40001';
   end if;
 
-  insert into public.story_revisions (story_id, revision, title, body, created_by)
-  values (p_story_id, next_revision, btrim(p_title), btrim(p_body), caller_id);
+  insert into public.story_revisions (
+    story_id,
+    revision,
+    title,
+    body,
+    created_by
+  ) values (
+    p_story_id,
+    next_revision,
+    btrim(p_title),
+    btrim(p_body),
+    caller_id
+  );
 
-  delete from public.story_consents where story_id = p_story_id;
-  delete from public.story_moderation where story_id = p_story_id;
+  delete from public.story_consents
+   where story_id = p_story_id;
+  delete from public.story_moderation
+   where story_id = p_story_id;
+
   update public.story_publications
      set is_visible = false,
          hidden_at = clock_timestamp()
@@ -283,7 +341,8 @@ declare
   participant_count integer;
   granted_count integer;
 begin
-  if caller_id is null or not private.is_story_participant_v1(p_story_id, caller_id) then
+  if caller_id is null
+     or not private.is_story_participant_v1(p_story_id, caller_id) then
     raise exception 'Story participant required' using errcode = '42501';
   end if;
 
@@ -292,12 +351,19 @@ begin
    where id = p_story_id
    for update;
 
-  if current_revision_value is null or current_revision_value <> p_revision then
+  if current_revision_value is null
+     or current_revision_value <> p_revision then
     raise exception 'Story revision is stale' using errcode = '40001';
   end if;
 
   insert into public.story_consents (
-    story_id, user_id, revision, consent_status, granted_at, withdrawn_at, updated_at
+    story_id,
+    user_id,
+    revision,
+    consent_status,
+    granted_at,
+    withdrawn_at,
+    updated_at
   ) values (
     p_story_id,
     caller_id,
@@ -342,8 +408,11 @@ begin
      and consent_status = 'granted';
 
   update public.stories
-     set status = case when participant_count = granted_count then 'pending_moderation' else 'pending_consent' end,
-         updated_at = clock_timestamp()
+     set status = case
+       when participant_count = granted_count then 'pending_moderation'
+       else 'pending_consent'
+     end,
+     updated_at = clock_timestamp()
    where id = p_story_id;
 end;
 $$;
@@ -363,7 +432,8 @@ declare
   caller_id uuid := auth.uid();
   current_revision_value integer;
 begin
-  if auth.role() <> 'service_role' and not private.is_story_moderator_v1(caller_id) then
+  if auth.role() <> 'service_role'
+     and not private.is_story_moderator_v1(caller_id) then
     raise exception 'Moderator authority required' using errcode = '42501';
   end if;
 
@@ -372,12 +442,18 @@ begin
    where id = p_story_id
    for update;
 
-  if current_revision_value is null or current_revision_value <> p_revision then
+  if current_revision_value is null
+     or current_revision_value <> p_revision then
     raise exception 'Story revision is stale' using errcode = '40001';
   end if;
 
-  insert into public.story_moderation (story_id, revision, decision, moderation_notes, decided_by)
-  values (
+  insert into public.story_moderation (
+    story_id,
+    revision,
+    decision,
+    moderation_notes,
+    decided_by
+  ) values (
     p_story_id,
     p_revision,
     case when p_approved then 'approved' else 'rejected' end,
@@ -392,8 +468,11 @@ begin
          decided_at = clock_timestamp();
 
   update public.stories
-     set status = case when p_approved then 'pending_moderation' else 'rejected' end,
-         updated_at = clock_timestamp()
+     set status = case
+       when p_approved then 'pending_moderation'
+       else 'rejected'
+     end,
+     updated_at = clock_timestamp()
    where id = p_story_id;
 end;
 $$;
@@ -415,7 +494,8 @@ declare
   participant_count integer;
   granted_count integer;
 begin
-  if caller_id is null or not private.is_story_participant_v1(p_story_id, caller_id) then
+  if caller_id is null
+     or not private.is_story_participant_v1(p_story_id, caller_id) then
     raise exception 'Story participant required' using errcode = '42501';
   end if;
 
@@ -428,8 +508,10 @@ begin
     raise exception 'Story revision is stale' using errcode = '40001';
   end if;
 
-  if story_row.dispute_suppressed or private.story_has_active_dispute_v1(story_row.swap_id) then
-    raise exception 'Story publication blocked by dispute' using errcode = '42501';
+  if story_row.dispute_suppressed
+     or private.story_has_active_dispute_v1(story_row.swap_id) then
+    raise exception 'Story publication blocked by dispute'
+      using errcode = '42501';
   end if;
 
   select * into revision_row
@@ -437,8 +519,12 @@ begin
    where story_id = p_story_id
      and revision = p_revision;
 
-  if not private.story_content_is_safe_v1(revision_row.title, revision_row.body) then
-    raise exception 'Story contains private contact, exact location or coordinate data' using errcode = '22023';
+  if not private.story_content_is_safe_v1(
+    revision_row.title,
+    revision_row.body
+  ) then
+    raise exception 'Story contains private contact, exact location or coordinate data'
+      using errcode = '22023';
   end if;
 
   select count(*) into participant_count
@@ -452,7 +538,8 @@ begin
      and consent_status = 'granted';
 
   if participant_count < 2 or participant_count <> granted_count then
-    raise exception 'All participants must consent to this revision' using errcode = '42501';
+    raise exception 'All participants must consent to this revision'
+      using errcode = '42501';
   end if;
 
   if not exists (
@@ -465,8 +552,22 @@ begin
     raise exception 'Approved moderation required' using errcode = '42501';
   end if;
 
+  update public.story_publications
+     set is_visible = false,
+         hidden_at = clock_timestamp()
+   where story_id = p_story_id
+     and revision <> p_revision
+     and is_visible;
+
   insert into public.story_publications (
-    story_id, revision, public_slug, title, body, is_visible, published_at, hidden_at
+    story_id,
+    revision,
+    public_slug,
+    title,
+    body,
+    is_visible,
+    published_at,
+    hidden_at
   ) values (
     p_story_id,
     p_revision,
@@ -477,14 +578,7 @@ begin
     clock_timestamp(),
     null
   )
-  on conflict (story_id) do update
-     set revision = excluded.revision,
-         public_slug = excluded.public_slug,
-         title = excluded.title,
-         body = excluded.body,
-         is_visible = true,
-         published_at = clock_timestamp(),
-         hidden_at = null;
+  on conflict (story_id, revision) do nothing;
 
   update public.stories
      set status = 'published',
@@ -505,7 +599,13 @@ security definer
 set search_path = pg_catalog, public, private
 as $$
 begin
-  if new.status not in ('resolved_requester', 'resolved_responder', 'resolved_split', 'rejected', 'closed') then
+  if new.status not in (
+    'resolved_requester',
+    'resolved_responder',
+    'resolved_split',
+    'rejected',
+    'closed'
+  ) then
     update public.stories
        set status = 'disputed',
            visibility = 'participants',
@@ -522,6 +622,7 @@ begin
        and story_row.swap_id = new.swap_id
        and publication_row.is_visible;
   end if;
+
   return new;
 end;
 $$;
@@ -535,31 +636,46 @@ create policy stories_participant_select
 on public.stories
 for select
 to authenticated
-using (private.is_story_participant_v1(id) or private.is_story_moderator_v1());
+using (
+  private.is_story_participant_v1(id)
+  or private.is_story_moderator_v1()
+);
 
 create policy story_participants_participant_select
 on public.story_participants
 for select
 to authenticated
-using (private.is_story_participant_v1(story_id) or private.is_story_moderator_v1());
+using (
+  private.is_story_participant_v1(story_id)
+  or private.is_story_moderator_v1()
+);
 
 create policy story_revisions_participant_select
 on public.story_revisions
 for select
 to authenticated
-using (private.is_story_participant_v1(story_id) or private.is_story_moderator_v1());
+using (
+  private.is_story_participant_v1(story_id)
+  or private.is_story_moderator_v1()
+);
 
 create policy story_consents_participant_select
 on public.story_consents
 for select
 to authenticated
-using (private.is_story_participant_v1(story_id) or private.is_story_moderator_v1());
+using (
+  private.is_story_participant_v1(story_id)
+  or private.is_story_moderator_v1()
+);
 
 create policy story_moderation_participant_select
 on public.story_moderation
 for select
 to authenticated
-using (private.is_story_participant_v1(story_id) or private.is_story_moderator_v1());
+using (
+  private.is_story_participant_v1(story_id)
+  or private.is_story_moderator_v1()
+);
 
 create policy story_publications_public_select
 on public.story_publications
@@ -581,25 +697,49 @@ grant select on table public.story_consents to authenticated;
 grant select on table public.story_moderation to authenticated;
 grant select on table public.story_publications to anon, authenticated;
 
-revoke all on function private.is_story_participant_v1(uuid, uuid) from public, anon, authenticated, service_role;
-revoke all on function private.is_story_moderator_v1(uuid) from public, anon, authenticated, service_role;
-revoke all on function private.story_content_is_safe_v1(text, text) from public, anon, authenticated, service_role;
-revoke all on function private.story_has_active_dispute_v1(uuid) from public, anon, authenticated, service_role;
-revoke all on function private.suppress_stories_for_dispute_v1() from public, anon, authenticated, service_role;
+revoke all on function private.is_story_participant_v1(uuid, uuid)
+  from public, anon, authenticated, service_role;
+revoke all on function private.is_story_moderator_v1(uuid)
+  from public, anon, authenticated, service_role;
+revoke all on function private.story_content_is_safe_v1(text, text)
+  from public, anon, authenticated, service_role;
+revoke all on function private.story_has_active_dispute_v1(uuid)
+  from public, anon, authenticated, service_role;
+revoke all on function private.suppress_stories_for_dispute_v1()
+  from public, anon, authenticated, service_role;
 
-revoke all on function public.create_story_draft_v1(uuid, text, text) from public, anon, authenticated, service_role;
-revoke all on function public.save_story_revision_v1(uuid, integer, text, text) from public, anon, authenticated, service_role;
-revoke all on function public.set_story_consent_v1(uuid, integer, boolean) from public, anon, authenticated, service_role;
-revoke all on function public.moderate_story_revision_v1(uuid, integer, boolean, text) from public, anon, authenticated, service_role;
-revoke all on function public.publish_story_revision_v1(uuid, integer, text) from public, anon, authenticated, service_role;
+grant execute on function private.is_story_participant_v1(uuid, uuid)
+  to authenticated;
+grant execute on function private.is_story_moderator_v1(uuid)
+  to authenticated;
 
-grant execute on function public.create_story_draft_v1(uuid, text, text) to authenticated;
-grant execute on function public.save_story_revision_v1(uuid, integer, text, text) to authenticated;
-grant execute on function public.set_story_consent_v1(uuid, integer, boolean) to authenticated;
-grant execute on function public.moderate_story_revision_v1(uuid, integer, boolean, text) to authenticated, service_role;
-grant execute on function public.publish_story_revision_v1(uuid, integer, text) to authenticated;
+revoke all on function public.create_story_draft_v1(uuid, text, text)
+  from public, anon, authenticated, service_role;
+revoke all on function public.save_story_revision_v1(uuid, integer, text, text)
+  from public, anon, authenticated, service_role;
+revoke all on function public.set_story_consent_v1(uuid, integer, boolean)
+  from public, anon, authenticated, service_role;
+revoke all on function public.moderate_story_revision_v1(uuid, integer, boolean, text)
+  from public, anon, authenticated, service_role;
+revoke all on function public.publish_story_revision_v1(uuid, integer, text)
+  from public, anon, authenticated, service_role;
 
-comment on table public.stories is 'Private Story workflow tied to one completed Swap. Public publication requires revision-bound consent, moderation and no active dispute.';
-comment on table public.story_revisions is 'Immutable Story content revisions. Editing creates a new revision and resets consent and moderation.';
-comment on table public.story_consents is 'Explicit per-participant consent bound to one Story revision. Withdrawal hides any public snapshot.';
-comment on table public.story_publications is 'Public Story snapshot containing approved content only; participant identities and private swap data are intentionally absent.';
+grant execute on function public.create_story_draft_v1(uuid, text, text)
+  to authenticated;
+grant execute on function public.save_story_revision_v1(uuid, integer, text, text)
+  to authenticated;
+grant execute on function public.set_story_consent_v1(uuid, integer, boolean)
+  to authenticated;
+grant execute on function public.moderate_story_revision_v1(uuid, integer, boolean, text)
+  to authenticated, service_role;
+grant execute on function public.publish_story_revision_v1(uuid, integer, text)
+  to authenticated;
+
+comment on table public.stories is
+  'Private Story workflow tied to one completed Swap. Public publication requires revision-bound consent, moderation and no active dispute.';
+comment on table public.story_revisions is
+  'Immutable Story content revisions. Editing creates a new revision and resets consent and moderation.';
+comment on table public.story_consents is
+  'Explicit per-participant consent bound to one Story revision. Withdrawal hides every public snapshot.';
+comment on table public.story_publications is
+  'Append-only public Story snapshots containing approved content only; participant identities and private swap data are intentionally absent.';
