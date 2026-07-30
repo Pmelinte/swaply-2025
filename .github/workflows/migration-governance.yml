@@ -1,0 +1,76 @@
+name: Migration Governance
+
+on:
+  pull_request:
+    paths:
+      - "supabase/migrations/**"
+      - "supabase/migration-governance/**"
+      - "scripts/check-migration-governance.mjs"
+      - "docs/db/MIGRATION_GOVERNANCE.md"
+      - "docs/db/DB_BASELINE.md"
+      - "package.json"
+      - ".github/workflows/migration-governance.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "supabase/migrations/**"
+      - "supabase/migration-governance/**"
+      - "scripts/check-migration-governance.mjs"
+      - "docs/db/MIGRATION_GOVERNANCE.md"
+      - "docs/db/DB_BASELINE.md"
+      - "package.json"
+      - ".github/workflows/migration-governance.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: migration-governance-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "22"
+
+jobs:
+  migration-governance:
+    name: Migration Epoch Guard
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Verify migration inventory and PR diff
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -o pipefail
+          npm run migration:guard 2>&1 | tee migration-governance-results.txt
+
+      - name: Run negative guard self-tests
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run migration:guard:self-test 2>&1 | tee migration-governance-self-test-results.txt
+
+      - name: Upload migration-governance evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: migration-governance-results
+          path: |
+            migration-governance-results.txt
+            migration-governance-self-test-results.txt
+          if-no-files-found: warn
+          retention-days: 14

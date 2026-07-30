@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "epoch_id": "V1-02-R5",
+  "declared_at": "2026-07-30T19:14:38+03:00",
+  "baseline_application_sha": "b81480e4c2d6275ad03e78b33c1715f8ca781c6b",
+  "production_project": "keaejxlwqtjjglijiplh",
+  "baseline_manifest_path": "supabase/migration-governance/r4-classification-snapshot.json",
+  "baseline_manifest_sha256": "dcb61e8d49fd7b41cdafe5e68fd9e2b6db2299dfb4b7d5029587fc83a0f6c88b",
+  "forward_only_after_version": "20260730122901",
+  "rules": {
+    "reject_unclassified_sql": true,
+    "reject_retroactive_migration_edits": true,
+    "reject_future_duplicate_versions": true,
+    "forbid_include_all_automation": true,
+    "require_explicit_production_authorisation": true
+  },
+  "forward_migrations": []
+}
