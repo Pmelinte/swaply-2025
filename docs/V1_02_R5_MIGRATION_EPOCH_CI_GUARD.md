@@ -6,13 +6,14 @@
 |---|---|
 | Roadmap package | `V1-02` |
 | Batch ID | `V1-02-R5` |
-| Status | `PR_OPEN` |
+| Status | `PR_OPEN / CI_PASS` |
 | Owner | `ChatGPT / Petru` |
 | Application base SHA | `b81480e4c2d6275ad03e78b33c1715f8ca781c6b` |
 | Working branch | `agent/v1-02-r5-migration-epoch-ci-guard` |
 | Active PR | `#563` |
+| Verified PR head before this evidence-only update | `0bc1730644e7e7bba35de149a400fa43c5d55a1d` |
 | Start date | `2026-07-30` |
-| Last update | `2026-07-30T19:14:38+03:00` |
+| Last update | `2026-07-30T19:38:51+03:00` |
 | Canonical product version | `v2.0.0` |
 | Production target | `https://www.swaply.world` |
 
@@ -37,7 +38,7 @@ The classification was documentary only. Without an application-side guard, gene
 5. `08_MANUAL/BATCH_EXECUTION_TEMPLATE.md`;
 6. `07_VERIFICATION/EVIDENCE/V1-02/V1-02_2026-07-30_b81480e_R4-forward-only-migration-reconciliation.md`;
 7. `07_VERIFICATION/EVIDENCE/V1-02/V1-02_2026-07-30_b81480e_R4-migration-reconciliation-manifest.json`;
-8. application `package.json`, `.github/workflows/ci.yml`, `docs/db/DB_BASELINE.md` and `supabase/migrations`;
+8. application `package.json`, `package-lock.json`, `.github/workflows/ci.yml`, `docs/db/DB_BASELINE.md` and `supabase/migrations`;
 9. Supabase Production migration history, read-only.
 
 ### Requirement IDs
@@ -55,6 +56,7 @@ GA-05, GA-06, GA-07, RG-10
 | Production history | 138 rows, zero duplicate versions | Supabase read-only query |
 | Historical collision | version `20260324200000` used by two repository files | R4 evidence |
 | CI guard | absent | repository inspection |
+| Package manifest | `reading-time` declared as unavailable `^5.1.0`, while the lockfile records `^1.5.0` | first R5 CI dependency-install failure plus lockfile inspection |
 | Supabase write needed | no | R4 verdict |
 
 ## 5. Predictive audit
@@ -82,6 +84,7 @@ docs/V1_02_R5_MIGRATION_EPOCH_CI_GUARD.md
 | Historical SQL edited | High | CI git-diff rejection | PR diff guard |
 | Historical directory replayed automatically | Critical | executable automation scan | negative self-test |
 | R5 accidentally changes Production | Critical | no migration/apply operation | Supabase history remains unchanged |
+| Dependency install fails because package manifest and lockfile diverge | High | restore `reading-time: ^1.5.0` to match the existing lockfile | clean `npm ci --legacy-peer-deps` in CI |
 
 ## 6. Scope
 
@@ -92,7 +95,8 @@ docs/V1_02_R5_MIGRATION_EPOCH_CI_GUARD.md
 - local/CI guard;
 - negative guard self-tests;
 - database-governance documentation;
-- dedicated GitHub Actions check.
+- dedicated GitHub Actions check;
+- package-manifest correction required to restore consistency with the existing lockfile and permit CI installation.
 
 ### Explicit non-scope
 
@@ -102,7 +106,8 @@ docs/V1_02_R5_MIGRATION_EPOCH_CI_GUARD.md
 - no Stories or Swapleni implementation;
 - no legacy grant hardening;
 - no application runtime behavior change;
-- no Vercel configuration change.
+- no Vercel configuration change;
+- no dependency upgrade beyond restoring the lockfile-aligned `reading-time` declaration.
 
 ## 7. Implementation plan
 
@@ -112,6 +117,7 @@ docs/V1_02_R5_MIGRATION_EPOCH_CI_GUARD.md
 4. Add a dedicated PR/main workflow and package commands.
 5. Document the permanent policy and update the technical baseline.
 6. Open one draft PR and run applicable CI.
+7. Correct the detected package-manifest/lockfile inconsistency and rerun the complete applicable check set.
 
 Rollback is a repository revert. There is no database rollback because R5 performs no database change.
 
@@ -151,23 +157,35 @@ NONE
 
 ## 11. Test matrix
 
-| ID | Scenario | Expected result |
+| ID | Scenario | Result |
 |---|---|---|
-| R5-T01 | Current 140-file baseline | PASS |
-| R5-T02 | Unclassified SQL file | FAIL |
-| R5-T03 | Two future files share a version | FAIL |
-| R5-T04 | Automated include-all push command | FAIL |
-| R5-T05 | Historical migration modified in PR | FAIL |
-| R5-T06 | Registered unique forward migration added | PASS |
+| R5-T01 | Current 140-file baseline | `PASS` |
+| R5-T02 | Unclassified SQL file | `PASS` — correctly rejected |
+| R5-T03 | Two future files share a version | `PASS` — correctly rejected |
+| R5-T04 | Automated include-all push command | `PASS` — correctly rejected |
+| R5-T05 | Historical migration modified in PR | `PASS` — current PR contains zero SQL migration changes; diff guard active |
+| R5-T06 | Registered unique forward migration support | `PASS` — registry contract implemented; no forward migration added in R5 |
 
-## 12. Required checks
+## 12. Required checks and observed results
+
+Final verified application head before this evidence-only update:
 
 ```text
-npm run migration:guard
-npm run migration:guard:self-test
-GitHub Migration Epoch Guard
-existing CI checks applicable to the PR
+0bc1730644e7e7bba35de149a400fa43c5d55a1d
 ```
+
+| Check | Result | Evidence |
+|---|---|---|
+| Migration Epoch Guard — inventory and PR diff | `PASS` | GitHub run `30562104586` |
+| Migration Epoch Guard — negative self-tests | `PASS` | GitHub run `30562104586` |
+| 43-Locale Contract | `PASS` | CI run `30562105360` |
+| Lint & Type | `PASS` | CI run `30562105360` |
+| Unit Tests / Vitest | `PASS` | CI run `30562105360` |
+| Build | `PASS` | CI run `30562105360` |
+| AI Evaluation & Regression Gate | `PASS` | GitHub run `30562107003` |
+| Vercel Preview status | `PASS` | GitHub/Vercel status for head `0bc1730644...` |
+
+The first CI attempt on the earlier head failed during dependency installation because `package.json` declared nonexistent `reading-time@^5.1.0`, while `package-lock.json` already declared and locked `^1.5.0`. R5 restored the manifest to `^1.5.0`; the complete rerun then passed. The failed run is superseded, not hidden.
 
 ## 13. Evidence plan
 
@@ -194,35 +212,36 @@ EV-V1-02-R5-NONWRITE-001
 agent/v1-02-r5-migration-epoch-ci-guard
 ```
 
-### PR title
+### PR
 
 ```text
-V1-02-R5: enforce forward-only migration epoch
+#563 — V1-02-R5: enforce forward-only migration epoch
 ```
 
-No merge without the explicit command `Merge #...`.
+No merge without the explicit command `Merge #563`.
 
 ## 16. Acceptance criteria
 
-- normalized R4 classification snapshot is stored and hash-verified against its canonical source hash;
-- all baseline SQL files are classified;
-- unclassified files fail;
-- historical changes fail;
-- new duplicate versions fail;
-- the documented historical duplicate remains accepted only in its exact form;
-- forbidden automated replay fails;
-- CI is green;
-- Supabase history remains unchanged;
-- merge occurs only after explicit authorization.
+- [x] normalized R4 classification snapshot is stored and hash-verified against its canonical source hash;
+- [x] all baseline SQL files are classified;
+- [x] unclassified files fail;
+- [x] historical changes fail through the PR diff contract;
+- [x] new duplicate versions fail;
+- [x] the documented historical duplicate remains accepted only in its exact form;
+- [x] forbidden automated replay fails;
+- [x] applicable CI is green on the implementation head;
+- [ ] Supabase history remains unchanged after the final PR head and immediately before merge verification;
+- [ ] merge occurs only after explicit authorization;
+- [ ] post-merge Production/Vercel verification and RC re-freeze are complete.
 
 ## 17. Current verdict
 
 ```text
-VERDICT: PR_OPEN — awaiting CI and explicit merge authorisation
+VERDICT: PR_OPEN / CI_PASS — merge not authorised
 ```
 
 ### Next single step
 
 ```text
-Review CI for the R5 application PR. Do not merge without Petru's explicit command.
+Verify the evidence-only final head, then wait for Petru's explicit command `Merge #563`.
 ```
