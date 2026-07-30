@@ -9,6 +9,13 @@ const migrationPath = join(
   "20260730205500_v1_02_r7_stories_privacy_consent_foundation.sql",
 );
 
+const correctionPath = join(
+  process.cwd(),
+  "supabase",
+  "migrations",
+  "20260730211500_v1_02_r7_1_story_privacy_filter_and_republish_fix.sql",
+);
+
 const epochPath = join(
   process.cwd(),
   "supabase",
@@ -20,8 +27,12 @@ function migrationSql() {
   return readFileSync(migrationPath, "utf8").replace(/\s+/g, " ");
 }
 
+function correctionSql() {
+  return readFileSync(correctionPath, "utf8").replace(/\s+/g, " ");
+}
+
 describe("V1-02-R7 Stories privacy and consent migration", () => {
-  it("registers one forward-only migration after the governed epoch", () => {
+  it("registers the foundation and its forward-only verification correction", () => {
     const epoch = JSON.parse(readFileSync(epochPath, "utf8")) as {
       forward_only_after_version: string;
       forward_migrations: Array<{
@@ -38,7 +49,14 @@ describe("V1-02-R7 Stories privacy and consent migration", () => {
       name: "v1_02_r7_stories_privacy_consent_foundation",
       kind: "FORWARD_ONLY",
     });
+    expect(epoch.forward_migrations).toContainEqual({
+      path: "supabase/migrations/20260730211500_v1_02_r7_1_story_privacy_filter_and_republish_fix.sql",
+      version: "20260730211500",
+      name: "v1_02_r7_1_story_privacy_filter_and_republish_fix",
+      kind: "FORWARD_ONLY",
+    });
     expect("20260730205500" > epoch.forward_only_after_version).toBe(true);
+    expect("20260730211500" > "20260730205500").toBe(true);
   });
 
   it("keeps Stories separate from Blog and ties drafts to completed swaps", () => {
@@ -87,24 +105,30 @@ describe("V1-02-R7 Stories privacy and consent migration", () => {
     expect(sql).toContain("dispute_suppressed = true");
   });
 
-  it("rejects contact details, coordinate pairs and obvious exact addresses", () => {
-    const sql = migrationSql();
+  it("rejects contact details, coordinate pairs and exact street addresses", () => {
+    const initial = migrationSql();
+    const correction = correctionSql();
 
-    expect(sql).toContain("function private.story_content_is_safe_v1");
-    expect(sql).toContain("Story contains private contact, exact location or coordinate data");
-    expect(sql).toContain("[A-Z0-9._%+-]+@[A-Z0-9.-]+");
-    expect(sql).toContain("[0-9]{1,2}\\.[0-9]{4,}");
-    expect(sql).toContain("street|st\\.|strada|str\\.|avenue");
+    expect(initial).toContain("function private.story_content_is_safe_v1");
+    expect(initial).toContain("Story contains private contact, exact location or coordinate data");
+    expect(correction).toContain("[A-Z0-9._%+-]+@[A-Z0-9.-]+");
+    expect(correction).toContain("[0-9]{1,2}\\.[0-9]{4,}");
+    expect(correction).toContain("(?:^|[^[:alnum:]_])(?:street|st\\.|strada|str\\.|avenue");
+    expect(correction).not.toContain("\\b(?:street");
   });
 
-  it("stores append-only publication snapshots without participant identities", () => {
-    const sql = migrationSql();
+  it("stores immutable revision snapshots and can restore a withdrawn current snapshot", () => {
+    const initial = migrationSql();
+    const correction = correctionSql();
 
-    expect(sql).toContain("primary key (story_id, revision)");
-    expect(sql).toContain("on conflict (story_id, revision) do nothing");
-    expect(sql).toContain("Append-only public Story snapshots");
-    expect(sql).not.toContain("alter table public.story_publications add column user_id");
-    expect(sql).not.toContain("alter table public.story_publications add column participant_id");
+    expect(initial).toContain("primary key (story_id, revision)");
+    expect(initial).toContain("Append-only public Story snapshots");
+    expect(correction).toContain("on conflict (story_id, revision) do update");
+    expect(correction).toContain("is_visible = true");
+    expect(correction).toContain("hidden_at = null");
+    expect(correction).not.toContain("delete from public.story_publications");
+    expect(initial).not.toContain("alter table public.story_publications add column user_id");
+    expect(initial).not.toContain("alter table public.story_publications add column participant_id");
   });
 
   it("allows only RLS-scoped reads and server-authority writes", () => {
@@ -121,7 +145,7 @@ describe("V1-02-R7 Stories privacy and consent migration", () => {
   });
 
   it("does not expose the workflow RPCs to anonymous callers", () => {
-    const sql = migrationSql();
+    const sql = `${migrationSql()} ${correctionSql()}`;
 
     expect(sql).toContain("grant execute on function public.create_story_draft_v1(uuid, text, text) to authenticated");
     expect(sql).toContain("grant execute on function public.set_story_consent_v1(uuid, integer, boolean) to authenticated");
