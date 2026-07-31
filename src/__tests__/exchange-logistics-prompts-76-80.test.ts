@@ -23,7 +23,7 @@ describe("Prompts 76-80 exchange logistics authority", () => {
     expect(persistence).toContain('supabase.rpc("update_exchange_logistics_v1"');
     expect(persistence).not.toContain('from("swaps").update');
     expect(migration).toContain("auth.uid()");
-    expect(migration).toContain("FOR UPDATE");
+    expect(migration).toMatch(/for\s+update/i);
     expect(migration).toContain(
       "v_actor_id <> v_swap.requester_id AND v_actor_id <> v_swap.responder_id",
     );
