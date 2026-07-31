@@ -30,6 +30,7 @@
     {"path":"supabase/migrations/20260731040000_v1_04_2b5_final_grants_rls_hardening.sql","version":"20260731040000","name":"v1_04_2b5_final_grants_rls_hardening","kind":"FORWARD_ONLY"},
     {"path":"supabase/migrations/20260731094000_v1_04_2b5_1_trigger_execute_hardening.sql","version":"20260731094000","name":"v1_04_2b5_1_trigger_execute_hardening","kind":"FORWARD_ONLY"},
     {"path":"supabase/migrations/20260731130000_v1_04_3_fix_message_activity_trigger.sql","version":"20260731130000","name":"v1_04_3_fix_message_activity_trigger","kind":"FORWARD_ONLY"},
-    {"path":"supabase/migrations/20260731133000_v1_04_3_fix_exchange_logistics_initialization.sql","version":"20260731133000","name":"v1_04_3_fix_exchange_logistics_initialization","kind":"FORWARD_ONLY"}
+    {"path":"supabase/migrations/20260731133000_v1_04_3_fix_exchange_logistics_initialization.sql","version":"20260731133000","name":"v1_04_3_fix_exchange_logistics_initialization","kind":"FORWARD_ONLY"},
+    {"path":"supabase/migrations/20260731183000_v1_05_2_canonical_domain_listing_create_authority.sql","version":"20260731183000","name":"v1_05_2_canonical_domain_listing_create_authority","kind":"FORWARD_ONLY"}
   ]
 }
