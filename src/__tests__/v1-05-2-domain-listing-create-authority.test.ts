@@ -33,7 +33,8 @@ describe("V1-05.2 canonical domain listing create authority", () => {
     expect(migration).toContain("v_actor uuid := auth.uid()");
     expect(migration).toContain("insert into public.items");
     expect(migration).toContain("jsonb_populate_record");
-    expect(migration).toContain("returning id into v_listing_id");
+    expect(migration).toContain("returning id'");
+    expect(migration).toContain("into v_listing_id;");
     expect(migration.trim().endsWith("commit;")).toBe(true);
   });
 
