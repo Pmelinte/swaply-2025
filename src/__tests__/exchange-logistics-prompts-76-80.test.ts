@@ -6,6 +6,10 @@ const persistence = readFileSync(
   "src/lib/exchange/exchangeLogisticsPersistence.ts",
   "utf8",
 );
+const migration = readFileSync(
+  "supabase/migrations/20260731030000_v1_04_2b3_exchange_logistics_authority.sql",
+  "utf8",
+);
 
 describe("Prompts 76-80 exchange logistics authority", () => {
   it("derives logistics actor authority from the authenticated server session", () => {
@@ -15,19 +19,26 @@ describe("Prompts 76-80 exchange logistics authority", () => {
     expect(route).not.toMatch(/userId:\s*body\./);
   });
 
-  it("keeps each logistics operation participant-only before writes", () => {
-    expect(persistence).toContain("loadParticipantSwap");
-    expect(persistence).toContain(
-      "actorId !== row.requester_id && actorId !== row.responder_id",
+  it("keeps each logistics operation participant-only inside the canonical RPC", () => {
+    expect(persistence).toContain('supabase.rpc("update_exchange_logistics_v1"');
+    expect(persistence).not.toContain('from("swaps").update');
+    expect(migration).toContain("auth.uid()");
+    expect(migration).toMatch(/for\s+update/i);
+    expect(migration).toMatch(
+      /v_actor\s*<>\s*v_swap\.requester_id\s+and\s+v_actor\s*<>\s*v_swap\.responder_id/i,
     );
-    for (const fn of [
-      "setCourierLogistics",
-      "setPropertyLogistics",
-      "setServiceLogistics",
-      "setEventLogistics",
+    expect(migration).toContain("swap_participant_required");
+
+    for (const command of [
+      "set_method",
+      "set_status",
+      "set_local_handover",
+      "set_courier",
+      "set_property",
+      "set_service",
+      "set_event",
     ]) {
-      expect(persistence).toContain(`export async function ${fn}`);
-      expect(persistence).toContain("const row = await loadParticipantSwap");
+      expect(migration).toContain(command);
     }
   });
 

@@ -74,6 +74,12 @@
       "version": "20260731022000",
       "name": "v1_04_2b2_3_conversation_status_authority",
       "kind": "FORWARD_ONLY"
+    },
+    {
+      "path": "supabase/migrations/20260731030000_v1_04_2b3_exchange_logistics_authority.sql",
+      "version": "20260731030000",
+      "name": "v1_04_2b3_exchange_logistics_authority",
+      "kind": "FORWARD_ONLY"
     }
   ]
 }
