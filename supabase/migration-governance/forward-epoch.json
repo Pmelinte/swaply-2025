@@ -68,6 +68,12 @@
       "version": "20260731015500",
       "name": "v1_04_2b2_1_conversation_activity_authority",
       "kind": "FORWARD_ONLY"
+    },
+    {
+      "path": "supabase/migrations/20260731022000_v1_04_2b2_3_conversation_status_authority.sql",
+      "version": "20260731022000",
+      "name": "v1_04_2b2_3_conversation_status_authority",
+      "kind": "FORWARD_ONLY"
     }
   ]
 }

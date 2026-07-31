@@ -113,20 +113,6 @@ export async function decideSwap(
         .update({ status: "reserved", is_active: false, updated_at: now })
         .in("id", itemIds);
     }
-
-    if (row.conversation_id) {
-      await supabase
-        .from("conversations")
-        .update({ status: "accepted", updated_at: now })
-        .eq("id", row.conversation_id);
-    }
-  }
-
-  if (!transition.data.replayed && decision === "rejected" && row.conversation_id) {
-    await supabase
-      .from("conversations")
-      .update({ status: "rejected", updated_at: now })
-      .eq("id", row.conversation_id);
   }
 
   if (!transition.data.replayed) {
