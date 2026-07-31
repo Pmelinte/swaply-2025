@@ -92,6 +92,12 @@
       "version": "20260731040000",
       "name": "v1_04_2b5_final_grants_rls_hardening",
       "kind": "FORWARD_ONLY"
+    },
+    {
+      "path": "supabase/migrations/20260731094000_v1_04_2b5_1_trigger_execute_hardening.sql",
+      "version": "20260731094000",
+      "name": "v1_04_2b5_1_trigger_execute_hardening",
+      "kind": "FORWARD_ONLY"
     }
   ]
 }
