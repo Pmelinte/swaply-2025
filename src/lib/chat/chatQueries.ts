@@ -421,11 +421,6 @@ export async function sendConversationMessage(
     return null;
   }
 
-  await supabase
-    .from("conversations")
-    .update({ updated_at: new Date().toISOString() })
-    .eq("id", input.conversation.id);
-
   await createChatMessageNotification(supabase, {
     recipientId,
     senderId: input.senderId,
