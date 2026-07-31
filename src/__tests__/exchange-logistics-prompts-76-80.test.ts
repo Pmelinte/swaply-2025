@@ -25,8 +25,9 @@ describe("Prompts 76-80 exchange logistics authority", () => {
     expect(migration).toContain("auth.uid()");
     expect(migration).toMatch(/for\s+update/i);
     expect(migration).toMatch(
-      /v_actor_id\s*<>\s*v_swap\.requester_id\s+and\s+v_actor_id\s*<>\s*v_swap\.responder_id/i,
+      /v_actor\s*<>\s*v_swap\.requester_id\s+and\s+v_actor\s*<>\s*v_swap\.responder_id/i,
     );
+    expect(migration).toContain("swap_participant_required");
 
     for (const command of [
       "set_method",
