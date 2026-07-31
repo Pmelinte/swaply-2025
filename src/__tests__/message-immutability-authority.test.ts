@@ -24,7 +24,7 @@ describe("message immutability authority", () => {
   it("keeps the active translation cache inside the permitted metadata keys", () => {
     expect(translationRoute).toContain("mergeTranslationMetadata");
     expect(translationRoute).toContain("update({ metadata: nextMetadata })");
-    expect(translationRoute).not.toMatch(/update\(\{[^}]*content:/s);
+    expect(translationRoute).not.toMatch(/update\(\{[\s\S]*?content:/);
     expect(translationRoute).not.toMatch(/\.delete\(\)/);
   });
 });
