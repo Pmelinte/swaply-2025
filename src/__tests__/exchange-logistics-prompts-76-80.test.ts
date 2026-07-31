@@ -24,8 +24,8 @@ describe("Prompts 76-80 exchange logistics authority", () => {
     expect(persistence).not.toContain('from("swaps").update');
     expect(migration).toContain("auth.uid()");
     expect(migration).toMatch(/for\s+update/i);
-    expect(migration).toContain(
-      "v_actor_id <> v_swap.requester_id AND v_actor_id <> v_swap.responder_id",
+    expect(migration).toMatch(
+      /v_actor_id\s*<>\s*v_swap\.requester_id\s+and\s+v_actor_id\s*<>\s*v_swap\.responder_id/i,
     );
 
     for (const command of [
