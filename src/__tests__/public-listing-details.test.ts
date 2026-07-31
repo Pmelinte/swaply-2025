@@ -172,7 +172,7 @@ describe("canonical public listing details", () => {
 
   it("keeps public database projections explicit and free of legacy JSON columns", () => {
     expect(PUBLIC_PROPERTY_DETAIL_SELECT).toContain("items!inner");
-    expect(PUBLIC_SERVICE_DETAIL_SELECT).toContain("services").toBe(false);
+    expect(PUBLIC_SERVICE_DETAIL_SELECT).toContain("items!inner");
     expect(PUBLIC_EVENT_DETAIL_SELECT).toContain("items!inner");
 
     for (const selection of [
