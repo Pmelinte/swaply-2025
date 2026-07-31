@@ -62,6 +62,12 @@
       "version": "20260731013000",
       "name": "v1_04_2b1_canonical_interest_withdrawal",
       "kind": "FORWARD_ONLY"
+    },
+    {
+      "path": "supabase/migrations/20260731015500_v1_04_2b2_1_conversation_activity_authority.sql",
+      "version": "20260731015500",
+      "name": "v1_04_2b2_1_conversation_activity_authority",
+      "kind": "FORWARD_ONLY"
     }
   ]
 }
