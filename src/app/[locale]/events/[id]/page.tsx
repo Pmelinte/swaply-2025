@@ -1,62 +1,537 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useParams } from "next/navigation";
-import { useLocale } from "next-intl";
-import { useAppState } from "@/lib/state";
+import { Link } from "@/i18n/navigation";
+import { SafeImage } from "@/components/SafeImage";
+import { NO_IMAGE_URL } from "@/lib/storage";
+import type { PublicEventDetail } from "@/lib/listings/publicListingDetails";
+import {
+  CalendarDays,
+  CheckCircle2,
+  Clock,
+  Globe2,
+  MapPin,
+  Route,
+  ShieldAlert,
+  Star,
+  Ticket,
+  Users,
+} from "lucide-react";
 
-type EventRow = { id: string; title: string | null; description: string | null; owner_id: string | null; status: string | null; is_active: boolean | null; event_data: Record<string, unknown> | null; swap_wants_description: string | null; perceived_value_tier: string | null };
+type EventResponse = {
+  event?: PublicEventDetail;
+  isOwner?: boolean;
+  error?: string;
+};
 
-function text(value: unknown, fallback = "—") { return typeof value === "string" && value.trim() ? value : fallback; }
-function bool(value: unknown) { return value ? "Yes" : "No"; }
-function Info({ label, value }: { label: string; value: string }) { return <div className="rounded-xl border border-zinc-200 p-3 text-sm dark:border-zinc-800"><p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">{label}</p><p className="mt-1 text-zinc-900 dark:text-zinc-100">{value}</p></div>; }
-function approximateLocation(data: Record<string, unknown>) { return data.is_online ? "Online" : [data.city, data.region, data.country].filter(Boolean).join(", ") || "Approximate area shared after match"; }
+function formatDate(value: string | null): string {
+  if (!value) return "Not specified";
+  const date = new Date(`${value}T00:00:00`);
+  return Number.isNaN(date.getTime())
+    ? value
+    : new Intl.DateTimeFormat(undefined, {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      }).format(date);
+}
+
+function formatDateTime(value: string | null): string {
+  if (!value) return "Not specified";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? value
+    : new Intl.DateTimeFormat(undefined, {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }).format(date);
+}
+
+function yesNo(value: boolean | null): string {
+  if (value === null) return "Not specified";
+  return value ? "Yes" : "No";
+}
 
 export default function EventDetailPage() {
-  const params = useParams<{ id: string }>();
-  const locale = useLocale();
-  const { user } = useAppState();
-  const [event, setEvent] = useState<EventRow | null>(null);
+  const { id } = useParams<{ id: string }>();
+  const [event, setEvent] = useState<PublicEventDetail | null>(null);
+  const [isOwner, setIsOwner] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(`/api/items/events/${params.id}`).then(async (r) => {
-      const body = await r.json().catch(() => null);
-      if (!r.ok) throw new Error(body?.error ?? "Event unavailable");
-      setEvent(body.event ?? null);
-    }).catch((err: Error) => setError(err.message)).finally(() => setLoading(false));
-  }, [params.id]);
+    let cancelled = false;
 
-  const data = useMemo(() => event?.event_data ?? {}, [event?.event_data]);
-  if (loading) return <div className="p-8 text-center text-zinc-400">Loading event…</div>;
-  if (error || !event) return <div className="p-8 text-center text-zinc-400">{error ?? "This event is unavailable."}</div>;
-  const isOwner = user?.id === event.owner_id;
+    async function loadEvent() {
+      setLoading(true);
+      setError(null);
 
-  return <main className="mx-auto max-w-3xl space-y-6 px-4 py-8">
-    <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-      <p className="text-sm font-semibold text-amber-600">{text(data.event_type_l1, "Event")}</p>
-      <div className="mt-2 flex flex-wrap items-start justify-between gap-3"><h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{event.title}</h1>{isOwner && <Link className="rounded-lg bg-zinc-900 px-3 py-2 text-sm font-semibold text-white dark:bg-zinc-100 dark:text-zinc-900" href={`/${locale}/events/${event.id}/edit`}>Manage event</Link>}</div>
-      <p className="mt-3 whitespace-pre-line text-sm text-zinc-600 dark:text-zinc-300">{event.description}</p>
-      <div className="mt-5 grid gap-3 sm:grid-cols-2">
-        <Info label="Date" value={`${text(data.start_date)} ${text(data.start_time, "")}`.trim()} />
-        <Info label="Approximate location" value={approximateLocation(data)} />
-        <Info label="Capacity" value={`${data.capacity_available ?? "—"}/${data.capacity_total ?? "—"} places`} />
-        <Info label="Transferable" value={bool(data.is_transferable)} />
-        <Info label="Booking deadline" value={text(data.booking_deadline_date, "Coordinate before exchange")} />
-        <Info label="Issuer / ID rules" value={data.id_required ? "ID may be required by issuer or venue" : "Check issuer rules before exchange"} />
-        <Info label="Optional package" value={[data.includes_transport && "transport", data.includes_accommodation && "accommodation", data.includes_meals && "meals", data.includes_equipment && "equipment"].filter(Boolean).join(", ") || "No required paid package"} />
-        <Info label="Wants in return" value={event.swap_wants_description ?? "Open to fair swaps"} />
+      try {
+        const response = await fetch(`/api/items/events/${id}`, {
+          cache: "no-store",
+        });
+        const body = (await response.json().catch(() => null)) as
+          | EventResponse
+          | null;
+        if (!response.ok) {
+          throw new Error(body?.error ?? "Event unavailable");
+        }
+        if (!body?.event) {
+          throw new Error("Event unavailable");
+        }
+
+        if (!cancelled) {
+          setEvent(body.event);
+          setIsOwner(Boolean(body.isOwner));
+        }
+      } catch (loadError) {
+        if (!cancelled) {
+          setError(
+            loadError instanceof Error ? loadError.message : "Event unavailable",
+          );
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    void loadEvent();
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
+  const included = useMemo(() => {
+    if (!event) return [];
+    return [
+      event.includesTransport && "Transport",
+      event.includesAccommodation && "Accommodation",
+      event.includesMeals && "Meals",
+      event.includesEquipment && "Equipment",
+      event.includesGuide && "Guide",
+      ...event.extras,
+    ].filter((value): value is string => Boolean(value));
+  }, [event]);
+
+  if (loading) {
+    return <div className="p-8 text-center text-zinc-400">Loading event…</div>;
+  }
+
+  if (error || !event) {
+    return (
+      <main className="mx-auto max-w-4xl px-4 py-10">
+        <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">
+          Event unavailable
+        </h1>
+        <p className="mt-2 text-sm text-zinc-500">
+          {error ?? "This event is unavailable or inactive."}
+        </p>
+        <Link
+          href="/events"
+          className="mt-5 inline-flex rounded-full bg-amber-500 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-600"
+        >
+          Back to events
+        </Link>
+      </main>
+    );
+  }
+
+  const proposalAllowed = event.isTransferable !== false && !isOwner;
+  const ageLabel =
+    event.ageMin !== null || event.ageMax !== null
+      ? `${event.ageMin ?? 0}${event.ageMax !== null ? `–${event.ageMax}` : "+"}`
+      : "No stated restriction";
+
+  return (
+    <main className="mx-auto max-w-5xl space-y-6 px-4 py-6">
+      <Link
+        href="/events"
+        className="inline-flex text-sm font-medium text-amber-700 hover:underline dark:text-amber-300"
+      >
+        ← Back to events
+      </Link>
+
+      <div className="relative aspect-[16/9] overflow-hidden rounded-2xl bg-zinc-100 dark:bg-zinc-800">
+        <SafeImage
+          src={event.images[0] || NO_IMAGE_URL}
+          alt={event.title}
+          fill
+          className="object-cover"
+          unoptimized={!event.images[0]}
+        />
       </div>
+
+      <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p className="flex items-center gap-2 text-sm font-semibold text-amber-600 dark:text-amber-300">
+              <Ticket className="h-4 w-4" />
+              {event.eventGroup ?? "Event"}
+              {event.eventCategory ? ` · ${event.eventCategory}` : ""}
+            </p>
+            <h1 className="mt-2 text-3xl font-bold text-zinc-900 dark:text-zinc-50">
+              {event.title}
+            </h1>
+            <p className="mt-2 flex items-center gap-2 text-sm text-zinc-500">
+              {event.locationType === "online" ? (
+                <Globe2 className="h-4 w-4" />
+              ) : (
+                <MapPin className="h-4 w-4" />
+              )}
+              {event.location || "Approximate location not specified"}
+            </p>
+          </div>
+
+          {isOwner && (
+            <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
+              Your listing
+            </span>
+          )}
+        </div>
+
+        {event.description && (
+          <p className="mt-5 whitespace-pre-line text-sm leading-6 text-zinc-600 dark:text-zinc-300">
+            {event.description}
+          </p>
+        )}
+      </section>
+
+      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <Info
+          icon={<CalendarDays />}
+          label="Start"
+          value={`${formatDate(event.startDate)}${event.startTime ? ` · ${event.startTime}` : ""}`}
+        />
+        <Info
+          icon={<Clock />}
+          label="End"
+          value={`${formatDate(event.endDate)}${event.endTime ? ` · ${event.endTime}` : ""}`}
+        />
+        <Info
+          icon={<Users />}
+          label="Availability"
+          value={
+            event.capacityAvailable !== null
+              ? `${event.capacityAvailable}/${event.capacityTotal ?? "—"} places`
+              : event.capacityTotal !== null
+                ? `${event.capacityTotal} total places`
+                : "Not specified"
+          }
+        />
+        <Info
+          icon={<Star />}
+          label="Rating"
+          value={
+            event.averageRating !== null
+              ? `${event.averageRating.toFixed(1)} (${event.reviewCount ?? 0})`
+              : "New listing"
+          }
+        />
+      </section>
+
+      {event.isTransferable === false && (
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-900 dark:border-red-900 dark:bg-red-950/30 dark:text-red-100">
+          <div className="flex items-center gap-2 font-semibold">
+            <ShieldAlert className="h-4 w-4" /> Transfer is not currently allowed
+          </div>
+          <p className="mt-2 text-xs leading-5 text-red-700 dark:text-red-300">
+            The listing is marked as non-transferable. A proposal cannot be
+            started until the owner confirms that the issuer or venue permits
+            transfer.
+          </p>
+        </div>
+      )}
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Section title="Schedule and participation">
+          <div className="space-y-3">
+            <InfoLine label="Timezone" value={event.timezone ?? "Not specified"} />
+            <InfoLine
+              label="Recurring"
+              value={
+                event.isRecurring
+                  ? event.recurrencePattern ?? "Yes"
+                  : event.isRecurring === false
+                    ? "No"
+                    : "Not specified"
+              }
+            />
+            <InfoLine label="Age" value={ageLabel} />
+            <InfoLine
+              label="Suitable for"
+              value={event.suitableFor.join(", ") || "Not specified"}
+            />
+            <InfoLine
+              label="Minimum participants"
+              value={
+                event.minParticipants !== null
+                  ? String(event.minParticipants)
+                  : "Not specified"
+              }
+            />
+            <InfoLine
+              label="Maximum participants"
+              value={
+                event.maxParticipants !== null
+                  ? String(event.maxParticipants)
+                  : "Not specified"
+              }
+            />
+          </div>
+        </Section>
+
+        <Section title="Transfer and access">
+          <div className="space-y-3">
+            <InfoLine
+              label="Transferable"
+              value={yesNo(event.isTransferable)}
+            />
+            <InfoLine
+              label="Face value"
+              value={
+                event.faceValueEur !== null
+                  ? `€${event.faceValueEur}`
+                  : "Not specified"
+              }
+            />
+            <InfoLine
+              label="Hospitality"
+              value={yesNo(event.hasHospitality)}
+            />
+            <InfoLine
+              label="Section / Block / Row"
+              value={
+                [event.venueSection, event.venueBlock, event.venueRow]
+                  .filter(Boolean)
+                  .join(" / ") || "Shared after match if needed"
+              }
+            />
+          </div>
+          {event.hospitalityDetails && (
+            <p className="mt-4 whitespace-pre-line text-sm">
+              {event.hospitalityDetails}
+            </p>
+          )}
+        </Section>
+
+        {(event.route || event.transportMode || event.departureDatetime) && (
+          <Section title="Transport and route">
+            <div className="space-y-3">
+              <InfoLine
+                label="Route"
+                value={event.route || "Not specified"}
+                icon={<Route className="h-4 w-4" />}
+              />
+              <InfoLine
+                label="Distance"
+                value={
+                  event.routeTotalKm !== null
+                    ? `${event.routeTotalKm} km`
+                    : "Not specified"
+                }
+              />
+              <InfoLine
+                label="Transport"
+                value={
+                  [
+                    event.transportMode,
+                    event.transportCarrier,
+                    event.transportClass,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ") || "Not specified"
+                }
+              />
+              <InfoLine
+                label="Departure"
+                value={formatDateTime(event.departureDatetime)}
+              />
+              <InfoLine
+                label="Arrival"
+                value={formatDateTime(event.arrivalDatetime)}
+              />
+            </div>
+          </Section>
+        )}
+
+        {(event.includesAccommodation || event.accommodationType) && (
+          <Section title="Accommodation">
+            <div className="space-y-3">
+              <InfoLine
+                label="Type"
+                value={event.accommodationType ?? "Included"}
+              />
+              <InfoLine
+                label="Room"
+                value={event.accommodationRoomType ?? "Not specified"}
+              />
+              <InfoLine
+                label="Board"
+                value={event.accommodationBoard ?? "Not specified"}
+              />
+              <InfoLine
+                label="Check-in"
+                value={formatDate(event.checkInDate)}
+              />
+              <InfoLine
+                label="Check-out"
+                value={formatDate(event.checkOutDate)}
+              />
+              <InfoLine
+                label="Nights"
+                value={
+                  event.nightsCount !== null
+                    ? String(event.nightsCount)
+                    : "Not specified"
+                }
+              />
+            </div>
+          </Section>
+        )}
+
+        <Section title="What is included">
+          {included.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {included.map((entry) => (
+                <span
+                  key={entry}
+                  className="rounded-full bg-amber-100 px-3 py-1 text-sm text-amber-800 dark:bg-amber-950/40 dark:text-amber-200"
+                >
+                  {entry}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <p>No additional package is specified.</p>
+          )}
+        </Section>
+
+        <Section title="Exchange terms">
+          <div className="space-y-3">
+            <InfoLine
+              label="Open to"
+              value={event.swapOpenTo.join(", ") || "Fair exchanges"}
+            />
+            <InfoLine
+              label="Value tier"
+              value={event.swapWantsValueTier ?? "Not specified"}
+            />
+            <InfoLine
+              label="Partial swap"
+              value={yesNo(event.partialSwapAllowed)}
+            />
+            <InfoLine
+              label="Escrow accepted"
+              value={yesNo(event.escrowAccepted)}
+            />
+          </div>
+          <p className="mt-4 whitespace-pre-line text-sm">
+            {event.swapWantsDescription ??
+              event.exchangeValueDescription ??
+              "Open to fair exchanges."}
+          </p>
+        </Section>
+      </div>
+
+      <section className="grid gap-3 sm:grid-cols-2">
+        {proposalAllowed ? (
+          <Link
+            href={`/matching?target=${event.itemId}`}
+            className="rounded-2xl bg-amber-500 px-5 py-4 text-center text-sm font-bold text-white shadow-sm hover:bg-amber-600"
+          >
+            Propose ticket or reservation swap
+          </Link>
+        ) : (
+          <div className="rounded-2xl bg-zinc-200 px-5 py-4 text-center text-sm font-bold text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">
+            {isOwner ? "This is your event listing" : "Transfer unavailable"}
+          </div>
+        )}
+        <Link
+          href="/exchange"
+          className="rounded-2xl border border-zinc-200 px-5 py-4 text-center text-sm font-semibold text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-800"
+        >
+          Continue in chat and Exchange after a match
+        </Link>
+      </section>
+
+      <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-100">
+        <div className="flex items-center gap-2 font-semibold">
+          <CheckCircle2 className="h-4 w-4" /> Verify issuer rules before exchange
+        </div>
+        <p className="mt-2 text-xs leading-5 text-amber-700 dark:text-amber-300">
+          Booking references, exact seats, access links and private transfer
+          instructions are not exposed publicly. Share them only after a match
+          and agreement.
+        </p>
+      </div>
+    </main>
+  );
+}
+
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <section className="rounded-2xl border border-zinc-200 bg-white p-5 text-sm text-zinc-600 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300">
+      <h2 className="mb-3 flex items-center gap-2 font-semibold text-zinc-900 dark:text-zinc-50">
+        <CalendarDays className="h-4 w-4 text-amber-600" />
+        {title}
+      </h2>
+      {children}
     </section>
-    <section className="grid gap-3 sm:grid-cols-2">
-      <Link href={user ? `/${locale}/matching?target=${event.id}` : `/${locale}/register?returnTo=/events/${event.id}`} className="rounded-2xl bg-amber-500 px-5 py-4 text-center text-sm font-bold text-white shadow-sm hover:bg-amber-600">
-        Propose ticket or reservation swap
-      </Link>
-      <Link href={user ? `/${locale}/exchange` : `/${locale}/register?returnTo=/events/${event.id}`} className="rounded-2xl border border-zinc-200 px-5 py-4 text-center text-sm font-semibold text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-800">
-        Continue in chat and exchange after match
-      </Link>
-    </section>
-  </main>;
+  );
+}
+
+function Info({
+  icon,
+  label,
+  value,
+}: {
+  icon: ReactNode;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="flex items-center gap-2 text-amber-600">
+        <span className="[&>svg]:h-4 [&>svg]:w-4">{icon}</span>
+        <span className="text-xs font-semibold uppercase tracking-wide">
+          {label}
+        </span>
+      </div>
+      <p className="mt-2 font-semibold text-zinc-900 dark:text-zinc-50">
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function InfoLine({
+  label,
+  value,
+  icon,
+}: {
+  label: string;
+  value: string;
+  icon?: ReactNode;
+}) {
+  return (
+    <div className="flex items-start justify-between gap-4 border-b border-zinc-100 pb-2 last:border-0 last:pb-0 dark:border-zinc-800">
+      <span className="flex items-center gap-1.5 text-zinc-500">
+        {icon}
+        {label}
+      </span>
+      <span className="text-right font-medium text-zinc-900 dark:text-zinc-100">
+        {value}
+      </span>
+    </div>
+  );
 }
