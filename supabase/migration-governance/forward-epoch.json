@@ -15,89 +15,20 @@
     "require_explicit_production_authorisation": true
   },
   "forward_migrations": [
-    {
-      "path": "supabase/migrations/20260730205500_v1_02_r7_stories_privacy_consent_foundation.sql",
-      "version": "20260730205500",
-      "name": "v1_02_r7_stories_privacy_consent_foundation",
-      "kind": "FORWARD_ONLY"
-    },
-    {
-      "path": "supabase/migrations/20260730211500_v1_02_r7_1_story_privacy_filter_and_republish_fix.sql",
-      "version": "20260730211500",
-      "name": "v1_02_r7_1_story_privacy_filter_and_republish_fix",
-      "kind": "FORWARD_ONLY"
-    },
-    {
-      "path": "supabase/migrations/20260730220000_v1_02_r8_canonical_swapleni_ledger.sql",
-      "version": "20260730220000",
-      "name": "v1_02_r8_canonical_swapleni_ledger",
-      "kind": "FORWARD_ONLY"
-    },
-    {
-      "path": "supabase/migrations/20260730223500_v1_02_r9_legacy_least_privilege_grant_hardening.sql",
-      "version": "20260730223500",
-      "name": "v1_02_r9_legacy_least_privilege_grant_hardening",
-      "kind": "FORWARD_ONLY"
-    },
-    {
-      "path": "supabase/migrations/20260730232000_v1_02_r10_completed_swap_dispute_story_closure.sql",
-      "version": "20260730232000",
-      "name": "v1_02_r10_completed_swap_dispute_story_closure",
-      "kind": "FORWARD_ONLY"
-    },
-    {
-      "path": "supabase/migrations/20260730234500_v1_02_r10_1_align_completed_dispute_transition_guard.sql",
-      "version": "20260730234500",
-      "name": "v1_02_r10_1_align_completed_dispute_transition_guard",
-      "kind": "FORWARD_ONLY"
-    },
-    {
-      "path": "supabase/migrations/20260730235700_v1_02_r10_2_allow_completed_dispute_effect_status.sql",
-      "version": "20260730235700",
-      "name": "v1_02_r10_2_allow_completed_dispute_effect_status",
-      "kind": "FORWARD_ONLY"
-    },
-    {
-      "path": "supabase/migrations/20260731013000_v1_04_2b1_canonical_interest_withdrawal.sql",
-      "version": "20260731013000",
-      "name": "v1_04_2b1_canonical_interest_withdrawal",
-      "kind": "FORWARD_ONLY"
-    },
-    {
-      "path": "supabase/migrations/20260731015500_v1_04_2b2_1_conversation_activity_authority.sql",
-      "version": "20260731015500",
-      "name": "v1_04_2b2_1_conversation_activity_authority",
-      "kind": "FORWARD_ONLY"
-    },
-    {
-      "path": "supabase/migrations/20260731022000_v1_04_2b2_3_conversation_status_authority.sql",
-      "version": "20260731022000",
-      "name": "v1_04_2b2_3_conversation_status_authority",
-      "kind": "FORWARD_ONLY"
-    },
-    {
-      "path": "supabase/migrations/20260731030000_v1_04_2b3_exchange_logistics_authority.sql",
-      "version": "20260731030000",
-      "name": "v1_04_2b3_exchange_logistics_authority",
-      "kind": "FORWARD_ONLY"
-    },
-    {
-      "path": "supabase/migrations/20260731033000_v1_04_2b4_message_immutability.sql",
-      "version": "20260731033000",
-      "name": "v1_04_2b4_message_immutability",
-      "kind": "FORWARD_ONLY"
-    },
-    {
-      "path": "supabase/migrations/20260731040000_v1_04_2b5_final_grants_rls_hardening.sql",
-      "version": "20260731040000",
-      "name": "v1_04_2b5_final_grants_rls_hardening",
-      "kind": "FORWARD_ONLY"
-    },
-    {
-      "path": "supabase/migrations/20260731094000_v1_04_2b5_1_trigger_execute_hardening.sql",
-      "version": "20260731094000",
-      "name": "v1_04_2b5_1_trigger_execute_hardening",
-      "kind": "FORWARD_ONLY"
-    }
+    {"path":"supabase/migrations/20260730205500_v1_02_r7_stories_privacy_consent_foundation.sql","version":"20260730205500","name":"v1_02_r7_stories_privacy_consent_foundation","kind":"FORWARD_ONLY"},
+    {"path":"supabase/migrations/20260730211500_v1_02_r7_1_story_privacy_filter_and_republish_fix.sql","version":"20260730211500","name":"v1_02_r7_1_story_privacy_filter_and_republish_fix","kind":"FORWARD_ONLY"},
+    {"path":"supabase/migrations/20260730220000_v1_02_r8_canonical_swapleni_ledger.sql","version":"20260730220000","name":"v1_02_r8_canonical_swapleni_ledger","kind":"FORWARD_ONLY"},
+    {"path":"supabase/migrations/20260730223500_v1_02_r9_legacy_least_privilege_grant_hardening.sql","version":"20260730223500","name":"v1_02_r9_legacy_least_privilege_grant_hardening","kind":"FORWARD_ONLY"},
+    {"path":"supabase/migrations/20260730232000_v1_02_r10_completed_swap_dispute_story_closure.sql","version":"20260730232000","name":"v1_02_r10_completed_swap_dispute_story_closure","kind":"FORWARD_ONLY"},
+    {"path":"supabase/migrations/20260730234500_v1_02_r10_1_align_completed_dispute_transition_guard.sql","version":"20260730234500","name":"v1_02_r10_1_align_completed_dispute_transition_guard","kind":"FORWARD_ONLY"},
+    {"path":"supabase/migrations/20260730235700_v1_02_r10_2_allow_completed_dispute_effect_status.sql","version":"20260730235700","name":"v1_02_r10_2_allow_completed_dispute_effect_status","kind":"FORWARD_ONLY"},
+    {"path":"supabase/migrations/20260731013000_v1_04_2b1_canonical_interest_withdrawal.sql","version":"20260731013000","name":"v1_04_2b1_canonical_interest_withdrawal","kind":"FORWARD_ONLY"},
+    {"path":"supabase/migrations/20260731015500_v1_04_2b2_1_conversation_activity_authority.sql","version":"20260731015500","name":"v1_04_2b2_1_conversation_activity_authority","kind":"FORWARD_ONLY"},
+    {"path":"supabase/migrations/20260731022000_v1_04_2b2_3_conversation_status_authority.sql","version":"20260731022000","name":"v1_04_2b2_3_conversation_status_authority","kind":"FORWARD_ONLY"},
+    {"path":"supabase/migrations/20260731030000_v1_04_2b3_exchange_logistics_authority.sql","version":"20260731030000","name":"v1_04_2b3_exchange_logistics_authority","kind":"FORWARD_ONLY"},
+    {"path":"supabase/migrations/20260731033000_v1_04_2b4_message_immutability.sql","version":"20260731033000","name":"v1_04_2b4_message_immutability","kind":"FORWARD_ONLY"},
+    {"path":"supabase/migrations/20260731040000_v1_04_2b5_final_grants_rls_hardening.sql","version":"20260731040000","name":"v1_04_2b5_final_grants_rls_hardening","kind":"FORWARD_ONLY"},
+    {"path":"supabase/migrations/20260731094000_v1_04_2b5_1_trigger_execute_hardening.sql","version":"20260731094000","name":"v1_04_2b5_1_trigger_execute_hardening","kind":"FORWARD_ONLY"},
+    {"path":"supabase/migrations/20260731130000_v1_04_3_fix_message_activity_trigger.sql","version":"20260731130000","name":"v1_04_3_fix_message_activity_trigger","kind":"FORWARD_ONLY"}
   ]
 }
