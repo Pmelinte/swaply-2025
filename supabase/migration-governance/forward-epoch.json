@@ -80,6 +80,12 @@
       "version": "20260731030000",
       "name": "v1_04_2b3_exchange_logistics_authority",
       "kind": "FORWARD_ONLY"
+    },
+    {
+      "path": "supabase/migrations/20260731033000_v1_04_2b4_message_immutability.sql",
+      "version": "20260731033000",
+      "name": "v1_04_2b4_message_immutability",
+      "kind": "FORWARD_ONLY"
     }
   ]
 }
