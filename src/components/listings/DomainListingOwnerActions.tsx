@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Archive, Loader2, Pause, Pencil, Play } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 
 import type { DomainListingType } from "@/lib/listings/domainListingPayload";
@@ -9,8 +10,17 @@ import { setDomainListingStatus } from "@/lib/listings/domainListingMutationSubm
 
 type LifecycleStatus = "active" | "paused" | "archived";
 
+type StatusTranslationKey =
+  | "status_active"
+  | "status_paused"
+  | "status_archived";
+
 function detailSegment(domain: DomainListingType): string {
   return domain === "property" ? "properties" : `${domain}s`;
+}
+
+function statusTranslationKey(status: LifecycleStatus): StatusTranslationKey {
+  return `status_${status}` as StatusTranslationKey;
 }
 
 export function DomainListingOwnerActions({
@@ -24,6 +34,10 @@ export function DomainListingOwnerActions({
   initialStatus: LifecycleStatus;
   initialRevision: number;
 }) {
+  const tc = useTranslations("common");
+  const tm = useTranslations("myObjects");
+  const to = useTranslations("objects");
+  const ta = useTranslations("admin");
   const [status, setStatus] = useState<LifecycleStatus>(initialStatus);
   const [revision, setRevision] = useState(initialRevision);
   const [pending, setPending] = useState<LifecycleStatus | null>(null);
@@ -31,9 +45,7 @@ export function DomainListingOwnerActions({
 
   async function changeStatus(nextStatus: LifecycleStatus) {
     if (nextStatus === "archived") {
-      const confirmed = window.confirm(
-        "Archive this listing? It will be hidden from public discovery but kept in your account.",
-      );
+      const confirmed = window.confirm(ta("archiveConfirm"));
       if (!confirmed) return;
     }
 
@@ -48,12 +60,8 @@ export function DomainListingOwnerActions({
       });
       setStatus(result.status);
       setRevision(result.revision);
-    } catch (mutationError) {
-      setError(
-        mutationError instanceof Error
-          ? mutationError.message
-          : "The listing status could not be changed.",
-      );
+    } catch {
+      setError(tc("errorOccurred"));
     } finally {
       setPending(null);
     }
@@ -64,20 +72,15 @@ export function DomainListingOwnerActions({
   return (
     <section className="rounded-2xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-900 dark:bg-blue-950/30">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">
-            Owner controls
-          </p>
-          <p className="mt-1 text-sm text-blue-900 dark:text-blue-100">
-            Status: <strong>{status}</strong> · revision {revision}
-          </p>
-        </div>
+        <p className="rounded-full bg-white px-3 py-1 text-sm font-semibold text-blue-900 dark:bg-zinc-900 dark:text-blue-100">
+          {to(statusTranslationKey(status))} · #{revision}
+        </p>
         <div className="flex flex-wrap gap-2">
           <Link
             href={`/${segment}/${itemId}/edit`}
             className="inline-flex items-center gap-2 rounded-full bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800"
           >
-            <Pencil className="h-4 w-4" /> Edit
+            <Pencil className="h-4 w-4" /> {tc("edit")}
           </Link>
 
           {status === "active" ? (
@@ -92,7 +95,7 @@ export function DomainListingOwnerActions({
               ) : (
                 <Pause className="h-4 w-4" />
               )}
-              Pause
+              {tm("pause")}
             </button>
           ) : status === "paused" ? (
             <button
@@ -106,7 +109,7 @@ export function DomainListingOwnerActions({
               ) : (
                 <Play className="h-4 w-4" />
               )}
-              Resume
+              {tm("resume")}
             </button>
           ) : null}
 
@@ -122,7 +125,7 @@ export function DomainListingOwnerActions({
               ) : (
                 <Archive className="h-4 w-4" />
               )}
-              Archive
+              {tm("archive")}
             </button>
           )}
         </div>
