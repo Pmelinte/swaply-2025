@@ -14,34 +14,34 @@ export type MatchingItemRow = Record<string, unknown> & {
   id: string;
   owner_id: string;
   title: string;
-  description: string | null;
-  category: string | null;
-  category_l1: string | null;
-  category_l2: string | null;
-  category_l3: string | null;
-  subcategory: string | null;
-  subcategory_slug: string | null;
-  condition: string | null;
-  item_type: MatchingDomain;
-  perceived_value_tier: string | null;
-  swap_open_to: MatchingDomain[];
-  swap_wants_type: MatchingDomain[];
-  swap_wants_category_l1: string | null;
-  swap_wants_description: string | null;
-  swap_wants_value_tier: string | null;
-  cross_category_swap: boolean;
-  images: string[];
-  image_url: string | null;
-  photos: string[];
-  estimated_value: number | null;
-  approximate_value: number | null;
-  location: string | null;
-  location_city: string | null;
-  location_country: string | null;
-  created_at: string | null;
-  is_active: boolean;
-  status: string | null;
-  domain_profile: MatchingDomainProfile;
+  description?: string | null;
+  category?: string | null;
+  category_l1?: string | null;
+  category_l2?: string | null;
+  category_l3?: string | null;
+  subcategory?: string | null;
+  subcategory_slug?: string | null;
+  condition?: string | null;
+  item_type?: string | null;
+  perceived_value_tier?: string | null;
+  swap_open_to?: MatchingDomain[] | null;
+  swap_wants_type?: MatchingDomain[] | null;
+  swap_wants_category_l1?: string | null;
+  swap_wants_description?: string | null;
+  swap_wants_value_tier?: string | null;
+  cross_category_swap?: boolean;
+  images?: string[];
+  image_url?: string | null;
+  photos?: string[];
+  estimated_value?: number | null;
+  approximate_value?: number | null;
+  location?: string | null;
+  location_city?: string | null;
+  location_country?: string | null;
+  created_at?: string | null;
+  is_active?: boolean;
+  status?: string | null;
+  domain_profile?: MatchingDomainProfile | null;
 };
 
 export type MatchingProfileRow = Record<string, unknown> & {
@@ -199,7 +199,9 @@ export async function fetchItemById(
     return null;
   }
 
-  return normalizeMatchingItem(data as Record<string, unknown>);
+  return normalizeMatchingItem(
+    data as unknown as Record<string, unknown>,
+  );
 }
 
 export async function fetchCandidateItems(
@@ -221,7 +223,9 @@ export async function fetchCandidateItems(
     return [];
   }
 
-  return normalizeRows(data as Record<string, unknown>[]);
+  return normalizeRows(
+    data as unknown as Record<string, unknown>[],
+  );
 }
 
 export async function fetchOwnActiveItems(
@@ -243,7 +247,9 @@ export async function fetchOwnActiveItems(
     return [];
   }
 
-  return normalizeRows(data as Record<string, unknown>[]);
+  return normalizeRows(
+    data as unknown as Record<string, unknown>[],
+  );
 }
 
 export async function fetchProfilesByIds(
