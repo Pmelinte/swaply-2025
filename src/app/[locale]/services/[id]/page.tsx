@@ -4,13 +4,13 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useParams } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import { SafeImage } from "@/components/SafeImage";
+import { DomainListingOwnerActions } from "@/components/listings/DomainListingOwnerActions";
 import { NO_IMAGE_URL } from "@/lib/storage";
 import type { PublicServiceDetail } from "@/lib/listings/publicListingDetails";
 import {
   Award,
   CalendarDays,
   CheckCircle2,
-  Clock,
   Globe2,
   Languages,
   MapPin,
@@ -19,9 +19,13 @@ import {
   Wrench,
 } from "lucide-react";
 
+type LifecycleStatus = "active" | "paused" | "archived";
+
 type ServiceResponse = {
   service?: PublicServiceDetail;
   isOwner?: boolean;
+  status?: LifecycleStatus;
+  revision?: number;
   error?: string;
 };
 
@@ -48,10 +52,11 @@ export default function ServiceDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [service, setService] = useState<PublicServiceDetail | null>(null);
   const [isOwner, setIsOwner] = useState(false);
+  const [status, setStatus] = useState<LifecycleStatus>("active");
+  const [revision, setRevision] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [interestStatus, setInterestStatus] =
-    useState<InterestStatus>("idle");
+  const [interestStatus, setInterestStatus] = useState<InterestStatus>("idle");
   const [interestMessage, setInterestMessage] = useState("");
 
   useEffect(() => {
@@ -78,6 +83,14 @@ export default function ServiceDetailPage() {
         if (!cancelled) {
           setService(body.service);
           setIsOwner(Boolean(body.isOwner));
+          if (body.status) setStatus(body.status);
+          if (
+            typeof body.revision === "number" &&
+            Number.isInteger(body.revision) &&
+            body.revision >= 1
+          ) {
+            setRevision(body.revision);
+          }
         }
       } catch (loadError) {
         if (!cancelled) {
@@ -172,6 +185,15 @@ export default function ServiceDetailPage() {
         ← Back to services
       </Link>
 
+      {isOwner && (
+        <DomainListingOwnerActions
+          domain="service"
+          itemId={service.itemId}
+          initialStatus={status}
+          initialRevision={revision}
+        />
+      )}
+
       <div className="relative aspect-[16/9] overflow-hidden rounded-2xl bg-zinc-100 dark:bg-zinc-800">
         <SafeImage
           src={service.images[0] || NO_IMAGE_URL}
@@ -201,13 +223,16 @@ export default function ServiceDetailPage() {
               )}
           </div>
 
-          {(service.isLicensed || service.isInsured || service.isCertified) && (
-            <div className="flex flex-wrap gap-2">
-              {service.isLicensed && <TrustBadge label="Licensed" />}
-              {service.isInsured && <TrustBadge label="Insured" />}
-              {service.isCertified && <TrustBadge label="Certified" />}
-            </div>
-          )}
+          <div className="flex flex-wrap gap-2">
+            {isOwner && (
+              <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">
+                Your listing
+              </span>
+            )}
+            {service.isLicensed && <TrustBadge label="Licensed" />}
+            {service.isInsured && <TrustBadge label="Insured" />}
+            {service.isCertified && <TrustBadge label="Certified" />}
+          </div>
         </div>
 
         {service.description && (
