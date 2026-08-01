@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 
 import { EventWizard } from "@/components/wizard/event/EventWizard";
@@ -15,7 +16,6 @@ type OwnerResponse = {
   isOwner?: boolean;
   revision?: unknown;
   editorForm?: unknown;
-  error?: string;
 };
 
 function endpoint(domain: DomainListingType, itemId: string): string {
@@ -39,40 +39,37 @@ export function DomainListingEditPage({
   domain: DomainListingType;
   itemId: string;
 }) {
+  const tc = useTranslations("common");
   const [form, setForm] = useState<unknown>(null);
   const [revision, setRevision] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
 
     async function loadOwnerEditor() {
       setLoading(true);
-      setError(null);
+      setFailed(false);
       try {
         const response = await fetch(endpoint(domain, itemId), {
           cache: "no-store",
         });
         const body = (await response.json().catch(() => null)) as OwnerResponse | null;
-        if (!response.ok) {
-          throw new Error(body?.error ?? "The listing could not be loaded.");
-        }
-        if (!body?.isOwner || !validRevision(body.revision) || !body.editorForm) {
-          throw new Error("Owner access is required to edit this listing.");
+        if (
+          !response.ok ||
+          !body?.isOwner ||
+          !validRevision(body.revision) ||
+          !body.editorForm
+        ) {
+          throw new Error("OWNER_EDITOR_UNAVAILABLE");
         }
         if (!cancelled) {
           setForm(body.editorForm);
           setRevision(body.revision);
         }
-      } catch (loadError) {
-        if (!cancelled) {
-          setError(
-            loadError instanceof Error
-              ? loadError.message
-              : "The listing could not be loaded.",
-          );
-        }
+      } catch {
+        if (!cancelled) setFailed(true);
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -87,26 +84,26 @@ export function DomainListingEditPage({
   if (loading) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-10 text-center text-sm text-zinc-500">
-        Loading owner editor…
+        {tc("loading")}
       </div>
     );
   }
 
-  if (error || !form || revision === null) {
+  if (failed || !form || revision === null) {
     return (
       <main className="mx-auto max-w-2xl px-4 py-10">
         <div className="rounded-2xl border border-red-200 bg-red-50 p-6 dark:border-red-900 dark:bg-red-950/30">
           <h1 className="text-lg font-semibold text-red-900 dark:text-red-100">
-            Listing editor unavailable
+            {tc("error")}
           </h1>
           <p className="mt-2 text-sm text-red-700 dark:text-red-300">
-            {error ?? "The listing could not be loaded."}
+            {tc("errorOccurred")}
           </p>
           <Link
             href={domainPath(domain, itemId)}
             className="mt-4 inline-flex rounded-full bg-zinc-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-zinc-900"
           >
-            Back to listing
+            {tc("back")}
           </Link>
         </div>
       </main>
