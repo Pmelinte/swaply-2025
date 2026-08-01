@@ -65,6 +65,7 @@ export function ServiceWizard({
   mode = "create",
 }: ServiceWizardProps = {}) {
   const t = useTranslations("serviceWizard");
+  const tc = useTranslations("common");
   const { user } = useAppState();
   const router = useRouter();
   const locale = useLocale();
@@ -142,7 +143,7 @@ export function ServiceWizard({
     }
     if (!user) return;
     if (isEdit && (!itemId || !initialRevision)) {
-      setError("The owner edit context is incomplete. Reload the page.");
+      setError(tc("errorOccurred"));
       return;
     }
 
@@ -171,12 +172,13 @@ export function ServiceWizard({
         else router.push(`/${locale}/services`);
       }, 900);
     } catch (publishError: unknown) {
-      const message = publishError instanceof Error
-        ? publishError.message
-        : isEdit
-          ? "Failed to update service. Please try again."
-          : "Failed to save service. Please try again.";
-      setError(message);
+      setError(
+        isEdit
+          ? tc("errorOccurred")
+          : publishError instanceof Error
+            ? publishError.message
+            : tc("errorOccurred"),
+      );
     } finally {
       setLoading(false);
     }
@@ -188,10 +190,10 @@ export function ServiceWizard({
         <div className="w-full max-w-md rounded-2xl bg-white border border-zinc-200 shadow-sm p-6 dark:bg-zinc-900 dark:border-zinc-700 text-center space-y-4">
           <CheckCircle2 className="h-12 w-12 text-green-600 mx-auto" />
           <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
-            {isEdit ? "Service updated successfully" : t("successTitle")}
+            {isEdit ? tc("success") : t("successTitle")}
           </h2>
           <p className="text-sm text-zinc-600 dark:text-zinc-400">
-            {isEdit ? "Returning to the service page…" : t("successMessage")}
+            {isEdit ? tc("loading") : t("successMessage")}
           </p>
         </div>
       </div>
@@ -203,7 +205,7 @@ export function ServiceWizard({
       <div className="mx-auto w-full max-w-2xl">
         {isEdit && (
           <div className="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-900 dark:border-rose-900 dark:bg-rose-950/30 dark:text-rose-100">
-            Editing your service · revision {revision}
+            {tc("edit")} · #{revision}
           </div>
         )}
         <WizardProgress
@@ -233,7 +235,7 @@ export function ServiceWizard({
           onBack={handleBack}
           onNext={handleNext}
           onPublish={handlePublish}
-          publishLabel={isEdit ? "Save changes" : t("publishLabel")}
+          publishLabel={isEdit ? tc("save") : t("publishLabel")}
         />
       </div>
     </div>
