@@ -134,6 +134,12 @@
       "version": "20260801133000",
       "name": "v1_05_3_domain_owner_lifecycle_authority",
       "kind": "FORWARD_ONLY"
+    },
+    {
+      "path": "supabase/migrations/20260801142000_v1_05_3_editor_payload_hardening.sql",
+      "version": "20260801142000",
+      "name": "v1_05_3_editor_payload_hardening",
+      "kind": "FORWARD_ONLY"
     }
   ]
 }
