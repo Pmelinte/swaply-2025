@@ -62,6 +62,7 @@ export function EventWizard({
   mode = "create",
 }: EventWizardProps = {}) {
   const t = useTranslations("eventWizard");
+  const tc = useTranslations("common");
   const { user } = useAppState();
   const router = useRouter();
   const locale = useLocale();
@@ -139,7 +140,7 @@ export function EventWizard({
     }
     if (!user) return;
     if (isEdit && (!itemId || !initialRevision)) {
-      setError("The owner edit context is incomplete. Reload the page.");
+      setError(tc("errorOccurred"));
       return;
     }
 
@@ -168,12 +169,13 @@ export function EventWizard({
         else router.push(`/${locale}/events`);
       }, 900);
     } catch (publishError: unknown) {
-      const message = publishError instanceof Error
-        ? publishError.message
-        : isEdit
-          ? "Failed to update event. Please try again."
-          : "Failed to save event. Please try again.";
-      setError(message);
+      setError(
+        isEdit
+          ? tc("errorOccurred")
+          : publishError instanceof Error
+            ? publishError.message
+            : tc("errorOccurred"),
+      );
     } finally {
       setLoading(false);
     }
@@ -185,10 +187,10 @@ export function EventWizard({
         <div className="w-full max-w-md rounded-2xl bg-white border border-zinc-200 shadow-sm p-6 dark:bg-zinc-900 dark:border-zinc-700 text-center space-y-4">
           <CheckCircle2 className="h-12 w-12 text-green-600 mx-auto" />
           <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
-            {isEdit ? "Event updated successfully" : t("successTitle")}
+            {isEdit ? tc("success") : t("successTitle")}
           </h2>
           <p className="text-sm text-zinc-600 dark:text-zinc-400">
-            {isEdit ? "Returning to the event page…" : t("successMessage")}
+            {isEdit ? tc("loading") : t("successMessage")}
           </p>
         </div>
       </div>
@@ -200,7 +202,7 @@ export function EventWizard({
       <div className="mx-auto w-full max-w-2xl">
         {isEdit && (
           <div className="mb-4 rounded-xl border border-purple-200 bg-purple-50 px-4 py-3 text-sm text-purple-900 dark:border-purple-900 dark:bg-purple-950/30 dark:text-purple-100">
-            Editing your event · revision {revision}
+            {tc("edit")} · #{revision}
           </div>
         )}
         <WizardProgress
@@ -230,7 +232,7 @@ export function EventWizard({
           onBack={handleBack}
           onNext={handleNext}
           onPublish={handlePublish}
-          publishLabel={isEdit ? "Save changes" : t("publishLabel")}
+          publishLabel={isEdit ? tc("save") : t("publishLabel")}
         />
       </div>
     </div>
