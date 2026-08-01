@@ -6,10 +6,10 @@ alter table public.domain_listing_private_data
 alter table public.domain_listing_private_data
   add constraint domain_listing_private_editor_payload_bounded
   check (
-    jsonb_typeof(editor_payload) = 'object'
-    and jsonb_object_length(editor_payload) = 2
-    and editor_payload ->> 'schema_version' = '1.0'
-    and editor_payload ->> 'source' = domain || '_wizard'
+    editor_payload = jsonb_build_object(
+      'schema_version', '1.0',
+      'source', domain || '_wizard'
+    )
   );
 
 comment on constraint domain_listing_private_editor_payload_bounded
