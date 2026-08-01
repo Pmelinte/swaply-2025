@@ -10,6 +10,17 @@ const migration = readFileSync(
   ),
   "utf8",
 );
+const editorHardeningMigration = readFileSync(
+  resolve(
+    process.cwd(),
+    "supabase/migrations/20260801142000_v1_05_3_editor_payload_hardening.sql",
+  ),
+  "utf8",
+);
+const createRoute = readFileSync(
+  resolve(process.cwd(), "src/lib/listings/domainListingCreateRoute.ts"),
+  "utf8",
+);
 const mutationRoute = readFileSync(
   resolve(process.cwd(), "src/lib/listings/domainListingMutationRoute.ts"),
   "utf8",
@@ -124,6 +135,23 @@ describe("V1-05.3 canonical owner lifecycle authority", () => {
     expect(migration).toContain("and item_type = 'object'");
     expect(migration).toContain(
       "revoke all on table public.domain_listing_mutation_receipts",
+    );
+  });
+
+  it("bounds editor metadata at both route and database layers", () => {
+    for (const route of [createRoute, mutationRoute]) {
+      expect(route).toContain('schema_version: "1.0"');
+      expect(route).toContain('source: `${domain}_wizard`');
+      expect(route).not.toContain("...payload.private.editor_payload");
+    }
+    expect(editorHardeningMigration).toContain(
+      "domain_listing_private_editor_payload_bounded",
+    );
+    expect(editorHardeningMigration).toContain(
+      "editor_payload = jsonb_build_object(",
+    );
+    expect(editorHardeningMigration).toContain(
+      "'source', domain || '_wizard'",
     );
   });
 
