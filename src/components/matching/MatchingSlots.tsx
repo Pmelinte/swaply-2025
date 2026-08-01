@@ -8,22 +8,28 @@ import { NO_IMAGE_URL } from "@/lib/storage";
 import type { MatchingItemRow } from "@/lib/matching/matchQueries";
 
 interface Props {
+  ownItems: MatchingItemRow[];
   slot1Item: MatchingItemRow | null;
   slot2Item: MatchingItemRow | null;
   slot1Id: string | null;
   slot2Id: string | null;
   averageScore: number | null;
+  onSelectSlot1: (id: string | null) => void;
+  onSelectSlot2: (id: string | null) => void;
   onRemoveSlot1: () => void;
   onRemoveSlot2: () => void;
   onOpenFilters: () => void;
 }
 
 export default function MatchingSlots({
+  ownItems,
   slot1Item,
   slot2Item,
   slot1Id,
   slot2Id,
   averageScore,
+  onSelectSlot1,
+  onSelectSlot2,
   onRemoveSlot1,
   onRemoveSlot2,
   onOpenFilters,
@@ -33,7 +39,9 @@ export default function MatchingSlots({
   return (
     <div>
       <div className="mb-3 flex items-center justify-between">
-        <h1 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">{t("title")}</h1>
+        <h1 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
+          {t("title")}
+        </h1>
         <button
           type="button"
           onClick={onOpenFilters}
@@ -43,17 +51,23 @@ export default function MatchingSlots({
           {t("filters")}
         </button>
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <SlotCard
           item={slot1Item}
           hasId={Boolean(slot1Id)}
+          ownItems={ownItems}
+          excludedId={slot2Id}
           averageScore={averageScore}
+          onSelect={onSelectSlot1}
           onRemove={onRemoveSlot1}
         />
         <SlotCard
           item={slot2Item}
           hasId={Boolean(slot2Id)}
+          ownItems={ownItems}
+          excludedId={slot1Id}
           averageScore={averageScore}
+          onSelect={onSelectSlot2}
           onRemove={onRemoveSlot2}
         />
       </div>
@@ -64,12 +78,18 @@ export default function MatchingSlots({
 function SlotCard({
   item,
   hasId,
+  ownItems,
+  excludedId,
   averageScore,
+  onSelect,
   onRemove,
 }: {
   item: MatchingItemRow | null;
   hasId: boolean;
+  ownItems: MatchingItemRow[];
+  excludedId: string | null;
   averageScore: number | null;
+  onSelect: (id: string | null) => void;
   onRemove: () => void;
 }) {
   const t = useTranslations("matching");
@@ -82,14 +102,39 @@ function SlotCard({
         </div>
       );
     }
+
+    const selectable = ownItems.filter((entry) => entry.id !== excludedId);
+    if (selectable.length === 0) {
+      return (
+        <Link
+          href="/explore"
+          className="flex h-36 flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-zinc-300 bg-white text-sm font-semibold text-zinc-500 transition hover:border-blue-400 hover:bg-blue-50/40 hover:text-blue-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-400 dark:hover:border-blue-500 dark:hover:bg-blue-950/30"
+        >
+          <span className="text-2xl leading-none">+</span>
+          <span>{t("slot_add")}</span>
+        </Link>
+      );
+    }
+
     return (
-      <Link
-        href="/objects"
-        className="flex h-36 flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-zinc-300 bg-white text-sm font-semibold text-zinc-500 transition hover:border-blue-400 hover:bg-blue-50/40 hover:text-blue-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-400 dark:hover:border-blue-500 dark:hover:bg-blue-950/30"
-      >
-        <span className="text-2xl leading-none">+</span>
-        <span>{t("slot_add")}</span>
-      </Link>
+      <label className="flex h-36 flex-col justify-center rounded-xl border-2 border-dashed border-zinc-300 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-900">
+        <span className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+          {t("slot_add")}
+        </span>
+        <select
+          aria-label={t("slot_add")}
+          value=""
+          onChange={(event) => onSelect(event.target.value || null)}
+          className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-800 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
+        >
+          <option value="">{t("slot_add")}</option>
+          {selectable.map((entry) => (
+            <option key={entry.id} value={entry.id}>
+              {entry.title} · {entry.item_type}
+            </option>
+          ))}
+        </select>
+      </label>
     );
   }
 
@@ -110,9 +155,10 @@ function SlotCard({
           <p className="truncate text-sm font-semibold text-zinc-900 dark:text-zinc-50">
             {item.title}
           </p>
-          {item.category && (
-            <p className="truncate text-xs text-zinc-500 dark:text-zinc-400">{item.category}</p>
-          )}
+          <p className="truncate text-xs text-zinc-500 dark:text-zinc-400">
+            {item.item_type}
+            {item.category ? ` · ${item.category}` : ""}
+          </p>
         </div>
         {averageScore !== null && (
           <span className="inline-flex w-fit items-center rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-800 dark:bg-blue-900/40 dark:text-blue-200">
@@ -123,7 +169,12 @@ function SlotCard({
       <button
         type="button"
         onClick={() => {
-          if (typeof window !== "undefined" && !window.confirm(t("slot_remove_confirm"))) return;
+          if (
+            typeof window !== "undefined" &&
+            !window.confirm(t("slot_remove_confirm"))
+          ) {
+            return;
+          }
           onRemove();
         }}
         aria-label={t("slot_remove_confirm")}
