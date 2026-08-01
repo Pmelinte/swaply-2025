@@ -138,7 +138,7 @@ describe("V1-05.3 owner editor hydration", () => {
       service_title: "Next.js mentoring",
       service_modality: "Remote",
       availability_days: ["Mon", "Wed"],
-      availability_time_of_day: ["Evening"],
+      availability_time_of_day: ["Afternoon"],
       service_duration: ["1h"],
       swap_for_type: ["service", "object"],
       perceived_value_tier: "medium",
