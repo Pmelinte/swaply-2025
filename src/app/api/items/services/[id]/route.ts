@@ -1,12 +1,29 @@
 import { NextResponse } from "next/server";
-import { serviceOwnerEditPatch } from "@/lib/items/item-lifecycle";
+
+import { hydrateDomainOwnerEditorForm } from "@/lib/listings/domainListingOwner";
+import { updateDomainListingResponse } from "@/lib/listings/domainListingMutationRoute";
 import {
   PUBLIC_SERVICE_DETAIL_SELECT,
   isUuid,
   mapPublicServiceDetail,
   type JsonRecord,
 } from "@/lib/listings/publicListingDetails";
+import { normalizeServiceWizardCreatePayload } from "@/lib/wizard/serviceWizardNormalize";
 import { getServerSupabase } from "@/lib/supabase/server";
+
+function relationOne(value: unknown): JsonRecord {
+  if (Array.isArray(value)) {
+    const first = value[0];
+    return first && typeof first === "object" ? (first as JsonRecord) : {};
+  }
+  return value && typeof value === "object" ? (value as JsonRecord) : {};
+}
+
+function ownerRevision(row: JsonRecord): number {
+  const value = relationOne(row.items).owner_revision;
+  const parsed = typeof value === "number" ? value : Number(value);
+  return Number.isInteger(parsed) && parsed >= 1 ? parsed : 1;
+}
 
 export async function GET(
   _request: Request,
@@ -25,98 +42,55 @@ export async function GET(
     );
   }
 
-  const [{ data: auth }, { data, error }] = await Promise.all([
-    supabase.auth.getUser(),
-    supabase
+  const { data: auth } = await supabase.auth.getUser();
+  if (auth.user) {
+    const { data: ownerData, error: ownerError } = await supabase
       .from("services_listings")
-      .select(PUBLIC_SERVICE_DETAIL_SELECT)
+      .select("*,items!inner(*)")
       .or(`id.eq.${id},item_id.eq.${id}`)
-      .eq("status", "active")
-      .eq("items.status", "active")
-      .eq("items.is_active", true)
+      .eq("owner_id", auth.user.id)
       .limit(1)
-      .maybeSingle(),
-  ]);
+      .maybeSingle();
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-  if (!data) {
-    return NextResponse.json({ error: "Service not found" }, { status: 404 });
-  }
+    if (ownerError) {
+      return NextResponse.json({ error: ownerError.message }, { status: 500 });
+    }
 
-  const row = data as unknown as JsonRecord;
-  return NextResponse.json({
-    service: mapPublicServiceDetail(row),
-    isOwner: auth.user?.id === row.owner_id,
-  });
-}
+    if (ownerData) {
+      const row = ownerData as unknown as JsonRecord;
+      const itemId = String(row.item_id);
+      const { data: privateData, error: privateError } = await supabase
+        .from("domain_listing_private_data")
+        .select("editor_payload,exact_location,transfer_data")
+        .eq("item_id", itemId)
+        .maybeSingle();
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
-  const supabase = await getServerSupabase();
-  if (!supabase) {
-    return NextResponse.json(
-      { error: "Supabase not configured" },
-      { status: 503 },
-    );
-  }
+      if (privateError) {
+        return NextResponse.json({ error: privateError.message }, { status: 500 });
+      }
 
-  const { data: auth, error: authError } = await supabase.auth.getUser();
-  if (authError || !auth.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const body = (await request.json().catch(() => null)) as {
-    title?: unknown;
-    description?: unknown;
-    serviceData?: Record<string, unknown> | null;
-    swapWantsDescription?: unknown;
-    perceivedValueTier?: unknown;
-  } | null;
-
-  if (typeof body?.title !== "string" || body.title.trim().length < 3) {
-    return NextResponse.json(
-      { error: "Service title is required" },
-      { status: 400 },
-    );
-  }
-  if (
-    typeof body.description !== "string" ||
-    body.description.trim().length < 50
-  ) {
-    return NextResponse.json(
-      { error: "Service description must be at least 50 characters" },
-      { status: 400 },
-    );
+      return NextResponse.json({
+        service: mapPublicServiceDetail(row),
+        isOwner: true,
+        status: typeof row.status === "string" ? row.status : "active",
+        revision: ownerRevision(row),
+        editorForm: hydrateDomainOwnerEditorForm({
+          domain: "service",
+          listingRow: row,
+          privateRow: privateData,
+        }),
+      });
+    }
   }
 
-  const { id } = await params;
   const { data, error } = await supabase
-    .from("items")
-    .update(
-      serviceOwnerEditPatch({
-        title: body.title,
-        description: body.description,
-        serviceData: body.serviceData,
-        swapWantsDescription:
-          typeof body.swapWantsDescription === "string"
-            ? body.swapWantsDescription
-            : null,
-        perceivedValueTier:
-          typeof body.perceivedValueTier === "string"
-            ? body.perceivedValueTier
-            : null,
-      }),
-    )
-    .eq("id", id)
-    .eq("owner_id", auth.user.id)
-    .or("category.eq.service,item_type.eq.service")
-    .select(
-      "id,title,description,status,is_active,service_data,swap_wants_description,perceived_value_tier,updated_at",
-    )
+    .from("services_listings")
+    .select(PUBLIC_SERVICE_DETAIL_SELECT)
+    .or(`id.eq.${id},item_id.eq.${id}`)
+    .eq("status", "active")
+    .eq("items.status", "active")
+    .eq("items.is_active", true)
+    .limit(1)
     .maybeSingle();
 
   if (error) {
@@ -125,5 +99,26 @@ export async function PATCH(
   if (!data) {
     return NextResponse.json({ error: "Service not found" }, { status: 404 });
   }
-  return NextResponse.json({ service: data });
+
+  return NextResponse.json({
+    service: mapPublicServiceDetail(data as unknown as JsonRecord),
+    isOwner: false,
+  });
+}
+
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params;
+  if (!isUuid(id)) {
+    return NextResponse.json({ error: "Invalid service id" }, { status: 400 });
+  }
+
+  return updateDomainListingResponse({
+    request,
+    domain: "service",
+    itemId: id,
+    normalize: normalizeServiceWizardCreatePayload,
+  });
 }
