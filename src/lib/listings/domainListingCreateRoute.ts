@@ -67,7 +67,6 @@ function boundEditorPayload(
     private: {
       ...payload.private,
       editor_payload: {
-        ...payload.private.editor_payload,
         schema_version: "1.0",
         source: `${domain}_wizard`,
       },
