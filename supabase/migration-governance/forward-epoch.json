@@ -122,6 +122,12 @@
       "version": "20260801112400",
       "name": "v1_05_2_domain_listing_create_rpc_hardening",
       "kind": "FORWARD_ONLY"
+    },
+    {
+      "path": "supabase/migrations/20260801123000_v1_05_2_final_review_fail_closed_hardening.sql",
+      "version": "20260801123000",
+      "name": "v1_05_2_final_review_fail_closed_hardening",
+      "kind": "FORWARD_ONLY"
     }
   ]
 }
