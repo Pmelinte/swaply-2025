@@ -61,6 +61,18 @@ const editLoader = readFileSync(
   resolve(process.cwd(), "src/components/listings/DomainListingEditPage.tsx"),
   "utf8",
 );
+const propertyWizard = readFileSync(
+  resolve(process.cwd(), "src/components/wizard/property/PropertyWizard.tsx"),
+  "utf8",
+);
+const serviceWizard = readFileSync(
+  resolve(process.cwd(), "src/components/wizard/service/ServiceWizard.tsx"),
+  "utf8",
+);
+const eventWizard = readFileSync(
+  resolve(process.cwd(), "src/components/wizard/event/EventWizard.tsx"),
+  "utf8",
+);
 
 describe("V1-05.3 canonical owner lifecycle authority", () => {
   it("binds edit and lifecycle mutations to the authenticated owner", () => {
@@ -185,13 +197,30 @@ describe("V1-05.3 canonical owner lifecycle authority", () => {
     }
   });
 
-  it("provides visible edit, pause/resume and archive controls backed by the authority", () => {
-    expect(ownerActions).toContain("Edit");
-    expect(ownerActions).toContain("Pause");
-    expect(ownerActions).toContain("Resume");
-    expect(ownerActions).toContain("Archive");
+  it("provides localized edit, pause/resume and archive controls", () => {
+    expect(ownerActions).toContain('useTranslations("common")');
+    expect(ownerActions).toContain('useTranslations("myObjects")');
+    expect(ownerActions).toContain('useTranslations("objects")');
+    expect(ownerActions).toContain('useTranslations("admin")');
+    expect(ownerActions).toContain('tc("edit")');
+    expect(ownerActions).toContain('tm("pause")');
+    expect(ownerActions).toContain('tm("resume")');
+    expect(ownerActions).toContain('tm("archive")');
     expect(ownerActions).toContain("setDomainListingStatus");
-    expect(editLoader).toContain("Owner access is required");
+    expect(ownerActions).not.toContain("Owner controls");
+    expect(editLoader).toContain('useTranslations("common")');
+    expect(editLoader).toContain('tc("loading")');
+    expect(editLoader).toContain('tc("errorOccurred")');
     expect(editLoader).toContain('mode="edit"');
+    expect(editLoader).not.toContain("Loading owner editor");
+
+    for (const wizard of [propertyWizard, serviceWizard, eventWizard]) {
+      expect(wizard).toContain('useTranslations("common")');
+      expect(wizard).toContain('tc("edit")');
+      expect(wizard).toContain('tc("save")');
+      expect(wizard).not.toMatch(/Editing your (property|service|event)/);
+      expect(wizard).not.toMatch(/updated successfully/);
+      expect(wizard).not.toContain("Save changes");
+    }
   });
 });
