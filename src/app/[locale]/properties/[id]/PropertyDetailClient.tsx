@@ -2,8 +2,9 @@
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useParams } from "next/navigation";
-import { Link, useRouter } from "@/i18n/navigation";
+import { Link } from "@/i18n/navigation";
 import { SafeImage } from "@/components/SafeImage";
+import { DomainListingOwnerActions } from "@/components/listings/DomainListingOwnerActions";
 import { NO_IMAGE_URL } from "@/lib/storage";
 import type { PublicPropertyDetail } from "@/lib/listings/publicListingDetails";
 import {
@@ -15,16 +16,19 @@ import {
   MapPin,
   ParkingCircle,
   PawPrint,
-  Power,
   Ruler,
   ShieldCheck,
   Users,
   Wifi,
 } from "lucide-react";
 
+type LifecycleStatus = "active" | "paused" | "archived";
+
 type PropertyResponse = {
   property?: PublicPropertyDetail;
   isOwner?: boolean;
+  status?: LifecycleStatus;
+  revision?: number;
   error?: string;
 };
 
@@ -47,12 +51,12 @@ function yesNo(value: boolean | null): string {
 
 export default function PropertyDetailClient() {
   const { id } = useParams<{ id: string }>();
-  const router = useRouter();
   const [property, setProperty] = useState<PublicPropertyDetail | null>(null);
   const [isOwner, setIsOwner] = useState(false);
+  const [status, setStatus] = useState<LifecycleStatus>("active");
+  const [revision, setRevision] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [savingStatus, setSavingStatus] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -79,6 +83,14 @@ export default function PropertyDetailClient() {
         if (!cancelled) {
           setProperty(body.property);
           setIsOwner(Boolean(body.isOwner));
+          if (body.status) setStatus(body.status);
+          if (
+            typeof body.revision === "number" &&
+            Number.isInteger(body.revision) &&
+            body.revision >= 1
+          ) {
+            setRevision(body.revision);
+          }
         }
       } catch (loadError) {
         if (!cancelled) {
@@ -115,35 +127,6 @@ export default function PropertyDetailClient() {
     ].filter((value): value is string => Boolean(value));
   }, [property]);
 
-  async function updateStatus(status: "paused" | "archived") {
-    if (!property) return;
-    setSavingStatus(true);
-    setError(null);
-
-    try {
-      const response = await fetch(`/api/items/${property.itemId}/status`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
-      });
-      const body = (await response.json().catch(() => null)) as
-        | { error?: string }
-        | null;
-      if (!response.ok) {
-        throw new Error(body?.error ?? "Could not update property status");
-      }
-      router.push("/properties");
-    } catch (statusError) {
-      setError(
-        statusError instanceof Error
-          ? statusError.message
-          : "Could not update property status",
-      );
-    } finally {
-      setSavingStatus(false);
-    }
-  }
-
   if (loading) {
     return (
       <div className="mx-auto max-w-5xl px-4 py-10 text-sm text-zinc-500">
@@ -179,6 +162,15 @@ export default function PropertyDetailClient() {
       >
         ← Back to properties
       </Link>
+
+      {isOwner && (
+        <DomainListingOwnerActions
+          domain="property"
+          itemId={property.itemId}
+          initialStatus={status}
+          initialRevision={revision}
+        />
+      )}
 
       <div className="grid gap-6 lg:grid-cols-[1.3fr_0.7fr]">
         <section className="space-y-5">
@@ -232,24 +224,9 @@ export default function PropertyDetailClient() {
               </div>
 
               {isOwner && (
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    disabled={savingStatus}
-                    onClick={() => void updateStatus("paused")}
-                    className="rounded-full border border-zinc-300 px-3 py-1.5 text-xs font-semibold text-zinc-700 hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-800"
-                  >
-                    Pause
-                  </button>
-                  <button
-                    type="button"
-                    disabled={savingStatus}
-                    onClick={() => void updateStatus("archived")}
-                    className="inline-flex items-center gap-1 rounded-full border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50 dark:border-red-900 dark:text-red-300 dark:hover:bg-red-950/30"
-                  >
-                    <Power className="h-3 w-3" /> Archive
-                  </button>
-                </div>
+                <span className="rounded-full bg-purple-100 px-3 py-1 text-xs font-semibold text-purple-800 dark:bg-purple-950/40 dark:text-purple-200">
+                  Your listing
+                </span>
               )}
             </div>
 

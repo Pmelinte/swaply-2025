@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useParams } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import { SafeImage } from "@/components/SafeImage";
+import { DomainListingOwnerActions } from "@/components/listings/DomainListingOwnerActions";
 import { NO_IMAGE_URL } from "@/lib/storage";
 import type { PublicEventDetail } from "@/lib/listings/publicListingDetails";
 import {
@@ -19,9 +20,13 @@ import {
   Users,
 } from "lucide-react";
 
+type LifecycleStatus = "active" | "paused" | "archived";
+
 type EventResponse = {
   event?: PublicEventDetail;
   isOwner?: boolean;
+  status?: LifecycleStatus;
+  revision?: number;
   error?: string;
 };
 
@@ -60,6 +65,8 @@ export default function EventDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [event, setEvent] = useState<PublicEventDetail | null>(null);
   const [isOwner, setIsOwner] = useState(false);
+  const [status, setStatus] = useState<LifecycleStatus>("active");
+  const [revision, setRevision] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -87,6 +94,14 @@ export default function EventDetailPage() {
         if (!cancelled) {
           setEvent(body.event);
           setIsOwner(Boolean(body.isOwner));
+          if (body.status) setStatus(body.status);
+          if (
+            typeof body.revision === "number" &&
+            Number.isInteger(body.revision) &&
+            body.revision >= 1
+          ) {
+            setRevision(body.revision);
+          }
         }
       } catch (loadError) {
         if (!cancelled) {
@@ -154,6 +169,15 @@ export default function EventDetailPage() {
       >
         ← Back to events
       </Link>
+
+      {isOwner && (
+        <DomainListingOwnerActions
+          domain="event"
+          itemId={event.itemId}
+          initialStatus={status}
+          initialRevision={revision}
+        />
+      )}
 
       <div className="relative aspect-[16/9] overflow-hidden rounded-2xl bg-zinc-100 dark:bg-zinc-800">
         <SafeImage

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useAppState } from "@/lib/state";
@@ -11,6 +11,7 @@ import {
 } from "@/lib/wizard/propertyWizardStore";
 import type { PropertyFormData } from "@/lib/wizard/propertyWizardStore";
 import { submitPropertyWizard } from "@/lib/wizard/propertyWizardSubmit";
+import { updateDomainListing } from "@/lib/listings/domainListingMutationSubmit";
 import { PropertyWizardProgress } from "./PropertyWizardProgress";
 import { Step1TypeClassification } from "./steps/Step1TypeClassification";
 import { Step2Location } from "./steps/Step2Location";
@@ -22,6 +23,13 @@ import { Step7Rules } from "./steps/Step7Rules";
 import { Step8Confirmation } from "./steps/Step8Confirmation";
 
 const WIZARD_STEPS = 8;
+
+type PropertyWizardProps = {
+  initialForm?: PropertyFormData;
+  itemId?: string;
+  initialRevision?: number;
+  mode?: "create" | "edit";
+};
 
 function isInvalidAvailabilityRange(start: string, end: string): boolean {
   if (!start || !end) return false;
@@ -71,20 +79,32 @@ function validateStep(step: number, form: PropertyFormData): string | null {
   return null;
 }
 
-export function PropertyWizard() {
+export function PropertyWizard({
+  initialForm,
+  itemId,
+  initialRevision,
+  mode = "create",
+}: PropertyWizardProps = {}) {
   const t = useTranslations("propertyWizard");
+  const tc = useTranslations("common");
   const { user } = useAppState();
   const router = useRouter();
   const locale = useLocale();
+  const isEdit = mode === "edit";
 
   const [step, setStep] = useState(1);
-  const [form, setForm] = useState<PropertyFormData>(INITIAL_FORM);
+  const [form, setForm] = useState<PropertyFormData>(() => ({
+    ...INITIAL_FORM,
+    ...initialForm,
+    wifi_password: "",
+  }));
+  const [revision, setRevision] = useState(initialRevision ?? 1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  // Load draft from localStorage on mount
   useEffect(() => {
+    if (isEdit) return;
     try {
       const raw = localStorage.getItem(DRAFT_STORAGE_KEY);
       if (raw) {
@@ -94,21 +114,22 @@ export function PropertyWizard() {
           setStep(savedStep);
       }
     } catch {
-      // ignore corrupt draft
+      // Ignore a corrupt draft.
     }
-  }, []);
+  }, [isEdit]);
 
   const updateForm = (updates: Partial<PropertyFormData>) => {
     setForm((prev) => {
       const next = { ...prev, ...updates };
-      // Persist draft
-      try {
-        localStorage.setItem(
-          DRAFT_STORAGE_KEY,
-          JSON.stringify({ step, data: next }),
-        );
-      } catch {
-        /* quota exceeded — ignore */
+      if (!isEdit) {
+        try {
+          localStorage.setItem(
+            DRAFT_STORAGE_KEY,
+            JSON.stringify({ step, data: next }),
+          );
+        } catch {
+          // Browser storage is optional.
+        }
       }
       return next;
     });
@@ -129,14 +150,15 @@ export function PropertyWizard() {
       return;
     }
     setError(null);
-    // Save progress with updated step
-    try {
-      localStorage.setItem(
-        DRAFT_STORAGE_KEY,
-        JSON.stringify({ step: step + 1, data: form }),
-      );
-    } catch {
-      /* ignore */
+    if (!isEdit) {
+      try {
+        localStorage.setItem(
+          DRAFT_STORAGE_KEY,
+          JSON.stringify({ step: step + 1, data: form }),
+        );
+      } catch {
+        // Browser storage is optional.
+      }
     }
     goToStep(step + 1);
   };
@@ -153,28 +175,44 @@ export function PropertyWizard() {
       return;
     }
     if (!user) return;
+    if (isEdit && (!itemId || !initialRevision)) {
+      setError(tc("errorOccurred"));
+      return;
+    }
 
     setLoading(true);
     setError(null);
 
     try {
-      const data = await submitPropertyWizard(form, user.id);
-      localStorage.removeItem(DRAFT_STORAGE_KEY);
+      let savedItemId = itemId;
+      if (isEdit && itemId) {
+        const result = await updateDomainListing({
+          domain: "property",
+          itemId,
+          form,
+          expectedRevision: revision,
+        });
+        savedItemId = result.itemId;
+        setRevision(result.revision);
+      } else {
+        const data = await submitPropertyWizard(form, user.id);
+        localStorage.removeItem(DRAFT_STORAGE_KEY);
+        savedItemId = data?.[0]?.id;
+      }
+
       setSuccess(true);
-      const itemId = data?.[0]?.id;
       setTimeout(() => {
-        if (itemId) {
-          router.push(`/${locale}/properties/${itemId}`);
-        } else {
-          router.push(`/${locale}/properties`);
-        }
-      }, 1500);
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error
-          ? err.message
-          : "Failed to save property. Please try again.";
-      setError(message);
+        if (savedItemId) router.push(`/${locale}/properties/${savedItemId}`);
+        else router.push(`/${locale}/properties`);
+      }, 900);
+    } catch (publishError: unknown) {
+      setError(
+        isEdit
+          ? tc("errorOccurred")
+          : publishError instanceof Error
+            ? publishError.message
+            : tc("errorOccurred"),
+      );
     } finally {
       setLoading(false);
     }
@@ -186,10 +224,10 @@ export function PropertyWizard() {
         <div className="w-full max-w-md rounded-2xl bg-white border border-zinc-200 shadow-sm p-6 dark:bg-zinc-900 dark:border-zinc-700 text-center space-y-4">
           <CheckCircle2 className="h-12 w-12 text-green-600 mx-auto" />
           <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
-            {t("step8Success")}
+            {isEdit ? tc("success") : t("step8Success")}
           </h2>
           <p className="text-sm text-zinc-600 dark:text-zinc-400">
-            {t("step8SuccessMessage")}
+            {isEdit ? tc("loading") : t("step8SuccessMessage")}
           </p>
         </div>
       </div>
@@ -199,18 +237,20 @@ export function PropertyWizard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-50 to-blue-50 dark:from-zinc-950 dark:to-slate-900 p-4">
       <div className="mx-auto w-full max-w-2xl">
+        {isEdit && (
+          <div className="mb-4 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900 dark:border-blue-900 dark:bg-blue-950/30 dark:text-blue-100">
+            {tc("edit")} · #{revision}
+          </div>
+        )}
         <PropertyWizardProgress step={step} />
 
-        {/* Card */}
         <div className="rounded-2xl bg-white border border-zinc-200 shadow-sm p-6 dark:bg-zinc-900 dark:border-zinc-700 space-y-6">
-          {/* Error */}
           {error && (
             <div className="rounded-lg bg-red-50 border border-red-200 p-3 dark:bg-red-950/30 dark:border-red-800">
               <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
             </div>
           )}
 
-          {/* Steps */}
           {step === 1 && (
             <Step1TypeClassification form={form} updateForm={updateForm} />
           )}
@@ -227,7 +267,6 @@ export function PropertyWizard() {
           )}
         </div>
 
-        {/* Navigation */}
         <div className="mt-6 flex items-center justify-between gap-3">
           <button
             type="button"
@@ -259,10 +298,10 @@ export function PropertyWizard() {
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Saving…
+                  {tc("saving")}
                 </>
               ) : (
-                <>✅ {t("publish")}</>
+                <>✅ {isEdit ? tc("save") : t("publish")}</>
               )}
             </button>
           )}

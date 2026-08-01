@@ -128,6 +128,24 @@
       "version": "20260801123000",
       "name": "v1_05_2_final_review_fail_closed_hardening",
       "kind": "FORWARD_ONLY"
+    },
+    {
+      "path": "supabase/migrations/20260801133000_v1_05_3_domain_owner_lifecycle_authority.sql",
+      "version": "20260801133000",
+      "name": "v1_05_3_domain_owner_lifecycle_authority",
+      "kind": "FORWARD_ONLY"
+    },
+    {
+      "path": "supabase/migrations/20260801142000_v1_05_3_editor_payload_hardening.sql",
+      "version": "20260801142000",
+      "name": "v1_05_3_editor_payload_hardening",
+      "kind": "FORWARD_ONLY"
+    },
+    {
+      "path": "supabase/migrations/20260801150000_v1_05_3_domain_updated_at_hardening.sql",
+      "version": "20260801150000",
+      "name": "v1_05_3_domain_updated_at_hardening",
+      "kind": "FORWARD_ONLY"
     }
   ]
 }

@@ -1,11 +1,29 @@
 import { NextResponse } from "next/server";
+
+import { hydrateDomainOwnerEditorForm } from "@/lib/listings/domainListingOwner";
+import { updateDomainListingResponse } from "@/lib/listings/domainListingMutationRoute";
 import {
   PUBLIC_PROPERTY_DETAIL_SELECT,
   isUuid,
   mapPublicPropertyDetail,
   type JsonRecord,
 } from "@/lib/listings/publicListingDetails";
+import { normalizePropertyWizardCreatePayload } from "@/lib/listings/domainListingPayload";
 import { getServerSupabase } from "@/lib/supabase/server";
+
+function relationOne(value: unknown): JsonRecord {
+  if (Array.isArray(value)) {
+    const first = value[0];
+    return first && typeof first === "object" ? (first as JsonRecord) : {};
+  }
+  return value && typeof value === "object" ? (value as JsonRecord) : {};
+}
+
+function ownerRevision(row: JsonRecord): number {
+  const value = relationOne(row.items).owner_revision;
+  const parsed = typeof value === "number" ? value : Number(value);
+  return Number.isInteger(parsed) && parsed >= 1 ? parsed : 1;
+}
 
 export async function GET(
   _request: Request,
@@ -24,18 +42,56 @@ export async function GET(
     );
   }
 
-  const [{ data: auth }, { data, error }] = await Promise.all([
-    supabase.auth.getUser(),
-    supabase
+  const { data: auth } = await supabase.auth.getUser();
+  if (auth.user) {
+    const { data: ownerData, error: ownerError } = await supabase
       .from("properties")
-      .select(PUBLIC_PROPERTY_DETAIL_SELECT)
+      .select("*,items!inner(*)")
       .or(`id.eq.${id},item_id.eq.${id}`)
-      .eq("status", "active")
-      .eq("items.status", "active")
-      .eq("items.is_active", true)
+      .eq("owner_id", auth.user.id)
       .limit(1)
-      .maybeSingle(),
-  ]);
+      .maybeSingle();
+
+    if (ownerError) {
+      return NextResponse.json({ error: ownerError.message }, { status: 500 });
+    }
+
+    if (ownerData) {
+      const row = ownerData as unknown as JsonRecord;
+      const itemId = String(row.item_id);
+      const { data: privateData, error: privateError } = await supabase
+        .from("domain_listing_private_data")
+        .select("editor_payload,exact_location,transfer_data")
+        .eq("item_id", itemId)
+        .maybeSingle();
+
+      if (privateError) {
+        return NextResponse.json({ error: privateError.message }, { status: 500 });
+      }
+
+      return NextResponse.json({
+        property: mapPublicPropertyDetail(row),
+        isOwner: true,
+        status: typeof row.status === "string" ? row.status : "active",
+        revision: ownerRevision(row),
+        editorForm: hydrateDomainOwnerEditorForm({
+          domain: "property",
+          listingRow: row,
+          privateRow: privateData,
+        }),
+      });
+    }
+  }
+
+  const { data, error } = await supabase
+    .from("properties")
+    .select(PUBLIC_PROPERTY_DETAIL_SELECT)
+    .or(`id.eq.${id},item_id.eq.${id}`)
+    .eq("status", "active")
+    .eq("items.status", "active")
+    .eq("items.is_active", true)
+    .limit(1)
+    .maybeSingle();
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -44,11 +100,25 @@ export async function GET(
     return NextResponse.json({ error: "Property not found" }, { status: 404 });
   }
 
-  const row = data as unknown as JsonRecord;
-  const property = mapPublicPropertyDetail(row);
-
   return NextResponse.json({
-    property,
-    isOwner: auth.user?.id === row.owner_id,
+    property: mapPublicPropertyDetail(data as unknown as JsonRecord),
+    isOwner: false,
+  });
+}
+
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params;
+  if (!isUuid(id)) {
+    return NextResponse.json({ error: "Invalid property id" }, { status: 400 });
+  }
+
+  return updateDomainListingResponse({
+    request,
+    domain: "property",
+    itemId: id,
+    normalize: normalizePropertyWizardCreatePayload,
   });
 }
