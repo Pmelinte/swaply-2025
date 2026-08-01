@@ -8,6 +8,7 @@ import {
 import { getServerSupabase } from "@/lib/supabase/server";
 
 const IDEMPOTENCY_KEY_PATTERN = /^[A-Za-z0-9._:-]{8,120}$/;
+const VALUE_TIERS = new Set(["small", "medium", "large", "special"]);
 
 type DomainNormalizer = (form: unknown) => DomainListingCreatePayload;
 
@@ -31,6 +32,53 @@ function safeErrorMessage(status: number): string {
   if (status === 400) return "The listing data is invalid or incomplete.";
   if (status === 403) return "You are not allowed to publish this listing.";
   return "The listing could not be published. Please try again.";
+}
+
+function assertRequiredValueTiers(
+  payload: DomainListingCreatePayload,
+  domain: DomainListingType,
+): void {
+  if (domain === "property") return;
+
+  const values = [
+    payload.item.perceived_value_tier,
+    payload.item.swap_wants_value_tier,
+    payload.listing.swap_wants_value_tier,
+  ];
+
+  if (
+    values.some(
+      (value) => typeof value !== "string" || !VALUE_TIERS.has(value),
+    )
+  ) {
+    throw new DomainListingPayloadError(
+      "INVALID_VALUE_TIER",
+      "Value tier must be small, medium, large or special.",
+    );
+  }
+}
+
+function boundEditorPayload(
+  payload: DomainListingCreatePayload,
+  domain: DomainListingType,
+): DomainListingCreatePayload {
+  return {
+    ...payload,
+    private: {
+      ...payload.private,
+      editor_payload: {
+        schema_version: "1.0",
+        source: `${domain}_wizard`,
+      },
+    },
+  };
+}
+
+function safePayloadErrorMessage(error: DomainListingPayloadError): string {
+  if (error.code === "INVALID_URL") {
+    return "Links must be valid HTTP URLs.";
+  }
+  return error.message;
 }
 
 export async function createDomainListingResponse(options: {
@@ -66,11 +114,13 @@ export async function createDomainListingResponse(options: {
       body.form && typeof body.form === "object" && !Array.isArray(body.form)
         ? { ...(body.form as Record<string, unknown>), timezone: body.timezone }
         : body.form;
-    payload = options.normalize(form);
+    const normalized = options.normalize(form);
+    assertRequiredValueTiers(normalized, options.domain);
+    payload = boundEditorPayload(normalized, options.domain);
   } catch (error) {
     if (error instanceof DomainListingPayloadError) {
       return NextResponse.json(
-        { error: error.message, code: error.code },
+        { error: safePayloadErrorMessage(error), code: error.code },
         { status: 400 },
       );
     }
