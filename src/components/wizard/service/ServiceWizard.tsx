@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useAppState } from "@/lib/state";
@@ -11,6 +11,7 @@ import {
 } from "@/lib/wizard/serviceWizardStore";
 import type { ServiceFormData } from "@/lib/wizard/serviceWizardStore";
 import { submitServiceWizard } from "@/lib/wizard/serviceWizardSubmit";
+import { updateDomainListing } from "@/lib/listings/domainListingMutationSubmit";
 import { WizardProgress } from "@/components/wizard/shared/WizardProgress";
 import { WizardNavButtons } from "@/components/wizard/shared/WizardNavButtons";
 import { Step1ServiceType } from "./steps/Step1ServiceType";
@@ -22,6 +23,13 @@ import { Step5Confirmation } from "./steps/Step5Confirmation";
 const TOTAL_STEPS = 5;
 
 const STEP_TITLE_KEYS = ["", "step1Title", "step2Title", "step3Title", "step4Title", "step5Title"] as const;
+
+type ServiceWizardProps = {
+  initialForm?: ServiceFormData;
+  itemId?: string;
+  initialRevision?: number;
+  mode?: "create" | "edit";
+};
 
 function validateStep(step: number, form: ServiceFormData): string | null {
   if (step === 1) {
@@ -50,19 +58,30 @@ function validateStep(step: number, form: ServiceFormData): string | null {
   return null;
 }
 
-export function ServiceWizard() {
+export function ServiceWizard({
+  initialForm,
+  itemId,
+  initialRevision,
+  mode = "create",
+}: ServiceWizardProps = {}) {
   const t = useTranslations("serviceWizard");
   const { user } = useAppState();
   const router = useRouter();
   const locale = useLocale();
+  const isEdit = mode === "edit";
 
   const [step, setStep] = useState(1);
-  const [form, setForm] = useState<ServiceFormData>(INITIAL_SERVICE_FORM);
+  const [form, setForm] = useState<ServiceFormData>(() => ({
+    ...INITIAL_SERVICE_FORM,
+    ...initialForm,
+  }));
+  const [revision, setRevision] = useState(initialRevision ?? 1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
+    if (isEdit) return;
     try {
       const raw = localStorage.getItem(SERVICE_DRAFT_KEY);
       if (raw) {
@@ -70,15 +89,21 @@ export function ServiceWizard() {
         if (data) setForm((prev) => ({ ...prev, ...data }));
         if (savedStep && savedStep > 1 && savedStep <= TOTAL_STEPS) setStep(savedStep);
       }
-    } catch {/* ignore */}
-  }, []);
+    } catch {
+      // Ignore a corrupt draft.
+    }
+  }, [isEdit]);
 
   const updateForm = (updates: Partial<ServiceFormData>) => {
     setForm((prev) => {
       const next = { ...prev, ...updates };
-      try {
-        localStorage.setItem(SERVICE_DRAFT_KEY, JSON.stringify({ step, data: next }));
-      } catch {/* ignore */}
+      if (!isEdit) {
+        try {
+          localStorage.setItem(SERVICE_DRAFT_KEY, JSON.stringify({ step, data: next }));
+        } catch {
+          // Browser storage is optional.
+        }
+      }
       return next;
     });
   };
@@ -97,9 +122,13 @@ export function ServiceWizard() {
       setError(err);
       return;
     }
-    try {
-      localStorage.setItem(SERVICE_DRAFT_KEY, JSON.stringify({ step: step + 1, data: form }));
-    } catch {/* ignore */}
+    if (!isEdit) {
+      try {
+        localStorage.setItem(SERVICE_DRAFT_KEY, JSON.stringify({ step: step + 1, data: form }));
+      } catch {
+        // Browser storage is optional.
+      }
+    }
     goToStep(step + 1);
   };
 
@@ -112,19 +141,41 @@ export function ServiceWizard() {
       return;
     }
     if (!user) return;
+    if (isEdit && (!itemId || !initialRevision)) {
+      setError("The owner edit context is incomplete. Reload the page.");
+      return;
+    }
+
     setLoading(true);
     setError(null);
     try {
-      const data = await submitServiceWizard(form);
-      localStorage.removeItem(SERVICE_DRAFT_KEY);
+      let savedItemId = itemId;
+      if (isEdit && itemId) {
+        const result = await updateDomainListing({
+          domain: "service",
+          itemId,
+          form,
+          expectedRevision: revision,
+        });
+        savedItemId = result.itemId;
+        setRevision(result.revision);
+      } else {
+        const data = await submitServiceWizard(form);
+        localStorage.removeItem(SERVICE_DRAFT_KEY);
+        savedItemId = data?.[0]?.id;
+      }
+
       setSuccess(true);
-      const itemId = data?.[0]?.id;
       setTimeout(() => {
-        if (itemId) router.push(`/${locale}/services/${itemId}`);
+        if (savedItemId) router.push(`/${locale}/services/${savedItemId}`);
         else router.push(`/${locale}/services`);
-      }, 1500);
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Failed to save service. Please try again.";
+      }, 900);
+    } catch (publishError: unknown) {
+      const message = publishError instanceof Error
+        ? publishError.message
+        : isEdit
+          ? "Failed to update service. Please try again."
+          : "Failed to save service. Please try again.";
       setError(message);
     } finally {
       setLoading(false);
@@ -136,8 +187,12 @@ export function ServiceWizard() {
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-zinc-50 to-blue-50 p-4 dark:from-zinc-950 dark:to-slate-900">
         <div className="w-full max-w-md rounded-2xl bg-white border border-zinc-200 shadow-sm p-6 dark:bg-zinc-900 dark:border-zinc-700 text-center space-y-4">
           <CheckCircle2 className="h-12 w-12 text-green-600 mx-auto" />
-          <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">{t("successTitle")}</h2>
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">{t("successMessage")}</p>
+          <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
+            {isEdit ? "Service updated successfully" : t("successTitle")}
+          </h2>
+          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+            {isEdit ? "Returning to the service page…" : t("successMessage")}
+          </p>
         </div>
       </div>
     );
@@ -146,6 +201,11 @@ export function ServiceWizard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-50 to-blue-50 dark:from-zinc-950 dark:to-slate-900 p-4">
       <div className="mx-auto w-full max-w-2xl">
+        {isEdit && (
+          <div className="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-900 dark:border-rose-900 dark:bg-rose-950/30 dark:text-rose-100">
+            Editing your service · revision {revision}
+          </div>
+        )}
         <WizardProgress
           step={step}
           totalSteps={TOTAL_STEPS}
@@ -173,7 +233,7 @@ export function ServiceWizard() {
           onBack={handleBack}
           onNext={handleNext}
           onPublish={handlePublish}
-          publishLabel={t("publishLabel")}
+          publishLabel={isEdit ? "Save changes" : t("publishLabel")}
         />
       </div>
     </div>
