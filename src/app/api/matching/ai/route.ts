@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import { getServerSupabase } from "@/lib/supabase/server";
+import { isMatchingPairCompatible } from "@/lib/matching/domainCompatibility";
+import { calculateMatchScore } from "@/lib/matching/matchScore";
 import {
   fetchCandidateItems,
   fetchItemById,
+  fetchProfileById,
+  fetchProfilesByIds,
   type MatchingItemRow,
 } from "@/lib/matching/matchQueries";
 
@@ -11,35 +15,55 @@ type RequestBody = {
   excludeIds?: string[];
 };
 
-type RawSuggestion = { itemId?: string; score?: number; reasoning?: string };
+type RawSuggestion = {
+  itemId?: string;
+  reasoning?: string;
+};
+
+type CanonicalSuggestion = {
+  item: MatchingItemRow;
+  score: number;
+  reasoning: string;
+  source: "ai" | "deterministic_fallback";
+};
 
 const ANTHROPIC_MODEL = "claude-haiku-4-5";
 
-function buildPrompt(myItem: MatchingItemRow, candidates: MatchingItemRow[]) {
-  const lines = candidates.slice(0, 50).map((c, i) => {
-    const cat = c.category ?? "?";
-    const val = c.estimated_value ?? "?";
-    const seeks = c.swap_wants_category_l1 ?? "any";
-    return `${i + 1}. ID:${c.id} | "${c.title}" | Cat:${cat} | Val:${val}EUR | Wants:${seeks}`;
+function buildPrompt(
+  myItem: MatchingItemRow,
+  candidates: Array<{ item: MatchingItemRow; score: number }>,
+) {
+  const lines = candidates.slice(0, 50).map(({ item, score }, index) => {
+    const profile = item.domain_profile;
+    const availability =
+      item.item_type === "property"
+        ? `${String(profile.available_from ?? "flexible")}..${String(profile.available_until ?? "flexible")}`
+        : item.item_type === "service"
+          ? `${String(profile.delivery_mode ?? "flexible")}; ${String(profile.available_date_from ?? "flexible")}..${String(profile.available_date_until ?? "flexible")}`
+          : item.item_type === "event"
+            ? `${String(profile.start_date ?? "unknown")}; transferable=${String(profile.is_transferable ?? "n/a")}`
+            : "active";
+
+    return `${index + 1}. ID:${item.id} | Domain:${item.item_type} | Title:${JSON.stringify(item.title)} | Category:${item.category ?? "unknown"} | Value:${item.perceived_value_tier ?? "unknown"} | Availability:${availability} | DeterministicScore:${score}`;
   });
 
-  return `You are a barter/swap matching expert for the Swaply platform.
+  return `You are a supporting assistant for Swaply. The platform has already filtered these candidates through canonical mutual domain compatibility and availability rules. You may rank them, but you must not create, accept or finalize a match.
 
 The user offers:
+- Domain: ${myItem.item_type}
 - Title: ${myItem.title}
 - Category: ${myItem.category ?? "unknown"}
 - Value tier: ${myItem.perceived_value_tier ?? "unknown"}
-- Looking for: ${myItem.swap_wants_category_l1 ?? "anything"}
+- Accepted domains: ${myItem.swap_open_to.join(", ") || "any"}
+- Wanted domains: ${myItem.swap_wants_type.join(", ") || "any"}
 
-Candidates (${lines.length}):
+Compatible candidates (${lines.length}):
 ${lines.join("\n")}
 
-Select EXACTLY 2 candidate IDs that are the best matches.
-Respond with valid JSON ONLY, no preamble:
+Select at most 2 candidate IDs. Do not invent IDs and do not alter the deterministic score. Respond with valid JSON only:
 {
   "suggestions": [
-    { "itemId": "<uuid>", "score": <0-100>, "reasoning": "<Romanian, max 40 words>" },
-    { "itemId": "<uuid>", "score": <0-100>, "reasoning": "<Romanian, max 40 words>" }
+    { "itemId": "<uuid>", "reasoning": "<max 40 words>" }
   ]
 }`;
 }
@@ -47,8 +71,9 @@ Respond with valid JSON ONLY, no preamble:
 async function callAnthropic(prompt: string): Promise<string | null> {
   const key = process.env.ANTHROPIC_API_KEY;
   if (!key) return null;
+
   try {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
         "x-api-key": key,
@@ -57,20 +82,20 @@ async function callAnthropic(prompt: string): Promise<string | null> {
       },
       body: JSON.stringify({
         model: ANTHROPIC_MODEL,
-        max_tokens: 600,
-        temperature: 0.3,
+        max_tokens: 500,
+        temperature: 0.2,
         system:
-          "You are a swap matching expert. Always respond with valid JSON only, no extra text.",
+          "Rank only the supplied canonical candidates. Return valid JSON only and never invent identifiers.",
         messages: [{ role: "user", content: prompt }],
       }),
       signal: AbortSignal.timeout(10_000),
     });
-    if (!res.ok) return null;
-    const data = (await res.json()) as {
+
+    if (!response.ok) return null;
+    const data = (await response.json()) as {
       content?: Array<{ type: string; text?: string }>;
     };
-    const text = data.content?.find((c) => c.type === "text")?.text ?? null;
-    return text;
+    return data.content?.find((entry) => entry.type === "text")?.text ?? null;
   } catch {
     return null;
   }
@@ -78,25 +103,30 @@ async function callAnthropic(prompt: string): Promise<string | null> {
 
 function parseJsonish(raw: string): RawSuggestion[] | null {
   if (!raw) return null;
-  const clean = raw.trim().replace(/^```(?:json)?\s*/i, "").replace(/```$/, "");
+  const clean = raw
+    .trim()
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/```$/, "");
+
   try {
     const parsed = JSON.parse(clean) as { suggestions?: RawSuggestion[] };
-    if (!parsed?.suggestions) return null;
-    return parsed.suggestions;
+    return Array.isArray(parsed.suggestions) ? parsed.suggestions : null;
   } catch {
     return null;
   }
 }
 
-export async function POST(req: Request) {
-  let body: RequestBody;
-  try {
-    body = (await req.json()) as RequestBody;
-  } catch {
-    return NextResponse.json({ error: "invalid body" }, { status: 400 });
-  }
+function fallbackReason(item: MatchingItemRow): string {
+  if (item.item_type === "property") return "Compatible exchange domain and property availability.";
+  if (item.item_type === "service") return "Compatible exchange domain and service delivery profile.";
+  if (item.item_type === "event") return "Compatible exchange domain, date and transfer rules.";
+  return "Compatible exchange domain, value and public listing data.";
+}
 
-  const { myItemId, excludeIds = [] } = body;
+export async function POST(request: Request) {
+  const body = (await request.json().catch(() => null)) as RequestBody | null;
+  const myItemId = body?.myItemId?.trim();
+  const excludeIds = Array.isArray(body?.excludeIds) ? body.excludeIds : [];
   if (!myItemId) {
     return NextResponse.json({ error: "missing parameters" }, { status: 400 });
   }
@@ -106,60 +136,85 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "supabase unavailable" }, { status: 500 });
   }
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
   const myItem = await fetchItemById(supabase, myItemId);
-  if (!myItem) {
+  if (!myItem || myItem.owner_id !== user.id) {
     return NextResponse.json({ error: "item not found" }, { status: 404 });
   }
 
-  if (myItem.owner_id !== user.id) {
-    return NextResponse.json({ error: "item not found" }, { status: 404 });
-  }
-
+  const excluded = new Set(excludeIds);
   const allCandidates = await fetchCandidateItems(supabase, user.id, 100);
-  const excludeSet = new Set(excludeIds);
-  const candidates = allCandidates.filter((c) => !excludeSet.has(c.id)).slice(0, 50);
+  const candidates = allCandidates.filter(
+    (candidate) =>
+      !excluded.has(candidate.id) &&
+      isMatchingPairCompatible(myItem, candidate),
+  );
 
   if (candidates.length === 0) {
     return NextResponse.json({ suggestions: [] });
   }
 
-  try {
-    const prompt = buildPrompt(myItem, candidates);
-    const raw = await callAnthropic(prompt);
-    const parsed = raw ? parseJsonish(raw) : null;
+  const [myProfile, candidateProfiles] = await Promise.all([
+    fetchProfileById(supabase, user.id),
+    fetchProfilesByIds(
+      supabase,
+      Array.from(new Set(candidates.map((candidate) => candidate.owner_id))),
+    ),
+  ]);
 
-    if (!parsed || parsed.length === 0) {
-      return NextResponse.json({
-        suggestions: candidates.slice(0, 2).map((item, index) => ({
-          item,
-          score: Math.max(50, 72 - index * 6),
-          reasoning: "Fallback deterministic: potrivire bazată pe categorie, disponibilitate și date publice.",
-          source: "deterministic_fallback",
-        })),
-      });
-    }
+  const scored = candidates
+    .map((item) => ({
+      item,
+      score: calculateMatchScore(
+        myItem,
+        item,
+        myProfile,
+        candidateProfiles.get(item.owner_id) ?? null,
+      ).total,
+    }))
+    .sort((left, right) => right.score - left.score)
+    .slice(0, 50);
 
-    const candidateById = new Map(candidates.map((c) => [c.id, c] as const));
-    const suggestions = parsed
-      .map((s) => {
-        const id = s.itemId;
-        if (!id) return null;
-        const item = candidateById.get(id);
-        if (!item) return null;
-        const score = Math.max(0, Math.min(100, Math.round(s.score ?? 0)));
-        const reasoning = (s.reasoning ?? "").slice(0, 400);
-        return { item, score, reasoning };
-      })
-      .filter((s): s is { item: MatchingItemRow; score: number; reasoning: string } => s !== null)
-      .slice(0, 2);
+  const byId = new Map(scored.map((entry) => [entry.item.id, entry] as const));
+  const raw = await callAnthropic(buildPrompt(myItem, scored));
+  const parsed = raw ? parseJsonish(raw) : null;
 
-    return NextResponse.json({ suggestions });
-  } catch {
-    return NextResponse.json({ error: "AI error" }, { status: 500 });
+  let suggestions: CanonicalSuggestion[] = [];
+  if (parsed) {
+    const used = new Set<string>();
+    suggestions = parsed.flatMap((entry) => {
+      const id = entry.itemId?.trim();
+      if (!id || used.has(id)) return [];
+      const canonical = byId.get(id);
+      if (!canonical) return [];
+      used.add(id);
+      return [
+        {
+          item: canonical.item,
+          score: canonical.score,
+          reasoning:
+            entry.reasoning?.trim().slice(0, 400) ||
+            fallbackReason(canonical.item),
+          source: "ai" as const,
+        },
+      ];
+    }).slice(0, 2);
   }
+
+  if (suggestions.length === 0) {
+    suggestions = scored.slice(0, 2).map(({ item, score }) => ({
+      item,
+      score,
+      reasoning: fallbackReason(item),
+      source: "deterministic_fallback" as const,
+    }));
+  }
+
+  return NextResponse.json({ suggestions });
 }
