@@ -10,6 +10,7 @@ import type {
   SkillLevel,
 } from "@/lib/types";
 import type {
+  MatchingDomainProfile,
   MatchingItemRow,
   MatchingProfileRow,
 } from "@/lib/matching/matchQueries";
@@ -50,6 +51,32 @@ function toStrings(value: unknown): string[] {
     .filter((entry): entry is string => typeof entry === "string")
     .map((entry) => entry.trim())
     .filter(Boolean);
+}
+
+function toListingType(value: unknown): ListingType {
+  if (
+    value === "object" ||
+    value === "property" ||
+    value === "service" ||
+    value === "event"
+  ) {
+    return value;
+  }
+  return "object";
+}
+
+function profileFor(
+  row: MatchingItemRow,
+  domain: ListingType,
+): MatchingDomainProfile {
+  if (
+    row.domain_profile &&
+    typeof row.domain_profile === "object" &&
+    !Array.isArray(row.domain_profile)
+  ) {
+    return row.domain_profile;
+  }
+  return { domain };
 }
 
 function toCondition(value: unknown): Item["condition"] {
@@ -139,7 +166,11 @@ function toSkillLevel(value: unknown): SkillLevel {
 function toServiceDelivery(value: unknown): ServiceDelivery {
   const normalized = toText(value).toLowerCase();
   if (normalized === "remote") return "remote";
-  if (normalized === "onsite" || normalized === "on-site" || normalized === "in_person") {
+  if (
+    normalized === "onsite" ||
+    normalized === "on-site" ||
+    normalized === "in_person"
+  ) {
     return "in_person";
   }
   return "hybrid";
@@ -149,7 +180,7 @@ function domainLocation(
   row: MatchingItemRow,
   profile: MatchingProfileRow | null | undefined,
 ): string {
-  const domain = row.domain_profile;
+  const domain = profileFor(row, toListingType(row.item_type));
   return (
     toText(domain.city) ||
     toText(row.location_city) ||
@@ -159,8 +190,8 @@ function domainLocation(
 }
 
 function propertyProfile(row: MatchingItemRow): HouseProfile | undefined {
-  if (row.item_type !== "property") return undefined;
-  const profile = row.domain_profile;
+  if (toListingType(row.item_type) !== "property") return undefined;
+  const profile = profileFor(row, "property");
   const availableFrom = toText(profile.available_from);
   const availableUntil = toText(profile.available_until);
 
@@ -176,13 +207,19 @@ function propertyProfile(row: MatchingItemRow): HouseProfile | undefined {
     neighborhood: toText(profile.city),
     nearbyAttractions: "",
     transport: "",
-    photos: row.photos,
+    photos: row.photos ?? [],
     availableDates:
       availableFrom && availableUntil
         ? [{ from: availableFrom, to: availableUntil }]
         : [],
-    minStayDays: Math.max(1, Math.trunc(toNumber(profile.min_stay_days, 1))),
-    maxStayDays: Math.max(1, Math.trunc(toNumber(profile.max_stay_days, 30))),
+    minStayDays: Math.max(
+      1,
+      Math.trunc(toNumber(profile.min_stay_days, 1)),
+    ),
+    maxStayDays: Math.max(
+      1,
+      Math.trunc(toNumber(profile.max_stay_days, 30)),
+    ),
     swapMode:
       toText(profile.exchange_type) === "non_simultaneous"
         ? "non_simultaneous"
@@ -193,9 +230,12 @@ function propertyProfile(row: MatchingItemRow): HouseProfile | undefined {
 }
 
 function serviceProfile(row: MatchingItemRow): ServiceProfile | undefined {
-  if (row.item_type !== "service") return undefined;
-  const profile = row.domain_profile;
-  const estimatedHours = Math.max(1, Math.trunc(toNumber(profile.estimated_hours, 1)));
+  if (toListingType(row.item_type) !== "service") return undefined;
+  const profile = profileFor(row, "service");
+  const estimatedHours = Math.max(
+    1,
+    Math.trunc(toNumber(profile.estimated_hours, 1)),
+  );
   const estimatedValue = row.estimated_value ?? row.approximate_value ?? 0;
 
   return {
@@ -212,17 +252,26 @@ function serviceProfile(row: MatchingItemRow): ServiceProfile | undefined {
 }
 
 function eventExperience(row: MatchingItemRow): Item["experienceData"] {
-  if (row.item_type !== "event") return undefined;
-  const profile = row.domain_profile;
+  if (toListingType(row.item_type) !== "event") return undefined;
+  const profile = profileFor(row, "event");
+  const isTicket = profile.is_ticket === true;
+
   return {
     eventDate: toText(profile.start_date) || undefined,
-    transferable: toBoolean(profile.is_transferable),
-    ticketCount: Math.max(
-      0,
-      Math.trunc(
-        toNumber(profile.capacity_available, toNumber(profile.capacity_total)),
-      ),
-    ),
+    transferable: isTicket
+      ? toBoolean(profile.is_transferable)
+      : undefined,
+    ticketCount: isTicket
+      ? Math.max(
+          0,
+          Math.trunc(
+            toNumber(
+              profile.capacity_available,
+              toNumber(profile.capacity_total),
+            ),
+          ),
+        )
+      : undefined,
   };
 }
 
@@ -230,10 +279,10 @@ function rowToItem(
   row: MatchingItemRow,
   profile: MatchingProfileRow | null | undefined,
 ): Item {
-  const wantedDomains = [
-    ...row.swap_open_to,
-    ...row.swap_wants_type,
-  ].join(" ");
+  const listingType = toListingType(row.item_type);
+  const openTo = toStrings(row.swap_open_to);
+  const wantsType = toStrings(row.swap_wants_type);
+  const wantedDomains = [...openTo, ...wantsType].join(" ");
   const wishlist = [
     wantedDomains,
     row.swap_wants_category_l1 ?? "",
@@ -246,19 +295,19 @@ function rowToItem(
     id: row.id,
     ownerId: row.owner_id,
     title: row.title,
-    category: row.category_l1 ?? row.category ?? row.item_type,
+    category: row.category_l1 ?? row.category ?? listingType,
     condition: toCondition(row.condition),
     description: row.description ?? "",
     wishlist,
     status: row.status === "active" ? "active" : "paused",
-    isActive: row.is_active,
+    isActive: row.is_active !== false,
     createdAt: row.created_at ?? new Date().toISOString(),
     location: domainLocation(row, profile),
-    photos: row.photos,
-    listingType: row.item_type as ListingType,
+    photos: row.photos ?? [],
+    listingType,
     perceivedValue: toPerceivedValue(row.perceived_value_tier),
     subcategorySlug: row.subcategory_slug ?? row.subcategory ?? "",
-    acceptsBundle: row.cross_category_swap || row.swap_open_to.length > 1,
+    acceptsBundle: row.cross_category_swap === true || openTo.length > 1,
     houseProfile: propertyProfile(row),
     serviceProfile: serviceProfile(row),
     experienceData: eventExperience(row),
@@ -306,7 +355,10 @@ function profileGeoScore(
 function profileTrustScore(
   theirProfile: MatchingProfileRow | null | undefined,
 ): number {
-  return Math.min(100, Math.max(0, toNumber(theirProfile?.trust_score)));
+  return Math.min(
+    100,
+    Math.max(0, toNumber(theirProfile?.trust_score)),
+  );
 }
 
 function profileActivityScore(
@@ -347,7 +399,10 @@ export function calculateMatchScore(
   const userScore = Math.round(
     geoScore * 0.45 + trustScore * 0.35 + activityScore * 0.2,
   );
-  const total = Math.min(100, Math.round(engineScore * 0.8 + userScore * 0.2));
+  const total = Math.min(
+    100,
+    Math.round(engineScore * 0.8 + userScore * 0.2),
+  );
 
   return {
     categoryMatch: factorScore(engineCandidate, "category"),
