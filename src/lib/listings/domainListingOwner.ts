@@ -1,3 +1,4 @@
+import type { DomainListingType } from "@/lib/listings/domainListingPayload";
 import {
   INITIAL_EVENT_FORM,
   type EventFormData,
@@ -10,11 +11,13 @@ import {
   INITIAL_SERVICE_FORM,
   type ServiceFormData,
 } from "@/lib/wizard/serviceWizardStore";
-import type { DomainListingType } from "@/lib/listings/domainListingPayload";
 
 type JsonRecord = Record<string, unknown>;
 
-export type DomainOwnerEditorForm = PropertyFormData | ServiceFormData | EventFormData;
+export type DomainOwnerEditorForm =
+  | PropertyFormData
+  | ServiceFormData
+  | EventFormData;
 
 function asRecord(value: unknown): JsonRecord {
   return value !== null && typeof value === "object" && !Array.isArray(value)
@@ -79,7 +82,12 @@ function titleCase(value: unknown): string {
 
 function cleanEditorPayload(value: unknown): JsonRecord {
   const payload = asRecord(value);
-  const { schema_version: _schemaVersion, source: _source, wifi_password: _wifi, ...form } = payload;
+  const {
+    schema_version: _schemaVersion,
+    source: _source,
+    wifi_password: _wifi,
+    ...form
+  } = payload;
   return form;
 }
 
@@ -102,7 +110,8 @@ function propertyTypeLabel(value: unknown): string {
     studio: "Studio",
     other: "Other",
   };
-  return map[normalized] ?? titleCase(value) || "Other";
+  const mapped = map[normalized] ?? titleCase(value);
+  return mapped || "Other";
 }
 
 function furnishingLabel(value: unknown): string {
@@ -172,6 +181,7 @@ function propertyEditor(
     proximity_mountain_km: numberString(row.proximity_mountain_km),
     proximity_forest_km: numberString(row.proximity_forest_km),
     distance_to_center_km: numberString(row.proximity_city_center_km),
+    nearest_airport_code: text(row.nearest_airport_iata),
     total_buildings: 1,
     building_condition: titleCase(row.building_condition),
     construction_material: text(row.construction_material)
@@ -204,7 +214,8 @@ function propertyEditor(
     outdoor_kitchen: false,
     has_garden: numberValue(row.surface_garden_sqm) > 0,
     parking_spaces: numberValue(row.parking_spots),
-    garage_type: text(row.parking_type).toLowerCase() === "garage" ? "Enclosed" : "None",
+    garage_type:
+      text(row.parking_type).toLowerCase() === "garage" ? "Enclosed" : "None",
     ev_charging: booleanValue(row.has_ev_charger),
     parking_distance_m: "",
     kitchen_appliances: strings(row.kitchen_appliances),
@@ -218,7 +229,9 @@ function propertyEditor(
     cooling_type: text(row.cooling_type) ? [titleCase(row.cooling_type)] : [],
     water_source: titleCase(row.water_source),
     hot_water_system: titleCase(row.hot_water_type),
-    electricity_source: text(row.electricity_source) ? [titleCase(row.electricity_source)] : [],
+    electricity_source: text(row.electricity_source)
+      ? [titleCase(row.electricity_source)]
+      : [],
     solar_panels: booleanValue(row.has_solar_panels),
     solar_capacity_kw: numberString(row.solar_kwp),
     internet_type: titleCase(row.internet_type),
@@ -231,8 +244,13 @@ function propertyEditor(
     exchange_type: propertyExchangeLabel(row.exchange_type),
     minimum_stay_days: numberString(row.min_stay_days) || "1",
     maximum_stay_days: numberString(row.max_stay_days) || "30",
-    preferred_seasons: strings(row.preferred_seasons).map(titleCase),
-    number_of_guests_allowed: numberValue(row.sleeps_max, numberValue(row.max_guests, 2)),
+    preferred_seasons: strings(row.preferred_seasons).map((value) =>
+      titleCase(value),
+    ),
+    number_of_guests_allowed: numberValue(
+      row.sleeps_max,
+      numberValue(row.max_guests, 2),
+    ),
     flexible_dates: booleanValue(row.flexible_dates, true),
     available_start_date: dateOnly(row.available_from),
     available_end_date: dateOnly(row.available_until),
@@ -242,7 +260,10 @@ function propertyEditor(
       text(item.description, "Open to a comparable property exchange"),
     ),
     escrow_accepted: booleanValue(item.escrow_accepted),
-    escrow_required: booleanValue(row.escrow_required, booleanValue(item.escrow_required)),
+    escrow_required: booleanValue(
+      row.escrow_required,
+      booleanValue(item.escrow_required),
+    ),
     security_deposit_eur: numberString(row.security_deposit_eur),
     swap_geo_preference: titleCase(item.swap_geo_preference) || "Regional",
     swap_partial_allowed: booleanValue(item.swap_partial_allowed),
@@ -250,7 +271,9 @@ function propertyEditor(
     chain_swap_allowed: booleanValue(item.chain_swap_allowed),
     check_in_time: timeOnly(row.check_in_time) || "15:00",
     check_out_time: timeOnly(row.check_out_time) || "11:00",
-    smoking_allowed: booleanValue(row.smoking_allowed) ? "Anywhere" : "Not Allowed",
+    smoking_allowed: booleanValue(row.smoking_allowed)
+      ? "Anywhere"
+      : "Not Allowed",
     parties_allowed: booleanValue(row.parties_allowed),
     quiet_hours:
       timeOnly(row.quiet_hours_start) && timeOnly(row.quiet_hours_end)
@@ -320,9 +343,18 @@ function serviceDuration(row: JsonRecord): string[] {
   return ["1h"];
 }
 
-function serviceEditor(row: JsonRecord, privateRow: JsonRecord): ServiceFormData {
+function serviceEditor(
+  row: JsonRecord,
+  privateRow: JsonRecord,
+): ServiceFormData {
   const saved = cleanEditorPayload(privateRow.editor_payload);
-  if (hasKeys(saved, ["service_category_l1", "service_title", "service_modality"])) {
+  if (
+    hasKeys(saved, [
+      "service_category_l1",
+      "service_title",
+      "service_modality",
+    ])
+  ) {
     return {
       ...INITIAL_SERVICE_FORM,
       ...(saved as Partial<ServiceFormData>),
@@ -379,7 +411,10 @@ function serviceEditor(row: JsonRecord, privateRow: JsonRecord): ServiceFormData
       row.swap_wants_value_tier,
       text(item.perceived_value_tier, "medium"),
     ),
-    escrow_accepted: booleanValue(row.escrow_accepted, booleanValue(item.escrow_accepted)),
+    escrow_accepted: booleanValue(
+      row.escrow_accepted,
+      booleanValue(item.escrow_accepted),
+    ),
     swap_geo_preference: titleCase(item.swap_geo_preference) || "Regional",
     swap_geo_radius_km: numberValue(row.service_area_radius_km, 50),
     swap_partial_allowed: booleanValue(row.partial_swap_allowed),
@@ -464,7 +499,9 @@ function eventEditor(row: JsonRecord, privateRow: JsonRecord): EventFormData {
     seats_available: numberValue(row.capacity_available, 1),
     face_value_eur: numberString(row.face_value_eur),
     is_transferable: booleanValue(row.is_transferable, true),
-    baggage_included: Boolean(transfer.baggage_included ?? row.baggage_included),
+    baggage_included: Boolean(
+      transfer.baggage_included ?? row.baggage_included,
+    ),
     rail_pass_type: text(row.miles_points_type),
     rail_pass_days_remaining: numberValue(row.pass_days_remaining),
     sport_type: text(row.sport_type),
@@ -479,7 +516,8 @@ function eventEditor(row: JsonRecord, privateRow: JsonRecord): EventFormData {
     group_size_max: numberValue(row.max_participants, 10),
     age_restriction: eventAgeRestriction(row),
     age_min: numberString(row.age_min),
-    kid_friendly: suitable.includes("children") || suitable.includes("families"),
+    kid_friendly:
+      suitable.includes("children") || suitable.includes("families"),
     pet_friendly: suitable.includes("pets"),
     includes_accommodation: booleanValue(row.includes_accommodation),
     includes_transport: booleanValue(row.includes_transport),
@@ -501,7 +539,10 @@ function eventEditor(row: JsonRecord, privateRow: JsonRecord): EventFormData {
       row.swap_wants_value_tier,
       text(item.perceived_value_tier, "medium"),
     ),
-    escrow_accepted: booleanValue(row.escrow_accepted, booleanValue(item.escrow_accepted)),
+    escrow_accepted: booleanValue(
+      row.escrow_accepted,
+      booleanValue(item.escrow_accepted),
+    ),
     swap_geo_preference: titleCase(item.swap_geo_preference) || "Regional",
     swap_partial_allowed: booleanValue(row.partial_swap_allowed),
     swap_partial_topup_eur: numberString(row.partial_topup_eur),
