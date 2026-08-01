@@ -12,8 +12,8 @@ interface Props {
   candidates: ScoredCandidate[];
   loading: boolean;
   sort: SortOrder;
-  onSortChange: (s: SortOrder) => void;
-  onOpenItem: (c: ScoredCandidate) => void;
+  onSortChange: (sort: SortOrder) => void;
+  onOpenItem: (candidate: ScoredCandidate) => void;
 }
 
 const PAGE_SIZE = 12;
@@ -31,20 +31,29 @@ export default function MatchingBrowse({
 
   const sorted = useMemo(() => {
     const list = [...candidates];
-    if (sort === "relevant") list.sort((a, b) => b.score - a.score);
-    else if (sort === "newest") {
-      list.sort((a, b) => {
-        const ad = a.item.created_at ? new Date(a.item.created_at).getTime() : 0;
-        const bd = b.item.created_at ? new Date(b.item.created_at).getTime() : 0;
-        return bd - ad;
+    if (sort === "relevant") {
+      list.sort((left, right) => right.score - left.score);
+    } else if (sort === "newest") {
+      list.sort((left, right) => {
+        const leftDate = left.item.created_at
+          ? new Date(left.item.created_at).getTime()
+          : 0;
+        const rightDate = right.item.created_at
+          ? new Date(right.item.created_at).getTime()
+          : 0;
+        return rightDate - leftDate;
       });
     } else if (sort === "value_asc") {
       list.sort(
-        (a, b) => (a.item.estimated_value ?? Infinity) - (b.item.estimated_value ?? Infinity),
+        (left, right) =>
+          (left.item.estimated_value ?? left.item.approximate_value ?? Infinity) -
+          (right.item.estimated_value ?? right.item.approximate_value ?? Infinity),
       );
     } else if (sort === "value_desc") {
       list.sort(
-        (a, b) => (b.item.estimated_value ?? -Infinity) - (a.item.estimated_value ?? -Infinity),
+        (left, right) =>
+          (right.item.estimated_value ?? right.item.approximate_value ?? -Infinity) -
+          (left.item.estimated_value ?? left.item.approximate_value ?? -Infinity),
       );
     }
     return list;
@@ -62,14 +71,16 @@ export default function MatchingBrowse({
 
       <div className="mb-3 flex items-center justify-between">
         <Link
-          href="/objects"
+          href="/explore"
           className="text-base font-semibold text-zinc-900 hover:text-blue-600 dark:text-zinc-50 dark:hover:text-blue-400"
         >
           {t("browse_general_title")}
         </Link>
         <select
           value={sort}
-          onChange={(e) => onSortChange(e.target.value as SortOrder)}
+          onChange={(event) =>
+            onSortChange(event.target.value as SortOrder)
+          }
           className="rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs text-zinc-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200"
         >
           <option value="relevant">{t("sort_relevant")}</option>
@@ -82,13 +93,15 @@ export default function MatchingBrowse({
       {loading ? (
         <p className="text-sm text-zinc-500 dark:text-zinc-400">…</p>
       ) : visible.length === 0 ? (
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">{t("browse_no_slot_banner")}</p>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          {t("browse_no_slot_banner")}
+        </p>
       ) : (
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          {visible.map((c) => (
+          {visible.map((candidate) => (
             <MatchingCard
-              key={c.item.id}
-              candidate={c}
+              key={candidate.item.id}
+              candidate={candidate}
               showScore={hasSlots}
               onOpen={onOpenItem}
             />
@@ -100,7 +113,7 @@ export default function MatchingBrowse({
         <div className="mt-4 flex justify-center">
           <button
             type="button"
-            onClick={() => setVisibleCount((v) => v + PAGE_SIZE)}
+            onClick={() => setVisibleCount((value) => value + PAGE_SIZE)}
             className="rounded-full bg-blue-600 px-6 py-2 text-sm font-semibold text-white hover:bg-blue-700"
           >
             {t("browse_load_more")}
