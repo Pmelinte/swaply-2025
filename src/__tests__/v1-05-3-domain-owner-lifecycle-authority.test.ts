@@ -133,7 +133,9 @@ describe("V1-05.3 canonical owner lifecycle authority", () => {
     expect(mutationRoute).toContain("expectedRevision");
     expect(mutationRoute).toContain('p_expected_revision: body.expectedRevision');
     expect(mutationRoute).toContain('p_idempotency_key: key');
-    expect(mutationRoute).toContain('status === "active"');
+    expect(mutationRoute).toContain(
+      'new Set(["active", "paused", "archived"])',
+    );
     expect(mutationSubmit).toContain("requestFingerprint");
     expect(mutationSubmit).toContain('"idempotency-key": key');
     expect(mutationSubmit).toContain("expectedRevision");
