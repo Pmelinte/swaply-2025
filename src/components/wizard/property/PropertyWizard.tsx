@@ -86,6 +86,7 @@ export function PropertyWizard({
   mode = "create",
 }: PropertyWizardProps = {}) {
   const t = useTranslations("propertyWizard");
+  const tc = useTranslations("common");
   const { user } = useAppState();
   const router = useRouter();
   const locale = useLocale();
@@ -175,7 +176,7 @@ export function PropertyWizard({
     }
     if (!user) return;
     if (isEdit && (!itemId || !initialRevision)) {
-      setError("The owner edit context is incomplete. Reload the page.");
+      setError(tc("errorOccurred"));
       return;
     }
 
@@ -205,13 +206,13 @@ export function PropertyWizard({
         else router.push(`/${locale}/properties`);
       }, 900);
     } catch (publishError: unknown) {
-      const message =
-        publishError instanceof Error
-          ? publishError.message
-          : isEdit
-            ? "Failed to update property. Please try again."
-            : "Failed to save property. Please try again.";
-      setError(message);
+      setError(
+        isEdit
+          ? tc("errorOccurred")
+          : publishError instanceof Error
+            ? publishError.message
+            : tc("errorOccurred"),
+      );
     } finally {
       setLoading(false);
     }
@@ -223,10 +224,10 @@ export function PropertyWizard({
         <div className="w-full max-w-md rounded-2xl bg-white border border-zinc-200 shadow-sm p-6 dark:bg-zinc-900 dark:border-zinc-700 text-center space-y-4">
           <CheckCircle2 className="h-12 w-12 text-green-600 mx-auto" />
           <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
-            {isEdit ? "Property updated successfully" : t("step8Success")}
+            {isEdit ? tc("success") : t("step8Success")}
           </h2>
           <p className="text-sm text-zinc-600 dark:text-zinc-400">
-            {isEdit ? "Returning to the property page…" : t("step8SuccessMessage")}
+            {isEdit ? tc("loading") : t("step8SuccessMessage")}
           </p>
         </div>
       </div>
@@ -238,7 +239,7 @@ export function PropertyWizard({
       <div className="mx-auto w-full max-w-2xl">
         {isEdit && (
           <div className="mb-4 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900 dark:border-blue-900 dark:bg-blue-950/30 dark:text-blue-100">
-            Editing your property · revision {revision}
+            {tc("edit")} · #{revision}
           </div>
         )}
         <PropertyWizardProgress step={step} />
@@ -297,10 +298,10 @@ export function PropertyWizard({
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Saving…
+                  {tc("saving")}
                 </>
               ) : (
-                <>✅ {isEdit ? "Save changes" : t("publish")}</>
+                <>✅ {isEdit ? tc("save") : t("publish")}</>
               )}
             </button>
           )}
