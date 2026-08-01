@@ -1,15 +1,15 @@
+import { submitDomainListing } from "@/lib/listings/domainListingSubmit";
 import type { ServiceFormData } from "./serviceWizardStore";
+
+const SERVICE_PUBLISH_REQUEST_KEY = "swaply_service_publish_request";
 
 export async function submitServiceWizard(
   form: ServiceFormData,
 ): Promise<{ id: string }[]> {
-  const response = await fetch("/api/items/services", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ form }),
+  return submitDomainListing({
+    domain: "service",
+    endpoint: "/api/items/services",
+    storageKey: SERVICE_PUBLISH_REQUEST_KEY,
+    form,
   });
-
-  const body = (await response.json().catch(() => null)) as { items?: { id: string }[]; error?: string } | null;
-  if (!response.ok) throw new Error(body?.error ?? "Failed to save service. Please try again.");
-  return body?.items ?? [];
 }
