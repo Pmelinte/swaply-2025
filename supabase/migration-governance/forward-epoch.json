@@ -170,6 +170,12 @@
       "version": "20260802170000",
       "name": "v1_05_4_3_property_reservation_authority",
       "kind": "FORWARD_ONLY"
+    },
+    {
+      "path": "supabase/migrations/20260802190000_v1_05_4_4_service_delivery_authority.sql",
+      "version": "20260802190000",
+      "name": "v1_05_4_4_service_delivery_authority",
+      "kind": "FORWARD_ONLY"
     }
   ]
 }
