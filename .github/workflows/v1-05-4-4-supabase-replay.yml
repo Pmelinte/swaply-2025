@@ -83,7 +83,10 @@ jobs:
 
       - name: Start isolated Supabase stack
         working-directory: .ci-supabase
-        run: supabase start
+        shell: bash
+        run: |
+          set -o pipefail
+          supabase start 2>&1 | tee evidence/supabase-start.log
 
       - name: Rebuild database from repository migrations
         working-directory: .ci-supabase
