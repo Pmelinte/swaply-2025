@@ -34,7 +34,8 @@ function buildPrompt(
   candidates: Array<{ item: MatchingItemRow; score: number }>,
 ) {
   const lines = candidates.slice(0, 50).map(({ item, score }, index) => {
-    const profile = item.domain_profile ?? { domain: item.item_type ?? "object" };
+    const profile: Record<string, unknown> =
+      item.domain_profile ?? { domain: item.item_type ?? "object" };
     const availability =
       item.item_type === "property"
         ? `${String(profile.available_from ?? "flexible")}..${String(profile.available_until ?? "flexible")}`
