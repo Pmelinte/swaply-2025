@@ -37,6 +37,8 @@ revoke all on table public.property_reservations
 grant select on table public.property_reservations to authenticated;
 grant all on table public.property_reservations to service_role;
 
+drop policy if exists property_reservations_participant_select
+  on public.property_reservations;
 create policy property_reservations_participant_select
 on public.property_reservations
 for select
@@ -190,8 +192,8 @@ begin
   if p_reserved_from < current_date
     or (v_property.available_from is not null and p_reserved_from < v_property.available_from)
     or (v_property.available_until is not null and p_reserved_until > v_property.available_until)
-    or (v_property.min_stay_days is not null and v_duration < v_property.min_stay_days)
-    or (v_property.max_stay_days is not null and v_duration > v_property.max_stay_days)
+    or v_duration < greatest(1, coalesce(v_property.min_stay_days, 1))
+    or v_duration > greatest(1, coalesce(v_property.max_stay_days, 365))
     or (
       coalesce(v_property.advance_notice_days, 0) > 0
       and p_reserved_from < current_date + v_property.advance_notice_days
@@ -534,14 +536,6 @@ begin
         updated_at = clock_timestamp()
     where swap_id = new.id
       and status <> 'released';
-  elsif new.status in ('accepted', 'in_progress') then
-    update public.property_reservations
-    set status = 'reserved',
-        released_at = null,
-        release_reason = null,
-        updated_at = clock_timestamp()
-    where swap_id = new.id
-      and status = 'reserved';
   end if;
 
   return new;
