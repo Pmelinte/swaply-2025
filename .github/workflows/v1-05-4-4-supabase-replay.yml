@@ -56,56 +56,59 @@ jobs:
           python <<'PY' | tee evidence/legacy-compatibility-shim.log
           from pathlib import Path
 
-          jwt_migration = Path(
-              "supabase/migrations/20250102000000_fix_messages_policy.sql"
-          )
-          jwt_source = jwt_migration.read_text(encoding="utf-8")
+          migrations_dir = Path("supabase/migrations")
           legacy_jwt = "current_setting('request.jwt.claims', true)::json->>'sub'"
           compatible_jwt = "((current_setting('request.jwt.claims', true)::json)->>'sub')"
-          jwt_occurrences = jwt_source.count(legacy_jwt)
+          jwt_occurrences = 0
 
-          if jwt_occurrences != 2:
+          for migration in sorted(migrations_dir.glob("*.sql")):
+              source = migration.read_text(encoding="utf-8")
+              occurrences = source.count(legacy_jwt)
+              if occurrences:
+                  migration.write_text(
+                      source.replace(legacy_jwt, compatible_jwt),
+                      encoding="utf-8",
+                  )
+                  jwt_occurrences += occurrences
+
+          if jwt_occurrences < 2:
               raise SystemExit(
-                  "Expected exactly two legacy JSON casts in the isolated copy; "
-                  f"found {jwt_occurrences}."
+                  "Expected at least two legacy JWT expressions in the isolated "
+                  f"migration set; found {jwt_occurrences}."
               )
 
-          jwt_migration.write_text(
-              jwt_source.replace(legacy_jwt, compatible_jwt),
-              encoding="utf-8",
+          participant_policy_files = [
+              "20260206170000_phase2_chat_rls.sql",
+              "20260218000001_fix_rls.sql",
+          ]
+          participant_policy_marker = (
+              'CREATE POLICY "messages_select_participant" ON public.messages'
+          )
+          participant_policy_drop = (
+              'DROP POLICY IF EXISTS "messages_select_participant" '
+              'ON public.messages;\n'
           )
 
-          policy_migration = Path(
-              "supabase/migrations/20260206170000_phase2_chat_rls.sql"
-          )
-          policy_source = policy_migration.read_text(encoding="utf-8")
-          policy_anchor = (
-              'DROP POLICY IF EXISTS "messages_insert_auth" ON public.messages;\n'
-          )
-          policy_compatibility = (
-              policy_anchor
-              + 'DROP POLICY IF EXISTS "messages_select_participant" ON public.messages;\n'
-              + 'DROP POLICY IF EXISTS "messages_insert_own" ON public.messages;\n'
-          )
-
-          if policy_source.count(policy_anchor) != 1:
-              raise SystemExit(
-                  "Expected one legacy chat-policy anchor in the isolated copy."
-              )
-
-          policy_migration.write_text(
-              policy_source.replace(
-                  policy_anchor,
-                  policy_compatibility,
-                  1,
-              ),
-              encoding="utf-8",
-          )
+          for file_name in participant_policy_files:
+              migration = migrations_dir / file_name
+              source = migration.read_text(encoding="utf-8")
+              if source.count(participant_policy_marker) != 1:
+                  raise SystemExit(
+                      f"Expected one participant policy marker in {file_name}."
+                  )
+              if participant_policy_drop not in source:
+                  source = source.replace(
+                      participant_policy_marker,
+                      participant_policy_drop + participant_policy_marker,
+                      1,
+                  )
+                  migration.write_text(source, encoding="utf-8")
 
           print(
-              f"Applied {jwt_occurrences} PostgreSQL JSON compatibility "
-              "parentheses and two idempotent chat-policy drops to the "
-              "isolated CI copy only; repository migrations remain unchanged."
+              f"Normalized {jwt_occurrences} legacy JWT expressions and made "
+              f"{len(participant_policy_files)} chat-policy recreations "
+              "idempotent in the isolated CI copy only; repository migrations "
+              "remain unchanged."
           )
           PY
 
