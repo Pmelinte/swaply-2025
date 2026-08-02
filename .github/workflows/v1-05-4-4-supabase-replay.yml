@@ -64,9 +64,9 @@ jobs:
           compatible = "(current_setting('request.jwt.claims', true)::json)->>'sub'"
           occurrences = source.count(legacy)
 
-          if occurrences != 1:
+          if occurrences != 2:
               raise SystemExit(
-                  "Expected exactly one legacy JSON cast in the isolated copy; "
+                  "Expected exactly two legacy JSON casts in the isolated copy; "
                   f"found {occurrences}."
               )
 
@@ -75,8 +75,9 @@ jobs:
               encoding="utf-8",
           )
           print(
-              "Applied one PostgreSQL compatibility parenthesis to the isolated "
-              "CI copy only; the repository migration remains unchanged."
+              f"Applied {occurrences} PostgreSQL compatibility parentheses to "
+              "the isolated CI copy only; the repository migration remains "
+              "unchanged."
           )
           PY
 
