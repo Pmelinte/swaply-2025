@@ -200,6 +200,8 @@ begin
       or pg_catalog.has_table_privilege('authenticated', v_expected, 'UPDATE')
       or pg_catalog.has_table_privilege('authenticated', v_expected, 'DELETE')
       or pg_catalog.has_table_privilege('authenticated', v_expected, 'TRUNCATE')
+      or pg_catalog.has_table_privilege('authenticated', v_expected, 'REFERENCES')
+      or pg_catalog.has_table_privilege('authenticated', v_expected, 'TRIGGER')
       or pg_catalog.has_table_privilege('anon', v_expected, 'SELECT')
       or pg_catalog.has_table_privilege('anon', v_expected, 'INSERT')
       or pg_catalog.has_table_privilege('anon', v_expected, 'UPDATE')
@@ -228,6 +230,21 @@ begin
       'authenticated',
       'public.service_delivery_mutation_receipts',
       'DELETE'
+    )
+    or pg_catalog.has_table_privilege(
+      'authenticated',
+      'public.service_delivery_mutation_receipts',
+      'TRUNCATE'
+    )
+    or pg_catalog.has_table_privilege(
+      'authenticated',
+      'public.service_delivery_mutation_receipts',
+      'REFERENCES'
+    )
+    or pg_catalog.has_table_privilege(
+      'authenticated',
+      'public.service_delivery_mutation_receipts',
+      'TRIGGER'
     )
     or pg_catalog.has_table_privilege(
       'anon',
@@ -413,10 +430,10 @@ begin
     to_regprocedure('private.sync_service_deliveries_from_swap_v1()')
   ));
   foreach v_expected in array array[
-    "new.status in ('cancelled', 'rejected', 'expired')",
-    "new.status = 'disputed'",
-    "set status = 'cancelled'",
-    "set status = 'disputed'"
+    'new.status in (''cancelled'', ''rejected'', ''expired'')',
+    'new.status = ''disputed''',
+    'set status = ''cancelled''',
+    'set status = ''disputed'''
   ]
   loop
     if position(v_expected in v_definition) = 0 then
@@ -428,9 +445,9 @@ begin
     to_regprocedure('private.resolve_service_deliveries_from_dispute_v1()')
   ));
   foreach v_expected in array array[
-    "new.status in ('resolved_requester', 'resolved_responder', 'resolved_split', 'rejected')",
-    "set status = 'resolved'",
-    "close_reason = 'dispute_' || new.status"
+    'new.status in (''resolved_requester'', ''resolved_responder'', ''resolved_split'', ''rejected'')',
+    'set status = ''resolved''',
+    'close_reason = ''dispute_'' || new.status'
   ]
   loop
     if position(v_expected in v_definition) = 0 then
