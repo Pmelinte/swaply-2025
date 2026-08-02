@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - ".github/workflows/v1-05-4-4-supabase-replay.yml"
+      - "scripts/prepare-v1-05-4-4-isolated-migrations.py"
       - "supabase/migrations/**"
       - "supabase/tests/v1_05_4_4_service_delivery_authority_contract.sql"
       - "supabase/tests/v1_05_4_4_service_delivery_authority_replay.sql"
@@ -53,64 +54,9 @@ jobs:
           cp -R ../supabase/tests supabase/tests
           mkdir -p evidence
 
-          python <<'PY' | tee evidence/legacy-compatibility-shim.log
-          from pathlib import Path
-
-          migrations_dir = Path("supabase/migrations")
-          legacy_jwt = "current_setting('request.jwt.claims', true)::json->>'sub'"
-          compatible_jwt = "((current_setting('request.jwt.claims', true)::json)->>'sub')"
-          jwt_occurrences = 0
-
-          for migration in sorted(migrations_dir.glob("*.sql")):
-              source = migration.read_text(encoding="utf-8")
-              occurrences = source.count(legacy_jwt)
-              if occurrences:
-                  migration.write_text(
-                      source.replace(legacy_jwt, compatible_jwt),
-                      encoding="utf-8",
-                  )
-                  jwt_occurrences += occurrences
-
-          if jwt_occurrences < 2:
-              raise SystemExit(
-                  "Expected at least two legacy JWT expressions in the isolated "
-                  f"migration set; found {jwt_occurrences}."
-              )
-
-          participant_policy_files = [
-              "20260206170000_phase2_chat_rls.sql",
-              "20260218000001_fix_rls.sql",
-          ]
-          participant_policy_marker = (
-              'CREATE POLICY "messages_select_participant" ON public.messages'
-          )
-          participant_policy_drop = (
-              'DROP POLICY IF EXISTS "messages_select_participant" '
-              'ON public.messages;\n'
-          )
-
-          for file_name in participant_policy_files:
-              migration = migrations_dir / file_name
-              source = migration.read_text(encoding="utf-8")
-              if source.count(participant_policy_marker) != 1:
-                  raise SystemExit(
-                      f"Expected one participant policy marker in {file_name}."
-                  )
-              if participant_policy_drop not in source:
-                  source = source.replace(
-                      participant_policy_marker,
-                      participant_policy_drop + participant_policy_marker,
-                      1,
-                  )
-                  migration.write_text(source, encoding="utf-8")
-
-          print(
-              f"Normalized {jwt_occurrences} legacy JWT expressions and made "
-              f"{len(participant_policy_files)} chat-policy recreations "
-              "idempotent in the isolated CI copy only; repository migrations "
-              "remain unchanged."
-          )
-          PY
+          python ../scripts/prepare-v1-05-4-4-isolated-migrations.py \
+            supabase/migrations \
+            | tee evidence/legacy-compatibility-shim.log
 
       - name: Start isolated Supabase stack
         working-directory: .ci-supabase
