@@ -4,6 +4,7 @@ export type MatchAgreementExchangeResult = {
   swapId: string;
   created: boolean;
   agreementRevision: number;
+  agreementHash: string;
 };
 
 export function parseMatchAgreementExchangeResult(
@@ -15,11 +16,14 @@ export function parseMatchAgreementExchangeResult(
   const swapId = typeof row.swap_id === "string" ? row.swap_id : "";
   const created = row.created === true;
   const agreementRevision = Number(row.agreement_revision);
+  const agreementHash =
+    typeof row.agreement_hash === "string" ? row.agreement_hash : "";
 
   if (
     !swapId ||
     !Number.isFinite(agreementRevision) ||
-    agreementRevision < 1
+    agreementRevision < 1 ||
+    !/^[a-f0-9]{64}$/.test(agreementHash)
   ) {
     return null;
   }
@@ -28,6 +32,7 @@ export function parseMatchAgreementExchangeResult(
     swapId,
     created,
     agreementRevision: Math.trunc(agreementRevision),
+    agreementHash,
   };
 }
 
