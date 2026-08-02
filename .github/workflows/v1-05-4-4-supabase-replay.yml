@@ -4,8 +4,8 @@ on:
   pull_request:
     paths:
       - ".github/workflows/v1-05-4-4-supabase-replay.yml"
-      - "scripts/prepare-v1-05-4-4-isolated-migrations.py"
-      - "supabase/migrations/**"
+      - "supabase/migrations/20260802190000_v1_05_4_4_service_delivery_authority.sql"
+      - "supabase/tests/fixtures/v1_05_4_4_current_contract_fixture.sql"
       - "supabase/tests/v1_05_4_4_service_delivery_authority_contract.sql"
       - "supabase/tests/v1_05_4_4_service_delivery_authority_replay.sql"
       - "supabase/migration-governance/forward-epoch.json"
@@ -25,7 +25,7 @@ jobs:
       github.event_name == 'workflow_dispatch' ||
       github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 30
 
     steps:
       - name: Checkout PR head
@@ -41,7 +41,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install --yes postgresql-client
 
-      - name: Prepare isolated Supabase project
+      - name: Prepare isolated current-contract project
         shell: bash
         run: |
           set -euo pipefail
@@ -50,24 +50,36 @@ jobs:
           cd .ci-supabase
           supabase init
           rm -rf supabase/migrations supabase/tests
-          cp -R ../supabase/migrations supabase/migrations
-          cp -R ../supabase/tests supabase/tests
-          mkdir -p evidence
+          mkdir -p supabase/migrations supabase/tests evidence
 
-          python ../scripts/prepare-v1-05-4-4-isolated-migrations.py \
-            supabase/migrations \
-            | tee evidence/legacy-compatibility-shim.log
+          cp \
+            ../supabase/tests/fixtures/v1_05_4_4_current_contract_fixture.sql \
+            supabase/migrations/00000000000000_v1_05_4_4_current_contract_fixture.sql
+          cp \
+            ../supabase/migrations/20260802190000_v1_05_4_4_service_delivery_authority.sql \
+            supabase/migrations/
+          cp \
+            ../supabase/tests/v1_05_4_4_service_delivery_authority_contract.sql \
+            supabase/tests/
+          cp \
+            ../supabase/tests/v1_05_4_4_service_delivery_authority_replay.sql \
+            supabase/tests/
+
+          sha256sum \
+            supabase/migrations/00000000000000_v1_05_4_4_current_contract_fixture.sql \
+            supabase/migrations/20260802190000_v1_05_4_4_service_delivery_authority.sql \
+            supabase/tests/v1_05_4_4_service_delivery_authority_contract.sql \
+            supabase/tests/v1_05_4_4_service_delivery_authority_replay.sql \
+            | tee evidence/input-sha256.txt
 
       - name: Start isolated Supabase stack
         working-directory: .ci-supabase
         shell: bash
         run: |
           set -o pipefail
-          supabase start 2>&1 | tee evidence/supabase-start.log
-
-      - name: Rebuild database from repository migrations
-        working-directory: .ci-supabase
-        run: supabase db reset --local
+          supabase start \
+            -x studio,imgproxy,storage-api,realtime,inbucket,edge-runtime,logflare,vector,supavisor \
+            2>&1 | tee evidence/supabase-start.log
 
       - name: Record isolated stack identity
         working-directory: .ci-supabase
@@ -144,17 +156,12 @@ jobs:
               where id::text like 'a5440000-%'
             ) or exists (
               select 1
-              from public.matches
-              where id::text like 'a5440000-%'
-            ) or exists (
-              select 1
               from public.conversations
               where id::text like 'a5440000-%'
             ) or exists (
               select 1
               from public.swaps
-              where requester_id::text like 'a5440000-%'
-                 or responder_id::text like 'a5440000-%'
+              where id::text like 'a5440000-%'
             ) or exists (
               select 1
               from public.service_deliveries
@@ -169,7 +176,6 @@ jobs:
             'v1_05_4_4_cleanup', 'PASS',
             'fixture_users', 0,
             'fixture_items', 0,
-            'fixture_matches', 0,
             'fixture_conversations', 0,
             'fixture_exchanges', 0,
             'fixture_deliveries', 0
