@@ -1,0 +1,183 @@
+name: V1-05.4.4 Supabase Replay
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/v1-05-4-4-supabase-replay.yml"
+      - "supabase/migrations/**"
+      - "supabase/tests/v1_05_4_4_service_delivery_authority_contract.sql"
+      - "supabase/tests/v1_05_4_4_service_delivery_authority_replay.sql"
+      - "supabase/migration-governance/forward-epoch.json"
+      - "src/__tests__/v1-05-4-4-service-delivery-authority.test.ts"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v1-05-4-4-supabase-replay-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  authenticated-service-delivery-replay:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v4
+
+      - name: Install Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: 2.109.1
+
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes postgresql-client
+
+      - name: Prepare isolated Supabase project
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf .ci-supabase
+          mkdir -p .ci-supabase
+          cd .ci-supabase
+          supabase init
+          rm -rf supabase/migrations supabase/tests
+          cp -R ../supabase/migrations supabase/migrations
+          cp -R ../supabase/tests supabase/tests
+          mkdir -p evidence
+
+      - name: Start isolated Supabase stack
+        working-directory: .ci-supabase
+        run: supabase start
+
+      - name: Rebuild database from repository migrations
+        working-directory: .ci-supabase
+        run: supabase db reset --local
+
+      - name: Record isolated stack identity
+        working-directory: .ci-supabase
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase status | tee evidence/supabase-status.txt
+          supabase migration list --local | tee evidence/migration-list.txt
+
+      - name: Run V1-05.4.4 catalog contract
+        working-directory: .ci-supabase
+        shell: bash
+        env:
+          PGPASSWORD: postgres
+        run: |
+          set -euo pipefail
+          psql \
+            --host 127.0.0.1 \
+            --port 54322 \
+            --username postgres \
+            --dbname postgres \
+            --set ON_ERROR_STOP=1 \
+            --file supabase/tests/v1_05_4_4_service_delivery_authority_contract.sql \
+            2>&1 | tee evidence/catalog-contract.log
+
+      - name: Run authenticated rollback-only Service replay
+        working-directory: .ci-supabase
+        shell: bash
+        env:
+          PGPASSWORD: postgres
+        run: |
+          set -euo pipefail
+          psql \
+            --host 127.0.0.1 \
+            --port 54322 \
+            --username postgres \
+            --dbname postgres \
+            --set ON_ERROR_STOP=1 \
+            --file supabase/tests/v1_05_4_4_service_delivery_authority_replay.sql \
+            2>&1 | tee evidence/authenticated-replay.log
+
+      - name: Verify rollback cleanup
+        working-directory: .ci-supabase
+        shell: bash
+        env:
+          PGPASSWORD: postgres
+        run: |
+          set -euo pipefail
+          psql \
+            --host 127.0.0.1 \
+            --port 54322 \
+            --username postgres \
+            --dbname postgres \
+            --set ON_ERROR_STOP=1 \
+            2>&1 <<'SQL' | tee evidence/cleanup.log
+          do $cleanup$
+          begin
+            if exists (
+              select 1
+              from auth.users
+              where id in (
+                'a5440000-0000-4000-8000-000000000001'::uuid,
+                'a5440000-0000-4000-8000-000000000002'::uuid,
+                'a5440000-0000-4000-8000-000000000003'::uuid,
+                'a5440000-0000-4000-8000-000000000004'::uuid
+              )
+            ) or exists (
+              select 1
+              from public.profiles
+              where user_id::text like 'a5440000-%'
+            ) or exists (
+              select 1
+              from public.items
+              where id::text like 'a5440000-%'
+            ) or exists (
+              select 1
+              from public.matches
+              where id::text like 'a5440000-%'
+            ) or exists (
+              select 1
+              from public.conversations
+              where id::text like 'a5440000-%'
+            ) or exists (
+              select 1
+              from public.swaps
+              where requester_id::text like 'a5440000-%'
+                 or responder_id::text like 'a5440000-%'
+            ) or exists (
+              select 1
+              from public.service_deliveries
+              where service_item_id = 'a5440000-0000-4000-8000-000000000101'::uuid
+            ) then
+              raise exception 'V1-05.4.4 rollback cleanup left deterministic fixture data.';
+            end if;
+          end;
+          $cleanup$;
+
+          select jsonb_build_object(
+            'v1_05_4_4_cleanup', 'PASS',
+            'fixture_users', 0,
+            'fixture_items', 0,
+            'fixture_matches', 0,
+            'fixture_conversations', 0,
+            'fixture_exchanges', 0,
+            'fixture_deliveries', 0
+          ) as cleanup_result;
+          SQL
+
+      - name: Upload replay evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v1-05-4-4-supabase-replay-${{ github.run_id }}
+          path: .ci-supabase/evidence
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Stop isolated Supabase stack
+        if: always()
+        working-directory: .ci-supabase
+        run: supabase stop --no-backup
