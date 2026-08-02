@@ -153,11 +153,12 @@ insert into auth.users (
     clock_timestamp()
   );
 
+set local session_replication_role = origin;
+
 insert into public.profiles (
   user_id,
   username,
   role,
-  primary_language,
   created_at,
   updated_at
 ) values
@@ -165,7 +166,6 @@ insert into public.profiles (
     'a5440000-0000-4000-8000-000000000001',
     'v1544_provider',
     'user',
-    'en',
     clock_timestamp(),
     clock_timestamp()
   ),
@@ -173,7 +173,6 @@ insert into public.profiles (
     'a5440000-0000-4000-8000-000000000002',
     'v1544_recipient',
     'user',
-    'en',
     clock_timestamp(),
     clock_timestamp()
   ),
@@ -181,7 +180,6 @@ insert into public.profiles (
     'a5440000-0000-4000-8000-000000000003',
     'v1544_outsider',
     'user',
-    'en',
     clock_timestamp(),
     clock_timestamp()
   ),
@@ -189,7 +187,6 @@ insert into public.profiles (
     'a5440000-0000-4000-8000-000000000004',
     'v1544_admin',
     'admin',
-    'en',
     clock_timestamp(),
     clock_timestamp()
   );
@@ -284,16 +281,7 @@ insert into public.services_listings (
   item_id,
   owner_id,
   status,
-  category_l1,
-  service_name,
-  delivery_mode,
-  timezone,
-  available_date_until,
   max_concurrent_jobs,
-  estimated_hours,
-  scope_description,
-  deliverables,
-  milestones,
   created_at,
   updated_at
 ) values (
@@ -301,75 +289,10 @@ insert into public.services_listings (
   'a5440000-0000-4000-8000-000000000101',
   'a5440000-0000-4000-8000-000000000001',
   'active',
-  'technology',
-  'Deterministic implementation service',
-  'remote',
-  'UTC',
-  current_date + 365,
   1,
-  2,
-  'Discovery report followed by a final implementation accepted by the recipient.',
-  array['Discovery report', 'Final implementation'],
-  '["Discovery report","Final implementation"]'::jsonb,
   clock_timestamp(),
   clock_timestamp()
 );
-
-insert into public.matches (
-  id,
-  initiator_id,
-  target_user_id,
-  initiator_item_id,
-  target_item_id,
-  match_type,
-  status,
-  created_at,
-  updated_at
-) values
-  (
-    'a5440000-0000-4000-8000-000000000201',
-    'a5440000-0000-4000-8000-000000000001',
-    'a5440000-0000-4000-8000-000000000002',
-    'a5440000-0000-4000-8000-000000000101',
-    'a5440000-0000-4000-8000-000000000102',
-    'manual',
-    'accepted',
-    clock_timestamp(),
-    clock_timestamp()
-  ),
-  (
-    'a5440000-0000-4000-8000-000000000202',
-    'a5440000-0000-4000-8000-000000000001',
-    'a5440000-0000-4000-8000-000000000002',
-    'a5440000-0000-4000-8000-000000000101',
-    'a5440000-0000-4000-8000-000000000103',
-    'manual',
-    'accepted',
-    clock_timestamp(),
-    clock_timestamp()
-  ),
-  (
-    'a5440000-0000-4000-8000-000000000203',
-    'a5440000-0000-4000-8000-000000000001',
-    'a5440000-0000-4000-8000-000000000002',
-    'a5440000-0000-4000-8000-000000000101',
-    'a5440000-0000-4000-8000-000000000104',
-    'manual',
-    'accepted',
-    clock_timestamp(),
-    clock_timestamp()
-  ),
-  (
-    'a5440000-0000-4000-8000-000000000204',
-    'a5440000-0000-4000-8000-000000000001',
-    'a5440000-0000-4000-8000-000000000002',
-    'a5440000-0000-4000-8000-000000000101',
-    'a5440000-0000-4000-8000-000000000105',
-    'manual',
-    'accepted',
-    clock_timestamp(),
-    clock_timestamp()
-  );
 
 insert into public.conversations (
   id,
@@ -377,7 +300,6 @@ insert into public.conversations (
   item_ids,
   status,
   agenda_state,
-  match_id,
   created_at,
   updated_at
 )
@@ -396,39 +318,34 @@ select
     'version', 3,
     'conversation_id', fixture.conversation_id,
     'active_stage', 'agreement',
-    'completed_stages', '[]'::jsonb
+    'completed_stages', jsonb_build_array('agreement')
   ),
-  fixture.match_id,
   clock_timestamp(),
   clock_timestamp()
 from (
   values
     (
       'a5440000-0000-4000-8000-000000000301'::uuid,
-      'a5440000-0000-4000-8000-000000000201'::uuid,
       'a5440000-0000-4000-8000-000000000102'::uuid
     ),
     (
       'a5440000-0000-4000-8000-000000000302'::uuid,
-      'a5440000-0000-4000-8000-000000000202'::uuid,
       'a5440000-0000-4000-8000-000000000103'::uuid
     ),
     (
       'a5440000-0000-4000-8000-000000000303'::uuid,
-      'a5440000-0000-4000-8000-000000000203'::uuid,
       'a5440000-0000-4000-8000-000000000104'::uuid
     ),
     (
       'a5440000-0000-4000-8000-000000000304'::uuid,
-      'a5440000-0000-4000-8000-000000000204'::uuid,
       'a5440000-0000-4000-8000-000000000105'::uuid
     )
-) as fixture(conversation_id, match_id, object_item_id);
-
-set local session_replication_role = origin;
+) as fixture(conversation_id, object_item_id);
 
 create or replace function pg_temp.create_service_exchange(
   p_conversation_id uuid,
+  p_object_item_id uuid,
+  p_swap_id uuid,
   p_suffix text
 )
 returns uuid
@@ -438,162 +355,102 @@ declare
   v_provider constant uuid := 'a5440000-0000-4000-8000-000000000001';
   v_recipient constant uuid := 'a5440000-0000-4000-8000-000000000002';
   v_service_item constant uuid := 'a5440000-0000-4000-8000-000000000101';
-  v_payload jsonb;
-  v_saved jsonb;
-  v_saved_replay jsonb;
-  v_confirmed jsonb;
-  v_exchange jsonb;
-  v_exchange_replay jsonb;
-  v_swap_id uuid;
-begin
-  v_payload := jsonb_build_object(
-    'condition_notes', 'Service scope reviewed by both participants.',
-    'offer_notes', 'Provider supplies the agreed Service for the target Object.',
-    'logistics_method', 'other',
-    'logistics_notes', 'Remote delivery through the Swaply conversation.',
-    'additional_terms', 'Acceptance is milestone-based and remains participant-controlled.',
-    'domain_terms', jsonb_build_array(jsonb_build_object(
-      'item_id', v_service_item,
-      'domain', 'service',
-      'terms', jsonb_build_object(
-        'delivery_mode', 'remote',
-        'timezone', 'UTC',
-        'deliverables', jsonb_build_array(
-          'Discovery report',
-          'Final implementation'
-        ),
-        'duration_hours', 2,
-        'duration_days', 0,
-        'deadline_at', (clock_timestamp() + interval '7 days')::text,
-        'milestones', jsonb_build_array(
-          'Discovery report',
-          'Final implementation'
-        ),
-        'acceptance_criteria', 'Each milestone must match the frozen Agreement and be explicitly accepted.',
-        'no_show_terms', 'A missed deadline may be reported by the recipient with evidence.',
-        'cancellation_terms', 'Cancellation follows the canonical Exchange lifecycle.',
-        'dispute_terms', 'Unresolved delivery disagreements use the canonical dispute authority.'
-      )
-    ))
-  );
-
-  perform pg_temp.authenticate_as(v_provider);
-  v_saved := public.update_match_conversation_agreement_v2(
-    p_conversation_id,
-    'save',
-    0,
-    'v1544.save.' || p_suffix,
-    v_payload
-  );
-
-  perform pg_temp.assert_true(
-    (v_saved #>> '{agreement,revision}')::integer = 1,
-    'Agreement save must create revision 1 for ' || p_suffix
-  );
-
-  v_saved_replay := public.update_match_conversation_agreement_v2(
-    p_conversation_id,
-    'save',
-    0,
-    'v1544.save.' || p_suffix,
-    v_payload
-  );
-
-  perform pg_temp.assert_true(
-    v_saved_replay = v_saved,
-    'Exact Agreement save replay must return the original receipt for ' || p_suffix
-  );
-
-  v_confirmed := public.update_match_conversation_agreement_v2(
-    p_conversation_id,
-    'confirm',
-    1,
-    'v1544.confirm.provider.' || p_suffix,
-    '{}'::jsonb
-  );
-
-  perform pg_temp.authenticate_as(v_recipient);
-  v_confirmed := public.update_match_conversation_agreement_v2(
-    p_conversation_id,
-    'confirm',
-    1,
-    'v1544.confirm.recipient.' || p_suffix,
-    '{}'::jsonb
-  );
-
-  perform pg_temp.assert_true(
-    jsonb_array_length(v_confirmed #> '{agreement,confirmed_by}') = 2,
-    'Both participants must confirm the Agreement for ' || p_suffix
-  );
-  perform pg_temp.assert_true(
-    coalesce(v_confirmed -> 'completed_stages' ? 'agreement', false),
-    'Agreement stage must be complete for ' || p_suffix
-  );
-
-  perform pg_temp.authenticate_as(v_provider);
-  v_exchange := public.create_exchange_from_match_agreement(
-    p_conversation_id,
-    1
-  );
-  v_swap_id := (v_exchange ->> 'swap_id')::uuid;
-
-  perform pg_temp.assert_true(
-    coalesce((v_exchange ->> 'created')::boolean, false),
-    'First Exchange creation must report created=true for ' || p_suffix
-  );
-
-  v_exchange_replay := public.create_exchange_from_match_agreement(
-    p_conversation_id,
-    1
-  );
-
-  perform pg_temp.assert_true(
-    (v_exchange_replay ->> 'swap_id')::uuid = v_swap_id,
-    'Exact Exchange replay must preserve the Exchange ID for ' || p_suffix
-  );
-  perform pg_temp.assert_true(
-    coalesce((v_exchange_replay ->> 'created')::boolean, true) is false,
-    'Exact Exchange replay must report created=false for ' || p_suffix
-  );
-  perform pg_temp.assert_true(
-    (
-      select count(*)
-      from public.service_deliveries d
-      where d.swap_id = v_swap_id
-    ) = 1,
-    'Exchange must create exactly one Service delivery for ' || p_suffix
-  );
-
-  return v_swap_id;
-end;
-$function$;
-
-do $replay_setup$
-declare
-  v_swap_id uuid;
   v_delivery_id uuid;
 begin
-  v_swap_id := pg_temp.create_service_exchange(
-    'a5440000-0000-4000-8000-000000000301',
-    's1'
+  perform pg_temp.authenticate_as(v_provider);
+
+  insert into public.swaps (
+    id,
+    requester_id,
+    responder_id,
+    status,
+    conversation_id,
+    offered_item_id,
+    requested_item_id,
+    exchange_kind,
+    swap_metadata,
+    agreement_revision,
+    exchange_data,
+    requester_confirmed,
+    responder_confirmed,
+    created_at,
+    updated_at
+  ) values (
+    p_swap_id,
+    v_provider,
+    v_recipient,
+    'accepted',
+    p_conversation_id,
+    v_service_item,
+    p_object_item_id,
+    'bilateral',
+    jsonb_build_object(
+      'source', 'domain_aware_match_agreement',
+      'agreement_hash', repeat(substr(md5(p_suffix), 1, 1), 64),
+      'fixture', 'v1_05_4_4_current_contract'
+    ),
+    1,
+    jsonb_build_object(
+      'domain_terms',
+      jsonb_build_array(jsonb_build_object(
+        'item_id', v_service_item,
+        'domain', 'service',
+        'terms', jsonb_build_object(
+          'delivery_mode', 'remote',
+          'timezone', 'UTC',
+          'deliverables', jsonb_build_array(
+            'Discovery report',
+            'Final implementation'
+          ),
+          'duration_hours', 2,
+          'duration_days', 0,
+          'deadline_at', (clock_timestamp() + interval '7 days')::text,
+          'milestones', jsonb_build_array(
+            'Discovery report',
+            'Final implementation'
+          ),
+          'acceptance_criteria',
+            'Each milestone must match the frozen Agreement and be explicitly accepted.',
+          'no_show_terms',
+            'A missed deadline may be reported by the recipient with evidence.',
+          'cancellation_terms',
+            'Cancellation follows the canonical Exchange lifecycle.',
+          'dispute_terms',
+            'Unresolved delivery disagreements use the canonical dispute authority.'
+        )
+      ))
+    ),
+    true,
+    true,
+    clock_timestamp(),
+    clock_timestamp()
   );
+
+  update public.conversations
+  set swap_id = p_swap_id,
+      updated_at = clock_timestamp()
+  where id = p_conversation_id;
 
   select d.id
   into strict v_delivery_id
   from public.service_deliveries d
-  where d.swap_id = v_swap_id;
+  where d.swap_id = p_swap_id;
 
-  insert into pg_temp.v1544_state(key, value) values
-    ('s1_swap', v_swap_id),
-    ('s1_delivery', v_delivery_id);
-
+  perform pg_temp.assert_true(
+    (
+      select count(*)
+      from public.service_deliveries d
+      where d.swap_id = p_swap_id
+    ) = 1,
+    'Exchange must create exactly one Service delivery for ' || p_suffix
+  );
   perform pg_temp.assert_true(
     (
       select count(*)
       from public.service_delivery_milestones m
       where m.delivery_id = v_delivery_id
     ) = 2,
-    'Agreement milestones must be frozen into the delivery ledger'
+    'Agreement milestones must be frozen for ' || p_suffix
   );
   perform pg_temp.assert_true(
     (
@@ -602,8 +459,27 @@ begin
       where e.delivery_id = v_delivery_id
         and e.event_type = 'created'
     ) = 1,
-    'Delivery creation must emit exactly one created event'
+    'Delivery creation must emit one created event for ' || p_suffix
   );
+
+  return v_delivery_id;
+end;
+$function$;
+
+do $replay_setup$
+declare
+  v_delivery_id uuid;
+begin
+  v_delivery_id := pg_temp.create_service_exchange(
+    'a5440000-0000-4000-8000-000000000301',
+    'a5440000-0000-4000-8000-000000000102',
+    'a5440000-0000-4000-8000-000000000401',
+    's1'
+  );
+
+  insert into pg_temp.v1544_state(key, value) values
+    ('s1_swap', 'a5440000-0000-4000-8000-000000000401'),
+    ('s1_delivery', v_delivery_id);
 end;
 $replay_setup$;
 
@@ -623,11 +499,6 @@ begin
   if (
     select count(*)
     from public.service_delivery_milestones m
-    where m.delivery_id in (
-      select d.id
-      from public.service_deliveries d
-      where d.service_item_id = 'a5440000-0000-4000-8000-000000000101'
-    )
   ) <> 2 then
     raise exception 'V1-05.4.4 participant RLS did not expose the milestones.';
   end if;
@@ -635,11 +506,6 @@ begin
   if (
     select count(*)
     from public.service_delivery_events e
-    where e.delivery_id in (
-      select d.id
-      from public.service_deliveries d
-      where d.service_item_id = 'a5440000-0000-4000-8000-000000000101'
-    )
   ) <> 1 then
     raise exception 'V1-05.4.4 participant RLS did not expose the event stream.';
   end if;
@@ -652,25 +518,15 @@ set local role authenticated;
 
 do $outsider_rls$
 begin
-  if exists (
-    select 1
-    from public.service_deliveries d
-    where d.service_item_id = 'a5440000-0000-4000-8000-000000000101'
-  ) then
+  if exists (select 1 from public.service_deliveries) then
     raise exception 'V1-05.4.4 outsider RLS exposed a Service delivery.';
   end if;
 
-  if exists (
-    select 1
-    from public.service_delivery_milestones m
-  ) then
+  if exists (select 1 from public.service_delivery_milestones) then
     raise exception 'V1-05.4.4 outsider RLS exposed Service milestones.';
   end if;
 
-  if exists (
-    select 1
-    from public.service_delivery_events e
-  ) then
+  if exists (select 1 from public.service_delivery_events) then
     raise exception 'V1-05.4.4 outsider RLS exposed Service events.';
   end if;
 end;
@@ -711,7 +567,7 @@ begin
   );
   perform pg_temp.assert_true(
     (select status from public.swaps where id = v_swap_id) = 'in_progress',
-    'Starting a Service must advance an accepted Exchange to in_progress'
+    'Starting a Service must advance the Exchange to in_progress'
   );
 
   v_replay := public.mutate_service_delivery_v1(
@@ -854,6 +710,21 @@ begin
     'Accepting the first milestone must activate the next milestone'
   );
 
+  perform pg_temp.expect_error(
+    format(
+      $sql$select public.apply_swap_transition_v1(%L::uuid, 'in_progress', 'completed', %L::uuid, 'premature_completion', 'v1544.premature.s1')$sql$,
+      v_swap_id,
+      v_recipient
+    ),
+    '23514',
+    'Every Service delivery must be accepted'
+  );
+
+  perform pg_temp.assert_true(
+    (select status from public.swaps where id = v_swap_id) = 'in_progress',
+    'Premature Exchange completion must leave status unchanged'
+  );
+
   perform pg_temp.authenticate_as(v_provider);
   v_result := public.mutate_service_delivery_v1(
     v_delivery_id,
@@ -891,6 +762,20 @@ begin
     v_result #>> '{delivery,status}' = 'completed'
       and (v_result #>> '{delivery,revision}')::bigint = 7,
     'Final milestone acceptance must complete delivery at revision 7'
+  );
+
+  perform public.apply_swap_transition_v1(
+    v_swap_id,
+    'in_progress',
+    'completed',
+    v_recipient,
+    'bilateral_completion',
+    'v1544.complete.s1'
+  );
+
+  perform pg_temp.assert_true(
+    (select status from public.swaps where id = v_swap_id) = 'completed',
+    'Exchange completion must succeed after every Service milestone is accepted'
   );
   perform pg_temp.assert_true(
     (
@@ -944,46 +829,48 @@ declare
   v_provider constant uuid := 'a5440000-0000-4000-8000-000000000001';
   v_recipient constant uuid := 'a5440000-0000-4000-8000-000000000002';
   v_admin constant uuid := 'a5440000-0000-4000-8000-000000000004';
-  v_s2_swap uuid;
   v_s2_delivery uuid;
-  v_s3_swap uuid;
   v_s3_delivery uuid;
-  v_s4_swap uuid;
   v_s4_delivery uuid;
   v_dispute_id uuid;
   v_report jsonb;
   v_report_replay jsonb;
   v_resolution jsonb;
 begin
-  v_s2_swap := pg_temp.create_service_exchange(
+  v_s2_delivery := pg_temp.create_service_exchange(
     'a5440000-0000-4000-8000-000000000302',
+    'a5440000-0000-4000-8000-000000000103',
+    'a5440000-0000-4000-8000-000000000402',
     's2'
   );
 
-  select d.id
-  into strict v_s2_delivery
-  from public.service_deliveries d
-  where d.swap_id = v_s2_swap;
-
   perform pg_temp.expect_error(
-    $sql$select pg_temp.create_service_exchange('a5440000-0000-4000-8000-000000000303'::uuid, 's3')$sql$,
+    $sql$select pg_temp.create_service_exchange(
+      'a5440000-0000-4000-8000-000000000303'::uuid,
+      'a5440000-0000-4000-8000-000000000104'::uuid,
+      'a5440000-0000-4000-8000-000000000403'::uuid,
+      's3'
+    )$sql$,
     '23P01',
     'capacity is unavailable'
   );
 
   perform pg_temp.assert_true(
-    (
+    not exists (
+      select 1
+      from public.swaps
+      where id = 'a5440000-0000-4000-8000-000000000403'
+    ) and (
       select c.swap_id is null
-        and not (coalesce(c.agenda_state, '{}'::jsonb) ? 'agreement')
       from public.conversations c
       where c.id = 'a5440000-0000-4000-8000-000000000303'
     ),
-    'Failed capacity acquisition must leave the next conversation unchanged'
+    'Failed capacity acquisition must leave Exchange and conversation unchanged'
   );
 
   perform pg_temp.authenticate_as(v_provider);
   perform public.apply_swap_transition_v1(
-    v_s2_swap,
+    'a5440000-0000-4000-8000-000000000402',
     'accepted',
     'cancelled',
     v_provider,
@@ -1002,15 +889,12 @@ begin
     'Cancelling the Exchange must close and release the Service delivery'
   );
 
-  v_s3_swap := pg_temp.create_service_exchange(
+  v_s3_delivery := pg_temp.create_service_exchange(
     'a5440000-0000-4000-8000-000000000303',
+    'a5440000-0000-4000-8000-000000000104',
+    'a5440000-0000-4000-8000-000000000403',
     's3'
   );
-
-  select d.id
-  into strict v_s3_delivery
-  from public.service_deliveries d
-  where d.swap_id = v_s3_swap;
 
   update public.service_deliveries
   set deadline_at = clock_timestamp() - interval '1 minute',
@@ -1057,23 +941,32 @@ begin
   select d.id
   into strict v_dispute_id
   from public.disputes d
-  where d.swap_id = v_s3_swap;
+  where d.swap_id = 'a5440000-0000-4000-8000-000000000403';
 
   perform pg_temp.assert_true(
-    (select status from public.swaps where id = v_s3_swap) = 'disputed',
+    (
+      select status
+      from public.swaps
+      where id = 'a5440000-0000-4000-8000-000000000403'
+    ) = 'disputed',
     'Missed deadline reporting must open the canonical disputed Exchange state'
   );
   perform pg_temp.assert_true(
     (
       select count(*)
       from public.disputes d
-      where d.swap_id = v_s3_swap
+      where d.swap_id = 'a5440000-0000-4000-8000-000000000403'
     ) = 1,
     'Missed deadline replay must not duplicate the dispute'
   );
 
   perform pg_temp.expect_error(
-    $sql$select pg_temp.create_service_exchange('a5440000-0000-4000-8000-000000000304'::uuid, 's4')$sql$,
+    $sql$select pg_temp.create_service_exchange(
+      'a5440000-0000-4000-8000-000000000304'::uuid,
+      'a5440000-0000-4000-8000-000000000105'::uuid,
+      'a5440000-0000-4000-8000-000000000404'::uuid,
+      's4'
+    )$sql$,
     '23P01',
     'capacity is unavailable'
   );
@@ -1101,15 +994,12 @@ begin
     'Terminal dispute resolution must release Service capacity'
   );
 
-  v_s4_swap := pg_temp.create_service_exchange(
+  v_s4_delivery := pg_temp.create_service_exchange(
     'a5440000-0000-4000-8000-000000000304',
+    'a5440000-0000-4000-8000-000000000105',
+    'a5440000-0000-4000-8000-000000000404',
     's4'
   );
-
-  select d.id
-  into strict v_s4_delivery
-  from public.service_deliveries d
-  where d.swap_id = v_s4_swap;
 
   perform pg_temp.assert_true(
     (select status from public.service_deliveries where id = v_s4_delivery) = 'pending',
@@ -1118,7 +1008,7 @@ begin
 
   perform pg_temp.authenticate_as(v_provider);
   perform public.apply_swap_transition_v1(
-    v_s4_swap,
+    'a5440000-0000-4000-8000-000000000404',
     'accepted',
     'cancelled',
     v_provider,
@@ -1137,21 +1027,25 @@ select jsonb_build_object(
   'contract', 'V1-05.4.4 Service Delivery Authority',
   'authenticated_replay', 'PASS',
   'service_deliveries', (
-    select count(*) from public.service_deliveries
+    select count(*)
+    from public.service_deliveries
     where service_item_id = 'a5440000-0000-4000-8000-000000000101'
   ),
   'completed_deliveries', (
-    select count(*) from public.service_deliveries
+    select count(*)
+    from public.service_deliveries
     where service_item_id = 'a5440000-0000-4000-8000-000000000101'
       and status = 'completed'
   ),
   'cancelled_deliveries', (
-    select count(*) from public.service_deliveries
+    select count(*)
+    from public.service_deliveries
     where service_item_id = 'a5440000-0000-4000-8000-000000000101'
       and status = 'cancelled'
   ),
   'resolved_deliveries', (
-    select count(*) from public.service_deliveries
+    select count(*)
+    from public.service_deliveries
     where service_item_id = 'a5440000-0000-4000-8000-000000000101'
       and status = 'resolved'
   ),
