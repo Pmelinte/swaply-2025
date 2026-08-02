@@ -9,24 +9,24 @@ import type { ScoredCandidate } from "./MatchingPage";
 
 interface Props {
   candidate: ScoredCandidate | null;
+  canExpressInterest: boolean;
   onClose: () => void;
-  onExpressInterest: (c: ScoredCandidate) => void;
-  onFillSlot: (itemId: string) => void;
+  onExpressInterest: (candidate: ScoredCandidate) => void;
 }
 
 export default function MatchingItemDrawer({
   candidate,
+  canExpressInterest,
   onClose,
   onExpressInterest,
-  onFillSlot,
 }: Props) {
   const t = useTranslations("matching");
   const isOpen = candidate !== null;
 
   useEffect(() => {
     if (!isOpen) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
@@ -35,17 +35,26 @@ export default function MatchingItemDrawer({
   return (
     <div
       className={`fixed inset-0 z-40 transition-opacity duration-200 ${
-        isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        isOpen
+          ? "pointer-events-auto opacity-100"
+          : "pointer-events-none opacity-0"
       }`}
       aria-hidden={!isOpen}
     >
-      <div onClick={onClose} className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+      <div
+        onClick={onClose}
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+      />
       <aside
         role="dialog"
         aria-modal={isOpen ? "true" : undefined}
-        data-testid={candidate ? `matching-item-drawer-${candidate.item.id}` : undefined}
+        data-testid={
+          candidate ? `matching-item-drawer-${candidate.item.id}` : undefined
+        }
         className={`absolute right-0 top-0 flex h-full w-full max-w-md flex-col bg-white shadow-2xl transition-transform duration-200 dark:bg-zinc-900 ${
-          isOpen ? "translate-x-0 pointer-events-auto" : "translate-x-full pointer-events-none"
+          isOpen
+            ? "pointer-events-auto translate-x-0"
+            : "pointer-events-none translate-x-full"
         }`}
       >
         <div className="flex items-center justify-between border-b border-zinc-200 px-4 py-3 dark:border-zinc-800">
@@ -79,12 +88,31 @@ export default function MatchingItemDrawer({
               <p className="mb-2 text-xs font-semibold uppercase text-zinc-500 dark:text-zinc-400">
                 {t("score_detail")}
               </p>
-              <ScoreRow label={t("score_category")} value={candidate.breakdown.categoryMatch} />
-              <ScoreRow label={t("score_value")} value={candidate.breakdown.valueMatch} />
-              <ScoreRow label={t("score_geo")} value={candidate.breakdown.geoScore} />
-              <ScoreRow label={t("score_trust")} value={candidate.breakdown.trustScore} />
-              <ScoreRow label={t("score_activity")} value={candidate.breakdown.activityScore} />
-              <ScoreRow label={t("score_total")} value={candidate.breakdown.total} emphasize />
+              <ScoreRow
+                label={t("score_category")}
+                value={candidate.breakdown.categoryMatch}
+              />
+              <ScoreRow
+                label={t("score_value")}
+                value={candidate.breakdown.valueMatch}
+              />
+              <ScoreRow
+                label={t("score_geo")}
+                value={candidate.breakdown.geoScore}
+              />
+              <ScoreRow
+                label={t("score_trust")}
+                value={candidate.breakdown.trustScore}
+              />
+              <ScoreRow
+                label={t("score_activity")}
+                value={candidate.breakdown.activityScore}
+              />
+              <ScoreRow
+                label={t("score_total")}
+                value={candidate.breakdown.total}
+                emphasize
+              />
             </div>
 
             <div className="flex gap-2">
@@ -99,18 +127,14 @@ export default function MatchingItemDrawer({
                 type="button"
                 data-testid={`express-interest-submit-${candidate.item.id}`}
                 onClick={() => onExpressInterest(candidate)}
-                className="flex-1 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+                disabled={!canExpressInterest}
+                className="flex-1 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-zinc-300 dark:disabled:bg-zinc-700"
               >
-                {t("express_interest")}
+                {canExpressInterest
+                  ? t("express_interest")
+                  : t("slot_add")}
               </button>
             </div>
-            <button
-              type="button"
-              onClick={() => onFillSlot(candidate.item.id)}
-              className="mt-2 w-full rounded-full border border-dashed border-blue-300 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-100 dark:border-blue-700 dark:bg-blue-950/40 dark:text-blue-200"
-            >
-              {t("slot_add")}
-            </button>
           </div>
         )}
       </aside>
@@ -127,7 +151,7 @@ function ScoreRow({
   value: number;
   emphasize?: boolean;
 }) {
-  const v = Math.round(value);
+  const rounded = Math.round(value);
   return (
     <div
       className={`flex items-center justify-between py-0.5 text-xs ${
@@ -137,7 +161,7 @@ function ScoreRow({
       }`}
     >
       <span>{label}</span>
-      <span className="tabular-nums">{v}%</span>
+      <span className="tabular-nums">{rounded}%</span>
     </div>
   );
 }

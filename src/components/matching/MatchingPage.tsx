@@ -1,17 +1,19 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { useMatchingSlots } from "@/hooks/useMatchingSlots";
 import {
   fetchCandidateItems,
   fetchItemById,
+  fetchOwnActiveItems,
   fetchProfilesByIds,
   fetchProfileById,
   type MatchingItemRow,
   type MatchingProfileRow,
 } from "@/lib/matching/matchQueries";
+import { isMatchingPairCompatible } from "@/lib/matching/domainCompatibility";
 import { calculateMatchScore } from "@/lib/matching/matchScore";
 import {
   fetchExpressedInterests,
@@ -30,7 +32,9 @@ import MatchingBrowse from "./MatchingBrowse";
 import MatchingMap from "./MatchingMap";
 import MatchingAIButton from "./MatchingAIButton";
 import MatchingSelected from "./MatchingSelected";
-import MatchingReceived, { type ReceivedInterestView } from "./MatchingReceived";
+import MatchingReceived, {
+  type ReceivedInterestView,
+} from "./MatchingReceived";
 import MatchingFilterDrawer from "./MatchingFilterDrawer";
 import MatchingItemDrawer from "./MatchingItemDrawer";
 
@@ -38,29 +42,54 @@ interface Props {
   userId: string;
   initialSlot1: string | null;
   initialSlot2: string | null;
+  initialTarget: string | null;
 }
 
 export type ScoredCandidate = {
   item: MatchingItemRow;
   profile: MatchingProfileRow | null;
+  sourceItemId: string | null;
   score: number;
   breakdown: ReturnType<typeof calculateMatchScore>;
 };
 
-export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Props) {
-  const { slot1Id, slot2Id, setSlot1, setSlot2, clearSlot1, clearSlot2 } = useMatchingSlots(
-    initialSlot1,
-    initialSlot2,
-  );
+function emptyBreakdown(): ReturnType<typeof calculateMatchScore> {
+  return {
+    categoryMatch: 0,
+    valueMatch: 0,
+    typeMatch: 0,
+    geoScore: 0,
+    trustScore: 0,
+    activityScore: 0,
+    availabilityScore: 0,
+    total: 0,
+  };
+}
 
+export default function MatchingPage({
+  userId,
+  initialSlot1,
+  initialSlot2,
+  initialTarget,
+}: Props) {
+  const {
+    slot1Id,
+    slot2Id,
+    setSlot1,
+    setSlot2,
+    clearSlot1,
+    clearSlot2,
+  } = useMatchingSlots(initialSlot1, initialSlot2);
+
+  const [ownItems, setOwnItems] = useState<MatchingItemRow[]>([]);
   const [slot1Item, setSlot1Item] = useState<MatchingItemRow | null>(null);
   const [slot2Item, setSlot2Item] = useState<MatchingItemRow | null>(null);
   const [myProfile, setMyProfile] = useState<MatchingProfileRow | null>(null);
 
   const [candidates, setCandidates] = useState<MatchingItemRow[]>([]);
-  const [candidateProfiles, setCandidateProfiles] = useState<Map<string, MatchingProfileRow>>(
-    new Map(),
-  );
+  const [candidateProfiles, setCandidateProfiles] = useState<
+    Map<string, MatchingProfileRow>
+  >(new Map());
   const [loading, setLoading] = useState(false);
   const [persistingIds, setPersistingIds] = useState<Set<string>>(new Set());
   const [withdrawingIds, setWithdrawingIds] = useState<Set<string>>(new Set());
@@ -71,15 +100,23 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
   const [sort, setSort] = useState<SortOrder>("relevant");
   const [filters, setFilters] = useState<MatchingFilters>(DEFAULT_FILTERS);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [drawerItem, setDrawerItem] = useState<ScoredCandidate | null>(null);
+  const [drawerItemId, setDrawerItemId] = useState<string | null>(null);
+  const targetOpenedRef = useRef(false);
 
   useEffect(() => {
     const supabase = getSupabaseClient();
     if (!supabase) return;
     let cancelled = false;
-    fetchProfileById(supabase, userId).then((profile) => {
-      if (!cancelled) setMyProfile(profile);
+
+    Promise.all([
+      fetchProfileById(supabase, userId),
+      fetchOwnActiveItems(supabase, userId, 100),
+    ]).then(([profile, items]) => {
+      if (cancelled) return;
+      setMyProfile(profile);
+      setOwnItems(items);
     });
+
     return () => {
       cancelled = true;
     };
@@ -89,59 +126,91 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
     const supabase = getSupabaseClient();
     if (!supabase) return;
     let cancelled = false;
+
     if (!slot1Id) {
       setSlot1Item(null);
     } else {
       fetchItemById(supabase, slot1Id).then((item) => {
-        if (!cancelled) setSlot1Item(item);
+        if (cancelled) return;
+        if (!item || item.owner_id !== userId) {
+          setSlot1Item(null);
+          clearSlot1();
+          return;
+        }
+        setSlot1Item(item);
       });
     }
+
     return () => {
       cancelled = true;
     };
-  }, [slot1Id]);
+  }, [slot1Id, userId, clearSlot1]);
 
   useEffect(() => {
     const supabase = getSupabaseClient();
     if (!supabase) return;
     let cancelled = false;
+
     if (!slot2Id) {
       setSlot2Item(null);
     } else {
       fetchItemById(supabase, slot2Id).then((item) => {
-        if (!cancelled) setSlot2Item(item);
+        if (cancelled) return;
+        if (!item || item.owner_id !== userId) {
+          setSlot2Item(null);
+          clearSlot2();
+          return;
+        }
+        setSlot2Item(item);
       });
     }
+
     return () => {
       cancelled = true;
     };
-  }, [slot2Id]);
+  }, [slot2Id, userId, clearSlot2]);
 
   useEffect(() => {
     const supabase = getSupabaseClient();
     if (!supabase) return;
     let cancelled = false;
     setLoading(true);
+
     fetchCandidateItems(supabase, userId, 100).then(async (items) => {
       if (cancelled) return;
       setCandidates(items);
-      const ownerIds = Array.from(new Set(items.map((item) => item.owner_id)));
+      const ownerIds = Array.from(
+        new Set(items.map((item) => item.owner_id)),
+      );
       const profiles = await fetchProfilesByIds(supabase, ownerIds);
       if (!cancelled) {
         setCandidateProfiles(profiles);
         setLoading(false);
       }
     });
+
     return () => {
       cancelled = true;
     };
   }, [userId]);
 
   useEffect(() => {
+    if (
+      targetOpenedRef.current ||
+      !initialTarget ||
+      !candidates.some((item) => item.id === initialTarget)
+    ) {
+      return;
+    }
+
+    targetOpenedRef.current = true;
+    setDrawerItemId(initialTarget);
+  }, [candidates, initialTarget]);
+
+  useEffect(() => {
     const supabase = getSupabaseClient();
     if (!supabase) return;
     const client = supabase;
-
     let cancelled = false;
 
     async function restoreInterests() {
@@ -161,7 +230,11 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
       );
 
       if (!cancelled) {
-        setSelected(restored.filter((entry): entry is SelectedInterest => entry !== null));
+        setSelected(
+          restored.filter(
+            (entry): entry is SelectedInterest => entry !== null,
+          ),
+        );
       }
     }
 
@@ -179,7 +252,6 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
       return;
     }
     const client = supabase;
-
     let cancelled = false;
 
     async function restoreReceivedInterests() {
@@ -208,7 +280,11 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
       );
 
       if (!cancelled) {
-        setReceived(restored.filter((entry): entry is ReceivedInterestView => entry !== null));
+        setReceived(
+          restored.filter(
+            (entry): entry is ReceivedInterestView => entry !== null,
+          ),
+        );
         setLoadingReceived(false);
       }
     }
@@ -225,66 +301,104 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
     [slot1Item, slot2Item],
   );
 
-  const scoredCandidates: ScoredCandidate[] = useMemo(() => {
+  const scoredCandidates = useMemo<ScoredCandidate[]>(() => {
     if (activeSlotItems.length === 0) {
       return candidates.map((item) => ({
         item,
         profile: candidateProfiles.get(item.owner_id) ?? null,
+        sourceItemId: null,
         score: 0,
-        breakdown: {
-          categoryMatch: 0,
-          valueMatch: 0,
-          typeMatch: 0,
-          geoScore: 0,
-          trustScore: 0,
-          activityScore: 0,
-          availabilityScore: 0,
-          total: 0,
-        },
+        breakdown: emptyBreakdown(),
       }));
     }
 
-    return candidates.map((item) => {
+    return candidates.flatMap((item) => {
       const profile = candidateProfiles.get(item.owner_id) ?? null;
-      const breakdowns = activeSlotItems.map((slot) =>
-        calculateMatchScore(slot, item, myProfile, profile),
+      const compatibleSources = activeSlotItems.filter((source) =>
+        isMatchingPairCompatible(source, item),
       );
-      const best = breakdowns.reduce((left, right) =>
-        left.total >= right.total ? left : right,
+      if (compatibleSources.length === 0) return [];
+
+      const scoredSources = compatibleSources.map((source) => ({
+        source,
+        breakdown: calculateMatchScore(source, item, myProfile, profile),
+      }));
+      const best = scoredSources.reduce((left, right) =>
+        left.breakdown.total >= right.breakdown.total ? left : right,
       );
-      return { item, profile, score: best.total, breakdown: best };
+
+      return [
+        {
+          item,
+          profile,
+          sourceItemId: best.source.id,
+          score: best.breakdown.total,
+          breakdown: best.breakdown,
+        },
+      ];
     });
   }, [candidates, candidateProfiles, activeSlotItems, myProfile]);
 
   const filtered = useMemo(() => {
     let list = scoredCandidates;
     if (filters.category) {
-      list = list.filter((candidate) => candidate.item.category === filters.category);
+      list = list.filter(
+        (candidate) => candidate.item.category === filters.category,
+      );
     }
     if (filters.itemType) {
-      list = list.filter((candidate) => candidate.item.item_type === filters.itemType);
+      list = list.filter(
+        (candidate) => candidate.item.item_type === filters.itemType,
+      );
     }
     return list;
   }, [scoredCandidates, filters]);
 
+  const drawerItem = useMemo(
+    () =>
+      drawerItemId
+        ? scoredCandidates.find(
+            (candidate) => candidate.item.id === drawerItemId,
+          ) ?? null
+        : null,
+    [drawerItemId, scoredCandidates],
+  );
+
+  useEffect(() => {
+    if (drawerItemId && activeSlotItems.length > 0 && !drawerItem) {
+      setDrawerItemId(null);
+    }
+  }, [drawerItem, drawerItemId, activeSlotItems.length]);
+
   const averageScore = useMemo(() => {
     if (activeSlotItems.length === 0 || filtered.length === 0) return null;
-    const sum = filtered.reduce((total, candidate) => total + candidate.score, 0);
+    const sum = filtered.reduce(
+      (total, candidate) => total + candidate.score,
+      0,
+    );
     return Math.round(sum / filtered.length);
   }, [filtered, activeSlotItems]);
 
   async function expressInterest(candidate: ScoredCandidate) {
     if (persistingIds.has(candidate.item.id)) return;
     if (selected.some((entry) => entry.itemId === candidate.item.id)) {
-      setDrawerItem(null);
+      setDrawerItemId(null);
       return;
     }
 
-    const sourceItem = activeSlotItems[0] ?? null;
+    const sourceItem = activeSlotItems.find(
+      (item) => item.id === candidate.sourceItemId,
+    );
+    if (!sourceItem || !isMatchingPairCompatible(sourceItem, candidate.item)) {
+      return;
+    }
+
     const supabase = getSupabaseClient();
     if (!supabase) return;
 
-    setPersistingIds((previous) => new Set(previous).add(candidate.item.id));
+    setPersistingIds((previous) =>
+      new Set(previous).add(candidate.item.id),
+    );
 
     const persisted = await persistExpressedInterest(supabase, {
       userId,
@@ -295,7 +409,9 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
 
     if (persisted) {
       setSelected((previous) => {
-        if (previous.some((entry) => entry.itemId === candidate.item.id)) return previous;
+        if (previous.some((entry) => entry.itemId === candidate.item.id)) {
+          return previous;
+        }
         return [
           ...previous,
           {
@@ -314,7 +430,7 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
       next.delete(candidate.item.id);
       return next;
     });
-    setDrawerItem(null);
+    setDrawerItemId(null);
   }
 
   async function withdrawInterest(itemId: string) {
@@ -325,10 +441,16 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
     if (!supabase) return;
 
     setWithdrawingIds((previous) => new Set(previous).add(itemId));
-    const withdrawn = await withdrawExpressedInterest(supabase, interest.interestId, userId);
+    const withdrawn = await withdrawExpressedInterest(
+      supabase,
+      interest.interestId,
+      userId,
+    );
 
     if (withdrawn) {
-      setSelected((previous) => previous.filter((entry) => entry.itemId !== itemId));
+      setSelected((previous) =>
+        previous.filter((entry) => entry.itemId !== itemId),
+      );
     }
 
     setWithdrawingIds((previous) => {
@@ -343,11 +465,14 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
       <div className="mx-auto max-w-6xl px-4 pb-24 pt-4">
         <div className="space-y-6">
           <MatchingSlots
+            ownItems={ownItems}
             slot1Item={slot1Item}
             slot2Item={slot2Item}
             slot1Id={slot1Id}
             slot2Id={slot2Id}
             averageScore={averageScore}
+            onSelectSlot1={setSlot1}
+            onSelectSlot2={setSlot2}
             onRemoveSlot1={clearSlot1}
             onRemoveSlot2={clearSlot2}
             onOpenFilters={() => setIsFilterOpen(true)}
@@ -359,7 +484,7 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
             loading={loading}
             sort={sort}
             onSortChange={setSort}
-            onOpenItem={(candidate) => setDrawerItem(candidate)}
+            onOpenItem={(candidate) => setDrawerItemId(candidate.item.id)}
           />
 
           <MatchingMap candidates={filtered} />
@@ -370,25 +495,31 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
             excludeIds={selected.map((entry) => entry.itemId)}
             slotsFull={selected.length >= 2}
             onSuggestion={(item, score) => {
-              const existing = filtered.find((candidate) => candidate.item.id === item.id);
+              const existing = scoredCandidates.find(
+                (candidate) => candidate.item.id === item.id,
+              );
               if (existing) {
                 void expressInterest(existing);
                 return;
               }
+
+              const source = activeSlotItems.find((entry) =>
+                isMatchingPairCompatible(entry, item),
+              );
+              if (!source) return;
+              const profile = candidateProfiles.get(item.owner_id) ?? null;
+              const breakdown = calculateMatchScore(
+                source,
+                item,
+                myProfile,
+                profile,
+              );
               void expressInterest({
                 item,
-                profile: null,
-                score,
-                breakdown: {
-                  categoryMatch: 0,
-                  valueMatch: 0,
-                  typeMatch: 0,
-                  geoScore: 0,
-                  trustScore: 0,
-                  activityScore: 0,
-                  availabilityScore: 0,
-                  total: score,
-                },
+                profile,
+                sourceItemId: source.id,
+                score: Math.min(score, breakdown.total),
+                breakdown,
               });
             }}
           />
@@ -413,18 +544,9 @@ export default function MatchingPage({ userId, initialSlot1, initialSlot2 }: Pro
 
       <MatchingItemDrawer
         candidate={drawerItem}
-        onClose={() => setDrawerItem(null)}
+        canExpressInterest={Boolean(drawerItem?.sourceItemId)}
+        onClose={() => setDrawerItemId(null)}
         onExpressInterest={(candidate) => void expressInterest(candidate)}
-        onFillSlot={(id) => {
-          if (!slot1Id) {
-            setSlot1(id);
-          } else if (!slot2Id) {
-            setSlot2(id);
-          } else {
-            setSlot1(id);
-          }
-          setDrawerItem(null);
-        }}
       />
     </>
   );

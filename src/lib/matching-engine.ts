@@ -70,13 +70,24 @@ function scoreCategory(offered: Item, requested: Item): number {
   const requestedSubcategory = normalize(requested.subcategorySlug);
 
   if (offeredCategory && offeredCategory === requestedCategory) return 1;
-  if (offeredSubcategory && requestedSubcategory && offeredSubcategory === requestedSubcategory) return 0.9;
+  if (
+    offeredSubcategory &&
+    requestedSubcategory &&
+    offeredSubcategory === requestedSubcategory
+  ) {
+    return 0.9;
+  }
   if (containsToken(offeredCategory, requestedCategory)) return 0.65;
   return 0.25;
 }
 
 function scoreWishlist(offered: Item, requested: Item): number {
-  const offeredText = [offered.title, offered.description, offered.category, offered.subcategorySlug]
+  const offeredText = [
+    offered.title,
+    offered.description,
+    offered.category,
+    offered.subcategorySlug,
+  ]
     .map(normalize)
     .join(" ");
   const requestedWishlist = normalize(requested.wishlist);
@@ -99,17 +110,36 @@ function scoreLocation(offered: Item, requested: Item): number {
 }
 
 function scoreIntent(offered: Item, requested: Item): number {
-  if (offered.intent === "high_commitment" || requested.intent === "high_commitment") return 1;
-  if (offered.intent === "committed" || requested.intent === "committed") return 0.85;
+  if (
+    offered.intent === "high_commitment" ||
+    requested.intent === "high_commitment"
+  ) {
+    return 1;
+  }
+  if (offered.intent === "committed" || requested.intent === "committed") {
+    return 0.85;
+  }
   if (offered.intent === "open" || requested.intent === "open") return 0.7;
   return 0.55;
 }
 
 function scoreFlexibility(offered: Item, requested: Item): number {
   if (offered.acceptsBundle || requested.acceptsBundle) return 1;
-  if (offered.flexibility === "broad" || requested.flexibility === "broad") return 0.9;
-  if (offered.flexibility === "moderate" || requested.flexibility === "moderate") return 0.75;
-  if (offered.flexibility === "strict" && requested.flexibility === "strict") return 0.45;
+  if (offered.flexibility === "broad" || requested.flexibility === "broad") {
+    return 0.9;
+  }
+  if (
+    offered.flexibility === "moderate" ||
+    requested.flexibility === "moderate"
+  ) {
+    return 0.75;
+  }
+  if (
+    offered.flexibility === "strict" &&
+    requested.flexibility === "strict"
+  ) {
+    return 0.45;
+  }
   return 0.6;
 }
 
@@ -121,8 +151,19 @@ function scoreMedia(item: Item): number {
 }
 
 function scoreValue(offered: Item, requested: Item): number {
-  if (offered.perceivedValue && requested.perceivedValue && offered.perceivedValue === requested.perceivedValue) return 1;
-  if (offered.perceivedValue === "sentimental" || requested.perceivedValue === "sentimental") return 0.7;
+  if (
+    offered.perceivedValue &&
+    requested.perceivedValue &&
+    offered.perceivedValue === requested.perceivedValue
+  ) {
+    return 1;
+  }
+  if (
+    offered.perceivedValue === "sentimental" ||
+    requested.perceivedValue === "sentimental"
+  ) {
+    return 0.7;
+  }
   return 0.6;
 }
 
@@ -139,36 +180,87 @@ function scoreDomain(offered: Item, requested: Item): number {
   const requestedDomain = getItemDomain(requested);
   if (offeredDomain === requestedDomain) return 1;
   const allowed = normalize(requested.wishlist);
-  if (allowed && allowed.includes(offeredDomain)) return 0.85;
-  return 0.7;
+  if (allowed && allowed.includes(offeredDomain)) return 0.9;
+  return 0.55;
+}
+
+function parseDate(value: string | undefined): number | null {
+  if (!value) return null;
+  const timestamp = Date.parse(value);
+  return Number.isFinite(timestamp) ? timestamp : null;
+}
+
+function houseAvailabilityScore(offered: Item, requested: Item): number | null {
+  const offeredHouse = offered.houseProfile;
+  const requestedHouse = requested.houseProfile;
+  if (!offeredHouse && !requestedHouse) return null;
+  if (!offeredHouse || !requestedHouse) return 0.75;
+
+  const offeredDates = offeredHouse.availableDates ?? [];
+  const requestedDates = requestedHouse.availableDates ?? [];
+  if (offeredDates.length === 0 && requestedDates.length === 0) return 0.65;
+  if (offeredDates.length === 0 || requestedDates.length === 0) return 0.75;
+
+  for (const offeredRange of offeredDates) {
+    const offeredStart = parseDate(offeredRange.from);
+    const offeredEnd = parseDate(offeredRange.to);
+    if (offeredStart === null || offeredEnd === null) continue;
+
+    for (const requestedRange of requestedDates) {
+      const requestedStart = parseDate(requestedRange.from);
+      const requestedEnd = parseDate(requestedRange.to);
+      if (requestedStart === null || requestedEnd === null) continue;
+      if (offeredStart <= requestedEnd && requestedStart <= offeredEnd) return 1;
+    }
+  }
+
+  return 0.2;
+}
+
+function serviceAvailabilityScore(offered: Item, requested: Item): number | null {
+  const offeredService = offered.serviceProfile;
+  const requestedService = requested.serviceProfile;
+  if (!offeredService && !requestedService) return null;
+  if (!offeredService || !requestedService) {
+    const service = offeredService ?? requestedService;
+    return service?.delivery === "remote" || service?.delivery === "hybrid"
+      ? 0.85
+      : 0.7;
+  }
+  if (offeredService.delivery === requestedService.delivery) return 1;
+  if (
+    offeredService.delivery === "hybrid" ||
+    requestedService.delivery === "hybrid"
+  ) {
+    return 0.9;
+  }
+  return 0.65;
+}
+
+function eventAvailabilityScore(offered: Item, requested: Item): number | null {
+  const offeredEventDate = offered.experienceData?.eventDate;
+  const requestedEventDate = requested.experienceData?.eventDate;
+  if (!offeredEventDate && !requestedEventDate) return null;
+  if (!offeredEventDate || !requestedEventDate) return 0.8;
+
+  const offeredTimestamp = parseDate(offeredEventDate);
+  const requestedTimestamp = parseDate(requestedEventDate);
+  if (offeredTimestamp === null || requestedTimestamp === null) return 0.55;
+
+  const diffDays =
+    Math.abs(offeredTimestamp - requestedTimestamp) / 86_400_000;
+  if (diffDays <= 1) return 1;
+  if (diffDays <= 14) return 0.85;
+  return 0.55;
 }
 
 function scoreAvailability(offered: Item, requested: Item): number {
-  const offeredService = offered.serviceProfile;
-  const requestedService = requested.serviceProfile;
-  if (offeredService || requestedService) {
-    if (offeredService?.delivery === requestedService?.delivery) return 1;
-    if (
-      offeredService?.delivery === "hybrid" ||
-      requestedService?.delivery === "hybrid"
-    ) return 0.9;
-    return 0.65;
-  }
-
-  const offeredEventDate = offered.experienceData?.eventDate;
-  const requestedEventDate = requested.experienceData?.eventDate;
-  if (offeredEventDate || requestedEventDate) {
-    if (!offeredEventDate || !requestedEventDate) return 0.65;
-    const diffDays =
-      Math.abs(Date.parse(offeredEventDate) - Date.parse(requestedEventDate)) /
-      86_400_000;
-    if (!Number.isFinite(diffDays)) return 0.55;
-    if (diffDays <= 1) return 1;
-    if (diffDays <= 14) return 0.85;
-    return 0.55;
-  }
-
-  return 0.7;
+  return (
+    houseAvailabilityScore(offered, requested) ??
+    serviceAvailabilityScore(offered, requested) ??
+    eventAvailabilityScore(offered, requested) ??
+    0.7
+  );
 }
 
 function scoreTransferability(offered: Item, requested: Item): number {
@@ -235,21 +327,79 @@ export function scoreItemPair(
   const now = options.now ?? new Date();
 
   const factors = [
-    buildFactor("category", scoreCategory(offered, requested), weights, "Category fit"),
-    buildFactor("wishlist", scoreWishlist(offered, requested), weights, "Wishlist fit"),
-    buildFactor("location", scoreLocation(offered, requested), weights, "Location compatibility"),
-    buildFactor("condition", CONDITION_SCORE[offered.condition] ?? 0.5, weights, "Condition quality"),
-    buildFactor("intent", scoreIntent(offered, requested), weights, "Swap intent"),
-    buildFactor("flexibility", scoreFlexibility(offered, requested), weights, "Flexibility"),
+    buildFactor(
+      "category",
+      scoreCategory(offered, requested),
+      weights,
+      "Category fit",
+    ),
+    buildFactor(
+      "wishlist",
+      scoreWishlist(offered, requested),
+      weights,
+      "Wishlist fit",
+    ),
+    buildFactor(
+      "location",
+      scoreLocation(offered, requested),
+      weights,
+      "Location compatibility",
+    ),
+    buildFactor(
+      "condition",
+      CONDITION_SCORE[offered.condition] ?? 0.5,
+      weights,
+      "Condition quality",
+    ),
+    buildFactor(
+      "intent",
+      scoreIntent(offered, requested),
+      weights,
+      "Swap intent",
+    ),
+    buildFactor(
+      "flexibility",
+      scoreFlexibility(offered, requested),
+      weights,
+      "Flexibility",
+    ),
     buildFactor("media", scoreMedia(offered), weights, "Media completeness"),
-    buildFactor("value", scoreValue(offered, requested), weights, "Perceived value"),
-    buildFactor("freshness", scoreFreshness(offered, now), weights, "Listing freshness"),
-    buildFactor("availability", scoreAvailability(offered, requested), weights, "Availability fit"),
-    buildFactor("transferability", scoreTransferability(offered, requested), weights, "Transferability"),
-    buildFactor("domain", scoreDomain(offered, requested), weights, "Domain compatibility"),
+    buildFactor(
+      "value",
+      scoreValue(offered, requested),
+      weights,
+      "Perceived value",
+    ),
+    buildFactor(
+      "freshness",
+      scoreFreshness(offered, now),
+      weights,
+      "Listing freshness",
+    ),
+    buildFactor(
+      "availability",
+      scoreAvailability(offered, requested),
+      weights,
+      "Availability fit",
+    ),
+    buildFactor(
+      "transferability",
+      scoreTransferability(offered, requested),
+      weights,
+      "Transferability",
+    ),
+    buildFactor(
+      "domain",
+      scoreDomain(offered, requested),
+      weights,
+      "Domain compatibility",
+    ),
   ];
 
-  const total = Math.round(factors.reduce((sum, factor) => sum + factor.weighted, 0));
+  const total = Math.min(
+    100,
+    Math.round(factors.reduce((sum, factor) => sum + factor.weighted, 0)),
+  );
   const reasons = buildReasons(factors);
   const missing = buildMissing(factors);
   const tier = tierFromScore(total);
@@ -302,14 +452,42 @@ export function generateMatchCandidates(
 export const MATCHING_ENGINE_FACTORS = [
   { key: "category", label: "Category fit", weight: DEFAULT_WEIGHTS.category },
   { key: "wishlist", label: "Wishlist fit", weight: DEFAULT_WEIGHTS.wishlist },
-  { key: "location", label: "Location compatibility", weight: DEFAULT_WEIGHTS.location },
-  { key: "condition", label: "Condition quality", weight: DEFAULT_WEIGHTS.condition },
+  {
+    key: "location",
+    label: "Location compatibility",
+    weight: DEFAULT_WEIGHTS.location,
+  },
+  {
+    key: "condition",
+    label: "Condition quality",
+    weight: DEFAULT_WEIGHTS.condition,
+  },
   { key: "intent", label: "Swap intent", weight: DEFAULT_WEIGHTS.intent },
-  { key: "flexibility", label: "Flexibility", weight: DEFAULT_WEIGHTS.flexibility },
+  {
+    key: "flexibility",
+    label: "Flexibility",
+    weight: DEFAULT_WEIGHTS.flexibility,
+  },
   { key: "media", label: "Media completeness", weight: DEFAULT_WEIGHTS.media },
   { key: "value", label: "Perceived value", weight: DEFAULT_WEIGHTS.value },
-  { key: "freshness", label: "Listing freshness", weight: DEFAULT_WEIGHTS.freshness },
-  { key: "availability", label: "Availability fit", weight: DEFAULT_WEIGHTS.availability },
-  { key: "transferability", label: "Transferability", weight: DEFAULT_WEIGHTS.transferability },
-  { key: "domain", label: "Domain compatibility", weight: DEFAULT_WEIGHTS.domain },
+  {
+    key: "freshness",
+    label: "Listing freshness",
+    weight: DEFAULT_WEIGHTS.freshness,
+  },
+  {
+    key: "availability",
+    label: "Availability fit",
+    weight: DEFAULT_WEIGHTS.availability,
+  },
+  {
+    key: "transferability",
+    label: "Transferability",
+    weight: DEFAULT_WEIGHTS.transferability,
+  },
+  {
+    key: "domain",
+    label: "Domain compatibility",
+    weight: DEFAULT_WEIGHTS.domain,
+  },
 ] as const;

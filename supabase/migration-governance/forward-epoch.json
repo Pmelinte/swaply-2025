@@ -146,6 +146,12 @@
       "version": "20260801150000",
       "name": "v1_05_3_domain_updated_at_hardening",
       "kind": "FORWARD_ONLY"
+    },
+    {
+      "path": "supabase/migrations/20260801163000_v1_05_4_1_canonical_cross_domain_matching.sql",
+      "version": "20260801163000",
+      "name": "v1_05_4_1_canonical_cross_domain_matching",
+      "kind": "FORWARD_ONLY"
     }
   ]
 }
