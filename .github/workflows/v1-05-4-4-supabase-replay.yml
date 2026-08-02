@@ -56,28 +56,56 @@ jobs:
           python <<'PY' | tee evidence/legacy-compatibility-shim.log
           from pathlib import Path
 
-          migration = Path(
+          jwt_migration = Path(
               "supabase/migrations/20250102000000_fix_messages_policy.sql"
           )
-          source = migration.read_text(encoding="utf-8")
-          legacy = "current_setting('request.jwt.claims', true)::json->>'sub'"
-          compatible = "((current_setting('request.jwt.claims', true)::json)->>'sub')"
-          occurrences = source.count(legacy)
+          jwt_source = jwt_migration.read_text(encoding="utf-8")
+          legacy_jwt = "current_setting('request.jwt.claims', true)::json->>'sub'"
+          compatible_jwt = "((current_setting('request.jwt.claims', true)::json)->>'sub')"
+          jwt_occurrences = jwt_source.count(legacy_jwt)
 
-          if occurrences != 2:
+          if jwt_occurrences != 2:
               raise SystemExit(
                   "Expected exactly two legacy JSON casts in the isolated copy; "
-                  f"found {occurrences}."
+                  f"found {jwt_occurrences}."
               )
 
-          migration.write_text(
-              source.replace(legacy, compatible),
+          jwt_migration.write_text(
+              jwt_source.replace(legacy_jwt, compatible_jwt),
               encoding="utf-8",
           )
+
+          policy_migration = Path(
+              "supabase/migrations/20260206170000_phase2_chat_rls.sql"
+          )
+          policy_source = policy_migration.read_text(encoding="utf-8")
+          policy_anchor = (
+              'DROP POLICY IF EXISTS "messages_insert_auth" ON public.messages;\n'
+          )
+          policy_compatibility = (
+              policy_anchor
+              + 'DROP POLICY IF EXISTS "messages_select_participant" ON public.messages;\n'
+              + 'DROP POLICY IF EXISTS "messages_insert_own" ON public.messages;\n'
+          )
+
+          if policy_source.count(policy_anchor) != 1:
+              raise SystemExit(
+                  "Expected one legacy chat-policy anchor in the isolated copy."
+              )
+
+          policy_migration.write_text(
+              policy_source.replace(
+                  policy_anchor,
+                  policy_compatibility,
+                  1,
+              ),
+              encoding="utf-8",
+          )
+
           print(
-              f"Applied {occurrences} PostgreSQL compatibility parentheses to "
-              "the isolated CI copy only; the repository migration remains "
-              "unchanged."
+              f"Applied {jwt_occurrences} PostgreSQL JSON compatibility "
+              "parentheses and two idempotent chat-policy drops to the "
+              "isolated CI copy only; repository migrations remain unchanged."
           )
           PY
 
