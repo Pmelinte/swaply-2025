@@ -152,6 +152,18 @@
       "version": "20260801163000",
       "name": "v1_05_4_1_canonical_cross_domain_matching",
       "kind": "FORWARD_ONLY"
+    },
+    {
+      "path": "supabase/migrations/20260802100000_v1_05_4_2_domain_aware_agreement.sql",
+      "version": "20260802100000",
+      "name": "v1_05_4_2_domain_aware_agreement",
+      "kind": "FORWARD_ONLY"
+    },
+    {
+      "path": "supabase/migrations/20260802101500_v1_05_4_2_domain_exchange_handoff.sql",
+      "version": "20260802101500",
+      "name": "v1_05_4_2_domain_exchange_handoff",
+      "kind": "FORWARD_ONLY"
     }
   ]
 }

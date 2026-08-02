@@ -11,10 +11,18 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
+import { DomainAgreementTermsEditor } from "@/components/chat/DomainAgreementTermsEditor";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { useAppState } from "@/lib/state";
 import { createExchangeFromMatchAgreement } from "@/lib/chat/exchangeHandoff";
 import {
+  buildDomainTermsFromContext,
+  domainTermsAreComplete,
+  type MatchAgreementContext,
+  type MatchAgreementDomainTerm,
+} from "@/lib/chat/domainAgreement";
+import {
+  fetchMatchAgreementContext,
   hasMatchConversationAgreementContent,
   updateMatchConversationAgreement,
   type MatchAgreementAction,
@@ -35,16 +43,38 @@ type AgreementDraft = Pick<
   | "logistics_method"
   | "logistics_notes"
   | "additional_terms"
+  | "domain_terms"
 >;
 
-function toDraft(agreement: MatchConversationAgreement): AgreementDraft {
+function toDraft(
+  agreement: MatchConversationAgreement,
+  context: MatchAgreementContext | null,
+): AgreementDraft {
   return {
     condition_notes: agreement.condition_notes,
     offer_notes: agreement.offer_notes,
     logistics_method: agreement.logistics_method,
     logistics_notes: agreement.logistics_notes,
     additional_terms: agreement.additional_terms,
+    domain_terms: buildDomainTermsFromContext(
+      context,
+      agreement.domain_terms,
+    ),
   };
+}
+
+function isConfirmedForCurrentContent(
+  agreement: MatchConversationAgreement,
+  participantId: string,
+): boolean {
+  const confirmation = agreement.confirmations[participantId];
+  return Boolean(
+    agreement.confirmed_by.includes(participantId) &&
+      agreement.revision > 0 &&
+      agreement.content_hash &&
+      confirmation?.revision === agreement.revision &&
+      confirmation.content_hash === agreement.content_hash,
+  );
 }
 
 export function MatchAgreementPanel({ agenda, disabled = false }: Props) {
@@ -52,8 +82,11 @@ export function MatchAgreementPanel({ agenda, disabled = false }: Props) {
   const router = useRouter();
   const { user } = useAppState();
   const [agreement, setAgreement] = useState(agenda.agreement);
+  const [context, setContext] = useState<MatchAgreementContext | null>(null);
+  const [contextLoading, setContextLoading] = useState(true);
+  const [contextFailed, setContextFailed] = useState(false);
   const [draft, setDraft] = useState<AgreementDraft>(() =>
-    toDraft(agenda.agreement),
+    toDraft(agenda.agreement, null),
   );
   const [dirty, setDirty] = useState(false);
   const [savingAction, setSavingAction] =
@@ -68,11 +101,38 @@ export function MatchAgreementPanel({ agenda, disabled = false }: Props) {
   }, [agenda.agreement]);
 
   useEffect(() => {
-    setDraft(toDraft(agenda.agreement));
-    setDirty(false);
+    const supabase = getSupabaseClient();
+    if (!supabase || !agenda.conversation_id) {
+      setContext(null);
+      setContextLoading(false);
+      setContextFailed(true);
+      return;
+    }
+
+    let cancelled = false;
+    setContextLoading(true);
+    setContextFailed(false);
+
+    fetchMatchAgreementContext(supabase, agenda.conversation_id).then(
+      (nextContext) => {
+        if (cancelled) return;
+        setContext(nextContext);
+        setContextLoading(false);
+        setContextFailed(!nextContext);
+      },
+    );
+
+    return () => {
+      cancelled = true;
+    };
+  }, [agenda.conversation_id]);
+
+  useEffect(() => {
+    if (dirty) return;
+    setDraft(toDraft(agenda.agreement, context));
     setSaveFailed(false);
     setExchangeFailed(false);
-  }, [agenda.conversation_id, agenda.agreement.revision]);
+  }, [agenda.agreement, context, dirty]);
 
   useEffect(() => {
     const supabase = getSupabaseClient();
@@ -104,29 +164,47 @@ export function MatchAgreementPanel({ agenda, disabled = false }: Props) {
     };
   }, [agenda.conversation_id, agenda.updated_at]);
 
-  const selfConfirmed = Boolean(
-    user?.id && agreement.confirmed_by.includes(user.id),
+  const validConfirmedIds = agreement.confirmed_by.filter((participantId) =>
+    isConfirmedForCurrentContent(agreement, participantId),
   );
-  const partnerConfirmed = agreement.confirmed_by.some(
+  const selfConfirmed = Boolean(
+    user?.id && validConfirmedIds.includes(user.id),
+  );
+  const partnerConfirmed = validConfirmedIds.some(
     (participantId) => participantId !== user?.id,
   );
-  const bothConfirmed = selfConfirmed && partnerConfirmed;
+  const bothConfirmed =
+    validConfirmedIds.length === 2 && selfConfirmed && partnerConfirmed;
   const hasContent = hasMatchConversationAgreementContent(agreement);
+  const draftDomainTermsComplete = domainTermsAreComplete(
+    context,
+    draft.domain_terms,
+  );
   const exchangeCreated = Boolean(exchangeSwapId);
   const controlsDisabled =
-    disabled || savingAction !== null || creatingExchange || exchangeCreated;
+    disabled ||
+    savingAction !== null ||
+    creatingExchange ||
+    exchangeCreated ||
+    contextLoading ||
+    contextFailed;
+  const canSave = dirty && !controlsDisabled && draftDomainTermsComplete;
   const canConfirm =
     !controlsDisabled &&
     !dirty &&
+    agreement.schema_version === "3.0" &&
     agreement.revision > 0 &&
-    hasContent;
+    /^[a-f0-9]{64}$/.test(agreement.content_hash) &&
+    hasContent &&
+    domainTermsAreComplete(context, agreement.domain_terms);
   const canCreateExchange =
     bothConfirmed &&
     !dirty &&
     !disabled &&
     !savingAction &&
     !creatingExchange &&
-    !exchangeCreated;
+    !exchangeCreated &&
+    domainTermsAreComplete(context, agreement.domain_terms);
 
   const updateDraft = <Key extends keyof AgreementDraft>(
     key: Key,
@@ -139,6 +217,10 @@ export function MatchAgreementPanel({ agenda, disabled = false }: Props) {
     setExchangeFailed(false);
   };
 
+  function updateDomainTerms(nextTerms: MatchAgreementDomainTerm[]) {
+    updateDraft("domain_terms", nextTerms);
+  }
+
   async function runAction(action: MatchAgreementAction) {
     const supabase = getSupabaseClient();
     if (
@@ -147,8 +229,14 @@ export function MatchAgreementPanel({ agenda, disabled = false }: Props) {
       !agenda.conversation_id ||
       savingAction ||
       disabled ||
-      exchangeCreated
+      exchangeCreated ||
+      !context
     ) {
+      return;
+    }
+
+    if (action === "save" && !draftDomainTermsComplete) {
+      setSaveFailed(true);
       return;
     }
 
@@ -170,10 +258,8 @@ export function MatchAgreementPanel({ agenda, disabled = false }: Props) {
       }
 
       setAgreement(nextAgenda.agreement);
-      if (action === "save") {
-        setDraft(toDraft(nextAgenda.agreement));
-        setDirty(false);
-      }
+      setDraft(toDraft(nextAgenda.agreement, context));
+      setDirty(false);
     } finally {
       setSavingAction(null);
     }
@@ -247,7 +333,7 @@ export function MatchAgreementPanel({ agenda, disabled = false }: Props) {
         </span>
       </div>
 
-      {saveFailed ? (
+      {(saveFailed || contextFailed) && (
         <p
           role="alert"
           data-testid="match-agreement-save-error"
@@ -255,9 +341,9 @@ export function MatchAgreementPanel({ agenda, disabled = false }: Props) {
         >
           {t("saveError")}
         </p>
-      ) : null}
+      )}
 
-      {exchangeFailed ? (
+      {exchangeFailed && (
         <p
           role="alert"
           data-testid="match-agreement-exchange-error"
@@ -265,36 +351,25 @@ export function MatchAgreementPanel({ agenda, disabled = false }: Props) {
         >
           {t("exchangeError")}
         </p>
-      ) : null}
+      )}
 
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
-        <label className="space-y-1 text-xs font-semibold text-zinc-700 dark:text-zinc-200">
-          <span>{t("fields.condition")}</span>
-          <textarea
-            data-testid="match-agreement-condition"
-            value={draft.condition_notes}
-            maxLength={1000}
-            rows={3}
-            disabled={controlsDisabled}
-            onChange={(event) =>
-              updateDraft("condition_notes", event.target.value)
-            }
-            className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm font-normal text-zinc-900 outline-none focus:border-emerald-500 disabled:opacity-60 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50"
-          />
-        </label>
-
-        <label className="space-y-1 text-xs font-semibold text-zinc-700 dark:text-zinc-200">
-          <span>{t("fields.offer")}</span>
-          <textarea
-            data-testid="match-agreement-offer"
-            value={draft.offer_notes}
-            maxLength={1000}
-            rows={3}
-            disabled={controlsDisabled}
-            onChange={(event) => updateDraft("offer_notes", event.target.value)}
-            className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm font-normal text-zinc-900 outline-none focus:border-emerald-500 disabled:opacity-60 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50"
-          />
-        </label>
+        <AgreementTextarea
+          testId="match-agreement-condition"
+          label={t("fields.condition")}
+          value={draft.condition_notes}
+          maxLength={1000}
+          disabled={controlsDisabled}
+          onChange={(value) => updateDraft("condition_notes", value)}
+        />
+        <AgreementTextarea
+          testId="match-agreement-offer"
+          label={t("fields.offer")}
+          value={draft.offer_notes}
+          maxLength={1000}
+          disabled={controlsDisabled}
+          onChange={(value) => updateDraft("offer_notes", value)}
+        />
 
         <label className="space-y-1 text-xs font-semibold text-zinc-700 dark:text-zinc-200">
           <span>{t("fields.logisticsMethod")}</span>
@@ -320,46 +395,56 @@ export function MatchAgreementPanel({ agenda, disabled = false }: Props) {
           </select>
         </label>
 
-        <label className="space-y-1 text-xs font-semibold text-zinc-700 dark:text-zinc-200">
-          <span>{t("fields.logisticsNotes")}</span>
-          <textarea
-            data-testid="match-agreement-logistics-notes"
-            value={draft.logistics_notes}
-            maxLength={1000}
-            rows={3}
-            disabled={controlsDisabled}
-            onChange={(event) =>
-              updateDraft("logistics_notes", event.target.value)
-            }
-            className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm font-normal text-zinc-900 outline-none focus:border-emerald-500 disabled:opacity-60 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50"
-          />
-        </label>
+        <AgreementTextarea
+          testId="match-agreement-logistics-notes"
+          label={t("fields.logisticsNotes")}
+          value={draft.logistics_notes}
+          maxLength={1000}
+          disabled={controlsDisabled}
+          onChange={(value) => updateDraft("logistics_notes", value)}
+        />
       </div>
 
-      <label className="mt-4 block space-y-1 text-xs font-semibold text-zinc-700 dark:text-zinc-200">
-        <span>{t("fields.additionalTerms")}</span>
-        <textarea
-          data-testid="match-agreement-additional"
+      <div className="mt-4">
+        <AgreementTextarea
+          testId="match-agreement-additional"
+          label={t("fields.additionalTerms")}
           value={draft.additional_terms}
           maxLength={1500}
-          rows={3}
           disabled={controlsDisabled}
-          onChange={(event) =>
-            updateDraft("additional_terms", event.target.value)
-          }
-          className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm font-normal text-zinc-900 outline-none focus:border-emerald-500 disabled:opacity-60 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50"
+          onChange={(value) => updateDraft("additional_terms", value)}
         />
-      </label>
+      </div>
+
+      {contextLoading ? (
+        <div className="mt-4 flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3 py-3 text-xs text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          {t("saving")}
+        </div>
+      ) : context ? (
+        <DomainAgreementTermsEditor
+          context={context}
+          terms={draft.domain_terms}
+          disabled={controlsDisabled}
+          onChange={updateDomainTerms}
+        />
+      ) : null}
 
       <p className="mt-3 text-[11px] leading-5 text-zinc-500 dark:text-zinc-400">
         {exchangeCreated ? t("lockedNotice") : t("resetNotice")}
       </p>
 
+      {!draftDomainTermsComplete && context && !exchangeCreated && (
+        <p className="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[11px] font-medium text-amber-800 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
+          {t("description")}
+        </p>
+      )}
+
       <div className="mt-4 flex flex-wrap items-center gap-2">
         <button
           type="button"
           data-testid="match-agreement-save"
-          disabled={!dirty || controlsDisabled}
+          disabled={!canSave}
           onClick={() => void runAction("save")}
           className="inline-flex items-center gap-2 rounded-xl border border-emerald-300 bg-white px-3 py-2 text-xs font-semibold text-emerald-800 hover:border-emerald-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-emerald-800 dark:bg-zinc-900 dark:text-emerald-200"
         >
@@ -401,7 +486,9 @@ export function MatchAgreementPanel({ agenda, disabled = false }: Props) {
               : "border-zinc-200 bg-white text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
           }`}
         >
-          {selfConfirmed ? t("status.youConfirmed") : t("status.youPending")}
+          {selfConfirmed
+            ? t("status.youConfirmed")
+            : t("status.youPending")}
         </div>
         <div
           data-testid="match-agreement-partner-status"
@@ -418,39 +505,39 @@ export function MatchAgreementPanel({ agenda, disabled = false }: Props) {
       </div>
 
       <p
-        data-testid="match-agreement-overall-status"
-        className={`mt-3 text-xs font-semibold ${
-          bothConfirmed || exchangeCreated
-            ? "text-emerald-800 dark:text-emerald-200"
-            : "text-zinc-600 dark:text-zinc-300"
-        }`}
+        data-testid="match-agreement-status"
+        className="mt-3 text-xs font-semibold text-emerald-800 dark:text-emerald-200"
       >
         {confirmationLabel}
       </p>
 
-      {bothConfirmed || exchangeCreated ? (
-        <div className="mt-4 rounded-xl border border-emerald-300 bg-white p-3 dark:border-emerald-800 dark:bg-zinc-900">
-          <p
-            data-testid="match-agreement-exchange-ready"
-            className="text-xs font-semibold text-emerald-900 dark:text-emerald-100"
-          >
+      <p className="mt-2 text-[11px] leading-5 text-zinc-500 dark:text-zinc-400">
+        {t("noSideEffects")}
+      </p>
+
+      {(bothConfirmed || exchangeCreated) && (
+        <div className="mt-4 rounded-xl border border-blue-200 bg-blue-50 p-3 dark:border-blue-900 dark:bg-blue-950/30">
+          <p className="text-xs font-semibold text-blue-900 dark:text-blue-100">
             {exchangeCreated ? t("exchangeReady") : t("exchangeCtaHint")}
           </p>
+          {exchangeCreated && (
+            <p className="mt-1 text-[11px] leading-5 text-blue-700 dark:text-blue-300">
+              {t("exchangeCreatedNotice")}
+            </p>
+          )}
           <button
             type="button"
-            data-testid={
-              exchangeCreated
-                ? "match-agreement-open-exchange"
-                : "match-agreement-create-exchange"
-            }
+            data-testid="match-agreement-create-exchange"
             disabled={!exchangeCreated && !canCreateExchange}
             onClick={() => void handleExchangeAction()}
             className="mt-3 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-zinc-400"
           >
             {creatingExchange ? (
               <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
+            ) : exchangeCreated ? (
               <ArrowRight className="h-4 w-4" />
+            ) : (
+              <ShieldCheck className="h-4 w-4" />
             )}
             {creatingExchange
               ? t("creatingExchange")
@@ -459,11 +546,38 @@ export function MatchAgreementPanel({ agenda, disabled = false }: Props) {
                 : t("createExchange")}
           </button>
         </div>
-      ) : null}
-
-      <p className="mt-2 text-[11px] leading-5 text-zinc-500 dark:text-zinc-400">
-        {exchangeCreated ? t("exchangeCreatedNotice") : t("noSideEffects")}
-      </p>
+      )}
     </section>
+  );
+}
+
+function AgreementTextarea({
+  testId,
+  label,
+  value,
+  maxLength,
+  disabled,
+  onChange,
+}: {
+  testId: string;
+  label: string;
+  value: string;
+  maxLength: number;
+  disabled: boolean;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <label className="block space-y-1 text-xs font-semibold text-zinc-700 dark:text-zinc-200">
+      <span>{label}</span>
+      <textarea
+        data-testid={testId}
+        value={value}
+        maxLength={maxLength}
+        rows={3}
+        disabled={disabled}
+        onChange={(event) => onChange(event.target.value)}
+        className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm font-normal text-zinc-900 outline-none focus:border-emerald-500 disabled:opacity-60 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50"
+      />
+    </label>
   );
 }

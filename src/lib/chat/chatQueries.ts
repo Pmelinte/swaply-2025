@@ -3,6 +3,13 @@ import {
   canParticipantsChat,
   createChatMessageNotification,
 } from "@/lib/chat/chatDelivery";
+import {
+  parseMatchAgreementContext,
+  parseMatchAgreementDomainTerms,
+  type MatchAgreementConfirmation,
+  type MatchAgreementContext,
+  type MatchAgreementDomainTerm,
+} from "@/lib/chat/domainAgreement";
 import { moderateText } from "@/lib/moderation/moderationEngine";
 
 export const MATCH_CONVERSATION_STAGES = [
@@ -29,13 +36,17 @@ export type MatchAgreementLogisticsMethod =
 export type MatchAgreementAction = "save" | "confirm" | "withdraw";
 
 export type MatchConversationAgreement = {
+  schema_version: string;
   revision: number;
+  content_hash: string;
   condition_notes: string;
   offer_notes: string;
   logistics_method: MatchAgreementLogisticsMethod | null;
   logistics_notes: string;
   additional_terms: string;
+  domain_terms: MatchAgreementDomainTerm[];
   confirmed_by: string[];
+  confirmations: Record<string, MatchAgreementConfirmation>;
   updated_by: string | null;
   updated_at: string | null;
 };
@@ -119,6 +130,39 @@ function parseAgreementText(value: unknown): string {
   return typeof value === "string" ? value : "";
 }
 
+function parseConfirmation(value: unknown): MatchAgreementConfirmation | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const row = value as Record<string, unknown>;
+  const revision = parseNonNegativeInteger(row.revision);
+  const contentHash =
+    typeof row.content_hash === "string" ? row.content_hash : "";
+  const confirmedAt =
+    typeof row.confirmed_at === "string" ? row.confirmed_at : "";
+
+  if (revision < 1 || !/^[a-f0-9]{64}$/.test(contentHash) || !confirmedAt) {
+    return null;
+  }
+
+  return {
+    revision,
+    content_hash: contentHash,
+    confirmed_at: confirmedAt,
+  };
+}
+
+function parseConfirmations(
+  value: unknown,
+): Record<string, MatchAgreementConfirmation> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  const result: Record<string, MatchAgreementConfirmation> = {};
+
+  for (const [participantId, confirmationValue] of Object.entries(value)) {
+    const confirmation = parseConfirmation(confirmationValue);
+    if (confirmation) result[participantId] = confirmation;
+  }
+  return result;
+}
+
 export function parseMatchConversationAgreement(
   value: unknown,
 ): MatchConversationAgreement {
@@ -128,7 +172,15 @@ export function parseMatchConversationAgreement(
       : {};
 
   return {
+    schema_version:
+      typeof agreement.schema_version === "string"
+        ? agreement.schema_version
+        : "2.0",
     revision: parseNonNegativeInteger(agreement.revision),
+    content_hash:
+      typeof agreement.content_hash === "string"
+        ? agreement.content_hash
+        : "",
     condition_notes: parseAgreementText(agreement.condition_notes),
     offer_notes: parseAgreementText(agreement.offer_notes),
     logistics_method: isMatchAgreementLogisticsMethod(
@@ -138,6 +190,7 @@ export function parseMatchConversationAgreement(
       : null,
     logistics_notes: parseAgreementText(agreement.logistics_notes),
     additional_terms: parseAgreementText(agreement.additional_terms),
+    domain_terms: parseMatchAgreementDomainTerms(agreement.domain_terms),
     confirmed_by: Array.isArray(agreement.confirmed_by)
       ? Array.from(
           new Set(
@@ -147,6 +200,7 @@ export function parseMatchConversationAgreement(
           ),
         )
       : [],
+    confirmations: parseConfirmations(agreement.confirmations),
     updated_by:
       typeof agreement.updated_by === "string"
         ? agreement.updated_by
@@ -201,7 +255,8 @@ export function hasMatchConversationAgreementContent(
       agreement.offer_notes.trim() ||
       agreement.logistics_method ||
       agreement.logistics_notes.trim() ||
-      agreement.additional_terms.trim(),
+      agreement.additional_terms.trim() ||
+      agreement.domain_terms.length > 0,
   );
 }
 
@@ -211,9 +266,16 @@ export function isMatchConversationAgreementConfirmedByBoth(
 ): boolean {
   return (
     participantIds.length === 2 &&
-    participantIds.every((participantId) =>
-      agreement.confirmed_by.includes(participantId),
-    )
+    agreement.revision > 0 &&
+    /^[a-f0-9]{64}$/.test(agreement.content_hash) &&
+    participantIds.every((participantId) => {
+      const confirmation = agreement.confirmations[participantId];
+      return Boolean(
+        agreement.confirmed_by.includes(participantId) &&
+          confirmation?.revision === agreement.revision &&
+          confirmation.content_hash === agreement.content_hash,
+      );
+    })
   );
 }
 
@@ -285,6 +347,27 @@ export async function fetchConversationMessages(
   return (data ?? []) as MessageRow[];
 }
 
+export async function fetchMatchAgreementContext(
+  supabase: SupabaseClient,
+  conversationId: string,
+): Promise<MatchAgreementContext | null> {
+  const { data, error } = await supabase.rpc(
+    "get_match_agreement_context_v1",
+    { p_conversation_id: conversationId },
+  );
+
+  if (error) {
+    console.error("fetchMatchAgreementContext failed", error);
+    return null;
+  }
+
+  const parsed = parseMatchAgreementContext(data);
+  if (!parsed) {
+    console.error("fetchMatchAgreementContext returned invalid data", data);
+  }
+  return parsed;
+}
+
 export async function updateMatchConversationAgenda(
   supabase: SupabaseClient,
   input: {
@@ -315,6 +398,65 @@ export async function updateMatchConversationAgenda(
   return parseMatchConversationAgenda(data as Record<string, unknown>);
 }
 
+function agreementFingerprint(value: unknown): string {
+  const input = JSON.stringify(value);
+  let hash = 2166136261;
+  for (let index = 0; index < input.length; index += 1) {
+    hash ^= input.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(16).padStart(8, "0");
+}
+
+function createAgreementIdempotencyKey(action: MatchAgreementAction): string {
+  const random =
+    typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+      ? crypto.randomUUID()
+      : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+  return `swaply:agreement:${action}:${random}`.slice(0, 120);
+}
+
+function getAgreementIdempotencyKey(input: {
+  conversationId: string;
+  action: MatchAgreementAction;
+  expectedRevision: number;
+  payload: unknown;
+}): { key: string; storageKey: string } {
+  const fingerprint = agreementFingerprint({
+    action: input.action,
+    expectedRevision: input.expectedRevision,
+    payload: input.payload,
+  });
+  const storageKey = `swaply_agreement_${input.conversationId}_${input.action}`;
+
+  try {
+    const current = localStorage.getItem(storageKey);
+    if (current) {
+      const parsed = JSON.parse(current) as {
+        fingerprint?: unknown;
+        key?: unknown;
+      };
+      if (
+        parsed.fingerprint === fingerprint &&
+        typeof parsed.key === "string" &&
+        parsed.key.length >= 8
+      ) {
+        return { key: parsed.key, storageKey };
+      }
+    }
+  } catch {
+    // Browser storage is optional; the generated key remains valid server-side.
+  }
+
+  const key = createAgreementIdempotencyKey(input.action);
+  try {
+    localStorage.setItem(storageKey, JSON.stringify({ fingerprint, key }));
+  } catch {
+    // Browser storage is optional.
+  }
+  return { key, storageKey };
+}
+
 export async function updateMatchConversationAgreement(
   supabase: SupabaseClient,
   input: {
@@ -328,16 +470,26 @@ export async function updateMatchConversationAgreement(
       | "logistics_method"
       | "logistics_notes"
       | "additional_terms"
+      | "domain_terms"
     >;
   },
 ): Promise<MatchConversationAgendaState | null> {
+  const payload = input.agreement ?? {};
+  const idempotency = getAgreementIdempotencyKey({
+    conversationId: input.conversationId,
+    action: input.action,
+    expectedRevision: input.expectedRevision,
+    payload,
+  });
+
   const { data, error } = await supabase.rpc(
-    "update_match_conversation_agreement",
+    "update_match_conversation_agreement_v2",
     {
       p_conversation_id: input.conversationId,
       p_action: input.action,
       p_expected_revision: input.expectedRevision,
-      p_payload: input.agreement ?? {},
+      p_idempotency_key: idempotency.key,
+      p_payload: payload,
     },
   );
 
@@ -352,6 +504,12 @@ export async function updateMatchConversationAgreement(
       data,
     );
     return null;
+  }
+
+  try {
+    localStorage.removeItem(idempotency.storageKey);
+  } catch {
+    // A stale key is harmless because changed input receives a new fingerprint.
   }
 
   return parseMatchConversationAgenda(data as Record<string, unknown>);

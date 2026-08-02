@@ -7,6 +7,8 @@ import {
   shouldApplyMatchConversationAgenda,
 } from "./chatQueries";
 
+const HASH = "a".repeat(64);
+
 describe("match conversation agenda parsing", () => {
   it("normalizes invalid versions, stages, and agreement fields", () => {
     expect(
@@ -27,7 +29,11 @@ describe("match conversation agenda parsing", () => {
           logistics_method: "teleport",
           logistics_notes: null,
           additional_terms: "No automatic Exchange",
+          domain_terms: [{ domain: "unknown" }],
           confirmed_by: ["user-a", "user-a", 99, "user-b"],
+          confirmations: {
+            "user-a": { revision: 0, content_hash: "bad", confirmed_at: "" },
+          },
           updated_by: false,
           updated_at: 123,
         },
@@ -40,13 +46,17 @@ describe("match conversation agenda parsing", () => {
       active_stage: "interest",
       completed_stages: ["condition", "logistics"],
       agreement: {
+        schema_version: "2.0",
         revision: 0,
+        content_hash: "",
         condition_notes: "",
         offer_notes: "Camera for bicycle",
         logistics_method: null,
         logistics_notes: "",
         additional_terms: "No automatic Exchange",
+        domain_terms: [],
         confirmed_by: ["user-a", "user-b"],
+        confirmations: {},
         updated_by: null,
         updated_at: null,
       },
@@ -65,12 +75,26 @@ describe("match conversation agenda parsing", () => {
 
 describe("bilateral match agreement helpers", () => {
   const agreement = parseMatchConversationAgreement({
+    schema_version: "3.0",
     revision: 2,
+    content_hash: HASH,
     condition_notes: "Both items inspected.",
     confirmed_by: ["user-a", "user-b"],
+    confirmations: {
+      "user-a": {
+        revision: 2,
+        content_hash: HASH,
+        confirmed_at: "2026-08-02T10:00:00Z",
+      },
+      "user-b": {
+        revision: 2,
+        content_hash: HASH,
+        confirmed_at: "2026-08-02T10:01:00Z",
+      },
+    },
   });
 
-  it("detects content and requires the exact two participants for bilateral confirmation", () => {
+  it("requires the exact revision and content hash from both participants", () => {
     expect(hasMatchConversationAgreementContent(agreement)).toBe(true);
     expect(
       isMatchConversationAgreementConfirmedByBoth(agreement, [
@@ -89,7 +113,49 @@ describe("bilateral match agreement helpers", () => {
     ).toBe(false);
   });
 
-  it("treats an empty normalized agreement as not ready", () => {
+  it("rejects confirmations copied from another revision or hash", () => {
+    const stale = parseMatchConversationAgreement({
+      ...agreement,
+      revision: 3,
+    });
+    expect(
+      isMatchConversationAgreementConfirmedByBoth(stale, [
+        "user-a",
+        "user-b",
+      ]),
+    ).toBe(false);
+
+    const changedHash = parseMatchConversationAgreement({
+      ...agreement,
+      content_hash: "b".repeat(64),
+    });
+    expect(
+      isMatchConversationAgreementConfirmedByBoth(changedHash, [
+        "user-a",
+        "user-b",
+      ]),
+    ).toBe(false);
+  });
+
+  it("treats domain terms as content and an empty agreement as not ready", () => {
+    expect(
+      hasMatchConversationAgreementContent(
+        parseMatchConversationAgreement({
+          revision: 1,
+          domain_terms: [
+            {
+              item_id: "item-a",
+              domain: "property",
+              terms: {
+                period_start: "2026-09-01",
+                period_end: "2026-09-07",
+              },
+            },
+          ],
+        }),
+      ),
+    ).toBe(true);
+
     expect(
       hasMatchConversationAgreementContent(
         parseMatchConversationAgreement({
