@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { parseMatchAgreementExchangeResult } from "./exchangeHandoff";
 
+const HASH = "a".repeat(64);
+
 describe("parseMatchAgreementExchangeResult", () => {
   it("normalizes a successful newly created Exchange", () => {
     expect(
@@ -8,11 +10,13 @@ describe("parseMatchAgreementExchangeResult", () => {
         swap_id: "11111111-1111-4111-8111-111111111111",
         created: true,
         agreement_revision: 3,
+        agreement_hash: HASH,
       }),
     ).toEqual({
       swapId: "11111111-1111-4111-8111-111111111111",
       created: true,
       agreementRevision: 3,
+      agreementHash: HASH,
     });
   });
 
@@ -22,11 +26,13 @@ describe("parseMatchAgreementExchangeResult", () => {
         swap_id: "22222222-2222-4222-8222-222222222222",
         created: false,
         agreement_revision: "4",
+        agreement_hash: HASH,
       }),
     ).toEqual({
       swapId: "22222222-2222-4222-8222-222222222222",
       created: false,
       agreementRevision: 4,
+      agreementHash: HASH,
     });
   });
 
@@ -37,11 +43,20 @@ describe("parseMatchAgreementExchangeResult", () => {
         swap_id: "",
         created: true,
         agreement_revision: 0,
+        agreement_hash: HASH,
+      }),
+    ).toBeNull();
+    expect(
+      parseMatchAgreementExchangeResult({
+        swap_id: "11111111-1111-4111-8111-111111111111",
+        created: true,
+        agreement_revision: 1,
+        agreement_hash: "invalid",
       }),
     ).toBeNull();
   });
 
-  it("rejects a drifted RPC response that omits the agreement revision", () => {
+  it("rejects a drifted RPC response that omits revision or hash", () => {
     expect(
       parseMatchAgreementExchangeResult({
         swap_id: "33333333-3333-4333-8333-333333333333",
