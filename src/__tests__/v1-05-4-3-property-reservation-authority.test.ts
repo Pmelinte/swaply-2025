@@ -20,6 +20,9 @@ describe("V1-05.4.3 Property reservation authority", () => {
       "alter table public.property_reservations enable row level security",
     );
     expect(reservationMigration).toContain(
+      "drop policy if exists property_reservations_participant_select",
+    );
+    expect(reservationMigration).toContain(
       "create policy property_reservations_participant_select",
     );
     expect(reservationMigration).toContain(
@@ -70,8 +73,12 @@ describe("V1-05.4.3 Property reservation authority", () => {
     );
     expect(reservationMigration).toContain("v_property.available_from");
     expect(reservationMigration).toContain("v_property.available_until");
-    expect(reservationMigration).toContain("v_property.min_stay_days");
-    expect(reservationMigration).toContain("v_property.max_stay_days");
+    expect(reservationMigration).toContain(
+      "v_duration < greatest(1, coalesce(v_property.min_stay_days, 1))",
+    );
+    expect(reservationMigration).toContain(
+      "v_duration > greatest(1, coalesce(v_property.max_stay_days, 365))",
+    );
     expect(reservationMigration).toContain("v_property.advance_notice_days");
     expect(reservationMigration).toContain("v_property.available_months");
     expect(reservationMigration).toContain("v_property.blocked_dates");
@@ -145,6 +152,9 @@ describe("V1-05.4.3 Property reservation authority", () => {
     expect(reservationMigration).toContain("set status = 'disputed'");
     expect(reservationMigration).toContain("elsif new.status = 'completed' then");
     expect(reservationMigration).toContain("set status = 'completed'");
+    expect(reservationMigration).not.toContain(
+      "elsif new.status in ('accepted', 'in_progress') then",
+    );
   });
 
   it("releases only after the dispute has a terminal moderation result", () => {
