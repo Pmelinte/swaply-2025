@@ -31,6 +31,18 @@ LEGACY_FEATURED_INDEX = """CREATE INDEX IF NOT EXISTS idx_featured_expires ON pu
   WHERE expires_at > now();"""
 COMPATIBLE_FEATURED_INDEX = """CREATE INDEX IF NOT EXISTS idx_featured_expires ON public.featured_listings(expires_at);"""
 
+PG_TRGM_EXTENSION = (
+    "CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA extensions;\n\n"
+)
+LEGACY_TRGM_INDEX = (
+    "CREATE INDEX IF NOT EXISTS idx_items_title_trgm ON public.items "
+    "USING gin (title gin_trgm_ops);"
+)
+COMPATIBLE_TRGM_INDEX = (
+    "CREATE INDEX IF NOT EXISTS idx_items_title_trgm ON public.items "
+    "USING gin (title extensions.gin_trgm_ops);"
+)
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
@@ -122,6 +134,35 @@ def normalize_legacy_featured_index(migrations_dir: Path) -> int:
     return occurrences
 
 
+def enable_pg_trgm_for_legacy_search_index(migrations_dir: Path) -> int:
+    migration = migrations_dir / "20260219300000_seven_features.sql"
+    source = migration.read_text(encoding="utf-8")
+    occurrences = source.count(LEGACY_TRGM_INDEX)
+
+    if occurrences != 1:
+        raise RuntimeError(
+            "Expected exactly one legacy trigram index in the isolated copy; "
+            f"found {occurrences}."
+        )
+
+    if PG_TRGM_EXTENSION in source:
+        raise RuntimeError(
+            "The isolated trigram migration unexpectedly already enables "
+            "pg_trgm."
+        )
+
+    migration.write_text(
+        PG_TRGM_EXTENSION
+        + source.replace(
+            LEGACY_TRGM_INDEX,
+            COMPATIBLE_TRGM_INDEX,
+            1,
+        ),
+        encoding="utf-8",
+    )
+    return occurrences
+
+
 def main() -> None:
     args = parse_args()
     migrations_dir = args.migrations_dir.resolve()
@@ -132,12 +173,14 @@ def main() -> None:
     jwt_count = normalize_jwt_expressions(migrations_dir)
     policy_count = make_chat_policy_recreations_idempotent(migrations_dir)
     index_count = normalize_legacy_featured_index(migrations_dir)
+    trigram_count = enable_pg_trgm_for_legacy_search_index(migrations_dir)
 
     print(
         "Prepared isolated migration copy: "
         f"JWT expressions={jwt_count}, "
         f"chat policy recreations={policy_count}, "
-        f"non-immutable indexes={index_count}. "
+        f"non-immutable indexes={index_count}, "
+        f"trigram extensions/indexes={trigram_count}. "
         "Repository migrations and Production remain unchanged."
     )
 
