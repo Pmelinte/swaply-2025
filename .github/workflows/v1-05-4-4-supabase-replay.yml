@@ -61,7 +61,7 @@ jobs:
           )
           source = migration.read_text(encoding="utf-8")
           legacy = "current_setting('request.jwt.claims', true)::json->>'sub'"
-          compatible = "(current_setting('request.jwt.claims', true)::json)->>'sub'"
+          compatible = "((current_setting('request.jwt.claims', true)::json)->>'sub')"
           occurrences = source.count(legacy)
 
           if occurrences != 2:
