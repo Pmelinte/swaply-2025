@@ -65,9 +65,9 @@ begin
       end if;
 
       if p_message_fragment is not null
-        and pg_catalog.position(
+        and pg_catalog.strpos(
+          pg_catalog.lower(sqlerrm),
           pg_catalog.lower(p_message_fragment)
-          in pg_catalog.lower(sqlerrm)
         ) = 0
       then
         raise exception
