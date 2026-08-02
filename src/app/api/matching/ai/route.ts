@@ -34,7 +34,7 @@ function buildPrompt(
   candidates: Array<{ item: MatchingItemRow; score: number }>,
 ) {
   const lines = candidates.slice(0, 50).map(({ item, score }, index) => {
-    const profile = item.domain_profile;
+    const profile = item.domain_profile ?? { domain: item.item_type ?? "object" };
     const availability =
       item.item_type === "property"
         ? `${String(profile.available_from ?? "flexible")}..${String(profile.available_until ?? "flexible")}`
@@ -54,8 +54,8 @@ The user offers:
 - Title: ${myItem.title}
 - Category: ${myItem.category ?? "unknown"}
 - Value tier: ${myItem.perceived_value_tier ?? "unknown"}
-- Accepted domains: ${myItem.swap_open_to.join(", ") || "any"}
-- Wanted domains: ${myItem.swap_wants_type.join(", ") || "any"}
+- Accepted domains: ${(myItem.swap_open_to ?? []).join(", ") || "any"}
+- Wanted domains: ${(myItem.swap_wants_type ?? []).join(", ") || "any"}
 
 Compatible candidates (${lines.length}):
 ${lines.join("\n")}
@@ -117,9 +117,15 @@ function parseJsonish(raw: string): RawSuggestion[] | null {
 }
 
 function fallbackReason(item: MatchingItemRow): string {
-  if (item.item_type === "property") return "Compatible exchange domain and property availability.";
-  if (item.item_type === "service") return "Compatible exchange domain and service delivery profile.";
-  if (item.item_type === "event") return "Compatible exchange domain, date and transfer rules.";
+  if (item.item_type === "property") {
+    return "Compatible exchange domain and property availability.";
+  }
+  if (item.item_type === "service") {
+    return "Compatible exchange domain and service delivery profile.";
+  }
+  if (item.item_type === "event") {
+    return "Compatible exchange domain, date and transfer rules.";
+  }
   return "Compatible exchange domain, value and public listing data.";
 }
 
@@ -188,23 +194,25 @@ export async function POST(request: Request) {
   let suggestions: CanonicalSuggestion[] = [];
   if (parsed) {
     const used = new Set<string>();
-    suggestions = parsed.flatMap((entry) => {
-      const id = entry.itemId?.trim();
-      if (!id || used.has(id)) return [];
-      const canonical = byId.get(id);
-      if (!canonical) return [];
-      used.add(id);
-      return [
-        {
-          item: canonical.item,
-          score: canonical.score,
-          reasoning:
-            entry.reasoning?.trim().slice(0, 400) ||
-            fallbackReason(canonical.item),
-          source: "ai" as const,
-        },
-      ];
-    }).slice(0, 2);
+    suggestions = parsed
+      .flatMap((entry) => {
+        const id = entry.itemId?.trim();
+        if (!id || used.has(id)) return [];
+        const canonical = byId.get(id);
+        if (!canonical) return [];
+        used.add(id);
+        return [
+          {
+            item: canonical.item,
+            score: canonical.score,
+            reasoning:
+              entry.reasoning?.trim().slice(0, 400) ||
+              fallbackReason(canonical.item),
+            source: "ai" as const,
+          },
+        ];
+      })
+      .slice(0, 2);
   }
 
   if (suggestions.length === 0) {
