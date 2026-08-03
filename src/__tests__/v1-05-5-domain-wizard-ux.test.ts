@@ -27,6 +27,11 @@ const sharedNavigation = readFileSync(
   "utf8",
 );
 
+const publicVisualAudit = readFileSync(
+  resolve(process.cwd(), "e2e/public-visual-audit.spec.ts"),
+  "utf8",
+);
+
 describe("V1-05.5 domain wizard UX parity", () => {
   it("exposes accessible progress semantics for shared and Property wizards", () => {
     for (const source of [sharedProgress, propertyProgress]) {
@@ -40,7 +45,9 @@ describe("V1-05.5 domain wizard UX parity", () => {
   });
 
   it("clamps invalid progress values instead of rendering broken state", () => {
-    expect(sharedProgress).toContain("const safeTotalSteps = Math.max(1, totalSteps)");
+    expect(sharedProgress).toContain(
+      "const safeTotalSteps = Math.max(1, totalSteps)",
+    );
     expect(sharedProgress).toContain(
       "const safeStep = Math.min(Math.max(1, step), safeTotalSteps)",
     );
@@ -75,5 +82,25 @@ describe("V1-05.5 domain wizard UX parity", () => {
     expect(sharedNavigation).toContain("aria-busy={loading}");
     expect(sharedNavigation).toContain('role="group"');
     expect(sharedNavigation).not.toContain("<>✅");
+  });
+
+  it("covers Properties, Services and Events on desktop and mobile", () => {
+    for (const path of ["/properties", "/services", "/events"]) {
+      expect(publicVisualAudit).toContain(path);
+    }
+    expect(publicVisualAudit).toContain('{ name: "desktop", width: 1440');
+    expect(publicVisualAudit).toContain('{ name: "mobile", width: 390');
+  });
+
+  it("adds one non-English LTR locale and one RTL locale to the domain audit", () => {
+    expect(publicVisualAudit).toContain('{ locale: "de", direction: "ltr" }');
+    expect(publicVisualAudit).toContain('{ locale: "ar", direction: "rtl" }');
+    expect(publicVisualAudit).toContain("toLocalizedRoute(domainPath, locale)");
+    expect(publicVisualAudit).toContain(
+      'toHaveAttribute("dir", direction)',
+    );
+    expect(publicVisualAudit).toContain(
+      'toHaveAttribute("lang", locale)',
+    );
   });
 });
