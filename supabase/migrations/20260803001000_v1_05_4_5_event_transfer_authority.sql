@@ -1197,6 +1197,17 @@ begin
     where id = p_transfer_id
     returning * into v_transfer;
 
+    if v_swap.status = 'accepted' then
+      perform public.apply_swap_transition_v1(
+        v_swap.id,
+        'accepted',
+        'in_progress',
+        v_actor,
+        'event_transfer',
+        p_idempotency_key || ':swap'
+      );
+    end if;
+
     insert into public.event_transfer_events (
       transfer_id,
       swap_id,
