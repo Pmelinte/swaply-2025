@@ -59,16 +59,17 @@ async function assertHealthyPublicDomainPage(
 
 async function findVisibleCreateHandoff(
   page: Page,
-  expectedReturnTo: string,
+  expectedPath: string,
 ): Promise<string | null> {
-  return page.locator('a[href*="/register"]').evaluateAll(
-    (links, expectedPath) => {
+  return page.locator("a[href]").evaluateAll(
+    (links, createPath) => {
+      const localizedCreatePath = `/en${createPath}`;
+
       for (const element of links) {
         const anchor = element as HTMLAnchorElement;
         const href = anchor.getAttribute("href");
         if (!href) continue;
 
-        const url = new URL(href, window.location.origin);
         const rect = anchor.getBoundingClientRect();
         const style = window.getComputedStyle(anchor);
         const isVisible =
@@ -77,18 +78,25 @@ async function findVisibleCreateHandoff(
           style.display !== "none" &&
           style.visibility !== "hidden";
 
-        if (
-          isVisible &&
+        if (!isVisible) continue;
+
+        const url = new URL(href, window.location.origin);
+        const directAuthenticatedHandoff =
+          url.pathname === localizedCreatePath;
+        const guestReturnTo = url.searchParams.get("returnTo");
+        const guestRegistrationHandoff =
           url.pathname === "/en/register" &&
-          url.searchParams.get("returnTo") === expectedPath
-        ) {
+          (guestReturnTo === createPath ||
+            guestReturnTo === localizedCreatePath);
+
+        if (directAuthenticatedHandoff || guestRegistrationHandoff) {
           return href;
         }
       }
 
       return null;
     },
-    expectedReturnTo,
+    expectedPath,
   );
 }
 
@@ -114,7 +122,7 @@ test.describe("V1-05.6 cumulative public domain journeys", () => {
           );
           expect(
             createHandoffHref,
-            `${domain.route} must preserve the intended create return path`,
+            `${domain.route} must preserve its authenticated or guest create handoff`,
           ).not.toBeNull();
 
           const domainNavigation = page
