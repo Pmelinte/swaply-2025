@@ -1,22 +1,16 @@
 "use client";
 
-import { useState } from "react";
-import { useTranslations } from "next-intl";
-import { getSupabaseClient } from "@/lib/supabase/client";
+import {useState} from "react";
+import {useLocale, useTranslations} from "next-intl";
+import {useSearchParams} from "next/navigation";
+import {getSupabaseClient} from "@/lib/supabase/client";
+import {
+  buildLocalizedJourneyReturn,
+  buildOAuthCallbackUrl,
+  sanitizeJourneyReturn,
+} from "@/lib/auth/journeyReturn";
 
 type OtpStep = "phone" | "code";
-
-/**
- * Social / OAuth sign-in buttons + Phone OTP flow.
- * Rendered below the email/password form on the login page.
- *
- * NOTE — OAuth providers and Phone OTP must be enabled in
- * Supabase Dashboard → Authentication → Providers.
- *
- *  Google:   Google Cloud Console → APIs & Services → Credentials → OAuth 2.0 Client ID
- *            Redirect URI: https://<project-ref>.supabase.co/auth/v1/callback
- *  Phone:    Supabase Dashboard → Authentication → Providers → Phone (enable Twilio)
- */
 
 function GoogleIcon() {
   return (
@@ -39,6 +33,9 @@ function PhoneIcon() {
 
 export default function SocialAuth() {
   const t = useTranslations("login");
+  const locale = useLocale();
+  const params = useSearchParams();
+  const returnTo = sanitizeJourneyReturn(params.get("returnTo"));
   const [otpStep, setOtpStep] = useState<OtpStep>("phone");
   const [phone, setPhone] = useState("");
   const [code, setCode] = useState("");
@@ -49,12 +46,15 @@ export default function SocialAuth() {
   const handleOAuth = async (provider: "google") => {
     const supabase = getSupabaseClient();
     if (!supabase) return;
-    await supabase.auth.signInWithOAuth({
+
+    const {error} = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: buildOAuthCallbackUrl(window.location.origin, locale, returnTo),
       },
     });
+
+    if (error) setPhoneError(error.message);
   };
 
   const handleSendOtp = async () => {
@@ -68,7 +68,7 @@ export default function SocialAuth() {
     try {
       const supabase = getSupabaseClient();
       if (!supabase) return;
-      const { error } = await supabase.auth.signInWithOtp({ phone: cleaned });
+      const {error} = await supabase.auth.signInWithOtp({phone: cleaned});
       if (error) {
         setPhoneError(error.message);
       } else {
@@ -92,7 +92,7 @@ export default function SocialAuth() {
     try {
       const supabase = getSupabaseClient();
       if (!supabase) return;
-      const { error } = await supabase.auth.verifyOtp({
+      const {error} = await supabase.auth.verifyOtp({
         phone: phone.replace(/\s+/g, ""),
         token: code,
         type: "sms",
@@ -101,7 +101,7 @@ export default function SocialAuth() {
         setPhoneError(error.message);
       } else {
         setPhoneError(t("phoneLoginSuccess"));
-        window.location.href = "/profile";
+        window.location.href = buildLocalizedJourneyReturn(locale, returnTo);
       }
     } catch (err) {
       setPhoneError(err instanceof Error ? err.message : String(err));
@@ -115,7 +115,6 @@ export default function SocialAuth() {
 
   return (
     <div className="mt-5 space-y-4">
-      {/* Divider */}
       <div className="flex items-center gap-3">
         <div className="h-px flex-1 bg-zinc-200 dark:bg-zinc-700" />
         <span className="text-xs font-medium text-zinc-400 dark:text-zinc-500">
@@ -124,28 +123,18 @@ export default function SocialAuth() {
         <div className="h-px flex-1 bg-zinc-200 dark:bg-zinc-700" />
       </div>
 
-      {/* OAuth buttons */}
       <div className="space-y-2">
-        <button
-          type="button"
-          onClick={() => void handleOAuth("google")}
-          className={oauthButtonClass}
-        >
+        <button type="button" onClick={() => void handleOAuth("google")} className={oauthButtonClass}>
           <GoogleIcon />
           {t("continueWithGoogle")}
         </button>
 
-        <button
-          type="button"
-          onClick={() => setShowPhoneForm(!showPhoneForm)}
-          className={oauthButtonClass}
-        >
+        <button type="button" onClick={() => setShowPhoneForm(!showPhoneForm)} className={oauthButtonClass}>
           <PhoneIcon />
           {t("continueWithPhone")}
         </button>
       </div>
 
-      {/* Phone OTP form */}
       {showPhoneForm && (
         <div className="space-y-3 rounded-xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-800/50">
           {otpStep === "phone" ? (
@@ -155,7 +144,7 @@ export default function SocialAuth() {
                 <input
                   type="tel"
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  onChange={(event) => setPhone(event.target.value)}
                   placeholder={t("phoneNumberPlaceholder")}
                   className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
                 />
@@ -178,7 +167,7 @@ export default function SocialAuth() {
                   inputMode="numeric"
                   maxLength={6}
                   value={code}
-                  onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
+                  onChange={(event) => setCode(event.target.value.replace(/\D/g, ""))}
                   placeholder="000000"
                   className="mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-center text-lg tracking-widest dark:border-zinc-700 dark:bg-zinc-800"
                 />
