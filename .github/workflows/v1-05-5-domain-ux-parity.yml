@@ -1,0 +1,79 @@
+name: V1-05.5 Domain UX Audit
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/v1-05-5-domain-ux-parity.yml"
+      - "e2e/public-visual-audit.spec.ts"
+      - "src/components/wizard/**"
+      - "src/__tests__/v1-05-5-domain-wizard-ux.test.ts"
+      - "src/app/[locale]/properties/**"
+      - "src/app/[locale]/services/**"
+      - "src/app/[locale]/events/**"
+      - "messages/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v1-05-5-domain-ux-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "22"
+  NEXT_TELEMETRY_DISABLED: "1"
+
+jobs:
+  domain-ux-audit:
+    name: Desktop, mobile, LTR and RTL domain audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run V1-05.5 public domain visual audit
+        run: npm run test:e2e:public
+
+      - name: Upload V1-05.5 screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v1-05-5-domain-ux-screenshots
+          path: playwright-audit-screenshots/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload V1-05.5 Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v1-05-5-domain-ux-playwright-report
+          path: playwright-report/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload V1-05.5 failure evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v1-05-5-domain-ux-test-results
+          path: test-results/
+          if-no-files-found: warn
+          retention-days: 14
