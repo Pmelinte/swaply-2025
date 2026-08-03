@@ -176,6 +176,12 @@
       "version": "20260802190000",
       "name": "v1_05_4_4_service_delivery_authority",
       "kind": "FORWARD_ONLY"
+    },
+    {
+      "path": "supabase/migrations/20260803001000_v1_05_4_5_event_transfer_authority.sql",
+      "version": "20260803001000",
+      "name": "v1_05_4_5_event_transfer_authority",
+      "kind": "FORWARD_ONLY"
     }
   ]
 }
