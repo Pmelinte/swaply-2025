@@ -223,6 +223,21 @@ describe("V1-05.4.5 Event transfer authority", () => {
     );
   });
 
+  it("advances an accepted Exchange when the provider submits the first proof", () => {
+    expect(transferMigration).toContain(
+      "if v_swap.status = 'accepted' then",
+    );
+    expect(transferMigration).toContain(
+      "perform public.apply_swap_transition_v1(",
+    );
+    expect(transferMigration).toContain(
+      "'accepted',\n        'in_progress',\n        v_actor,\n        'event_transfer'",
+    );
+    expect(transferMigration).toContain(
+      "p_idempotency_key || ':swap'",
+    );
+  });
+
   it("blocks Exchange completion until every Event transfer is confirmed", () => {
     expect(transferMigration).toContain(
       "private.event_transfer_completion_guard_v1",
