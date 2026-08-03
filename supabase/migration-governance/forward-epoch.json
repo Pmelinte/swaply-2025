@@ -200,6 +200,12 @@
       "version": "20260803043000",
       "name": "v1_05_4_6_domain_aware_exchange_completion",
       "kind": "FORWARD_ONLY"
+    },
+    {
+      "path": "supabase/migrations/20260803054500_v1_05_4_6_1_completion_readiness_hardening.sql",
+      "version": "20260803054500",
+      "name": "v1_05_4_6_1_completion_readiness_hardening",
+      "kind": "FORWARD_ONLY"
     }
   ]
 }
