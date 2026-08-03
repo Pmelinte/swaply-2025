@@ -51,8 +51,8 @@ set search_path = pg_catalog, pg_temp
 as $function$
 declare
   v_actor uuid := auth.uid();
-  v_reason text := pg_catalog.btrim(pg_catalog.coalesce(p_reason, ''));
-  v_key text := pg_catalog.btrim(pg_catalog.coalesce(p_idempotency_key, ''));
+  v_reason text := pg_catalog.btrim(coalesce(p_reason, ''));
+  v_key text := pg_catalog.btrim(coalesce(p_idempotency_key, ''));
   v_transition jsonb;
 begin
   if v_actor is null then
