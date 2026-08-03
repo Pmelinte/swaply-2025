@@ -16,26 +16,26 @@ begin
 
   v_definition_lower := pg_catalog.lower(v_definition);
 
-  if pg_catalog.strpos(
-      v_definition_lower,
-      'coalesce(v_swap.agreement_revision, 0) < 1'
-    ) = 0
+  if pg_catalog.strpos(v_definition_lower, 'coalesce') = 0
     or pg_catalog.strpos(
       v_definition_lower,
-      'v_swap.exchange_kind is distinct from ''bilateral'''
+      'v_swap.agreement_revision'
     ) = 0
+    or pg_catalog.strpos(v_definition_lower, 'v_swap.exchange_kind') = 0
+    or pg_catalog.strpos(v_definition_lower, 'is distinct from') = 0
     or pg_catalog.strpos(
       v_definition_lower,
       'left join public.items term_item'
     ) = 0
     or pg_catalog.strpos(
       v_definition_lower,
-      'term_item.item_type::text'
+      'term_item.item_type'
     ) = 0
     or pg_catalog.strpos(
       v_definition_lower,
-      'is distinct from term.value ->> ''domain'''
+      'term.value ->> ''domain'''
     ) = 0
+    or pg_catalog.strpos(v_definition_lower, 'domain_terms_mismatch') = 0
   then
     raise exception 'V1-05.4.6.1 fail-closed readiness hardening is incomplete.';
   end if;
