@@ -167,9 +167,11 @@ describe("V1-05.4.7 cross-domain E2E", () => {
   it("runs rollback-only and verifies strict deterministic cleanup", () => {
     expect(replay).toContain("rollback;");
     expect(replay).toContain("'rollback', true");
-    expect(workflow).toContain("Verify strict rollback cleanup");
+    expect(workflow).toContain(
+      "raise exception 'V1-05.4.7 rollback cleanup left deterministic fixture data.';",
+    );
     expect(workflow).toContain("id::text like 'a5470000-%'");
-    expect(workflow).toContain("v1_05_4_7_cleanup");
-    expect(workflow).toContain("actions/upload-artifact@v4");
+    expect(workflow).toContain("'v1_05_4_7_cleanup', 'PASS'");
+    expect(workflow).toMatch(/uses:\s+actions\/upload-artifact@/);
   });
 });
