@@ -162,11 +162,11 @@ create table if not exists public.matches (
 );
 
 alter table public.conversations
-  add constraint conversations_match_id_fkey_v1547
+  add constraint conversations_match_id_fkey
   foreign key (match_id) references public.matches(id) on delete cascade;
 
 alter table public.conversations
-  add constraint conversations_match_id_key_v1547 unique (match_id);
+  add constraint conversations_match_id_key unique (match_id);
 
 create table if not exists public.messages (
   id uuid primary key default extensions.gen_random_uuid(),
