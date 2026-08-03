@@ -176,6 +176,24 @@
       "version": "20260802190000",
       "name": "v1_05_4_4_service_delivery_authority",
       "kind": "FORWARD_ONLY"
+    },
+    {
+      "path": "supabase/migrations/20260803001000_v1_05_4_5_event_transfer_authority.sql",
+      "version": "20260803001000",
+      "name": "v1_05_4_5_event_transfer_authority",
+      "kind": "FORWARD_ONLY"
+    },
+    {
+      "path": "supabase/migrations/20260803030000_v1_05_4_5_event_transfer_hardening.sql",
+      "version": "20260803030000",
+      "name": "v1_05_4_5_event_transfer_hardening",
+      "kind": "FORWARD_ONLY"
+    },
+    {
+      "path": "supabase/migrations/20260803030500_v1_05_4_5_event_completion_guard_contract.sql",
+      "version": "20260803030500",
+      "name": "v1_05_4_5_event_completion_guard_contract",
+      "kind": "FORWARD_ONLY"
     }
   ]
 }
