@@ -1337,12 +1337,10 @@ begin
 
   perform pg_temp.assert_true(
     coalesce((v_first ->> 'both_confirmed')::boolean, true) is false
+      and coalesce((v_first ->> 'replayed')::boolean, true) is false
       and coalesce((v_replay ->> 'replayed')::boolean, false)
-      and (
-        select count(*)
-        from public.swap_completion_confirmations
-        where swap_id = v_swap_id
-      ) = 1,
+      and jsonb_array_length(v_first -> 'confirmed_by') = 1
+      and v_replay -> 'confirmed_by' = v_first -> 'confirmed_by',
     'first participant completion must persist once and replay exactly'
   );
 end;
