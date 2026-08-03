@@ -17,6 +17,12 @@ begin
 end;
 $function$;
 
+-- Production currently enforces NOT NULL. Drop it only inside this rollback-only
+-- transaction to prove the readiness function remains fail-closed for a legacy
+-- or corrupted row if that invariant is ever absent during recovery/import.
+alter table public.swaps
+  alter column agreement_revision drop not null;
+
 set local session_replication_role = replica;
 
 insert into public.items (
