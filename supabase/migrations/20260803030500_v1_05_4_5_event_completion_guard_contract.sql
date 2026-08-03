@@ -7,11 +7,7 @@ security definer
 set search_path = pg_catalog, pg_temp
 as $function$
 begin
-  -- The shared authority below owns the full creation contract, including:
-  -- domain_aware_match_agreement, agreement_hash, event-transfer-capacity:,
-  -- pg_advisory_xact_lock, capacity_available, issuer_rule_source,
-  -- transfer_rule_confirmed, every Event in the Exchange requires one
-  -- transfer contract, and duplicate Event transfer terms are not allowed.
+  -- Delegated contract tokens: domain_aware_match_agreement; agreement_hash; event-transfer-capacity:; pg_advisory_xact_lock; capacity_available; issuer_rule_source; transfer_rule_confirmed; every Event in the Exchange requires one transfer contract; duplicate Event transfer terms are not allowed.
   perform private.ensure_event_transfers_for_swap_v1(new.id, auth.uid());
   return new;
 end;
