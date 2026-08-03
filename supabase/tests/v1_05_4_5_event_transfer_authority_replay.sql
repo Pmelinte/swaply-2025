@@ -8,6 +8,8 @@ create temporary table pg_temp.v1545_state (
   value uuid not null
 ) on commit drop;
 
+grant select on table pg_temp.v1545_state to authenticated;
+
 create or replace function pg_temp.assert_true(
   p_condition boolean,
   p_message text
