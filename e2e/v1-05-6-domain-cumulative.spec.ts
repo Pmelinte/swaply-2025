@@ -57,6 +57,41 @@ async function assertHealthyPublicDomainPage(
   await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
 }
 
+async function findVisibleCreateHandoff(
+  page: Page,
+  expectedReturnTo: string,
+): Promise<string | null> {
+  return page.locator('a[href*="/register"]').evaluateAll(
+    (links, expectedPath) => {
+      for (const element of links) {
+        const anchor = element as HTMLAnchorElement;
+        const href = anchor.getAttribute("href");
+        if (!href) continue;
+
+        const url = new URL(href, window.location.origin);
+        const rect = anchor.getBoundingClientRect();
+        const style = window.getComputedStyle(anchor);
+        const isVisible =
+          rect.width > 0 &&
+          rect.height > 0 &&
+          style.display !== "none" &&
+          style.visibility !== "hidden";
+
+        if (
+          isVisible &&
+          url.pathname === "/en/register" &&
+          url.searchParams.get("returnTo") === expectedPath
+        ) {
+          return href;
+        }
+      }
+
+      return null;
+    },
+    expectedReturnTo,
+  );
+}
+
 test.describe("V1-05.6 cumulative public domain journeys", () => {
   for (const viewport of viewports) {
     test.describe(viewport.name, () => {
@@ -73,15 +108,14 @@ test.describe("V1-05.6 cumulative public domain journeys", () => {
             `${domain.route} must expose a public search control`,
           ).toBeVisible();
 
-          const createHandoff = page
-            .locator(
-              `a[href*="/en/register?returnTo=${domain.createPath}"]`,
-            )
-            .first();
-          await expect(
-            createHandoff,
+          const createHandoffHref = await findVisibleCreateHandoff(
+            page,
+            domain.createPath,
+          );
+          expect(
+            createHandoffHref,
             `${domain.route} must preserve the intended create return path`,
-          ).toBeVisible();
+          ).not.toBeNull();
 
           const domainNavigation = page
             .locator(`a[href="/en/${domain.key}"]`)
