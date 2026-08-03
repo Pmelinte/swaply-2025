@@ -27,6 +27,8 @@ const eventObjectReplay = readFileSync(
   "utf8",
 );
 
+const drawerSelectorTemplate = '[data-drawer-page="${domain.key}"]';
+
 describe("V1-05.6 cumulative domain E2E gate", () => {
   it("keeps the gate cumulative across repository, browser and authenticated authority", () => {
     expect(workflow).toContain("Repository, locale and build gate");
@@ -130,9 +132,7 @@ describe("V1-05.6 cumulative domain E2E gate", () => {
       expect(browserJourney).toContain(
         `{ key: "${domain}", route: "/en/${domain}"`,
       );
-      expect(browserJourney).toContain(
-        `[data-drawer-page="${"${domain.key}"}"]`,
-      );
+      expect(browserJourney).toContain(drawerSelectorTemplate);
     }
 
     expect(browserJourney).toContain(
