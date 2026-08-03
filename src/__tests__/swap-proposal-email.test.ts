@@ -48,7 +48,7 @@ describe("swap proposal email authority", () => {
 });
 
 describe("swap proposal email content", () => {
-  it("uses a canonical locale and a localized private deep link", () => {
+  it("uses a canonical locale and the exact exchange detail route", () => {
     const email = buildSwapProposalEmail({
       appUrl: "https://www.swaply.world/",
       locale: "ro",
@@ -61,7 +61,7 @@ describe("swap proposal email content", () => {
 
     expect(email.locale).toBe("ro");
     expect(email.swapUrl).toBe(
-      "https://www.swaply.world/ro/exchange?swap=swap-123",
+      "https://www.swaply.world/ro/exchange/swap-123",
     );
     expect(email.preferencesUrl).toBe(
       "https://www.swaply.world/ro/profile#notifications",
@@ -69,8 +69,33 @@ describe("swap proposal email content", () => {
     expect(email.subject).toContain("Ana");
   });
 
+  it.each([
+    ["ro-RO", "ro"],
+    ["RO_ro", "ro"],
+    ["en_US", "en"],
+    ["fil-PH", "fil"],
+  ])("normalizes locale variant %s to %s", (value, expected) => {
+    expect(resolveTransactionalLocale(value)).toBe(expected);
+  });
+
   it("uses English as the final fallback for an unsupported locale", () => {
-    expect(resolveTransactionalLocale("zz")).toBe("en");
+    expect(resolveTransactionalLocale("zz-ZZ")).toBe("en");
+  });
+
+  it("encodes the swap identifier in the detail URL", () => {
+    const email = buildSwapProposalEmail({
+      appUrl: "https://www.swaply.world",
+      locale: "en",
+      swapId: "swap/unsafe?value=1",
+      recipientName: "Recipient",
+      senderName: "Sender",
+      requesterItemTitle: "Item A",
+      responderItemTitle: "Item B",
+    });
+
+    expect(email.swapUrl).toBe(
+      "https://www.swaply.world/en/exchange/swap%2Funsafe%3Fvalue%3D1",
+    );
   });
 
   it("escapes user-controlled text in the HTML body", () => {
