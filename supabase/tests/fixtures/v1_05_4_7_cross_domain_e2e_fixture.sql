@@ -89,6 +89,8 @@ alter table public.events_listings
   add column if not exists location_type text not null default 'physical',
   add column if not exists country_code text,
   add column if not exists city text,
+  add column if not exists venue_name text,
+  add column if not exists venue_section text,
   add column if not exists includes_meals boolean not null default false;
 
 alter table public.conversations
