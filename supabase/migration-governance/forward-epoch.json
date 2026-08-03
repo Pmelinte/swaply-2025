@@ -194,6 +194,12 @@
       "version": "20260803030500",
       "name": "v1_05_4_5_event_completion_guard_contract",
       "kind": "FORWARD_ONLY"
+    },
+    {
+      "path": "supabase/migrations/20260803043000_v1_05_4_6_domain_aware_exchange_completion.sql",
+      "version": "20260803043000",
+      "name": "v1_05_4_6_domain_aware_exchange_completion",
+      "kind": "FORWARD_ONLY"
     }
   ]
 }
