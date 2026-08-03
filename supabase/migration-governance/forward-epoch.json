@@ -206,6 +206,12 @@
       "version": "20260803054500",
       "name": "v1_05_4_6_1_completion_readiness_hardening",
       "kind": "FORWARD_ONLY"
+    },
+    {
+      "path": "supabase/migrations/20260803074500_v1_05_4_7_matching_interest_ambiguity_hardening.sql",
+      "version": "20260803074500",
+      "name": "v1_05_4_7_matching_interest_ambiguity_hardening",
+      "kind": "FORWARD_ONLY"
     }
   ]
 }
