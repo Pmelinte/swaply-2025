@@ -4,6 +4,7 @@
 do $contract$
 declare
   v_definition text;
+  v_definition_lower text;
 begin
   if to_regprocedure('private.domain_completion_readiness_v1(uuid)') is null then
     raise exception 'V1-05.4.6.1 readiness function is missing.';
@@ -13,19 +14,27 @@ begin
     'private.domain_completion_readiness_v1(uuid)'::regprocedure
   ) into v_definition;
 
+  v_definition_lower := pg_catalog.lower(v_definition);
+
   if pg_catalog.strpos(
-      v_definition,
+      v_definition_lower,
       'coalesce(v_swap.agreement_revision, 0) < 1'
     ) = 0
     or pg_catalog.strpos(
-      v_definition,
-      'v_swap.exchange_kind IS DISTINCT FROM ''bilateral'''
+      v_definition_lower,
+      'v_swap.exchange_kind is distinct from ''bilateral'''
     ) = 0
-    or pg_catalog.strpos(v_definition, 'LEFT JOIN public.items term_item') = 0
-    or pg_catalog.strpos(v_definition, 'term_item.item_type::text') = 0
     or pg_catalog.strpos(
-      v_definition,
-      'IS DISTINCT FROM (term.value ->> ''domain''::text)'
+      v_definition_lower,
+      'left join public.items term_item'
+    ) = 0
+    or pg_catalog.strpos(
+      v_definition_lower,
+      'term_item.item_type::text'
+    ) = 0
+    or pg_catalog.strpos(
+      v_definition_lower,
+      'is distinct from term.value ->> ''domain'''
     ) = 0
   then
     raise exception 'V1-05.4.6.1 fail-closed readiness hardening is incomplete.';
