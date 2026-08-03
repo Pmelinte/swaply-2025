@@ -136,7 +136,16 @@ describe("V1-05.6 cumulative domain E2E gate", () => {
     }
 
     expect(browserJourney).toContain(
-      'url.searchParams.get("returnTo") === expectedPath',
+      "const localizedCreatePath = `/en${createPath}`",
+    );
+    expect(browserJourney).toContain(
+      "url.pathname === localizedCreatePath",
+    );
+    expect(browserJourney).toContain(
+      'url.pathname === "/en/register"',
+    );
+    expect(browserJourney).toContain(
+      'url.searchParams.get("returnTo")',
     );
     expect(browserJourney).toContain('input[type="text"]');
     expect(browserJourney).toContain("context menu");
