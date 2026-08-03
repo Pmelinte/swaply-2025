@@ -13,17 +13,6 @@ const screenshotRoot = path.join(process.cwd(), "playwright-audit-screenshots");
 const publicRoutes = getPublicVisualAuditRoutes("en");
 const drawerAuditRoutes = getPublicDrawerAuditRoutes("en");
 
-const contextualCopyRoutes = new Set([
-  "/en/objects",
-  "/en/properties",
-  "/en/services",
-  "/en/events",
-  "/en/matching",
-  "/en/messages",
-  "/en/exchange",
-  "/en/blog",
-]);
-
 const domainParityPaths = ["/properties", "/services", "/events"] as const;
 const domainParityLocales = [
   { locale: "de", direction: "ltr" },
@@ -49,6 +38,10 @@ function screenshotPath(viewportName: string, route: string) {
   const folder = path.join(screenshotRoot, viewportName);
   mkdirSync(folder, { recursive: true });
   return path.join(folder, `${safeRoute}.png`);
+}
+
+function routePageKey(route: string) {
+  return route.split("/").filter(Boolean).at(-1) ?? "home";
 }
 
 async function assertPublicPageIsHealthy(page: Page, route: string) {
@@ -100,12 +93,11 @@ async function assertDrawerIsHealthy(page: Page, route: string) {
     `${route} drawer must be visible after contextual-menu click`,
   ).toBeVisible();
 
-  if (contextualCopyRoutes.has(route)) {
-    await expect(
-      drawer,
-      `${route} drawer must expose contextual menu copy`,
-    ).toContainText(/Context Menu|Menu contextual/i);
-  }
+  const drawerPage = drawer.locator("[data-drawer-page]").first();
+  await expect(
+    drawerPage,
+    `${route} drawer must expose a stable route-specific identity`,
+  ).toHaveAttribute("data-drawer-page", routePageKey(route));
 
   const drawerControls = drawer.locator('a[href], button:not([disabled])');
   expect(
