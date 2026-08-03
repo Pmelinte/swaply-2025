@@ -1,4 +1,4 @@
-import {describe, expect, it} from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   buildLocalizedJourneyReturn,
   buildOAuthCallbackUrl,
@@ -6,9 +6,15 @@ import {
 } from "../lib/auth/journeyReturn";
 
 describe("authenticated journey return", () => {
-  it("keeps a safe internal destination and strips an existing locale", () => {
+  it("keeps a safe internal destination and strips an existing configured locale", () => {
     expect(sanitizeJourneyReturn("/de/services/abc?from=matching#offer")).toBe(
       "/services/abc?from=matching#offer",
+    );
+  });
+
+  it("does not mistake a short application route for a locale", () => {
+    expect(sanitizeJourneyReturn("/eco?intent=impact")).toBe(
+      "/eco?intent=impact",
     );
   });
 
@@ -27,7 +33,11 @@ describe("authenticated journey return", () => {
     );
   });
 
-  it("falls back to English for an invalid locale token", () => {
+  it("falls back to the canonical default locale for an unsupported token", () => {
+    expect(buildLocalizedJourneyReturn("zz", "/profile")).toBe("/en/profile");
+  });
+
+  it("falls back to the canonical default locale for a malformed token", () => {
     expect(buildLocalizedJourneyReturn("../../evil", "/profile")).toBe("/en/profile");
   });
 
