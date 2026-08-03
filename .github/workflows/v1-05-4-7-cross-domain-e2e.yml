@@ -14,6 +14,7 @@ on:
       - "supabase/migrations/20260803030500_v1_05_4_5_event_completion_guard_contract.sql"
       - "supabase/migrations/20260803043000_v1_05_4_6_domain_aware_exchange_completion.sql"
       - "supabase/migrations/20260803054500_v1_05_4_6_1_completion_readiness_hardening.sql"
+      - "supabase/migrations/20260803074500_v1_05_4_7_matching_interest_ambiguity_hardening.sql"
       - "supabase/tests/fixtures/v1_05_4_4_current_contract_fixture.sql"
       - "supabase/tests/fixtures/v1_05_4_5_event_contract_fixture.sql"
       - "supabase/tests/fixtures/v1_05_4_6_completion_contract_fixture.sql"
@@ -25,6 +26,7 @@ on:
       - "supabase/tests/v1_05_4_6_1_completion_readiness_hardening_replay.sql"
       - "supabase/tests/v1_05_4_7_cross_domain_e2e_contract.sql"
       - "supabase/tests/v1_05_4_7_cross_domain_e2e_replay.sql"
+      - "supabase/migration-governance/forward-epoch.json"
       - "src/__tests__/v1-05-4-7-cross-domain-e2e.test.ts"
   workflow_dispatch:
 
@@ -114,6 +116,9 @@ jobs:
           cp \
             ../supabase/migrations/20260803054500_v1_05_4_6_1_completion_readiness_hardening.sql \
             supabase/migrations/
+          cp \
+            ../supabase/migrations/20260803074500_v1_05_4_7_matching_interest_ambiguity_hardening.sql \
+            supabase/migrations/
 
           cp \
             ../supabase/tests/v1_05_4_6_domain_aware_exchange_completion_contract.sql \
@@ -150,6 +155,7 @@ jobs:
             supabase/migrations/20260803030500_v1_05_4_5_event_completion_guard_contract.sql \
             supabase/migrations/20260803043000_v1_05_4_6_domain_aware_exchange_completion.sql \
             supabase/migrations/20260803054500_v1_05_4_6_1_completion_readiness_hardening.sql \
+            supabase/migrations/20260803074500_v1_05_4_7_matching_interest_ambiguity_hardening.sql \
             supabase/tests/v1_05_4_6_domain_aware_exchange_completion_contract.sql \
             supabase/tests/v1_05_4_6_domain_aware_exchange_completion_replay.sql \
             supabase/tests/v1_05_4_6_1_completion_readiness_hardening_contract.sql \
