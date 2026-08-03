@@ -40,7 +40,7 @@ describe("V1-05.6 cumulative domain E2E gate", () => {
     expect(workflow).toContain("npm run ci:quality");
   });
 
-  it("replays inherited Property-Service and shared completion evidence on the same head", () => {
+  it("replays current Property-Service and shared completion evidence on the same head", () => {
     expect(workflow).toContain(
       "v1_05_4_7_cross_domain_e2e_contract.sql",
     );
@@ -54,10 +54,26 @@ describe("V1-05.6 cumulative domain E2E gate", () => {
       "v1_05_4_6_1_completion_readiness_hardening_replay.sql",
     );
     expect(workflow).toContain(
-      "v1_05_4_4_service_delivery_authority_replay.sql",
+      "v1_05_4_4_service_delivery_authority_contract.sql",
     );
     expect(workflow).toContain(
-      "v1_05_4_5_event_transfer_authority_replay.sql",
+      "v1_05_4_5_event_transfer_authority_contract.sql",
+    );
+  });
+
+  it("does not run historical pre-shared-completion replays as current-authority E2E", () => {
+    expect(workflow).not.toContain(
+      "--file supabase/tests/v1_05_4_4_service_delivery_authority_replay.sql",
+    );
+    expect(workflow).not.toContain(
+      "--file supabase/tests/v1_05_4_5_event_transfer_authority_replay.sql",
+    );
+
+    expect(workflow).toContain(
+      "Run authenticated Property-Service cumulative journey",
+    );
+    expect(workflow).toContain(
+      "Run authenticated Event-Object cumulative journey",
     );
   });
 
@@ -120,7 +136,7 @@ describe("V1-05.6 cumulative domain E2E gate", () => {
     }
 
     expect(browserJourney).toContain(
-      'a[href*="/en/register?returnTo=${domain.createPath}"]',
+      'url.searchParams.get("returnTo") === expectedPath',
     );
     expect(browserJourney).toContain('input[type="text"]');
     expect(browserJourney).toContain("context menu");
@@ -131,6 +147,18 @@ describe("V1-05.6 cumulative domain E2E gate", () => {
     expect(workflow).toContain(
       "e2e/v1-05-6-domain-cumulative.spec.ts",
     );
+  });
+
+  it("triggers for the real dynamic-route, drawer and locale catalogue paths", () => {
+    expect(workflow).toContain('"src/app/**/properties/**"');
+    expect(workflow).toContain('"src/app/**/services/**"');
+    expect(workflow).toContain('"src/app/**/events/**"');
+    expect(workflow).toContain('"src/components/drawer/**"');
+    expect(workflow).toContain('"src/messages/**"');
+
+    expect(workflow).not.toContain('"src/app/[locale]/properties/**"');
+    expect(workflow).not.toContain('"src/components/drawers/**"');
+    expect(workflow).not.toContain('\n      - "messages/**"');
   });
 
   it("archives browser and rollback-only database evidence", () => {
