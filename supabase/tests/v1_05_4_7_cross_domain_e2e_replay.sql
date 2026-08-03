@@ -488,14 +488,14 @@ begin
   );
 
   perform pg_temp.assert_true(
-    v_interest.interest_id = v_replay.interest_id
-      and v_interest.interest_status = 'pending'
-      and v_replay.interest_status = 'pending',
+    v_interest.id = v_replay.id
+      and v_interest.status = 'pending'
+      and v_replay.status = 'pending',
     'exact interest replay must return the same pending interest'
   );
 
   insert into pg_temp.v1547_state(key, value) values
-    ('interest_id', v_interest.interest_id::text);
+    ('interest_id', v_interest.id::text);
 
   perform pg_temp.expect_error(
     $sql$
