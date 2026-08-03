@@ -9,6 +9,8 @@ import {
 } from "@/lib/notifications/swapProposalEmail";
 
 const FROM_EMAIL = process.env.EMAIL_FROM || "Swaply <noreply@swaply.world>";
+const PUBLIC_APP_URL =
+  process.env.NEXT_PUBLIC_APP_URL || "https://www.swaply.world";
 
 type SwapRow = {
   id: string;
@@ -23,7 +25,8 @@ type ProfileRow = {
   user_id: string;
   display_name: string | null;
   email: string | null;
-  preferred_language: string | null;
+  primary_language: string | null;
+  preferred_locale: string | null;
 };
 
 type ItemRow = {
@@ -49,9 +52,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Too many requests" }, { status: 429 });
   }
 
-  const body = (await request.json().catch(() => ({}))) as { swapId?: string };
-  if (!body.swapId) {
-    return NextResponse.json({ error: "Missing swapId" }, { status: 400 });
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
+
+  const swapId =
+    typeof body === "object" && body !== null && "swapId" in body
+      ? (body as { swapId?: unknown }).swapId
+      : undefined;
+
+  if (typeof swapId !== "string" || swapId.trim().length === 0) {
+    return NextResponse.json({ error: "Invalid swapId" }, { status: 400 });
   }
 
   const serviceSupabase = getServiceSupabase();
@@ -67,10 +81,18 @@ export async function POST(request: Request) {
     .select(
       "id, requester_id, responder_id, offered_item_id, requested_item_id, status",
     )
-    .eq("id", body.swapId)
+    .eq("id", swapId.trim())
     .maybeSingle();
 
-  if (swapError || !swapData) {
+  if (swapError) {
+    console.error("[email/swap-proposal] swap lookup failed", swapError);
+    return NextResponse.json(
+      { error: "Transactional email context unavailable" },
+      { status: 503 },
+    );
+  }
+
+  if (!swapData) {
     return NextResponse.json({ error: "Swap not found" }, { status: 404 });
   }
 
@@ -91,16 +113,24 @@ export async function POST(request: Request) {
     Boolean,
   ) as string[];
 
-  const [{ data: profilesData, error: profilesError }, { data: itemsData, error: itemsError }] =
-    await Promise.all([
-      serviceSupabase
-        .from("profiles")
-        .select("user_id, display_name, email, preferred_language")
-        .in("user_id", profileIds),
-      serviceSupabase.from("items").select("id, title").in("id", itemIds),
-    ]);
+  const [
+    { data: profilesData, error: profilesError },
+    { data: itemsData, error: itemsError },
+  ] = await Promise.all([
+    serviceSupabase
+      .from("profiles")
+      .select(
+        "user_id, display_name, email, primary_language, preferred_locale",
+      )
+      .in("user_id", profileIds),
+    serviceSupabase.from("items").select("id, title").in("id", itemIds),
+  ]);
 
   if (profilesError || itemsError) {
+    console.error("[email/swap-proposal] context lookup failed", {
+      profilesError,
+      itemsError,
+    });
     return NextResponse.json(
       { error: "Transactional email context unavailable" },
       { status: 503 },
@@ -126,10 +156,9 @@ export async function POST(request: Request) {
   }
 
   const resend = new Resend(process.env.RESEND_API_KEY);
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://swaply.world";
   const email = buildSwapProposalEmail({
-    appUrl,
-    locale: responder.preferred_language,
+    appUrl: PUBLIC_APP_URL,
+    locale: responder.primary_language || responder.preferred_locale,
     swapId: swap.id,
     recipientName: responder.display_name || "Swaply user",
     senderName: requester.display_name || "Swaply user",
