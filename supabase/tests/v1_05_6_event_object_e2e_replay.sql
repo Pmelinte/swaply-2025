@@ -1002,16 +1002,11 @@ begin
   perform pg_temp.assert_true(
     (
       select count(*)
-      from public.event_proofs
+      from public.event_transfer_events
       where transfer_id = v_transfer_id
-    ) = 1
-      and (
-        select count(*)
-        from public.event_transfer_events
-        where transfer_id = v_transfer_id
-          and event_type = 'proof_submitted'
-      ) = 1,
-    'Event proof replay must not duplicate private proof or ledger events'
+        and event_type = 'proof_submitted'
+    ) = 1,
+    'Event proof replay must not duplicate participant-visible ledger events'
   );
 
   perform pg_temp.assert_true(
@@ -1028,6 +1023,24 @@ end;
 $event_submit_proof$;
 
 reset role;
+
+do $event_private_proof_count$
+declare
+  v_transfer_id uuid := (
+    select value::uuid from pg_temp.v156_state where key = 'transfer_id'
+  );
+begin
+  perform pg_temp.assert_true(
+    (
+      select count(*)
+      from public.event_proofs
+      where transfer_id = v_transfer_id
+    ) = 1,
+    'Event proof replay must persist exactly one private proof revision'
+  );
+end;
+$event_private_proof_count$;
+
 select pg_temp.authenticate_as('a5060000-0000-4000-8000-000000000003');
 set local role authenticated;
 
