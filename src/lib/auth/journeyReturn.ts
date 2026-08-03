@@ -1,13 +1,35 @@
-import {sanitizeAuthRedirect} from "./registration";
+import { defaultLocale, locales, type Locale } from "@/i18n/config";
+import { sanitizeAuthRedirect } from "./registration";
 
-const LOCALE_PREFIX = /^\/[a-z]{2,3}(?=\/|$)/i;
+const localeSet = new Set<string>(locales);
+
+function splitPathSegments(value: string): string[] {
+  return value.split("/");
+}
+
+function stripConfiguredLocalePrefix(value: string): string {
+  const segments = splitPathSegments(value);
+  const firstSegment = segments[1]?.toLowerCase();
+
+  if (!firstSegment || !localeSet.has(firstSegment)) {
+    return value;
+  }
+
+  const withoutLocale = `/${segments.slice(2).join("/")}`;
+  return withoutLocale === "/" ? "/" : withoutLocale;
+}
+
+function resolveLocale(locale: string): Locale {
+  const normalized = locale.toLowerCase();
+  return localeSet.has(normalized) ? (normalized as Locale) : defaultLocale;
+}
 
 export function sanitizeJourneyReturn(
   value: string | null | undefined,
   fallback = "/profile",
 ): string {
   const safe = sanitizeAuthRedirect(value, fallback);
-  const withoutLocale = safe.replace(LOCALE_PREFIX, "") || "/";
+  const withoutLocale = stripConfiguredLocalePrefix(safe);
   return sanitizeAuthRedirect(withoutLocale, fallback);
 }
 
@@ -16,8 +38,7 @@ export function buildLocalizedJourneyReturn(
   value: string | null | undefined,
   fallback = "/profile",
 ): string {
-  const safeLocale = /^[a-z]{2,3}$/i.test(locale) ? locale.toLowerCase() : "en";
-  return `/${safeLocale}${sanitizeJourneyReturn(value, fallback)}`;
+  return `/${resolveLocale(locale)}${sanitizeJourneyReturn(value, fallback)}`;
 }
 
 export function buildOAuthCallbackUrl(
