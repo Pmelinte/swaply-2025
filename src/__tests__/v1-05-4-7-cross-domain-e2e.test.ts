@@ -11,6 +11,14 @@ const workflow = readFileSync(
   "utf8",
 );
 
+const matchingHardening = readFileSync(
+  resolve(
+    process.cwd(),
+    "supabase/migrations/20260803074500_v1_05_4_7_matching_interest_ambiguity_hardening.sql",
+  ),
+  "utf8",
+);
+
 const fixture = readFileSync(
   resolve(
     process.cwd(),
@@ -35,6 +43,18 @@ const contract = readFileSync(
   "utf8",
 );
 
+const governance = JSON.parse(
+  readFileSync(
+    resolve(
+      process.cwd(),
+      "supabase/migration-governance/forward-epoch.json",
+    ),
+    "utf8",
+  ),
+) as {
+  forward_migrations?: Array<{ path?: string; name?: string }>;
+};
+
 describe("V1-05.4.7 cross-domain E2E", () => {
   it("compiles the exact matching-to-completion authority chain", () => {
     for (const migration of [
@@ -48,6 +68,7 @@ describe("V1-05.4.7 cross-domain E2E", () => {
       "20260803030500_v1_05_4_5_event_completion_guard_contract.sql",
       "20260803043000_v1_05_4_6_domain_aware_exchange_completion.sql",
       "20260803054500_v1_05_4_6_1_completion_readiness_hardening.sql",
+      "20260803074500_v1_05_4_7_matching_interest_ambiguity_hardening.sql",
     ]) {
       expect(workflow).toContain(migration);
     }
@@ -60,6 +81,28 @@ describe("V1-05.4.7 cross-domain E2E", () => {
     );
     expect(workflow).toContain(
       "v1_05_4_7_cross_domain_e2e_replay.sql",
+    );
+  });
+
+  it("hardens the runtime Matching interest conflict without changing the RPC shape", () => {
+    expect(matchingHardening).toContain(
+      "create or replace function public.express_matching_interest",
+    );
+    expect(matchingHardening).toContain("#variable_conflict use_column");
+    expect(matchingHardening).toContain(
+      "on conflict (from_user_id, from_item_id, to_user_id, to_item_id)",
+    );
+    expect(matchingHardening).toContain(
+      "where status in ('pending', 'accepted')",
+    );
+    expect(matchingHardening).toContain(
+      "grant execute on function public.express_matching_interest",
+    );
+    expect(governance.forward_migrations).toContainEqual(
+      expect.objectContaining({
+        path: "supabase/migrations/20260803074500_v1_05_4_7_matching_interest_ambiguity_hardening.sql",
+        name: "v1_05_4_7_matching_interest_ambiguity_hardening",
+      }),
     );
   });
 
