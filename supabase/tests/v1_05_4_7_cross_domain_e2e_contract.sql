@@ -105,7 +105,7 @@ begin
   where not trigger_row.tgisinternal
     and (
       (trigger_row.tgrelid = 'public.swaps'::regclass and trigger_row.tgname in (
-        'aaa_reserve_property_periods_v1',
+        'aaa_property_reservation_authority_v1',
         'aaa_create_service_deliveries_v1',
         'aaa_domain_aware_swap_completion_guard_v1'
       ))
