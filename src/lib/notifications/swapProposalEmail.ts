@@ -48,9 +48,18 @@ function escapeHtml(value: string): string {
     .replace(/'/g, "&#039;");
 }
 
-export function resolveTransactionalLocale(value: string | null | undefined): Locale {
-  return (locales as readonly string[]).includes(value ?? "")
-    ? (value as Locale)
+export function resolveTransactionalLocale(
+  value: string | null | undefined,
+): Locale {
+  const normalized = value?.trim().toLowerCase().replace(/_/g, "-") ?? "";
+  const exact = (locales as readonly string[]).find(
+    (locale) => locale === normalized,
+  );
+  if (exact) return exact as Locale;
+
+  const base = normalized.split("-")[0];
+  return (locales as readonly string[]).includes(base)
+    ? (base as Locale)
     : defaultLocale;
 }
 
@@ -77,7 +86,8 @@ export function buildSwapProposalEmail(
   const senderName = escapeHtml(input.senderName || "Swaply user");
   const requesterItemTitle = escapeHtml(input.requesterItemTitle || "an item");
   const responderItemTitle = escapeHtml(input.responderItemTitle || "your item");
-  const swapUrl = `${appUrl}/${locale}/exchange?swap=${encodeURIComponent(input.swapId)}`;
+  const encodedSwapId = encodeURIComponent(input.swapId);
+  const swapUrl = `${appUrl}/${locale}/exchange/${encodedSwapId}`;
   const preferencesUrl = `${appUrl}/${locale}/profile#notifications`;
 
   const html = `
