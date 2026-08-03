@@ -5,12 +5,16 @@ on:
     paths:
       - ".github/workflows/v1-05-4-5-supabase-replay.yml"
       - "supabase/migrations/20260803001000_v1_05_4_5_event_transfer_authority.sql"
+      - "supabase/migrations/20260803030000_v1_05_4_5_event_transfer_hardening.sql"
+      - "supabase/migrations/20260803030500_v1_05_4_5_event_completion_guard_contract.sql"
       - "supabase/tests/fixtures/v1_05_4_4_current_contract_fixture.sql"
       - "supabase/tests/fixtures/v1_05_4_5_event_contract_fixture.sql"
       - "supabase/tests/v1_05_4_5_event_transfer_authority_contract.sql"
       - "supabase/tests/v1_05_4_5_event_transfer_authority_replay.sql"
+      - "supabase/tests/v1_05_4_5_event_transfer_hardening_replay.sql"
       - "supabase/migration-governance/forward-epoch.json"
       - "src/__tests__/v1-05-4-5-event-transfer-authority.test.ts"
+      - "src/__tests__/v1-05-4-5-event-transfer-hardening.test.ts"
   workflow_dispatch:
 
 permissions:
@@ -63,18 +67,30 @@ jobs:
             ../supabase/migrations/20260803001000_v1_05_4_5_event_transfer_authority.sql \
             supabase/migrations/
           cp \
+            ../supabase/migrations/20260803030000_v1_05_4_5_event_transfer_hardening.sql \
+            supabase/migrations/
+          cp \
+            ../supabase/migrations/20260803030500_v1_05_4_5_event_completion_guard_contract.sql \
+            supabase/migrations/
+          cp \
             ../supabase/tests/v1_05_4_5_event_transfer_authority_contract.sql \
             supabase/tests/
           cp \
             ../supabase/tests/v1_05_4_5_event_transfer_authority_replay.sql \
+            supabase/tests/
+          cp \
+            ../supabase/tests/v1_05_4_5_event_transfer_hardening_replay.sql \
             supabase/tests/
 
           sha256sum \
             supabase/migrations/00000000000000_v1_05_4_4_current_contract_fixture.sql \
             supabase/migrations/00000000000001_v1_05_4_5_event_contract_fixture.sql \
             supabase/migrations/20260803001000_v1_05_4_5_event_transfer_authority.sql \
+            supabase/migrations/20260803030000_v1_05_4_5_event_transfer_hardening.sql \
+            supabase/migrations/20260803030500_v1_05_4_5_event_completion_guard_contract.sql \
             supabase/tests/v1_05_4_5_event_transfer_authority_contract.sql \
             supabase/tests/v1_05_4_5_event_transfer_authority_replay.sql \
+            supabase/tests/v1_05_4_5_event_transfer_hardening_replay.sql \
             | tee evidence/input-sha256.txt
 
       - name: Start isolated Supabase stack
@@ -126,6 +142,22 @@ jobs:
             --file supabase/tests/v1_05_4_5_event_transfer_authority_replay.sql \
             2>&1 | tee evidence/authenticated-replay.log
 
+      - name: Run rollback-only Event hardening replay
+        working-directory: .ci-supabase
+        shell: bash
+        env:
+          PGPASSWORD: postgres
+        run: |
+          set -euo pipefail
+          psql \
+            --host 127.0.0.1 \
+            --port 54322 \
+            --username postgres \
+            --dbname postgres \
+            --set ON_ERROR_STOP=1 \
+            --file supabase/tests/v1_05_4_5_event_transfer_hardening_replay.sql \
+            2>&1 | tee evidence/hardening-replay.log
+
       - name: Verify rollback cleanup
         working-directory: .ci-supabase
         shell: bash
@@ -146,26 +178,32 @@ jobs:
               select 1
               from auth.users
               where id::text like 'a5450000-%'
+                 or id::text like 'a5460000-%'
             ) or exists (
               select 1
               from public.profiles
               where user_id::text like 'a5450000-%'
+                 or user_id::text like 'a5460000-%'
             ) or exists (
               select 1
               from public.items
               where id::text like 'a5450000-%'
+                 or id::text like 'a5460000-%'
             ) or exists (
               select 1
               from public.events_listings
               where item_id::text like 'a5450000-%'
+                 or item_id::text like 'a5460000-%'
             ) or exists (
               select 1
               from public.conversations
               where id::text like 'a5450000-%'
+                 or id::text like 'a5460000-%'
             ) or exists (
               select 1
               from public.swaps
               where id::text like 'a5450000-%'
+                 or id::text like 'a5460000-%'
             ) or exists (
               select 1
               from public.event_transfers
