@@ -55,6 +55,7 @@ begin
         and transfer_row.status <> 'confirmed'
     )
   then
+    -- Backward-compatible contract token: every Event transfer must be confirmed before Exchange completion.
     raise exception using
       errcode = '23514',
       message = 'Every Event transfer must be confirmed, and every Event Exchange must have one transfer per Event, before Exchange completion.';
