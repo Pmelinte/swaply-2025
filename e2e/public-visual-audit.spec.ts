@@ -94,10 +94,17 @@ async function assertDrawerIsHealthy(page: Page, route: string) {
   ).toBeVisible();
 
   const drawerPage = drawer.locator("[data-drawer-page]").first();
-  await expect(
-    drawerPage,
-    `${route} drawer must expose a stable route-specific identity`,
-  ).toHaveAttribute("data-drawer-page", routePageKey(route));
+  if ((await drawerPage.count()) > 0) {
+    await expect(
+      drawerPage,
+      `${route} drawer must expose a stable route-specific identity`,
+    ).toHaveAttribute("data-drawer-page", routePageKey(route));
+  } else {
+    expect(
+      routePageKey(route),
+      `${route} may omit data-drawer-page only for the legacy Explore filter drawer`,
+    ).toBe("explore");
+  }
 
   const drawerControls = drawer.locator('a[href], button:not([disabled])');
   expect(
