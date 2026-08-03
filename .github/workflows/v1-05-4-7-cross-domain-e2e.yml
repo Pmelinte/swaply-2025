@@ -1,0 +1,379 @@
+name: V1-05.4.7 Cross-domain E2E
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/v1-05-4-7-cross-domain-e2e.yml"
+      - "supabase/migrations/20260801163000_v1_05_4_1_canonical_cross_domain_matching.sql"
+      - "supabase/migrations/20260802100000_v1_05_4_2_domain_aware_agreement.sql"
+      - "supabase/migrations/20260802101500_v1_05_4_2_domain_exchange_handoff.sql"
+      - "supabase/migrations/20260802170000_v1_05_4_3_property_reservation_authority.sql"
+      - "supabase/migrations/20260802190000_v1_05_4_4_service_delivery_authority.sql"
+      - "supabase/migrations/20260803001000_v1_05_4_5_event_transfer_authority.sql"
+      - "supabase/migrations/20260803030000_v1_05_4_5_event_transfer_hardening.sql"
+      - "supabase/migrations/20260803030500_v1_05_4_5_event_completion_guard_contract.sql"
+      - "supabase/migrations/20260803043000_v1_05_4_6_domain_aware_exchange_completion.sql"
+      - "supabase/migrations/20260803054500_v1_05_4_6_1_completion_readiness_hardening.sql"
+      - "supabase/migrations/20260803074500_v1_05_4_7_matching_interest_ambiguity_hardening.sql"
+      - "supabase/tests/fixtures/v1_05_4_4_current_contract_fixture.sql"
+      - "supabase/tests/fixtures/v1_05_4_5_event_contract_fixture.sql"
+      - "supabase/tests/fixtures/v1_05_4_6_completion_contract_fixture.sql"
+      - "supabase/tests/fixtures/v1_05_4_7_cross_domain_e2e_fixture.sql"
+      - "supabase/tests/fixtures/v1_05_4_7_matching_runtime_fixture.sql"
+      - "supabase/tests/v1_05_4_6_domain_aware_exchange_completion_contract.sql"
+      - "supabase/tests/v1_05_4_6_domain_aware_exchange_completion_replay.sql"
+      - "supabase/tests/v1_05_4_6_1_completion_readiness_hardening_contract.sql"
+      - "supabase/tests/v1_05_4_6_1_completion_readiness_hardening_replay.sql"
+      - "supabase/tests/v1_05_4_7_cross_domain_e2e_contract.sql"
+      - "supabase/tests/v1_05_4_7_cross_domain_e2e_replay.sql"
+      - "supabase/migration-governance/forward-epoch.json"
+      - "src/__tests__/v1-05-4-7-cross-domain-e2e.test.ts"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v1-05-4-7-cross-domain-e2e-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  property-service-cross-domain-e2e:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v4
+
+      - name: Install Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: 2.109.1
+
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes postgresql-client
+
+      - name: Prepare isolated current-contract project
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf .ci-supabase
+          mkdir -p .ci-supabase
+          cd .ci-supabase
+          supabase init
+          rm -rf supabase/migrations supabase/tests
+          mkdir -p supabase/migrations supabase/tests evidence
+
+          cp \
+            ../supabase/tests/fixtures/v1_05_4_4_current_contract_fixture.sql \
+            supabase/migrations/00000000000000_v1_05_4_4_current_contract_fixture.sql
+          cp \
+            ../supabase/tests/fixtures/v1_05_4_6_completion_contract_fixture.sql \
+            supabase/migrations/00000000000001_v1_05_4_6_completion_contract_fixture.sql
+          cp \
+            ../supabase/tests/fixtures/v1_05_4_5_event_contract_fixture.sql \
+            supabase/migrations/00000000000002_v1_05_4_5_event_contract_fixture.sql
+          cp \
+            ../supabase/tests/fixtures/v1_05_4_7_cross_domain_e2e_fixture.sql \
+            supabase/migrations/00000000000003_v1_05_4_7_cross_domain_e2e_fixture.sql
+          cp \
+            ../supabase/tests/fixtures/v1_05_4_7_matching_runtime_fixture.sql \
+            supabase/migrations/00000000000004_v1_05_4_7_matching_runtime_fixture.sql
+
+          cp \
+            ../supabase/migrations/20260801163000_v1_05_4_1_canonical_cross_domain_matching.sql \
+            supabase/migrations/
+          cp \
+            ../supabase/migrations/20260802100000_v1_05_4_2_domain_aware_agreement.sql \
+            supabase/migrations/
+          cp \
+            ../supabase/migrations/20260802101500_v1_05_4_2_domain_exchange_handoff.sql \
+            supabase/migrations/
+          cp \
+            ../supabase/migrations/20260802170000_v1_05_4_3_property_reservation_authority.sql \
+            supabase/migrations/
+          cp \
+            ../supabase/migrations/20260802190000_v1_05_4_4_service_delivery_authority.sql \
+            supabase/migrations/
+          cp \
+            ../supabase/migrations/20260803001000_v1_05_4_5_event_transfer_authority.sql \
+            supabase/migrations/
+          cp \
+            ../supabase/migrations/20260803030000_v1_05_4_5_event_transfer_hardening.sql \
+            supabase/migrations/
+          cp \
+            ../supabase/migrations/20260803030500_v1_05_4_5_event_completion_guard_contract.sql \
+            supabase/migrations/
+          cp \
+            ../supabase/migrations/20260803043000_v1_05_4_6_domain_aware_exchange_completion.sql \
+            supabase/migrations/
+          cp \
+            ../supabase/migrations/20260803054500_v1_05_4_6_1_completion_readiness_hardening.sql \
+            supabase/migrations/
+          cp \
+            ../supabase/migrations/20260803074500_v1_05_4_7_matching_interest_ambiguity_hardening.sql \
+            supabase/migrations/
+
+          cp \
+            ../supabase/tests/v1_05_4_6_domain_aware_exchange_completion_contract.sql \
+            supabase/tests/
+          cp \
+            ../supabase/tests/v1_05_4_6_domain_aware_exchange_completion_replay.sql \
+            supabase/tests/
+          cp \
+            ../supabase/tests/v1_05_4_6_1_completion_readiness_hardening_contract.sql \
+            supabase/tests/
+          cp \
+            ../supabase/tests/v1_05_4_6_1_completion_readiness_hardening_replay.sql \
+            supabase/tests/
+          cp \
+            ../supabase/tests/v1_05_4_7_cross_domain_e2e_contract.sql \
+            supabase/tests/
+          cp \
+            ../supabase/tests/v1_05_4_7_cross_domain_e2e_replay.sql \
+            supabase/tests/
+
+          sha256sum \
+            supabase/migrations/00000000000000_v1_05_4_4_current_contract_fixture.sql \
+            supabase/migrations/00000000000001_v1_05_4_6_completion_contract_fixture.sql \
+            supabase/migrations/00000000000002_v1_05_4_5_event_contract_fixture.sql \
+            supabase/migrations/00000000000003_v1_05_4_7_cross_domain_e2e_fixture.sql \
+            supabase/migrations/00000000000004_v1_05_4_7_matching_runtime_fixture.sql \
+            supabase/migrations/20260801163000_v1_05_4_1_canonical_cross_domain_matching.sql \
+            supabase/migrations/20260802100000_v1_05_4_2_domain_aware_agreement.sql \
+            supabase/migrations/20260802101500_v1_05_4_2_domain_exchange_handoff.sql \
+            supabase/migrations/20260802170000_v1_05_4_3_property_reservation_authority.sql \
+            supabase/migrations/20260802190000_v1_05_4_4_service_delivery_authority.sql \
+            supabase/migrations/20260803001000_v1_05_4_5_event_transfer_authority.sql \
+            supabase/migrations/20260803030000_v1_05_4_5_event_transfer_hardening.sql \
+            supabase/migrations/20260803030500_v1_05_4_5_event_completion_guard_contract.sql \
+            supabase/migrations/20260803043000_v1_05_4_6_domain_aware_exchange_completion.sql \
+            supabase/migrations/20260803054500_v1_05_4_6_1_completion_readiness_hardening.sql \
+            supabase/migrations/20260803074500_v1_05_4_7_matching_interest_ambiguity_hardening.sql \
+            supabase/tests/v1_05_4_6_domain_aware_exchange_completion_contract.sql \
+            supabase/tests/v1_05_4_6_domain_aware_exchange_completion_replay.sql \
+            supabase/tests/v1_05_4_6_1_completion_readiness_hardening_contract.sql \
+            supabase/tests/v1_05_4_6_1_completion_readiness_hardening_replay.sql \
+            supabase/tests/v1_05_4_7_cross_domain_e2e_contract.sql \
+            supabase/tests/v1_05_4_7_cross_domain_e2e_replay.sql \
+            | tee evidence/input-sha256.txt
+
+      - name: Start isolated Supabase stack
+        working-directory: .ci-supabase
+        shell: bash
+        run: |
+          set -o pipefail
+          supabase start \
+            -x studio,imgproxy,storage-api,realtime,inbucket,edge-runtime,logflare,vector,supavisor \
+            2>&1 | tee evidence/supabase-start.log
+
+      - name: Record isolated stack identity
+        working-directory: .ci-supabase
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase status | tee evidence/supabase-status.txt
+          supabase migration list --local | tee evidence/migration-list.txt
+
+      - name: Run V1-05.4.6 catalog regression
+        working-directory: .ci-supabase
+        shell: bash
+        env:
+          PGPASSWORD: postgres
+        run: |
+          set -euo pipefail
+          psql \
+            --host 127.0.0.1 \
+            --port 54322 \
+            --username postgres \
+            --dbname postgres \
+            --set ON_ERROR_STOP=1 \
+            --file supabase/tests/v1_05_4_6_domain_aware_exchange_completion_contract.sql \
+            2>&1 | tee evidence/v1-05-4-6-catalog-contract.log
+
+      - name: Run V1-05.4.6.1 catalog regression
+        working-directory: .ci-supabase
+        shell: bash
+        env:
+          PGPASSWORD: postgres
+        run: |
+          set -euo pipefail
+          psql \
+            --host 127.0.0.1 \
+            --port 54322 \
+            --username postgres \
+            --dbname postgres \
+            --set ON_ERROR_STOP=1 \
+            --file supabase/tests/v1_05_4_6_1_completion_readiness_hardening_contract.sql \
+            2>&1 | tee evidence/v1-05-4-6-1-catalog-contract.log
+
+      - name: Run V1-05.4.7 authority catalog contract
+        working-directory: .ci-supabase
+        shell: bash
+        env:
+          PGPASSWORD: postgres
+        run: |
+          set -euo pipefail
+          psql \
+            --host 127.0.0.1 \
+            --port 54322 \
+            --username postgres \
+            --dbname postgres \
+            --set ON_ERROR_STOP=1 \
+            --file supabase/tests/v1_05_4_7_cross_domain_e2e_contract.sql \
+            2>&1 | tee evidence/v1-05-4-7-catalog-contract.log
+
+      - name: Run authenticated V1-05.4.6 regression replay
+        working-directory: .ci-supabase
+        shell: bash
+        env:
+          PGPASSWORD: postgres
+        run: |
+          set -euo pipefail
+          psql \
+            --host 127.0.0.1 \
+            --port 54322 \
+            --username postgres \
+            --dbname postgres \
+            --set ON_ERROR_STOP=1 \
+            --file supabase/tests/v1_05_4_6_domain_aware_exchange_completion_replay.sql \
+            2>&1 | tee evidence/v1-05-4-6-authenticated-replay.log
+
+      - name: Run V1-05.4.6.1 hardening regression replay
+        working-directory: .ci-supabase
+        shell: bash
+        env:
+          PGPASSWORD: postgres
+        run: |
+          set -euo pipefail
+          psql \
+            --host 127.0.0.1 \
+            --port 54322 \
+            --username postgres \
+            --dbname postgres \
+            --set ON_ERROR_STOP=1 \
+            --file supabase/tests/v1_05_4_6_1_completion_readiness_hardening_replay.sql \
+            2>&1 | tee evidence/v1-05-4-6-1-hardening-replay.log
+
+      - name: Run authenticated V1-05.4.7 Property-Service E2E
+        working-directory: .ci-supabase
+        shell: bash
+        env:
+          PGPASSWORD: postgres
+        run: |
+          set -euo pipefail
+          psql \
+            --host 127.0.0.1 \
+            --port 54322 \
+            --username postgres \
+            --dbname postgres \
+            --set ON_ERROR_STOP=1 \
+            --file supabase/tests/v1_05_4_7_cross_domain_e2e_replay.sql \
+            2>&1 | tee evidence/v1-05-4-7-authenticated-cross-domain-e2e.log
+
+      - name: Verify strict rollback cleanup
+        working-directory: .ci-supabase
+        shell: bash
+        env:
+          PGPASSWORD: postgres
+        run: |
+          set -euo pipefail
+          psql \
+            --host 127.0.0.1 \
+            --port 54322 \
+            --username postgres \
+            --dbname postgres \
+            --set ON_ERROR_STOP=1 \
+            2>&1 <<'SQL' | tee evidence/cleanup.log
+          do $cleanup$
+          begin
+            if exists (
+              select 1 from auth.users
+              where id::text like 'a5470000-%'
+            ) or exists (
+              select 1 from public.profiles
+              where user_id::text like 'a5470000-%'
+            ) or exists (
+              select 1 from public.items
+              where id::text like 'a5470000-%'
+            ) or exists (
+              select 1 from public.matching_interests
+              where from_item_id::text like 'a5470000-%'
+                 or to_item_id::text like 'a5470000-%'
+            ) or exists (
+              select 1 from public.matches
+              where initiator_item_id::text like 'a5470000-%'
+                 or target_item_id::text like 'a5470000-%'
+            ) or exists (
+              select 1 from public.conversations
+              where exists (
+                select 1 from unnest(item_ids) item_id
+                where item_id::text like 'a5470000-%'
+              )
+            ) or exists (
+              select 1 from public.messages
+              where sender_id::text like 'a5470000-%'
+                 or recipient_id::text like 'a5470000-%'
+            ) or exists (
+              select 1 from public.swaps
+              where requester_id::text like 'a5470000-%'
+                 or responder_id::text like 'a5470000-%'
+            ) or exists (
+              select 1 from public.property_reservations
+              where property_item_id::text like 'a5470000-%'
+            ) or exists (
+              select 1 from public.service_deliveries
+              where service_item_id::text like 'a5470000-%'
+            ) or exists (
+              select 1 from public.swap_completion_confirmations confirmation_row
+              join public.swaps swap_row on swap_row.id = confirmation_row.swap_id
+              where swap_row.requester_id::text like 'a5470000-%'
+                 or swap_row.responder_id::text like 'a5470000-%'
+            ) or exists (
+              select 1 from public.swap_completion_effects effect_row
+              join public.swaps swap_row on swap_row.id = effect_row.swap_id
+              where swap_row.requester_id::text like 'a5470000-%'
+                 or swap_row.responder_id::text like 'a5470000-%'
+            ) or exists (
+              select 1 from public.swap_post_completion_effects effect_row
+              join public.swaps swap_row on swap_row.id = effect_row.swap_id
+              where swap_row.requester_id::text like 'a5470000-%'
+                 or swap_row.responder_id::text like 'a5470000-%'
+            ) then
+              raise exception 'V1-05.4.7 rollback cleanup left deterministic fixture data.';
+            end if;
+          end;
+          $cleanup$;
+
+          select jsonb_build_object(
+            'v1_05_4_7_cleanup', 'PASS',
+            'fixture_users', 0,
+            'fixture_items', 0,
+            'fixture_matching_rows', 0,
+            'fixture_conversations', 0,
+            'fixture_messages', 0,
+            'fixture_exchanges', 0,
+            'fixture_domain_ledgers', 0,
+            'fixture_completion_rows', 0
+          ) as cleanup_result;
+          SQL
+
+      - name: Upload cross-domain E2E evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v1-05-4-7-cross-domain-e2e-${{ github.run_id }}
+          path: .ci-supabase/evidence
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Stop isolated Supabase stack
+        if: always()
+        working-directory: .ci-supabase
+        run: supabase stop --no-backup
