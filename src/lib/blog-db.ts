@@ -1,24 +1,44 @@
 /**
- * blog-db.ts — Supabase-backed blog functions.
- * Drop-in replacement for blog.ts (same return types).
+ * Supabase-backed Blog source with deterministic locale and MDX fallback.
  *
- * All queries use locale="en" (English source).
- * sourceLang is hardcoded to "en" so translateOnDemand translates from English.
+ * Resolution order:
+ * 1. published row in the requested locale;
+ * 2. published English row for the same slug;
+ * 3. repository MDX, requested locale first and English second.
  */
 import { createClient } from "@supabase/supabase-js";
 import readingTime from "reading-time";
-import type { BlogPost } from "./blog";
+import {
+  getAllPosts,
+  getPostBySlug,
+  getPostsByCategory,
+  type BlogPost,
+  type LocalizedBlogPost,
+} from "./blog";
 
 function getSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
-    ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const key =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ??
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
   if (!url || !key) return null;
   return createClient(url, key);
 }
 
-function mapRow(row: Record<string, unknown>): BlogPost & { sourceLang: string } {
+function normalizeLocale(locale?: string): string {
+  return (
+    (locale ?? "en")
+      .trim()
+      .toLowerCase()
+      .split(/[-_]/)[0] || "en"
+  );
+}
+
+function mapRow(row: Record<string, unknown>): LocalizedBlogPost {
   const content = String(row.content_md ?? "");
+  const sourceLang = normalizeLocale(String(row.locale ?? "en"));
+
   return {
     slug: String(row.slug ?? ""),
     title: String(row.title ?? ""),
@@ -26,75 +46,128 @@ function mapRow(row: Record<string, unknown>): BlogPost & { sourceLang: string }
     date: String(row.date ?? ""),
     author: String(row.author ?? "Swaply Team"),
     category: String(row.category ?? ""),
-    tags: Array.isArray(row.tags) ? row.tags as string[] : [],
+    tags: Array.isArray(row.tags) ? (row.tags as string[]) : [],
     coverImage: row.image ? String(row.image) : undefined,
     seoKeyword: String(row.slug ?? ""),
     readingTime: readingTime(content).text,
     content,
-    sourceLang: "en",
+    sourceLang,
   };
 }
 
-export async function getAllPostsDB(_locale?: string): Promise<(BlogPost & { sourceLang: string })[]> {
+function preferRequestedLocale(
+  rows: Record<string, unknown>[],
+  requestedLocale: string,
+): LocalizedBlogPost[] {
+  const selected = new Map<string, LocalizedBlogPost>();
+
+  for (const row of rows) {
+    const post = mapRow(row);
+    const existing = selected.get(post.slug);
+
+    if (
+      !existing ||
+      (post.sourceLang === requestedLocale &&
+        existing.sourceLang !== requestedLocale)
+    ) {
+      selected.set(post.slug, post);
+    }
+  }
+
+  return [...selected.values()].sort((a, b) =>
+    a.date > b.date ? -1 : a.date < b.date ? 1 : 0,
+  );
+}
+
+export async function getAllPostsDB(
+  locale?: string,
+): Promise<LocalizedBlogPost[]> {
+  const requestedLocale = normalizeLocale(locale);
   const supabase = getSupabase();
-  if (!supabase) return [];
-  const { data, error } = await supabase
+
+  if (!supabase) return getAllPosts(requestedLocale);
+
+  let query = supabase
     .from("blog_posts")
     .select("*")
-    .eq("locale", "en")
     .eq("published", true)
     .order("date", { ascending: false });
 
+  query =
+    requestedLocale === "en"
+      ? query.eq("locale", "en")
+      : query.in("locale", [requestedLocale, "en"]);
+
+  const { data, error } = await query;
+
   if (error) {
     console.error("[blog-db] getAllPostsDB error:", error.message);
-    return [];
+    return getAllPosts(requestedLocale);
   }
-  return (data ?? []).map(mapRow);
+
+  const posts = preferRequestedLocale(
+    (data ?? []) as Record<string, unknown>[],
+    requestedLocale,
+  );
+
+  return posts.length > 0 ? posts : getAllPosts(requestedLocale);
 }
 
 export async function getPostBySlugDB(
   slug: string,
-  _locale?: string,
-): Promise<(BlogPost & { sourceLang: string }) | null> {
+  locale?: string,
+): Promise<LocalizedBlogPost | null> {
+  const requestedLocale = normalizeLocale(locale);
   const supabase = getSupabase();
-  if (!supabase) return null;
-  const { data, error } = await supabase
+
+  if (!supabase) return getPostBySlug(slug, requestedLocale);
+
+  let query = supabase
     .from("blog_posts")
     .select("*")
     .eq("slug", slug)
-    .eq("locale", "en")
-    .eq("published", true)
-    .maybeSingle();
+    .eq("published", true);
+
+  query =
+    requestedLocale === "en"
+      ? query.eq("locale", "en")
+      : query.in("locale", [requestedLocale, "en"]);
+
+  const { data, error } = await query;
 
   if (error) {
     console.error("[blog-db] getPostBySlugDB error:", error.message);
-    return null;
+    return getPostBySlug(slug, requestedLocale);
   }
-  if (!data) return null;
-  return mapRow(data as Record<string, unknown>);
+
+  const posts = preferRequestedLocale(
+    (data ?? []) as Record<string, unknown>[],
+    requestedLocale,
+  );
+
+  return posts[0] ?? getPostBySlug(slug, requestedLocale);
 }
 
 export async function getPostsByCategoryDB(
   category: string,
-): Promise<(BlogPost & { sourceLang: string })[]> {
-  const supabase = getSupabase();
-  if (!supabase) return [];
-  const { data, error } = await supabase
-    .from("blog_posts")
-    .select("*")
-    .eq("locale", "en")
-    .eq("published", true)
-    .ilike("category", category)
-    .order("date", { ascending: false });
+  locale: string,
+): Promise<LocalizedBlogPost[]> {
+  const requestedLocale = normalizeLocale(locale);
+  const posts = await getAllPostsDB(requestedLocale);
+  const normalizedCategory = category.trim().toLowerCase();
 
-  if (error) {
-    console.error("[blog-db] getPostsByCategoryDB error:", error.message);
-    return [];
+  if (posts.length > 0) {
+    return posts.filter(
+      (post) => post.category.trim().toLowerCase() === normalizedCategory,
+    );
   }
-  return (data ?? []).map(mapRow);
+
+  return getPostsByCategory(category, requestedLocale);
 }
 
-export async function getAllCategoriesDB(): Promise<string[]> {
-  const posts = await getAllPostsDB();
-  return [...new Set(posts.map((p) => p.category))].filter(Boolean);
+export async function getAllCategoriesDB(locale?: string): Promise<string[]> {
+  const posts = await getAllPostsDB(locale);
+  return [...new Set(posts.map((post: BlogPost) => post.category))].filter(
+    Boolean,
+  );
 }
