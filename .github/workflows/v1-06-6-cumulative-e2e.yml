@@ -41,6 +41,9 @@ env:
 jobs:
   repository-contracts:
     name: Repository and V1-06 contract gate
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -73,6 +76,9 @@ jobs:
 
   public-mobile-global-first:
     name: Browser, mobile, 43 locales, LTR, RTL and PWA gate
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -110,6 +116,9 @@ jobs:
 
   authenticated-authority:
     name: Authenticated authority, negative branches and rollback cleanup
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 75
     steps:
