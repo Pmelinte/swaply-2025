@@ -33,10 +33,8 @@ async function translateContent(
     lines.map((line) => {
       const trimmed = line.trim();
 
-      // Linie goală
       if (!trimmed) return Promise.resolve("");
 
-      // Skip: cod, HTML, imagini markdown, separatori
       if (
         trimmed.startsWith("```") ||
         trimmed.startsWith("<") ||
@@ -46,8 +44,6 @@ async function translateContent(
         return Promise.resolve(line);
       }
 
-      // Bold labels: **Text:** sau **Text** la începutul liniei
-      // ex: **Elektronik:** **Clothing and Fashion:**
       const boldLabelMatch = trimmed.match(/^\*\*(.+?)\*\*(:?)$/);
       if (boldLabelMatch) {
         const innerText = boldLabelMatch[1];
@@ -57,10 +53,9 @@ async function translateContent(
         );
       }
 
-      // Headings: ## text sau ### text
       const headingMatch = line.match(/^(#{1,6}\s+)(.*)/);
       if (headingMatch) {
-        const prefix = headingMatch[1]; // ex: "## "
+        const prefix = headingMatch[1];
         const text = headingMatch[2];
         if (!text.trim()) return Promise.resolve(line);
         return translateOnDemand(text, targetLang, sourceLang).then(
@@ -68,10 +63,9 @@ async function translateContent(
         );
       }
 
-      // Liste și blockquotes: - item, * item, > quote, 1. item
       const listMatch = line.match(/^(\s*(?:\d+\.|[-*>])\s+)(.*)/);
       if (listMatch) {
-        const prefix = listMatch[1]; // ex: "- " sau "1. "
+        const prefix = listMatch[1];
         const text = listMatch[2];
         if (!text.trim()) return Promise.resolve(line);
         return translateOnDemand(text, targetLang, sourceLang).then(
@@ -79,7 +73,6 @@ async function translateContent(
         );
       }
 
-      // Paragrafe normale — traduce tot
       return translateOnDemand(line, targetLang, sourceLang);
     }),
   );
@@ -168,7 +161,11 @@ export default async function BlogPostPage({ params }: Props) {
   try {
     const [fields, content] = await Promise.all([
       translateFields(
-        { title: rawPost.title, description: rawPost.description, category: rawPost.category },
+        {
+          title: rawPost.title,
+          description: rawPost.description,
+          category: rawPost.category,
+        },
         locale,
         contentSourceLang,
       ),
@@ -192,7 +189,7 @@ export default async function BlogPostPage({ params }: Props) {
 
   const headings = extractHeadings(post.content);
 
-  const rawRelated = (await getPostsByCategoryDB(rawPost.category))
+  const rawRelated = (await getPostsByCategoryDB(rawPost.category, locale))
     .filter((p) => p.slug !== slug)
     .slice(0, 3);
 
@@ -201,8 +198,12 @@ export default async function BlogPostPage({ params }: Props) {
       try {
         return {
           ...p,
-          title: await translateOnDemand(p.title, locale, contentSourceLang),
-          description: await translateOnDemand(p.description, locale, contentSourceLang),
+          title: await translateOnDemand(p.title, locale, p.sourceLang),
+          description: await translateOnDemand(
+            p.description,
+            locale,
+            p.sourceLang,
+          ),
         };
       } catch {
         return p;
