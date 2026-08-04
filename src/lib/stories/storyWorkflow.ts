@@ -1,18 +1,8 @@
-export const STORY_STATUSES = [
-  "draft",
-  "pending_partner_consent",
-  "pending_moderation",
-  "published",
-  "hidden",
-  "disputed",
-  "rejected",
-] as const;
+import type { StoryStatus, StoryVisibility } from "./storyTypes";
+import { STORY_STATUSES, STORY_VISIBILITIES } from "./storyTypes";
 
-export type StoryStatus = (typeof STORY_STATUSES)[number];
-
-export const STORY_VISIBILITIES = ["private", "community", "public"] as const;
-
-export type StoryVisibility = (typeof STORY_VISIBILITIES)[number];
+export { STORY_STATUSES, STORY_VISIBILITIES };
+export type { StoryStatus, StoryVisibility };
 
 export interface StoryPublicationGuardInput {
   status: StoryStatus;
@@ -26,7 +16,7 @@ export interface StoryPublicationGuardInput {
 
 export function canPublishStory(input: StoryPublicationGuardInput): boolean {
   if (input.status !== "pending_moderation" && input.status !== "published") return false;
-  if (input.visibility !== "public" && input.visibility !== "community") return false;
+  if (input.visibility !== "public") return false;
   if (!input.consentAuthor || !input.consentPartner) return false;
   if (input.hasExactLocation || input.hasSensitivePersonalData) return false;
   if (!input.linkedExchangeCompleted) return false;
@@ -35,4 +25,12 @@ export function canPublishStory(input: StoryPublicationGuardInput): boolean {
 
 export function isStoryStatus(value: string): value is StoryStatus {
   return (STORY_STATUSES as readonly string[]).includes(value);
+}
+
+export function isStoryVisibility(value: string): value is StoryVisibility {
+  return (STORY_VISIBILITIES as readonly string[]).includes(value);
+}
+
+export function isParticipantOnlyStory(visibility: StoryVisibility): boolean {
+  return visibility === "private" || visibility === "participants";
 }

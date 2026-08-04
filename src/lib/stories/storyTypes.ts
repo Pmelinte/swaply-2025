@@ -2,14 +2,14 @@ export type StoryDomain = "objects" | "properties" | "services" | "events";
 
 export type StoryStatus =
   | "draft"
-  | "pending_partner_consent"
+  | "pending_consent"
   | "pending_moderation"
   | "published"
   | "hidden"
   | "disputed"
   | "rejected";
 
-export type StoryVisibility = "private" | "community" | "public";
+export type StoryVisibility = "private" | "participants" | "public";
 
 export interface StoryMediaReference {
   url?: string;
@@ -52,7 +52,7 @@ export interface PublicStoryPreview {
 
 export const STORY_STATUSES: readonly StoryStatus[] = [
   "draft",
-  "pending_partner_consent",
+  "pending_consent",
   "pending_moderation",
   "published",
   "hidden",
@@ -60,6 +60,15 @@ export const STORY_STATUSES: readonly StoryStatus[] = [
   "rejected",
 ] as const;
 
-export const STORY_VISIBILITIES: readonly StoryVisibility[] = ["private", "community", "public"] as const;
+export const STORY_VISIBILITIES: readonly StoryVisibility[] = [
+  "private",
+  "participants",
+  "public",
+] as const;
 
-export const STORY_DOMAINS: readonly StoryDomain[] = ["objects", "properties", "services", "events"] as const;
+export const STORY_DOMAINS: readonly StoryDomain[] = [
+  "objects",
+  "properties",
+  "services",
+  "events",
+] as const;
