@@ -35,14 +35,20 @@ export default async function BlogPage({ params }: Props) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "blog" });
 
-  const rawPosts = await getAllPostsDB(locale);
-  const categories = await getAllCategoriesDB();
+  const [rawPosts, categories] = await Promise.all([
+    getAllPostsDB(locale),
+    getAllCategoriesDB(locale),
+  ]);
 
   const posts = await Promise.all(
     rawPosts.map(async (post) => ({
       ...post,
       title: await translateOnDemand(post.title, locale, post.sourceLang),
-      description: await translateOnDemand(post.description, locale, post.sourceLang),
+      description: await translateOnDemand(
+        post.description,
+        locale,
+        post.sourceLang,
+      ),
     })),
   );
 
