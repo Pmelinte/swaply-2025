@@ -1,0 +1,188 @@
+name: V1-06.6 Cumulative Journey E2E
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/v1-06-6-cumulative-e2e.yml"
+      - "src/__tests__/v1-06-6-cumulative-e2e.test.ts"
+      - "src/__tests__/journey-return.test.ts"
+      - "src/__tests__/swap-proposal-email.test.ts"
+      - "src/__tests__/notification-contract.test.ts"
+      - "src/__tests__/global-first-context.test.ts"
+      - "src/__tests__/mobile-pwa-contract.test.ts"
+      - "src/lib/auth/**"
+      - "src/lib/notifications/**"
+      - "src/i18n/**"
+      - "src/components/pwa/**"
+      - "src/components/layout/**"
+      - "public/manifest.json"
+      - "public/offline.html"
+      - "public/sw.js"
+      - "e2e/**"
+      - "supabase/migrations/**"
+      - "supabase/tests/**"
+      - "package.json"
+      - "package-lock.json"
+      - "playwright.config.ts"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v1-06-6-cumulative-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "22"
+  NEXT_TELEMETRY_DISABLED: "1"
+
+jobs:
+  repository-contracts:
+    name: Repository and V1-06 contract gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+      - name: Migration governance
+        run: npm run migration:guard
+      - name: Global-first locale contract
+        run: npm run i18n:check
+      - name: AI regression gate
+        run: npm run eval:ai
+      - name: TypeScript, ESLint, Vitest and production build
+        run: npm run ci:quality
+      - name: Run explicit V1-06 regression contracts
+        run: >-
+          npx vitest run
+          src/__tests__/journey-return.test.ts
+          src/__tests__/swap-proposal-email.test.ts
+          src/__tests__/notification-contract.test.ts
+          src/__tests__/global-first-context.test.ts
+          src/__tests__/mobile-pwa-contract.test.ts
+          src/__tests__/v1-06-6-cumulative-e2e.test.ts
+
+  public-mobile-global-first:
+    name: Browser, mobile, 43 locales, LTR, RTL and PWA gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run inherited and V1-06 browser journeys
+        run: >-
+          npx playwright test
+          e2e/public-visual-audit.spec.ts
+          e2e/i18n-43-locales.spec.ts
+          e2e/v1-05-6-domain-cumulative.spec.ts
+          --project=chromium
+          --reporter=line,html
+      - name: Upload browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v1-06-6-browser-evidence-${{ github.run_id }}
+          path: |
+            playwright-report/
+            test-results/
+            playwright-audit-screenshots/
+            playwright-v1-05-6-screenshots/
+          if-no-files-found: warn
+          retention-days: 30
+
+  authenticated-authority:
+    name: Authenticated authority, negative branches and rollback cleanup
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@v4
+      - name: Install Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: 2.109.1
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes postgresql-client
+      - name: Start repository Supabase stack
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p evidence/v1-06-6
+          supabase start -x studio,imgproxy,storage-api,realtime,mailpit,edge-runtime,logflare,vector,supavisor 2>&1 | tee evidence/v1-06-6/supabase-start.log
+      - name: Record migration and stack identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase status | tee evidence/v1-06-6/supabase-status.txt
+          supabase migration list --local | tee evidence/v1-06-6/migration-list.txt
+      - name: Replay authenticated cross-domain and completion authorities
+        env:
+          PGPASSWORD: postgres
+        shell: bash
+        run: |
+          set -euo pipefail
+          for test_file in \
+            supabase/tests/v1_05_4_6_domain_aware_exchange_completion_replay.sql \
+            supabase/tests/v1_05_4_6_1_completion_readiness_hardening_replay.sql \
+            supabase/tests/v1_05_4_7_cross_domain_e2e_replay.sql \
+            supabase/tests/v1_05_6_event_object_e2e_replay.sql
+          do
+            log_name="$(basename "${test_file}" .sql).log"
+            psql --host 127.0.0.1 --port 54322 --username postgres --dbname postgres \
+              --set ON_ERROR_STOP=1 --file "${test_file}" 2>&1 \
+              | tee "evidence/v1-06-6/${log_name}"
+          done
+      - name: Verify immutable fixture cleanup
+        if: always()
+        env:
+          PGPASSWORD: postgres
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql --host 127.0.0.1 --port 54322 --username postgres --dbname postgres \
+            --set ON_ERROR_STOP=1 2>&1 <<'SQL' | tee evidence/v1-06-6/cleanup.log
+          do $cleanup$
+          declare
+            v_prefixes constant text[] := array['a5460000-%','a5461000-%','a5470000-%','a5060000-%'];
+          begin
+            if exists (select 1 from auth.users where id::text like any (v_prefixes))
+               or exists (select 1 from public.profiles where user_id::text like any (v_prefixes))
+               or exists (select 1 from public.items where id::text like any (v_prefixes))
+               or exists (select 1 from public.swaps where requester_id::text like any (v_prefixes) or responder_id::text like any (v_prefixes))
+            then
+              raise exception 'V1-06.6 rollback cleanup left deterministic fixture data.';
+            end if;
+          end
+          $cleanup$;
+          SQL
+      - name: Upload authenticated evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v1-06-6-authenticated-evidence-${{ github.run_id }}
+          path: evidence/v1-06-6/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Stop isolated stack
+        if: always()
+        run: supabase stop --no-backup
