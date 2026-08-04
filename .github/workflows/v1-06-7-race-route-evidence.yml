@@ -69,6 +69,11 @@ jobs:
           cp ../supabase/tests/fixtures/v1_05_4_7_cross_domain_e2e_fixture.sql supabase/migrations/00000000000003_v1_05_4_7_cross_domain_e2e_fixture.sql
           cp ../supabase/tests/fixtures/v1_05_4_7_matching_runtime_fixture.sql supabase/migrations/00000000000004_v1_05_4_7_matching_runtime_fixture.sql
 
+          cat > supabase/migrations/00000000000005_v1_06_7_completion_fixture_bridge.sql <<'SQL'
+          alter table public.swap_completion_confirmations
+            add column if not exists confirmed_at timestamptz not null default now();
+          SQL
+
           for migration in \
             20260715063055_batch_61_3_bilateral_completion.sql \
             20260801163000_v1_05_4_1_canonical_cross_domain_matching.sql \
