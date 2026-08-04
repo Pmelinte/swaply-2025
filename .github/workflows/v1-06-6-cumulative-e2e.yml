@@ -123,19 +123,67 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install --yes postgresql-client
-      - name: Start repository Supabase stack
-        shell: bash
-        run: |
-          set -o pipefail
-          mkdir -p evidence/v1-06-6
-          supabase start -x studio,imgproxy,storage-api,realtime,mailpit,edge-runtime,logflare,vector,supavisor 2>&1 | tee evidence/v1-06-6/supabase-start.log
-      - name: Record migration and stack identity
+      - name: Prepare isolated authoritative project
         shell: bash
         run: |
           set -euo pipefail
-          supabase status | tee evidence/v1-06-6/supabase-status.txt
-          supabase migration list --local | tee evidence/v1-06-6/migration-list.txt
+          rm -rf .ci-supabase-v1-06-6
+          mkdir -p .ci-supabase-v1-06-6
+          cd .ci-supabase-v1-06-6
+          supabase init
+          rm -rf supabase/migrations supabase/tests
+          mkdir -p supabase/migrations supabase/tests evidence
+
+          cp ../supabase/tests/fixtures/v1_05_4_4_current_contract_fixture.sql supabase/migrations/00000000000000_v1_05_4_4_current_contract_fixture.sql
+          cp ../supabase/tests/fixtures/v1_05_4_6_completion_contract_fixture.sql supabase/migrations/00000000000001_v1_05_4_6_completion_contract_fixture.sql
+          cp ../supabase/tests/fixtures/v1_05_4_5_event_contract_fixture.sql supabase/migrations/00000000000002_v1_05_4_5_event_contract_fixture.sql
+          cp ../supabase/tests/fixtures/v1_05_4_7_cross_domain_e2e_fixture.sql supabase/migrations/00000000000003_v1_05_4_7_cross_domain_e2e_fixture.sql
+          cp ../supabase/tests/fixtures/v1_05_4_7_matching_runtime_fixture.sql supabase/migrations/00000000000004_v1_05_4_7_matching_runtime_fixture.sql
+
+          for migration in \
+            20260801163000_v1_05_4_1_canonical_cross_domain_matching.sql \
+            20260802100000_v1_05_4_2_domain_aware_agreement.sql \
+            20260802101500_v1_05_4_2_domain_exchange_handoff.sql \
+            20260802170000_v1_05_4_3_property_reservation_authority.sql \
+            20260802190000_v1_05_4_4_service_delivery_authority.sql \
+            20260803001000_v1_05_4_5_event_transfer_authority.sql \
+            20260803030000_v1_05_4_5_event_transfer_hardening.sql \
+            20260803030500_v1_05_4_5_event_completion_guard_contract.sql \
+            20260803043000_v1_05_4_6_domain_aware_exchange_completion.sql \
+            20260803054500_v1_05_4_6_1_completion_readiness_hardening.sql \
+            20260803074500_v1_05_4_7_matching_interest_ambiguity_hardening.sql
+          do
+            cp "../supabase/migrations/${migration}" supabase/migrations/
+          done
+
+          for test_file in \
+            v1_05_4_6_domain_aware_exchange_completion_replay.sql \
+            v1_05_4_6_1_completion_readiness_hardening_replay.sql \
+            v1_05_4_7_cross_domain_e2e_replay.sql \
+            v1_05_6_event_object_e2e_replay.sql
+          do
+            cp "../supabase/tests/${test_file}" supabase/tests/
+          done
+
+          find supabase/migrations supabase/tests -type f -print0 \
+            | sort -z \
+            | xargs -0 sha256sum \
+            | tee evidence/input-sha256.txt
+      - name: Start isolated Supabase stack
+        working-directory: .ci-supabase-v1-06-6
+        shell: bash
+        run: |
+          set -o pipefail
+          supabase start -x studio,imgproxy,storage-api,realtime,mailpit,edge-runtime,logflare,vector,supavisor 2>&1 | tee evidence/supabase-start.log
+      - name: Record migration and stack identity
+        working-directory: .ci-supabase-v1-06-6
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase status | tee evidence/supabase-status.txt
+          supabase migration list --local | tee evidence/migration-list.txt
       - name: Replay authenticated cross-domain and completion authorities
+        working-directory: .ci-supabase-v1-06-6
         env:
           PGPASSWORD: postgres
         shell: bash
@@ -150,17 +198,22 @@ jobs:
             log_name="$(basename "${test_file}" .sql).log"
             psql --host 127.0.0.1 --port 54322 --username postgres --dbname postgres \
               --set ON_ERROR_STOP=1 --file "${test_file}" 2>&1 \
-              | tee "evidence/v1-06-6/${log_name}"
+              | tee "evidence/${log_name}"
           done
       - name: Verify immutable fixture cleanup
         if: always()
+        working-directory: .ci-supabase-v1-06-6
         env:
           PGPASSWORD: postgres
         shell: bash
         run: |
           set -euo pipefail
+          if ! pg_isready --host 127.0.0.1 --port 54322 --username postgres; then
+            echo "Supabase stack unavailable; cleanup verification cannot run." | tee evidence/cleanup.log
+            exit 1
+          fi
           psql --host 127.0.0.1 --port 54322 --username postgres --dbname postgres \
-            --set ON_ERROR_STOP=1 2>&1 <<'SQL' | tee evidence/v1-06-6/cleanup.log
+            --set ON_ERROR_STOP=1 2>&1 <<'SQL' | tee evidence/cleanup.log
           do $cleanup$
           declare
             v_prefixes constant text[] := array['a5460000-%','a5461000-%','a5470000-%','a5060000-%'];
@@ -180,9 +233,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: v1-06-6-authenticated-evidence-${{ github.run_id }}
-          path: evidence/v1-06-6/
+          path: .ci-supabase-v1-06-6/evidence/
           if-no-files-found: error
           retention-days: 30
       - name: Stop isolated stack
         if: always()
+        working-directory: .ci-supabase-v1-06-6
         run: supabase stop --no-backup
