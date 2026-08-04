@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  countUnreadNotifications,
   dedupeNotifications,
   getNotificationHref,
   type NotificationRow,
@@ -29,13 +30,11 @@ function notification(overrides: Partial<NotificationRow> = {}): NotificationRow
 describe("notification deep-link contract", () => {
   it("targets the exact exchange detail route", () => {
     expect(
-      getNotificationHref(
-        notification({ data: { swap_id: "swap-123" } }),
-      ),
+      getNotificationHref(notification({ data: { swap_id: "swap-123" } })),
     ).toBe("/exchange/swap-123");
   });
 
-  it("encodes identifiers before placing them in a URL", () => {
+  it("encodes conversation identifiers in the query parameter", () => {
     expect(
       getNotificationHref(
         notification({ data: { conversation_id: "conversation/unsafe?x=1" } }),
@@ -43,7 +42,7 @@ describe("notification deep-link contract", () => {
     ).toBe("/chat?conversation=conversation%2Funsafe%3Fx%3D1");
   });
 
-  it("uses conversation before match and swap when multiple identifiers exist", () => {
+  it("uses conversation before match and swap when all identifiers exist", () => {
     expect(
       getNotificationHref(
         notification({
@@ -55,6 +54,27 @@ describe("notification deep-link contract", () => {
         }),
       ),
     ).toBe("/chat?conversation=conversation-1");
+  });
+
+  it("uses match before swap and encodes the match query parameter", () => {
+    expect(
+      getNotificationHref(
+        notification({
+          data: {
+            match_id: "match/unsafe?x=1",
+            swap_id: "swap-1",
+          },
+        }),
+      ),
+    ).toBe("/matching?match=match%2Funsafe%3Fx%3D1");
+  });
+
+  it("encodes swap identifiers in the exchange path segment", () => {
+    expect(
+      getNotificationHref(
+        notification({ data: { swap_id: "swap/unsafe?x=1" } }),
+      ),
+    ).toBe("/exchange/swap%2Funsafe%3Fx%3D1");
   });
 
   it("falls back safely when identifiers are empty or invalid", () => {
@@ -83,5 +103,15 @@ describe("notification dedupe contract", () => {
     ];
 
     expect(dedupeNotifications(rows).map((row) => row.id)).toEqual(["one", "two"]);
+  });
+
+  it("counts unread notifications using the same dedupe semantics", () => {
+    const rows = [
+      notification({ id: "newest", dedupe_key: "swap:1:accepted", is_read: false }),
+      notification({ id: "older", dedupe_key: "swap:1:accepted", is_read: false }),
+      notification({ id: "unique", dedupe_key: "swap:2:accepted", is_read: false }),
+    ];
+
+    expect(countUnreadNotifications(rows)).toBe(2);
   });
 });
