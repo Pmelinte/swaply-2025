@@ -39,8 +39,6 @@ if [[ ! -f "${SOURCE_REPLAY}" ]]; then
   exit 1
 fi
 
-# Reuse the exact deterministic V1-05.4.6 authoritative fixture, but commit
-# only its fixture setup so two independent PostgreSQL sessions can race.
 awk '
   BEGIN { found_origin = 0 }
   {
@@ -71,6 +69,7 @@ create unlogged table public.v106_race_barrier (
   call_started_at timestamptz,
   primary key (barrier_id, session_id)
 );
+grant select, insert, update on public.v106_race_barrier to authenticated;
 SQL
 
 race_sql() {
@@ -242,8 +241,6 @@ select jsonb_build_object(
 ) as result;
 SQL
 
-# The fixture was intentionally committed for cross-session testing. Reset the
-# isolated database, then prove that deterministic fixture identities are gone.
 supabase db reset --local --no-seed 2>&1 \
   | tee "${EVIDENCE_DIR}/v106-race-reset.log"
 
