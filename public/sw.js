@@ -1,162 +1,119 @@
-// Swaply Service Worker — push notifications + cache-first for static assets, network-first for HTML/API
-const CACHE_NAME = "swaply-v3";
-const OFFLINE_URL = "/";
-const STATIC_ASSETS = ["/", "/manifest.json", "/no-image.svg", "/icon-192.svg"];
+// Swaply service worker — installability, static assets and privacy-safe offline fallback.
+const CACHE_NAME = "swaply-v4";
+const OFFLINE_URL = "/offline.html";
+const STATIC_ASSETS = [
+  OFFLINE_URL,
+  "/manifest.json",
+  "/no-image.svg",
+  "/icons/icon-192x192.png",
+  "/icons/icon-512x512.png",
+];
 
-// ─── Install ────────────────────────────────────────────────────────────────
 self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
-  );
+  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS)));
   self.skipWaiting();
 });
 
-// ─── Activate ───────────────────────────────────────────────────────────────
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
-        keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))
-      )
-    )
+    caches
+      .keys()
+      .then((keys) => Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))))
+      .then(() => self.clients.claim()),
   );
-  self.clients.claim();
 });
 
-// ─── Fetch — cache strategy for offline fallback ────────────────────────────
+self.addEventListener("message", (event) => {
+  if (event.data?.type === "SKIP_WAITING") self.skipWaiting();
+});
+
 self.addEventListener("fetch", (event) => {
-  const url = new URL(event.request.url);
+  const request = event.request;
+  const url = new URL(request.url);
 
-  // Skip non-http(s) schemes (e.g. chrome-extension://) and third-party origins
-  if (!url.protocol.startsWith("http") || url.origin !== self.location.origin) {
+  if (request.method !== "GET" || url.origin !== self.location.origin) return;
+
+  // Authority and user data are always network-only. Never cache API responses.
+  if (url.pathname.startsWith("/api/") || request.headers.has("authorization")) {
+    event.respondWith(fetch(request));
     return;
   }
 
-  // Network-first for API routes and non-GET requests
-  if (url.pathname.startsWith("/api/") || event.request.method !== "GET") {
+  if (request.mode === "navigate") {
     event.respondWith(
-      fetch(event.request).catch(() => caches.match(event.request))
+      fetch(request).catch(async () => {
+        const offline = await caches.match(OFFLINE_URL);
+        return offline || new Response("Offline", { status: 503 });
+      }),
     );
     return;
   }
 
-  // Detect HTML/page navigations: navigation mode OR explicit Accept: text/html.
-  const isHtmlRequest =
-    event.request.mode === "navigate" ||
-    (event.request.headers.get("accept") || "").includes("text/html");
-
-  // Network-first for HTML pages — never serve a stale page from a previous deploy.
-  // Falls back to cache (and ultimately the offline shell) only if the network fails.
-  if (isHtmlRequest) {
-    event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          if (response.ok && response.type === "basic") {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-          }
-          return response;
-        })
-        .catch(() =>
-          caches.match(event.request).then(
-            (cached) => cached || caches.match(OFFLINE_URL),
-          ),
-        )
-    );
+  const cacheableDestination = ["style", "script", "font", "image"].includes(request.destination);
+  if (!cacheableDestination) {
+    event.respondWith(fetch(request));
     return;
   }
 
-  // Cache-first for static assets (.js, .css, fonts, images), with offline fallback
   event.respondWith(
-    caches.match(event.request).then((cached) => {
+    caches.match(request).then((cached) => {
       if (cached) return cached;
-      return fetch(event.request)
-        .then((response) => {
-          if (response.ok && response.type === "basic") {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-          }
-          return response;
-        })
-        .catch(() => {
-          return new Response("Offline", {
-            status: 503,
-            statusText: "Service Unavailable",
-          });
-        });
-    })
+      return fetch(request).then((response) => {
+        if (response.ok && response.type === "basic") {
+          const clone = response.clone();
+          void caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+        }
+        return response;
+      });
+    }),
   );
 });
 
-// ─── Push Notifications ─────────────────────────────────────────────────────
 self.addEventListener("push", (event) => {
   let data = {
     title: "Swaply",
-    body: "Ai o notificare noua!",
+    body: "You have a new notification.",
     icon: "/icons/icon-192x192.png",
     badge: "/icons/icon-96x96.png",
-    url: "/",
+    url: "/en/notifications",
     tag: "swaply-default",
   };
 
   if (event.data) {
     try {
-      const payload = event.data.json();
-      data = { ...data, ...payload };
+      data = { ...data, ...event.data.json() };
     } catch {
-      // If the payload is plain text, use it as the body
       data.body = event.data.text();
     }
   }
 
-  const options = {
-    body: data.body,
-    icon: data.icon,
-    badge: data.badge,
-    tag: data.tag,
-    data: { url: data.url },
-    vibrate: [100, 50, 100],
-    requireInteraction: false,
-    actions: [
-      { action: "view", title: "Vezi" },
-      { action: "dismiss", title: "Inchide" },
-    ],
-  };
-
-  event.waitUntil(self.registration.showNotification(data.title, options));
+  event.waitUntil(
+    self.registration.showNotification(data.title, {
+      body: data.body,
+      icon: data.icon,
+      badge: data.badge,
+      tag: data.tag,
+      data: { url: data.url },
+      requireInteraction: false,
+    }),
+  );
 });
 
-// ─── Notification Click ─────────────────────────────────────────────────────
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-
-  if (event.action === "dismiss") {
-    return;
-  }
-
-  // "view" action or clicking the notification body — open the target URL
-  const targetUrl = event.notification.data?.url || "/";
+  const rawTarget = event.notification.data?.url;
+  const target = typeof rawTarget === "string" && rawTarget.startsWith("/") ? rawTarget : "/en/notifications";
 
   event.waitUntil(
-    clients
-      .matchAll({ type: "window", includeUncontrolled: true })
-      .then((clientList) => {
-        // If a window is already open at this URL, focus it
-        for (const client of clientList) {
-          const clientUrl = new URL(client.url);
-          if (clientUrl.pathname === targetUrl && "focus" in client) {
-            return client.focus();
-          }
-        }
-        // Otherwise focus any existing window and navigate, or open a new one
-        if (clientList.length > 0 && "focus" in clientList[0]) {
-          return clientList[0].focus().then((client) => {
-            if (client && "navigate" in client) {
-              return client.navigate(targetUrl);
-            }
-          });
-        }
-        return clients.openWindow(targetUrl);
-      })
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(async (clientList) => {
+      for (const client of clientList) {
+        if (new URL(client.url).pathname === target && "focus" in client) return client.focus();
+      }
+      if (clientList[0] && "navigate" in clientList[0]) {
+        await clientList[0].navigate(target);
+        return clientList[0].focus();
+      }
+      return self.clients.openWindow(target);
+    }),
   );
 });
