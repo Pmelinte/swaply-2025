@@ -10,6 +10,17 @@ SOURCE_REPLAY="${SOURCE_REPLAY:-supabase/tests/v1_05_4_6_domain_aware_exchange_c
 SWAP_ID="a5460000-0000-4000-8000-000000000401"
 ACTOR_ID="a5460000-0000-4000-8000-000000000001"
 FIXTURE_PREFIX="a5460000-%"
+BARRIER_ID="v106-race-001"
+BARRIER_TIMEOUT_SECONDS=30
+
+if [[ "${DB_HOST}" != "127.0.0.1" && "${DB_HOST}" != "localhost" ]]; then
+  echo "Refusing to run V106-RACE-001 against non-local DB_HOST=${DB_HOST}." >&2
+  exit 1
+fi
+if [[ "${DB_PORT}" != "54322" || "${DB_NAME}" != "postgres" ]]; then
+  echo "Refusing to run V106-RACE-001 outside the isolated local Supabase database." >&2
+  exit 1
+fi
 
 mkdir -p "${EVIDENCE_DIR}"
 
@@ -51,8 +62,20 @@ awk '
   --file "${EVIDENCE_DIR}/v106-race-setup.sql" \
   2>&1 | tee "${EVIDENCE_DIR}/v106-race-setup.log"
 
+"${psql_base[@]}" 2>&1 <<SQL | tee "${EVIDENCE_DIR}/v106-race-barrier-setup.log"
+drop table if exists public.v106_race_barrier;
+create unlogged table public.v106_race_barrier (
+  barrier_id text not null,
+  session_id text not null,
+  ready_at timestamptz not null default clock_timestamp(),
+  call_started_at timestamptz,
+  primary key (barrier_id, session_id)
+);
+SQL
+
 race_sql() {
-  local key="$1"
+  local session_id="$1"
+  local key="$2"
   cat <<SQL
 set role authenticated;
 select pg_catalog.set_config('request.jwt.claim.sub', '${ACTOR_ID}', false);
@@ -62,12 +85,38 @@ select pg_catalog.set_config(
   '{"sub":"${ACTOR_ID}","role":"authenticated","aal":"aal1"}',
   false
 );
+insert into public.v106_race_barrier(barrier_id, session_id)
+values ('${BARRIER_ID}', '${session_id}');
+
+do \$barrier\$
+declare
+  v_deadline timestamptz := clock_timestamp() + interval '${BARRIER_TIMEOUT_SECONDS} seconds';
+begin
+  loop
+    exit when (
+      select count(*) = 2
+      from public.v106_race_barrier
+      where barrier_id = '${BARRIER_ID}'
+    );
+    if clock_timestamp() >= v_deadline then
+      raise exception 'V106-RACE-001 barrier timed out for session ${session_id}.';
+    end if;
+    perform pg_sleep(0.05);
+  end loop;
+end
+\$barrier\$;
+
+update public.v106_race_barrier
+set call_started_at = clock_timestamp()
+where barrier_id = '${BARRIER_ID}'
+  and session_id = '${session_id}';
+
 select public.confirm_swap_completion_v1('${SWAP_ID}'::uuid, '${key}');
 SQL
 }
 
-race_sql "v106-race-request-a" > "${EVIDENCE_DIR}/v106-race-session-a.sql"
-race_sql "v106-race-request-b" > "${EVIDENCE_DIR}/v106-race-session-b.sql"
+race_sql "session-a" "v106-race-request-a" > "${EVIDENCE_DIR}/v106-race-session-a.sql"
+race_sql "session-b" "v106-race-request-b" > "${EVIDENCE_DIR}/v106-race-session-b.sql"
 
 set +e
 (
@@ -104,10 +153,18 @@ declare
   v_confirmation_count integer;
   v_completion_event_count integer;
   v_effect_count integer;
+  v_barrier_count integer;
+  v_start_spread interval;
 begin
   select * into strict v_swap
   from public.swaps
   where id = '${SWAP_ID}'::uuid;
+
+  select count(*), max(call_started_at) - min(call_started_at)
+  into v_barrier_count, v_start_spread
+  from public.v106_race_barrier
+  where barrier_id = '${BARRIER_ID}'
+    and call_started_at is not null;
 
   select count(*) into v_confirmation_count
   from public.swap_completion_confirmations
@@ -124,6 +181,12 @@ begin
   from public.swap_completion_effects
   where swap_id = '${SWAP_ID}'::uuid;
 
+  if v_barrier_count <> 2 then
+    raise exception 'V106-RACE-001 expected two synchronized sessions, got %', v_barrier_count;
+  end if;
+  if v_start_spread > interval '1 second' then
+    raise exception 'V106-RACE-001 sessions were not concurrent enough; start spread=%', v_start_spread;
+  end if;
   if v_swap.status <> 'in_progress' then
     raise exception 'V106-RACE-001 expected in_progress after one participant race, got %', v_swap.status;
   end if;
@@ -146,6 +209,17 @@ end
 select jsonb_build_object(
   'contract', 'V106-RACE-001',
   'result', 'PASS',
+  'synchronized_sessions', (
+    select count(*)
+    from public.v106_race_barrier
+    where barrier_id = '${BARRIER_ID}'
+      and call_started_at is not null
+  ),
+  'start_spread_ms', (
+    select round(extract(epoch from (max(call_started_at) - min(call_started_at))) * 1000, 3)
+    from public.v106_race_barrier
+    where barrier_id = '${BARRIER_ID}'
+  ),
   'authoritative_result_count', 1,
   'confirmation_rows', (
     select count(*)
@@ -184,8 +258,9 @@ begin
        where requester_id::text like '${FIXTURE_PREFIX}'
           or responder_id::text like '${FIXTURE_PREFIX}'
      )
+     or to_regclass('public.v106_race_barrier') is not null
   then
-    raise exception 'V106-RACE-001 cleanup left deterministic fixture data.';
+    raise exception 'V106-RACE-001 cleanup left deterministic fixture data or barrier state.';
   end if;
 end
 \$cleanup\$;
@@ -193,6 +268,7 @@ end
 select jsonb_build_object(
   'contract', 'V106-CLEANUP-001',
   'result', 'PASS',
-  'fixture_prefix', '${FIXTURE_PREFIX}'
+  'fixture_prefix', '${FIXTURE_PREFIX}',
+  'barrier_removed', to_regclass('public.v106_race_barrier') is null
 ) as result;
 SQL
