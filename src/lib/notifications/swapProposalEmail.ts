@@ -1,4 +1,5 @@
-import { defaultLocale, locales, type Locale } from "@/i18n/config";
+import type { Locale } from "@/i18n/config";
+import { resolveLocale } from "@/i18n/globalContext";
 
 type SwapProposalEmailInput = {
   appUrl: string;
@@ -48,20 +49,7 @@ function escapeHtml(value: string): string {
     .replace(/'/g, "&#039;");
 }
 
-export function resolveTransactionalLocale(
-  value: string | null | undefined,
-): Locale {
-  const normalized = value?.trim().toLowerCase().replace(/_/g, "-") ?? "";
-  const exact = (locales as readonly string[]).find(
-    (locale) => locale === normalized,
-  );
-  if (exact) return exact as Locale;
-
-  const base = normalized.split("-")[0];
-  return (locales as readonly string[]).includes(base)
-    ? (base as Locale)
-    : defaultLocale;
-}
+export const resolveTransactionalLocale = resolveLocale;
 
 export function canSendSwapProposalEmail(params: {
   actorId: string;
