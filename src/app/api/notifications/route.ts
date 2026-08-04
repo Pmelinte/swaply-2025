@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSupabase } from "@/lib/supabase/server";
 import {
+  countUnreadNotifications,
   fetchNotifications,
   markAllNotificationsRead,
   markNotificationRead,
@@ -8,7 +9,12 @@ import {
 
 export async function GET() {
   const supabase = await getServerSupabase();
-  if (!supabase) return NextResponse.json({ error: "Supabase is not configured" }, { status: 500 });
+  if (!supabase) {
+    return NextResponse.json(
+      { error: "Supabase is not configured" },
+      { status: 500 },
+    );
+  }
 
   const {
     data: { user },
@@ -16,18 +22,26 @@ export async function GET() {
   } = await supabase.auth.getUser();
 
   if (userError || !user) {
-    return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    return NextResponse.json(
+      { error: "Authentication required" },
+      { status: 401 },
+    );
   }
 
   const notifications = await fetchNotifications(supabase, user.id);
-  const unread = notifications.filter((row) => row.is_read === false).length;
+  const unread = countUnreadNotifications(notifications);
 
   return NextResponse.json({ notifications, unread });
 }
 
 export async function POST(request: Request) {
   const supabase = await getServerSupabase();
-  if (!supabase) return NextResponse.json({ error: "Supabase is not configured" }, { status: 500 });
+  if (!supabase) {
+    return NextResponse.json(
+      { error: "Supabase is not configured" },
+      { status: 500 },
+    );
+  }
 
   const {
     data: { user },
@@ -35,7 +49,10 @@ export async function POST(request: Request) {
   } = await supabase.auth.getUser();
 
   if (userError || !user) {
-    return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    return NextResponse.json(
+      { error: "Authentication required" },
+      { status: 401 },
+    );
   }
 
   const body = (await request.json().catch(() => ({}))) as {
@@ -45,13 +62,20 @@ export async function POST(request: Request) {
 
   if (body.action === "mark_all") {
     const ok = await markAllNotificationsRead(supabase, user.id);
-    return NextResponse.json({ ok });
+    return NextResponse.json({ ok }, { status: ok ? 200 : 500 });
   }
 
   if (body.action === "mark_one" && body.notificationId) {
-    const ok = await markNotificationRead(supabase, body.notificationId, user.id);
-    return NextResponse.json({ ok });
+    const ok = await markNotificationRead(
+      supabase,
+      body.notificationId,
+      user.id,
+    );
+    return NextResponse.json({ ok }, { status: ok ? 200 : 404 });
   }
 
-  return NextResponse.json({ error: "Invalid notification action" }, { status: 400 });
+  return NextResponse.json(
+    { error: "Invalid notification action" },
+    { status: 400 },
+  );
 }

@@ -18,25 +18,46 @@ export type NotificationRow = {
   created_at: string;
 };
 
+const NOTIFICATION_RESULT_LIMIT = 100;
+const NOTIFICATION_FETCH_LIMIT = 500;
+
+function readIdentifier(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const normalized = value.trim();
+  return normalized.length > 0 ? normalized : null;
+}
+
 export function getNotificationHref(notification: NotificationRow): string {
   const data = notification.data ?? {};
-  const conversationId = data.conversation_id;
-  const matchId = data.match_id;
-  const swapId = data.swap_id;
+  const conversationId = readIdentifier(data.conversation_id);
+  const matchId = readIdentifier(data.match_id);
+  const swapId = readIdentifier(data.swap_id);
 
-  if (typeof conversationId === "string" && conversationId.length > 0) {
-    return `/chat?conversation=${conversationId}`;
+  if (conversationId) {
+    return `/chat?conversation=${encodeURIComponent(conversationId)}`;
   }
 
-  if (typeof matchId === "string" && matchId.length > 0) {
-    return `/matching?match=${matchId}`;
+  if (matchId) {
+    return `/matching?match=${encodeURIComponent(matchId)}`;
   }
 
-  if (typeof swapId === "string" && swapId.length > 0) {
-    return `/exchange?swap=${swapId}`;
+  if (swapId) {
+    return `/exchange/${encodeURIComponent(swapId)}`;
   }
 
   return "/notifications";
+}
+
+export function dedupeNotifications(rows: NotificationRow[]): NotificationRow[] {
+  const seen = new Set<string>();
+
+  return rows.filter((row) => {
+    const key = readIdentifier(row.dedupe_key);
+    if (!key) return true;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 export async function fetchNotifications(
@@ -50,18 +71,21 @@ export async function fetchNotifications(
     )
     .eq("user_id", userId)
     .order("created_at", { ascending: false })
-    .limit(100);
+    .limit(NOTIFICATION_FETCH_LIMIT);
 
   if (error) {
     console.error("fetchNotifications failed", error);
     return [];
   }
 
-  return (data ?? []) as NotificationRow[];
+  return dedupeNotifications((data ?? []) as NotificationRow[]).slice(
+    0,
+    NOTIFICATION_RESULT_LIMIT,
+  );
 }
 
 export function countUnreadNotifications(rows: NotificationRow[]): number {
-  return rows.filter((row) => row.is_read === false).length;
+  return dedupeNotifications(rows).filter((row) => row.is_read === false).length;
 }
 
 export async function markNotificationRead(
@@ -69,12 +93,29 @@ export async function markNotificationRead(
   notificationId: string,
   userId: string,
 ): Promise<boolean> {
-  const { error } = await supabase
+  const normalizedNotificationId = readIdentifier(notificationId);
+  if (!normalizedNotificationId) return false;
+
+  const { data: notification, error: lookupError } = await supabase
+    .from("notifications")
+    .select("id, dedupe_key")
+    .eq("id", normalizedNotificationId)
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (lookupError || !notification) return false;
+
+  const dedupeKey = readIdentifier(notification.dedupe_key);
+  let query = supabase
     .from("notifications")
     .update({ is_read: true, read: true })
-    .eq("id", notificationId)
     .eq("user_id", userId);
 
+  query = dedupeKey
+    ? query.eq("dedupe_key", dedupeKey)
+    : query.eq("id", normalizedNotificationId);
+
+  const { error } = await query;
   return !error;
 }
 
