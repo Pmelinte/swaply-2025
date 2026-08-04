@@ -70,6 +70,7 @@ jobs:
           cp ../supabase/tests/fixtures/v1_05_4_7_matching_runtime_fixture.sql supabase/migrations/00000000000004_v1_05_4_7_matching_runtime_fixture.sql
 
           for migration in \
+            20260715063055_batch_61_3_bilateral_completion.sql \
             20260801163000_v1_05_4_1_canonical_cross_domain_matching.sql \
             20260802100000_v1_05_4_2_domain_aware_agreement.sql \
             20260802101500_v1_05_4_2_domain_exchange_handoff.sql \
