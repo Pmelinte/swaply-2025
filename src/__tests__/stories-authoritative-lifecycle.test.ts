@@ -10,10 +10,15 @@ const republishFixPath = join(
   process.cwd(),
   "supabase/migrations/20260730211500_v1_02_r7_1_story_privacy_filter_and_republish_fix.sql",
 );
+const moderationGuardPath = join(
+  process.cwd(),
+  "supabase/migrations/20260805002000_v1_07_4_story_moderation_requires_bilateral_consent.sql",
+);
 
 const foundationSql = readFileSync(foundationPath, "utf8");
 const republishFixSql = readFileSync(republishFixPath, "utf8");
-const lifecycleSql = `${foundationSql}\n${republishFixSql}`;
+const moderationGuardSql = readFileSync(moderationGuardPath, "utf8");
+const lifecycleSql = `${foundationSql}\n${republishFixSql}\n${moderationGuardSql}`;
 
 describe("V1-07.4 Stories authoritative lifecycle", () => {
   it("keeps the complete server-authoritative RPC surface", () => {
@@ -51,16 +56,19 @@ describe("V1-07.4 Stories authoritative lifecycle", () => {
     expect(foundationSql).toContain("set is_visible = false");
   });
 
-  it("requires bilateral consent before moderation", () => {
-    expect(foundationSql).toContain("participant_count = granted_count");
-    expect(foundationSql).toContain("then 'pending_moderation'");
-    expect(foundationSql).toContain("Story participant required");
+  it("requires bilateral consent inside the moderation RPC", () => {
+    expect(moderationGuardSql).toContain("current_status_value <> 'pending_moderation'");
+    expect(moderationGuardSql).toContain("participant_count <> 2");
+    expect(moderationGuardSql).toContain("granted_count <> participant_count");
+    expect(moderationGuardSql).toContain(
+      "Bilateral Story consent required before moderation",
+    );
   });
 
   it("keeps moderation restricted to moderator or service authority", () => {
-    expect(foundationSql).toContain("auth.role() <> 'service_role'");
-    expect(foundationSql).toContain("private.is_story_moderator_v1");
-    expect(foundationSql).toContain("Moderator authority required");
+    expect(moderationGuardSql).toContain("auth.role() <> 'service_role'");
+    expect(moderationGuardSql).toContain("private.is_story_moderator_v1");
+    expect(moderationGuardSql).toContain("Moderator authority required");
   });
 
   it("publishes only safe public snapshots", () => {
