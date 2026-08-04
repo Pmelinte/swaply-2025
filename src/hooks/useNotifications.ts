@@ -5,16 +5,36 @@ import { getSupabaseClient } from "@/lib/supabase/client";
 import type { Notification, NotificationPreferences } from "@/lib/types";
 
 const DEFAULT_PREFERENCES: Omit<NotificationPreferences, "userId" | "updatedAt"> = {
-  match_new_inapp: true, match_new_email: true, match_new_push: false,
-  message_inapp: true, message_email: false, message_push: true,
-  swap_proposed_inapp: true, swap_proposed_email: true, swap_proposed_push: true,
-  swap_accepted_inapp: true, swap_accepted_email: true, swap_accepted_push: true,
-  logistics_updated_inapp: true, logistics_updated_email: false, logistics_updated_push: false,
-  meeting_reminder_inapp: true, meeting_reminder_email: true, meeting_reminder_push: true,
-  dispute_update_inapp: true, dispute_update_email: true, dispute_update_push: true,
-  favorite_updated_inapp: true, favorite_updated_email: false, favorite_updated_push: false,
-  saved_search_result_inapp: true, saved_search_result_email: true, saved_search_result_push: false,
-  feedback_requested_inapp: true, feedback_requested_email: true, feedback_requested_push: false,
+  match_new_inapp: true,
+  match_new_email: true,
+  match_new_push: false,
+  message_inapp: true,
+  message_email: false,
+  message_push: true,
+  swap_proposed_inapp: true,
+  swap_proposed_email: true,
+  swap_proposed_push: true,
+  swap_accepted_inapp: true,
+  swap_accepted_email: true,
+  swap_accepted_push: true,
+  logistics_updated_inapp: true,
+  logistics_updated_email: false,
+  logistics_updated_push: false,
+  meeting_reminder_inapp: true,
+  meeting_reminder_email: true,
+  meeting_reminder_push: true,
+  dispute_update_inapp: true,
+  dispute_update_email: true,
+  dispute_update_push: true,
+  favorite_updated_inapp: true,
+  favorite_updated_email: false,
+  favorite_updated_push: false,
+  saved_search_result_inapp: true,
+  saved_search_result_email: true,
+  saved_search_result_push: false,
+  feedback_requested_inapp: true,
+  feedback_requested_email: true,
+  feedback_requested_push: false,
 };
 
 export type NotificationFilter = "all" | "unread" | "swap" | "message" | "alert";
@@ -68,18 +88,6 @@ function mapNotificationRow(row: Record<string, unknown>): Notification {
   };
 }
 
-function mergeNotification(
-  previous: Notification[],
-  incoming: Notification,
-): Notification[] {
-  const existingIndex = previous.findIndex((row) => row.id === incoming.id);
-  if (existingIndex === -1) return [incoming, ...previous];
-
-  const next = [...previous];
-  next[existingIndex] = incoming;
-  return next;
-}
-
 export function useNotifications(userId: string | undefined) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(false);
@@ -95,33 +103,33 @@ export function useNotifications(userId: string | undefined) {
       return;
     }
 
-    const sb = getSupabaseClient();
-    if (!sb) return;
-
     setLoading(true);
-    const { data } = await sb
-      .from("notifications")
-      .select("*")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false })
-      .limit(100);
+    try {
+      const response = await fetch("/api/notifications", {
+        cache: "no-store",
+      });
+      if (!response.ok) return;
 
-    if (data) {
+      const payload = (await response.json()) as {
+        notifications?: Record<string, unknown>[];
+      };
       setNotifications(
-        data.map((row: Record<string, unknown>) => mapNotificationRow(row)),
+        (payload.notifications ?? []).map((row) => mapNotificationRow(row)),
       );
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, [userId]);
 
-  // Initial fetch. Re-run whenever the authenticated identity changes.
   useEffect(() => {
     let cancelled = false;
 
     if (userId) {
-      void Promise.resolve().then(loadNotifications).then(() => {
-        if (cancelled) return;
-      });
+      void Promise.resolve()
+        .then(loadNotifications)
+        .then(() => {
+          if (cancelled) return;
+        });
     }
 
     return () => {
@@ -129,7 +137,6 @@ export function useNotifications(userId: string | undefined) {
     };
   }, [loadNotifications, userId]);
 
-  // Fetch preferences whenever the authenticated identity changes.
   useEffect(() => {
     let cancelled = false;
 
@@ -168,14 +175,8 @@ export function useNotifications(userId: string | undefined) {
     };
   }, [userId]);
 
-  // Canonical Realtime subscription for the visible notification UI.
-  // The topic deliberately differs from the legacy AppState topic so one
-  // subscription cannot replace or remove the other on the shared client.
-  // A reconciliation fetch after SUBSCRIBED closes the fetch/join race window.
   useEffect(() => {
-    if (!userId) {
-      return;
-    }
+    if (!userId) return;
 
     const sb = getSupabaseClient();
     if (!sb) {
@@ -188,6 +189,10 @@ export function useNotifications(userId: string | undefined) {
       if (active) setRealtimeStatus("CONNECTING");
     });
 
+    const reconcile = () => {
+      if (active) void loadNotifications();
+    };
+
     const channel = sb
       .channel(`notifications-ui:${userId}`)
       .on(
@@ -198,14 +203,7 @@ export function useNotifications(userId: string | undefined) {
           table: "notifications",
           filter: `user_id=eq.${userId}`,
         },
-        (payload) => {
-          const incoming = mapNotificationRow(
-            payload.new as Record<string, unknown>,
-          );
-          setNotifications((previous) =>
-            mergeNotification(previous, incoming),
-          );
-        },
+        reconcile,
       )
       .on(
         "postgres_changes",
@@ -215,14 +213,7 @@ export function useNotifications(userId: string | undefined) {
           table: "notifications",
           filter: `user_id=eq.${userId}`,
         },
-        (payload) => {
-          const incoming = mapNotificationRow(
-            payload.new as Record<string, unknown>,
-          );
-          setNotifications((previous) =>
-            mergeNotification(previous, incoming),
-          );
-        },
+        reconcile,
       )
       .subscribe((status) => {
         if (!active) return;
@@ -243,37 +234,34 @@ export function useNotifications(userId: string | undefined) {
   const unreadCount = notifications.filter((n) => !n.read).length;
   const filtered = notifications.filter((n) => matchesFilter(n, filter));
 
-  const markRead = useCallback(async (notificationId: string) => {
-    const sb = getSupabaseClient();
-    if (sb) {
-      await sb
-        .from("notifications")
-        .update({ is_read: true, read: true })
-        .eq("id", notificationId);
-    }
-    setNotifications((previous) =>
-      previous.map((notification) =>
-        notification.id === notificationId
-          ? { ...notification, read: true }
-          : notification,
-      ),
-    );
-  }, []);
+  const markRead = useCallback(
+    async (notificationId: string) => {
+      const response = await fetch("/api/notifications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "mark_one", notificationId }),
+      });
+
+      if (response.ok) {
+        await loadNotifications();
+      }
+    },
+    [loadNotifications],
+  );
 
   const markAllRead = useCallback(async () => {
     if (!userId) return;
-    const sb = getSupabaseClient();
-    if (sb) {
-      await sb
-        .from("notifications")
-        .update({ is_read: true, read: true })
-        .eq("user_id", userId)
-        .eq("is_read", false);
+
+    const response = await fetch("/api/notifications", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "mark_all" }),
+    });
+
+    if (response.ok) {
+      await loadNotifications();
     }
-    setNotifications((previous) =>
-      previous.map((notification) => ({ ...notification, read: true })),
-    );
-  }, [userId]);
+  }, [loadNotifications, userId]);
 
   const deleteNotification = useCallback(async (notificationId: string) => {
     const sb = getSupabaseClient();
