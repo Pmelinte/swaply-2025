@@ -4,28 +4,32 @@ const localeSet = new Set<string>(locales);
 const ISO_COUNTRY = /^[A-Z]{2}$/;
 const ISO_CURRENCY = /^[A-Z]{3}$/;
 
-export function resolveLocale(value: unknown): Locale {
-  if (typeof value !== "string") return defaultLocale;
+function normalizeSupportedLocale(value: unknown): Locale | null {
+  if (typeof value !== "string") return null;
 
   const normalized = value.trim().toLowerCase().replace(/_/g, "-");
+  if (!normalized) return null;
   if (localeSet.has(normalized)) return normalized as Locale;
 
   const base = normalized.split("-")[0];
-  return localeSet.has(base) ? (base as Locale) : defaultLocale;
+  return localeSet.has(base) ? (base as Locale) : null;
 }
 
-export function resolveLocaleChain(
-  ...values: Array<string | null | undefined>
-): Locale[] {
+export function resolveLocale(value: unknown): Locale {
+  return normalizeSupportedLocale(value) ?? defaultLocale;
+}
+
+export function resolveLocaleChain(...values: unknown[]): Locale[] {
   const resolved: Locale[] = [];
 
   for (const value of values) {
-    if (!value) continue;
-    const locale = resolveLocale(value);
-    if (!resolved.includes(locale)) resolved.push(locale);
+    const locale = normalizeSupportedLocale(value);
+    if (locale && locale !== defaultLocale && !resolved.includes(locale)) {
+      resolved.push(locale);
+    }
   }
 
-  if (!resolved.includes(defaultLocale)) resolved.push(defaultLocale);
+  resolved.push(defaultLocale);
   return resolved;
 }
 
@@ -43,8 +47,8 @@ export function normalizeCurrency(value: unknown): string | null {
 
 export function formatMoney(
   amount: number,
-  currency: string,
-  locale: string | null | undefined,
+  currency: unknown,
+  locale: unknown,
 ): string {
   const canonicalCurrency = normalizeCurrency(currency) ?? "EUR";
   const canonicalLocale = resolveLocale(locale);
@@ -57,7 +61,7 @@ export function formatMoney(
 
 export function formatDateTime(
   value: Date | string | number,
-  locale: string | null | undefined,
+  locale: unknown,
   options: Intl.DateTimeFormatOptions = {},
 ): string {
   const date = value instanceof Date ? value : new Date(value);
@@ -66,10 +70,7 @@ export function formatDateTime(
   return new Intl.DateTimeFormat(resolveLocale(locale), options).format(date);
 }
 
-export function buildLocalizedPath(
-  locale: string | null | undefined,
-  path: string,
-): string {
+export function buildLocalizedPath(locale: unknown, path: string): string {
   const canonicalLocale = resolveLocale(locale);
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
   return `/${canonicalLocale}${normalizedPath}`;
