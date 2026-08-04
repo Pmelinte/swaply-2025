@@ -139,15 +139,14 @@ jobs:
 
   preview-production-routes:
     name: V106-EVIDENCE-002 Preview and Production routes
-    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
+    env:
+      PREVIEW_URL: ${{ github.event_name == 'workflow_dispatch' && inputs.preview_url || 'https://swaply-2025-git-agent-v1-06-7-r-bf364c-petrus-projects-d4a0946c.vercel.app' }}
+      PRODUCTION_URL: ${{ github.event_name == 'workflow_dispatch' && inputs.production_url || 'https://www.swaply.world' }}
     steps:
       - name: Check exact Preview and Production routes
         shell: bash
-        env:
-          PREVIEW_URL: ${{ inputs.preview_url }}
-          PRODUCTION_URL: ${{ inputs.production_url }}
         run: |
           set -euo pipefail
           mkdir -p route-evidence
@@ -176,22 +175,51 @@ jobs:
             local label="$1"
             local base_url="$2"
             local output="route-evidence/${label}.tsv"
-            printf 'target\troute\tstatus\tfinal_url\n' > "${output}"
+            printf 'target\troute\tstatus\tredirect_url\n' > "${output}"
 
             for route in "${routes[@]}"; do
-              response="$(curl --silent --show-error --location \
-                --output /dev/null \
-                --write-out '%{http_code}\t%{url_effective}' \
-                --max-time 30 \
-                "${base_url}${route}")"
+              local response status redirect_url attempt
+              response=""
+
+              for attempt in {1..20}; do
+                response="$(curl --silent --show-error \
+                  --output /dev/null \
+                  --write-out '%{http_code}\t%{redirect_url}' \
+                  --max-time 30 \
+                  "${base_url}${route}" || true)"
+                status="${response%%$'\t'*}"
+                if [[ "${status}" =~ ^[23][0-9][0-9]$ ]]; then
+                  break
+                fi
+                sleep 5
+              done
+
               status="${response%%$'\t'*}"
-              final_url="${response#*$'\t'}"
-              printf '%s\t%s\t%s\t%s\n' "${label}" "${route}" "${status}" "${final_url}" \
+              redirect_url="${response#*$'\t'}"
+              printf '%s\t%s\t%s\t%s\n' "${label}" "${route}" "${status}" "${redirect_url}" \
                 | tee -a "${output}"
 
-              if [[ "${status}" -lt 200 || "${status}" -ge 400 ]]; then
+              if [[ ! "${status}" =~ ^[23][0-9][0-9]$ ]]; then
                 echo "${label} route failed: ${route} -> ${status}" >&2
                 exit 1
+              fi
+
+              if [[ "${status}" =~ ^3[0-9][0-9]$ ]]; then
+                if [[ -z "${redirect_url}" ]]; then
+                  echo "${label} route returned ${status} without Location: ${route}" >&2
+                  exit 1
+                fi
+                case "${redirect_url}" in
+                  "${base_url}"/*) ;;
+                  *)
+                    echo "${label} route redirected outside the exact target origin: ${route} -> ${redirect_url}" >&2
+                    exit 1
+                    ;;
+                esac
+                if [[ "${redirect_url}" == "${base_url}/" || "${redirect_url}" == "${base_url}" ]]; then
+                  echo "${label} route collapsed to the generic root: ${route}" >&2
+                  exit 1
+                fi
               fi
             done
           }
@@ -205,6 +233,7 @@ jobs:
             | tee route-evidence/result.json
 
       - name: Upload route evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: v1-06-7-route-evidence-${{ github.run_id }}
