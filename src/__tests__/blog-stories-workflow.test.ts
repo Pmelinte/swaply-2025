@@ -35,10 +35,10 @@ describe("blog editorial workflow", () => {
 });
 
 describe("stories workflow", () => {
-  it("keeps Stories statuses separate from Blog statuses", () => {
+  it("keeps the Production Story vocabulary separate from Blog statuses", () => {
     expect(STORY_STATUSES).toEqual([
       "draft",
-      "pending_partner_consent",
+      "pending_consent",
       "pending_moderation",
       "published",
       "hidden",
@@ -46,6 +46,7 @@ describe("stories workflow", () => {
       "rejected",
     ]);
 
+    expect(STORY_STATUSES).not.toContain("pending_partner_consent");
     expect(STORY_STATUSES).not.toEqual(BLOG_EDITORIAL_STATUSES);
   });
 
