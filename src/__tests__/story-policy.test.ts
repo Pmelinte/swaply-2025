@@ -49,8 +49,8 @@ describe("story publication policy", () => {
     ).toBe(false);
   });
 
-  it("blocks non-public, draft, rejected and disputed stories from public previews", () => {
-    expect(canPublishStory({ ...baseStory, visibility: "community" })).toBe(false);
+  it("blocks participant-only, draft, rejected and disputed stories from public previews", () => {
+    expect(canPublishStory({ ...baseStory, visibility: "participants" })).toBe(false);
     expect(canPublishStory({ ...baseStory, status: "draft" })).toBe(false);
     expect(canPublishStory({ ...baseStory, status: "rejected" })).toBe(false);
     expect(canPublishStory({ ...baseStory, status: "disputed" })).toBe(false);
