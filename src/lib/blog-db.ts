@@ -27,7 +27,12 @@ function getSupabase() {
 }
 
 function normalizeLocale(locale?: string): string {
-  return (locale ?? "en").trim().toLowerCase().split("-")[0] || "en";
+  return (
+    (locale ?? "en")
+      .trim()
+      .toLowerCase()
+      .split(/[-_]/)[0] || "en"
+  );
 }
 
 function mapRow(row: Record<string, unknown>): LocalizedBlogPost {
@@ -145,9 +150,10 @@ export async function getPostBySlugDB(
 
 export async function getPostsByCategoryDB(
   category: string,
-  locale?: string,
+  locale: string,
 ): Promise<LocalizedBlogPost[]> {
-  const posts = await getAllPostsDB(locale);
+  const requestedLocale = normalizeLocale(locale);
+  const posts = await getAllPostsDB(requestedLocale);
   const normalizedCategory = category.trim().toLowerCase();
 
   if (posts.length > 0) {
@@ -156,7 +162,7 @@ export async function getPostsByCategoryDB(
     );
   }
 
-  return getPostsByCategory(category, normalizeLocale(locale));
+  return getPostsByCategory(category, requestedLocale);
 }
 
 export async function getAllCategoriesDB(locale?: string): Promise<string[]> {
