@@ -21,7 +21,17 @@ describe("global-first locale contract", () => {
     expect(resolveLocale("RO_ro")).toBe("ro");
     expect(resolveLocale("ar-SA")).toBe("ar");
     expect(resolveLocale("unknown")).toBe("en");
-    expect(resolveLocaleChain("fr-FR", "ro_RO", "fr")).toEqual(["fr", "ro", "en"]);
+    expect(resolveLocaleChain("fr-FR", "ro_RO", "fr")).toEqual([
+      "fr",
+      "ro",
+      "en",
+    ]);
+    expect(resolveLocaleChain("zz-ZZ", "ro_RO")).toEqual(["ro", "en"]);
+    expect(resolveLocaleChain(null, 42, "fr-FR", undefined)).toEqual([
+      "fr",
+      "en",
+    ]);
+    expect(resolveLocaleChain("en", "ro", "en")).toEqual(["ro", "en"]);
   });
 
   it("keeps every canonical locale in a stable localized path", () => {
@@ -38,7 +48,9 @@ describe("global-first direction contract", () => {
     expect(rtlLocales).toEqual(["ar", "fa", "yi"]);
     for (const locale of locales) {
       expect(getLocaleDirection(locale)).toBe(
-        rtlLocales.includes(locale as (typeof rtlLocales)[number]) ? "rtl" : "ltr",
+        rtlLocales.includes(locale as (typeof rtlLocales)[number])
+          ? "rtl"
+          : "ltr",
       );
     }
   });
@@ -52,9 +64,11 @@ describe("country and currency contract", () => {
     expect(normalizeCurrency("EURO")).toBeNull();
   });
 
-  it("formats money and date values with the resolved locale", () => {
+  it("formats money and date values with normalized untyped input", () => {
     expect(formatMoney(1234.5, "eur", "de-DE")).toContain("1.234,50");
-    expect(formatMoney(1234.5, "invalid", "en")).toContain("€");
+    expect(formatMoney(1234.5, { invalid: true }, ["bad-locale"])).toContain(
+      "€",
+    );
     expect(
       formatDateTime("2026-08-04T12:30:00.000Z", "fr-FR", {
         timeZone: "UTC",
