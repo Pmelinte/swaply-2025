@@ -1,0 +1,242 @@
+name: V1-06.7 Race and Route Evidence
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/v1-06-7-race-route-evidence.yml"
+      - "scripts/v1-06-race-evidence.sh"
+      - "supabase/migrations/**"
+      - "supabase/tests/**"
+  workflow_dispatch:
+    inputs:
+      preview_url:
+        description: "Exact Vercel Preview base URL"
+        required: true
+        type: string
+      production_url:
+        description: "Exact Vercel Production base URL"
+        required: true
+        default: "https://www.swaply.world"
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v1-06-7-evidence-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  NEXT_TELEMETRY_DISABLED: "1"
+
+jobs:
+  authoritative-race:
+    name: V106-RACE-001 authoritative concurrency
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@v4
+
+      - name: Install Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: 2.109.1
+
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes postgresql-client
+
+      - name: Prepare isolated authoritative project
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf .ci-supabase-v1-06-7
+          mkdir -p .ci-supabase-v1-06-7
+          cd .ci-supabase-v1-06-7
+          supabase init
+          rm -rf supabase/migrations supabase/tests
+          mkdir -p supabase/migrations supabase/tests evidence
+
+          cp ../supabase/tests/fixtures/v1_05_4_4_current_contract_fixture.sql supabase/migrations/00000000000000_v1_05_4_4_current_contract_fixture.sql
+          cp ../supabase/tests/fixtures/v1_05_4_6_completion_contract_fixture.sql supabase/migrations/00000000000001_v1_05_4_6_completion_contract_fixture.sql
+          cp ../supabase/tests/fixtures/v1_05_4_5_event_contract_fixture.sql supabase/migrations/00000000000002_v1_05_4_5_event_contract_fixture.sql
+          cp ../supabase/tests/fixtures/v1_05_4_7_cross_domain_e2e_fixture.sql supabase/migrations/00000000000003_v1_05_4_7_cross_domain_e2e_fixture.sql
+          cp ../supabase/tests/fixtures/v1_05_4_7_matching_runtime_fixture.sql supabase/migrations/00000000000004_v1_05_4_7_matching_runtime_fixture.sql
+
+          cat > supabase/migrations/00000000000005_v1_06_7_completion_fixture_bridge.sql <<'SQL'
+          alter table public.swap_completion_confirmations
+            add column if not exists confirmed_at timestamptz not null default now();
+          SQL
+
+          for migration in \
+            20260715063055_batch_61_3_bilateral_completion.sql \
+            20260801163000_v1_05_4_1_canonical_cross_domain_matching.sql \
+            20260802100000_v1_05_4_2_domain_aware_agreement.sql \
+            20260802101500_v1_05_4_2_domain_exchange_handoff.sql \
+            20260802170000_v1_05_4_3_property_reservation_authority.sql \
+            20260802190000_v1_05_4_4_service_delivery_authority.sql \
+            20260803001000_v1_05_4_5_event_transfer_authority.sql \
+            20260803030000_v1_05_4_5_event_transfer_hardening.sql \
+            20260803030500_v1_05_4_5_event_completion_guard_contract.sql \
+            20260803043000_v1_05_4_6_domain_aware_exchange_completion.sql \
+            20260803054500_v1_05_4_6_1_completion_readiness_hardening.sql \
+            20260803074500_v1_05_4_7_matching_interest_ambiguity_hardening.sql
+          do
+            cp "../supabase/migrations/${migration}" supabase/migrations/
+          done
+
+          cp ../supabase/tests/v1_05_4_6_domain_aware_exchange_completion_replay.sql supabase/tests/
+          cp ../scripts/v1-06-race-evidence.sh ./v1-06-race-evidence.sh
+          chmod +x ./v1-06-race-evidence.sh
+
+          find supabase/migrations supabase/tests v1-06-race-evidence.sh -type f -print0 \
+            | sort -z \
+            | xargs -0 sha256sum \
+            | tee evidence/input-sha256.txt
+
+      - name: Start isolated Supabase stack
+        working-directory: .ci-supabase-v1-06-7
+        shell: bash
+        run: |
+          set -o pipefail
+          supabase start -x studio,imgproxy,storage-api,realtime,mailpit,edge-runtime,logflare,vector,supavisor 2>&1 \
+            | tee evidence/supabase-start.log
+
+      - name: Record migration and stack identity
+        working-directory: .ci-supabase-v1-06-7
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase status | tee evidence/supabase-status.txt
+          supabase migration list --local | tee evidence/migration-list.txt
+
+      - name: Run V106-RACE-001 and immutable cleanup
+        working-directory: .ci-supabase-v1-06-7
+        env:
+          PGPASSWORD: postgres
+        shell: bash
+        run: ./v1-06-race-evidence.sh
+
+      - name: Upload race evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v1-06-7-race-evidence-${{ github.run_id }}
+          path: .ci-supabase-v1-06-7/evidence/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Stop isolated stack
+        if: always()
+        working-directory: .ci-supabase-v1-06-7
+        run: supabase stop --no-backup
+
+  preview-production-routes:
+    name: V106-EVIDENCE-002 Preview and Production routes
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      PREVIEW_URL: ${{ github.event_name == 'workflow_dispatch' && inputs.preview_url || 'https://swaply-2025-git-agent-v1-06-7-r-bf364c-petrus-projects-d4a0946c.vercel.app' }}
+      PRODUCTION_URL: ${{ github.event_name == 'workflow_dispatch' && inputs.production_url || 'https://www.swaply.world' }}
+    steps:
+      - name: Check exact Preview and Production routes
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p route-evidence
+
+          normalize_url() {
+            printf '%s' "${1%/}"
+          }
+
+          PREVIEW_URL="$(normalize_url "${PREVIEW_URL}")"
+          PRODUCTION_URL="$(normalize_url "${PRODUCTION_URL}")"
+
+          routes=(
+            "/en"
+            "/en/objects"
+            "/en/properties"
+            "/en/services"
+            "/en/events"
+            "/en/matching"
+            "/en/messages"
+            "/en/exchange"
+            "/en/blog"
+            "/ar"
+          )
+
+          check_target() {
+            local label="$1"
+            local base_url="$2"
+            local output="route-evidence/${label}.tsv"
+            printf 'target\troute\tstatus\tredirect_url\n' > "${output}"
+
+            for route in "${routes[@]}"; do
+              local response status redirect_url attempt
+              response=""
+
+              for attempt in {1..20}; do
+                response="$(curl --silent --show-error \
+                  --output /dev/null \
+                  --write-out '%{http_code}\t%{redirect_url}' \
+                  --max-time 30 \
+                  "${base_url}${route}" || true)"
+                status="${response%%$'\t'*}"
+                if [[ "${status}" =~ ^[23][0-9][0-9]$ ]]; then
+                  break
+                fi
+                sleep 5
+              done
+
+              status="${response%%$'\t'*}"
+              redirect_url="${response#*$'\t'}"
+              printf '%s\t%s\t%s\t%s\n' "${label}" "${route}" "${status}" "${redirect_url}" \
+                | tee -a "${output}"
+
+              if [[ ! "${status}" =~ ^[23][0-9][0-9]$ ]]; then
+                echo "${label} route failed: ${route} -> ${status}" >&2
+                exit 1
+              fi
+
+              if [[ "${status}" =~ ^3[0-9][0-9]$ ]]; then
+                if [[ -z "${redirect_url}" ]]; then
+                  echo "${label} route returned ${status} without Location: ${route}" >&2
+                  exit 1
+                fi
+                case "${redirect_url}" in
+                  "${base_url}"/*) ;;
+                  *)
+                    echo "${label} route redirected outside the exact target origin: ${route} -> ${redirect_url}" >&2
+                    exit 1
+                    ;;
+                esac
+                if [[ "${redirect_url}" == "${base_url}/" || "${redirect_url}" == "${base_url}" ]]; then
+                  echo "${label} route collapsed to the generic root: ${route}" >&2
+                  exit 1
+                fi
+              fi
+            done
+          }
+
+          check_target preview "${PREVIEW_URL}"
+          check_target production "${PRODUCTION_URL}"
+
+          sha256sum route-evidence/*.tsv | tee route-evidence/sha256.txt
+          printf '{"contract":"V106-EVIDENCE-002","result":"PASS","preview":"%s","production":"%s"}\n' \
+            "${PREVIEW_URL}" "${PRODUCTION_URL}" \
+            | tee route-evidence/result.json
+
+      - name: Upload route evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v1-06-7-route-evidence-${{ github.run_id }}
+          path: route-evidence/
+          if-no-files-found: error
+          retention-days: 30
