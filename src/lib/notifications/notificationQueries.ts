@@ -18,25 +18,43 @@ export type NotificationRow = {
   created_at: string;
 };
 
+function readIdentifier(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const normalized = value.trim();
+  return normalized.length > 0 ? normalized : null;
+}
+
 export function getNotificationHref(notification: NotificationRow): string {
   const data = notification.data ?? {};
-  const conversationId = data.conversation_id;
-  const matchId = data.match_id;
-  const swapId = data.swap_id;
+  const conversationId = readIdentifier(data.conversation_id);
+  const matchId = readIdentifier(data.match_id);
+  const swapId = readIdentifier(data.swap_id);
 
-  if (typeof conversationId === "string" && conversationId.length > 0) {
-    return `/chat?conversation=${conversationId}`;
+  if (conversationId) {
+    return `/chat?conversation=${encodeURIComponent(conversationId)}`;
   }
 
-  if (typeof matchId === "string" && matchId.length > 0) {
-    return `/matching?match=${matchId}`;
+  if (matchId) {
+    return `/matching?match=${encodeURIComponent(matchId)}`;
   }
 
-  if (typeof swapId === "string" && swapId.length > 0) {
-    return `/exchange?swap=${swapId}`;
+  if (swapId) {
+    return `/exchange/${encodeURIComponent(swapId)}`;
   }
 
   return "/notifications";
+}
+
+export function dedupeNotifications(rows: NotificationRow[]): NotificationRow[] {
+  const seen = new Set<string>();
+
+  return rows.filter((row) => {
+    const key = readIdentifier(row.dedupe_key);
+    if (!key) return true;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 export async function fetchNotifications(
@@ -57,7 +75,7 @@ export async function fetchNotifications(
     return [];
   }
 
-  return (data ?? []) as NotificationRow[];
+  return dedupeNotifications((data ?? []) as NotificationRow[]);
 }
 
 export function countUnreadNotifications(rows: NotificationRow[]): number {
