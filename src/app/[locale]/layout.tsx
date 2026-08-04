@@ -23,8 +23,6 @@ import {
   toSwaplyLocalizedPublicUrl,
 } from "@/lib/public-site";
 
-// ── Generate static params for top 5 locales only ──────────────────
-// Remaining locales are generated on-demand and cached via ISR.
 const PRIORITY_LOCALES = ["ro", "en"] as const;
 
 export function generateStaticParams() {
@@ -33,7 +31,6 @@ export function generateStaticParams() {
 
 export const dynamicParams = true;
 
-// ── Build hreflang alternates for every locale ──────────────────────
 function buildHreflangAlternates(locale: string, path: string) {
   return {
     canonical: toSwaplyLocalizedPublicUrl(locale, path),
@@ -101,17 +98,12 @@ type Props = {
 export default async function LocaleLayout({ children, params }: Props) {
   const { locale } = await params;
 
-  // Validate locale
   if (!routing.locales.includes(locale as Locale)) {
     notFound();
   }
 
   const canonicalLocale = locale as Locale;
-
-  // Enable static rendering for this locale
   setRequestLocale(canonicalLocale);
-
-  // Load messages server-side
   const messages = await getMessages();
 
   return (
@@ -164,20 +156,6 @@ export default async function LocaleLayout({ children, params }: Props) {
                 },
               ],
             }),
-          }}
-        />
-        {/* Drop any stale service worker registration left over from a previous deploy. */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then(function(registrations) {
-      for(let registration of registrations) {
-        registration.unregister();
-      }
-    });
-  }
-`,
           }}
         />
       </head>
