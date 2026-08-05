@@ -53,6 +53,19 @@ describe("V1-08.2 global-first persistence and fallback", () => {
     ]);
   });
 
+  it("uses compatibility values when canonical or contextual values are invalid", () => {
+    const chain = buildProfileLanguageFallbackChain(
+      {
+        primary_language: "unsupported-locale",
+        preferred_language: "uk-UA",
+        preferred_locale: "de-DE",
+      },
+      { routeLocale: "   " },
+    );
+
+    expect(chain.map((entry) => entry.locale)).toEqual(["uk", "de", "en"]);
+  });
+
   it("falls back to English when no persisted or contextual locale is valid", () => {
     expect(resolveProfilePreferredLocale({})).toBe("en");
   });
