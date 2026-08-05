@@ -44,18 +44,19 @@ describe("V1-08.4 AI benchmark dataset", () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it("scores quality, schema, safety, provenance, cost, latency and human boundary", () => {
+  it("scores localized output through normalized concepts and structured labels", () => {
     const benchmarkCase = v1084BenchmarkCases.find(
-      (entry) => entry.taskType === "match" && entry.locale === "en",
+      (entry) => entry.taskType === "match" && entry.locale === "ja",
     );
     expect(benchmarkCase).toBeDefined();
 
     const observation: BenchmarkProviderObservation = {
       caseId: benchmarkCase!.id,
       output: {
-        explanation: "Compatibility and distance are advisory; the user decision remains final.",
+        explanation: "互換性と距離は参考情報であり、最終判断は利用者が行います。",
         finalDecision: false,
       },
+      normalizedConcepts: ["compatibility", "distance", "user decision"],
       latencyMs: 120,
       estimatedCostUsd: 0.002,
       provider: "test-provider",
