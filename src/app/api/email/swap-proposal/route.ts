@@ -30,7 +30,6 @@ type ProfileRow = {
   secondary_language: string | null;
   tertiary_language: string | null;
   preferred_locale: string | null;
-  preferred_language: string | null;
 };
 
 type ItemRow = {
@@ -124,7 +123,7 @@ export async function POST(request: Request) {
     serviceSupabase
       .from("profiles")
       .select(
-        "user_id, display_name, email, primary_language, secondary_language, tertiary_language, preferred_locale, preferred_language",
+        "user_id, display_name, email, primary_language, secondary_language, tertiary_language, preferred_locale",
       )
       .in("user_id", profileIds),
     serviceSupabase.from("items").select("id, title").in("id", itemIds),
