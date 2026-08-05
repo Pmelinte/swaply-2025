@@ -158,7 +158,7 @@ begin
   end if;
 
   if v_recipient is null then
-    raise exception 'Swapleni reward source is not eligible' using errcode = '42501';
+    raise exception 'Swapleni reward source is not eligible' using errcode = '22023';
   end if;
 
   v_key := pg_catalog.format(
@@ -183,6 +183,16 @@ begin
       'replayed', true
     );
   end if;
+
+  -- Serialize the cap query and insert for every recipient/source-type bucket.
+  -- Different eligible sources for the same user must not pass the same stale
+  -- cap snapshot concurrently.
+  perform pg_catalog.pg_advisory_xact_lock(
+    pg_catalog.hashtextextended(
+      pg_catalog.format('v1-07-cap:%s:%s', v_source_type, v_recipient),
+      0
+    )
+  );
 
   select coalesce(sum(ledger_row.amount), 0) into v_window_total
   from public.swapleni_ledger ledger_row
@@ -294,6 +304,20 @@ begin
     raise exception 'Eligible source cannot be reversed' using errcode = '22023';
   end if;
 
+  select reversal_row.id into v_reversal_id
+  from public.swapleni_ledger reversal_row
+  where reversal_row.reversal_of = v_original.id
+  order by reversal_row.created_at asc
+  limit 1;
+
+  if found then
+    return pg_catalog.jsonb_build_object(
+      'original_event_id', v_original.id,
+      'reversal_event_id', v_reversal_id,
+      'replayed', true
+    );
+  end if;
+
   v_reversal_id := public.reverse_swapleni_event_v1(
     v_original.id,
     pg_catalog.btrim(p_reason),
@@ -306,7 +330,8 @@ begin
 
   return pg_catalog.jsonb_build_object(
     'original_event_id', v_original.id,
-    'reversal_event_id', v_reversal_id
+    'reversal_event_id', v_reversal_id,
+    'replayed', false
   );
 end;
 $$;
