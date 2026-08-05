@@ -7,6 +7,7 @@ import {
   buildSwapProposalEmail,
   canSendSwapProposalEmail,
 } from "@/lib/notifications/swapProposalEmail";
+import { resolveProfilePreferredLocale } from "@/lib/i18n/languageFallback";
 
 const FROM_EMAIL = process.env.EMAIL_FROM || "Swaply <noreply@swaply.world>";
 const PUBLIC_APP_URL =
@@ -26,6 +27,8 @@ type ProfileRow = {
   display_name: string | null;
   email: string | null;
   primary_language: string | null;
+  secondary_language: string | null;
+  tertiary_language: string | null;
   preferred_locale: string | null;
 };
 
@@ -120,7 +123,7 @@ export async function POST(request: Request) {
     serviceSupabase
       .from("profiles")
       .select(
-        "user_id, display_name, email, primary_language, preferred_locale",
+        "user_id, display_name, email, primary_language, secondary_language, tertiary_language, preferred_locale",
       )
       .in("user_id", profileIds),
     serviceSupabase.from("items").select("id, title").in("id", itemIds),
@@ -158,7 +161,7 @@ export async function POST(request: Request) {
   const resend = new Resend(process.env.RESEND_API_KEY);
   const email = buildSwapProposalEmail({
     appUrl: PUBLIC_APP_URL,
-    locale: responder.primary_language || responder.preferred_locale,
+    locale: resolveProfilePreferredLocale(responder),
     swapId: swap.id,
     recipientName: responder.display_name || "Swaply user",
     senderName: requester.display_name || "Swaply user",
