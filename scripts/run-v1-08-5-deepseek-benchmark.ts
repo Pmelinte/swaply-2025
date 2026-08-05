@@ -91,14 +91,18 @@ function parseBudget(): number {
 function validateUsage(usage: DeepSeekResponse["usage"]): DeepSeekUsage {
   const promptTokens = usage?.prompt_tokens;
   const completionTokens = usage?.completion_tokens;
-  if (
-    !Number.isInteger(promptTokens) ||
-    !Number.isInteger(completionTokens) ||
-    promptTokens < 0 ||
-    completionTokens < 0
-  ) {
-    throw new Error("DeepSeek response is missing valid token usage; cost cannot be proven");
+
+  if (typeof promptTokens !== "number" || !Number.isInteger(promptTokens) || promptTokens < 0) {
+    throw new Error("DeepSeek response is missing valid prompt token usage; cost cannot be proven");
   }
+  if (
+    typeof completionTokens !== "number"
+    || !Number.isInteger(completionTokens)
+    || completionTokens < 0
+  ) {
+    throw new Error("DeepSeek response is missing valid completion token usage; cost cannot be proven");
+  }
+
   return {
     prompt_tokens: promptTokens,
     completion_tokens: completionTokens,
