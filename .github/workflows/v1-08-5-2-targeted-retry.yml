@@ -1,0 +1,48 @@
+name: V1-08.5.2 DeepSeek Targeted Retry
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v1-08-5-2-deepseek-targeted-retry
+  cancel-in-progress: false
+
+jobs:
+  targeted-retry:
+    name: DeepSeek V4-Flash — 5 failed cases only
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+    steps:
+      - name: Validate secret
+        shell: bash
+        run: |
+          test -n "$DEEPSEEK_API_KEY" || { echo "DEEPSEEK_API_KEY secret is missing"; exit 1; }
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Run targeted retry
+        run: npx tsx scripts/run-v1-08-5-2-targeted-retry.ts
+
+      - name: Upload targeted retry evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v1-08-5-2-deepseek-targeted-retry-evidence
+          path: artifacts/v1-08-5-2/deepseek-v4-flash-targeted-retry-results.json
+          if-no-files-found: error
+          retention-days: 90
