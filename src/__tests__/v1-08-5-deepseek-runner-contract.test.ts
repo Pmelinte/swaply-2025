@@ -34,10 +34,32 @@ describe("V1-08.5 DeepSeek real benchmark safety contract", () => {
     expect(runner).toContain("Never invent image observations");
   });
 
-  it("persists evidence incrementally and records actual token cost", () => {
+  it("fails closed when token usage or returned model cannot be proven", () => {
+    expect(runner).toContain("DeepSeek response is missing valid token usage");
+    expect(runner).toContain("DeepSeek response omitted valid usage; cost cannot be proven");
+    expect(runner).toContain("attempt.body.model !== MODEL");
+    expect(runner).toContain("Provider returned unexpected model");
+  });
+
+  it("does not retry billable provider responses and preserves non-JSON evidence", () => {
+    expect(runner).not.toContain("RETRY_DELAYS_MS");
+    expect(runner).toContain("const rawBody = await response.text()");
+    expect(runner).toContain("DeepSeek returned non-JSON response");
+    expect(runner).toContain("rawResponse: attempt.rawBody");
+  });
+
+  it("derives task schema locally and stops immediately at the budget guard", () => {
+    expect(runner).toContain("validateTaskSchema(benchmarkCase, payload)");
+    expect(runner).toContain("schemaValid,");
+    expect(runner).toContain("await persist(results, budgetUsd);\n      break;");
+  });
+
+  it("persists incremental evidence and fails when any scored case fails", () => {
     expect(runner).toContain("prompt_tokens");
     expect(runner).toContain("completion_tokens");
     expect(runner).toContain("await persist(results, budgetUsd)");
+    expect(runner).toContain("evidence.scoreSummary.failedCount > 0");
+    expect(runner).toContain("evidence.completedCaseCount !== evidence.plannedCaseCount");
     expect(workflow).toContain("upload-artifact@v4");
   });
 });
