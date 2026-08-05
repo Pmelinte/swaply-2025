@@ -35,8 +35,10 @@ describe("V1-08.5 DeepSeek real benchmark safety contract", () => {
   });
 
   it("fails closed when token usage or returned model cannot be proven", () => {
-    expect(runner).toContain("DeepSeek response is missing valid token usage");
-    expect(runner).toContain("DeepSeek response omitted valid usage; cost cannot be proven");
+    expect(runner).toContain('function validateUsage(usage: DeepSeekResponse["usage"]): DeepSeekUsage');
+    expect(runner).toContain('typeof promptTokens !== "number"');
+    expect(runner).toContain('typeof completionTokens !== "number"');
+    expect(runner).toContain("cost cannot be proven");
     expect(runner).toContain("attempt.body.model !== MODEL");
     expect(runner).toContain("Provider returned unexpected model");
   });
