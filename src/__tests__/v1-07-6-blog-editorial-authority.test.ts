@@ -24,8 +24,9 @@ describe("V1-07.6 Blog editorial authority", () => {
     );
   });
 
-  it("uses service-role-only server authority", () => {
+  it("uses service-role-only server authority with a hardened search path", () => {
     expect(migration).toContain("auth.role() <> 'service_role'");
+    expect(migration).toContain("set search_path = pg_catalog, pg_temp");
     expect(migration).toContain(
       "grant execute on function public.transition_blog_post_v1(uuid, integer, text) to service_role",
     );
@@ -34,15 +35,40 @@ describe("V1-07.6 Blog editorial authority", () => {
     );
   });
 
+  it("validates every RPC input before reading or mutating state", () => {
+    expect(migration).toContain("if p_post_id is null then");
+    expect(migration).toContain(
+      "if p_expected_revision is null or p_expected_revision < 1 then",
+    );
+    expect(migration).toContain(
+      "if p_target_status is null or p_target_status not in",
+    );
+  });
+
   it("fails closed on stale revisions and invalid transitions", () => {
+    expect(migration).toContain(
+      "v_post.revision is distinct from p_expected_revision",
+    );
     expect(migration).toContain("blog_editorial_stale_revision");
     expect(migration).toContain("blog_editorial_invalid_transition");
     expect(migration).toContain("for update");
   });
 
-  it("supports idempotent replay without incrementing revision", () => {
-    expect(migration).toContain("if v_current_status = p_target_status then");
+  it("supports same-state and lost-response replay without another mutation", () => {
+    expect(migration).toContain("v_current_status = p_target_status");
+    expect(migration).toContain(
+      "v_post.revision in (p_expected_revision, p_expected_revision + 1)",
+    );
     expect(migration).toContain("return v_post;");
+
+    const replayGuard = migration.indexOf(
+      "v_post.revision in (p_expected_revision, p_expected_revision + 1)",
+    );
+    const staleGuard = migration.indexOf(
+      "v_post.revision is distinct from p_expected_revision",
+    );
+    expect(replayGuard).toBeGreaterThan(-1);
+    expect(staleGuard).toBeGreaterThan(replayGuard);
   });
 
   it("does not mix Blog with Stories, feedback or Swapleni", () => {
