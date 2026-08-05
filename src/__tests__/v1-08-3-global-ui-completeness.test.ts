@@ -1,4 +1,4 @@
-import { execFileSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -32,19 +32,30 @@ type GlobalUiEvidence = {
 };
 
 function runScanner(): GlobalUiEvidence {
-  const output = execFileSync(
+  const result = spawnSync(
     process.execPath,
     [resolve(process.cwd(), "scripts/check-global-ui-completeness.mjs")],
     { encoding: "utf8" },
   );
-  return JSON.parse(output) as GlobalUiEvidence;
+
+  if (result.error) {
+    throw result.error;
+  }
+
+  if (!result.stdout.trim()) {
+    throw new Error(
+      `Global UI scanner produced no evidence. stderr: ${result.stderr || "<empty>"}`,
+    );
+  }
+
+  return JSON.parse(result.stdout) as GlobalUiEvidence;
 }
 
 describe("V1-08.3 global UI completeness", () => {
   it("produces deterministic PASS evidence for catalogues, Blog and public strings", () => {
     const evidence = runScanner();
 
-    expect(evidence.pass).toBe(true);
+    expect(evidence.pass, JSON.stringify(evidence, null, 2)).toBe(true);
     expect(evidence.failures).toEqual([]);
     expect(evidence.catalogues.catalogueCount).toBe(43);
     expect(evidence.catalogues.englishKeyCount).toBeGreaterThan(0);
