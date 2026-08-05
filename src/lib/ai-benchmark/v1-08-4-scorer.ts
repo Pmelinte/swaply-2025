@@ -47,8 +47,26 @@ function ratio(hits: number, total: number): number {
   return total === 0 ? 1 : hits / total;
 }
 
+function normaliseValue(value: string): string {
+  return value
+    .trim()
+    .toLocaleLowerCase()
+    .replace(/[._-]+/g, " ")
+    .replace(/&/g, " and ")
+    .replace(/\s+/g, " ");
+}
+
 function normaliseConcepts(concepts: string[]): Set<string> {
-  return new Set(concepts.map((concept) => concept.trim().toLocaleLowerCase()));
+  return new Set(concepts.map(normaliseValue));
+}
+
+function conceptMatches(
+  canonicalConcept: string,
+  observedConcepts: Set<string>,
+  aliases: Record<string, string[]>,
+): boolean {
+  const accepted = [canonicalConcept, ...(aliases[canonicalConcept] ?? [])].map(normaliseValue);
+  return accepted.some((value) => observedConcepts.has(value));
 }
 
 export function scoreBenchmarkCase(
@@ -57,20 +75,23 @@ export function scoreBenchmarkCase(
 ): BenchmarkCaseScore {
   const observedConcepts = normaliseConcepts(observation.normalizedConcepts);
   const required = benchmarkCase.gold.requiredConcepts ?? [];
+  const aliases = benchmarkCase.gold.conceptAliases ?? {};
   const forbidden = benchmarkCase.gold.forbiddenConcepts ?? [];
   const requiredHits = required.filter((concept) =>
-    observedConcepts.has(concept.toLocaleLowerCase()),
+    conceptMatches(concept, observedConcepts, aliases),
   ).length;
   const forbiddenHits = forbidden.filter((concept) =>
-    observedConcepts.has(concept.toLocaleLowerCase()),
+    observedConcepts.has(normaliseValue(concept)),
   ).length;
 
   const classificationChecks = [
     benchmarkCase.gold.l1Category
-      ? observation.l1Category === benchmarkCase.gold.l1Category
+      ? normaliseValue(observation.l1Category ?? "")
+        === normaliseValue(benchmarkCase.gold.l1Category)
       : true,
     benchmarkCase.gold.l2Category
-      ? observation.l2Category === benchmarkCase.gold.l2Category
+      ? normaliseValue(observation.l2Category ?? "")
+        === normaliseValue(benchmarkCase.gold.l2Category)
       : true,
   ];
 
