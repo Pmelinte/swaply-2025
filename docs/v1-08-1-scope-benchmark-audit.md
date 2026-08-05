@@ -81,7 +81,7 @@ Not yet proven cumulatively for V1-08:
 
 ### Database, RLS and RPC/API
 
-V1-08.1 changes no schema, migration, RLS, grant, RPC or Production data. Database and Production evidence not inspected directly in this contract remains `UNKNOWN`, never inferred green.
+V1-08.1 changes no schema, migration, RLS, grant, RPC or Production data. Database and Production evidence not inspected directly in this contract remains `unknown`, never inferred green.
 
 ### Existing automated evidence
 
