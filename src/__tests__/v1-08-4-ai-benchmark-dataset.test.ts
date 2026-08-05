@@ -39,6 +39,20 @@ describe("V1-08.4 AI benchmark dataset", () => {
     }
   });
 
+  it("exposes the exact evaluation contract sent to the provider", () => {
+    expect(v1084BenchmarkManifest.methodologyVersion).toBe("1.1.0");
+    expect(v1084BenchmarkManifest.scoringContractVisibleToProvider).toBe(true);
+
+    for (const benchmarkCase of v1084BenchmarkCases) {
+      expect(benchmarkCase.input.evaluationContract).toEqual(
+        benchmarkCase.evaluationContract,
+      );
+      expect(benchmarkCase.evaluationContract.canonicalRequiredConcepts).toEqual(
+        benchmarkCase.gold.requiredConcepts ?? [],
+      );
+    }
+  });
+
   it("has unique stable IDs", () => {
     const ids = v1084BenchmarkCases.map((entry) => entry.id);
     expect(new Set(ids).size).toBe(ids.length);
@@ -87,5 +101,27 @@ describe("V1-08.4 AI benchmark dataset", () => {
       totalEstimatedCostUsd: 0.002,
       meanLatencyMs: 120,
     });
+  });
+
+  it("accepts declared semantic aliases without weakening forbidden concepts", () => {
+    const benchmarkCase = v1084BenchmarkCases.find(
+      (entry) => entry.taskType === "describe_item" && entry.locale === "en",
+    );
+    expect(benchmarkCase).toBeDefined();
+
+    const observation: BenchmarkProviderObservation = {
+      caseId: benchmarkCase!.id,
+      output: { finalDecision: false },
+      normalizedConcepts: ["bike", "seven speeds", "visible normal wear"],
+      latencyMs: 100,
+      estimatedCostUsd: 0.001,
+      provider: "test-provider",
+      model: "test-model",
+      fallbackUsed: false,
+      schemaValid: true,
+      humanConfirmationExposed: true,
+    };
+
+    expect(scoreBenchmarkCase(benchmarkCase!, observation).passed).toBe(true);
   });
 });
