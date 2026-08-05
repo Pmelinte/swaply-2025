@@ -218,6 +218,12 @@
       "version": "20260805002000",
       "name": "v1_07_4_story_moderation_requires_bilateral_consent",
       "kind": "FORWARD_ONLY"
+    },
+    {
+      "path": "supabase/migrations/20260805010000_v1_07_6_blog_editorial_authority.sql",
+      "version": "20260805010000",
+      "name": "v1_07_6_blog_editorial_authority",
+      "kind": "FORWARD_ONLY"
     }
   ]
 }
