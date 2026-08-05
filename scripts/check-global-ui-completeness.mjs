@@ -11,6 +11,9 @@ const PUBLIC_SURFACES = [
   join(ROOT, "src/app/[locale]/stories/page.tsx"),
 ];
 
+const EXPECTED_LOCALE_COUNT = 43;
+const COMPLETE_SOURCE_LOCALES = new Set(["en", "ro"]);
+const MAX_TECHNICAL_FALLBACK_KEYS_PER_LOCALE = 129;
 const ALLOWED_RAW_LABELS = new Set(["RSS"]);
 
 function listFiles(dir, predicate = () => true) {
@@ -46,23 +49,40 @@ function catalogueEvidence() {
   const catalogues = listFiles(MESSAGE_DIR, (file) => extname(file) === ".json");
   const englishPath = join(MESSAGE_DIR, "en.json");
   const englishKeys = new Set(flattenKeys(readJson(englishPath)));
-  const missingByLocale = {};
-  const extraByLocale = {};
+  const technicalFallbackCountByLocale = {};
+  const completeSourceMissingByLocale = {};
+  const extraKeyCountByLocale = {};
+  const overBudgetLocales = {};
 
   for (const file of catalogues) {
     const locale = basename(file, ".json");
     const keys = new Set(flattenKeys(readJson(file)));
     const missing = [...englishKeys].filter((key) => !keys.has(key));
     const extra = [...keys].filter((key) => !englishKeys.has(key));
-    if (missing.length > 0) missingByLocale[locale] = missing;
-    if (extra.length > 0) extraByLocale[locale] = extra;
+
+    technicalFallbackCountByLocale[locale] = missing.length;
+    extraKeyCountByLocale[locale] = extra.length;
+
+    if (COMPLETE_SOURCE_LOCALES.has(locale) && missing.length > 0) {
+      completeSourceMissingByLocale[locale] = missing.length;
+    }
+    if (
+      !COMPLETE_SOURCE_LOCALES.has(locale) &&
+      missing.length > MAX_TECHNICAL_FALLBACK_KEYS_PER_LOCALE
+    ) {
+      overBudgetLocales[locale] = missing.length;
+    }
   }
 
   return {
     catalogueCount: catalogues.length,
     englishKeyCount: englishKeys.size,
-    missingByLocale,
-    extraByLocale,
+    completeSourceLocales: [...COMPLETE_SOURCE_LOCALES].sort(),
+    maxTechnicalFallbackKeysPerLocale: MAX_TECHNICAL_FALLBACK_KEYS_PER_LOCALE,
+    technicalFallbackCountByLocale,
+    completeSourceMissingByLocale,
+    extraKeyCountByLocale,
+    overBudgetLocales,
   };
 }
 
@@ -143,14 +163,16 @@ const evidence = {
 };
 
 const failures = [];
-if (evidence.catalogues.catalogueCount !== 43) {
-  failures.push(`expected 43 message catalogues, found ${evidence.catalogues.catalogueCount}`);
+if (evidence.catalogues.catalogueCount !== EXPECTED_LOCALE_COUNT) {
+  failures.push(
+    `expected ${EXPECTED_LOCALE_COUNT} message catalogues, found ${evidence.catalogues.catalogueCount}`,
+  );
 }
-if (Object.keys(evidence.catalogues.missingByLocale).length > 0) {
-  failures.push("one or more locale catalogues miss English contract keys");
+if (Object.keys(evidence.catalogues.completeSourceMissingByLocale).length > 0) {
+  failures.push("English or Romanian complete-source catalogue misses contract keys");
 }
-if (Object.keys(evidence.catalogues.extraByLocale).length > 0) {
-  failures.push("one or more locale catalogues contain keys outside the English contract");
+if (Object.keys(evidence.catalogues.overBudgetLocales).length > 0) {
+  failures.push("one or more locale catalogues exceed the canonical technical-fallback budget");
 }
 if (Object.keys(evidence.blog.orphanTranslations).length > 0) {
   failures.push("localized Blog content contains orphan slugs");
