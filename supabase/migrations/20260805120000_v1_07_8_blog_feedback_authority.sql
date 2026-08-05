@@ -43,12 +43,14 @@ as $$
 declare
   v_authority text := pg_catalog.current_setting('swaply.blog_contribution_authority', true);
 begin
-  if tg_op = 'INSERT' and v_authority is distinct from 'submit_blog_contribution_v1' then
+  if tg_op = 'INSERT'
+     and v_authority is distinct from 'submit_blog_contribution_v1' then
     raise exception 'Direct Blog contribution inserts are forbidden' using errcode = '42501';
   end if;
 
   if tg_op = 'UPDATE'
-     and v_authority not in ('moderate_blog_contribution_v1', 'withdraw_blog_contribution_v1') then
+     and v_authority is distinct from 'moderate_blog_contribution_v1'
+     and v_authority is distinct from 'withdraw_blog_contribution_v1' then
     raise exception 'Direct Blog contribution updates are forbidden' using errcode = '42501';
   end if;
 
@@ -120,6 +122,12 @@ begin
       'body', v_body,
       'locale', v_locale
     )::text
+  );
+
+  -- Serialize identical actor/key submissions so concurrent retries return the
+  -- same authoritative row instead of leaking a unique-constraint exception.
+  perform pg_catalog.pg_advisory_xact_lock(
+    pg_catalog.hashtextextended(v_actor_id::text || ':' || v_key, 0)
   );
 
   select * into v_existing
@@ -326,8 +334,7 @@ begin
 end;
 $$;
 
-revoke all on table public.blog_contributions from public, anon;
-revoke insert, update, delete on table public.blog_contributions from authenticated;
+revoke all on table public.blog_contributions from public, anon, authenticated;
 grant select on table public.blog_contributions to authenticated;
 
 revoke all on function public.require_blog_contribution_authority_v1() from public, anon, authenticated, service_role;
