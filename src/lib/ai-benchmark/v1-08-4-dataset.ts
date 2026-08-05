@@ -1,6 +1,6 @@
 import { locales, type Locale } from "@/i18n/config";
 
-export const V1084_DATASET_VERSION = "1.0.0" as const;
+export const V1084_DATASET_VERSION = "1.1.0" as const;
 
 export const benchmarkTaskTypes = [
   "classify_item",
@@ -23,11 +23,24 @@ export type BenchmarkGoldLabel = {
   l1Category?: string;
   l2Category?: string;
   requiredConcepts?: string[];
+  conceptAliases?: Record<string, string[]>;
   forbiddenConcepts?: string[];
   sourceTextMustBePreserved?: boolean;
   advisoryOnly?: boolean;
   moderationLabel?: "safe" | "review" | "unsafe";
   humanConfirmationRequired: boolean;
+};
+
+export type BenchmarkEvaluationContract = {
+  canonicalRequiredConcepts: string[];
+  acceptedConceptAliases: Record<string, string[]>;
+  forbiddenConcepts: string[];
+  exactL1Category?: string;
+  exactL2Category?: string;
+  expectedModerationLabel?: "safe" | "review" | "unsafe";
+  preserveSourceText: boolean;
+  advisoryOnly: boolean;
+  exposeHumanConfirmation: boolean;
 };
 
 export type BenchmarkCase = {
@@ -36,6 +49,7 @@ export type BenchmarkCase = {
   taskType: BenchmarkTaskType;
   input: Record<string, unknown>;
   gold: BenchmarkGoldLabel;
+  evaluationContract: BenchmarkEvaluationContract;
   provenance: BenchmarkProvenance;
 };
 
@@ -64,6 +78,11 @@ const templates: Array<{
       l1Category: "objects",
       l2Category: "electronics.mobile_phones",
       requiredConcepts: ["smartphone", "working", "used"],
+      conceptAliases: {
+        smartphone: ["mobile phone", "phone"],
+        working: ["functional", "unlocked"],
+        used: ["pre-owned", "minor scratches"],
+      },
       forbiddenConcepts: ["property", "service", "event"],
       humanConfirmationRequired: true,
     },
@@ -78,6 +97,11 @@ const templates: Array<{
     },
     gold: {
       requiredConcepts: ["bicycle", "seven gears", "normal wear"],
+      conceptAliases: {
+        bicycle: ["city bicycle", "bike"],
+        "seven gears": ["seven speeds", "seven-speed"],
+        "normal wear": ["visible normal wear", "signs of use"],
+      },
       forbiddenConcepts: ["new", "perfect condition", "guaranteed"],
       humanConfirmationRequired: true,
     },
@@ -91,6 +115,11 @@ const templates: Array<{
     },
     gold: {
       requiredConcepts: ["city bicycle", "seven gears", "normal wear"],
+      conceptAliases: {
+        "city bicycle": ["bicycle", "bike"],
+        "seven gears": ["seven speeds", "seven-speed"],
+        "normal wear": ["signs of use", "visible normal wear"],
+      },
       sourceTextMustBePreserved: true,
       humanConfirmationRequired: false,
     },
@@ -106,6 +135,11 @@ const templates: Array<{
     },
     gold: {
       requiredConcepts: ["compatibility", "distance", "user decision"],
+      conceptAliases: {
+        compatibility: ["fit", "match relevance"],
+        distance: ["14 km", "proximity"],
+        "user decision": ["human decision", "final choice", "user confirmation"],
+      },
       advisoryOnly: true,
       humanConfirmationRequired: true,
     },
@@ -119,6 +153,10 @@ const templates: Array<{
     },
     gold: {
       requiredConcepts: ["public place", "inspection"],
+      conceptAliases: {
+        "public place": ["public meeting place"],
+        inspection: ["inspect", "inspect bicycle"],
+      },
       moderationLabel: "safe",
       advisoryOnly: true,
       humanConfirmationRequired: true,
@@ -126,22 +164,43 @@ const templates: Array<{
   },
 ];
 
+function evaluationContractFor(gold: BenchmarkGoldLabel): BenchmarkEvaluationContract {
+  return {
+    canonicalRequiredConcepts: [...(gold.requiredConcepts ?? [])],
+    acceptedConceptAliases: { ...(gold.conceptAliases ?? {}) },
+    forbiddenConcepts: [...(gold.forbiddenConcepts ?? [])],
+    exactL1Category: gold.l1Category,
+    exactL2Category: gold.l2Category,
+    expectedModerationLabel: gold.moderationLabel,
+    preserveSourceText: gold.sourceTextMustBePreserved === true,
+    advisoryOnly: gold.advisoryOnly === true,
+    exposeHumanConfirmation: gold.humanConfirmationRequired,
+  };
+}
+
 export const v1084BenchmarkCases: BenchmarkCase[] = locales.flatMap((locale) =>
-  templates.map((template) => ({
-    id: `v1084-${locale}-${template.suffix}`,
-    locale,
-    taskType: template.taskType,
-    input: {
-      ...template.input,
-      targetLocale: locale,
-    },
-    gold: template.gold,
-    provenance,
-  })),
+  templates.map((template) => {
+    const evaluationContract = evaluationContractFor(template.gold);
+    return {
+      id: `v1084-${locale}-${template.suffix}`,
+      locale,
+      taskType: template.taskType,
+      input: {
+        ...template.input,
+        targetLocale: locale,
+        evaluationContract,
+      },
+      gold: template.gold,
+      evaluationContract,
+      provenance,
+    };
+  }),
 );
 
 export const v1084BenchmarkManifest = {
   version: V1084_DATASET_VERSION,
+  methodologyVersion: "1.1.0",
+  scoringContractVisibleToProvider: true,
   localeCount: locales.length,
   taskCountPerLocale: templates.length,
   caseCount: v1084BenchmarkCases.length,
