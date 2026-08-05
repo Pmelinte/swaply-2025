@@ -41,6 +41,13 @@ begin
 end;
 $$;
 
+drop trigger if exists swaps_trust_score_trigger on public.swaps;
+create trigger swaps_trust_score_trigger
+after update of status on public.swaps
+for each row
+when (old.status is distinct from new.status)
+execute function public.trigger_trust_score_on_swap();
+
 revoke all on function public.trigger_trust_score_on_swap() from public;
 revoke all on function public.trigger_trust_score_on_swap() from anon;
 revoke all on function public.trigger_trust_score_on_swap() from authenticated;
