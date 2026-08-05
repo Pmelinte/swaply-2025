@@ -90,10 +90,24 @@ export interface LoggedOutLanguageFallbackInput {
   sourceLocale?: string | null;
 }
 
+export interface ProfileLanguageFallbackRow {
+  primary_language?: string | null;
+  secondary_language?: string | null;
+  tertiary_language?: string | null;
+  preferred_locale?: string | null;
+  preferred_language?: string | null;
+}
+
+export interface ProfileLanguageFallbackContext {
+  browserLocale?: string | null;
+  routeLocale?: string | null;
+  sourceLocale?: string | null;
+}
+
 function normalizeLocale(value?: string | null): Locale | null {
   if (!value) return null;
 
-  const normalized = value.trim().toLowerCase().replace("_", "-");
+  const normalized = value.trim().toLowerCase().replace(/_/g, "-");
   if (!normalized) return null;
 
   if (localeSet.has(normalized)) {
@@ -157,6 +171,32 @@ export function buildLoggedInLanguageFallbackChain(
   appendUnique(entries, defaultLocale, "technical_fallback");
 
   return entries;
+}
+
+/**
+ * Builds the canonical logged-in fallback chain directly from a persisted
+ * profile row. Historical preferred fields are compatibility inputs only and
+ * never outrank the three canonical language columns.
+ */
+export function buildProfileLanguageFallbackChain(
+  row: ProfileLanguageFallbackRow,
+  context: ProfileLanguageFallbackContext = {},
+): LanguageFallbackEntry[] {
+  return buildLoggedInLanguageFallbackChain({
+    primaryLanguage: row.primary_language ?? row.preferred_language,
+    secondaryLanguage: row.secondary_language,
+    tertiaryLanguage: row.tertiary_language,
+    browserLocale: context.browserLocale,
+    routeLocale: context.routeLocale ?? row.preferred_locale,
+    sourceLocale: context.sourceLocale,
+  });
+}
+
+export function resolveProfilePreferredLocale(
+  row: ProfileLanguageFallbackRow,
+  context: ProfileLanguageFallbackContext = {},
+): Locale {
+  return buildProfileLanguageFallbackChain(row, context)[0]?.locale ?? defaultLocale;
 }
 
 export function buildLoggedOutLanguageFallbackChain(
