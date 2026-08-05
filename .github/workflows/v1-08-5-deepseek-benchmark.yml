@@ -1,0 +1,59 @@
+name: V1-08.5 DeepSeek Benchmark
+
+on:
+  workflow_dispatch:
+    inputs:
+      max_budget_usd:
+        description: "Maximum authorised spend in USD (must be <= 5)"
+        required: true
+        default: "5"
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v1-08-5-deepseek-benchmark
+  cancel-in-progress: false
+
+jobs:
+  benchmark:
+    name: DeepSeek V4-Flash 43-locale benchmark
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    env:
+      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+      V1085_MAX_BUDGET_USD: ${{ inputs.max_budget_usd }}
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Validate secret presence
+        shell: bash
+        run: |
+          if [ -z "$DEEPSEEK_API_KEY" ]; then
+            echo "DEEPSEEK_API_KEY is not configured in repository secrets."
+            exit 1
+          fi
+
+      - name: Run provider-backed benchmark
+        run: npx tsx scripts/run-v1-08-5-deepseek-benchmark.ts
+
+      - name: Upload benchmark evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v1-08-5-deepseek-evidence
+          path: artifacts/v1-08-5/*.json
+          if-no-files-found: warn
+          retention-days: 30
