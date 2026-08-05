@@ -122,6 +122,17 @@ function normalizeLocale(value?: string | null): Locale | null {
   return null;
 }
 
+function firstValidLocale(
+  ...values: Array<string | null | undefined>
+): Locale | null {
+  for (const value of values) {
+    const locale = normalizeLocale(value);
+    if (locale) return locale;
+  }
+
+  return null;
+}
+
 function localeFromCountry(countryCode?: string | null): Locale | null {
   if (!countryCode) return null;
   return COUNTRY_LOCALE_MAP[countryCode.trim().toLowerCase()] ?? null;
@@ -176,18 +187,21 @@ export function buildLoggedInLanguageFallbackChain(
 /**
  * Builds the canonical logged-in fallback chain directly from a persisted
  * profile row. Historical preferred fields are compatibility inputs only and
- * never outrank the three canonical language columns.
+ * never outrank valid canonical language columns.
  */
 export function buildProfileLanguageFallbackChain(
   row: ProfileLanguageFallbackRow,
   context: ProfileLanguageFallbackContext = {},
 ): LanguageFallbackEntry[] {
   return buildLoggedInLanguageFallbackChain({
-    primaryLanguage: row.primary_language ?? row.preferred_language,
+    primaryLanguage: firstValidLocale(
+      row.primary_language,
+      row.preferred_language,
+    ),
     secondaryLanguage: row.secondary_language,
     tertiaryLanguage: row.tertiary_language,
     browserLocale: context.browserLocale,
-    routeLocale: context.routeLocale ?? row.preferred_locale,
+    routeLocale: firstValidLocale(context.routeLocale, row.preferred_locale),
     sourceLocale: context.sourceLocale,
   });
 }
