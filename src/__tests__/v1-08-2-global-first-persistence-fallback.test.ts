@@ -14,7 +14,6 @@ describe("V1-08.2 global-first persistence and fallback", () => {
       secondary_language: "fr",
       tertiary_language: "it",
       preferred_locale: "de",
-      preferred_language: "es",
     });
 
     expect(chain.map((entry) => entry.locale)).toEqual([
@@ -54,13 +53,8 @@ describe("V1-08.2 global-first persistence and fallback", () => {
     ]);
   });
 
-  it("uses historical preferred language only when canonical primary is absent", () => {
-    expect(
-      resolveProfilePreferredLocale({
-        primary_language: null,
-        preferred_language: "uk-UA",
-      }),
-    ).toBe("uk");
+  it("falls back to English when no persisted or contextual locale is valid", () => {
+    expect(resolveProfilePreferredLocale({})).toBe("en");
   });
 
   it("preserves the persisted three-language profile authority", () => {
@@ -91,7 +85,7 @@ describe("V1-08.2 global-first persistence and fallback", () => {
     expect(stateProvider).toContain("canonicalPayload");
   });
 
-  it("requires transactional email to use the shared persisted-profile resolver", () => {
+  it("requires transactional email to use only confirmed persisted columns", () => {
     const route = readFileSync(
       resolve(process.cwd(), "src/app/api/email/swap-proposal/route.ts"),
       "utf8",
@@ -103,5 +97,6 @@ describe("V1-08.2 global-first persistence and fallback", () => {
     expect(route).not.toContain(
       "responder.primary_language || responder.preferred_locale",
     );
+    expect(route).not.toContain("preferred_language");
   });
 });
