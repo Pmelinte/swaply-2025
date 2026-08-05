@@ -9,8 +9,12 @@ type GlobalUiEvidence = {
   catalogues: {
     catalogueCount: number;
     englishKeyCount: number;
-    missingByLocale: Record<string, string[]>;
-    extraByLocale: Record<string, string[]>;
+    completeSourceLocales: string[];
+    maxTechnicalFallbackKeysPerLocale: number;
+    technicalFallbackCountByLocale: Record<string, number>;
+    completeSourceMissingByLocale: Record<string, number>;
+    extraKeyCountByLocale: Record<string, number>;
+    overBudgetLocales: Record<string, number>;
   };
   blog: {
     sourceArticleCount: number;
@@ -35,7 +39,7 @@ function runScanner(): GlobalUiEvidence {
   const result = spawnSync(
     process.execPath,
     [resolve(process.cwd(), "scripts/check-global-ui-completeness.mjs")],
-    { encoding: "utf8" },
+    { encoding: "utf8", maxBuffer: 2 * 1024 * 1024 },
   );
 
   if (result.error) {
@@ -59,8 +63,12 @@ describe("V1-08.3 global UI completeness", () => {
     expect(evidence.failures).toEqual([]);
     expect(evidence.catalogues.catalogueCount).toBe(43);
     expect(evidence.catalogues.englishKeyCount).toBeGreaterThan(0);
-    expect(evidence.catalogues.missingByLocale).toEqual({});
-    expect(evidence.catalogues.extraByLocale).toEqual({});
+    expect(evidence.catalogues.completeSourceLocales).toEqual(["en", "ro"]);
+    expect(evidence.catalogues.maxTechnicalFallbackKeysPerLocale).toBe(129);
+    expect(evidence.catalogues.completeSourceMissingByLocale).toEqual({});
+    expect(evidence.catalogues.overBudgetLocales).toEqual({});
+    expect(Object.keys(evidence.catalogues.technicalFallbackCountByLocale)).toHaveLength(43);
+    expect(Object.keys(evidence.catalogues.extraKeyCountByLocale)).toHaveLength(43);
     expect(evidence.blog.sourceArticleCount).toBeGreaterThan(0);
     expect(evidence.blog.orphanTranslations).toEqual({});
     expect(evidence.hardcodedPublicStrings).toEqual([]);
