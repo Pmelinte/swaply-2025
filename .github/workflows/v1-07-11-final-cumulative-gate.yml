@@ -1,0 +1,118 @@
+name: V1-07.11 Final Cumulative Gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/v1-07-11-final-cumulative-gate.yml"
+      - "src/__tests__/v1-07-*.test.ts"
+      - "src/__tests__/stories-authoritative-lifecycle.test.ts"
+      - "src/__tests__/blog-locale-mdx-fallback.test.ts"
+      - "src/lib/v1-07/**"
+      - "docs/v1-07-*.md"
+      - "supabase/migrations/**"
+      - "supabase/tests/**"
+      - "package.json"
+      - "package-lock.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v1-07-11-final-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "22"
+  NEXT_TELEMETRY_DISABLED: "1"
+
+jobs:
+  repository-and-contracts:
+    name: V1-07 repository, migration and contract gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+      - name: Migration governance
+        run: npm run migration:guard
+      - name: Global-first locale contract
+        run: npm run i18n:check
+      - name: AI regression gate
+        run: npm run eval:ai
+      - name: Full quality gate
+        run: npm run ci:quality
+      - name: Run all V1-07 cumulative contracts on one head
+        run: >-
+          npx vitest run
+          src/__tests__/v1-07-1-scope-authority-contract.test.ts
+          src/__tests__/v1-07-2-stories-authority.test.ts
+          src/__tests__/stories-authoritative-lifecycle.test.ts
+          src/__tests__/blog-locale-mdx-fallback.test.ts
+          src/__tests__/v1-07-6-blog-editorial-authority.test.ts
+          src/__tests__/v1-07-7-feedback-trust-authority.test.ts
+          src/__tests__/v1-07-8-blog-feedback-authority.test.ts
+          src/__tests__/v1-07-9-swapleni-policy-authority.test.ts
+          src/__tests__/v1-07-10-cross-cutting-closure-readiness.test.ts
+          src/__tests__/v1-07-11-final-cumulative-gate.test.ts
+
+  inherited-browser-regression:
+    name: Public, locale, mobile and inherited journey regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run inherited public and domain journeys
+        run: >-
+          npx playwright test
+          e2e/public-visual-audit.spec.ts
+          e2e/i18n-43-locales.spec.ts
+          e2e/v1-05-6-domain-cumulative.spec.ts
+          --project=chromium
+          --reporter=line,html
+      - name: Upload browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v1-07-11-browser-evidence-${{ github.run_id }}
+          path: |
+            playwright-report/
+            test-results/
+            playwright-audit-screenshots/
+            playwright-v1-05-6-screenshots/
+          if-no-files-found: warn
+          retention-days: 30
+
+  closure-boundary:
+    name: Closure boundary and no-GA-authorisation gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@v4
+      - name: Verify no premature closure or GA authorisation
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q "V1-07 — ACTIVE / NOT CLOSED" docs/v1-07-10-cross-cutting-closure-readiness.md
+          grep -q "SWAPLY_V1_GA — BLOCKED / NOT AUTHORISED" docs/v1-07-10-cross-cutting-closure-readiness.md
+          ! grep -R "SWAPLY_V1_GA — AUTHORISED" docs src .github/workflows
+          ! grep -R "V1-07 — CLOSED" docs/v1-07-10-cross-cutting-closure-readiness.md
