@@ -34,7 +34,7 @@ create or replace function public.transition_blog_post_v1(
 returns public.blog_posts
 language plpgsql
 security definer
-set search_path = public, pg_temp
+set search_path = pg_catalog, pg_temp
 as $$
 declare
   v_post public.blog_posts;
@@ -44,7 +44,15 @@ begin
     raise exception 'blog_editorial_forbidden' using errcode = '42501';
   end if;
 
-  if p_target_status not in ('draft', 'review', 'published', 'archived') then
+  if p_post_id is null then
+    raise exception 'blog_editorial_post_id_required' using errcode = '22023';
+  end if;
+
+  if p_expected_revision is null or p_expected_revision < 1 then
+    raise exception 'blog_editorial_invalid_revision' using errcode = '22023';
+  end if;
+
+  if p_target_status is null or p_target_status not in ('draft', 'review', 'published', 'archived') then
     raise exception 'blog_editorial_invalid_status' using errcode = '22023';
   end if;
 
@@ -57,15 +65,16 @@ begin
     raise exception 'blog_post_not_found' using errcode = 'P0002';
   end if;
 
-  if v_post.revision <> p_expected_revision then
-    raise exception 'blog_editorial_stale_revision' using errcode = '40001';
-  end if;
-
   v_current_status := v_post.editorial_status;
 
-  -- Idempotent replay for the same revision and target state.
-  if v_current_status = p_target_status then
+  -- Idempotent same-state call and lost-response replay.
+  if v_current_status = p_target_status
+     and v_post.revision in (p_expected_revision, p_expected_revision + 1) then
     return v_post;
+  end if;
+
+  if v_post.revision is distinct from p_expected_revision then
+    raise exception 'blog_editorial_stale_revision' using errcode = '40001';
   end if;
 
   if not (
