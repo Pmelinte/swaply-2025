@@ -15,7 +15,9 @@ describe("V1-07.9 Swapleni policy authority", () => {
     expect(migration).toContain("create table if not exists public.swapleni_reward_policies");
     expect(migration).toContain("active boolean not null default false");
     expect(migration).toContain("Swapleni reward policy is not active");
-    expect(migration).not.toMatch(/insert\s+into\s+public\.swapleni_reward_policies/i);
+    expect(migration).toContain("insert into public.swapleni_reward_policies");
+    expect(migration).toMatch(/'story_publication'[\s\S]*?0,[\s\S]*?0,[\s\S]*?false/i);
+    expect(migration).toMatch(/'blog_contribution'[\s\S]*?0,[\s\S]*?0,[\s\S]*?false/i);
   });
 
   it("supports only Story publication and approved Blog contribution sources", () => {
