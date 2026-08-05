@@ -79,7 +79,8 @@ export function scoreBenchmarkCase(
     classificationChecks.filter(Boolean).length,
     classificationChecks.length,
   );
-  const forbiddenPenalty = ratio(forbiddenHits, forbidden.length);
+  const forbiddenPenalty =
+    forbidden.length === 0 ? 0 : ratio(forbiddenHits, forbidden.length);
   const qualityScore = Math.max(
     0,
     Math.min(1, conceptScore * 0.7 + classificationScore * 0.3 - forbiddenPenalty),
