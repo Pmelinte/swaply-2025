@@ -3,6 +3,9 @@ import type { BenchmarkCase } from "./v1-08-4-dataset";
 export type BenchmarkProviderObservation = {
   caseId: string;
   output: Record<string, unknown>;
+  normalizedConcepts: string[];
+  l1Category?: string;
+  l2Category?: string;
   latencyMs: number;
   estimatedCostUsd: number;
   provider: string;
@@ -40,35 +43,34 @@ export type BenchmarkSummary = {
   meanLatencyMs: number;
 };
 
-function normaliseText(value: unknown): string {
-  if (typeof value === "string") return value.toLocaleLowerCase();
-  return JSON.stringify(value ?? {}).toLocaleLowerCase();
-}
-
 function ratio(hits: number, total: number): number {
   return total === 0 ? 1 : hits / total;
+}
+
+function normaliseConcepts(concepts: string[]): Set<string> {
+  return new Set(concepts.map((concept) => concept.trim().toLocaleLowerCase()));
 }
 
 export function scoreBenchmarkCase(
   benchmarkCase: BenchmarkCase,
   observation: BenchmarkProviderObservation,
 ): BenchmarkCaseScore {
-  const outputText = normaliseText(observation.output);
+  const observedConcepts = normaliseConcepts(observation.normalizedConcepts);
   const required = benchmarkCase.gold.requiredConcepts ?? [];
   const forbidden = benchmarkCase.gold.forbiddenConcepts ?? [];
   const requiredHits = required.filter((concept) =>
-    outputText.includes(concept.toLocaleLowerCase()),
+    observedConcepts.has(concept.toLocaleLowerCase()),
   ).length;
   const forbiddenHits = forbidden.filter((concept) =>
-    outputText.includes(concept.toLocaleLowerCase()),
+    observedConcepts.has(concept.toLocaleLowerCase()),
   ).length;
 
   const classificationChecks = [
     benchmarkCase.gold.l1Category
-      ? outputText.includes(benchmarkCase.gold.l1Category.toLocaleLowerCase())
+      ? observation.l1Category === benchmarkCase.gold.l1Category
       : true,
     benchmarkCase.gold.l2Category
-      ? outputText.includes(benchmarkCase.gold.l2Category.toLocaleLowerCase())
+      ? observation.l2Category === benchmarkCase.gold.l2Category
       : true,
   ];
 
