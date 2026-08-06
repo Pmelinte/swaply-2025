@@ -95,16 +95,40 @@ const checks = [
   {
     id: "PRIVACY-DATA-EXPORT",
     area: "privacy",
-    description: "Concrete user-data export endpoint and coverage",
-    includePrefixes: ["src/app/api/gdpr/export/", "src/__tests__/", "e2e/", "tests/"],
-    patterns: [/gdpr\/export/i, /exportUserData/i, /content-disposition/i, /application\/json/i],
+    description: "Concrete user-data export endpoint or direct executable coverage",
+    includePrefixes: [
+      "src/app/api/gdpr/export/",
+      "src/app/api/privacy/export/",
+      "src/__tests__/",
+      "e2e/",
+      "tests/",
+    ],
+    patterns: [
+      /\/api\/gdpr\/export/i,
+      /gdpr\/export/i,
+      /exportUserData/i,
+      /content-disposition[^\n]*attachment/i,
+    ],
   },
   {
     id: "PRIVACY-ACCOUNT-DELETION",
     area: "privacy",
-    description: "Concrete account-deletion flow and coverage",
-    includePrefixes: ["src/app/api/", "src/app/[locale]/profile/", "src/__tests__/", "e2e/", "tests/"],
-    patterns: [/deleteAccount/i, /delete account/i, /account deletion/i, /auth\.admin\.deleteUser/i],
+    description: "Server-side account-deletion authority or direct executable coverage",
+    includePrefixes: [
+      "src/app/api/",
+      "src/app/actions/",
+      "src/lib/",
+      "src/__tests__/",
+      "e2e/",
+      "tests/",
+    ],
+    patterns: [
+      /auth\.admin\.deleteUser/i,
+      /admin\.deleteUser/i,
+      /\/api\/(?:gdpr\/)?(?:account\/)?delete/i,
+      /delete-account/i,
+      /deleteAccountServer/i,
+    ],
   },
   {
     id: "PRIVACY-AI-DISCLOSURE",
@@ -149,8 +173,10 @@ function walk(dir) {
       files.push(...walk(absolute));
       continue;
     }
+
     const relativePath = normalizePath(absolute);
     if (EXCLUDED_FILES.has(relativePath)) continue;
+
     if (SOURCE_EXTENSIONS.has(path.extname(entry.name)) || entry.name === "package.json") {
       files.push(absolute);
     }
@@ -165,10 +191,12 @@ function evaluatePatternCheck(check) {
   for (const file of files) {
     const relativePath = normalizePath(file);
     if (!isIncluded(relativePath, check.includePrefixes)) continue;
+
     const text = fs.readFileSync(file, "utf8");
     const matchedPatterns = check.patterns
       .filter((pattern) => pattern.test(text))
       .map((pattern) => pattern.source);
+
     if (matchedPatterns.length > 0) {
       matches.push({ file: relativePath, patterns: matchedPatterns });
     }
@@ -207,7 +235,7 @@ const summary = {
   repository: "Pmelinte/swaply-2025",
   baseline: process.env.GITHUB_HEAD_SHA || process.env.GITHUB_SHA || "local-or-unknown",
   scope: "V1-09 predictive static inventory only",
-  methodology: "Executable source, tests, workflows and concrete route paths only; docs and the scanner itself are excluded.",
+  methodology: "Executable source, tests, workflows and concrete route paths only; docs, generic MIME strings, UI-only deletion controls and the scanner itself are excluded as proof.",
   disclaimer: "Evidence found means a relevant implementation or executable check exists. It does not constitute accessibility, performance, privacy or legal sign-off.",
   totals: {
     checks: findings.length,
