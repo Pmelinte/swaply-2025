@@ -1,0 +1,43 @@
+name: V1-09 transversal quality inventory
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "e2e/**"
+      - "scripts/audit-v1-09-quality.mjs"
+      - ".github/workflows/v1-09-quality-inventory.yml"
+      - "package.json"
+      - "next.config.*"
+      - "playwright*.ts"
+
+permissions:
+  contents: read
+
+jobs:
+  quality-inventory:
+    name: Read-only quality inventory
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Generate V1-09 inventory
+        run: node scripts/audit-v1-09-quality.mjs
+
+      - name: Upload inventory artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: v1-09-quality-inventory-${{ github.run_id }}
+          path: audit-results/v1-09/
+          if-no-files-found: error
+          retention-days: 30
