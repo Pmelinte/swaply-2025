@@ -29,6 +29,7 @@ describe("Batch 66.8 Home drawer accessibility contract", () => {
     expect(drawer).toContain('id="swaply-contextual-drawer"');
     expect(drawer).toContain('role="dialog"');
     expect(drawer).toContain('aria-label={t("nav.contextMenu")}');
+    expect(drawer).toContain("inert={!open}");
     expect(drawer).toContain("previousFocusRef.current = activeElement");
     expect(drawer).toContain("(firstFocusable ?? drawer).focus()");
     expect(drawer).toContain('event.key === "Escape"');
