@@ -142,7 +142,9 @@ async function auditRoute(browser, profile, route) {
   const url = `${baseUrl}${route}`;
   const startedAt = Date.now();
   try {
-    const response = await page.goto(url, { waitUntil: "networkidle", timeout: 45_000 });
+    const response = await page.goto(url, { waitUntil: "domcontentloaded", timeout: 45_000 });
+    await page.locator("body").waitFor({ state: "visible", timeout: 15_000 });
+    await page.waitForTimeout(1_500);
     await page.addScriptTag({ path: axePath });
     const axe = await page.evaluate(async () => window.axe.run(document, {
       runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"] },
