@@ -37,8 +37,6 @@ export function UnifiedSideDrawer() {
   const previousFocusRef = useRef<HTMLElement | null>(null);
 
   const effectiveVariant = useMemo<DrawerVariant>(() => {
-    // chat and exchange variants carry required IDs that can't be derived
-    // from the path, so the stored variant is always authoritative for them.
     if (storedVariant?.type === "chat" || storedVariant?.type === "exchange") {
       return storedVariant;
     }
@@ -46,7 +44,6 @@ export function UnifiedSideDrawer() {
     return getDrawerVariantForPathname(pathname);
   }, [storedVariant, pathname]);
 
-  // Move focus into the drawer on open and restore it to the opener on close.
   useEffect(() => {
     if (open) {
       const activeElement = document.activeElement;
@@ -69,7 +66,6 @@ export function UnifiedSideDrawer() {
     previousFocusRef.current = null;
   }, [open]);
 
-  // Close on Escape and keep keyboard focus inside the modal drawer.
   useEffect(() => {
     if (!open) return;
 
@@ -114,7 +110,6 @@ export function UnifiedSideDrawer() {
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [open, close]);
 
-  // Lock body scroll while open
   useEffect(() => {
     if (open) {
       const prev = document.body.style.overflow;
@@ -141,6 +136,7 @@ export function UnifiedSideDrawer() {
         aria-modal={open ? "true" : undefined}
         aria-hidden={open ? undefined : "true"}
         aria-label={t("nav.contextMenu")}
+        inert={!open}
         tabIndex={-1}
         className={`fixed left-0 top-0 z-50 flex h-full w-[320px] max-w-full flex-col bg-white shadow-2xl transition-transform duration-300 ease-in-out dark:bg-zinc-900 sm:w-[380px] ${
           open ? "translate-x-0 pointer-events-auto" : "-translate-x-full pointer-events-none"
