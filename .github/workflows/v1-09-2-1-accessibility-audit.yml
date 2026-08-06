@@ -28,6 +28,8 @@ jobs:
     env:
       NEXT_TELEMETRY_DISABLED: "1"
       V10921_BASE_URL: http://127.0.0.1:3000
+      HOSTNAME: 127.0.0.1
+      PORT: "3000"
 
     steps:
       - name: Checkout
@@ -51,12 +53,18 @@ jobs:
       - name: Build application
         run: npm run build
 
+      - name: Prepare standalone runtime
+        run: |
+          cp -R public .next/standalone/public
+          mkdir -p .next/standalone/.next
+          cp -R .next/static .next/standalone/.next/static
+
       - name: Start application
         run: |
-          npm run start -- --hostname 127.0.0.1 --port 3000 > /tmp/v1-09-2-1-next.log 2>&1 &
+          node .next/standalone/server.js > /tmp/v1-09-2-1-next.log 2>&1 &
           echo $! > /tmp/v1-09-2-1-next.pid
           for attempt in $(seq 1 60); do
-            if curl --fail --silent http://127.0.0.1:3000/en/home >/dev/null; then
+            if curl --fail --silent http://127.0.0.1:3000/en >/dev/null; then
               exit 0
             fi
             sleep 2
