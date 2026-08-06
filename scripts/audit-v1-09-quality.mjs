@@ -6,109 +6,209 @@ const OUTPUT_DIR = path.join(ROOT, "audit-results", "v1-09");
 const JSON_PATH = path.join(OUTPUT_DIR, "quality-inventory.json");
 const MD_PATH = path.join(OUTPUT_DIR, "quality-inventory.md");
 
-const SOURCE_EXTENSIONS = new Set([".ts", ".tsx", ".js", ".jsx", ".mjs", ".css", ".md"]);
-const SKIP_DIRS = new Set([".git", ".next", "node_modules", "playwright-report", "test-results", "audit-results", "coverage"]);
+const SOURCE_EXTENSIONS = new Set([
+  ".ts",
+  ".tsx",
+  ".js",
+  ".jsx",
+  ".mjs",
+  ".css",
+  ".json",
+  ".yml",
+  ".yaml",
+]);
+
+const SKIP_DIRS = new Set([
+  ".git",
+  ".next",
+  "node_modules",
+  "playwright-report",
+  "test-results",
+  "audit-results",
+  "coverage",
+  "docs",
+]);
+
+const EXCLUDED_FILES = new Set([
+  "scripts/audit-v1-09-quality.mjs",
+  ".github/workflows/v1-09-quality-inventory.yml",
+]);
 
 const checks = [
   {
     id: "A11Y-AUTOMATION",
     area: "accessibility",
-    description: "Automated accessibility tooling or assertions",
-    patterns: [/axe-core/i, /@axe-core\/playwright/i, /toHaveAccessibleName/i, /keyboard-only/i],
+    description: "Executable accessibility tooling or assertions",
+    includePrefixes: ["e2e/", "tests/", "src/__tests__/", "package.json", ".github/workflows/"],
+    patterns: [/@axe-core\/playwright/i, /axe-core/i, /toHaveAccessibleName/i, /toHaveAccessibleDescription/i],
   },
   {
-    id: "A11Y-FOCUS",
+    id: "A11Y-KEYBOARD-FOCUS",
     area: "accessibility",
-    description: "Focus management and keyboard interaction coverage",
-    patterns: [/focus management/i, /focusTrap/i, /press\(["']Tab["']\)/i, /press\(["']Escape["']\)/i],
+    description: "Executable keyboard traversal and focus-management coverage",
+    includePrefixes: ["e2e/", "tests/", "src/__tests__/"],
+    patterns: [
+      /press\(["']Tab["']\)/i,
+      /keyboard\.press\(["']Tab["']\)/i,
+      /toBeFocused\(/i,
+      /document\.activeElement/i,
+      /focusTrap/i,
+    ],
   },
   {
     id: "A11Y-MOTION",
     area: "accessibility",
-    description: "Reduced-motion handling",
+    description: "Reduced-motion implementation or executable coverage",
+    includePrefixes: ["src/", "e2e/", "tests/", "src/__tests__/"],
     patterns: [/prefers-reduced-motion/i, /reducedMotion/i],
   },
   {
     id: "PERF-WEB-VITALS",
     area: "performance",
-    description: "Core Web Vitals measurement or budgets",
-    patterns: [/web-vitals/i, /largest-contentful-paint/i, /cumulative-layout-shift/i, /interaction-to-next-paint/i, /\bLCP\b/, /\bCLS\b/, /\bINP\b/],
+    description: "Executable Core Web Vitals measurement or explicit budgets",
+    includePrefixes: ["src/", "e2e/", "tests/", "scripts/", ".github/workflows/", "package.json"],
+    patterns: [
+      /web-vitals/i,
+      /largest-contentful-paint/i,
+      /cumulative-layout-shift/i,
+      /interaction-to-next-paint/i,
+      /performance\.getEntriesByType/i,
+      /lcpThreshold/i,
+      /clsThreshold/i,
+      /inpThreshold/i,
+    ],
   },
   {
     id: "PERF-LIGHTHOUSE",
     area: "performance",
-    description: "Lighthouse or equivalent performance audit",
-    patterns: [/lighthouse/i, /lhci/i],
+    description: "Executable Lighthouse or equivalent performance audit",
+    includePrefixes: [".github/workflows/", "scripts/", "package.json", "lighthouserc"],
+    patterns: [/\blighthouse\b/i, /\blhci\b/i, /@lhci\/cli/i],
   },
   {
     id: "PERF-BUNDLE",
     area: "performance",
     description: "Bundle analysis support",
-    patterns: [/bundle-analyzer/i, /ANALYZE=true/i],
+    includePrefixes: ["next.config", "package.json", ".github/workflows/", "scripts/"],
+    patterns: [/@next\/bundle-analyzer/i, /ANALYZE\s*===?\s*["']true["']/i, /ANALYZE=true/i],
   },
   {
-    id: "PRIVACY-DATA-RIGHTS",
+    id: "PRIVACY-DATA-EXPORT",
     area: "privacy",
-    description: "Export and deletion user-data flows",
-    patterns: [/export.*data/i, /delete.*account/i, /right to erasure/i, /data retention/i],
+    description: "Concrete user-data export endpoint and coverage",
+    includePrefixes: ["src/app/api/gdpr/export/", "src/__tests__/", "e2e/", "tests/"],
+    patterns: [/gdpr\/export/i, /exportUserData/i, /content-disposition/i, /application\/json/i],
+  },
+  {
+    id: "PRIVACY-ACCOUNT-DELETION",
+    area: "privacy",
+    description: "Concrete account-deletion flow and coverage",
+    includePrefixes: ["src/app/api/", "src/app/[locale]/profile/", "src/__tests__/", "e2e/", "tests/"],
+    patterns: [/deleteAccount/i, /delete account/i, /account deletion/i, /auth\.admin\.deleteUser/i],
   },
   {
     id: "PRIVACY-AI-DISCLOSURE",
     area: "privacy",
-    description: "AI provider disclosure or data-sharing documentation",
-    patterns: [/AI provider/i, /third-party AI/i, /data.*provider/i, /provider disclosure/i],
+    description: "Public runtime disclosure of AI provider or third-party processing",
+    includePrefixes: ["src/app/[locale]/privacy/", "src/app/[locale]/terms/", "src/messages/", "messages/"],
+    patterns: [/AI provider/i, /third-party AI/i, /artificial intelligence provider/i, /furnizor.*inteligență artificială/i],
   },
   {
-    id: "LEGAL-POLICIES",
+    id: "LEGAL-POLICY-ROUTES",
     area: "legal",
-    description: "Terms, privacy and cookie policy surfaces",
-    patterns: [/privacy policy/i, /terms of service/i, /cookie policy/i, /politica de confidențialitate/i],
+    description: "Public Terms, Privacy and Cookies route implementations",
+    requiredPaths: [
+      "src/app/[locale]/terms/page.tsx",
+      "src/app/[locale]/privacy/page.tsx",
+      "src/app/[locale]/cookies/page.tsx",
+    ],
   },
   {
-    id: "LEGAL-PROHIBITED",
+    id: "LEGAL-PROHIBITED-RULES",
     area: "legal",
-    description: "Prohibited goods or transaction rules",
+    description: "Public or enforceable prohibited-goods rules",
+    includePrefixes: ["src/", "e2e/", "tests/", "src/__tests__/"],
     patterns: [/prohibited goods/i, /prohibited items/i, /obiecte interzise/i, /illegal goods/i],
   },
 ];
+
+function normalizePath(file) {
+  return path.relative(ROOT, file).replaceAll(path.sep, "/");
+}
+
+function isIncluded(relativePath, prefixes = []) {
+  return prefixes.length === 0 || prefixes.some((prefix) => relativePath.startsWith(prefix));
+}
 
 function walk(dir) {
   const files = [];
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     if (entry.isDirectory() && SKIP_DIRS.has(entry.name)) continue;
     const absolute = path.join(dir, entry.name);
-    if (entry.isDirectory()) files.push(...walk(absolute));
-    else if (SOURCE_EXTENSIONS.has(path.extname(entry.name))) files.push(absolute);
+    if (entry.isDirectory()) {
+      files.push(...walk(absolute));
+      continue;
+    }
+    const relativePath = normalizePath(absolute);
+    if (EXCLUDED_FILES.has(relativePath)) continue;
+    if (SOURCE_EXTENSIONS.has(path.extname(entry.name)) || entry.name === "package.json") {
+      files.push(absolute);
+    }
   }
   return files;
 }
 
 const files = walk(ROOT);
-const findings = checks.map((check) => {
+
+function evaluatePatternCheck(check) {
   const matches = [];
   for (const file of files) {
+    const relativePath = normalizePath(file);
+    if (!isIncluded(relativePath, check.includePrefixes)) continue;
     const text = fs.readFileSync(file, "utf8");
-    const matchedPatterns = check.patterns.filter((pattern) => pattern.test(text)).map((pattern) => pattern.source);
+    const matchedPatterns = check.patterns
+      .filter((pattern) => pattern.test(text))
+      .map((pattern) => pattern.source);
     if (matchedPatterns.length > 0) {
-      matches.push({
-        file: path.relative(ROOT, file).replaceAll(path.sep, "/"),
-        patterns: matchedPatterns,
-      });
+      matches.push({ file: relativePath, patterns: matchedPatterns });
     }
   }
+  return matches;
+}
+
+function evaluateRequiredPaths(check) {
+  return check.requiredPaths
+    .filter((requiredPath) => fs.existsSync(path.join(ROOT, requiredPath)))
+    .map((requiredPath) => ({ file: requiredPath, patterns: ["required-path-exists"] }));
+}
+
+const findings = checks.map((check) => {
+  const matches = check.requiredPaths
+    ? evaluateRequiredPaths(check)
+    : evaluatePatternCheck(check);
+
+  const requiredCount = check.requiredPaths?.length ?? 1;
+  const proven = check.requiredPaths
+    ? matches.length === requiredCount
+    : matches.length > 0;
+
   return {
-    ...check,
-    status: matches.length > 0 ? "EVIDENCE_FOUND" : "GAP_OR_NOT_PROVEN",
+    id: check.id,
+    area: check.area,
+    description: check.description,
+    status: proven ? "EVIDENCE_FOUND" : "GAP_OR_NOT_PROVEN",
     matches,
+    requiredCount,
   };
 });
 
 const summary = {
   generatedAt: new Date().toISOString(),
   repository: "Pmelinte/swaply-2025",
-  baseline: process.env.GITHUB_SHA || "local-or-unknown",
+  baseline: process.env.GITHUB_HEAD_SHA || process.env.GITHUB_SHA || "local-or-unknown",
   scope: "V1-09 predictive static inventory only",
-  disclaimer: "Pattern matches are inventory evidence, not accessibility, performance, privacy or legal sign-off.",
+  methodology: "Executable source, tests, workflows and concrete route paths only; docs and the scanner itself are excluded.",
+  disclaimer: "Evidence found means a relevant implementation or executable check exists. It does not constitute accessibility, performance, privacy or legal sign-off.",
   totals: {
     checks: findings.length,
     evidenceFound: findings.filter((item) => item.status === "EVIDENCE_FOUND").length,
@@ -128,7 +228,9 @@ const markdown = [
   `- Evidence found: **${summary.totals.evidenceFound}/${summary.totals.checks}**`,
   `- Gaps or not proven: **${summary.totals.gapsOrNotProven}/${summary.totals.checks}**`,
   "",
-  "> This is a read-only static inventory. It does not constitute accessibility, performance, privacy or legal sign-off.",
+  `> Methodology: ${summary.methodology}`,
+  "",
+  `> ${summary.disclaimer}`,
   "",
   "| ID | Area | Status | Matching files |",
   "|---|---|---|---:|",
@@ -143,7 +245,7 @@ const markdown = [
     "",
     ...(item.matches.length > 0
       ? item.matches.map((match) => `- \`${match.file}\``)
-      : ["- No matching repository evidence found by this inventory."]),
+      : ["- No qualifying executable repository evidence found by this inventory."]),
     "",
   ]),
 ].join("\n");
