@@ -1,0 +1,86 @@
+name: V1-09.2.1 automated accessibility audit
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "src/**"
+      - "e2e/**"
+      - "scripts/run-v1-09-2-1-accessibility-audit.mjs"
+      - ".github/workflows/v1-09-2-1-accessibility-audit.yml"
+      - "package.json"
+      - "package-lock.json"
+      - "playwright*.ts"
+      - "next.config.*"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v1-09-2-1-accessibility-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  accessibility-audit:
+    name: axe, keyboard, focus and dialog inventory
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+      V10921_BASE_URL: http://127.0.0.1:3000
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install repository dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Install audit-only axe runtime
+        run: npm install --no-save --legacy-peer-deps axe-core@4.10.3
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Build application
+        run: npm run build
+
+      - name: Start application
+        run: |
+          npm run start -- --hostname 127.0.0.1 --port 3000 > /tmp/v1-09-2-1-next.log 2>&1 &
+          echo $! > /tmp/v1-09-2-1-next.pid
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:3000/en/home >/dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          cat /tmp/v1-09-2-1-next.log
+          exit 1
+
+      - name: Run accessibility inventory
+        run: node scripts/run-v1-09-2-1-accessibility-audit.mjs
+
+      - name: Upload accessibility evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v1-09-2-1-accessibility-evidence-${{ github.run_id }}
+          path: audit-results/v1-09-2-1/
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Upload application log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v1-09-2-1-runtime-log-${{ github.run_id }}
+          path: /tmp/v1-09-2-1-next.log
+          if-no-files-found: warn
+          retention-days: 30
