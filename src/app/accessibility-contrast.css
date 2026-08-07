@@ -1,0 +1,48 @@
+/* V1-09.2.4 — targeted WCAG AA contrast corrections.
+ * Loaded after globals.css so these rules only strengthen known low-contrast
+ * utility combinations without changing layout, spacing, behavior or data.
+ */
+
+/* Neutral secondary copy: zinc-400/500 on white and pale category surfaces
+ * fell below the 4.5:1 threshold in the automated axe replay. */
+.text-zinc-400,
+.text-zinc-500 {
+  color: #52525b;
+}
+
+/* Status/accent copy found below 4.5:1 on pale surfaces. */
+.text-amber-600 {
+  color: #92400e;
+}
+
+.text-emerald-600 {
+  color: #047857;
+}
+
+.text-green-600 {
+  color: #15803d;
+}
+
+/* Category navigation and create CTAs use white text. Keep the domain hue,
+ * but use the corresponding darker tone so white text reaches WCAG AA. */
+.bg-cat-obj.text-white {
+  background-color: #0369a1;
+}
+
+.bg-cat-prop.text-white {
+  background-color: #6d28d9;
+}
+
+.bg-cat-svc.text-white {
+  background-color: #0f766e;
+}
+
+/* Explore offer controls and Events create CTA had the same white-on-light
+ * problem outside the category token system. */
+.bg-emerald-600.text-white {
+  background-color: #047857;
+}
+
+.bg-amber-500.text-white {
+  background-color: #b45309;
+}
