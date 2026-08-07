@@ -37,6 +37,17 @@ function assertRequiredEnvironment() {
   }
 }
 
+async function validateAuthenticatedSession(page, label) {
+  const response = await page.request.get(`${BASE_URL}/api/tokens/balance`);
+  const body = response.ok() ? "" : await response.text();
+  if (!response.ok()) {
+    throw new Error(
+      `${label} authenticated session validation failed: ${response.status()} ${body}`,
+    );
+  }
+  return true;
+}
+
 async function authenticate(page) {
   await page.goto(`${BASE_URL}/en/login`, {
     waitUntil: "domcontentloaded",
@@ -56,19 +67,27 @@ async function authenticate(page) {
     page.locator('button[type="submit"]').click(),
   ]);
 
-  const sessionCheck = await page.request.get(`${BASE_URL}/api/tokens/balance`);
-  if (!sessionCheck.ok()) {
-    throw new Error(
-      `Authenticated session validation failed: ${sessionCheck.status()} ${await sessionCheck.text()}`,
-    );
-  }
+  await validateAuthenticatedSession(page, "Initial login");
 }
 
 async function installVitalsObservers(page) {
   await page.addInitScript(() => {
+    function describeNode(node) {
+      if (!(node instanceof Element)) return null;
+      const tag = node.tagName.toLowerCase();
+      const id = node.id ? `#${node.id}` : "";
+      const classes = [...node.classList].slice(0, 4);
+      const classSuffix = classes.length > 0 ? `.${classes.join(".")}` : "";
+      const text = (node.textContent || "").replace(/\s+/g, " ").trim().slice(0, 80);
+      return {
+        selector: `${tag}${id}${classSuffix}`,
+        text,
+      };
+    }
+
     window.__swaplyV10932 = {
       lcp: 0,
-      cls: 0,
+      layoutShifts: [],
     };
 
     try {
@@ -81,12 +100,17 @@ async function installVitalsObservers(page) {
     } catch {}
 
     try {
-      let cls = 0;
       const clsObserver = new PerformanceObserver((list) => {
         for (const entry of list.getEntries()) {
-          if (!entry.hadRecentInput) cls += entry.value;
+          if (entry.hadRecentInput) continue;
+          window.__swaplyV10932.layoutShifts.push({
+            value: entry.value,
+            startTime: entry.startTime,
+            sources: Array.from(entry.sources || [])
+              .map((source) => describeNode(source.node))
+              .filter(Boolean),
+          });
         }
-        window.__swaplyV10932.cls = cls;
       });
       clsObserver.observe({ type: "layout-shift", buffered: true });
     } catch {}
@@ -116,24 +140,77 @@ async function measureRoute(page, route) {
     timeout: 60_000,
   });
 
-  await page.waitForLoadState("load", { timeout: 30_000 }).catch(() => {});
+  let loadCompleted = true;
+  let loadError = null;
+  try {
+    await page.waitForLoadState("load", { timeout: 30_000 });
+  } catch (error) {
+    loadCompleted = false;
+    loadError = error instanceof Error ? error.message : String(error);
+  }
+
   await page.waitForTimeout(3_000);
 
+  const authenticatedSessionValid = await validateAuthenticatedSession(page, route.id);
+  const visiblePublicLoginLinks = await page.locator('a[href$="/login"]:visible').count();
+  const authenticatedUiConfirmed = visiblePublicLoginLinks === 0;
+
   const metrics = await page.evaluate(() => {
+    function calculateClsSessionWindow(entries) {
+      const shifts = [...entries].sort((a, b) => a.startTime - b.startTime);
+      let maxScore = 0;
+      let maxWindow = [];
+      let currentWindow = [];
+      let currentScore = 0;
+      let windowStart = 0;
+      let previousTime = 0;
+
+      for (const shift of shifts) {
+        const startsNewWindow =
+          currentWindow.length === 0 ||
+          shift.startTime - previousTime > 1000 ||
+          shift.startTime - windowStart > 5000;
+
+        if (startsNewWindow) {
+          currentWindow = [shift];
+          currentScore = shift.value;
+          windowStart = shift.startTime;
+        } else {
+          currentWindow.push(shift);
+          currentScore += shift.value;
+        }
+
+        previousTime = shift.startTime;
+
+        if (currentScore > maxScore) {
+          maxScore = currentScore;
+          maxWindow = [...currentWindow];
+        }
+      }
+
+      return {
+        score: maxScore,
+        window: maxWindow,
+      };
+    }
+
     const navigation = performance.getEntriesByType("navigation")[0];
     const paints = performance.getEntriesByType("paint");
     const fcp = paints.find((entry) => entry.name === "first-contentful-paint");
-    const vitals = window.__swaplyV10932 || { lcp: 0, cls: 0 };
+    const vitals = window.__swaplyV10932 || { lcp: 0, layoutShifts: [] };
+    const clsResult = calculateClsSessionWindow(vitals.layoutShifts || []);
 
     return {
-      domContentLoadedMs: navigation?.domContentLoadedEventEnd ?? null,
-      loadEventMs: navigation?.loadEventEnd ?? null,
-      responseStartMs: navigation?.responseStart ?? null,
+      domContentLoadedMs: navigation?.domContentLoadedEventEnd || null,
+      loadEventMs: navigation?.loadEventEnd || null,
+      responseStartMs: navigation?.responseStart || null,
       transferSizeBytes: navigation?.transferSize ?? null,
       encodedBodySizeBytes: navigation?.encodedBodySize ?? null,
       fcpMs: fcp?.startTime ?? null,
       lcpMs: vitals.lcp || null,
-      cls: Number.isFinite(vitals.cls) ? vitals.cls : null,
+      cls: Number.isFinite(clsResult.score) ? clsResult.score : null,
+      clsWindow: clsResult.window,
+      layoutShiftCount: Array.isArray(vitals.layoutShifts) ? vitals.layoutShifts.length : 0,
     };
   });
 
@@ -141,6 +218,8 @@ async function measureRoute(page, route) {
   const redirectedToLogin = finalUrl.includes("/login");
   const status = response?.status() ?? null;
   const okStatus = status !== null && status >= 200 && status < 400;
+  const completeLoadMetrics =
+    loadCompleted && metrics.loadEventMs !== null && metrics.loadEventMs > 0;
 
   return {
     id: route.id,
@@ -148,9 +227,19 @@ async function measureRoute(page, route) {
     status,
     finalUrl,
     redirectedToLogin,
+    authenticatedSessionValid,
+    authenticatedUiConfirmed,
+    visiblePublicLoginLinks,
+    loadCompleted,
+    loadError,
     wallClockMs: Date.now() - startedAt,
     ...metrics,
-    pass: okStatus && !redirectedToLogin,
+    pass:
+      okStatus &&
+      !redirectedToLogin &&
+      authenticatedSessionValid &&
+      authenticatedUiConfirmed &&
+      completeLoadMetrics,
   };
 }
 
@@ -168,21 +257,45 @@ function renderMarkdown(report) {
     "",
     "> This is a controlled laboratory baseline. It does not claim field INP or real-user Core Web Vitals sign-off.",
     "",
-    "| Route | HTTP | FCP ms | LCP ms | CLS | DCL ms | Load ms | Wall ms | Result |",
-    "|---|---:|---:|---:|---:|---:|---:|---:|---|",
+    "| Route | HTTP | FCP ms | LCP ms | CLS | Shifts | Load complete | Auth UI | Wall ms | Result |",
+    "|---|---:|---:|---:|---:|---:|---|---|---:|---|",
   ];
 
+  const value = (input) =>
+    input === null || input === undefined ? "n/a" : Math.round(input * 1000) / 1000;
+
   for (const item of report.routes) {
-    const value = (input) => (input === null ? "n/a" : Math.round(input * 1000) / 1000);
     lines.push(
-      `| \`${item.route}\` | ${item.status ?? "n/a"} | ${value(item.fcpMs)} | ${value(item.lcpMs)} | ${value(item.cls)} | ${value(item.domContentLoadedMs)} | ${value(item.loadEventMs)} | ${item.wallClockMs} | ${item.pass ? "PASS" : "FAIL"} |`,
+      `| \`${item.route}\` | ${item.status ?? "n/a"} | ${value(item.fcpMs)} | ${value(item.lcpMs)} | ${value(item.cls)} | ${item.layoutShiftCount} | ${item.loadCompleted ? "yes" : "no"} | ${item.authenticatedUiConfirmed ? "yes" : "no"} | ${item.wallClockMs} | ${item.pass ? "PASS" : "FAIL"} |`,
     );
   }
 
+  lines.push("", "## CLS session-window sources", "");
+
+  for (const item of report.routes) {
+    lines.push(`### \`${item.route}\` — CLS ${value(item.cls)}`, "");
+    if (!item.clsWindow || item.clsWindow.length === 0) {
+      lines.push("- No non-input layout shifts recorded in the winning CLS window.", "");
+      continue;
+    }
+
+    for (const shift of item.clsWindow) {
+      const sourceSummary = (shift.sources || [])
+        .map((source) => `${source.selector}${source.text ? ` — ${source.text}` : ""}`)
+        .join(" | ");
+      lines.push(
+        `- shift=${value(shift.value)} at ${value(shift.startTime)} ms${sourceSummary ? `: ${sourceSummary}` : ""}`,
+      );
+    }
+    lines.push("");
+  }
+
   lines.push(
-    "",
     "## Interpretation boundary",
     "",
+    "- CLS follows the Core Web Vitals session-window model: maximum 5-second window, ending when there is a gap greater than 1 second.",
+    "- Every route re-validates the authenticated session and rejects visible public login fallback UI.",
+    "- A load timeout is an incomplete measurement and fails the route instead of being silently ignored.",
     "- No data mutation is performed by this runner; authentication and read-only navigation only.",
     "- Slow external-provider fallback is not proven by this batch and remains a separate Performance requirement.",
     "- Field INP requires a distinct interaction/real-user evidence strategy and is not inferred from navigation timings.",
