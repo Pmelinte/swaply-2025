@@ -12,6 +12,7 @@ import { ContextBar } from "@/components/layout/ContextBar";
 import { FooterNav } from "@/components/layout/FooterNav";
 import { UnifiedSideDrawer } from "@/components/drawer/UnifiedSideDrawer";
 import { ClientOverlays } from "@/components/ClientOverlays";
+import { AccessibleNameGuard } from "@/components/accessibility/AccessibleNameGuard";
 import { TokenToast } from "@/components/tokens/TokenToast";
 import Script from "next/script";
 import { CookieConsent } from "@/components/CookieConsent";
@@ -165,6 +166,7 @@ export default async function LocaleLayout({ children, params }: Props) {
       >
         <NextIntlClientProvider locale={canonicalLocale} messages={messages}>
           <Providers locale={canonicalLocale}>
+            <AccessibleNameGuard />
             <TopBar />
             <BranchBar />
             <ContextBar />
