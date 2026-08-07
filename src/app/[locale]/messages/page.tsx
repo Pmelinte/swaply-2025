@@ -111,7 +111,7 @@ export default async function MessagesRoute() {
   }
 
   return (
-    <div className="min-h-[70vh]">
+    <div className="min-h-[70vh] [&_aside]:h-64 [&_aside]:overflow-y-auto md:[&_aside]:h-auto md:[&_aside]:overflow-visible">
       <h1 className="sr-only">{t("pageTitle")}</h1>
       <RealChatPage />
     </div>
