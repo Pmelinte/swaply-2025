@@ -77,6 +77,22 @@ async function authenticate(page) {
   ]);
 
   await validateAuthenticatedSession(page, "Initial login");
+}
+
+async function calibrateAuthenticatedLocale(page) {
+  const calibrationResponse = await page.goto(`${BASE_URL}/en`, {
+    waitUntil: "load",
+    timeout: 45_000,
+  });
+
+  if (!calibrationResponse || calibrationResponse.status() < 200 || calibrationResponse.status() >= 400) {
+    throw new Error(
+      `Authenticated locale calibration failed with status ${calibrationResponse?.status() ?? "n/a"}.`,
+    );
+  }
+
+  await page.waitForTimeout(1_500);
+  await validateAuthenticatedSession(page, "Locale calibration");
   return resolveLocaleFromUrl(page.url());
 }
 
@@ -307,7 +323,7 @@ function renderMarkdown(report) {
   lines.push(
     "## Interpretation boundary",
     "",
-    "- The authenticated locale is resolved after login and every measured URL is constructed directly in that locale to avoid locale-redirect layout shifts.",
+    "- The authenticated locale is calibrated after login using one unmeasured navigation, and every measured URL is then constructed directly in that settled locale.",
     "- CLS follows the Core Web Vitals session-window model: maximum 5-second window, ending when there is a gap greater than 1 second.",
     "- Every route re-validates the authenticated session and rejects visible public login fallback UI.",
     "- A load timeout is an incomplete measurement and fails the route instead of being silently ignored.",
@@ -334,7 +350,8 @@ async function main() {
   const page = await context.newPage();
 
   try {
-    const authenticatedLocale = await authenticate(page);
+    await authenticate(page);
+    const authenticatedLocale = await calibrateAuthenticatedLocale(page);
     const routesToMeasure = ROUTE_SUFFIXES.map((route) => ({
       ...route,
       path: `/${authenticatedLocale}${route.suffix}`,
