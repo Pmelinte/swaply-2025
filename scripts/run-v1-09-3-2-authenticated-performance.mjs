@@ -10,13 +10,13 @@ const MD_PATH = path.join(OUTPUT_DIR, "authenticated-constrained-performance.md"
 const EMAIL = process.env.E2E_USER_A_EMAIL;
 const PASSWORD = process.env.E2E_USER_A_PASSWORD;
 
-const ROUTES = [
-  { id: "authenticated-home", path: "/en" },
-  { id: "objects", path: "/en/objects" },
-  { id: "matching", path: "/en/matching" },
-  { id: "messages", path: "/en/messages" },
-  { id: "exchange", path: "/en/exchange" },
-  { id: "profile", path: "/en/profile" },
+const ROUTE_SUFFIXES = [
+  { id: "authenticated-home", suffix: "" },
+  { id: "objects", suffix: "/objects" },
+  { id: "matching", suffix: "/matching" },
+  { id: "messages", suffix: "/messages" },
+  { id: "exchange", suffix: "/exchange" },
+  { id: "profile", suffix: "/profile" },
 ];
 
 const NETWORK_PROFILE = {
@@ -48,6 +48,15 @@ async function validateAuthenticatedSession(page, label) {
   return true;
 }
 
+function resolveLocaleFromUrl(rawUrl) {
+  const url = new URL(rawUrl);
+  const firstSegment = url.pathname.split("/").filter(Boolean)[0] || "";
+  if (!/^[a-z]{2}(?:-[A-Za-z]{2})?$/.test(firstSegment)) {
+    throw new Error(`Could not resolve authenticated locale from URL: ${rawUrl}`);
+  }
+  return firstSegment;
+}
+
 async function authenticate(page) {
   await page.goto(`${BASE_URL}/en/login`, {
     waitUntil: "domcontentloaded",
@@ -68,6 +77,7 @@ async function authenticate(page) {
   ]);
 
   await validateAuthenticatedSession(page, "Initial login");
+  return resolveLocaleFromUrl(page.url());
 }
 
 async function installVitalsObservers(page) {
@@ -216,6 +226,7 @@ async function measureRoute(page, route) {
 
   const finalUrl = page.url();
   const redirectedToLogin = finalUrl.includes("/login");
+  const localeRedirected = new URL(finalUrl).pathname !== route.path;
   const status = response?.status() ?? null;
   const okStatus = status !== null && status >= 200 && status < 400;
   const completeLoadMetrics =
@@ -227,6 +238,7 @@ async function measureRoute(page, route) {
     status,
     finalUrl,
     redirectedToLogin,
+    localeRedirected,
     authenticatedSessionValid,
     authenticatedUiConfirmed,
     visiblePublicLoginLinks,
@@ -237,6 +249,7 @@ async function measureRoute(page, route) {
     pass:
       okStatus &&
       !redirectedToLogin &&
+      !localeRedirected &&
       authenticatedSessionValid &&
       authenticatedUiConfirmed &&
       completeLoadMetrics,
@@ -250,6 +263,7 @@ function renderMarkdown(report) {
     `- Generated: \`${report.generatedAt}\``,
     `- Baseline: \`${report.baseline}\``,
     `- Base URL: \`${report.baseUrl}\``,
+    `- Authenticated locale: \`${report.authenticatedLocale}\``,
     `- Device: mobile viewport \`${report.device.viewport.width}x${report.device.viewport.height}\`, touch enabled`,
     `- CPU throttle: \`${report.device.cpuThrottlingRate}x\``,
     `- Network: \`${report.network.label}\` — ${report.network.downloadKbps} Kbps down / ${report.network.uploadKbps} Kbps up / ${report.network.latencyMs} ms latency`,
@@ -257,8 +271,8 @@ function renderMarkdown(report) {
     "",
     "> This is a controlled laboratory baseline. It does not claim field INP or real-user Core Web Vitals sign-off.",
     "",
-    "| Route | HTTP | FCP ms | LCP ms | CLS | Shifts | Load complete | Auth UI | Wall ms | Result |",
-    "|---|---:|---:|---:|---:|---:|---|---|---:|---|",
+    "| Route | HTTP | FCP ms | LCP ms | CLS | Shifts | Load complete | Auth UI | Locale redirect | Wall ms | Result |",
+    "|---|---:|---:|---:|---:|---:|---|---|---|---:|---|",
   ];
 
   const value = (input) =>
@@ -266,7 +280,7 @@ function renderMarkdown(report) {
 
   for (const item of report.routes) {
     lines.push(
-      `| \`${item.route}\` | ${item.status ?? "n/a"} | ${value(item.fcpMs)} | ${value(item.lcpMs)} | ${value(item.cls)} | ${item.layoutShiftCount} | ${item.loadCompleted ? "yes" : "no"} | ${item.authenticatedUiConfirmed ? "yes" : "no"} | ${item.wallClockMs} | ${item.pass ? "PASS" : "FAIL"} |`,
+      `| \`${item.route}\` | ${item.status ?? "n/a"} | ${value(item.fcpMs)} | ${value(item.lcpMs)} | ${value(item.cls)} | ${item.layoutShiftCount} | ${item.loadCompleted ? "yes" : "no"} | ${item.authenticatedUiConfirmed ? "yes" : "no"} | ${item.localeRedirected ? "yes" : "no"} | ${item.wallClockMs} | ${item.pass ? "PASS" : "FAIL"} |`,
     );
   }
 
@@ -293,6 +307,7 @@ function renderMarkdown(report) {
   lines.push(
     "## Interpretation boundary",
     "",
+    "- The authenticated locale is resolved after login and every measured URL is constructed directly in that locale to avoid locale-redirect layout shifts.",
     "- CLS follows the Core Web Vitals session-window model: maximum 5-second window, ending when there is a gap greater than 1 second.",
     "- Every route re-validates the authenticated session and rejects visible public login fallback UI.",
     "- A load timeout is an incomplete measurement and fails the route instead of being silently ignored.",
@@ -319,12 +334,17 @@ async function main() {
   const page = await context.newPage();
 
   try {
-    await authenticate(page);
+    const authenticatedLocale = await authenticate(page);
+    const routesToMeasure = ROUTE_SUFFIXES.map((route) => ({
+      ...route,
+      path: `/${authenticatedLocale}${route.suffix}`,
+    }));
+
     await installVitalsObservers(page);
     const cdpSession = await applyConstraints(page);
 
     const routes = [];
-    for (const route of ROUTES) {
+    for (const route of routesToMeasure) {
       routes.push(await measureRoute(page, route));
     }
 
@@ -335,6 +355,7 @@ async function main() {
       repository: "Pmelinte/swaply-2025",
       baseline: process.env.GITHUB_HEAD_SHA || process.env.GITHUB_SHA || "local-or-unknown",
       baseUrl: BASE_URL,
+      authenticatedLocale,
       device: {
         viewport: { width: 390, height: 844 },
         hasTouch: true,
