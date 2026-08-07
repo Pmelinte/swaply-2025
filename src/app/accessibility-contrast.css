@@ -46,3 +46,15 @@
 .bg-amber-500.text-white {
   background-color: #b45309;
 }
+
+/* V1-09.2.5 — favorite controls are icon-only overlays on listing cards.
+ * The accessible-name guard marks them deterministically; give the resulting
+ * mobile touch target a 32px square without changing card layout or behavior. */
+button[data-accessible-name-guard="button"][aria-label^="Toggle favorite"] {
+  box-sizing: border-box;
+  display: inline-flex;
+  min-height: 2rem;
+  min-width: 2rem;
+  align-items: center;
+  justify-content: center;
+}
