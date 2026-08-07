@@ -22,10 +22,25 @@ function hasAccessibleName(element: HTMLElement) {
   );
 }
 
+function getLucideIconName(icon: SVGElement | null) {
+  if (!icon) return null;
+
+  const dataName = icon.getAttribute("data-lucide")?.trim().toLowerCase();
+  if (dataName) return dataName;
+
+  const className = icon.getAttribute("class") ?? "";
+  const lucideClass = className
+    .split(/\s+/)
+    .find((token) => token.startsWith("lucide-") && token !== "lucide-icon");
+
+  return lucideClass ? lucideClass.slice("lucide-".length).toLowerCase() : null;
+}
+
 function readableIconName(button: HTMLButtonElement) {
-  const icon = button.querySelector<SVGElement>("svg[data-lucide]");
-  const iconName = icon?.getAttribute("data-lucide")?.trim().toLowerCase();
+  const icon = button.querySelector<SVGElement>("svg");
+  const iconName = getLucideIconName(icon);
   if (!iconName) return null;
+
   return ICON_LABELS[iconName]
     ?? iconName
       .split("-")
