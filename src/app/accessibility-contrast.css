@@ -47,11 +47,7 @@
   background-color: #b45309;
 }
 
-/* V1-09.2.5 — favorite controls are icon-only overlays on listing cards.
- * The accessible-name guard marks them deterministically. Axe reports that a
- * 32px square loses usable space where the overlay intersects the card target,
- * so keep a 44px touch target to preserve at least 24px of safe clickable area
- * on mobile without changing card behavior or data. */
+/* V1-09.2.5 — favorite controls are icon-only listing actions. */
 button[data-accessible-name-guard="button"][aria-label^="Toggle favorite"] {
   box-sizing: border-box;
   display: inline-flex;
@@ -61,4 +57,21 @@ button[data-accessible-name-guard="button"][aria-label^="Toggle favorite"] {
   min-height: 2.75rem;
   align-items: center;
   justify-content: center;
+}
+
+/* V1-09.2.6 — on the two-column mobile Objects grid, the favorite action was
+ * geometrically overlapping the full-card button. Axe therefore measured only
+ * a narrow safe clickable region even after the control itself was 44px.
+ * Reserve a dedicated action strip below the card and place Favorite there.
+ * Desktop and list layouts remain unchanged. */
+@media (max-width: 639px) {
+  .item-card-container {
+    padding-bottom: 3.25rem;
+  }
+
+  .item-card-container > button[data-accessible-name-guard="button"][aria-label^="Toggle favorite"] {
+    top: auto;
+    right: 0;
+    bottom: 0;
+  }
 }
