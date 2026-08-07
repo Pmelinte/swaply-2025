@@ -1,0 +1,89 @@
+name: V1-09.3.1 performance audit
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "src/**"
+      - "e2e/**"
+      - "lighthouserc.cjs"
+      - ".github/workflows/v1-09-3-1-performance-audit.yml"
+      - "package.json"
+      - "package-lock.json"
+      - "next.config.*"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v1-09-3-1-performance-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  performance-audit:
+    name: Lighthouse public-route baseline
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+      HOSTNAME: 127.0.0.1
+      PORT: "3000"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install repository dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Install audit-only Lighthouse CI runtime
+        run: npm install --no-save --legacy-peer-deps @lhci/cli@0.15.1
+
+      - name: Build application
+        run: npm run build
+
+      - name: Prepare standalone runtime
+        run: |
+          cp -R public .next/standalone/public
+          mkdir -p .next/standalone/.next
+          cp -R .next/static .next/standalone/.next/static
+
+      - name: Start application
+        run: |
+          node .next/standalone/server.js > /tmp/v1-09-3-1-next.log 2>&1 &
+          echo $! > /tmp/v1-09-3-1-next.pid
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:3000/en >/dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          cat /tmp/v1-09-3-1-next.log
+          exit 1
+
+      - name: Run Lighthouse baseline
+        run: npx lhci autorun --config=lighthouserc.cjs
+
+      - name: Upload performance evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v1-09-3-1-performance-evidence-${{ github.run_id }}
+          path: audit-results/v1-09-3-1/
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Upload application log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v1-09-3-1-runtime-log-${{ github.run_id }}
+          path: /tmp/v1-09-3-1-next.log
+          if-no-files-found: warn
+          retention-days: 30
