@@ -1,5 +1,6 @@
 import type { Viewport } from "next";
 import "./globals.css";
+import "./accessibility-contrast.css";
 
 export const viewport: Viewport = {
   themeColor: "#2563eb",
