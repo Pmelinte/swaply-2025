@@ -33,11 +33,14 @@ describe("V1-09.3.2 authenticated constrained performance contract", () => {
     expect(runner).toContain("Emulation.setCPUThrottlingRate");
   });
 
-  it("resolves and preserves the authenticated user locale instead of measuring redirect noise", () => {
+  it("calibrates and preserves the settled authenticated locale instead of measuring redirect noise", () => {
     const runner = read("scripts/run-v1-09-3-2-authenticated-performance.mjs");
 
-    expect(runner).toContain("resolveLocaleFromUrl");
-    expect(runner).toContain("authenticatedLocale = await authenticate(page)");
+    expect(runner).toContain("calibrateAuthenticatedLocale");
+    expect(runner).toContain("await page.goto(`${BASE_URL}/en`");
+    expect(runner).toContain("await page.waitForTimeout(1_500)");
+    expect(runner).toContain("resolveLocaleFromUrl(page.url())");
+    expect(runner).toContain("authenticatedLocale = await calibrateAuthenticatedLocale(page)");
     expect(runner).toContain("path: `/${authenticatedLocale}${route.suffix}`");
     expect(runner).toContain("localeRedirected");
     expect(runner).toContain("!localeRedirected");
