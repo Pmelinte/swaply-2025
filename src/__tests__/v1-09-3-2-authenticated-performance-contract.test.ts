@@ -12,15 +12,15 @@ describe("V1-09.3.2 authenticated constrained performance contract", () => {
   it("measures the intended authenticated route set under mobile and constrained conditions", () => {
     const runner = read("scripts/run-v1-09-3-2-authenticated-performance.mjs");
 
-    for (const route of [
-      "/en",
-      "/en/objects",
-      "/en/matching",
-      "/en/messages",
-      "/en/exchange",
-      "/en/profile",
+    for (const suffix of [
+      "",
+      "/objects",
+      "/matching",
+      "/messages",
+      "/exchange",
+      "/profile",
     ]) {
-      expect(runner).toContain(`path: \"${route}\"`);
+      expect(runner).toContain(`suffix: \"${suffix}\"`);
     }
 
     expect(runner).toContain("width: 390");
@@ -31,6 +31,17 @@ describe("V1-09.3.2 authenticated constrained performance contract", () => {
     expect(runner).toContain("uploadKbps: 750");
     expect(runner).toContain("Network.emulateNetworkConditions");
     expect(runner).toContain("Emulation.setCPUThrottlingRate");
+  });
+
+  it("resolves and preserves the authenticated user locale instead of measuring redirect noise", () => {
+    const runner = read("scripts/run-v1-09-3-2-authenticated-performance.mjs");
+
+    expect(runner).toContain("resolveLocaleFromUrl");
+    expect(runner).toContain("authenticatedLocale = await authenticate(page)");
+    expect(runner).toContain("path: `/${authenticatedLocale}${route.suffix}`");
+    expect(runner).toContain("localeRedirected");
+    expect(runner).toContain("!localeRedirected");
+    expect(runner).toContain("Authenticated locale:");
   });
 
   it("uses the existing dedicated E2E identity, confirms authenticated rendering, and remains read-only", () => {
