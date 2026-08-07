@@ -8,7 +8,7 @@ const axePath = require.resolve("axe-core/axe.min.js");
 const baseUrl = process.env.V10921_BASE_URL ?? "http://127.0.0.1:3000";
 const outputDir = "audit-results/v1-09-2-1";
 const routes = [
-  "/en/home",
+  "/en",
   "/en/explore",
   "/en/objects",
   "/en/properties",
