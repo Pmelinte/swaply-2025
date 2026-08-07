@@ -33,13 +33,16 @@ describe("V1-09.3.2 authenticated constrained performance contract", () => {
     expect(runner).toContain("Emulation.setCPUThrottlingRate");
   });
 
-  it("uses the existing dedicated E2E identity and remains read-only", () => {
+  it("uses the existing dedicated E2E identity, confirms authenticated rendering, and remains read-only", () => {
     const runner = read("scripts/run-v1-09-3-2-authenticated-performance.mjs");
     const workflow = read(".github/workflows/v1-09-3-2-authenticated-performance.yml");
 
     expect(runner).toContain("E2E_USER_A_EMAIL");
     expect(runner).toContain("E2E_USER_A_PASSWORD");
+    expect(runner).toContain("validateAuthenticatedSession");
     expect(runner).toContain("/api/tokens/balance");
+    expect(runner).toContain('a[href$="/login"]:visible');
+    expect(runner).toContain("authenticatedUiConfirmed");
     expect(runner).not.toMatch(/\.post\(|\.put\(|\.patch\(|\.delete\(/);
 
     expect(workflow).toContain("secrets.E2E_USER_A_EMAIL");
@@ -48,6 +51,27 @@ describe("V1-09.3.2 authenticated constrained performance contract", () => {
     expect(workflow).toContain("vars.NEXT_PUBLIC_SUPABASE_ANON_KEY");
     expect(workflow).not.toContain("SUPABASE_SERVICE_ROLE_KEY");
     expect(workflow).not.toContain("STRIPE_SECRET_KEY");
+  });
+
+  it("uses Core Web Vitals CLS session windows and preserves layout-shift source evidence", () => {
+    const runner = read("scripts/run-v1-09-3-2-authenticated-performance.mjs");
+
+    expect(runner).toContain("calculateClsSessionWindow");
+    expect(runner).toContain("shift.startTime - previousTime > 1000");
+    expect(runner).toContain("shift.startTime - windowStart > 5000");
+    expect(runner).toContain("layoutShifts");
+    expect(runner).toContain("clsWindow");
+    expect(runner).toContain("describeNode");
+    expect(runner).not.toContain("if (!entry.hadRecentInput) cls += entry.value");
+  });
+
+  it("treats incomplete load as a failed measurement", () => {
+    const runner = read("scripts/run-v1-09-3-2-authenticated-performance.mjs");
+
+    expect(runner).toContain("loadCompleted = false");
+    expect(runner).toContain("completeLoadMetrics");
+    expect(runner).toContain("loadEventMs !== null");
+    expect(runner).not.toContain('waitForLoadState("load", { timeout: 30_000 }).catch(() => {})');
   });
 
   it("states the measurement boundary instead of claiming field INP", () => {
