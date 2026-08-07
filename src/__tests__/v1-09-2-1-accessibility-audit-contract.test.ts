@@ -16,7 +16,8 @@ describe("V1-09.2.1 accessibility audit contract", () => {
     expect(runner).toContain('name: "desktop"');
     expect(runner).toContain('name: "mobile"');
     expect(runner).toContain('devices["iPhone 13"]');
-    expect(runner).toContain('"/en/home"');
+    expect(runner).toContain('"/en"');
+    expect(runner).not.toContain('"/en/home"');
     expect(runner).toContain('"/en/explore"');
     expect(runner).toContain('"/en/login"');
     expect(runner).toContain('"/en/register"');
