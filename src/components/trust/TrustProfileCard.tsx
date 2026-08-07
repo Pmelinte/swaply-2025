@@ -32,7 +32,7 @@ export function TrustProfileCard({ profile, compact = false }: Props) {
     <section className={`rounded-2xl border p-4 ${rankTone(trust.rank)}`}>
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide opacity-70">Trust profile</p>
+          <p className="text-xs font-semibold uppercase tracking-wide">Trust profile</p>
           <h3 className="mt-1 text-base font-bold">{displayName}</h3>
         </div>
 
@@ -44,23 +44,23 @@ export function TrustProfileCard({ profile, compact = false }: Props) {
         </div>
       </div>
 
-      {!compact && <p className="mt-3 text-sm opacity-80">{trust.summary}</p>}
+      {!compact && <p className="mt-3 text-sm">{trust.summary}</p>}
 
       <div className="mt-4 grid grid-cols-2 gap-2 text-xs md:grid-cols-4">
         <div className="rounded-xl bg-white/60 p-3 dark:bg-black/20">
-          <p className="font-semibold opacity-60">Rating</p>
+          <p className="font-semibold">Rating</p>
           <p className="mt-1 text-sm font-bold">{trust.rating || "—"} ★</p>
         </div>
         <div className="rounded-xl bg-white/60 p-3 dark:bg-black/20">
-          <p className="font-semibold opacity-60">Reviews</p>
+          <p className="font-semibold">Reviews</p>
           <p className="mt-1 text-sm font-bold">{trust.rating_count}</p>
         </div>
         <div className="rounded-xl bg-white/60 p-3 dark:bg-black/20">
-          <p className="font-semibold opacity-60">Completed</p>
+          <p className="font-semibold">Completed</p>
           <p className="mt-1 text-sm font-bold">{trust.completed_swaps}</p>
         </div>
         <div className="rounded-xl bg-white/60 p-3 dark:bg-black/20">
-          <p className="font-semibold opacity-60">Completion</p>
+          <p className="font-semibold">Completion</p>
           <p className="mt-1 text-sm font-bold">{trust.completion_rate}%</p>
         </div>
       </div>
