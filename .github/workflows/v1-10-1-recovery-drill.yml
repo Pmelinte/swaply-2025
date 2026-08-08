@@ -105,12 +105,17 @@ jobs:
           --health-timeout 5s
           --health-retries 12
 
-    env:
-      POSTGRES_CONTAINER_ID: ${{ job.services.postgres.id }}
-
     steps:
       - name: Checkout exact head
         uses: actions/checkout@v4
+
+      - name: Resolve PostgreSQL service container
+        shell: bash
+        run: |
+          set -euo pipefail
+          container_id="$(docker ps --filter 'ancestor=postgres:17' --format '{{.ID}}' | head -n 1)"
+          test -n "${container_id}"
+          echo "POSTGRES_CONTAINER_ID=${container_id}" >> "${GITHUB_ENV}"
 
       - name: Record PostgreSQL 17 recovery toolchain
         run: |
