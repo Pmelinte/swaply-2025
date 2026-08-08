@@ -7,12 +7,12 @@ import { useAppState } from "@/lib/state";
 import { X, ArrowRight } from "lucide-react";
 
 /**
- * Sticky top banner shown only to non-authenticated visitors.
+ * Sticky top banner shown only to settled, non-authenticated visitors.
  * Dismissable — state persisted in sessionStorage so it doesn't
  * re-appear during the same browser session.
  */
 export function GuestBanner() {
-  const { user } = useAppState();
+  const { user, loading } = useAppState();
   const t = useTranslations("guest");
 
   const [dismissed, setDismissed] = useState(() => {
@@ -20,7 +20,10 @@ export function GuestBanner() {
     return sessionStorage.getItem("swaply_guest_banner_dismissed") === "1";
   });
 
-  if (user || dismissed) return null;
+  // Do not render a transient guest state while an authenticated session
+  // is still being restored. This prevents the banner from appearing and
+  // disappearing during hydration, which would shift the whole page.
+  if (loading.auth || user || dismissed) return null;
 
   return (
     <div className="sticky top-0 z-40 flex items-center justify-center gap-3 bg-blue-600 px-4 py-2 text-sm text-white shadow-sm">
