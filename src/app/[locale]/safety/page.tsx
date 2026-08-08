@@ -2,7 +2,11 @@
 
 import { useTranslations } from "next-intl";
 import { SectionCard } from "@/components/ui-custom";
-import { normalizePublicLegalCopy } from "@/lib/legal-copy";
+import {
+  SWAPLY_SAFETY_REVISION_DATE,
+  getPublicSafetySectionCopy,
+  normalizePublicLegalCopy,
+} from "@/lib/legal-copy";
 
 const SECTIONS = [
   { id: "general", titleKey: "safetyGeneral", textKey: "safetyGeneralText" },
@@ -20,14 +24,12 @@ export default function SafetyPage() {
     <div className="space-y-4">
       <SectionCard
         title={normalizePublicLegalCopy(t("safetyTitle"))}
-        description={normalizePublicLegalCopy(t("safetyLastUpdated"))}
+        description={`${normalizePublicLegalCopy(t("lastUpdated"))}: ${SWAPLY_SAFETY_REVISION_DATE}`}
       >
-        {/* Last updated badge */}
         <div className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-          {normalizePublicLegalCopy(t("lastUpdated"))}: 2026-03-10
+          {normalizePublicLegalCopy(t("lastUpdated"))}: {SWAPLY_SAFETY_REVISION_DATE}
         </div>
 
-        {/* Table of Contents */}
         <nav className="mb-6 rounded-xl border border-zinc-200 bg-zinc-50/50 p-4 dark:border-zinc-700 dark:bg-zinc-800/50">
           <p className="mb-2 text-xs font-semibold uppercase text-zinc-500 dark:text-zinc-400">
             {normalizePublicLegalCopy(t("tableOfContents"))}
@@ -50,7 +52,7 @@ export default function SafetyPage() {
           {SECTIONS.map((s) => (
             <div key={s.id} id={s.id} className="scroll-mt-20">
               <h3>{normalizePublicLegalCopy(t(s.titleKey))}</h3>
-              <p>{normalizePublicLegalCopy(t(s.textKey))}</p>
+              <p>{getPublicSafetySectionCopy(s.id, t(s.textKey))}</p>
             </div>
           ))}
         </div>

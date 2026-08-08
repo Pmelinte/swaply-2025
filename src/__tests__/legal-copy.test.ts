@@ -7,7 +7,9 @@ import {
   SWAPLY_PUBLIC_PRIVACY_EMAIL,
   SWAPLY_PUBLIC_SAFETY_EMAIL,
   SWAPLY_PUBLIC_SUPPORT_EMAIL,
+  SWAPLY_SAFETY_REVISION_DATE,
   SWAPLY_TERMS_REVISION_DATE,
+  getPublicSafetySectionCopy,
   getPublicTermsSectionCopy,
   normalizePublicLegalCopy,
 } from "@/lib/legal-copy";
@@ -90,5 +92,42 @@ describe("V1-09 public Terms reconciliation", () => {
 
     expect(output).toContain("GDPR deletion workflow");
     expect(output).toContain("deleted, anonymized, or retained");
+  });
+});
+
+describe("V1-09 public Safety reconciliation", () => {
+  it("uses the same V1-09 legal revision date", () => {
+    expect(SWAPLY_SAFETY_REVISION_DATE).toBe("2026-08-08");
+  });
+
+  it("does not promise universal automatic message moderation", () => {
+    const output = getPublicSafetySectionCopy(
+      "general",
+      "Always communicate through the Swaply chat — our messages are moderated for your safety.",
+    );
+
+    expect(output).not.toContain("our messages are moderated for your safety");
+    expect(output).toContain("does not guarantee that every private message is automatically screened");
+    expect(output).toContain("chat may warn about external contact details");
+  });
+
+  it("does not promise a fixed 24-hour moderation SLA", () => {
+    const output = getPublicSafetySectionCopy(
+      "reporting",
+      "Our moderation team reviews all reports within 24 hours.",
+    );
+
+    expect(output).not.toContain("within 24 hours");
+    expect(output).toContain("no fixed review-time guarantee is made");
+    expect(output).toContain(SWAPLY_PUBLIC_SAFETY_EMAIL);
+  });
+
+  it("keeps unaffected safety sections translated while normalizing domains", () => {
+    const output = getPublicSafetySectionCopy(
+      "contact",
+      "Contact safety@swaply.app for assistance.",
+    );
+
+    expect(output).toBe(`Contact ${SWAPLY_PUBLIC_SAFETY_EMAIL} for assistance.`);
   });
 });
