@@ -18,6 +18,9 @@ function between(source: string, start: string, end: string) {
 
 describe("V1-09.4.3 privacy authority contracts", () => {
   const exportRoute = read("src/app/api/gdpr/export/route.ts");
+  const deletionRoute = read("src/app/api/gdpr/delete/route.ts");
+  const profileClient = read("src/app/[locale]/profile/ProfileClient.tsx");
+  const privacyPage = read("src/app/[locale]/privacy/page.tsx");
   const publicListingDetails = read("src/lib/listings/publicListingDetails.ts");
   const domainCreateMigration = read(
     "supabase/migrations/20260731183000_v1_05_2_canonical_domain_listing_create_authority.sql",
@@ -50,6 +53,28 @@ describe("V1-09.4.3 privacy authority contracts", () => {
   it("uses the real GDPR request completion column from Production schema", () => {
     expect(exportRoute).toContain("processed_at");
     expect(exportRoute).not.toContain("completed_at");
+  });
+
+  it("routes the active account deletion UI through the GDPR request authority", () => {
+    expect(profileClient).toContain('fetch("/api/gdpr/delete"');
+    expect(profileClient).toContain("CSRF_HEADER_NAME");
+    expect(profileClient).toContain("getCsrfTokenFromCookie");
+    expect(profileClient).toContain("deleteAccount={requestAccountDeletion}");
+    expect(profileClient).toContain("await logout()");
+    expect(profileClient).not.toContain(
+      "changePassword, deleteAccount, loading, lastError",
+    );
+    expect(deletionRoute).toContain('.from("gdpr_requests")');
+    expect(deletionRoute).toContain('type: "delete"');
+    expect(deletionRoute).toContain('status: "pending"');
+  });
+
+  it("describes 30-day deletion processing without promising impossible universal erasure", () => {
+    expect(privacyPage).toContain("Deletion requests are processed within 30 days.");
+    expect(privacyPage).toContain("deleted or anonymized");
+    expect(privacyPage).toContain("dispute-resolution");
+    expect(privacyPage).toContain("access remains restricted");
+    expect(privacyPage).toContain('data-testid="privacy-retention-disclosure"');
   });
 
   it("keeps exact property coordinates and address out of the public detail projection", () => {
