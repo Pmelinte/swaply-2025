@@ -1,0 +1,23 @@
+@media (max-width: 639px) {
+  /*
+   * Objects-only CLS guard.
+   * The authenticated "My objects" action is inserted after auth hydration.
+   * Keep the action row at its settled mobile geometry from first paint.
+   */
+  main:has(a.bg-cat-obj) .flex.items-center.gap-2:has(> a.bg-cat-obj) {
+    width: 100%;
+    min-height: 66px;
+    justify-content: flex-end;
+  }
+
+  /*
+   * While items rehydrate, the 28px result-count row can briefly disappear.
+   * Compensate that exact measured height so the inline ad and cards do not
+   * move up and then back down.
+   */
+  main:has(a.bg-cat-obj)
+    .mx-auto.max-w-6xl.px-4.py-6:not(:has(> p.mb-3.text-xs.text-zinc-400))
+    > .swaply-ad[data-placement="inline_feed"] {
+    margin-top: 28px;
+  }
+}
