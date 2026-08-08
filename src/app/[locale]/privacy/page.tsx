@@ -20,8 +20,17 @@ const AI_DISCLOSURE: Record<string, string> = {
   ro: "Furnizor AI: analiza AI a imaginilor este efectuată pe server. În funcție de configurare și disponibilitate, conținutul imaginilor trimise pentru analiză AI poate fi procesat de Groq, Google Gemini sau Hugging Face. Nu toți furnizorii sunt în mod necesar activi în același timp.",
 };
 
+const RETENTION_DISCLOSURE: Record<string, string> = {
+  en: "Deletion requests are processed within 30 days. Data that is not required for an overriding legal, security, fraud-prevention, dispute-resolution, accounting, or integrity obligation is deleted or anonymized. Where limited records must be retained for one of those purposes, access remains restricted and the records are kept only for as long as the applicable purpose requires.",
+  ro: "Cererile de ștergere sunt procesate în maximum 30 de zile. Datele care nu trebuie păstrate pentru o obligație legală, de securitate, prevenire a fraudei, soluționare a disputelor, contabilitate sau integritate sunt șterse sau anonimizate. Dacă anumite evidențe trebuie păstrate limitat pentru unul dintre aceste scopuri, accesul rămâne restricționat, iar evidențele sunt păstrate numai atât timp cât este necesar scopului aplicabil.",
+};
+
 function getAiDisclosure(locale: string): string {
   return AI_DISCLOSURE[locale] ?? AI_DISCLOSURE.en;
+}
+
+function getRetentionDisclosure(locale: string): string {
+  return RETENTION_DISCLOSURE[locale] ?? RETENTION_DISCLOSURE.en;
 }
 
 export default function PrivacyPage() {
@@ -34,12 +43,10 @@ export default function PrivacyPage() {
         title={normalizePublicLegalCopy(t("privacyTitle"))}
         description={normalizePublicLegalCopy(t("privacyLastUpdated"))}
       >
-        {/* Last updated badge */}
         <div className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
           {normalizePublicLegalCopy(t("lastUpdated"))}: 2026-08-08
         </div>
 
-        {/* Table of Contents */}
         <nav className="mb-6 rounded-xl border border-zinc-200 bg-zinc-50/50 p-4 dark:border-zinc-700 dark:bg-zinc-800/50">
           <p className="mb-2 text-xs font-semibold uppercase text-zinc-500 dark:text-zinc-400">
             {normalizePublicLegalCopy(t("tableOfContents"))}
@@ -62,10 +69,17 @@ export default function PrivacyPage() {
           {SECTIONS.map((s) => (
             <div key={s.id} id={s.id} className="scroll-mt-20">
               <h3>{normalizePublicLegalCopy(t(s.titleKey))}</h3>
-              <p>{normalizePublicLegalCopy(t(s.textKey))}</p>
+              {s.id !== "retention" && (
+                <p>{normalizePublicLegalCopy(t(s.textKey))}</p>
+              )}
               {s.id === "sharing" && (
                 <p data-testid="privacy-ai-provider-disclosure">
                   {getAiDisclosure(locale)}
+                </p>
+              )}
+              {s.id === "retention" && (
+                <p data-testid="privacy-retention-disclosure">
+                  {getRetentionDisclosure(locale)}
                 </p>
               )}
             </div>
