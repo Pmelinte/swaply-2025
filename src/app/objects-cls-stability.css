@@ -11,13 +11,30 @@
   }
 
   /*
-   * The remaining loading.items transition moves the inline-feed region by
-   * 12px in the settled mobile geometry. Compensate that measured amount while
-   * the result-count row is absent so the ad/cards stay at the same y position.
+   * Objects and Properties both render an 8-card loading skeleton before the
+   * settled 28px result-count row. On mobile that skeleton is much taller than
+   * the settled row, so the inline ad jumps upward when loading completes.
+   * Collapse only the loading skeleton to the exact settled row geometry while
+   * keeping the final data grid untouched.
    */
   main:has(a.bg-cat-obj)
-    .mx-auto.max-w-6xl.px-4.py-6:not(:has(> p.mb-3.text-xs.text-zinc-400))
-    > .swaply-ad[data-placement="inline_feed"] {
-    margin-top: 12px;
+    .mx-auto.max-w-6xl.px-4.py-6
+    > .grid.grid-cols-2.gap-3:has(> .animate-pulse),
+  main:has(a.bg-cat-prop)
+    .mx-auto.max-w-6xl.px-4.py-6
+    > .grid.grid-cols-2.gap-3:has(> .animate-pulse) {
+    height: 28px;
+    overflow: hidden;
+  }
+
+  main:has(a.bg-cat-obj)
+    .mx-auto.max-w-6xl.px-4.py-6
+    > .grid.grid-cols-2.gap-3:has(> .animate-pulse)
+    > *,
+  main:has(a.bg-cat-prop)
+    .mx-auto.max-w-6xl.px-4.py-6
+    > .grid.grid-cols-2.gap-3:has(> .animate-pulse)
+    > * {
+    display: none;
   }
 }
