@@ -16,11 +16,33 @@ export function ContextBar() {
   const isMatchingRoute =
     normalizedPathname === "/matching" ||
     normalizedPathname.startsWith("/matching/");
+  const isChatRoute = normalizedPathname === "/chat";
+  const isExchangeRoute =
+    normalizedPathname === "/exchange" ||
+    normalizedPathname.startsWith("/exchange/") ||
+    normalizedPathname === "/change" ||
+    normalizedPathname.startsWith("/change/");
+  const isMonetizationRoute =
+    normalizedPathname === "/monetization" ||
+    normalizedPathname.startsWith("/monetization");
+  const isIntegrationsRoute =
+    normalizedPathname === "/integrations" ||
+    normalizedPathname.startsWith("/integrations");
+  const isProfileRoute =
+    normalizedPathname === "/profile" || normalizedPathname.startsWith("/profile");
+  const canRenderContextBar =
+    normalizedPathname === "/" ||
+    isObjectsRoute ||
+    isChatRoute ||
+    isExchangeRoute ||
+    isMonetizationRoute ||
+    isIntegrationsRoute ||
+    isProfileRoute;
 
-  // Authenticated context bars must not be inserted after hydration. While auth
-  // is unresolved, reserve the exact row geometry on routes that can render a
-  // context bar. Matching is excluded because it intentionally owns its header.
-  if (loading.auth && !isMatchingRoute) {
+  // Reserve geometry only on routes that actually render ContextBar after auth
+  // settles. Reserving it on unrelated routes (for example Properties) creates
+  // a 29px upward shift when the placeholder disappears.
+  if (loading.auth && canRenderContextBar) {
     return (
       <div
         className="border-b border-zinc-100 bg-zinc-50/80 dark:border-zinc-800 dark:bg-zinc-900/50"
@@ -91,7 +113,7 @@ export function ContextBar() {
         <span>{t("basedOnItems", { count: myItems.length })}</span>
       </div>
     );
-  } else if (normalizedPathname === "/chat") {
+  } else if (isChatRoute) {
     content = (
       <div className="flex items-center gap-3">
         <span className="inline-flex items-center gap-1">
@@ -106,12 +128,7 @@ export function ContextBar() {
         )}
       </div>
     );
-  } else if (
-    normalizedPathname === "/exchange" ||
-    normalizedPathname.startsWith("/exchange/") ||
-    normalizedPathname === "/change" ||
-    normalizedPathname.startsWith("/change/")
-  ) {
+  } else if (isExchangeRoute) {
     const pendingSwaps = swaps.filter((s) => s.status === "pending");
     const inProgressSwaps = swaps.filter((s) => s.status === "accepted");
     content = (
@@ -138,10 +155,7 @@ export function ContextBar() {
         )}
       </div>
     );
-  } else if (
-    normalizedPathname === "/monetization" ||
-    normalizedPathname.startsWith("/monetization")
-  ) {
+  } else if (isMonetizationRoute) {
     content = (
       <div className="flex items-center gap-3">
         <span className="inline-flex items-center gap-1">
@@ -157,10 +171,7 @@ export function ContextBar() {
         </Link>
       </div>
     );
-  } else if (
-    normalizedPathname === "/integrations" ||
-    normalizedPathname.startsWith("/integrations")
-  ) {
+  } else if (isIntegrationsRoute) {
     content = (
       <div className="flex items-center gap-3">
         <span className="inline-flex items-center gap-1">
@@ -177,10 +188,7 @@ export function ContextBar() {
         </Link>
       </div>
     );
-  } else if (
-    normalizedPathname === "/profile" ||
-    normalizedPathname.startsWith("/profile")
-  ) {
+  } else if (isProfileRoute) {
     content = (
       <div className="flex items-center gap-3">
         <span>{t("reputation")}: {user.stats.reputation}</span>
