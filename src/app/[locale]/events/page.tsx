@@ -71,7 +71,6 @@ function getPhotos(row: EventRow): string[] {
     const strings = row.photos.filter((p): p is string => typeof p === "string");
     if (strings.length > 0) return strings;
   }
-  // images[] on the row itself
   if (Array.isArray(row.images)) {
     const urls = row.images
       .map((p) => (typeof p === "string" ? p : p?.url))
@@ -79,7 +78,6 @@ function getPhotos(row: EventRow): string[] {
     if (urls.length > 0) return urls;
   }
   if (row.image_url) return [row.image_url];
-  // joined items row
   const it = row.items;
   if (it?.image_url) return [it.image_url];
   if (Array.isArray(it?.images)) {
@@ -107,7 +105,11 @@ function getDescription(row: EventRow): string {
 function formatDate(dateStr: string | undefined): string {
   if (!dateStr) return "";
   try {
-    return new Date(dateStr).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+    return new Date(dateStr).toLocaleDateString(undefined, {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
   } catch {
     return dateStr;
   }
@@ -139,7 +141,9 @@ function EventCard({ row, mode }: { row: EventRow; mode: BrowseMode }) {
           />
         </div>
         <div className="min-w-0 flex-1">
-          <h3 className="truncate font-semibold text-zinc-900 dark:text-zinc-50">{title}</h3>
+          <h3 className="truncate font-semibold text-zinc-900 dark:text-zinc-50">
+            {title}
+          </h3>
           <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-zinc-500">
             {category && (
               <span className={`rounded-full px-2 py-0.5 font-medium ${CAT.events.chip}`}>
@@ -163,7 +167,9 @@ function EventCard({ row, mode }: { row: EventRow; mode: BrowseMode }) {
             )}
           </div>
           {description && (
-            <p className="mt-1 truncate text-xs text-blue-600 dark:text-blue-400">{description}</p>
+            <p className="mt-1 truncate text-xs text-blue-600 dark:text-blue-400">
+              {description}
+            </p>
           )}
         </div>
       </button>
@@ -191,12 +197,14 @@ function EventCard({ row, mode }: { row: EventRow; mode: BrowseMode }) {
         )}
         {row.is_online && (
           <span className="absolute right-2 top-2 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-zinc-700 backdrop-blur dark:bg-zinc-900/80 dark:text-zinc-200">
-            <Globe className="inline h-2.5 w-2.5 mr-0.5" />Online
+            <Globe className="mr-0.5 inline h-2.5 w-2.5" />Online
           </span>
         )}
       </div>
       <div className="item-card__body flex flex-1 flex-col p-3">
-        <h3 className="item-card__title truncate text-sm font-semibold text-zinc-900 dark:text-zinc-50">{title}</h3>
+        <h3 className="item-card__title truncate text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+          {title}
+        </h3>
         <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-zinc-500">
           {dateLabel && (
             <span className="flex items-center gap-0.5">
@@ -210,7 +218,9 @@ function EventCard({ row, mode }: { row: EventRow; mode: BrowseMode }) {
           </p>
         )}
         {description && (
-          <p className="mt-1.5 line-clamp-2 text-xs text-blue-600 dark:text-blue-400">{description}</p>
+          <p className="mt-1.5 line-clamp-2 text-xs text-blue-600 dark:text-blue-400">
+            {description}
+          </p>
         )}
       </div>
     </button>
@@ -218,7 +228,7 @@ function EventCard({ row, mode }: { row: EventRow; mode: BrowseMode }) {
 }
 
 export default function EventsPage() {
-  const { user } = useAppState();
+  const { user, loading: stateLoading } = useAppState();
   const { favoriteIds: favorites, toggleFavorite } = useFavorites(user?.id);
   const t = useTranslations("objects");
   const tb = useTranslations("branches");
@@ -251,14 +261,18 @@ export default function EventsPage() {
       try {
         const response = await fetch("/api/items/events", { cache: "no-store" });
         const body = await response.json().catch(() => null);
-        if (!cancelled && response.ok) setEvents((body?.events ?? []) as EventRow[]);
+        if (!cancelled && response.ok) {
+          setEvents((body?.events ?? []) as EventRow[]);
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
     }
 
     void fetchEvents();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const filtered = useMemo(() => {
@@ -273,24 +287,34 @@ export default function EventsPage() {
     }) as EventRow[];
   }, [events, search, locationFilter, typeFilter, dateFrom, dateTo, minSeats, sort]);
 
-  const hasFilters = !!search || !!locationFilter || !!typeFilter || !!dateFrom || !!dateTo || !!minSeats || sort !== "soonest";
+  const hasFilters =
+    !!search ||
+    !!locationFilter ||
+    !!typeFilter ||
+    !!dateFrom ||
+    !!dateTo ||
+    !!minSeats ||
+    sort !== "soonest";
   const eventLabel = tb("events");
   const addEventLabel = `${tc("add")} ${eventLabel}`;
   const searchEventsPlaceholder = `${tc("search")} ${eventLabel}…`;
 
   return (
     <div>
-      {!user && <GuestBanner />}
+      {!stateLoading.auth && !user && <GuestBanner />}
 
       <div className="mx-auto max-w-6xl px-4 py-6">
-        {/* Header */}
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="flex items-center gap-2">
               <CalendarDays className="h-6 w-6 text-amber-500" />
-              <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{eventLabel}</h1>
+              <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
+                {eventLabel}
+              </h1>
             </div>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">{tb("eventsDesc")}</p>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+              {tb("eventsDesc")}
+            </p>
           </div>
           <div className="flex items-center gap-2">
             <Link
@@ -303,7 +327,6 @@ export default function EventsPage() {
           </div>
         </div>
 
-        {/* View mode + search */}
         <div className="mb-4 flex items-center gap-2">
           <div className="flex rounded-lg border border-zinc-200 dark:border-zinc-700">
             <button
@@ -330,7 +353,10 @@ export default function EventsPage() {
               className="w-full rounded-xl border border-zinc-200 bg-white py-2 pl-10 pr-4 text-sm outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
             />
             {search && (
-              <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600">
+              <button
+                onClick={() => setSearch("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
+              >
                 <X className="h-4 w-4" />
               </button>
             )}
@@ -349,16 +375,24 @@ export default function EventsPage() {
           </button>
         </div>
 
-        {/* Filters panel */}
         {showFilters && (
           <div className="mb-4 rounded-xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-800/50">
             <div className="flex flex-wrap gap-4">
               <div>
-                <p className="mb-1.5 text-xs font-semibold uppercase text-zinc-500">Event type</p>
-                <input value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} placeholder="Concert, sport, conference…" className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+                <p className="mb-1.5 text-xs font-semibold uppercase text-zinc-500">
+                  Event type
+                </p>
+                <input
+                  value={typeFilter}
+                  onChange={(e) => setTypeFilter(e.target.value)}
+                  placeholder="Concert, sport, conference…"
+                  className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                />
               </div>
               <div>
-                <p className="mb-1.5 text-xs font-semibold uppercase text-zinc-500">{t("filterLocation")}</p>
+                <p className="mb-1.5 text-xs font-semibold uppercase text-zinc-500">
+                  {t("filterLocation")}
+                </p>
                 <div className="relative">
                   <MapPin className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-400" />
                   <input
@@ -369,27 +403,58 @@ export default function EventsPage() {
                     className="w-full rounded-lg border border-zinc-200 bg-white py-1.5 pl-8 pr-3 text-xs outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
                   />
                   {locationFilter && (
-                    <button onClick={() => setLocationFilter("")} className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600">
+                    <button
+                      onClick={() => setLocationFilter("")}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
+                    >
                       <X className="h-3.5 w-3.5" />
                     </button>
                   )}
                 </div>
               </div>
               <div>
-                <p className="mb-1.5 text-xs font-semibold uppercase text-zinc-500">Date from</p>
-                <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+                <p className="mb-1.5 text-xs font-semibold uppercase text-zinc-500">
+                  Date from
+                </p>
+                <input
+                  type="date"
+                  value={dateFrom}
+                  onChange={(e) => setDateFrom(e.target.value)}
+                  className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                />
               </div>
               <div>
-                <p className="mb-1.5 text-xs font-semibold uppercase text-zinc-500">Date to</p>
-                <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+                <p className="mb-1.5 text-xs font-semibold uppercase text-zinc-500">
+                  Date to
+                </p>
+                <input
+                  type="date"
+                  value={dateTo}
+                  onChange={(e) => setDateTo(e.target.value)}
+                  className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                />
               </div>
               <div>
-                <p className="mb-1.5 text-xs font-semibold uppercase text-zinc-500">Minimum seats</p>
-                <input type="number" min="0" value={minSeats} onChange={(e) => setMinSeats(e.target.value)} className="w-28 rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+                <p className="mb-1.5 text-xs font-semibold uppercase text-zinc-500">
+                  Minimum seats
+                </p>
+                <input
+                  type="number"
+                  min="0"
+                  value={minSeats}
+                  onChange={(e) => setMinSeats(e.target.value)}
+                  className="w-28 rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                />
               </div>
               <div>
-                <p className="mb-1.5 text-xs font-semibold uppercase text-zinc-500">Sort</p>
-                <select value={sort} onChange={(e) => setSort(e.target.value as typeof sort)} className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100">
+                <p className="mb-1.5 text-xs font-semibold uppercase text-zinc-500">
+                  Sort
+                </p>
+                <select
+                  value={sort}
+                  onChange={(e) => setSort(e.target.value as typeof sort)}
+                  className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                >
                   <option value="soonest">Soonest</option>
                   <option value="newest">Newest</option>
                   <option value="seats">Most seats</option>
@@ -398,7 +463,15 @@ export default function EventsPage() {
             </div>
             {hasFilters && (
               <button
-                onClick={() => { setSearch(""); setLocationFilter(""); setTypeFilter(""); setDateFrom(""); setDateTo(""); setMinSeats(""); setSort("soonest"); }}
+                onClick={() => {
+                  setSearch("");
+                  setLocationFilter("");
+                  setTypeFilter("");
+                  setDateFrom("");
+                  setDateTo("");
+                  setMinSeats("");
+                  setSort("soonest");
+                }}
                 className="mt-3 text-xs font-medium text-amber-600 hover:text-amber-800 dark:text-amber-400"
               >
                 {t("clearFilters")}
@@ -407,11 +480,15 @@ export default function EventsPage() {
           </div>
         )}
 
-        {/* Loading skeleton */}
+        <AdBanner placement="inline_feed" className="mb-4" />
+
         {loading && (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="animate-pulse overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-800">
+              <div
+                key={i}
+                className="animate-pulse overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-800"
+              >
                 <div className="aspect-[4/3] w-full bg-zinc-200 dark:bg-zinc-700" />
                 <div className="space-y-2.5 p-3">
                   <div className="h-4 w-4/5 rounded bg-zinc-200 dark:bg-zinc-700" />
@@ -446,7 +523,15 @@ export default function EventsPage() {
                 <div className="flex flex-wrap items-center gap-3">
                   {hasFilters && (
                     <button
-                      onClick={() => { setSearch(""); setLocationFilter(""); setTypeFilter(""); setDateFrom(""); setDateTo(""); setMinSeats(""); setSort("soonest"); }}
+                      onClick={() => {
+                        setSearch("");
+                        setLocationFilter("");
+                        setTypeFilter("");
+                        setDateFrom("");
+                        setDateTo("");
+                        setMinSeats("");
+                        setSort("soonest");
+                      }}
                       className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
                     >
                       {t("clearFilters")}
@@ -481,25 +566,32 @@ export default function EventsPage() {
           </div>
         )}
 
-        <AdBanner placement="inline_feed" className="mb-4" />
-
-        {/* Grid */}
         {filtered.length > 0 && browseMode === "grid" && (
           <>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
               {filtered.slice(0, visibleCount).map((row) => (
-                <div key={row.id} className="item-card-container relative" style={{ containerType: "inline-size" }}>
+                <div
+                  key={row.id}
+                  className="item-card-container relative"
+                  style={{ containerType: "inline-size" }}
+                >
                   <EventCard row={row} mode="grid" />
                   {user ? (
                     <button
                       type="button"
-                      onClick={(e) => { e.stopPropagation(); toggleFavorite(row.id); }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleFavorite(row.id);
+                      }}
                       className="absolute right-3 top-3 z-10 rounded-full bg-white/90 p-1.5 shadow-sm backdrop-blur hover:bg-white dark:bg-zinc-900/80 dark:hover:bg-zinc-800"
                     >
                       <Heart className={`h-3.5 w-3.5 ${favorites.has(row.id) ? "fill-red-500 text-red-500" : "text-zinc-400"}`} />
                     </button>
                   ) : (
-                    <AuthGateModal returnTo="/register?returnTo=/events" gaEvent="favorite_click_guest">
+                    <AuthGateModal
+                      returnTo="/register?returnTo=/events"
+                      gaEvent="favorite_click_guest"
+                    >
                       <button
                         type="button"
                         className="absolute right-3 top-3 z-10 rounded-full bg-white/90 p-1.5 shadow-sm backdrop-blur hover:bg-white dark:bg-zinc-900/80 dark:hover:bg-zinc-800"
@@ -513,7 +605,11 @@ export default function EventsPage() {
             </div>
             {visibleCount < filtered.length && (
               <div className="mt-4 flex justify-center">
-                <button type="button" onClick={loadMore} className="rounded-full bg-amber-500 px-6 py-2 text-sm font-semibold text-white hover:bg-amber-600">
+                <button
+                  type="button"
+                  onClick={loadMore}
+                  className="rounded-full bg-amber-500 px-6 py-2 text-sm font-semibold text-white hover:bg-amber-600"
+                >
                   {t("loadMoreItems")} ({filtered.length - visibleCount} {t("remainingItems")})
                 </button>
               </div>
@@ -521,7 +617,6 @@ export default function EventsPage() {
           </>
         )}
 
-        {/* List */}
         {filtered.length > 0 && browseMode === "list" && (
           <>
             <div className="space-y-2">
@@ -531,13 +626,19 @@ export default function EventsPage() {
                   {user ? (
                     <button
                       type="button"
-                      onClick={(e) => { e.stopPropagation(); toggleFavorite(row.id); }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleFavorite(row.id);
+                      }}
                       className="absolute right-3 top-3 z-10 rounded-full bg-white/90 p-1.5 shadow-sm backdrop-blur hover:bg-white dark:bg-zinc-900/80 dark:hover:bg-zinc-800"
                     >
                       <Heart className={`h-3.5 w-3.5 ${favorites.has(row.id) ? "fill-red-500 text-red-500" : "text-zinc-400"}`} />
                     </button>
                   ) : (
-                    <AuthGateModal returnTo="/register?returnTo=/events" gaEvent="favorite_click_guest">
+                    <AuthGateModal
+                      returnTo="/register?returnTo=/events"
+                      gaEvent="favorite_click_guest"
+                    >
                       <button
                         type="button"
                         className="absolute right-3 top-3 z-10 rounded-full bg-white/90 p-1.5 shadow-sm backdrop-blur hover:bg-white dark:bg-zinc-900/80 dark:hover:bg-zinc-800"
@@ -551,7 +652,11 @@ export default function EventsPage() {
             </div>
             {visibleCount < filtered.length && (
               <div className="mt-4 flex justify-center">
-                <button type="button" onClick={loadMore} className="rounded-full bg-amber-500 px-6 py-2 text-sm font-semibold text-white hover:bg-amber-600">
+                <button
+                  type="button"
+                  onClick={loadMore}
+                  className="rounded-full bg-amber-500 px-6 py-2 text-sm font-semibold text-white hover:bg-amber-600"
+                >
                   {t("loadMoreItems")} ({filtered.length - visibleCount} {t("remainingItems")})
                 </button>
               </div>
