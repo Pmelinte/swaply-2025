@@ -11,13 +11,13 @@
   }
 
   /*
-   * While items rehydrate, the 28px result-count row can briefly disappear.
-   * Compensate that exact measured height so the inline ad and cards do not
-   * move up and then back down.
+   * The remaining loading.items transition moves the inline-feed region by
+   * 12px in the settled mobile geometry. Compensate that measured amount while
+   * the result-count row is absent so the ad/cards stay at the same y position.
    */
   main:has(a.bg-cat-obj)
     .mx-auto.max-w-6xl.px-4.py-6:not(:has(> p.mb-3.text-xs.text-zinc-400))
     > .swaply-ad[data-placement="inline_feed"] {
-    margin-top: 28px;
+    margin-top: 12px;
   }
 }
