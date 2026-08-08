@@ -8,6 +8,11 @@ const workflow = readFileSync(
   "utf8",
 );
 
+const legalCopy = readFileSync(
+  resolve(process.cwd(), "src/lib/legal-copy.ts"),
+  "utf8",
+);
+
 describe("V1-06.6 cumulative journey closure gate", () => {
   it("runs repository, browser and authenticated authority gates on one head", () => {
     expect(workflow).toContain("Repository and V1-06 contract gate");
@@ -64,5 +69,15 @@ describe("V1-06.6 cumulative journey closure gate", () => {
     expect(workflow).not.toContain("RESEND_API_KEY");
     expect(workflow).not.toContain("STRIPE_SECRET_KEY");
     expect(workflow).not.toContain("OPENAI_API_KEY");
+  });
+
+  it("inherits the V1-09 privacy/legal safety boundary on the same replay head", () => {
+    expect(legalCopy).toContain('SWAPLY_TERMS_REVISION_DATE = "2026-08-08"');
+    expect(legalCopy).toContain('SWAPLY_SAFETY_REVISION_DATE = "2026-08-08"');
+    expect(legalCopy).toContain(
+      "does not guarantee that every private message is automatically screened or moderated before delivery",
+    );
+    expect(legalCopy).toContain("no fixed review-time guarantee is made");
+    expect(legalCopy).toContain("reporting, blocking, and dispute tools");
   });
 });
