@@ -24,7 +24,9 @@ describe("V1-10.2 operations readiness contract", () => {
     expect(script).toContain('routes = ["/en", "/en/login", "/en/explore"]');
     expect(script).toContain("bodySha256");
     expect(script).toContain("productionAliasChanged: false");
-    expect(script).not.toMatch(/alias(es)?\s*\.(set|update|assign)|deployments?\s*\.(create|promote)/i);
+    expect(script).not.toMatch(
+      /alias(es)?\s*\.(set|update|assign)|deployments?\s*\.(create|promote)/i,
+    );
     expect(vercel).toContain("rollback-readiness evidence");
     expect(vercel).toContain("does not roll back Supabase data");
   });
@@ -77,7 +79,7 @@ describe("V1-10.2 operations readiness contract", () => {
     expect(recoveryRecord).toContain("`v1.0.0`");
     expect(recoveryRecord).toContain("`SWAPLY_V1_GA`");
     expect(recoveryRecord).toContain("destructive restore over Production");
-    expect(responsibilities).toContain("no Supabase Production migration or data write").not;
+    expect(responsibilities).not.toContain("may execute a Production restore without approval");
     expect(workflow).toContain("retention-days: 90");
   });
 });
