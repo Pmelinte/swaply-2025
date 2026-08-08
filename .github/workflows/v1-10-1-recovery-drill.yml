@@ -1,0 +1,240 @@
+name: V1-10.1 Recovery and restore drill
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/v1-10-1-recovery-drill.yml"
+      - "scripts/v1-10/**"
+      - "supabase/tests/fixtures/v1_10_recovery_source.sql"
+      - "supabase/tests/v1_10_recovery_restore_verify.sql"
+      - "src/__tests__/v1-10-1-recovery-contract.test.ts"
+      - "docs/V1-10.1_RECOVERY_DRILL.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v1-10-1-recovery-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "22"
+  NEXT_TELEMETRY_DISABLED: "1"
+
+jobs:
+  recovery-contract:
+    name: Recovery contract and repository guard
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Run V1-10.1 recovery contract
+        run: >-
+          npx vitest run
+          src/__tests__/v1-10-1-recovery-contract.test.ts
+          --reporter=verbose
+
+  production-inventory:
+    name: Read-only Production recovery inventory
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Count critical Production resources without exporting rows
+        env:
+          SUPABASE_URL: https://keaejxlwqtjjglijiplh.supabase.co
+          SUPABASE_PROJECT_REF: keaejxlwqtjjglijiplh
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          RECOVERY_EVIDENCE_DIR: recovery-evidence/production
+        run: node scripts/v1-10/production-inventory.mjs
+
+      - name: Upload read-only Production inventory
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v1-10-1-production-inventory-${{ github.run_id }}
+          path: recovery-evidence/production/
+          if-no-files-found: error
+          retention-days: 90
+
+  logical-backup-restore:
+    name: PostgreSQL logical backup and isolated restore
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@v4
+
+      - name: Resolve PostgreSQL service container
+        shell: bash
+        run: |
+          set -euo pipefail
+          container_id="$(docker ps --filter 'ancestor=postgres:17' --format '{{.ID}}' | head -n 1)"
+          test -n "${container_id}"
+          echo "POSTGRES_CONTAINER_ID=${container_id}" >> "${GITHUB_ENV}"
+
+      - name: Record PostgreSQL 17 recovery toolchain
+        run: |
+          set -euo pipefail
+          mkdir -p recovery-evidence/restore
+          docker exec "${POSTGRES_CONTAINER_ID}" psql --version \
+            | tee recovery-evidence/restore/psql-version.txt
+          docker exec "${POSTGRES_CONTAINER_ID}" pg_dump --version \
+            | tee recovery-evidence/restore/pg-dump-version.txt
+          docker exec "${POSTGRES_CONTAINER_ID}" pg_restore --version \
+            | tee recovery-evidence/restore/pg-restore-version.txt
+
+      - name: Create deterministic source database
+        run: |
+          set -euo pipefail
+          docker exec "${POSTGRES_CONTAINER_ID}" \
+            createdb --username postgres swaply_recovery_source
+          docker exec -i "${POSTGRES_CONTAINER_ID}" \
+            psql --username postgres --dbname swaply_recovery_source \
+            < supabase/tests/fixtures/v1_10_recovery_source.sql \
+            2>&1 | tee recovery-evidence/restore/source-create.log
+
+      - name: Create logical backup and checksum
+        run: |
+          set -euo pipefail
+          docker exec "${POSTGRES_CONTAINER_ID}" \
+            pg_dump \
+              --username postgres \
+              --dbname swaply_recovery_source \
+              --format custom \
+              --no-owner \
+              --no-privileges \
+            > recovery-evidence/restore/swaply-recovery.dump
+          sha256sum recovery-evidence/restore/swaply-recovery.dump \
+            | tee recovery-evidence/restore/swaply-recovery.dump.sha256
+          test -s recovery-evidence/restore/swaply-recovery.dump
+
+      - name: Restore into a clean isolated database
+        run: |
+          set -euo pipefail
+          docker exec "${POSTGRES_CONTAINER_ID}" \
+            createdb --username postgres swaply_recovery_target
+          docker exec -i "${POSTGRES_CONTAINER_ID}" \
+            pg_restore \
+              --username postgres \
+              --dbname swaply_recovery_target \
+              --exit-on-error \
+              --no-owner \
+              --no-privileges \
+            < recovery-evidence/restore/swaply-recovery.dump \
+            2>&1 | tee recovery-evidence/restore/restore.log
+
+      - name: Verify restored data, relationships, RLS and policies
+        run: |
+          set -euo pipefail
+          docker exec -i "${POSTGRES_CONTAINER_ID}" \
+            psql --username postgres --dbname swaply_recovery_target \
+            < supabase/tests/v1_10_recovery_restore_verify.sql \
+            2>&1 | tee recovery-evidence/restore/restore-verification.log
+
+      - name: Verify transactional rollback
+        run: |
+          set -euo pipefail
+          docker exec -i "${POSTGRES_CONTAINER_ID}" \
+            psql --username postgres --dbname swaply_recovery_target <<'SQL' 2>&1 \
+            | tee recovery-evidence/restore/transaction-rollback.log
+          \set ON_ERROR_STOP on
+          begin;
+          insert into public.blog_posts (id, locale, slug, title, published)
+          values (
+            '80000000-0000-0000-0000-000000000099',
+            'en',
+            'rollback-sentinel',
+            'Rollback sentinel',
+            false
+          );
+          rollback;
+          do $$
+          begin
+            if exists (
+              select 1 from public.blog_posts where slug = 'rollback-sentinel'
+            ) then
+              raise exception 'Transactional rollback left the sentinel row behind.';
+            end if;
+          end;
+          $$;
+          select 'transaction_rollback_verified' as result;
+          SQL
+
+      - name: Verify forward-fix migration strategy
+        run: |
+          set -euo pipefail
+          docker exec -i "${POSTGRES_CONTAINER_ID}" \
+            psql --username postgres --dbname swaply_recovery_target <<'SQL' 2>&1 \
+            | tee recovery-evidence/restore/forward-fix.log
+          \set ON_ERROR_STOP on
+          begin;
+          alter table public.swaps add column recovery_marker text;
+          update public.swaps set recovery_marker = 'v1-10-forward-fix';
+          alter table public.swaps alter column recovery_marker set not null;
+          commit;
+          do $$
+          begin
+            if (
+              select bool_and(recovery_marker = 'v1-10-forward-fix')
+              from public.swaps
+            ) is distinct from true then
+              raise exception 'Forward-fix marker was not applied to every swap.';
+            end if;
+          end;
+          $$;
+          select 'forward_fix_verified' as result;
+          SQL
+
+      - name: Upload safe synthetic recovery evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v1-10-1-logical-restore-${{ github.run_id }}
+          path: recovery-evidence/restore/
+          if-no-files-found: error
+          retention-days: 90
