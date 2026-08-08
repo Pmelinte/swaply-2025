@@ -182,6 +182,7 @@ jobs:
           docker exec -i "${POSTGRES_CONTAINER_ID}" \
             psql --username postgres --dbname swaply_recovery_target <<'SQL' 2>&1 \
             | tee recovery-evidence/restore/transaction-rollback.log
+          \set ON_ERROR_STOP on
           begin;
           insert into public.blog_posts (id, locale, slug, title, published)
           values (
@@ -192,9 +193,16 @@ jobs:
             false
           );
           rollback;
-          select case when not exists (
-            select 1 from public.blog_posts where slug = 'rollback-sentinel'
-          ) then 1 else 1 / 0 end as transaction_rollback_verified;
+          do $$
+          begin
+            if exists (
+              select 1 from public.blog_posts where slug = 'rollback-sentinel'
+            ) then
+              raise exception 'Transactional rollback left the sentinel row behind.';
+            end if;
+          end;
+          $$;
+          select 'transaction_rollback_verified' as result;
           SQL
 
       - name: Verify forward-fix migration strategy
@@ -203,15 +211,23 @@ jobs:
           docker exec -i "${POSTGRES_CONTAINER_ID}" \
             psql --username postgres --dbname swaply_recovery_target <<'SQL' 2>&1 \
             | tee recovery-evidence/restore/forward-fix.log
+          \set ON_ERROR_STOP on
           begin;
           alter table public.swaps add column recovery_marker text;
           update public.swaps set recovery_marker = 'v1-10-forward-fix';
           alter table public.swaps alter column recovery_marker set not null;
           commit;
-          select case when (
-            select bool_and(recovery_marker = 'v1-10-forward-fix')
-            from public.swaps
-          ) then 1 else 1 / 0 end as forward_fix_verified;
+          do $$
+          begin
+            if (
+              select bool_and(recovery_marker = 'v1-10-forward-fix')
+              from public.swaps
+            ) is distinct from true then
+              raise exception 'Forward-fix marker was not applied to every swap.';
+            end if;
+          end;
+          $$;
+          select 'forward_fix_verified' as result;
           SQL
 
       - name: Upload safe synthetic recovery evidence
