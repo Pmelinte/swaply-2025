@@ -1,0 +1,81 @@
+name: V1-10.2 Operations readiness rehearsal
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/v1-10-2-operations-rehearsal.yml"
+      - "scripts/v1-10/operations-rehearsal.mjs"
+      - "src/__tests__/v1-10-2-operations-contract.test.ts"
+      - "docs/operations/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v1-10-2-operations-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "22"
+  NEXT_TELEMETRY_DISABLED: "1"
+
+jobs:
+  operations-contract:
+    name: Operations, fallback and fail-closed contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Run operations and provider-boundary contracts
+        run: >-
+          npx vitest run
+          src/__tests__/v1-10-2-operations-contract.test.ts
+          src/__tests__/swaply-ai-facade.test.ts
+          src/__tests__/commercial-closure-e48.test.ts
+          --reporter=verbose
+
+  non-destructive-rehearsal:
+    name: Immutable deployment and secret-cutover rehearsal
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Run non-destructive operations rehearsal
+        env:
+          CURRENT_PRODUCTION_URL: https://www.swaply.world
+          ROLLBACK_CANDIDATE_URL: https://swaply-2025-i3oa29f7x-petrus-projects-d4a0946c.vercel.app
+          OPERATIONS_EVIDENCE_DIR: operations-evidence
+          REHEARSAL_TIMEOUT_MS: "20000"
+        run: node scripts/v1-10/operations-rehearsal.mjs
+
+      - name: Upload operations evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v1-10-2-operations-rehearsal-${{ github.run_id }}
+          path: operations-evidence/
+          if-no-files-found: error
+          retention-days: 90
