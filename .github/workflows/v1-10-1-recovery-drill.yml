@@ -106,44 +106,44 @@ jobs:
           --health-retries 12
 
     env:
-      PGHOST: 127.0.0.1
-      PGPORT: "5432"
-      PGUSER: postgres
-      PGPASSWORD: postgres
+      POSTGRES_CONTAINER_ID: ${{ job.services.postgres.id }}
 
     steps:
       - name: Checkout exact head
         uses: actions/checkout@v4
 
-      - name: Install PostgreSQL client
+      - name: Record PostgreSQL 17 recovery toolchain
         run: |
-          sudo apt-get update
-          sudo apt-get install --yes postgresql-client
-
-      - name: Record recovery toolchain
-        run: |
+          set -euo pipefail
           mkdir -p recovery-evidence/restore
-          psql --version | tee recovery-evidence/restore/psql-version.txt
-          pg_dump --version | tee recovery-evidence/restore/pg-dump-version.txt
-          pg_restore --version | tee recovery-evidence/restore/pg-restore-version.txt
+          docker exec "${POSTGRES_CONTAINER_ID}" psql --version \
+            | tee recovery-evidence/restore/psql-version.txt
+          docker exec "${POSTGRES_CONTAINER_ID}" pg_dump --version \
+            | tee recovery-evidence/restore/pg-dump-version.txt
+          docker exec "${POSTGRES_CONTAINER_ID}" pg_restore --version \
+            | tee recovery-evidence/restore/pg-restore-version.txt
 
       - name: Create deterministic source database
         run: |
           set -euo pipefail
-          createdb swaply_recovery_source
-          psql --dbname swaply_recovery_source \
-            --file supabase/tests/fixtures/v1_10_recovery_source.sql \
+          docker exec "${POSTGRES_CONTAINER_ID}" \
+            createdb --username postgres swaply_recovery_source
+          docker exec -i "${POSTGRES_CONTAINER_ID}" \
+            psql --username postgres --dbname swaply_recovery_source \
+            < supabase/tests/fixtures/v1_10_recovery_source.sql \
             2>&1 | tee recovery-evidence/restore/source-create.log
 
       - name: Create logical backup and checksum
         run: |
           set -euo pipefail
-          pg_dump \
-            --dbname swaply_recovery_source \
-            --format custom \
-            --no-owner \
-            --no-privileges \
-            --file recovery-evidence/restore/swaply-recovery.dump
+          docker exec "${POSTGRES_CONTAINER_ID}" \
+            pg_dump \
+              --username postgres \
+              --dbname swaply_recovery_source \
+              --format custom \
+              --no-owner \
+              --no-privileges \
+            > recovery-evidence/restore/swaply-recovery.dump
           sha256sum recovery-evidence/restore/swaply-recovery.dump \
             | tee recovery-evidence/restore/swaply-recovery.dump.sha256
           test -s recovery-evidence/restore/swaply-recovery.dump
@@ -151,26 +151,31 @@ jobs:
       - name: Restore into a clean isolated database
         run: |
           set -euo pipefail
-          createdb swaply_recovery_target
-          pg_restore \
-            --dbname swaply_recovery_target \
-            --exit-on-error \
-            --no-owner \
-            --no-privileges \
-            recovery-evidence/restore/swaply-recovery.dump \
+          docker exec "${POSTGRES_CONTAINER_ID}" \
+            createdb --username postgres swaply_recovery_target
+          docker exec -i "${POSTGRES_CONTAINER_ID}" \
+            pg_restore \
+              --username postgres \
+              --dbname swaply_recovery_target \
+              --exit-on-error \
+              --no-owner \
+              --no-privileges \
+            < recovery-evidence/restore/swaply-recovery.dump \
             2>&1 | tee recovery-evidence/restore/restore.log
 
       - name: Verify restored data, relationships, RLS and policies
         run: |
           set -euo pipefail
-          psql --dbname swaply_recovery_target \
-            --file supabase/tests/v1_10_recovery_restore_verify.sql \
+          docker exec -i "${POSTGRES_CONTAINER_ID}" \
+            psql --username postgres --dbname swaply_recovery_target \
+            < supabase/tests/v1_10_recovery_restore_verify.sql \
             2>&1 | tee recovery-evidence/restore/restore-verification.log
 
       - name: Verify transactional rollback
         run: |
           set -euo pipefail
-          psql --dbname swaply_recovery_target <<'SQL' 2>&1 \
+          docker exec -i "${POSTGRES_CONTAINER_ID}" \
+            psql --username postgres --dbname swaply_recovery_target <<'SQL' 2>&1 \
             | tee recovery-evidence/restore/transaction-rollback.log
           begin;
           insert into public.blog_posts (id, locale, slug, title, published)
@@ -190,7 +195,8 @@ jobs:
       - name: Verify forward-fix migration strategy
         run: |
           set -euo pipefail
-          psql --dbname swaply_recovery_target <<'SQL' 2>&1 \
+          docker exec -i "${POSTGRES_CONTAINER_ID}" \
+            psql --username postgres --dbname swaply_recovery_target <<'SQL' 2>&1 \
             | tee recovery-evidence/restore/forward-fix.log
           begin;
           alter table public.swaps add column recovery_marker text;
