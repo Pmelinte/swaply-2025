@@ -1,6 +1,7 @@
 import { RealChatPage } from "@/components/chat/RealChatPage";
 import { getServerSupabase } from "@/lib/supabase/server";
 import { getLocale, getTranslations } from "next-intl/server";
+import styles from "./messages-performance.module.css";
 
 export const revalidate = 0;
 
@@ -111,7 +112,7 @@ export default async function MessagesRoute() {
   }
 
   return (
-    <div className="min-h-[70vh] [&_aside]:h-64 [&_aside]:overflow-y-auto [&_[data-testid=real-chat-workspace]>div.flex-1]:min-h-[40vh] md:[&_aside]:h-auto md:[&_aside]:overflow-visible md:[&_[data-testid=real-chat-workspace]>div.flex-1]:min-h-0">
+    <div className={styles.shell}>
       <h1 className="sr-only">{t("pageTitle")}</h1>
       <RealChatPage />
     </div>
