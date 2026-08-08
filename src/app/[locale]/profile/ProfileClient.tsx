@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { useAppState } from "@/lib/state";
 import { CTAButton, NextStepRecommendation, SectionCard } from "@/components/ui-custom";
 import { TrustProfileCard } from "@/components/trust/TrustProfileCard";
+import { CSRF_HEADER_NAME, getCsrfTokenFromCookie } from "@/lib/csrf";
 import type { UserProfile } from "@/lib/types";
 import ProfileTab from "./_components/ProfileTab";
 import PropertiesTab from "./_components/PropertiesTab";
@@ -43,7 +44,7 @@ export function ProfileClient() {
   const tc = useTranslations("common");
   const searchParams = useSearchParams();
   const {
-    user, updateProfile, changeEmail, changePassword, deleteAccount, loading, lastError,
+    user, updateProfile, changeEmail, changePassword, logout, loading, lastError,
     achievements, shopItems, purchaseShopItem, exportUserData, accountStatus, pauseAccount, resumeAccount, tokenLedger,
     updateHouseProfile, addServiceProfile, removeServiceProfile,
     verificationBadges, requestPhoneVerification, verifyPhoneCode, submitIdDocument, submitSelfie,
@@ -142,6 +143,26 @@ export function ProfileClient() {
   ];
   const completenessPercent = Math.round((completenessChecks.filter(Boolean).length / completenessChecks.length) * 100);
 
+  const requestAccountDeletion = async (): Promise<{ error?: string }> => {
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    const csrfToken = getCsrfTokenFromCookie();
+    if (csrfToken) headers[CSRF_HEADER_NAME] = csrfToken;
+
+    const response = await fetch("/api/gdpr/delete", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({}),
+    });
+    const payload = await response.json().catch(() => null) as { error?: string } | null;
+
+    if (!response.ok) {
+      throw new Error(payload?.error ?? "Account deletion request failed.");
+    }
+
+    await logout();
+    return {};
+  };
+
   const activePanel = (
     <div className="min-w-0 space-y-4">
       {activeTab === "profil" && <ProfileTab draft={draft} update={update} userId={user.id} />}
@@ -157,7 +178,7 @@ export function ProfileClient() {
         <AccountTab
           user={user} draft={draft} update={update}
           changeEmail={changeEmail} changePassword={changePassword}
-          deleteAccount={deleteAccount} exportUserData={exportUserData}
+          deleteAccount={requestAccountDeletion} exportUserData={exportUserData}
           accountStatus={accountStatus} pauseAccount={pauseAccount} resumeAccount={resumeAccount}
         />
       )}

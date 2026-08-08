@@ -26,15 +26,49 @@ export async function GET(request: NextRequest) {
   const sb = getServiceSupabase();
   if (!sb) return NextResponse.json({ error: "Serviciu indisponibil" }, { status: 503 });
 
-  const [profile, items, notifications, swaps, gdprRequests] = await Promise.all([
+  const [
+    profile,
+    items,
+    notifications,
+    swapIntents,
+    swaps,
+    conversations,
+    messages,
+    userTokens,
+    swapleniAccount,
+    swapleniLedger,
+    gdprRequests,
+  ] = await Promise.all([
     sb.from("profiles").select("*").or(`id.eq.${userId},user_id.eq.${userId}`).limit(1),
     sb.from("items").select("*").eq("owner_id", userId).order("created_at", { ascending: false }),
     sb.from("notifications").select("*").eq("user_id", userId).order("created_at", { ascending: false }),
-    sb.from("swap_intents").select("*").or(`requester_id.eq.${userId},responder_id.eq.${userId}`).order("created_at", { ascending: false }),
-    sb.from("gdpr_requests").select("id,type,status,requested_at,completed_at").eq("user_id", userId).order("requested_at", { ascending: false }),
+    sb.from("swap_intents").select("*").eq("user_id", userId).order("created_at", { ascending: false }),
+    sb.from("swaps").select("*").or(`requester_id.eq.${userId},responder_id.eq.${userId}`).order("created_at", { ascending: false }),
+    sb.from("conversations").select("*").contains("participant_ids", [userId]).order("updated_at", { ascending: false }),
+    sb.from("messages").select("*").or(`sender_id.eq.${userId},recipient_id.eq.${userId}`).order("created_at", { ascending: true }),
+    sb.from("user_tokens").select("*").eq("user_id", userId).order("created_at", { ascending: false }),
+    sb.from("swapleni_accounts").select("*").eq("user_id", userId).maybeSingle(),
+    sb.from("swapleni_ledger").select("*").eq("user_id", userId).order("occurred_at", { ascending: false }),
+    sb.from("gdpr_requests")
+      .select("id,type,status,requested_at,processed_at,export_url,export_expires_at")
+      .eq("user_id", userId)
+      .order("requested_at", { ascending: false }),
   ]);
 
-  const errors = [profile.error, items.error, notifications.error, swaps.error, gdprRequests.error].filter(Boolean);
+  const errors = [
+    profile.error,
+    items.error,
+    notifications.error,
+    swapIntents.error,
+    swaps.error,
+    conversations.error,
+    messages.error,
+    userTokens.error,
+    swapleniAccount.error,
+    swapleniLedger.error,
+    gdprRequests.error,
+  ].filter(Boolean);
+
   if (errors.length > 0) {
     console.error("[gdpr/export] read error:", errors.map((e) => e?.message).join("; "));
     return NextResponse.json({ error: "Eroare la pregătirea exportului" }, { status: 500 });
@@ -44,15 +78,25 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json({
     exportedAt: new Date().toISOString(),
-    userId,
+    account: {
+      id: auth.authUser.id,
+      email: auth.authUser.email ?? null,
+      createdAt: auth.authUser.created_at ?? null,
+      lastSignInAt: auth.authUser.last_sign_in_at ?? null,
+    },
     profile: profile.data?.[0] ?? null,
     items: items.data ?? [],
     notifications: notifications.data ?? [],
+    swapIntents: swapIntents.data ?? [],
     swaps: swaps.data ?? [],
+    conversations: conversations.data ?? [],
+    messages: messages.data ?? [],
+    userTokens: userTokens.data ?? [],
+    swapleniAccount: swapleniAccount.data ?? null,
+    swapleniLedger: swapleniLedger.data ?? [],
     gdprRequests: gdprRequests.data ?? [],
   });
 }
-
 
 export async function POST(request: NextRequest) {
   // CSRF protection
