@@ -13,6 +13,9 @@ const PASSWORD = process.env.E2E_USER_A_PASSWORD;
 const ROUTE_SUFFIXES = [
   { id: "authenticated-home", suffix: "" },
   { id: "objects", suffix: "/objects" },
+  { id: "properties", suffix: "/properties" },
+  { id: "services", suffix: "/services" },
+  { id: "events", suffix: "/events" },
   { id: "matching", suffix: "/matching" },
   { id: "messages", suffix: "/messages" },
   { id: "exchange", suffix: "/exchange" },
