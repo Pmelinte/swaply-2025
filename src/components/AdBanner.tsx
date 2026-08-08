@@ -61,7 +61,8 @@ export function AdBanner({ placement, className = "" }: AdBannerProps) {
   // Fallback: eco-friendly CTA (promotes premium upgrade)
   return (
     <div
-      className={`flex min-h-[4.75rem] flex-col items-center justify-center rounded-xl border border-blue-200 bg-gradient-to-r from-blue-50 to-purple-50 p-3 text-center dark:border-blue-900 dark:from-blue-950/20 dark:to-purple-950/20 ${className}`}
+      className={`swaply-ad flex min-h-[4.75rem] flex-col items-center justify-center rounded-xl border border-blue-200 bg-gradient-to-r from-blue-50 to-purple-50 p-3 text-center dark:border-blue-900 dark:from-blue-950/20 dark:to-purple-950/20 ${className}`}
+      data-placement={placement}
     >
       <p className="text-xs font-medium leading-5 text-blue-700 dark:text-blue-300">
         {t("premiumCta")}
