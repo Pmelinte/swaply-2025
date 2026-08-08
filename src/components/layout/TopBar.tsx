@@ -320,7 +320,7 @@ export function TopBar() {
         </div>
 
         {/* Right: Notifications + Profile + Logout */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex min-h-9 min-w-[140px] items-center justify-end gap-1.5">
           {user ? (
             <>
               {/* Token balance */}
