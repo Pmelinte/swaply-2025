@@ -10,7 +10,27 @@ export function ContextBar() {
   const t = useTranslations("contextBar");
   const { user, items, swaps, conversations, notifications } = useAppState();
 
-  if (!user) return null;
+  const isObjectsRoute = pathname === "/objects" || pathname.startsWith("/objects/");
+
+  // `/objects` has authenticated context content. Keep the shell in flow from
+  // the first render so restoring the authenticated user cannot insert a new
+  // row above <main> and cause a large layout shift. Guests keep the same
+  // neutral strip, so the geometry is stable in both authenticated and public
+  // browsing states.
+  if (!user) {
+    if (!isObjectsRoute) return null;
+
+    return (
+      <div
+        className="border-b border-zinc-100 bg-zinc-50/80 dark:border-zinc-800 dark:bg-zinc-900/50"
+        aria-hidden="true"
+      >
+        <div className="mx-auto max-w-6xl px-4 py-1.5 text-xs text-zinc-500 dark:text-zinc-400">
+          <span className="invisible">0</span>
+        </div>
+      </div>
+    );
+  }
 
   // Matching page has its own sticky header; ContextBar would duplicate info
   if (pathname === "/matching" || pathname.startsWith("/matching/")) return null;
@@ -46,7 +66,7 @@ export function ContextBar() {
         </Link>
       </div>
     );
-  } else if (pathname === "/objects" || pathname.startsWith("/objects/")) {
+  } else if (isObjectsRoute) {
     content = (
       <div className="flex items-center gap-3">
         <span>{t("itemsActive", { count: myItems.length })}</span>
