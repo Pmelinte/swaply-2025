@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { SectionCard } from "@/components/ui-custom";
 import { normalizePublicLegalCopy } from "@/lib/legal-copy";
 
@@ -15,8 +15,18 @@ const SECTIONS = [
   { id: "contact", titleKey: "privacyContact", textKey: "privacyContactText" },
 ] as const;
 
+const AI_DISCLOSURE: Record<string, string> = {
+  en: "AI provider disclosure: AI image analysis is performed server-side. Depending on configuration and availability, image content submitted for AI analysis may be processed by Groq, Google Gemini, or Hugging Face. Not all providers are necessarily active at the same time.",
+  ro: "Furnizor AI: analiza AI a imaginilor este efectuată pe server. În funcție de configurare și disponibilitate, conținutul imaginilor trimise pentru analiză AI poate fi procesat de Groq, Google Gemini sau Hugging Face. Nu toți furnizorii sunt în mod necesar activi în același timp.",
+};
+
+function getAiDisclosure(locale: string): string {
+  return AI_DISCLOSURE[locale] ?? AI_DISCLOSURE.en;
+}
+
 export default function PrivacyPage() {
   const t = useTranslations("legal");
+  const locale = useLocale();
 
   return (
     <div className="space-y-4">
@@ -26,7 +36,7 @@ export default function PrivacyPage() {
       >
         {/* Last updated badge */}
         <div className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-          {normalizePublicLegalCopy(t("lastUpdated"))}: 2026-02-15
+          {normalizePublicLegalCopy(t("lastUpdated"))}: 2026-08-08
         </div>
 
         {/* Table of Contents */}
@@ -53,6 +63,11 @@ export default function PrivacyPage() {
             <div key={s.id} id={s.id} className="scroll-mt-20">
               <h3>{normalizePublicLegalCopy(t(s.titleKey))}</h3>
               <p>{normalizePublicLegalCopy(t(s.textKey))}</p>
+              {s.id === "sharing" && (
+                <p data-testid="privacy-ai-provider-disclosure">
+                  {getAiDisclosure(locale)}
+                </p>
+              )}
             </div>
           ))}
         </div>
