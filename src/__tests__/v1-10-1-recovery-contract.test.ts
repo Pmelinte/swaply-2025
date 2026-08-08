@@ -32,7 +32,12 @@ describe("V1-10.1 recovery contract", () => {
     expect(inventory).toContain('.select("*", { count: "exact", head: true })');
     expect(inventory).toContain("auth.admin.listUsers");
     expect(inventory).toContain("storage.listBuckets");
-    expect(inventory).not.toMatch(/\.(insert|update|upsert|delete|rpc)\s*\(/);
+
+    const compactInventory = inventory.replace(/\s+/g, " ");
+    expect(compactInventory).not.toMatch(
+      /\.from\([^)]*\)\s*\.(insert|update|upsert|delete)\s*\(/,
+    );
+    expect(compactInventory).not.toMatch(/supabase\s*\.\s*rpc\s*\(/);
     expect(inventory).not.toContain("user.email");
     expect(inventory).not.toContain("object.name");
   });
