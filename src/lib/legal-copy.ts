@@ -9,6 +9,7 @@ export const SWAPLY_PUBLIC_SAFETY_EMAIL = "safety@swaply.world";
 export const SWAPLY_PUBLIC_DMCA_EMAIL = "dmca@swaply.world";
 export const SWAPLY_PUBLIC_LEGAL_EMAIL = "legal@swaply.world";
 export const SWAPLY_TERMS_REVISION_DATE = "2026-08-08";
+export const SWAPLY_SAFETY_REVISION_DATE = "2026-08-08";
 
 const PUBLIC_LEGAL_COPY_REPLACEMENTS = [
   ["support@swaply.app", SWAPLY_PUBLIC_SUPPORT_EMAIL],
@@ -35,6 +36,14 @@ export type PublicTermsSectionId =
   | "changes"
   | "contact";
 
+export type PublicSafetySectionId =
+  | "general"
+  | "meeting"
+  | "shipping"
+  | "scams"
+  | "reporting"
+  | "contact";
+
 const CANONICAL_TERMS_SECTION_COPY: Partial<Record<PublicTermsSectionId, string>> = {
   "account-rules":
     "One account per person. Provide accurate information and do not share credentials. Account deletion is handled through the GDPR deletion workflow available from Profile > Account & Settings; some records may be deleted, anonymized, or retained where required for security, disputes, fraud prevention, accounting, or legal obligations.",
@@ -46,6 +55,13 @@ const CANONICAL_TERMS_SECTION_COPY: Partial<Record<PublicTermsSectionId, string>
     "Swaply provides reporting, blocking, and dispute tools to help users address inappropriate content, unsafe behavior, or exchange problems. Reports and disputes may be reviewed and acted on under the platform's safety controls. Swaply does not guarantee that every private message is automatically screened or moderated before delivery. AI may be used for specific product functions, such as item analysis, where disclosed in the Privacy Policy.",
   liability:
     "Swaply is provided as a platform for users to discover and arrange exchanges. To the extent permitted by applicable law, Swaply does not guarantee the quality, legality, safety, availability, delivery, performance, or outcome of user-provided objects, properties, services, events, or arrangements. Users should use appropriate precautions, tracked logistics where relevant, and the available report, block, and dispute tools when necessary.",
+};
+
+const CANONICAL_SAFETY_SECTION_COPY: Partial<Record<PublicSafetySectionId, string>> = {
+  general:
+    "Trust your instincts and keep exchange discussions on Swaply where practical. Before agreeing to an exchange, review the other participant's profile and available reputation signals. The chat may warn about external contact details and restrict certain attachment types, but Swaply does not guarantee that every private message is automatically screened or moderated before delivery. Share sensitive personal information only when it is necessary for an agreed exchange step.",
+  reporting:
+    `Use the available Report, Block, and Dispute tools to flag suspicious content, unsafe behavior, prohibited listings, or exchange problems. Reports and disputes may be reviewed and acted on under Swaply's safety controls; no fixed review-time guarantee is made. For urgent safety concerns, contact the appropriate local authorities first, then notify Swaply at ${SWAPLY_PUBLIC_SAFETY_EMAIL}.`,
 };
 
 /**
@@ -80,5 +96,21 @@ export function getPublicTermsSectionCopy(
   translatedValue: string,
 ): string {
   const canonical = CANONICAL_TERMS_SECTION_COPY[sectionId];
+  return normalizePublicLegalCopy(canonical ?? translatedValue);
+}
+
+/**
+ * Returns authoritative runtime copy for Safety sections where legacy
+ * translations contain guarantees that are not supported by Production.
+ *
+ * General and reporting copy are intentionally canonical until all locale
+ * translations are regenerated from the same legal baseline. Other sections keep
+ * their translated copy after public-domain normalization.
+ */
+export function getPublicSafetySectionCopy(
+  sectionId: PublicSafetySectionId,
+  translatedValue: string,
+): string {
+  const canonical = CANONICAL_SAFETY_SECTION_COPY[sectionId];
   return normalizePublicLegalCopy(canonical ?? translatedValue);
 }
