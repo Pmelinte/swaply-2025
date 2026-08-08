@@ -17,6 +17,7 @@ interface Props {
 }
 
 const PAGE_SIZE = 12;
+const SKELETON_SIZE = 4;
 
 function MatchingBrowseSkeleton() {
   return (
@@ -25,7 +26,7 @@ function MatchingBrowseSkeleton() {
       aria-hidden="true"
       data-testid="matching-browse-skeleton"
     >
-      {Array.from({ length: PAGE_SIZE }, (_, index) => (
+      {Array.from({ length: SKELETON_SIZE }, (_, index) => (
         <div
           key={index}
           className="overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900"
@@ -116,9 +117,11 @@ export default function MatchingBrowse({
       {loading ? (
         <MatchingBrowseSkeleton />
       ) : visible.length === 0 ? (
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">
-          {t("browse_no_slot_banner")}
-        </p>
+        <div className="flex min-h-24 items-center">
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            {t("browse_no_slot_banner")}
+          </p>
+        </div>
       ) : (
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           {visible.map((candidate) => (
