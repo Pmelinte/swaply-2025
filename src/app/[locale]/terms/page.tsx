@@ -2,9 +2,38 @@
 
 import { useTranslations } from "next-intl";
 import { SectionCard } from "@/components/ui-custom";
-import { normalizePublicLegalCopy } from "@/lib/legal-copy";
+import {
+  SWAPLY_TERMS_REVISION_DATE,
+  getPublicTermsSectionCopy,
+  normalizePublicLegalCopy,
+  type PublicTermsSectionId,
+} from "@/lib/legal-copy";
 
-const SECTIONS = [
+const SECTIONS: ReadonlyArray<{
+  id: PublicTermsSectionId;
+  titleKey:
+    | "termsAcceptance"
+    | "termsEligibility"
+    | "termsAccountRules"
+    | "termsSwapRules"
+    | "termsProhibited"
+    | "termsModeration"
+    | "termsLiability"
+    | "termsIP"
+    | "termsChanges"
+    | "termsContact";
+  textKey:
+    | "termsAcceptanceText"
+    | "termsEligibilityText"
+    | "termsAccountRulesText"
+    | "termsSwapRulesText"
+    | "termsProhibitedText"
+    | "termsModerationText"
+    | "termsLiabilityText"
+    | "termsIPText"
+    | "termsChangesText"
+    | "termsContactText";
+}> = [
   { id: "acceptance", titleKey: "termsAcceptance", textKey: "termsAcceptanceText" },
   { id: "eligibility", titleKey: "termsEligibility", textKey: "termsEligibilityText" },
   { id: "account-rules", titleKey: "termsAccountRules", textKey: "termsAccountRulesText" },
@@ -15,7 +44,7 @@ const SECTIONS = [
   { id: "intellectual-property", titleKey: "termsIP", textKey: "termsIPText" },
   { id: "changes", titleKey: "termsChanges", textKey: "termsChangesText" },
   { id: "contact", titleKey: "termsContact", textKey: "termsContactText" },
-] as const;
+];
 
 export default function TermsPage() {
   const t = useTranslations("legal");
@@ -26,24 +55,22 @@ export default function TermsPage() {
         title={normalizePublicLegalCopy(t("termsTitle"))}
         description={normalizePublicLegalCopy(t("termsLastUpdated"))}
       >
-        {/* Last updated badge */}
         <div className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-          {normalizePublicLegalCopy(t("lastUpdated"))}: 2026-02-15
+          {normalizePublicLegalCopy(t("lastUpdated"))}: {SWAPLY_TERMS_REVISION_DATE}
         </div>
 
-        {/* Table of Contents */}
         <nav className="mb-6 rounded-xl border border-zinc-200 bg-zinc-50/50 p-4 dark:border-zinc-700 dark:bg-zinc-800/50">
           <p className="mb-2 text-xs font-semibold uppercase text-zinc-500 dark:text-zinc-400">
             {normalizePublicLegalCopy(t("tableOfContents"))}
           </p>
           <ol className="list-decimal space-y-1 pl-5 text-sm">
-            {SECTIONS.map((s) => (
-              <li key={s.id}>
+            {SECTIONS.map((section) => (
+              <li key={section.id}>
                 <a
-                  href={`#${s.id}`}
+                  href={`#${section.id}`}
                   className="text-blue-600 hover:text-blue-800 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
                 >
-                  {normalizePublicLegalCopy(t(s.titleKey))}
+                  {normalizePublicLegalCopy(t(section.titleKey))}
                 </a>
               </li>
             ))}
@@ -51,10 +78,10 @@ export default function TermsPage() {
         </nav>
 
         <div className="prose prose-sm dark:prose-invert max-w-none text-zinc-700 dark:text-zinc-300">
-          {SECTIONS.map((s) => (
-            <div key={s.id} id={s.id} className="scroll-mt-20">
-              <h3>{normalizePublicLegalCopy(t(s.titleKey))}</h3>
-              <p>{normalizePublicLegalCopy(t(s.textKey))}</p>
+          {SECTIONS.map((section) => (
+            <div key={section.id} id={section.id} className="scroll-mt-20">
+              <h3>{normalizePublicLegalCopy(t(section.titleKey))}</h3>
+              <p>{getPublicTermsSectionCopy(section.id, t(section.textKey))}</p>
             </div>
           ))}
         </div>
