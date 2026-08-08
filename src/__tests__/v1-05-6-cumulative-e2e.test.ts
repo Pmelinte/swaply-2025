@@ -27,6 +27,11 @@ const eventObjectReplay = readFileSync(
   "utf8",
 );
 
+const legalCopy = readFileSync(
+  resolve(process.cwd(), "src/lib/legal-copy.ts"),
+  "utf8",
+);
+
 const drawerSelectorTemplate = '[data-drawer-page="${domain.key}"]';
 
 describe("V1-05.6 cumulative domain E2E gate", () => {
@@ -178,5 +183,15 @@ describe("V1-05.6 cumulative domain E2E gate", () => {
       "V1-05.6 rollback cleanup left deterministic fixture data.",
     );
     expect(workflow).toContain("supabase stop --no-backup");
+  });
+
+  it("inherits the V1-09 privacy/legal safety boundary on the same domain replay head", () => {
+    expect(legalCopy).toContain('SWAPLY_TERMS_REVISION_DATE = "2026-08-08"');
+    expect(legalCopy).toContain('SWAPLY_SAFETY_REVISION_DATE = "2026-08-08"');
+    expect(legalCopy).toContain(
+      "does not guarantee that every private message is automatically screened or moderated before delivery",
+    );
+    expect(legalCopy).toContain("no fixed review-time guarantee is made");
+    expect(legalCopy).toContain("Objects, Properties, Services, and Events");
   });
 });
