@@ -16,8 +16,8 @@ const SECTIONS = [
 ] as const;
 
 const AI_DISCLOSURE: Record<string, string> = {
-  en: "AI image analysis is performed server-side. Depending on configuration and availability, image content submitted for AI analysis may be processed by Groq, Google Gemini, or Hugging Face. Not all providers are necessarily active at the same time.",
-  ro: "Analiza AI a imaginilor este efectuată pe server. În funcție de configurare și disponibilitate, conținutul imaginilor trimise pentru analiză AI poate fi procesat de Groq, Google Gemini sau Hugging Face. Nu toți furnizorii sunt în mod necesar activi în același timp.",
+  en: "AI provider disclosure: AI image analysis is performed server-side. Depending on configuration and availability, image content submitted for AI analysis may be processed by Groq, Google Gemini, or Hugging Face. Not all providers are necessarily active at the same time.",
+  ro: "Furnizor AI: analiza AI a imaginilor este efectuată pe server. În funcție de configurare și disponibilitate, conținutul imaginilor trimise pentru analiză AI poate fi procesat de Groq, Google Gemini sau Hugging Face. Nu toți furnizorii sunt în mod necesar activi în același timp.",
 };
 
 function getAiDisclosure(locale: string): string {
