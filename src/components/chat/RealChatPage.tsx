@@ -442,7 +442,7 @@ export function RealChatPage({ conversationId }: Props) {
 
   return (
     <div className="mx-auto grid max-w-6xl gap-4 px-4 pb-24 pt-4 md:grid-cols-[320px_1fr]">
-      <aside className="rounded-2xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+      <aside className="h-64 overflow-y-auto rounded-2xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900 md:h-auto md:overflow-visible">
         <h1 className="text-base font-semibold text-zinc-900 dark:text-zinc-50">
           {tChat("conversations")}
         </h1>
@@ -489,7 +489,7 @@ export function RealChatPage({ conversationId }: Props) {
         data-testid="real-chat-workspace"
         className="flex min-h-[70vh] flex-col rounded-2xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900"
       >
-        <div className="border-b border-zinc-200 p-4 dark:border-zinc-800">
+        <div className="min-h-24 border-b border-zinc-200 p-4 dark:border-zinc-800">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
               <div className="flex flex-wrap items-center gap-2">
@@ -555,17 +555,25 @@ export function RealChatPage({ conversationId }: Props) {
           </div>
         </div>
 
-        {isMatchConversation && activeConversation ? (
-          <MatchConversationGuide
-            agenda={agendaState}
-            savingStage={savingAgendaStage}
-            saveFailed={agendaSaveFailed}
-            disabled={sending}
-            onUpdateStage={(stage, completed) =>
-              void handleAgendaUpdate(stage, completed)
-            }
-            onInsertDraft={setDraft}
+        {loading ? (
+          <div
+            aria-hidden="true"
+            data-testid="match-conversation-guide-skeleton"
+            className="min-h-[22rem] border-b border-zinc-200 bg-blue-50/50 dark:border-zinc-800 dark:bg-blue-950/10 md:min-h-0"
           />
+        ) : isMatchConversation && activeConversation ? (
+          <div className="min-h-[22rem] md:min-h-0">
+            <MatchConversationGuide
+              agenda={agendaState}
+              savingStage={savingAgendaStage}
+              saveFailed={agendaSaveFailed}
+              disabled={sending}
+              onUpdateStage={(stage, completed) =>
+                void handleAgendaUpdate(stage, completed)
+              }
+              onInsertDraft={setDraft}
+            />
+          </div>
         ) : null}
 
         {activeConversation?.swap_id ? (
@@ -578,7 +586,7 @@ export function RealChatPage({ conversationId }: Props) {
           </div>
         ) : null}
 
-        <div className="flex-1 space-y-3 overflow-y-auto p-4">
+        <div className="min-h-[40vh] flex-1 space-y-3 overflow-y-auto p-4 md:min-h-0">
           {!activeConversation ? (
             <p className="text-sm text-zinc-500">
               {tChat("selectConversation")}

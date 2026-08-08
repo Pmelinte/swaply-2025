@@ -7,6 +7,8 @@ on:
       - "src/**"
       - "e2e/**"
       - "scripts/run-v1-09-3-2-authenticated-performance.mjs"
+      - "scripts/diagnose-v1-09-3-3-objects-layout.mjs"
+      - "scripts/diagnose-v1-09-3-3-properties-layout.mjs"
       - ".github/workflows/v1-09-3-2-authenticated-performance.yml"
       - "package.json"
       - "package-lock.json"
@@ -82,6 +84,12 @@ jobs:
           done
           cat /tmp/v1-09-3-2-next.log
           exit 1
+
+      - name: Diagnose Objects layout geometry
+        run: node scripts/diagnose-v1-09-3-3-objects-layout.mjs
+
+      - name: Diagnose Properties layout geometry
+        run: node scripts/diagnose-v1-09-3-3-properties-layout.mjs
 
       - name: Run authenticated constrained-device/network baseline
         run: node scripts/run-v1-09-3-2-authenticated-performance.mjs

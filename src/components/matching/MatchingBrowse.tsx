@@ -17,6 +17,30 @@ interface Props {
 }
 
 const PAGE_SIZE = 12;
+const SKELETON_SIZE = 4;
+
+function MatchingBrowseSkeleton() {
+  return (
+    <div
+      className="grid grid-cols-2 gap-3 md:grid-cols-4"
+      aria-hidden="true"
+      data-testid="matching-browse-skeleton"
+    >
+      {Array.from({ length: SKELETON_SIZE }, (_, index) => (
+        <div
+          key={index}
+          className="overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900"
+        >
+          <div className="aspect-square w-full animate-pulse bg-zinc-100 dark:bg-zinc-800" />
+          <div className="space-y-2 p-3">
+            <div className="h-4 w-3/4 animate-pulse rounded bg-zinc-100 dark:bg-zinc-800" />
+            <div className="h-3 w-1/2 animate-pulse rounded bg-zinc-100 dark:bg-zinc-800" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default function MatchingBrowse({
   hasSlots,
@@ -91,11 +115,13 @@ export default function MatchingBrowse({
       </div>
 
       {loading ? (
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">…</p>
+        <MatchingBrowseSkeleton />
       ) : visible.length === 0 ? (
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">
-          {t("browse_no_slot_banner")}
-        </p>
+        <div className="flex min-h-24 items-center">
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            {t("browse_no_slot_banner")}
+          </p>
+        </div>
       ) : (
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           {visible.map((candidate) => (
@@ -109,8 +135,8 @@ export default function MatchingBrowse({
         </div>
       )}
 
-      {visibleCount < sorted.length && (
-        <div className="mt-4 flex justify-center">
+      <div className="mt-4 flex h-10 items-center justify-center">
+        {visibleCount < sorted.length && !loading ? (
           <button
             type="button"
             onClick={() => setVisibleCount((value) => value + PAGE_SIZE)}
@@ -118,8 +144,8 @@ export default function MatchingBrowse({
           >
             {t("browse_load_more")}
           </button>
-        </div>
-      )}
+        ) : null}
+      </div>
     </section>
   );
 }

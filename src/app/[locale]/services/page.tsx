@@ -372,7 +372,7 @@ export default function ServicesPage() {
   const modalityOptions = useMemo(() => Array.from(new Set(allServices.map(getModality).filter(Boolean))).sort(), [allServices]);
   const availabilityOptions = useMemo(() => Array.from(new Set(allServices.flatMap((s) => s.service_data?.availability_days ?? []))).sort(), [allServices]);
   const hasFilters = !!search || !!locationFilter || !!categoryFilter || !!modalityFilter || !!availabilityFilter || sortBy !== "newest";
-  const isLoading = loadingServices && stateLoading.items;
+  const isLoading = loadingServices || stateLoading.items;
   const serviceLabel = tb("services");
   const addServiceLabel = `${tc("add")} ${serviceLabel}`;
   const searchServicesPlaceholder = `${tc("search")} ${serviceLabel}…`;

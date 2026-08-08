@@ -1,6 +1,7 @@
 import { RealChatPage } from "@/components/chat/RealChatPage";
 import { getServerSupabase } from "@/lib/supabase/server";
 import { getLocale, getTranslations } from "next-intl/server";
+import styles from "./messages-performance.module.css";
 
 export const revalidate = 0;
 
@@ -111,9 +112,9 @@ export default async function MessagesRoute() {
   }
 
   return (
-    <>
+    <div className={styles.shell}>
       <h1 className="sr-only">{t("pageTitle")}</h1>
       <RealChatPage />
-    </>
+    </div>
   );
 }

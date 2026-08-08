@@ -1,0 +1,40 @@
+@media (max-width: 639px) {
+  /*
+   * Objects-only CLS guard.
+   * The authenticated "My objects" action is inserted after auth hydration.
+   * Keep the action row at its settled mobile geometry from first paint.
+   */
+  main:has(a.bg-cat-obj) .flex.items-center.gap-2:has(> a.bg-cat-obj) {
+    width: 100%;
+    min-height: 66px;
+    justify-content: flex-end;
+  }
+
+  /*
+   * Objects and Properties both render an 8-card loading skeleton before the
+   * settled 28px result-count row. On mobile that skeleton is much taller than
+   * the settled row, so the inline ad jumps upward when loading completes.
+   * Collapse only the loading skeleton to the exact settled row geometry while
+   * keeping the final data grid untouched.
+   */
+  main:has(a.bg-cat-obj)
+    .mx-auto.max-w-6xl.px-4.py-6
+    > .grid.grid-cols-2.gap-3:has(> .animate-pulse),
+  main:has(a.bg-cat-prop)
+    .mx-auto.max-w-6xl.px-4.py-6
+    > .grid.grid-cols-2.gap-3:has(> .animate-pulse) {
+    height: 28px;
+    overflow: hidden;
+  }
+
+  main:has(a.bg-cat-obj)
+    .mx-auto.max-w-6xl.px-4.py-6
+    > .grid.grid-cols-2.gap-3:has(> .animate-pulse)
+    > *,
+  main:has(a.bg-cat-prop)
+    .mx-auto.max-w-6xl.px-4.py-6
+    > .grid.grid-cols-2.gap-3:has(> .animate-pulse)
+    > * {
+    display: none;
+  }
+}

@@ -8,12 +8,57 @@ import { Filter, MessageCircle, ArrowRight, MessageSquare, Coins, Plug } from "l
 export function ContextBar() {
   const pathname = usePathname();
   const t = useTranslations("contextBar");
-  const { user, items, swaps, conversations, notifications } = useAppState();
+  const { user, items, swaps, conversations, notifications, loading } = useAppState();
+
+  const normalizedPathname = pathname.replace(/^\/[a-z]{2}(?=\/|$)/, "") || "/";
+  const isObjectsRoute =
+    normalizedPathname === "/objects" || normalizedPathname.startsWith("/objects/");
+  const isMatchingRoute =
+    normalizedPathname === "/matching" ||
+    normalizedPathname.startsWith("/matching/");
+  const isChatRoute = normalizedPathname === "/chat";
+  const isExchangeRoute =
+    normalizedPathname === "/exchange" ||
+    normalizedPathname.startsWith("/exchange/") ||
+    normalizedPathname === "/change" ||
+    normalizedPathname.startsWith("/change/");
+  const isMonetizationRoute =
+    normalizedPathname === "/monetization" ||
+    normalizedPathname.startsWith("/monetization");
+  const isIntegrationsRoute =
+    normalizedPathname === "/integrations" ||
+    normalizedPathname.startsWith("/integrations");
+  const isProfileRoute =
+    normalizedPathname === "/profile" || normalizedPathname.startsWith("/profile");
+  const canRenderContextBar =
+    normalizedPathname === "/" ||
+    isObjectsRoute ||
+    isChatRoute ||
+    isExchangeRoute ||
+    isMonetizationRoute ||
+    isIntegrationsRoute ||
+    isProfileRoute;
+
+  // Reserve geometry only on routes that actually render ContextBar after auth
+  // settles. Reserving it on unrelated routes (for example Properties) creates
+  // a 29px upward shift when the placeholder disappears.
+  if (loading.auth && canRenderContextBar) {
+    return (
+      <div
+        className="border-b border-zinc-100 bg-zinc-50/80 dark:border-zinc-800 dark:bg-zinc-900/50"
+        aria-hidden="true"
+      >
+        <div className="mx-auto max-w-6xl px-4 py-1.5 text-xs text-zinc-500 dark:text-zinc-400">
+          <span className="invisible">0 obiecte active</span>
+        </div>
+      </div>
+    );
+  }
 
   if (!user) return null;
 
   // Matching page has its own sticky header; ContextBar would duplicate info
-  if (pathname === "/matching" || pathname.startsWith("/matching/")) return null;
+  if (isMatchingRoute) return null;
 
   const myItems = items.filter((i) => i.ownerId === user.id && i.isActive);
   const activeSwaps = swaps.filter((s) => s.status !== "completed" && s.status !== "cancelled");
@@ -22,7 +67,7 @@ export function ContextBar() {
   // Determine context based on current page
   let content: React.ReactNode = null;
 
-  if (pathname === "/" || pathname === "") {
+  if (normalizedPathname === "/") {
     content = (
       <div className="flex items-center gap-3">
         <span>{t("itemsActive", { count: myItems.length })}</span>
@@ -46,17 +91,17 @@ export function ContextBar() {
         </Link>
       </div>
     );
-  } else if (pathname === "/objects" || pathname.startsWith("/objects/")) {
+  } else if (isObjectsRoute) {
     content = (
       <div className="flex items-center gap-3">
         <span>{t("itemsActive", { count: myItems.length })}</span>
       </div>
     );
   } else if (
-    pathname === "/matching" ||
-    pathname.startsWith("/matching/") ||
-    pathname === "/match" ||
-    pathname.startsWith("/match/")
+    normalizedPathname === "/matching" ||
+    normalizedPathname.startsWith("/matching/") ||
+    normalizedPathname === "/match" ||
+    normalizedPathname.startsWith("/match/")
   ) {
     content = (
       <div className="flex items-center gap-3">
@@ -68,7 +113,7 @@ export function ContextBar() {
         <span>{t("basedOnItems", { count: myItems.length })}</span>
       </div>
     );
-  } else if (pathname === "/chat") {
+  } else if (isChatRoute) {
     content = (
       <div className="flex items-center gap-3">
         <span className="inline-flex items-center gap-1">
@@ -83,12 +128,7 @@ export function ContextBar() {
         )}
       </div>
     );
-  } else if (
-    pathname === "/exchange" ||
-    pathname.startsWith("/exchange/") ||
-    pathname === "/change" ||
-    pathname.startsWith("/change/")
-  ) {
+  } else if (isExchangeRoute) {
     const pendingSwaps = swaps.filter((s) => s.status === "pending");
     const inProgressSwaps = swaps.filter((s) => s.status === "accepted");
     content = (
@@ -115,7 +155,7 @@ export function ContextBar() {
         )}
       </div>
     );
-  } else if (pathname === "/monetization" || pathname.startsWith("/monetization")) {
+  } else if (isMonetizationRoute) {
     content = (
       <div className="flex items-center gap-3">
         <span className="inline-flex items-center gap-1">
@@ -131,7 +171,7 @@ export function ContextBar() {
         </Link>
       </div>
     );
-  } else if (pathname === "/integrations" || pathname.startsWith("/integrations")) {
+  } else if (isIntegrationsRoute) {
     content = (
       <div className="flex items-center gap-3">
         <span className="inline-flex items-center gap-1">
@@ -148,7 +188,7 @@ export function ContextBar() {
         </Link>
       </div>
     );
-  } else if (pathname === "/profile" || pathname.startsWith("/profile")) {
+  } else if (isProfileRoute) {
     content = (
       <div className="flex items-center gap-3">
         <span>{t("reputation")}: {user.stats.reputation}</span>
