@@ -2,7 +2,15 @@ import { spawn } from "node:child_process";
 
 const PORT = 3210;
 const BASE_URL = `http://127.0.0.1:${PORT}`;
-const ROUTES = ["/en", "/en/pricing", "/en/about", "/en/safety"];
+const ROUTES = [
+  "/en",
+  "/en/pricing",
+  "/en/about",
+  "/en/info",
+  "/en/integrations",
+  "/en/safety",
+  "/en/match",
+];
 
 const FORBIDDEN_MARKERS = [
   "$3.99",
@@ -41,12 +49,33 @@ const FORBIDDEN_MARKERS = [
   "Items with 3+ photos get 4x more swap proposals",
   "Each reused object avoids ~4.2 kg CO₂",
   "Real exchanges that happened on Swaply",
+  "full protection",
+  "recommended courier",
+  "30 bonus tokens",
+  "Upgrade to Premium",
+  "Premium and Platinum users are visible on the map",
+  "Global visibility · Priority matching",
+  "Discover Premium and Platinum advantages",
+  "Spend your earned tokens on boosts and premium features",
+  "Accept escrow",
+  "Requires escrow",
+  "AI auto-fill",
+  "AI will auto-fill",
+  "AI analyzes compatibility",
+  "Top 3 AI Picks",
+  "Semantic AI",
+  "AI-generated description",
+  "secure chat",
+  "moderated, secure conversations",
+  "We respond within 24 hours",
+  "within 2-3 business days",
 ];
 
 const REQUIRED_SAFE_MARKERS = [
   "Paid production plans are not currently offered",
   "support@swaply.world",
   "not currently available",
+  "Production availability is not implied",
 ];
 
 function delay(ms) {
@@ -88,7 +117,11 @@ async function fetchHtml(route) {
 }
 
 function assertNoForbiddenMarkers(route, html) {
-  const matches = FORBIDDEN_MARKERS.filter((marker) => html.includes(marker));
+  const lowerHtml = html.toLocaleLowerCase("en-US");
+  const matches = FORBIDDEN_MARKERS.filter((marker) =>
+    lowerHtml.includes(marker.toLocaleLowerCase("en-US")),
+  );
+
   if (matches.length > 0) {
     throw new Error(
       `${route} serialized forbidden public-truth marker(s): ${matches.join(", ")}`,
