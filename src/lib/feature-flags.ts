@@ -1,73 +1,120 @@
-/**
- * Extended Feature Flags + Product Control
- * Admin-configurable toggles, cron scheduling, metrics funnel.
- *
- * Reads from Supabase table: feature_flags (columns: id, enabled, rollout_percent, …)
- * Client hook: useFeatureFlag(key)  — see use-feature-flags.ts
- * Server util: getFeatureFlag(key)  — async, for Server Components / Route Handlers
- */
-
-/* ─── Feature Flag Definitions ─── */
+export type FeatureFlagCategory =
+  | "core"
+  | "ai"
+  | "social"
+  | "monetization"
+  | "experimental";
 
 export interface FeatureFlag {
   id: string;
   name: string;
   description: string;
   enabled: boolean;
-  category: "core" | "ai" | "social" | "monetization" | "experimental";
-  rolloutPercent: number;   // 0–100 (for gradual rollouts)
-  allowedCountries?: string[]; // empty = all countries
+  category: FeatureFlagCategory;
+  rolloutPercent: number;
+  allowedCountries?: string[];
+}
+
+const RELEASE_GATED_FLAG_ENVS: Record<string, string> = {
+  stripe_payments: "SWAPLY_ENABLE_STRIPE_PRODUCTION",
+  paypal_payments: "SWAPLY_ENABLE_PAYPAL_PRODUCTION",
+  boost_listings: "SWAPLY_ENABLE_STRIPE_PRODUCTION",
+  token_shop: "SWAPLY_ENABLE_STRIPE_PRODUCTION",
+  subscriptions: "SWAPLY_ENABLE_STRIPE_PRODUCTION",
+  courier_integration: "SWAPLY_ENABLE_COURIERS_PRODUCTION",
+  swap_insurance: "SWAPLY_ENABLE_INSURANCE_PRODUCTION",
+  travel_integrations: "SWAPLY_ENABLE_TRAVEL_INTEGRATIONS_PRODUCTION",
+  ads_banner: "SWAPLY_ENABLE_ADS_PRODUCTION",
+  api_access: "SWAPLY_ENABLE_PUBLIC_API_PRODUCTION",
+};
+
+const FLAG_ALIASES: Record<string, string> = {
+  ads_display: "ads_banner",
+  courier_shipping: "courier_integration",
+  daily_streaks: "daily_streak",
+  referrals: "referral_program",
+};
+
+export function normalizeFeatureFlagId(flagId: string): string {
+  return FLAG_ALIASES[flagId] ?? flagId;
 }
 
 export const DEFAULT_FLAGS: FeatureFlag[] = [
-  { id: "push_notifications", name: "Push Notifications", description: "Notificări push web pentru mesaje și match-uri noi", enabled: true, category: "core", rolloutPercent: 100 },
-  { id: "ai_matching", name: "AI Matching", description: "Analiza AI a match-urilor (HuggingFace)", enabled: true, category: "ai", rolloutPercent: 100 },
-  { id: "ai_suggestions", name: "Sugestii AI", description: "Sugestii inteligente pentru titlu/descriere/tags la listări", enabled: true, category: "ai", rolloutPercent: 100 },
-  { id: "location_sharing", name: "Location Sharing", description: "Partajare locație în chat pentru întâlniri", enabled: true, category: "core", rolloutPercent: 100 },
-  { id: "realtime_chat", name: "Realtime Chat", description: "Mesaje în timp real prin Supabase Realtime", enabled: true, category: "core", rolloutPercent: 100 },
-  { id: "image_uploads", name: "Image Uploads", description: "Upload imagini prin Cloudinary", enabled: true, category: "core", rolloutPercent: 100 },
-  { id: "scam_detection", name: "Detecție Scam", description: "Analiză automată a mesajelor pentru detectarea tentativelor de fraudă", enabled: true, category: "social", rolloutPercent: 100 },
-  { id: "trust_scores", name: "Trust Scores", description: "Scor de încredere calculat per utilizator (0–100)", enabled: true, category: "social", rolloutPercent: 100 },
-  { id: "adaptive_friction", name: "Fricțiune Adaptivă", description: "Limite de mesaje/propuneri bazate pe trust score", enabled: true, category: "social", rolloutPercent: 100 },
-  { id: "safe_meeting", name: "Safe Meeting", description: "Checklist și ghid de siguranță pentru întâlniri", enabled: true, category: "social", rolloutPercent: 100 },
-  { id: "token_shop", name: "Token Shop", description: "Magazin de tokens și teme", enabled: true, category: "monetization", rolloutPercent: 100 },
-  { id: "subscriptions", name: "Subscriptions", description: "Planuri de abonament Premium/Platinum", enabled: true, category: "monetization", rolloutPercent: 100 },
-  { id: "referrals", name: "Referral Program", description: "Program de recomandări cu tokens bonus", enabled: true, category: "monetization", rolloutPercent: 100 },
-  { id: "daily_streaks", name: "Daily Streaks", description: "Recompense zilnice pentru login consecutiv", enabled: true, category: "monetization", rolloutPercent: 100 },
-  { id: "stripe_payments", name: "Stripe Payments", description: "Plăți prin Stripe (tokens, subscriptions, one-time)", enabled: true, category: "monetization", rolloutPercent: 100 },
-  { id: "paypal_payments", name: "PayPal Payments", description: "Plăți prin PayPal (tokens, subscriptions)", enabled: true, category: "monetization", rolloutPercent: 100 },
-  { id: "courier_shipping", name: "Courier Shipping", description: "Shipping via country-specific couriers (40+ countries)", enabled: true, category: "core", rolloutPercent: 100 },
-  { id: "ads_display", name: "Ads Display", description: "Afișare reclame (AdSense, Carbon Ads, sponsori)", enabled: true, category: "monetization", rolloutPercent: 100 },
-  { id: "auctions", name: "Licitații", description: "Mod licitație pentru obiecte (platinum)", enabled: false, category: "experimental", rolloutPercent: 0 },
-  { id: "video_calls", name: "Video Calls", description: "Apeluri video pentru verificare înainte de întâlnire", enabled: false, category: "experimental", rolloutPercent: 0 },
-  { id: "house_swap", name: "House Swap", description: "Schimb de locuințe", enabled: true, category: "core", rolloutPercent: 100 },
-  { id: "service_swap", name: "Service Swap", description: "Schimb de servicii / time banking", enabled: true, category: "core", rolloutPercent: 100 },
+  flag("push_notifications", "Push Notifications", true, "core"),
+  flag("ai_matching", "AI Matching", true, "ai"),
+  flag("ai_suggestions", "AI Suggestions", true, "ai"),
+  flag("location_sharing", "Location Sharing", true, "core"),
+  flag("realtime_chat", "Realtime Chat", true, "core"),
+  flag("image_uploads", "Image Uploads", true, "core"),
+  flag("scam_detection", "Scam Detection", true, "social"),
+  flag("trust_scores", "Trust Scores", true, "social"),
+  flag("adaptive_friction", "Adaptive Friction", true, "social"),
+  flag("safe_meeting", "Safe Meeting", true, "social"),
+  flag("daily_streak", "Daily Streak", true, "core"),
+  flag("item_lock", "Item Lock", true, "core"),
+  flag("referral_program", "Referral Program", true, "core"),
+  flag("house_swap", "House Swap", true, "core"),
+  flag("service_swap", "Service Swap", true, "core"),
+
+  // Provider-backed capabilities remain implemented in code but disabled until
+  // both their database flag and the explicit Production authorisation switch
+  // are enabled. A missing database response must never activate them.
+  flag("token_shop", "Token Shop", false, "monetization", 0),
+  flag("subscriptions", "Subscriptions", false, "monetization", 0),
+  flag("stripe_payments", "Stripe Payments", false, "monetization", 0),
+  flag("paypal_payments", "PayPal Payments", false, "monetization", 0),
+  flag("boost_listings", "Paid Listing Boosts", false, "monetization", 0),
+  flag("courier_integration", "Courier Integrations", false, "experimental", 0),
+  flag("swap_insurance", "Swap Insurance", false, "experimental", 0),
+  flag("travel_integrations", "Travel Integrations", false, "experimental", 0),
+  flag("ads_banner", "Advertising", false, "monetization", 0),
+  flag("api_access", "Public API Access", false, "experimental", 0),
+  flag("auctions", "Auctions", false, "experimental", 0),
+  flag("video_calls", "Video Calls", false, "experimental", 0),
 ];
 
-/** Check if a flag is enabled (respects rollout percent using user ID hash) */
-export function isFlagEnabled(flags: FeatureFlag[], flagId: string, userId?: string): boolean {
-  const flag = flags.find((f) => f.id === flagId);
-  if (!flag || !flag.enabled) return false;
-  if (flag.rolloutPercent >= 100) return true;
-  if (flag.rolloutPercent <= 0) return false;
-  if (!userId) return false;
-  const hash = hashUserId(userId);
-  return hash % 100 < flag.rolloutPercent;
+function flag(
+  id: string,
+  name: string,
+  enabled: boolean,
+  category: FeatureFlagCategory,
+  rolloutPercent = enabled ? 100 : 0,
+): FeatureFlag {
+  return {
+    id,
+    name,
+    description: "",
+    enabled,
+    category,
+    rolloutPercent,
+  };
 }
 
 function hashUserId(userId: string): number {
   let hash = 0;
-  for (let i = 0; i < userId.length; i++) {
-    const char = userId.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash;
+  for (let index = 0; index < userId.length; index += 1) {
+    hash = (hash << 5) - hash + userId.charCodeAt(index);
+    hash &= hash;
   }
   return Math.abs(hash);
 }
 
-/* ─── In-Memory Cache (shared across hooks and server calls) ─── */
+export function isFlagEnabled(
+  flags: FeatureFlag[],
+  flagId: string,
+  userId?: string,
+): boolean {
+  const normalizedId = normalizeFeatureFlagId(flagId);
+  const flagValue = flags.find((entry) => entry.id === normalizedId);
 
-const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+  if (!flagValue?.enabled) return false;
+  if (flagValue.rolloutPercent >= 100) return true;
+  if (flagValue.rolloutPercent <= 0 || !userId) return false;
+
+  return hashUserId(userId) % 100 < flagValue.rolloutPercent;
+}
+
+const CACHE_TTL_MS = 5 * 60 * 1000;
 
 interface FlagCache {
   flags: FeatureFlag[];
@@ -81,41 +128,119 @@ export const flagCache: FlagCache = {
   promise: null,
 };
 
-function mapDbRow(row: Record<string, unknown>): FeatureFlag {
+function inferCategory(id: string): FeatureFlagCategory {
+  return DEFAULT_FLAGS.find((entry) => entry.id === id)?.category ?? "core";
+}
+
+function inferName(id: string): string {
+  return DEFAULT_FLAGS.find((entry) => entry.id === id)?.name ?? id;
+}
+
+function mapDbRow(row: Record<string, unknown>): FeatureFlag | null {
+  const rawId = typeof row.key === "string"
+    ? row.key
+    : typeof row.id === "string"
+      ? row.id
+      : "";
+  const id = normalizeFeatureFlagId(rawId.trim());
+  if (!id) return null;
+
   return {
-    id: row.id as string,
-    name: (row.name as string) || row.id as string,
-    description: (row.description as string) || "",
-    enabled: row.enabled as boolean,
-    category: (row.category as FeatureFlag["category"]) || "core",
-    rolloutPercent: (row.rollout_percent as number) ?? 100,
-    allowedCountries: (row.allowed_countries as string[]) ?? undefined,
+    id,
+    name: typeof row.name === "string" && row.name.trim()
+      ? row.name
+      : inferName(id),
+    description: typeof row.description === "string" ? row.description : "",
+    enabled: row.enabled === true,
+    category: inferCategory(id),
+    rolloutPercent:
+      typeof row.rollout_percent === "number"
+        ? Math.max(0, Math.min(100, row.rollout_percent))
+        : 100,
+    allowedCountries: Array.isArray(row.allowed_countries)
+      ? row.allowed_countries.filter(
+          (value): value is string => typeof value === "string",
+        )
+      : undefined,
   };
 }
 
-async function fetchFlagsFromSupabase(): Promise<FeatureFlag[]> {
+function mergeWithDefaults(rows: Record<string, unknown>[]): FeatureFlag[] {
+  const byId = new Map(DEFAULT_FLAGS.map((entry) => [entry.id, { ...entry }]));
+
+  for (const row of rows) {
+    const mapped = mapDbRow(row);
+    if (!mapped) continue;
+    const existing = byId.get(mapped.id);
+    byId.set(mapped.id, {
+      ...(existing ?? mapped),
+      ...mapped,
+      category: existing?.category ?? mapped.category,
+    });
+  }
+
+  return [...byId.values()];
+}
+
+function applyProductionAuthorisation(flags: FeatureFlag[]): FeatureFlag[] {
+  if (typeof window !== "undefined") return flags;
+
+  return flags.map((entry) => {
+    const envName = RELEASE_GATED_FLAG_ENVS[entry.id];
+    if (!envName) return entry;
+
+    const authorised = process.env[envName] === "true";
+    return {
+      ...entry,
+      enabled: entry.enabled && authorised,
+      rolloutPercent: entry.enabled && authorised ? entry.rolloutPercent : 0,
+    };
+  });
+}
+
+async function fetchFlagsOnServer(): Promise<FeatureFlag[]> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key) return DEFAULT_FLAGS;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !serviceKey) return DEFAULT_FLAGS;
 
   try {
-    const res = await fetch(`${url}/rest/v1/feature_flags?select=*`, {
-      headers: {
-        apikey: key,
-        Authorization: `Bearer ${key}`,
+    const response = await fetch(
+      `${url}/rest/v1/feature_flags?select=key,enabled,rollout_percent,description`,
+      {
+        headers: {
+          apikey: serviceKey,
+          Authorization: `Bearer ${serviceKey}`,
+        },
+        cache: "no-store",
       },
-      cache: "no-store",
-    });
-    if (!res.ok) return DEFAULT_FLAGS;
-    const rows = (await res.json()) as Record<string, unknown>[];
-    if (!Array.isArray(rows) || rows.length === 0) return DEFAULT_FLAGS;
-    return rows.map(mapDbRow);
+    );
+
+    if (!response.ok) return DEFAULT_FLAGS;
+    const rows = (await response.json()) as Record<string, unknown>[];
+    if (!Array.isArray(rows)) return DEFAULT_FLAGS;
+
+    return applyProductionAuthorisation(mergeWithDefaults(rows));
   } catch {
     return DEFAULT_FLAGS;
   }
 }
 
-/** Fetch flags with dedup + TTL cache */
+async function fetchFlagsInBrowser(): Promise<FeatureFlag[]> {
+  try {
+    const response = await fetch("/api/feature-flags", {
+      cache: "no-store",
+      credentials: "same-origin",
+    });
+    if (!response.ok) return DEFAULT_FLAGS;
+
+    const body = (await response.json()) as { flags?: unknown };
+    if (!Array.isArray(body.flags)) return DEFAULT_FLAGS;
+    return mergeWithDefaults(body.flags as Record<string, unknown>[]);
+  } catch {
+    return DEFAULT_FLAGS;
+  }
+}
+
 export function loadFlags(): Promise<FeatureFlag[]> {
   const now = Date.now();
   if (now - flagCache.fetchedAt < CACHE_TTL_MS) {
@@ -123,123 +248,91 @@ export function loadFlags(): Promise<FeatureFlag[]> {
   }
   if (flagCache.promise) return flagCache.promise;
 
-  flagCache.promise = fetchFlagsFromSupabase().then((flags) => {
-    flagCache.flags = flags;
-    flagCache.fetchedAt = Date.now();
-    flagCache.promise = null;
-    return flags;
-  }).catch(() => {
-    flagCache.promise = null;
-    return flagCache.flags;
-  });
+  const request = typeof window === "undefined"
+    ? fetchFlagsOnServer()
+    : fetchFlagsInBrowser();
+
+  flagCache.promise = request
+    .then((flags) => {
+      flagCache.flags = flags;
+      flagCache.fetchedAt = Date.now();
+      flagCache.promise = null;
+      return flags;
+    })
+    .catch(() => {
+      flagCache.promise = null;
+      flagCache.flags = DEFAULT_FLAGS;
+      return DEFAULT_FLAGS;
+    });
+
   return flagCache.promise;
 }
 
-/** Invalidate cache (e.g. after admin toggle) */
 export function invalidateFlagCache(): void {
   flagCache.fetchedAt = 0;
   flagCache.promise = null;
+  flagCache.flags = DEFAULT_FLAGS;
 }
 
-/* ─── Server-side: getFeatureFlag(key) ─── */
-
-/**
- * Async function for Server Components / Route Handlers.
- * Reads from Supabase with the same 5-min cache.
- *
- * Usage: const enabled = await getFeatureFlag('stripe_payments');
- */
-export async function getFeatureFlag(key: string, userId?: string): Promise<boolean> {
-  const flags = await loadFlags();
-  return isFlagEnabled(flags, key, userId);
+export async function getFeatureFlag(
+  key: string,
+  userId?: string,
+): Promise<boolean> {
+  return isFlagEnabled(await loadFlags(), key, userId);
 }
-
-/* ─── Cron Job Definitions ─── */
 
 export interface CronJob {
   id: string;
   name: string;
   description: string;
-  schedule: string;        // human-readable
-  lastRun?: string;        // ISO date
-  nextRun?: string;        // ISO date
+  schedule: string;
+  lastRun?: string;
+  nextRun?: string;
   enabled: boolean;
   status: "idle" | "running" | "error";
 }
 
 export const DEFAULT_CRON_JOBS: CronJob[] = [
-  {
-    id: "daily_digest",
-    name: "Digest Zilnic",
-    description: "Trimite rezumat zilnic: match-uri noi, mesaje necitite, promoții active",
-    schedule: "Zilnic la 09:00",
-    enabled: true,
-    status: "idle",
-  },
-  {
-    id: "streak_reset",
-    name: "Reset Streak-uri",
-    description: "Verifică și resetează streak-urile utilizatorilor care nu s-au logat",
-    schedule: "Zilnic la 00:00",
-    enabled: true,
-    status: "idle",
-  },
-  {
-    id: "cleanup_expired",
-    name: "Curățare Date Expirate",
-    description: "Șterge rate_limit_entries vechi, featured listings expirate, promoții inactive",
-    schedule: "Zilnic la 03:00",
-    enabled: true,
-    status: "idle",
-  },
-  {
-    id: "recompute_stats",
-    name: "Recalculare Statistici",
-    description: "Recalculează statisticile globale: useri activi, swap-uri, tokens, metrici",
-    schedule: "La fiecare 6 ore",
-    enabled: true,
-    status: "idle",
-  },
-  {
-    id: "trust_score_refresh",
-    name: "Refresh Trust Scores",
-    description: "Recalculează scorurile de încredere pe baza activității recente",
-    schedule: "Zilnic la 02:00",
-    enabled: true,
-    status: "idle",
-  },
-  {
-    id: "inactive_reminder",
-    name: "Reminder Inactivi",
-    description: "Trimite notificare utilizatorilor inactivi de 7+ zile: 'Te așteptăm înapoi!'",
-    schedule: "Săptămânal luni la 10:00",
-    enabled: true,
-    status: "idle",
-  },
+  cron("daily_digest", "Digest Zilnic", "Zilnic la 09:00"),
+  cron("streak_reset", "Reset Streak-uri", "Zilnic la 00:00"),
+  cron("cleanup_expired", "Curățare Date Expirate", "Zilnic la 03:00"),
+  cron("recompute_stats", "Recalculare Statistici", "La fiecare 6 ore"),
+  cron("trust_score_refresh", "Refresh Trust Scores", "Zilnic la 02:00"),
+  cron("inactive_reminder", "Reminder Inactivi", "Săptămânal luni la 10:00"),
 ];
 
-/* ─── Metrics Funnel ─── */
+function cron(id: string, name: string, schedule: string): CronJob {
+  return {
+    id,
+    name,
+    description: "",
+    schedule,
+    enabled: true,
+    status: "idle",
+  };
+}
 
 export interface MetricsFunnel {
-  visitors: number;       // unique visitors
-  signups: number;        // registered accounts
-  itemsListed: number;    // users who listed ≥1 item
-  chatStarted: number;    // users who opened ≥1 conversation
-  swapProposed: number;   // users who proposed ≥1 swap
-  swapCompleted: number;  // users who completed ≥1 swap
-  retention7d: number;    // % users active after 7 days
-  retention30d: number;   // % users active after 30 days
+  visitors: number;
+  signups: number;
+  itemsListed: number;
+  chatStarted: number;
+  swapProposed: number;
+  swapCompleted: number;
+  retention7d: number;
+  retention30d: number;
 }
 
 export interface DailyMetric {
-  date: string;           // YYYY-MM-DD
+  date: string;
   event: string;
   count: number;
 }
 
-/** Compute conversion rates from funnel */
 export function computeFunnelRates(funnel: MetricsFunnel) {
-  const safe = (num: number, den: number) => den > 0 ? Math.round((num / den) * 100) : 0;
+  const safe = (numerator: number, denominator: number) =>
+    denominator > 0 ? Math.round((numerator / denominator) * 100) : 0;
+
   return {
     visitToSignup: safe(funnel.signups, funnel.visitors),
     signupToList: safe(funnel.itemsListed, funnel.signups),
@@ -250,16 +343,19 @@ export function computeFunnelRates(funnel: MetricsFunnel) {
   };
 }
 
-/** Default empty metrics */
 export function defaultMetrics(): MetricsFunnel {
   return {
-    visitors: 0, signups: 0, itemsListed: 0,
-    chatStarted: 0, swapProposed: 0, swapCompleted: 0,
-    retention7d: 0, retention30d: 0,
+    visitors: 0,
+    signups: 0,
+    itemsListed: 0,
+    chatStarted: 0,
+    swapProposed: 0,
+    swapCompleted: 0,
+    retention7d: 0,
+    retention30d: 0,
   };
 }
 
-/** Build metrics from current app state */
 export function computeMetricsFromState(state: {
   totalUsers: number;
   usersWithItems: number;
@@ -268,7 +364,7 @@ export function computeMetricsFromState(state: {
   completedSwaps: number;
 }): MetricsFunnel {
   return {
-    visitors: state.totalUsers * 3, // estimated visitors = 3x registrations
+    visitors: state.totalUsers * 3,
     signups: state.totalUsers,
     itemsListed: state.usersWithItems,
     chatStarted: state.usersWithChats,
