@@ -15,6 +15,10 @@ import {
   type BlogPost,
   type LocalizedBlogPost,
 } from "./blog";
+import {
+  sanitizeBlogPublicTruthContent,
+  sanitizeBlogPublicTruthText,
+} from "./blog-public-truth";
 
 function getSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -36,13 +40,13 @@ function normalizeLocale(locale?: string): string {
 }
 
 function mapRow(row: Record<string, unknown>): LocalizedBlogPost {
-  const content = String(row.content_md ?? "");
+  const content = sanitizeBlogPublicTruthContent(String(row.content_md ?? ""));
   const sourceLang = normalizeLocale(String(row.locale ?? "en"));
 
   return {
     slug: String(row.slug ?? ""),
-    title: String(row.title ?? ""),
-    description: String(row.description ?? ""),
+    title: sanitizeBlogPublicTruthText(String(row.title ?? "")),
+    description: sanitizeBlogPublicTruthText(String(row.description ?? "")),
     date: String(row.date ?? ""),
     author: String(row.author ?? "Swaply Team"),
     category: String(row.category ?? ""),
