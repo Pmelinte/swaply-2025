@@ -4,23 +4,44 @@ import { Link, usePathname } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 
 const TABS = [
-  { href: "/objects",    emoji: "📦", labelKey: "objects",    descKey: "objectsDesc",    activeClass: "bg-cat-obj text-white" },
-  { href: "/properties", emoji: "🏠", labelKey: "properties", descKey: "propertiesDesc", activeClass: "bg-cat-prop text-white" },
-  { href: "/services",   emoji: "🔧", labelKey: "services",   descKey: "servicesDesc",   activeClass: "bg-cat-svc text-white" },
-  { href: "/events",     emoji: "🎫", labelKey: "events",     descKey: "eventsDesc",     activeClass: "bg-cat-evt text-cat-evt-ink" },
+  {
+    href: "/objects",
+    emoji: "📦",
+    labelKey: "objects",
+    descKey: "objectsDesc",
+    activeClass: "bg-cat-obj text-white",
+  },
+  {
+    href: "/properties",
+    emoji: "🏠",
+    labelKey: "properties",
+    descKey: "propertiesDesc",
+    activeClass: "bg-cat-prop text-white",
+  },
+  {
+    href: "/services",
+    emoji: "🔧",
+    labelKey: "services",
+    descKey: "servicesDesc",
+    activeClass: "bg-cat-svc text-white",
+  },
+  {
+    href: "/events",
+    emoji: "🎫",
+    labelKey: "events",
+    descKey: "eventsDesc",
+    activeClass: "bg-cat-evt text-cat-evt-ink",
+  },
 ] as const;
 
 export function BranchBar() {
   const t = useTranslations("branches");
   const pathname = usePathname();
 
-  // Hide on individual conversation pages — the chat layout owns the full viewport there
-  if (pathname.startsWith("/chat/")) return null;
+  // Domain selection belongs exclusively to Explore.
+  if (pathname !== "/explore") return null;
 
   function isActive(href: string) {
-    if (href === "/objects") {
-      return pathname === "/" || pathname === "/objects" || pathname.startsWith("/objects/");
-    }
     return pathname === href || pathname.startsWith(`${href}/`);
   }
 
@@ -33,6 +54,7 @@ export function BranchBar() {
         {TABS.map(({ href, emoji, labelKey, descKey, activeClass }) => {
           const active = isActive(href);
           const label = t(labelKey);
+
           return (
             <Link
               key={href}
