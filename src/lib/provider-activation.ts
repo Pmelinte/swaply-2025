@@ -4,7 +4,8 @@ export type ProductionCapability =
   | "escrow"
   | "couriers"
   | "insurance"
-  | "travel_integrations";
+  | "travel_integrations"
+  | "paid_ai";
 
 const CAPABILITY_ENV: Record<ProductionCapability, string> = {
   stripe: "SWAPLY_ENABLE_STRIPE_PRODUCTION",
@@ -13,6 +14,7 @@ const CAPABILITY_ENV: Record<ProductionCapability, string> = {
   couriers: "SWAPLY_ENABLE_COURIERS_PRODUCTION",
   insurance: "SWAPLY_ENABLE_INSURANCE_PRODUCTION",
   travel_integrations: "SWAPLY_ENABLE_TRAVEL_INTEGRATIONS_PRODUCTION",
+  paid_ai: "SWAPLY_ENABLE_PAID_AI_PRODUCTION",
 };
 
 const PROVIDER_ROUTE_RULES: Array<{
@@ -26,6 +28,16 @@ const PROVIDER_ROUTE_RULES: Array<{
   { prefix: "/api/dhl", capability: "couriers" },
   { prefix: "/api/insurance", capability: "insurance" },
   { prefix: "/api/travel", capability: "travel_integrations" },
+
+  // These routes invoke providers directly and cannot complete their task
+  // without external AI. Gateway-backed routes such as /api/ai, /api/moderate
+  // and /api/translate stay reachable: createServerAIGateway omits providers
+  // when unauthorised and returns their deterministic non-AI fallbacks.
+  { prefix: "/api/ai/image", capability: "paid_ai" },
+  { prefix: "/api/analyze-image", capability: "paid_ai" },
+  { prefix: "/api/embeddings", capability: "paid_ai" },
+  { prefix: "/api/match-semantic", capability: "paid_ai" },
+
   { prefix: "/api/payments", capability: "stripe" },
 ];
 
