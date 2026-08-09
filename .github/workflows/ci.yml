@@ -219,6 +219,9 @@ jobs:
       - name: Build Next.js application
         run: npm run build
 
+      - name: Verify rendered V1-11 public payload
+        run: npm run test:public-truth-payload
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:

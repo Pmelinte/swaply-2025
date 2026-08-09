@@ -15,6 +15,7 @@
     "eval:ai:v1-08-4": "npx tsx scripts/run-v1-08-4-benchmark-contract.ts",
     "test:e2e:public": "playwright test e2e/public-visual-audit.spec.ts --project=chromium",
     "test:e2e:i18n": "playwright test e2e/i18n-43-locales.spec.ts --project=chromium",
+    "test:public-truth-payload": "node scripts/check-public-truth-payload.mjs",
     "ci:quality": "npm run typecheck && npm run lint && npm run test && npm run build",
     "i18n:check": "node scripts/check-i18n-keys.mjs && node scripts/check-i18n-usage.mjs",
     "migration:guard": "node scripts/check-migration-governance.mjs",
