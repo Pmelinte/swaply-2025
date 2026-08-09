@@ -8,6 +8,10 @@ import {
   isPrivateApiRoute,
   isPrivatePageRoute,
 } from "./lib/auth/routeProtection";
+import {
+  getProductionCapabilityForPath,
+  isProductionCapabilityAuthorised,
+} from "./lib/provider-activation";
 
 const intlMiddleware = createIntlMiddleware(routing);
 
@@ -66,13 +70,39 @@ function redirectToLogin(
   return NextResponse.redirect(loginUrl);
 }
 
+function providerNotAuthorised(pathname: string): NextResponse | null {
+  const capability = getProductionCapabilityForPath(pathname);
+  if (!capability || isProductionCapabilityAuthorised(capability)) return null;
+
+  return NextResponse.json(
+    {
+      error: "This provider-backed capability is not authorised in Production.",
+      capability,
+      status: "inactive",
+    },
+    {
+      status: 503,
+      headers: {
+        "Cache-Control": "private, no-store, max-age=0",
+      },
+    },
+  );
+}
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (pathname.startsWith("/api/") || pathname.startsWith("/auth/")) {
+  if (pathname.startsWith("/api/")) {
+    const providerGate = providerNotAuthorised(pathname);
+    if (providerGate) return providerGate;
+
     if (isPrivateApiRoute(pathname)) {
       return runAuthMiddleware(request, pathname);
     }
+    return NextResponse.next();
+  }
+
+  if (pathname.startsWith("/auth/")) {
     return NextResponse.next();
   }
 
