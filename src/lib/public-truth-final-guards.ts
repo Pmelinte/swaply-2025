@@ -3,10 +3,14 @@ import type { AbstractIntlMessages } from "next-intl";
 type MessageTree = Record<string, unknown>;
 
 const NOT_OFFERED = "Not currently offered in Production.";
-const FOUNDATION = "Foundation or planned capability; Production availability is not implied.";
-const COMPATIBILITY = "Compatibility tools use available listing signals to suggest possible exchanges.";
-const CONVERSATION = "Use Swaply's in-platform conversation tools and available safety controls.";
-const DELIVERY = "Participants arrange handover or delivery directly using options available in the current flow.";
+const FOUNDATION =
+  "Foundation or planned capability; Production availability is not implied.";
+const COMPATIBILITY =
+  "Compatibility tools use available listing signals to suggest possible exchanges.";
+const CONVERSATION =
+  "Use Swaply's in-platform conversation tools and available safety controls.";
+const DELIVERY =
+  "Participants arrange handover or delivery directly using options available in the current flow.";
 
 const FINAL_PUBLIC_TRUTH_OVERRIDES: Readonly<Record<string, string>> = {
   "home.howStep3Desc": CONVERSATION,
@@ -23,14 +27,16 @@ const FINAL_PUBLIC_TRUTH_OVERRIDES: Readonly<Record<string, string>> = {
   "objectWizard.aiTags": FOUNDATION,
 
   "itemForm.aiAnalysis": FOUNDATION,
-  "itemForm.aiAnalyzing": "Analysis tools depend on the current Production configuration.",
+  "itemForm.aiAnalyzing":
+    "Analysis tools depend on the current Production configuration.",
   "itemForm.aiCategory": FOUNDATION,
   "itemForm.aiTags": FOUNDATION,
   "itemForm.aiConfidence": "Automated confidence indicator",
   "itemForm.aiGenerateDescription": FOUNDATION,
   "itemForm.aiGeneratedDescription": FOUNDATION,
   "itemForm.aiValueEstimate": FOUNDATION,
-  "itemForm.estimatedValue": "Approximate value entered or reviewed by the user",
+  "itemForm.estimatedValue":
+    "Approximate value entered or reviewed by the user",
 
   "match.aiTop3": "Suggested matches",
   "match.aiUnavailable": "Compatibility suggestions are currently unavailable.",
@@ -42,32 +48,40 @@ const FINAL_PUBLIC_TRUTH_OVERRIDES: Readonly<Record<string, string>> = {
   "chat.description": CONVERSATION,
   "chat.moderated": "Safety controls where available",
   "chat.secureChat": "In-platform conversation",
-  "chat.translation": "Translation availability depends on current Production configuration.",
+  "chat.translation":
+    "Translation availability depends on current Production configuration.",
   "chat.aiSummary": FOUNDATION,
   "chat.aiSummaryDescription": FOUNDATION,
 
-  "aiAssist.dailyLimitReached": "This assistance feature is currently unavailable or limited.",
+  "aiAssist.dailyLimitReached":
+    "This assistance feature is currently unavailable or limited.",
   "aiAssist.upgradeForMore": "Additional paid access is not currently offered.",
 
   "change.guestHeroDescription":
     "Coordinate the exchange steps available in the current Production flow.",
   "change.guestStep3Desc": DELIVERY,
-  "change.guestStep5Desc": "Confirm completion using the current exchange workflow.",
-  "change.courierFanCourier": "Courier option — provider not activated by this claim",
-  "change.courierSameday": "Courier option — provider not activated by this claim",
-  "change.courierCargus": "Courier option — provider not activated by this claim",
+  "change.guestStep5Desc":
+    "Confirm completion using the current exchange workflow.",
+  "change.courierFanCourier":
+    "Courier option — provider not activated by this claim",
+  "change.courierSameday":
+    "Courier option — provider not activated by this claim",
+  "change.courierCargus":
+    "Courier option — provider not activated by this claim",
   "change.courierDHL": "Courier option — provider not activated by this claim",
   "change.courierDomestic": DELIVERY,
   "change.courierInternational": DELIVERY,
   "change.recommendedCourier": "Delivery option",
   "change.trackingDescription":
     "A tracking reference may be recorded when participants have one; no live carrier integration is implied.",
-  "change.houseInsuranceDesc": "Insurance is not currently offered as an operational Swaply service.",
+  "change.houseInsuranceDesc":
+    "Insurance is not currently offered as an operational Swaply service.",
   "change.bonusTokens": "No completion bonus is currently promised.",
 
   "profile.badgeBenefitsDescription":
     "Account features depend on the current Production configuration.",
-  "profile.tokenShopDesc": "Paid or token-based premium features are not currently offered publicly.",
+  "profile.tokenShopDesc":
+    "Paid or token-based premium features are not currently offered publicly.",
 
   "info.featurePriorityMatch": "Compatibility suggestions",
   "info.featureAnalytics": "Account activity information where available",
@@ -78,22 +92,28 @@ const FINAL_PUBLIC_TRUTH_OVERRIDES: Readonly<Record<string, string>> = {
   "info.tokensDescription": NOT_OFFERED,
 
   "statsGrid.premiumPercentage": "Paid-plan statistic unavailable",
-  "statsGrid.premiumDescription": "No paid Production plan is currently offered.",
+  "statsGrid.premiumDescription":
+    "No paid Production plan is currently offered.",
 
-  "map.premiumVisibility": "Map visibility depends on current Production configuration.",
+  "map.premiumVisibility":
+    "Map visibility depends on current Production configuration.",
 
   "premium.title": "Paid-plan concept",
   "premium.subtitle": "Not currently offered in Production.",
 
-  "analytics.upgradeToPremium": "Paid analytics access is not currently offered in Production.",
+  "analytics.upgradeToPremium":
+    "Paid analytics access is not currently offered in Production.",
   "badge.premium": "Planned paid tier",
   "badge.platinum": "Planned paid tier",
 
   "serviceWizard.step4EscrowLabel": "Escrow — not currently available",
   "serviceWizard.escrowLabel": "Escrow — not currently available",
-  "propertyWizard.step6EscrowAcceptedLabel": "Escrow — not currently available",
-  "propertyWizard.step6EscrowRequiredLabel": "Escrow — not currently available",
-  "propertyWizard.step6DepositLabel": "Deposit protection — not currently available",
+  "propertyWizard.step6EscrowAcceptedLabel":
+    "Escrow — not currently available",
+  "propertyWizard.step6EscrowRequiredLabel":
+    "Escrow — not currently available",
+  "propertyWizard.step6DepositLabel":
+    "Deposit protection — not currently available",
   "propertyWizard.partialTopup": NOT_OFFERED,
   "eventWizard.step4EscrowLabel": "Escrow — not currently available",
   "eventWizard.partialTopup": NOT_OFFERED,
@@ -101,31 +121,94 @@ const FINAL_PUBLIC_TRUTH_OVERRIDES: Readonly<Record<string, string>> = {
 
   "exchange.pdf.disclaimer":
     "This document summarizes participant-provided exchange information. It does not prove activation or endorsement of any external provider.",
-  "exchange.services.aiValuation": "Automated valuation concept — availability depends on Production configuration.",
-  "exchange.services.courier": "Delivery coordination — no carrier integration implied",
-  "exchange.services.tracking": "Tracking reference — no live carrier integration implied",
+  "exchange.services.aiValuation":
+    "Automated valuation concept — availability depends on Production configuration.",
+  "exchange.services.courier":
+    "Delivery coordination — no carrier integration implied",
+  "exchange.services.tracking":
+    "Tracking reference — no live carrier integration implied",
 
-  "contact.responseTime": "Response times vary; no fixed response-time guarantee is stated.",
-  "contact.respondWithin24Hours": "Response times vary; no fixed response-time guarantee is stated.",
+  "contact.responseTime":
+    "Response times vary; no fixed response-time guarantee is stated.",
+  "contact.respondWithin24Hours":
+    "Response times vary; no fixed response-time guarantee is stated.",
 
-  "legal.dmcaResponseTime": "Requests are reviewed according to the applicable process; no fixed response-time guarantee is stated.",
+  "legal.dmcaResponseTime":
+    "Requests are reviewed according to the applicable process; no fixed response-time guarantee is stated.",
   "legal.dmcaRepeatInfringer":
     "Repeat-infringer handling follows the applicable policy and legal requirements.",
 };
 
-const UNSAFE_TEXT_RULES: ReadonlyArray<{ pattern: RegExp; replacement: string }> = [
-  { pattern: /\bfull protection\b/i, replacement: "available exchange controls" },
-  { pattern: /\b30 bonus tokens\b/i, replacement: "no completion bonus is currently promised" },
-  { pattern: /\brecommended courier\b/i, replacement: "delivery option" },
-  { pattern: /\bupgrade to premium\b/i, replacement: "paid Production plan not currently offered" },
-  { pattern: /\bpremium and platinum users are visible on the map\b/i, replacement: "map visibility depends on current Production configuration" },
-  { pattern: /\bglobal visibility\s*[·•-]\s*priority matching\b/i, replacement: "paid Production plan not currently offered" },
-  { pattern: /\bdiscover premium and platinum advantages\b/i, replacement: "account features depend on current Production configuration" },
-  { pattern: /\bspend your earned tokens on boosts and premium features\b/i, replacement: "paid or token-based premium features are not currently offered publicly" },
-  { pattern: /\baccept escrow\b/i, replacement: "escrow not currently available" },
-  { pattern: /\brequires escrow\b/i, replacement: "escrow not currently available" },
-  { pattern: /\bwe respond within 24 hours\b/i, replacement: "response times vary" },
-  { pattern: /\bwithin 2[-–]3 business days\b/i, replacement: "according to the applicable review process" },
+const UNSAFE_TEXT_RULES: ReadonlyArray<{
+  pattern: RegExp;
+  replacement: string;
+}> = [
+  {
+    pattern: /\bAI will auto-fill\b/gi,
+    replacement:
+      "Automated assistance depends on the current Production configuration",
+  },
+  {
+    pattern: /\bTop 3 AI Picks\b/gi,
+    replacement: "Suggested matches",
+  },
+  {
+    pattern: /\bSemantic AI\b/gi,
+    replacement: "Compatibility suggestions",
+  },
+  {
+    pattern: /\bsecure chat\b/gi,
+    replacement: "in-platform conversation",
+  },
+  {
+    pattern: /\bfull protection\b/gi,
+    replacement: "available exchange controls",
+  },
+  {
+    pattern: /\b30 bonus tokens\b/gi,
+    replacement: "no completion bonus is currently promised",
+  },
+  {
+    pattern: /\brecommended courier\b/gi,
+    replacement: "delivery option",
+  },
+  {
+    pattern: /\bupgrade to premium\b/gi,
+    replacement: "paid Production plan not currently offered",
+  },
+  {
+    pattern: /\bpremium and platinum users are visible on the map\b/gi,
+    replacement: "map visibility depends on current Production configuration",
+  },
+  {
+    pattern: /\bglobal visibility\s*[·•-]\s*priority matching\b/gi,
+    replacement: "paid Production plan not currently offered",
+  },
+  {
+    pattern: /\bdiscover premium and platinum advantages\b/gi,
+    replacement: "account features depend on current Production configuration",
+  },
+  {
+    pattern: /\bspend your earned tokens on boosts and premium features\b/gi,
+    replacement:
+      "paid or token-based premium features are not currently offered publicly",
+  },
+  {
+    pattern: /\baccept escrow\b/gi,
+    replacement: "escrow not currently available",
+  },
+  {
+    pattern: /\brequires escrow\b/gi,
+    replacement: "escrow not currently available",
+  },
+  {
+    pattern: /\bwe respond within 24 hours\b/gi,
+    replacement: "response times vary",
+  },
+  {
+    pattern: /\bwithin 2[-–]3 business days\b/gi,
+    replacement: "according to the applicable review process",
+  },
 ];
 
 function setPath(root: MessageTree, path: string, value: string) {
