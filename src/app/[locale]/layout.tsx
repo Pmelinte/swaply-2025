@@ -19,6 +19,7 @@ import { CookieConsent } from "@/components/CookieConsent";
 import { ConditionalAnalytics } from "@/components/ConditionalAnalytics";
 import { SWAPLY_PUBLIC_SUPPORT_EMAIL } from "@/lib/legal-copy";
 import { sanitizePublicTruthMessages } from "@/lib/public-truth-messages";
+import { applyFinalPublicTruthGuards } from "@/lib/public-truth-final-guards";
 import {
   SWAPLY_PUBLIC_BASE_URL,
   buildPublicHreflangLanguages,
@@ -106,7 +107,9 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   const canonicalLocale = locale as Locale;
   setRequestLocale(canonicalLocale);
-  const messages = sanitizePublicTruthMessages(await getMessages());
+  const messages = applyFinalPublicTruthGuards(
+    sanitizePublicTruthMessages(await getMessages()),
+  );
 
   return (
     <html
