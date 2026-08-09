@@ -2,6 +2,10 @@ import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
 import readingTime from "reading-time";
+import {
+  sanitizeBlogPublicTruthContent,
+  sanitizeBlogPublicTruthText,
+} from "./blog-public-truth";
 
 const BLOG_DIR = path.join(process.cwd(), "src", "content", "blog");
 
@@ -24,12 +28,13 @@ export type LocalizedBlogPost = BlogPost & { sourceLang: string };
 function parsePostFromPath(filePath: string, slug: string): BlogPost {
   const raw = fs.readFileSync(filePath, "utf-8");
   const { data, content } = matter(raw);
-  const stats = readingTime(content);
+  const safeContent = sanitizeBlogPublicTruthContent(content);
+  const stats = readingTime(safeContent);
 
   return {
     slug,
-    title: data.title ?? "",
-    description: data.description ?? "",
+    title: sanitizeBlogPublicTruthText(data.title ?? ""),
+    description: sanitizeBlogPublicTruthText(data.description ?? ""),
     date: data.date ?? "",
     author: data.author ?? "Petru Melinte",
     category: data.category ?? "",
@@ -37,7 +42,7 @@ function parsePostFromPath(filePath: string, slug: string): BlogPost {
     coverImage: data.coverImage ?? data.image,
     seoKeyword: data.seoKeyword ?? "",
     readingTime: stats.text,
-    content,
+    content: safeContent,
   };
 }
 
@@ -59,31 +64,26 @@ export function getAllPosts(locale?: string): LocalizedBlogPost[] {
   return enFiles
     .map((file): LocalizedBlogPost => {
       const slug = file.replace(/\.mdx$/, "");
-      // Try locale-specific file first
       if (hasLocaleDir) {
         const localePath = path.join(localeDir, file);
         if (fs.existsSync(localePath)) {
           return { ...parsePostFromPath(localePath, slug), sourceLang: locale! };
         }
       }
-      // Fallback to English
       return { ...parsePost(file), sourceLang: "en" };
     })
     .sort((a, b) => (a.date > b.date ? -1 : 1));
 }
 
-/**
- * Get a single post by slug, with locale fallback.
- */
+/** Get a single post by slug, with locale fallback. */
 export function getPostBySlug(slug: string, locale?: string): LocalizedBlogPost | null {
-  // Try locale-specific version first
   if (locale && locale !== "en") {
     const localePath = path.join(BLOG_DIR, locale, `${slug}.mdx`);
     if (fs.existsSync(localePath)) {
       return { ...parsePostFromPath(localePath, slug), sourceLang: locale };
     }
   }
-  // Fallback to English
+
   const enPath = path.join(BLOG_DIR, `${slug}.mdx`);
   if (!fs.existsSync(enPath)) return null;
   return { ...parsePost(`${slug}.mdx`), sourceLang: "en" };
@@ -94,16 +94,16 @@ export function getPostsByCategory(
   locale?: string,
 ): LocalizedBlogPost[] {
   return getAllPosts(locale).filter(
-    (p) => p.category.toLowerCase() === category.toLowerCase(),
+    (post) => post.category.toLowerCase() === category.toLowerCase(),
   );
 }
 
 export function getAllCategories(): string[] {
   const posts = getAllPosts();
-  return [...new Set(posts.map((p) => p.category))].filter(Boolean);
+  return [...new Set(posts.map((post) => post.category))].filter(Boolean);
 }
 
-/** Extract H2 and H3 headings from MDX content for Table of Contents */
+/** Extract H2 and H3 headings from MDX content for Table of Contents. */
 export function extractHeadings(
   content: string,
 ): Array<{ level: 2 | 3; text: string; id: string }> {
@@ -124,7 +124,7 @@ export function extractHeadings(
   return headings;
 }
 
-/** Generate RSS 2.0 XML feed */
+/** Generate RSS 2.0 XML feed. */
 export function generateRSSFeed(posts: BlogPost[]): string {
   const baseUrl = "https://swaply.world";
 
