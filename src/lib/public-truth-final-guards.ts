@@ -11,6 +11,8 @@ const CONVERSATION =
   "Use Swaply's in-platform conversation tools and available safety controls.";
 const DELIVERY =
   "Participants arrange handover or delivery directly using options available in the current flow.";
+const NO_FIXED_RESPONSE =
+  "Response times vary; no fixed response-time guarantee is stated.";
 
 const FINAL_PUBLIC_TRUTH_OVERRIDES: Readonly<Record<string, string>> = {
   "home.howStep3Desc": CONVERSATION,
@@ -19,6 +21,7 @@ const FINAL_PUBLIC_TRUTH_OVERRIDES: Readonly<Record<string, string>> = {
   "objects.metaDescription":
     "Browse object listings, review compatibility and arrange voluntary exchanges on Swaply.",
   "objects.aiAnalyzesCompatibility": COMPATIBILITY,
+  "objects.aiAnalyzesObjects": COMPATIBILITY,
 
   "objectWizard.aiAutoFill": FOUNDATION,
   "objectWizard.aiDescription": FOUNDATION,
@@ -29,12 +32,18 @@ const FINAL_PUBLIC_TRUTH_OVERRIDES: Readonly<Record<string, string>> = {
   "itemForm.aiAnalysis": FOUNDATION,
   "itemForm.aiAnalyzing":
     "Analysis tools depend on the current Production configuration.",
+  "itemForm.analyzingWithAi":
+    "Analysis tools depend on the current Production configuration.",
+  "itemForm.aiSuggestions": "Automated suggestions — availability depends on Production configuration",
+  "itemForm.aiSuggestsFromTitle": FOUNDATION,
+  "itemForm.aiCategoryAndTags": FOUNDATION,
   "itemForm.aiCategory": FOUNDATION,
   "itemForm.aiTags": FOUNDATION,
   "itemForm.aiConfidence": "Automated confidence indicator",
   "itemForm.aiGenerateDescription": FOUNDATION,
   "itemForm.aiGeneratedDescription": FOUNDATION,
   "itemForm.aiValueEstimate": FOUNDATION,
+  "itemForm.aiError": "Automated assistance unavailable; continue manually.",
   "itemForm.estimatedValue":
     "Approximate value entered or reviewed by the user",
 
@@ -44,6 +53,14 @@ const FINAL_PUBLIC_TRUTH_OVERRIDES: Readonly<Record<string, string>> = {
   "match.aiReason": "Compatibility reason",
   "match.semanticAi": "Compatibility suggestions",
   "match.poweredByAi": "Based on available listing signals",
+  "match.aiAnalyzesCompatibility": COMPATIBILITY,
+  "match.aiAnalyzesObjects": COMPATIBILITY,
+  "match.gamificationExplanation":
+    "Reputation and token behavior depends on the current verified Production rules; no priority access is promised here.",
+
+  "matchList.counterOffersDesc":
+    "Counter-offer suggestions depend on the current Production configuration.",
+  "matchList.aiAnalyze": "Analyze compatibility",
 
   "chat.description": CONVERSATION,
   "chat.moderated": "Safety controls where available",
@@ -53,9 +70,18 @@ const FINAL_PUBLIC_TRUTH_OVERRIDES: Readonly<Record<string, string>> = {
   "chat.aiSummary": FOUNDATION,
   "chat.aiSummaryDescription": FOUNDATION,
 
+  "aiAssist.title": "Assistance tools",
+  "aiAssist.rephrase": FOUNDATION,
+  "aiAssist.translate": FOUNDATION,
+  "aiAssist.summarize": FOUNDATION,
+  "aiAssist.generateResponse": FOUNDATION,
   "aiAssist.dailyLimitReached":
     "This assistance feature is currently unavailable or limited.",
   "aiAssist.upgradeForMore": "Additional paid access is not currently offered.",
+
+  "onboardingChecklist.completionBonus":
+    "No onboarding token bonus is currently promised.",
+  "onboardingChecklist.bonusLabel": "Completion status",
 
   "change.guestHeroDescription":
     "Coordinate the exchange steps available in the current Production flow.",
@@ -90,10 +116,28 @@ const FINAL_PUBLIC_TRUTH_OVERRIDES: Readonly<Record<string, string>> = {
   "info.platinumTitle": "Planned paid-plan concept",
   "info.tokensTitle": "Token concept",
   "info.tokensDescription": NOT_OFFERED,
+  "info.aiServerSide": FOUNDATION,
+  "info.aiModeration": FOUNDATION,
+  "info.aiMetadata": FOUNDATION,
+  "info.aiSeparation": FOUNDATION,
+  "info.aiFallback": FOUNDATION,
+  "info.discoverMatchesDescription":
+    "Review compatibility suggestions available in the current flow.",
+  "info.howStep2Desc": COMPATIBILITY,
+  "info.howStep3Desc": CONVERSATION,
+  "info.howStep4Desc": DELIVERY,
+  "info.successStories": "Exchange examples",
+  "info.successStoriesDesc":
+    "Illustrative examples are not evidence of completed Production exchanges unless explicitly identified as verified stories.",
+
+  "about.step2Text":
+    "Browse listings and review compatibility suggestions available in the current flow.",
 
   "statsGrid.premiumPercentage": "Paid-plan statistic unavailable",
   "statsGrid.premiumDescription":
     "No paid Production plan is currently offered.",
+  "statsGrid.globalDescription":
+    "Availability and activity vary by location; no unsupported country-coverage statistic is claimed.",
 
   "map.premiumVisibility":
     "Map visibility depends on current Production configuration.",
@@ -140,13 +184,20 @@ const FINAL_PUBLIC_TRUTH_OVERRIDES: Readonly<Record<string, string>> = {
   "exchange.services.tracking":
     "Tracking reference — no live carrier integration implied",
 
-  "contact.responseTime":
-    "Response times vary; no fixed response-time guarantee is stated.",
-  "contact.respondWithin24Hours":
-    "Response times vary; no fixed response-time guarantee is stated.",
+  "contact.responseTime": NO_FIXED_RESPONSE,
+  "contact.respondWithin24Hours": NO_FIXED_RESPONSE,
+  "contact.successText": NO_FIXED_RESPONSE,
+  "contact.businessText":
+    "Partnership enquiries can use the current public contact channels; no paid business plan is implied.",
 
+  "legal.privacyRetentionText":
+    "Account and personal-data retention follows the applicable privacy process and legal requirements; no unsupported fixed deletion deadline is promised here.",
   "legal.dmcaResponseTime":
     "Requests are reviewed according to the applicable process; no fixed response-time guarantee is stated.",
+  "legal.dmcaContactText":
+    "DMCA Agent: Swaply Legal Team\nEmail: dmca@swaply.world\n\nRequests are reviewed according to the applicable process; no fixed response-time guarantee is stated.",
+  "legal.dmcaFormSentDesc":
+    "The notice was submitted for review according to the applicable process; no fixed response-time guarantee is stated.",
   "legal.dmcaRepeatInfringer":
     "Repeat-infringer handling follows the applicable policy and legal requirements.",
 };
@@ -161,6 +212,15 @@ const UNSAFE_TEXT_RULES: ReadonlyArray<{
       "Automated assistance depends on the current Production configuration",
   },
   {
+    pattern: /\bAI analyzes the compatibility of your objects\b/gi,
+    replacement: COMPATIBILITY,
+  },
+  {
+    pattern: /\bAI-generated suggestions to improve the deal\b/gi,
+    replacement:
+      "Counter-offer suggestions depend on the current Production configuration",
+  },
+  {
     pattern: /\bTop 3 AI Picks\b/gi,
     replacement: "Suggested matches",
   },
@@ -169,16 +229,32 @@ const UNSAFE_TEXT_RULES: ReadonlyArray<{
     replacement: "Compatibility suggestions",
   },
   {
+    pattern: /\bAI Assistant\b/gi,
+    replacement: "Assistance tools",
+  },
+  {
     pattern: /\bsecure chat\b/gi,
     replacement: "in-platform conversation",
+  },
+  {
+    pattern: /\bsecure moderated chat\b/gi,
+    replacement: "in-platform conversation with available safety controls",
+  },
+  {
+    pattern: /\bfull tracking\b/gi,
+    replacement: "delivery coordination available in the current flow",
   },
   {
     pattern: /\bfull protection\b/gi,
     replacement: "available exchange controls",
   },
   {
-    pattern: /\b30 bonus tokens\b/gi,
-    replacement: "no completion bonus is currently promised",
+    pattern: /\b(?:30|50) bonus tokens\b/gi,
+    replacement: "no token bonus is currently promised",
+  },
+  {
+    pattern: /\bpriority matches?\b/gi,
+    replacement: "compatibility suggestions",
   },
   {
     pattern: /\brecommended courier\b/gi,
@@ -214,12 +290,21 @@ const UNSAFE_TEXT_RULES: ReadonlyArray<{
     replacement: "escrow not currently available",
   },
   {
+    pattern: /\bwe(?:'|’)ll get back to you within 24 hours\b/gi,
+    replacement: "response times vary",
+  },
+  {
     pattern: /\bwe respond within 24 hours\b/gi,
     replacement: "response times vary",
   },
   {
     pattern: /\bwithin 2[-–]3 business days\b/gi,
     replacement: "according to the applicable review process",
+  },
+  {
+    pattern: /\bupon deletion, all personal data is removed within 30 days\b/gi,
+    replacement:
+      "data retention follows the applicable privacy process and legal requirements",
   },
   {
     pattern: /\bUp to €(?:200|500|2000)\b/gi,
