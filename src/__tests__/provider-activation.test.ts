@@ -16,12 +16,16 @@ describe("provider production activation", () => {
     expect(getProductionCapabilityForPath("/api/courier/create-awb")).toBe("couriers");
     expect(getProductionCapabilityForPath("/api/insurance/quote")).toBe("insurance");
     expect(getProductionCapabilityForPath("/api/travel/flights")).toBe("travel_integrations");
+    expect(getProductionCapabilityForPath("/api/ai/image")).toBe("paid_ai");
+    expect(getProductionCapabilityForPath("/api/analyze-image")).toBe("paid_ai");
     expect(getProductionCapabilityForPath("/api/feature-flags")).toBeNull();
   });
 
   it("is fail-closed when the owner activation switch is absent", () => {
     vi.stubEnv("SWAPLY_ENABLE_STRIPE_PRODUCTION", "");
+    vi.stubEnv("SWAPLY_ENABLE_PAID_AI_PRODUCTION", "");
     expect(isProductionCapabilityAuthorised("stripe")).toBe(false);
+    expect(isProductionCapabilityAuthorised("paid_ai")).toBe(false);
   });
 
   it("allows activation only through the exact explicit switch", () => {
