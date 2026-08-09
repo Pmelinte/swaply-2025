@@ -62,13 +62,12 @@ export async function GET() {
     ]);
 
   const providers = {
-    groq: providerState(groqConfigured, paidAiAuthorised, aiEnabled),
-    gemini: providerState(geminiConfigured, paidAiAuthorised, aiEnabled),
-    huggingface: providerState(
-      huggingFaceConfigured,
-      paidAiAuthorised,
-      aiEnabled,
-    ),
+    // External AI traffic is controlled centrally by the paid-AI owner switch
+    // in proxy.ts. `services.ai` below reports the broader matching/fallback
+    // layer, so it is intentionally separate from provider liveness.
+    groq: providerState(groqConfigured, paidAiAuthorised),
+    gemini: providerState(geminiConfigured, paidAiAuthorised),
+    huggingface: providerState(huggingFaceConfigured, paidAiAuthorised),
     stripe: providerState(
       stripeConfigured,
       stripeAuthorised,
@@ -109,7 +108,7 @@ export async function GET() {
     contract: {
       configured: "Provider credentials are present.",
       authorised: "Owner-controlled Production activation is enabled.",
-      featureEnabled: "The runtime feature flag is enabled.",
+      featureEnabled: "The capability-specific runtime flag is enabled where applicable.",
       live: "Configured, authorised and featureEnabled are all true.",
     },
   });
