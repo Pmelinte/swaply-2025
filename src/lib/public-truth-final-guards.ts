@@ -119,6 +119,18 @@ const FINAL_PUBLIC_TRUTH_OVERRIDES: Readonly<Record<string, string>> = {
   "eventWizard.partialTopup": NOT_OFFERED,
   "eventWizard.pointsTopup": NOT_OFFERED,
 
+  "exchange.insuranceTitle": "Insurance concept — not currently available",
+  "exchange.insurancePlan": "Insurance option — not currently available",
+  "exchange.insuranceCoverageBasic": NOT_OFFERED,
+  "exchange.insuranceCoverageStandard": NOT_OFFERED,
+  "exchange.insuranceCoveragePremium": NOT_OFFERED,
+  "exchange.activateInsurance": NOT_OFFERED,
+  "exchange.insurance.title": "Insurance concept — not currently available",
+  "exchange.insurance.plan": "Insurance option — not currently available",
+  "exchange.insurance.coverageBasic": NOT_OFFERED,
+  "exchange.insurance.coverageStandard": NOT_OFFERED,
+  "exchange.insurance.coveragePremium": NOT_OFFERED,
+  "exchange.insurance.activate": NOT_OFFERED,
   "exchange.pdf.disclaimer":
     "This document summarizes participant-provided exchange information. It does not prove activation or endorsement of any external provider.",
   "exchange.services.aiValuation":
