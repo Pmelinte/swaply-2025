@@ -29,13 +29,12 @@ const PROVIDER_ROUTE_RULES: Array<{
   { prefix: "/api/insurance", capability: "insurance" },
   { prefix: "/api/travel", capability: "travel_integrations" },
 
-  // Every request path that can invoke an external AI/translation provider is
-  // controlled by the same explicit owner switch. Deterministic/local fallbacks
-  // remain available through the normal product flows without these endpoints.
-  { prefix: "/api/ai", capability: "paid_ai" },
+  // These routes invoke providers directly and cannot complete their task
+  // without external AI. Gateway-backed routes such as /api/ai, /api/moderate
+  // and /api/translate stay reachable: createServerAIGateway omits providers
+  // when unauthorised and returns their deterministic non-AI fallbacks.
+  { prefix: "/api/ai/image", capability: "paid_ai" },
   { prefix: "/api/analyze-image", capability: "paid_ai" },
-  { prefix: "/api/moderate", capability: "paid_ai" },
-  { prefix: "/api/translate", capability: "paid_ai" },
   { prefix: "/api/embeddings", capability: "paid_ai" },
   { prefix: "/api/match-semantic", capability: "paid_ai" },
 
