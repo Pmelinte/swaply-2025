@@ -18,20 +18,26 @@ describe("provider production activation", () => {
     expect(getProductionCapabilityForPath("/api/travel/flights")).toBe("travel_integrations");
 
     for (const path of [
-      "/api/ai",
       "/api/ai/image",
-      "/api/ai/match",
       "/api/analyze-image",
-      "/api/moderate",
-      "/api/translate",
       "/api/embeddings",
       "/api/match-semantic",
     ]) {
       expect(getProductionCapabilityForPath(path)).toBe("paid_ai");
     }
+  });
 
-    expect(getProductionCapabilityForPath("/api/feature-flags")).toBeNull();
-    expect(getProductionCapabilityForPath("/api/health")).toBeNull();
+  it("keeps gateway-backed non-AI fallbacks reachable", () => {
+    for (const path of [
+      "/api/ai",
+      "/api/ai/match",
+      "/api/moderate",
+      "/api/translate",
+      "/api/feature-flags",
+      "/api/health",
+    ]) {
+      expect(getProductionCapabilityForPath(path)).toBeNull();
+    }
   });
 
   it("is fail-closed when the owner activation switch is absent", () => {
