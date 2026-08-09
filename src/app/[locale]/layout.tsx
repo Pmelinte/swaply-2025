@@ -41,27 +41,27 @@ function buildHreflangAlternates(locale: string, path: string) {
 
 export const metadata: Metadata = {
   title: {
-    default: "Swaply — Swap objects without money",
+    default: "Swaply — Swap what you have for what you need",
     template: "%s | Swaply",
   },
   description:
-    "Swaply connects people who want to swap objects, without money. Simple, local, transparent. AI matching, secure chat, complete swap flow.",
+    "Swaply is a platform for discovering and arranging voluntary exchanges of objects, properties, services and events.",
   manifest: "/manifest.json",
   metadataBase: new URL(SWAPLY_PUBLIC_BASE_URL),
   openGraph: {
     type: "website",
     siteName: "Swaply",
-    title: "Swaply — Swap objects without money",
+    title: "Swaply — Swap what you have for what you need",
     description:
-      "Swap what you have for what you want. AI matching, secure chat, complete swap flow.",
+      "Discover listings, discuss an exchange and manage the swap flow on Swaply.",
     images: [
       { url: "/og-image.svg", width: 1200, height: 630, alt: "Swaply" },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Swaply — Swap objects without money",
-    description: "Swap what you have for what you want. AI matching, secure chat.",
+    title: "Swaply — Swap what you have for what you need",
+    description: "Discover listings and arrange voluntary exchanges on Swaply.",
     images: ["/og-image.svg"],
   },
   robots: {
@@ -133,11 +133,11 @@ export default async function LocaleLayout({ children, params }: Props) {
               url: SWAPLY_PUBLIC_BASE_URL,
               logo: `${SWAPLY_PUBLIC_BASE_URL}/logo-swaply.svg`,
               description:
-                "Global barter platform available in 43 languages. Swap objects, services and homes without money — locally or internationally.",
-              areaServed: "Worldwide",
+                "Swaply is a web platform for discovering and arranging voluntary exchanges.",
               contactPoint: {
                 "@type": "ContactPoint",
                 email: SWAPLY_PUBLIC_SUPPORT_EMAIL,
+                contactType: "Customer support",
               },
             }),
           }}
