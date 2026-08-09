@@ -3,6 +3,8 @@ import { getTranslations } from "next-intl/server";
 import { locales } from "@/i18n/config";
 
 const BASE_URL = "https://www.swaply.world";
+const SAFE_DESCRIPTION =
+  "Core Swaply access is currently free. Paid production plans are not currently offered.";
 
 interface Props {
   children: React.ReactNode;
@@ -13,9 +15,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "pricing" });
 
-  const metaTitle = t("metaTitle");
+  const metaTitle = t("title");
   const title = `${metaTitle} | Swaply`;
-  const description = t("metaDescription");
+  const description = SAFE_DESCRIPTION;
 
   return {
     title: { absolute: title },

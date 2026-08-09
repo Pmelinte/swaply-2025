@@ -3,6 +3,8 @@ import { getTranslations } from "next-intl/server";
 import { locales } from "@/i18n/config";
 
 const BASE_URL = "https://www.swaply.world";
+const SAFE_DESCRIPTION =
+  "The story behind Swaply — a platform for discovering and arranging voluntary exchanges.";
 
 interface Props {
   children: React.ReactNode;
@@ -15,7 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const metaTitle = t("metaTitle");
   const title = `${metaTitle} | Swaply`;
-  const description = t("metaDescription");
+  const description = SAFE_DESCRIPTION;
 
   return {
     title: { absolute: title },
