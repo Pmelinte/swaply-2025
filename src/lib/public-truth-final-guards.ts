@@ -221,6 +221,10 @@ const UNSAFE_TEXT_RULES: ReadonlyArray<{
     pattern: /\bwithin 2[-–]3 business days\b/gi,
     replacement: "according to the applicable review process",
   },
+  {
+    pattern: /\bUp to €(?:200|500|2000)\b/gi,
+    replacement: NOT_OFFERED,
+  },
 ];
 
 function setPath(root: MessageTree, path: string, value: string) {
