@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   isFlagEnabled,
+  normalizeFeatureFlagId,
   DEFAULT_FLAGS,
   invalidateFlagCache,
   flagCache,
@@ -11,8 +12,23 @@ import {
 } from "@/lib/feature-flags";
 
 describe("isFlagEnabled", () => {
-  it("returns true for enabled flag at 100% rollout", () => {
+  it("returns true for enabled core flag at 100% rollout", () => {
     expect(isFlagEnabled(DEFAULT_FLAGS, "push_notifications")).toBe(true);
+  });
+
+  it("keeps provider-backed features fail-closed by default", () => {
+    expect(isFlagEnabled(DEFAULT_FLAGS, "stripe_payments")).toBe(false);
+    expect(isFlagEnabled(DEFAULT_FLAGS, "paypal_payments")).toBe(false);
+    expect(isFlagEnabled(DEFAULT_FLAGS, "courier_integration")).toBe(false);
+    expect(isFlagEnabled(DEFAULT_FLAGS, "swap_insurance")).toBe(false);
+    expect(isFlagEnabled(DEFAULT_FLAGS, "travel_integrations")).toBe(false);
+  });
+
+  it("normalizes historical aliases to canonical database keys", () => {
+    expect(normalizeFeatureFlagId("ads_display")).toBe("ads_banner");
+    expect(normalizeFeatureFlagId("courier_shipping")).toBe("courier_integration");
+    expect(normalizeFeatureFlagId("daily_streaks")).toBe("daily_streak");
+    expect(normalizeFeatureFlagId("referrals")).toBe("referral_program");
   });
 
   it("returns false for disabled flag", () => {
@@ -29,47 +45,67 @@ describe("isFlagEnabled", () => {
 
   it("respects rollout percent based on user ID hash", () => {
     const flags: FeatureFlag[] = [
-      { id: "test_flag", name: "Test", description: "", enabled: true, category: "core", rolloutPercent: 50 },
+      {
+        id: "test_flag",
+        name: "Test",
+        description: "",
+        enabled: true,
+        category: "core",
+        rolloutPercent: 50,
+      },
     ];
 
-    // With many user IDs, some should be enabled and some not
     let enabledCount = 0;
-    for (let i = 0; i < 100; i++) {
-      if (isFlagEnabled(flags, "test_flag", `user-${i}`)) enabledCount++;
+    for (let index = 0; index < 100; index += 1) {
+      if (isFlagEnabled(flags, "test_flag", `user-${index}`)) enabledCount += 1;
     }
-    // Should be roughly 50%, allow some variance
+
     expect(enabledCount).toBeGreaterThan(20);
     expect(enabledCount).toBeLessThan(80);
   });
 
   it("returns false for partial rollout without userId", () => {
     const flags: FeatureFlag[] = [
-      { id: "test_flag", name: "Test", description: "", enabled: true, category: "core", rolloutPercent: 50 },
+      {
+        id: "test_flag",
+        name: "Test",
+        description: "",
+        enabled: true,
+        category: "core",
+        rolloutPercent: 50,
+      },
     ];
     expect(isFlagEnabled(flags, "test_flag")).toBe(false);
   });
 
-  it("returns consistent result for same userId", () => {
+  it("returns a consistent result for the same userId", () => {
     const flags: FeatureFlag[] = [
-      { id: "test_flag", name: "Test", description: "", enabled: true, category: "core", rolloutPercent: 50 },
+      {
+        id: "test_flag",
+        name: "Test",
+        description: "",
+        enabled: true,
+        category: "core",
+        rolloutPercent: 50,
+      },
     ];
-    const result1 = isFlagEnabled(flags, "test_flag", "user-42");
-    const result2 = isFlagEnabled(flags, "test_flag", "user-42");
-    expect(result1).toBe(result2);
+    expect(isFlagEnabled(flags, "test_flag", "user-42")).toBe(
+      isFlagEnabled(flags, "test_flag", "user-42"),
+    );
   });
 });
 
 describe("invalidateFlagCache", () => {
-  it("resets fetchedAt to 0", () => {
+  it("resets cache metadata and restores safe defaults", () => {
     flagCache.fetchedAt = Date.now();
-    invalidateFlagCache();
-    expect(flagCache.fetchedAt).toBe(0);
-  });
+    flagCache.promise = Promise.resolve([]);
+    flagCache.flags = [];
 
-  it("resets promise to null", () => {
-    flagCache.promise = Promise.resolve(DEFAULT_FLAGS);
     invalidateFlagCache();
+
+    expect(flagCache.fetchedAt).toBe(0);
     expect(flagCache.promise).toBeNull();
+    expect(flagCache.flags).toEqual(DEFAULT_FLAGS);
   });
 });
 
@@ -102,25 +138,25 @@ describe("computeFunnelRates", () => {
 
 describe("defaultMetrics", () => {
   it("returns all zeroed metrics", () => {
-    const m = defaultMetrics();
-    expect(m.visitors).toBe(0);
-    expect(m.signups).toBe(0);
-    expect(m.swapCompleted).toBe(0);
+    const metrics = defaultMetrics();
+    expect(metrics.visitors).toBe(0);
+    expect(metrics.signups).toBe(0);
+    expect(metrics.swapCompleted).toBe(0);
   });
 });
 
 describe("computeMetricsFromState", () => {
   it("estimates visitors as 3x signups", () => {
-    const m = computeMetricsFromState({
+    const metrics = computeMetricsFromState({
       totalUsers: 100,
       usersWithItems: 60,
       usersWithChats: 40,
       usersWithSwaps: 20,
       completedSwaps: 15,
     });
-    expect(m.visitors).toBe(300);
-    expect(m.signups).toBe(100);
-    expect(m.itemsListed).toBe(60);
-    expect(m.swapCompleted).toBe(15);
+    expect(metrics.visitors).toBe(300);
+    expect(metrics.signups).toBe(100);
+    expect(metrics.itemsListed).toBe(60);
+    expect(metrics.swapCompleted).toBe(15);
   });
 });
