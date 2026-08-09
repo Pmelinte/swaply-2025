@@ -71,9 +71,13 @@ const FORBIDDEN_MARKERS = [
   "Semantic AI",
   "AI-generated description",
   "secure chat",
+  "secure moderated chat",
   "moderated, secure conversations",
+  "Let AI find matches",
   "We respond within 24 hours",
+  "We'll get back to you within 24 hours",
   "within 2-3 business days",
+  "Please allow 2-3 business days",
 ];
 
 const REQUIRED_SAFE_MARKERS = [
