@@ -1,8 +1,13 @@
 import { spawn } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import path from "node:path";
 
 const PORT = 3210;
 const BASE_URL = `http://127.0.0.1:${PORT}`;
-const ROUTES = [
+const EXPECTED_LOCALE_COUNT = 43;
+
+const DETAIL_ROUTES = [
   "/en",
   "/en/pricing",
   "/en/about",
@@ -78,8 +83,38 @@ const REQUIRED_SAFE_MARKERS = [
   "Production availability is not implied",
 ];
 
+const REQUIRED_LOCALE_GUARD_MARKERS = [
+  "Production availability is not implied",
+  "Not currently offered in Production",
+];
+
 function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function loadCanonicalLocales() {
+  const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
+  const configPath = path.join(scriptDirectory, "..", "src", "i18n", "config.ts");
+  const source = readFileSync(configPath, "utf8");
+  const localeBlock = source.match(/export const locales\s*=\s*\[([\s\S]*?)\]\s*as const;/);
+
+  if (!localeBlock) {
+    throw new Error("Could not read canonical locale list from src/i18n/config.ts");
+  }
+
+  const locales = [...localeBlock[1].matchAll(/"([^"]+)"/g)].map((match) => match[1]);
+
+  if (locales.length !== EXPECTED_LOCALE_COUNT) {
+    throw new Error(
+      `Expected ${EXPECTED_LOCALE_COUNT} canonical locales, found ${locales.length}: ${locales.join(", ")}`,
+    );
+  }
+
+  if (new Set(locales).size !== locales.length) {
+    throw new Error("Canonical locale list contains duplicate locale identifiers");
+  }
+
+  return locales;
 }
 
 async function waitForServer(child) {
@@ -129,7 +164,21 @@ function assertNoForbiddenMarkers(route, html) {
   }
 }
 
+function assertRequiredMarkers(scope, html, markers) {
+  const missing = markers.filter((marker) => !html.includes(marker));
+
+  if (missing.length > 0) {
+    throw new Error(
+      `${scope} is missing expected evidence-safe marker(s): ${missing.join(", ")}`,
+    );
+  }
+}
+
 async function main() {
+  const locales = loadCanonicalLocales();
+  const localeRoutes = locales.map((locale) => `/${locale}`);
+  const routes = [...new Set([...DETAIL_ROUTES, ...localeRoutes])];
+
   const child = spawn(
     process.execPath,
     ["node_modules/next/dist/bin/next", "start", "-p", String(PORT)],
@@ -157,25 +206,26 @@ async function main() {
     await waitForServer(child);
 
     const rendered = new Map();
-    for (const route of ROUTES) {
+    for (const route of routes) {
       const html = await fetchHtml(route);
       assertNoForbiddenMarkers(route, html);
       rendered.set(route, html);
     }
 
-    const combined = [...rendered.values()].join("\n");
-    const missingSafeMarkers = REQUIRED_SAFE_MARKERS.filter(
-      (marker) => !combined.includes(marker),
-    );
-
-    if (missingSafeMarkers.length > 0) {
-      throw new Error(
-        `Rendered public payload is missing expected evidence-safe marker(s): ${missingSafeMarkers.join(", ")}`,
-      );
+    for (const locale of locales) {
+      const route = `/${locale}`;
+      const html = rendered.get(route);
+      if (!html) {
+        throw new Error(`Missing rendered payload for canonical locale ${locale}`);
+      }
+      assertRequiredMarkers(route, html, REQUIRED_LOCALE_GUARD_MARKERS);
     }
 
+    const detailCombined = DETAIL_ROUTES.map((route) => rendered.get(route) ?? "").join("\n");
+    assertRequiredMarkers("Rendered English public payload", detailCombined, REQUIRED_SAFE_MARKERS);
+
     console.log(
-      `V1-11 public payload gate passed for ${ROUTES.length} rendered routes and ${FORBIDDEN_MARKERS.length} forbidden markers.`,
+      `V1-11 public payload gate passed for ${locales.length}/${EXPECTED_LOCALE_COUNT} canonical locales, ${routes.length} rendered routes and ${FORBIDDEN_MARKERS.length} forbidden markers.`,
     );
   } catch (error) {
     if (stdout.trim()) console.error("--- next stdout ---\n" + stdout.trim());
