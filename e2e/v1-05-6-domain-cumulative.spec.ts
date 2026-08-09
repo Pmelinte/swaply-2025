@@ -125,13 +125,10 @@ test.describe("V1-05.6 cumulative public domain journeys", () => {
             `${domain.route} must preserve its authenticated or guest create handoff`,
           ).not.toBeNull();
 
-          const domainNavigation = page
-            .locator(`a[href="/en/${domain.key}"]`)
-            .first();
           await expect(
-            domainNavigation,
-            `${domain.route} must remain represented in the four-domain navigation`,
-          ).toBeVisible();
+            page.getByRole("navigation", { name: "Branch navigation" }),
+            `${domain.route} must not expose the four-domain selector outside Explore`,
+          ).toHaveCount(0);
 
           await page
             .getByRole("button", { name: /context menu/i })
@@ -170,15 +167,36 @@ test.describe("V1-05.6 cumulative public domain journeys", () => {
     });
   }
 
-  test("four-domain navigation preserves the public journey", async ({
+  test("four-domain selection lives only in Explore and preserves each public handoff", async ({
     page,
   }) => {
-    await assertHealthyPublicDomainPage(page, "/en/properties");
+    const keys = ["objects", "properties", "services", "events"] as const;
 
-    for (const key of ["services", "events", "properties"] as const) {
-      await page.locator(`a[href="/en/${key}"]`).first().click();
+    await assertHealthyPublicDomainPage(page, "/en/explore");
+
+    const branchNavigation = page.getByRole("navigation", {
+      name: "Branch navigation",
+    });
+    await expect(branchNavigation).toBeVisible();
+
+    for (const key of keys) {
+      await expect(
+        branchNavigation.locator(`a[href="/en/${key}"]`),
+        `Explore must expose the ${key} domain handoff`,
+      ).toBeVisible();
+    }
+
+    for (const key of keys) {
+      await branchNavigation.locator(`a[href="/en/${key}"]`).click();
       await expect(page).toHaveURL(new RegExp(`/en/${key}/?$`));
       await expect(page.locator("html")).toHaveAttribute("lang", "en");
+      await expect(
+        page.getByRole("navigation", { name: "Branch navigation" }),
+      ).toHaveCount(0);
+
+      if (key !== keys.at(-1)) {
+        await assertHealthyPublicDomainPage(page, "/en/explore");
+      }
     }
   });
 
