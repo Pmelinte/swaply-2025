@@ -1,6 +1,10 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import {
+  PUBLIC_TRUTH_OVERRIDE_PATHS,
+  sanitizePublicTruthMessages,
+} from "./public-truth-messages";
 
 const ROOT = process.cwd();
 
@@ -15,7 +19,9 @@ const PUBLIC_CLAIM_FILES = [
   "src/content/copy/about-copy.md",
   "src/app/[locale]/layout.tsx",
   "src/app/[locale]/about/page.tsx",
+  "src/app/[locale]/about/layout.tsx",
   "src/app/[locale]/pricing/page.tsx",
+  "src/app/[locale]/pricing/layout.tsx",
   "src/app/[locale]/partners/page.tsx",
   "src/app/[locale]/integrations/page.tsx",
 ] as const;
@@ -74,5 +80,41 @@ describe("V1-11 public truth guard", () => {
     expect(integrations).not.toContain('status: "active"');
     expect(integrations).toContain('type IntegrationStatus = "foundation" | "disabled" | "planned"');
     expect(integrations).toContain("Swaply does not claim live escrow protection in Production.");
+  });
+
+  it("sanitizes legacy locale claims before they are serialized to public pages", () => {
+    const source = {
+      about: {
+        storyP2: "Available in 43 languages across 40+ countries",
+        techDescription: "Hosted on Vercel, payments via Stripe.",
+      },
+      monetization: {
+        pricePremium: "19.99",
+        pricePlatinum: "39.99",
+      },
+      exchange: {
+        escrow: { title: "Escrow Swaply — Swap protection", activate: "Activate Escrow" },
+      },
+    };
+
+    const sanitized = sanitizePublicTruthMessages(source);
+    const text = JSON.stringify(sanitized);
+
+    expect(text).not.toContain("40+ countries");
+    expect(text).not.toContain("payments via Stripe");
+    expect(text).not.toContain('"pricePremium":"19.99"');
+    expect(text).not.toContain("Activate Escrow");
+    expect(PUBLIC_TRUTH_OVERRIDE_PATHS).toContain("about.storyP2");
+    expect(PUBLIC_TRUTH_OVERRIDE_PATHS).toContain("exchange.escrow.activate");
+  });
+
+  it("uses evidence-safe About and Pricing metadata", () => {
+    const aboutLayout = read("src/app/[locale]/about/layout.tsx");
+    const pricingLayout = read("src/app/[locale]/pricing/layout.tsx");
+
+    expect(aboutLayout).not.toContain('t("metaDescription")');
+    expect(pricingLayout).not.toContain('t("metaDescription")');
+    expect(aboutLayout).toContain("voluntary exchanges");
+    expect(pricingLayout).toContain("Paid production plans are not currently offered");
   });
 });
