@@ -32,6 +32,10 @@ const TEXT_REPLACEMENTS: Array<[RegExp, string]> = [
     "Illustrative Swap Scenarios That Can Inspire Better Exchanges",
   ],
   [
+    /Complete identity verification by uploading a government[- ]issued ID\./gi,
+    "Government-ID verification is part of Swaply's product direction but is not currently available in Production.",
+  ],
+  [
     /For traders who want the highest level of trust, Swaply offers optional government ID verification\.[\s\S]*?This badge is the single most powerful trust signal on the platform\./gi,
     "Swaply does not currently offer government-ID or third-party identity verification in Production. Current trust signals are limited to the account, profile, exchange, feedback and safety information actually shown in the application.",
   ],
