@@ -15,18 +15,45 @@ export interface FeatureFlag {
   allowedCountries?: string[];
 }
 
-const RELEASE_GATED_FLAG_ENVS: Record<string, string> = {
-  stripe_payments: "SWAPLY_ENABLE_STRIPE_PRODUCTION",
-  paypal_payments: "SWAPLY_ENABLE_PAYPAL_PRODUCTION",
-  boost_listings: "SWAPLY_ENABLE_STRIPE_PRODUCTION",
-  token_shop: "SWAPLY_ENABLE_STRIPE_PRODUCTION",
-  subscriptions: "SWAPLY_ENABLE_STRIPE_PRODUCTION",
-  courier_integration: "SWAPLY_ENABLE_COURIERS_PRODUCTION",
-  swap_insurance: "SWAPLY_ENABLE_INSURANCE_PRODUCTION",
-  travel_integrations: "SWAPLY_ENABLE_TRAVEL_INTEGRATIONS_PRODUCTION",
-  ads_banner: "SWAPLY_ENABLE_ADS_PRODUCTION",
-  api_access: "SWAPLY_ENABLE_PUBLIC_API_PRODUCTION",
-};
+type FlagSeed = readonly [
+  id: string,
+  name: string,
+  enabled: boolean,
+  category: FeatureFlagCategory,
+];
+
+const CORE_FLAGS: FlagSeed[] = [
+  ["push_notifications", "Push Notifications", true, "core"],
+  ["ai_matching", "AI Matching", true, "ai"],
+  ["ai_suggestions", "AI Suggestions", true, "ai"],
+  ["location_sharing", "Location Sharing", true, "core"],
+  ["realtime_chat", "Realtime Chat", true, "core"],
+  ["image_uploads", "Image Uploads", true, "core"],
+  ["scam_detection", "Scam Detection", true, "social"],
+  ["trust_scores", "Trust Scores", true, "social"],
+  ["adaptive_friction", "Adaptive Friction", true, "social"],
+  ["safe_meeting", "Safe Meeting", true, "social"],
+  ["daily_streak", "Daily Streak", true, "core"],
+  ["item_lock", "Item Lock", true, "core"],
+  ["referral_program", "Referral Program", true, "core"],
+  ["house_swap", "House Swap", true, "core"],
+  ["service_swap", "Service Swap", true, "core"],
+];
+
+const RELEASE_GATED_FLAGS: FlagSeed[] = [
+  ["token_shop", "Token Shop", false, "monetization"],
+  ["subscriptions", "Subscriptions", false, "monetization"],
+  ["stripe_payments", "Stripe Payments", false, "monetization"],
+  ["paypal_payments", "PayPal Payments", false, "monetization"],
+  ["boost_listings", "Paid Listing Boosts", false, "monetization"],
+  ["courier_integration", "Courier Integrations", false, "experimental"],
+  ["swap_insurance", "Swap Insurance", false, "experimental"],
+  ["travel_integrations", "Travel Integrations", false, "experimental"],
+  ["ads_banner", "Advertising", false, "monetization"],
+  ["api_access", "Public API Access", false, "experimental"],
+  ["auctions", "Auctions", false, "experimental"],
+  ["video_calls", "Video Calls", false, "experimental"],
+];
 
 const FLAG_ALIASES: Record<string, string> = {
   ads_display: "ads_banner",
@@ -35,59 +62,106 @@ const FLAG_ALIASES: Record<string, string> = {
   referrals: "referral_program",
 };
 
-export function normalizeFeatureFlagId(flagId: string): string {
-  return FLAG_ALIASES[flagId] ?? flagId;
-}
+const RELEASE_AUTH_ENV: Record<string, string> = {
+  token_shop: "SWAPLY_ENABLE_STRIPE_PRODUCTION",
+  subscriptions: "SWAPLY_ENABLE_STRIPE_PRODUCTION",
+  stripe_payments: "SWAPLY_ENABLE_STRIPE_PRODUCTION",
+  boost_listings: "SWAPLY_ENABLE_STRIPE_PRODUCTION",
+  paypal_payments: "SWAPLY_ENABLE_PAYPAL_PRODUCTION",
+  courier_integration: "SWAPLY_ENABLE_COURIERS_PRODUCTION",
+  swap_insurance: "SWAPLY_ENABLE_INSURANCE_PRODUCTION",
+  travel_integrations: "SWAPLY_ENABLE_TRAVEL_INTEGRATIONS_PRODUCTION",
+  ads_banner: "SWAPLY_ENABLE_ADS_PRODUCTION",
+  api_access: "SWAPLY_ENABLE_PUBLIC_API_PRODUCTION",
+};
 
-export const DEFAULT_FLAGS: FeatureFlag[] = [
-  flag("push_notifications", "Push Notifications", true, "core"),
-  flag("ai_matching", "AI Matching", true, "ai"),
-  flag("ai_suggestions", "AI Suggestions", true, "ai"),
-  flag("location_sharing", "Location Sharing", true, "core"),
-  flag("realtime_chat", "Realtime Chat", true, "core"),
-  flag("image_uploads", "Image Uploads", true, "core"),
-  flag("scam_detection", "Scam Detection", true, "social"),
-  flag("trust_scores", "Trust Scores", true, "social"),
-  flag("adaptive_friction", "Adaptive Friction", true, "social"),
-  flag("safe_meeting", "Safe Meeting", true, "social"),
-  flag("daily_streak", "Daily Streak", true, "core"),
-  flag("item_lock", "Item Lock", true, "core"),
-  flag("referral_program", "Referral Program", true, "core"),
-  flag("house_swap", "House Swap", true, "core"),
-  flag("service_swap", "Service Swap", true, "core"),
-
-  // Provider-backed capabilities remain implemented in code but disabled until
-  // both their database flag and the explicit Production authorisation switch
-  // are enabled. A missing database response must never activate them.
-  flag("token_shop", "Token Shop", false, "monetization", 0),
-  flag("subscriptions", "Subscriptions", false, "monetization", 0),
-  flag("stripe_payments", "Stripe Payments", false, "monetization", 0),
-  flag("paypal_payments", "PayPal Payments", false, "monetization", 0),
-  flag("boost_listings", "Paid Listing Boosts", false, "monetization", 0),
-  flag("courier_integration", "Courier Integrations", false, "experimental", 0),
-  flag("swap_insurance", "Swap Insurance", false, "experimental", 0),
-  flag("travel_integrations", "Travel Integrations", false, "experimental", 0),
-  flag("ads_banner", "Advertising", false, "monetization", 0),
-  flag("api_access", "Public API Access", false, "experimental", 0),
-  flag("auctions", "Auctions", false, "experimental", 0),
-  flag("video_calls", "Video Calls", false, "experimental", 0),
-];
-
-function flag(
-  id: string,
-  name: string,
-  enabled: boolean,
-  category: FeatureFlagCategory,
-  rolloutPercent = enabled ? 100 : 0,
-): FeatureFlag {
+function fromSeed([id, name, enabled, category]: FlagSeed): FeatureFlag {
   return {
     id,
     name,
     description: "",
     enabled,
     category,
-    rolloutPercent,
+    rolloutPercent: enabled ? 100 : 0,
   };
+}
+
+export const DEFAULT_FLAGS: FeatureFlag[] = [
+  ...CORE_FLAGS.map(fromSeed),
+  ...RELEASE_GATED_FLAGS.map(fromSeed),
+];
+
+export function normalizeFeatureFlagId(value: string): string {
+  const id = value.trim().toLowerCase().replace(/[\s-]+/g, "_");
+  return FLAG_ALIASES[id] ?? id;
+}
+
+function clampRollout(value: unknown, fallback = 100): number {
+  const parsed = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(parsed)
+    ? Math.max(0, Math.min(100, Math.round(parsed)))
+    : fallback;
+}
+
+function mapRow(row: Record<string, unknown>): FeatureFlag | null {
+  const rawId = typeof row.key === "string"
+    ? row.key
+    : typeof row.id === "string"
+      ? row.id
+      : "";
+  const id = normalizeFeatureFlagId(rawId);
+  if (!id) return null;
+
+  const fallback = DEFAULT_FLAGS.find((flag) => flag.id === id);
+  return {
+    id,
+    name:
+      typeof row.name === "string" && row.name.trim()
+        ? row.name
+        : fallback?.name ?? id,
+    description:
+      typeof row.description === "string" ? row.description : "",
+    enabled: row.enabled === true,
+    category: fallback?.category ?? "core",
+    rolloutPercent: clampRollout(
+      row.rollout_percent ?? row.rolloutPercent,
+      fallback?.rolloutPercent ?? 100,
+    ),
+    allowedCountries: Array.isArray(
+      row.allowed_countries ?? row.allowedCountries,
+    )
+      ? ((row.allowed_countries ?? row.allowedCountries) as unknown[]).filter(
+          (entry): entry is string => typeof entry === "string",
+        )
+      : undefined,
+  };
+}
+
+function mergeRows(rows: Record<string, unknown>[]): FeatureFlag[] {
+  const registry = new Map(
+    DEFAULT_FLAGS.map((flag) => [flag.id, { ...flag }]),
+  );
+
+  for (const row of rows) {
+    const mapped = mapRow(row);
+    if (!mapped || !registry.has(mapped.id)) continue;
+    registry.set(mapped.id, mapped);
+  }
+
+  return [...registry.values()];
+}
+
+function applyServerAuthorisation(flags: FeatureFlag[]): FeatureFlag[] {
+  return flags.map((flag) => {
+    const envName = RELEASE_AUTH_ENV[flag.id];
+    if (!envName) return flag;
+    const authorised = process.env[envName] === "true";
+    return {
+      ...flag,
+      enabled: flag.enabled && authorised,
+      rolloutPercent: flag.enabled && authorised ? flag.rolloutPercent : 0,
+    };
+  });
 }
 
 function hashUserId(userId: string): number {
@@ -104,140 +178,62 @@ export function isFlagEnabled(
   flagId: string,
   userId?: string,
 ): boolean {
-  const normalizedId = normalizeFeatureFlagId(flagId);
-  const flagValue = flags.find((entry) => entry.id === normalizedId);
-
-  if (!flagValue?.enabled) return false;
-  if (flagValue.rolloutPercent >= 100) return true;
-  if (flagValue.rolloutPercent <= 0 || !userId) return false;
-
-  return hashUserId(userId) % 100 < flagValue.rolloutPercent;
+  const flag = flags.find(
+    (entry) => entry.id === normalizeFeatureFlagId(flagId),
+  );
+  if (!flag?.enabled) return false;
+  if (flag.rolloutPercent >= 100) return true;
+  if (flag.rolloutPercent <= 0 || !userId) return false;
+  return hashUserId(userId) % 100 < flag.rolloutPercent;
 }
 
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
-interface FlagCache {
+export const flagCache: {
   flags: FeatureFlag[];
   fetchedAt: number;
   promise: Promise<FeatureFlag[]> | null;
-}
-
-export const flagCache: FlagCache = {
-  flags: DEFAULT_FLAGS,
+} = {
+  flags: DEFAULT_FLAGS.map((flag) => ({ ...flag })),
   fetchedAt: 0,
   promise: null,
 };
 
-function inferCategory(id: string): FeatureFlagCategory {
-  return DEFAULT_FLAGS.find((entry) => entry.id === id)?.category ?? "core";
-}
-
-function inferName(id: string): string {
-  return DEFAULT_FLAGS.find((entry) => entry.id === id)?.name ?? id;
-}
-
-function mapDbRow(row: Record<string, unknown>): FeatureFlag | null {
-  const rawId = typeof row.key === "string"
-    ? row.key
-    : typeof row.id === "string"
-      ? row.id
-      : "";
-  const id = normalizeFeatureFlagId(rawId.trim());
-  if (!id) return null;
-
-  return {
-    id,
-    name: typeof row.name === "string" && row.name.trim()
-      ? row.name
-      : inferName(id),
-    description: typeof row.description === "string" ? row.description : "",
-    enabled: row.enabled === true,
-    category: inferCategory(id),
-    rolloutPercent:
-      typeof row.rollout_percent === "number"
-        ? Math.max(0, Math.min(100, row.rollout_percent))
-        : 100,
-    allowedCountries: Array.isArray(row.allowed_countries)
-      ? row.allowed_countries.filter(
-          (value): value is string => typeof value === "string",
-        )
-      : undefined,
-  };
-}
-
-function mergeWithDefaults(rows: Record<string, unknown>[]): FeatureFlag[] {
-  const byId = new Map(DEFAULT_FLAGS.map((entry) => [entry.id, { ...entry }]));
-
-  for (const row of rows) {
-    const mapped = mapDbRow(row);
-    if (!mapped) continue;
-    const existing = byId.get(mapped.id);
-    byId.set(mapped.id, {
-      ...(existing ?? mapped),
-      ...mapped,
-      category: existing?.category ?? mapped.category,
-    });
-  }
-
-  return [...byId.values()];
-}
-
-function applyProductionAuthorisation(flags: FeatureFlag[]): FeatureFlag[] {
-  if (typeof window !== "undefined") return flags;
-
-  return flags.map((entry) => {
-    const envName = RELEASE_GATED_FLAG_ENVS[entry.id];
-    if (!envName) return entry;
-
-    const authorised = process.env[envName] === "true";
-    return {
-      ...entry,
-      enabled: entry.enabled && authorised,
-      rolloutPercent: entry.enabled && authorised ? entry.rolloutPercent : 0,
-    };
-  });
-}
-
-async function fetchFlagsOnServer(): Promise<FeatureFlag[]> {
+async function fetchServerFlags(): Promise<FeatureFlag[]> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !serviceKey) return DEFAULT_FLAGS;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) return DEFAULT_FLAGS.map((flag) => ({ ...flag }));
 
   try {
-    const response = await fetch(
-      `${url}/rest/v1/feature_flags?select=key,enabled,rollout_percent,description`,
-      {
-        headers: {
-          apikey: serviceKey,
-          Authorization: `Bearer ${serviceKey}`,
-        },
-        cache: "no-store",
-      },
-    );
-
-    if (!response.ok) return DEFAULT_FLAGS;
+    // `select=*` supports both the historical bootstrap column `id` and the
+    // verified Production column `key`; mapRow normalizes either shape.
+    const response = await fetch(`${url}/rest/v1/feature_flags?select=*`, {
+      cache: "no-store",
+      headers: { apikey: key, Authorization: `Bearer ${key}` },
+    });
+    if (!response.ok) return DEFAULT_FLAGS.map((flag) => ({ ...flag }));
     const rows = (await response.json()) as Record<string, unknown>[];
-    if (!Array.isArray(rows)) return DEFAULT_FLAGS;
-
-    return applyProductionAuthorisation(mergeWithDefaults(rows));
+    return Array.isArray(rows)
+      ? applyServerAuthorisation(mergeRows(rows))
+      : DEFAULT_FLAGS.map((flag) => ({ ...flag }));
   } catch {
-    return DEFAULT_FLAGS;
+    return DEFAULT_FLAGS.map((flag) => ({ ...flag }));
   }
 }
 
-async function fetchFlagsInBrowser(): Promise<FeatureFlag[]> {
+async function fetchBrowserFlags(): Promise<FeatureFlag[]> {
   try {
     const response = await fetch("/api/feature-flags", {
       cache: "no-store",
       credentials: "same-origin",
     });
-    if (!response.ok) return DEFAULT_FLAGS;
-
+    if (!response.ok) return DEFAULT_FLAGS.map((flag) => ({ ...flag }));
     const body = (await response.json()) as { flags?: unknown };
-    if (!Array.isArray(body.flags)) return DEFAULT_FLAGS;
-    return mergeWithDefaults(body.flags as Record<string, unknown>[]);
+    return Array.isArray(body.flags)
+      ? mergeRows(body.flags as Record<string, unknown>[])
+      : DEFAULT_FLAGS.map((flag) => ({ ...flag }));
   } catch {
-    return DEFAULT_FLAGS;
+    return DEFAULT_FLAGS.map((flag) => ({ ...flag }));
   }
 }
 
@@ -248,11 +244,9 @@ export function loadFlags(): Promise<FeatureFlag[]> {
   }
   if (flagCache.promise) return flagCache.promise;
 
-  const request = typeof window === "undefined"
-    ? fetchFlagsOnServer()
-    : fetchFlagsInBrowser();
-
-  flagCache.promise = request
+  flagCache.promise = (
+    typeof window === "undefined" ? fetchServerFlags() : fetchBrowserFlags()
+  )
     .then((flags) => {
       flagCache.flags = flags;
       flagCache.fetchedAt = Date.now();
@@ -260,18 +254,19 @@ export function loadFlags(): Promise<FeatureFlag[]> {
       return flags;
     })
     .catch(() => {
+      flagCache.flags = DEFAULT_FLAGS.map((flag) => ({ ...flag }));
+      flagCache.fetchedAt = Date.now();
       flagCache.promise = null;
-      flagCache.flags = DEFAULT_FLAGS;
-      return DEFAULT_FLAGS;
+      return flagCache.flags;
     });
 
   return flagCache.promise;
 }
 
 export function invalidateFlagCache(): void {
+  flagCache.flags = DEFAULT_FLAGS.map((flag) => ({ ...flag }));
   flagCache.fetchedAt = 0;
   flagCache.promise = null;
-  flagCache.flags = DEFAULT_FLAGS;
 }
 
 export async function getFeatureFlag(
@@ -330,16 +325,15 @@ export interface DailyMetric {
 }
 
 export function computeFunnelRates(funnel: MetricsFunnel) {
-  const safe = (numerator: number, denominator: number) =>
-    denominator > 0 ? Math.round((numerator / denominator) * 100) : 0;
-
+  const rate = (value: number, total: number) =>
+    total > 0 ? Math.round((value / total) * 100) : 0;
   return {
-    visitToSignup: safe(funnel.signups, funnel.visitors),
-    signupToList: safe(funnel.itemsListed, funnel.signups),
-    listToChat: safe(funnel.chatStarted, funnel.itemsListed),
-    chatToPropose: safe(funnel.swapProposed, funnel.chatStarted),
-    proposeToComplete: safe(funnel.swapCompleted, funnel.swapProposed),
-    overallConversion: safe(funnel.swapCompleted, funnel.visitors),
+    visitToSignup: rate(funnel.signups, funnel.visitors),
+    signupToList: rate(funnel.itemsListed, funnel.signups),
+    listToChat: rate(funnel.chatStarted, funnel.itemsListed),
+    chatToPropose: rate(funnel.swapProposed, funnel.chatStarted),
+    proposeToComplete: rate(funnel.swapCompleted, funnel.swapProposed),
+    overallConversion: rate(funnel.swapCompleted, funnel.visitors),
   };
 }
 
