@@ -83,6 +83,8 @@ const FINAL_PUBLIC_TRUTH_OVERRIDES: Readonly<Record<string, string>> = {
   "profile.tokenShopDesc":
     "Paid or token-based premium features are not currently offered publicly.",
 
+  "info.howStep3Desc": CONVERSATION,
+  "info.discoverMatchesDescription": COMPATIBILITY,
   "info.featurePriorityMatch": "Compatibility suggestions",
   "info.featureAnalytics": "Account activity information where available",
   "info.featureSupport": "Support channels currently available on Swaply",
@@ -144,9 +146,13 @@ const FINAL_PUBLIC_TRUTH_OVERRIDES: Readonly<Record<string, string>> = {
     "Response times vary; no fixed response-time guarantee is stated.",
   "contact.respondWithin24Hours":
     "Response times vary; no fixed response-time guarantee is stated.",
+  "contact.successText":
+    "Your message was received. Response times vary; no fixed response-time guarantee is stated.",
 
   "legal.dmcaResponseTime":
     "Requests are reviewed according to the applicable process; no fixed response-time guarantee is stated.",
+  "legal.dmcaContactText":
+    "DMCA notices are reviewed according to the applicable process; no fixed response-time guarantee is stated.",
   "legal.dmcaRepeatInfringer":
     "Repeat-infringer handling follows the applicable policy and legal requirements.",
 };
@@ -169,7 +175,7 @@ const UNSAFE_TEXT_RULES: ReadonlyArray<{
     replacement: "Compatibility suggestions",
   },
   {
-    pattern: /\bsecure chat\b/gi,
+    pattern: /\bsecure(?: moderated)? chat\b/gi,
     replacement: "in-platform conversation",
   },
   {
@@ -214,12 +220,16 @@ const UNSAFE_TEXT_RULES: ReadonlyArray<{
     replacement: "escrow not currently available",
   },
   {
-    pattern: /\bwe respond within 24 hours\b/gi,
+    pattern: /\bwe(?:'ll| will)?(?: get back to you| respond)? within 24 hours\b/gi,
     replacement: "response times vary",
   },
   {
-    pattern: /\bwithin 2[-–]3 business days\b/gi,
+    pattern: /\b(?:within|please allow) 2[-–]3 business days\b/gi,
     replacement: "according to the applicable review process",
+  },
+  {
+    pattern: /\blet AI find matches\b/gi,
+    replacement: "review compatibility suggestions",
   },
   {
     pattern: /\bUp to €(?:200|500|2000)\b/gi,
