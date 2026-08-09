@@ -9,6 +9,24 @@ const VERIFICATION_BOUNDARY =
   "Available verification signals depend on the current account and production configuration.";
 const MODERATION_BOUNDARY =
   "Safety and moderation behavior depends on the current production configuration.";
+const PHOTO_GUIDANCE =
+  "Adding clear photos can help other people understand your listing.";
+const IMPACT_BOUNDARY =
+  "Environmental impact varies by item and exchange; no universal per-item saving is claimed.";
+
+const UNSUPPORTED_STATISTIC_PATTERNS: ReadonlyArray<{
+  pattern: RegExp;
+  replacement: string;
+}> = [
+  {
+    pattern: /\b4x\b/i,
+    replacement: PHOTO_GUIDANCE,
+  },
+  {
+    pattern: /4[.,]2\s*kg\s*co(?:₂|2)/i,
+    replacement: IMPACT_BOUNDARY,
+  },
+];
 
 const PUBLIC_TRUTH_OVERRIDES: Record<string, string> = {
   "about.storyP2":
@@ -74,8 +92,7 @@ const PUBLIC_TRUTH_OVERRIDES: Record<string, string> = {
   "info.successStoriesDesc":
     "Illustrative examples only unless a story is explicitly identified as verified.",
   "info.costSaved": "Potential savings depend on the exchange",
-  "info.sustainabilityNote":
-    "Environmental impact varies by item and exchange; no universal per-item CO₂ saving is claimed.",
+  "info.sustainabilityNote": IMPACT_BOUNDARY,
   "info.badgeBenefitsDescription":
     "Account benefits depend on the current production configuration.",
 
@@ -107,7 +124,8 @@ const PUBLIC_TRUTH_OVERRIDES: Record<string, string> = {
   "monetization.orPaypal": "Payment option unavailable",
   "monetization.paypalRedirect": UNAVAILABLE,
   "monetization.paypalError": UNAVAILABLE,
-  "monetization.networkError": "Payment functionality is unavailable in Production.",
+  "monetization.networkError":
+    "Payment functionality is unavailable in Production.",
   "monetization.verifiedBadge": "Verification concept",
   "monetization.verifiedBadgeDesc": UNAVAILABLE,
   "monetization.verifiedActivated": UNAVAILABLE,
@@ -271,7 +289,15 @@ const PUBLIC_TRUTH_OVERRIDES: Record<string, string> = {
     "Use security and verification options that are actually available for your account.",
 };
 
+function sanitizeString(value: string): string {
+  for (const { pattern, replacement } of UNSUPPORTED_STATISTIC_PATTERNS) {
+    if (pattern.test(value)) return replacement;
+  }
+  return value;
+}
+
 function cloneTree(value: unknown): unknown {
+  if (typeof value === "string") return sanitizeString(value);
   if (Array.isArray(value)) return value.map(cloneTree);
   if (value && typeof value === "object") {
     return Object.fromEntries(
