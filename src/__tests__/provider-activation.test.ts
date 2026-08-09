@@ -16,9 +16,22 @@ describe("provider production activation", () => {
     expect(getProductionCapabilityForPath("/api/courier/create-awb")).toBe("couriers");
     expect(getProductionCapabilityForPath("/api/insurance/quote")).toBe("insurance");
     expect(getProductionCapabilityForPath("/api/travel/flights")).toBe("travel_integrations");
-    expect(getProductionCapabilityForPath("/api/ai/image")).toBe("paid_ai");
-    expect(getProductionCapabilityForPath("/api/analyze-image")).toBe("paid_ai");
+
+    for (const path of [
+      "/api/ai",
+      "/api/ai/image",
+      "/api/ai/match",
+      "/api/analyze-image",
+      "/api/moderate",
+      "/api/translate",
+      "/api/embeddings",
+      "/api/match-semantic",
+    ]) {
+      expect(getProductionCapabilityForPath(path)).toBe("paid_ai");
+    }
+
     expect(getProductionCapabilityForPath("/api/feature-flags")).toBeNull();
+    expect(getProductionCapabilityForPath("/api/health")).toBeNull();
   });
 
   it("is fail-closed when the owner activation switch is absent", () => {
