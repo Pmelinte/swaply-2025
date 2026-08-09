@@ -4,6 +4,7 @@ import { createHuggingFaceProvider } from "./providers";
 
 export function createServerAIGateway() {
   const paidAiAuthorised =
+    process.env.NODE_ENV !== "production" ||
     process.env.SWAPLY_ENABLE_PAID_AI_PRODUCTION === "true";
   const huggingFaceKey =
     process.env.HUGGINGFACE_API_KEY || process.env.HUGGINGFACE_API_TOKEN;
