@@ -2,111 +2,77 @@
 
 ## About Swaply
 
-Swaply is a modern bartering platform that connects people across more than 100 countries to trade items, services, and experiences — entirely without money. Founded in 2025 in Jurilovca, a small fishing village in Romania's Danube Delta, Swaply was built on a simple idea: everyone has something of value, and technology can help people find each other.
+Swaply is a web platform for people who want to discover and arrange voluntary exchanges of objects, properties, services and events.
 
-The platform uses AI-powered semantic matching to pair users with compatible swap partners, removing the friction that has historically held bartering back. Listings are automatically translated into 43 languages using DeepL and Google Translate, and deliveries are handled through a network of over 200 integrated couriers worldwide.
+The product includes listing, discovery, communication and exchange-flow capabilities. Some additional capabilities exist only as technical foundations, demos, disabled provider adapters or planned work. Swaply does not present those states as live services.
 
-What sets Swaply apart is its commitment to accessibility and fairness. There are no commissions on swaps. The free tier gives full access to core features, and premium plans start at just $4.99 per month. A built-in trust verification system — including identity checks, reviews, and a trust score — keeps the community safe without creating barriers to entry.
+Swaply was founded in Romania in 2025 and is being built as a global-first product.
 
-Swaply is also designed with sustainability at its core. Every swap extends the life of an item, reduces waste, and keeps value circulating within communities rather than extracting it.
+## Verified Public Facts
 
-## Key Facts & Statistics
+- **Founded:** 2025, Romania
+- **Product:** Web platform for voluntary exchanges
+- **Core domains:** Objects, Properties, Services, Events
+- **Public website:** https://www.swaply.world
+- **Public support contact:** support@swaply.world
+- **Commission on the basic user-to-user swap:** Swaply does not charge a Swaply commission on the swap itself
+- **Languages:** the application contains a 43-locale interface configuration; this does not imply that every capability, provider or piece of user-generated content is automatically translated in every locale
 
-- **Founded:** 2025, Jurilovca, Danube Delta, Romania
-- **Headquarters:** Romania (remote-first team)
-- **Founder:** Solo founder, medical doctor by training, built with AI assistance
-- **Categories:** 16 main categories, 114 subcategories
-- **Content Types:** Objects, Services, Properties, Vehicles, Experiences
-- **Languages Supported:** 43 (auto-translated via DeepL + Google Translate)
-- **Countries Active:** 100+
-- **Integrated Couriers:** 200+
-- **Pricing:** Free tier available; Premium from $4.99/month
-- **Commission:** Zero commission on all swaps
-- **Tech Stack:** Next.js, Supabase, AI matching via semantic vectors
-- **Matching Engine:** AI-powered semantic vector matching for intelligent pairing
-- **Translation Engine:** Dual-layer — DeepL for quality, Google Translate for coverage
-- **Trust System:** Identity verification, user reviews, calculated trust score, escrow
-- **Logistics:** Automated courier selection, packaging recommendations, digital transfer support
-- **Sustainability:** Every swap diverts items from landfill and reduces new production demand
-- **Accessibility:** Designed for low-bandwidth environments and older devices
-- **Community:** Built-in chat with real-time translation for cross-language conversations
-- **Premium Features:** Boost, analytics, themes, auction mode, priority support
+## Product Capabilities
 
-## Founder Bio
+### Live product areas
 
-Swaply was created by a medical doctor from Jurilovca, a remote fishing village in Romania's Danube Delta. Growing up in a community where people routinely exchanged fish for vegetables, tools for favors, and skills for goods, the founder saw firsthand how natural and effective direct exchange could be — and how technology could scale it globally.
+- Account and profile flows
+- Listing and discovery flows
+- Matching and exchange workflows
+- In-app communication
+- Reporting, blocking and dispute controls
+- Reviews and reputation signals where available
 
-After years in medicine, working across underserved communities, the founder recognized a pattern: people everywhere had unmet needs alongside unused resources. The problem was never scarcity — it was connection. Swaply was born from that insight, built as a solo project with the assistance of AI tools to move fast and stay lean.
+### Foundation, disabled or planned capabilities
 
-The founder's medical background brings a unique perspective to platform design — an emphasis on trust, safety, accessibility, and the well-being of the community. The mission is straightforward: give everyone, regardless of income or location, equal access to exchange value.
+The repository also contains foundations or concepts for AI-assisted features, payments, logistics providers, travel providers, escrow, insurance and other optional integrations. These capabilities must not be described as operational integrations unless their Production state is separately verified.
 
-## Platform Features
+In particular, Swaply does **not** currently make a public claim of:
 
-### Core
-- **Listing Creation:** Post items, services, properties, vehicles, or experiences in minutes
-- **Smart Search:** Filter by category, location, condition, and swap preferences
-- **AI Matching:** Semantic vector engine finds compatible swap partners automatically
-- **In-App Chat:** Real-time messaging with auto-translation across 43 languages
-- **Swap Flow:** Structured proposal, negotiation, acceptance, and confirmation process
-- **Notifications:** Real-time alerts for matches, messages, and swap updates
+- a verified number of active countries;
+- a verified number of integrated couriers;
+- live identity-document verification;
+- live escrow protection;
+- universal carrier tracking;
+- an approved public Premium price;
+- a specific live translation-provider combination;
+- ownership of a universal `@swaply` social-media handle set.
 
-### AI & Intelligence
-- **Smart Matching:** AI analyzes listings semantically, not just by keywords
-- **Auto-Tagging:** Automatic category and attribute tagging from listing descriptions
-- **Image Analysis:** AI extracts item details, condition assessment, and suggested categories from photos
-- **Auto-Translation:** Every listing is translated into 43 languages automatically
-- **Price Estimation:** AI suggests fair swap value based on market data and item condition
-- **Recommendation Engine:** Personalized feed based on user behavior and preferences
+## AI and Matching
 
-### Trust & Safety
-- **Identity Verification:** Multi-step verification for user accounts
-- **Review System:** Two-way reviews after every completed swap
-- **Trust Score:** Calculated reputation score visible on profiles
-- **Escrow Protection:** Swap value held in escrow until both parties confirm receipt
-- **Report & Moderation:** Community reporting with AI-assisted content moderation
-- **Fraud Detection:** Automated systems flag suspicious activity
+Swaply contains matching logic and AI-related foundations. Public descriptions should distinguish demonstrated Production behavior from experimental, benchmarked or planned AI capabilities. No Press Kit statement should imply that every match is produced by a live semantic-vector engine unless current evidence supports that claim.
 
-### Logistics & Delivery
-- **200+ Couriers:** Integrated courier network spanning 100+ countries
-- **Smart Courier Selection:** Automatic recommendation of best courier by price, speed, and reliability
-- **Packaging Recommendations:** AI-generated packing guidelines based on item type
-- **Shipment Tracking:** Real-time tracking within the app for all supported couriers
-- **Digital Transfer:** Instant delivery for digital goods, services, and virtual experiences
-- **Local Pickup:** Coordinated meetup option with safety guidelines
+## Translation
 
-### Premium Features
-- **Boost:** Push listings to the top of search results and matching queues
-- **Analytics Dashboard:** Track views, matches, and swap conversion rates
-- **Custom Themes:** Personalize your profile and listing appearance
-- **Auction Mode:** Let multiple users bid on your listing with competing offers
-- **Priority Support:** Faster response times from the support team
-- **Extended History:** Full transaction and chat history without time limits
+Swaply is designed for multilingual use and contains 43 configured locales. Provider names such as DeepL or Google Translate are not presented as live operational translation services unless the current Production configuration and runtime evidence demonstrate that state.
+
+## Trust and Safety
+
+Swaply provides platform-level trust and safety controls such as reporting, blocking, disputes and reputation signals where implemented. Email/account verification must not be described as identity-document verification. Escrow and insurance are not represented as live protection services unless separately activated, legally reviewed and verified.
+
+## Logistics and Providers
+
+Provider adapters, data structures or deep-link concepts do not by themselves constitute an active commercial integration. Each courier, travel, payment, insurance or other provider must be verified individually before being described as live.
+
+## Pricing
+
+Core swapping is currently presented without a Swaply commission on the basic user-to-user swap. Third-party services may have their own charges if separately offered.
+
+No new Premium or Business subscription price should be quoted publicly until the commercial plan, provider configuration, checkout flow and entitlements are approved and verified in Production.
 
 ## Media Contact
 
-- **Email:** press@swaply.io
-- **Website:** [https://swaply.io](https://swaply.io)
-- **Social Media:** @swaply on all platforms (X, Instagram, Facebook, LinkedIn, TikTok)
+- **Website:** https://www.swaply.world
+- **Email:** support@swaply.world
 
-For press inquiries, interview requests, or media assets, please contact press@swaply.io. We aim to respond within 24 hours.
-
-## Brand Assets
-
-- **Primary Logo:** `/assets/logo-primary.svg`
-- **Logo Mark:** `/assets/logo-mark.svg`
-- **Brand Colors:**
-  - Blue: `#2563EB`
-  - Dark: `#18181B`
-  - White: `#FFFFFF`
-- **Font:** Inter (available via Google Fonts)
-- **Usage Guidelines:**
-  - Do not stretch, rotate, or recolor the logo
-  - Maintain minimum clear space equal to the height of the logo mark
-  - Use the primary logo on light backgrounds, the white variant on dark backgrounds
-  - Do not place the logo over busy images without a solid or semi-transparent backdrop
-
-For downloadable assets in SVG, PNG, and EPS formats, contact press@swaply.io.
+No unverified social-media handles or response-time guarantees are included in this Press Kit.
 
 ## Boilerplate
 
-Swaply is a modern bartering platform that lets people swap items, services, and experiences across 100+ countries — without money. Founded in Romania in 2025, it uses AI-powered matching and supports 43 languages. Free to use, with zero commissions and a commitment to sustainability.
+Swaply is a Romania-founded web platform for discovering and arranging voluntary exchanges of objects, properties, services and events. The product is being developed with a global-first approach, while public claims are limited to capabilities and facts that can be demonstrated.
