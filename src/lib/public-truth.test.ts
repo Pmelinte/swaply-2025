@@ -14,8 +14,10 @@ const PUBLIC_CLAIM_FILES = [
   "src/content/copy/homepage-copy.md",
   "src/content/copy/about-copy.md",
   "src/app/[locale]/layout.tsx",
+  "src/app/[locale]/about/page.tsx",
   "src/app/[locale]/pricing/page.tsx",
   "src/app/[locale]/partners/page.tsx",
+  "src/app/[locale]/integrations/page.tsx",
 ] as const;
 
 describe("V1-11 public truth guard", () => {
@@ -48,11 +50,22 @@ describe("V1-11 public truth guard", () => {
     expect(seo).not.toContain("swaply.io");
   });
 
+  it("keeps About and Pricing locale-aware", () => {
+    const about = read("src/app/[locale]/about/page.tsx");
+    const pricing = read("src/app/[locale]/pricing/page.tsx");
+
+    expect(about).toContain('useTranslations("about")');
+    expect(pricing).toContain('useTranslations("pricing")');
+    expect(about).toContain('{t("title")}');
+    expect(pricing).toContain('{t("freeTitle")}');
+  });
+
   it("does not expose an unverified public checkout offer", () => {
     const pricing = read("src/app/[locale]/pricing/page.tsx");
 
     expect(pricing).not.toContain("/api/payments/checkout");
-    expect(pricing).toContain("No new Premium or Business subscription price is publicly offered");
+    expect(pricing).not.toContain("premiumPrice");
+    expect(pricing).not.toContain("businessPrice");
   });
 
   it("does not mark provider integrations as active", () => {
