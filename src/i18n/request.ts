@@ -1,6 +1,8 @@
 import { getRequestConfig } from "next-intl/server";
 import { routing } from "./routing";
 import { defaultLocale, type Locale } from "./config";
+import { getBatch57Messages } from "./batch57-locales";
+import { applyLegacyI18nAliases } from "./runtime-compat";
 
 /** Deep-merge source into target; target values take precedence. */
 function deepMerge(
@@ -35,6 +37,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
     locale = routing.defaultLocale;
   }
 
+  const resolvedLocale = locale as Locale;
   const baseEnglishMessages = (
     await import(`../messages/${defaultLocale}.json`)
   ).default as Record<string, unknown>;
@@ -43,23 +46,32 @@ export default getRequestConfig(async ({ requestLocale }) => {
   ).default as Record<string, unknown>;
   const enMessages = deepMerge(batch57EnglishMessages, baseEnglishMessages);
 
-  let messages;
-  if (locale === defaultLocale) {
+  let messages: Record<string, unknown>;
+  if (resolvedLocale === defaultLocale) {
     messages = enMessages;
   } else {
     try {
-      const localeMessages = (
-        await import(`../messages/${locale}.json`)
+      const rawLocaleMessages = (
+        await import(`../messages/${resolvedLocale}.json`)
       ).default as Record<string, unknown>;
-      // Merge English as fallback for any missing keys.
-      messages = deepMerge(localeMessages, enMessages);
+      const localeMessages = applyLegacyI18nAliases(rawLocaleMessages);
+      const localizedBatch57 = getBatch57Messages(
+        resolvedLocale,
+        batch57EnglishMessages,
+      );
+      const nativeMessages = deepMerge(localizedBatch57, localeMessages);
+
+      // English remains the final technical safety net. The i18n contract tests
+      // verify that targeted global-core surfaces resolve natively before this
+      // fallback is needed.
+      messages = deepMerge(nativeMessages, enMessages);
     } catch {
       messages = enMessages;
     }
   }
 
   return {
-    locale,
+    locale: resolvedLocale,
     messages,
     now: new Date(),
     timeZone: "UTC",
