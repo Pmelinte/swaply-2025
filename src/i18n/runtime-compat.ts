@@ -27,6 +27,25 @@ function alias(target: Messages, source: Messages, to: string, from: string): vo
   setPath(target, to, getPath(source, from));
 }
 
+function repairKnownIcuDebt(value: unknown): unknown {
+  if (typeof value === "string") {
+    return value
+      .replaceAll("{oggetto}", "{item}")
+      .replaceAll("{skupno}", "{total}")
+      .replaceAll("{trenutni}", "{current}");
+  }
+  if (Array.isArray(value)) return value.map(repairKnownIcuDebt);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value as Messages).map(([key, child]) => [
+        key,
+        repairKnownIcuDebt(child),
+      ]),
+    );
+  }
+  return value;
+}
+
 const CHAT_ALIASES: ReadonlyArray<readonly [string, string]> = [
   ["chat.agenda.title", "chatAgenda.title"],
   ["chat.agenda.you", "chatAgenda.you"],
@@ -105,8 +124,9 @@ const MATCHING_ALIASES: ReadonlyArray<readonly [string, string]> = [
 ];
 
 export function applyLegacyI18nAliases(localeMessages: Messages): Messages {
-  const result: Messages = structuredClone(localeMessages);
-  for (const [to, from] of CHAT_ALIASES) alias(result, localeMessages, to, from);
-  for (const [to, from] of MATCHING_ALIASES) alias(result, localeMessages, to, from);
+  const repaired = repairKnownIcuDebt(localeMessages) as Messages;
+  const result: Messages = structuredClone(repaired);
+  for (const [to, from] of CHAT_ALIASES) alias(result, repaired, to, from);
+  for (const [to, from] of MATCHING_ALIASES) alias(result, repaired, to, from);
   return result;
 }
