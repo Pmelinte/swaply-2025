@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 import { describe, expect, it } from "vitest";
 import { locales, type Locale } from "@/i18n/config";
 import { applyLegacyI18nAliases } from "@/i18n/runtime-compat";
@@ -48,11 +50,11 @@ function flatten(value: unknown, prefix = "", result = new Map<string, unknown>(
 
 function readMessages(locale: Locale): Messages {
   const path = `../../messages/${locale}.json`;
-  const module = catalogueModules[path];
-  if (!module) {
+  const catalogueModule = catalogueModules[path];
+  if (!catalogueModule) {
     throw new Error(`Missing locale catalogue module: ${path}`);
   }
-  return module.default;
+  return catalogueModule.default;
 }
 
 const batch57English = batch57EnglishJson as Messages;
