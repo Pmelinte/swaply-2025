@@ -226,8 +226,9 @@ if (!englishCatalogue) {
       );
     }
     if (technicalFallbackKeys.length > 0) {
+      const renderedKeys = locale === "fr" ? technicalFallbackKeys.join(", ") : formatSample(technicalFallbackKeys);
       warnings.push(
-        `${locale}.json uses English technical fallback for ${technicalFallbackKeys.length}/${MAX_TECHNICAL_FALLBACK_KEYS_PER_LOCALE} budgeted keys: ${formatSample(technicalFallbackKeys)}`,
+        `${locale}.json uses English technical fallback for ${technicalFallbackKeys.length}/${MAX_TECHNICAL_FALLBACK_KEYS_PER_LOCALE} budgeted keys: ${renderedKeys}`,
       );
     }
     if (knownPlaceholderWarnings.length > 0) {
