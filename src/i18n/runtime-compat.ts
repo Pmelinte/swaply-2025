@@ -54,7 +54,7 @@ const GENERAL_ALIASES: ReadonlyArray<readonly [string, string]> = [
 const CHAT_ALIASES: ReadonlyArray<readonly [string, string]> = [
   ["chat.inbox.title", "chat.conversations"],
   ["chat.inbox.empty", "chat.noConversations"],
-  ["chat.inbox.lastMessage", "notifications.type_message"],
+  ["chat.inbox.lastMessage", "nav.messages"],
   ["chat.page.back", "common.back"],
   ["chat.page.online", "chat.on"],
   ["chat.page.offline", "chat.off"],
