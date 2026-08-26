@@ -1,11 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import { locales, type Locale } from "@/i18n/config";
 import { applyLegacyI18nAliases } from "@/i18n/runtime-compat";
 import { getBatch57Messages } from "@/i18n/batch57-locales";
+import batch57EnglishJson from "@/i18n/fragments/batch57.en.json";
 
 type Messages = Record<string, unknown>;
+
+const catalogueModules = import.meta.glob<{ default: Messages }>(
+  "../../messages/*.json",
+  { eager: true },
+);
 
 function deepMerge(target: Messages, source: Messages): Messages {
   const result = { ...source };
@@ -43,17 +47,15 @@ function flatten(value: unknown, prefix = "", result = new Map<string, unknown>(
 }
 
 function readMessages(locale: Locale): Messages {
-  return JSON.parse(
-    readFileSync(join(process.cwd(), "src/messages", `${locale}.json`), "utf-8"),
-  ) as Messages;
+  const path = `../../messages/${locale}.json`;
+  const module = catalogueModules[path];
+  if (!module) {
+    throw new Error(`Missing locale catalogue module: ${path}`);
+  }
+  return module.default;
 }
 
-const batch57English = JSON.parse(
-  readFileSync(
-    join(process.cwd(), "src/i18n/fragments/batch57.en.json"),
-    "utf-8",
-  ),
-) as Messages;
+const batch57English = batch57EnglishJson as Messages;
 const english = deepMerge(batch57English, readMessages("en"));
 const englishLeaves = flatten(english);
 
