@@ -4,10 +4,8 @@ import { getTranslations } from "next-intl/server";
 import { Link, redirect } from "@/i18n/navigation";
 import { getServerSupabase } from "@/lib/supabase/server";
 import { ArrowRight, Sparkles } from "lucide-react";
-import {
-  getLocalizedSwapStatus,
-  getPublicCoreCopy,
-} from "@/i18n/public-core-copy";
+import { getLocalizedSwapStatus } from "@/i18n/public-core-copy";
+import { getPublicCoreUi } from "@/i18n/public-core-ui";
 
 type ActiveSwap = {
   id: string;
@@ -16,14 +14,6 @@ type ActiveSwap = {
   partnerName: string;
   myItemTitle: string;
   partnerItemTitle: string;
-};
-
-type PublicExchangePreviewProps = {
-  locale: string;
-  title: string;
-  loginLabel: string;
-  messagesLabel: string;
-  matchingLabel: string;
 };
 
 async function loadActiveSwaps(userId: string): Promise<ActiveSwap[]> {
@@ -110,19 +100,13 @@ async function loadActiveSwaps(userId: string): Promise<ActiveSwap[]> {
   });
 }
 
-function PublicExchangePreview({
-  locale,
-  title,
-  loginLabel,
-  messagesLabel,
-  matchingLabel,
-}: PublicExchangePreviewProps) {
+function PublicExchangePreview({ locale }: { locale: string }) {
   const loginUrl = `/${locale}/login?returnTo=/${locale}/exchange`;
-  const copy = getPublicCoreCopy(locale);
+  const copy = getPublicCoreUi(locale);
 
   return (
     <div className="space-y-6">
-      <h1 className="sr-only">{title}</h1>
+      <h1 className="sr-only">{copy.exchangeTitle}</h1>
 
       <section className="rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-blue-50 p-6 shadow-sm dark:border-emerald-900 dark:from-emerald-950/30 dark:via-zinc-950 dark:to-blue-950/30 md:p-8">
         <div className="max-w-3xl space-y-4">
@@ -130,7 +114,7 @@ function PublicExchangePreview({
             {copy.preview}
           </p>
           <h2 className="text-3xl font-black tracking-tight text-zinc-950 dark:text-zinc-50 md:text-5xl">
-            {title}
+            {copy.exchangeTitle}
           </h2>
           <p className="text-base leading-7 text-zinc-600 dark:text-zinc-300 md:text-lg">
             {copy.exchangeDescription}
@@ -140,20 +124,20 @@ function PublicExchangePreview({
               href={loginUrl}
               className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-3 text-sm font-bold text-white shadow-sm hover:bg-emerald-700"
             >
-              {loginLabel}
+              {copy.login}
             </a>
             <a
               href={`/${locale}/messages`}
               className="inline-flex items-center justify-center rounded-full border border-zinc-200 bg-white px-5 py-3 text-sm font-bold text-zinc-800 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
             >
-              {messagesLabel}
+              {copy.messagesTitle}
             </a>
           </div>
         </div>
       </section>
 
       <section className="grid gap-4 sm:grid-cols-3">
-        {[matchingLabel, messagesLabel, title].map((label, index) => (
+        {[copy.matchingTitle, copy.messagesTitle, copy.exchangeTitle].map((label, index) => (
           <article
             key={label}
             className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
@@ -180,11 +164,7 @@ export default async function ExchangeIndexPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const [t, tCommon, tNav] = await Promise.all([
-    getTranslations("exchange"),
-    getTranslations("common"),
-    getTranslations("nav"),
-  ]);
+  const t = await getTranslations("exchange");
 
   const supabase = await getServerSupabase();
   let user: { id: string } | null = null;
@@ -194,15 +174,7 @@ export default async function ExchangeIndexPage({
   }
 
   if (!user) {
-    return (
-      <PublicExchangePreview
-        locale={locale}
-        title={t("listTitle")}
-        loginLabel={tCommon("nudgeLogin")}
-        messagesLabel={tNav("messages")}
-        matchingLabel={tNav("matching")}
-      />
-    );
+    return <PublicExchangePreview locale={locale} />;
   }
 
   const swaps = await loadActiveSwaps(user.id);
