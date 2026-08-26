@@ -1,21 +1,35 @@
 type Messages = Record<string, unknown>;
 
+const UNSAFE_PATH_SEGMENTS = new Set(["__proto__", "prototype", "constructor"]);
+
+function safePathParts(path: string): string[] | null {
+  const parts = path.split(".");
+  return parts.some((part) => UNSAFE_PATH_SEGMENTS.has(part)) ? null : parts;
+}
+
 function getPath(source: Messages, path: string): unknown {
-  return path.split(".").reduce<unknown>((value, key) => {
+  const parts = safePathParts(path);
+  if (!parts) return undefined;
+
+  return parts.reduce<unknown>((value, key) => {
     if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
-    return (value as Messages)[key];
+    return Object.prototype.hasOwnProperty.call(value, key)
+      ? (value as Messages)[key]
+      : undefined;
   }, source);
 }
 
 function setPath(target: Messages, path: string, value: unknown): void {
   if (value === undefined) return;
-  const parts = path.split(".");
+  const parts = safePathParts(path);
+  if (!parts || parts.length === 0) return;
+
   let cursor = target;
   for (let index = 0; index < parts.length - 1; index += 1) {
     const key = parts[index];
     const current = cursor[key];
     if (!current || typeof current !== "object" || Array.isArray(current)) {
-      cursor[key] = {};
+      cursor[key] = Object.create(null) as Messages;
     }
     cursor = cursor[key] as Messages;
   }
@@ -65,7 +79,6 @@ const CHAT_ALIASES: ReadonlyArray<readonly [string, string]> = [
   ["chat.message.read", "chat.readReceipt"],
   ["chat.message.delivered", "chat.delivered"],
   ["chat.moderation", "chat.moderated"],
-
   ["chat.agenda.title", "chatAgenda.title"],
   ["chat.agenda.you", "chatAgenda.you"],
   ["chat.agenda.generateSummary", "chatAgenda.generateSummary"],
@@ -101,7 +114,6 @@ const CHAT_ALIASES: ReadonlyArray<readonly [string, string]> = [
   ["chat.agenda.agendaRestaurant", "chatAgenda.agendaRestaurant"],
   ["chat.agenda.agendaInPerson", "chatAgenda.agendaInPerson"],
   ["chat.agenda.agendaDeliveryAddresses", "chatAgenda.agendaDeliveryAddresses"],
-
   ["chat.summary.title", "chatSummary.title"],
   ["chat.summary.itemA", "chatSummary.itemA"],
   ["chat.summary.itemB", "chatSummary.itemB"],
@@ -119,7 +131,6 @@ const CHAT_ALIASES: ReadonlyArray<readonly [string, string]> = [
   ["chat.summary.waitingPartner", "chatSummary.waitingPartner"],
   ["chat.summary.approve", "chatSummary.approve"],
   ["chat.summary.goToExchange", "chatSummary.goToExchange"],
-
   ["chat.drawer.history", "chatDrawer.tabHistory"],
   ["chat.drawer.documents", "chatDrawer.tabDocuments"],
   ["chat.drawer.profile", "chatDrawer.tabProfile"],
