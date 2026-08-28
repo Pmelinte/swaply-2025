@@ -40,7 +40,7 @@ type FreshnessPayload = {
     isNew: boolean;
   }>;
   featureUpdates: Array<{
-    id: "living-home" | "stories" | "matching";
+    id: string;
     href: string;
     releasedAt: string;
     isNew: boolean;
@@ -55,13 +55,21 @@ const DOMAIN_ICONS = {
   unknown: Globe2,
 } as const;
 
-function WorldPulseMap() {
+const DOMAIN_LINKS = [
+  { domain: "object", href: "/objects" },
+  { domain: "property", href: "/properties" },
+  { domain: "service", href: "/services" },
+  { domain: "event", href: "/events" },
+] as const;
+
+export function HomeWorldMap() {
   const tBenefits = useTranslations("benefits");
 
   return (
     <section
       className="relative overflow-hidden rounded-[2rem] border border-blue-200 bg-gradient-to-br from-slate-950 via-blue-950 to-cyan-900 px-5 py-7 text-white shadow-xl dark:border-blue-950 sm:px-8"
       aria-labelledby="home-world-title"
+      data-home-world-map
     >
       <div className="grid gap-6 lg:grid-cols-[0.7fr_1.3fr] lg:items-center">
         <div className="relative z-10">
@@ -78,7 +86,7 @@ function WorldPulseMap() {
         </div>
 
         <div className="relative min-h-48 overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-3" aria-hidden="true">
-          <svg viewBox="0 0 900 420" className="h-full min-h-48 w-full opacity-90" role="img">
+          <svg viewBox="0 0 900 420" className="h-full min-h-48 w-full opacity-90">
             <defs>
               <linearGradient id="swaply-world" x1="0" x2="1">
                 <stop offset="0" stopColor="#7dd3fc" />
@@ -86,7 +94,10 @@ function WorldPulseMap() {
               </linearGradient>
               <filter id="soft-glow">
                 <feGaussianBlur stdDeviation="6" result="blur" />
-                <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
               </filter>
             </defs>
             <g fill="url(#swaply-world)" opacity="0.72">
@@ -99,14 +110,19 @@ function WorldPulseMap() {
               <path d="m816 188 25 4 18 23-11 22-29-10Z" />
             </g>
             <g fill="#fff" filter="url(#soft-glow)">
-              <circle cx="190" cy="142" r="5" /><circle cx="278" cy="279" r="4" />
-              <circle cx="472" cy="118" r="5" /><circle cx="520" cy="222" r="5" />
-              <circle cx="635" cy="133" r="4" /><circle cx="739" cy="145" r="5" />
+              <circle cx="190" cy="142" r="5" />
+              <circle cx="278" cy="279" r="4" />
+              <circle cx="472" cy="118" r="5" />
+              <circle cx="520" cy="222" r="5" />
+              <circle cx="635" cy="133" r="4" />
+              <circle cx="739" cy="145" r="5" />
               <circle cx="758" cy="309" r="5" />
             </g>
             <g stroke="#bae6fd" strokeWidth="2" opacity="0.35" fill="none">
-              <path d="M190 142 Q350 25 472 118" /><path d="M472 118 Q610 55 739 145" />
-              <path d="M520 222 Q660 210 758 309" /><path d="M278 279 Q380 185 520 222" />
+              <path d="M190 142 Q350 25 472 118" />
+              <path d="M472 118 Q610 55 739 145" />
+              <path d="M520 222 Q660 210 758 309" />
+              <path d="M278 279 Q380 185 520 222" />
             </g>
           </svg>
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_35%,rgba(2,6,23,0.45)_100%)]" />
@@ -119,9 +135,9 @@ function WorldPulseMap() {
 function NewDot({ active }: { active: boolean }) {
   if (!active) return null;
   return (
-    <span className="relative inline-flex h-3 w-3" aria-hidden="true">
-      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60 motion-reduce:animate-none" />
-      <span className="relative inline-flex h-3 w-3 rounded-full bg-emerald-500" />
+    <span className="relative inline-flex h-3 w-3" aria-label="New">
+      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60 motion-reduce:animate-none" aria-hidden="true" />
+      <span className="relative inline-flex h-3 w-3 rounded-full bg-emerald-500" aria-hidden="true" />
     </span>
   );
 }
@@ -155,7 +171,9 @@ export default function HomeLivingWorld() {
 
     async function load() {
       try {
-        const response = await fetch(`/api/home-freshness?locale=${encodeURIComponent(locale)}&since=${encodeURIComponent(since)}`);
+        const response = await fetch(
+          `/api/home-freshness?locale=${encodeURIComponent(locale)}&since=${encodeURIComponent(since)}`,
+        );
         if (!response.ok) throw new Error("home freshness unavailable");
         const payload = (await response.json()) as FreshnessPayload;
         if (!cancelled) setFeed(payload);
@@ -189,32 +207,55 @@ export default function HomeLivingWorld() {
         (swap.requesterId === user.id || swap.responderId === user.id) &&
         !["completed", "cancelled", "rejected", "expired", "resolved"].includes(swap.status),
     );
-    const ownActive = items.filter((item) => item.ownerId === user.id && item.isActive && item.status === "active");
+    const ownActive = items.filter(
+      (item) => item.ownerId === user.id && item.isActive && item.status === "active",
+    );
     const unread = conversations.reduce(
       (count, conversation) =>
-        count + conversation.messages.filter((message) => message.senderId !== user.id && !message.isRead).length,
+        count +
+        conversation.messages.filter(
+          (message) => message.senderId !== user.id && !message.isRead,
+        ).length,
       0,
     );
 
     if (activeSwaps.length > 0) {
-      return { text: tHome("activeSwaps", { count: activeSwaps.length }), href: "/desk", action: tNav("exchange") };
+      return {
+        text: tHome("activeSwaps", { count: activeSwaps.length }),
+        href: "/desk",
+        action: tNav("exchange"),
+      };
     }
     if (unread > 0) {
-      return { text: tHome("messagesLinkDesc"), href: "/messages", action: tNav("messages") };
+      return {
+        text: tHome("messagesLinkDesc"),
+        href: "/messages",
+        action: tNav("messages"),
+      };
     }
     if (matches.length > 0) {
-      return { text: tHome("nudgeMatches", { count: Math.min(matches.length, 6) }), href: "/matching", action: tNav("matching") };
+      return {
+        text: tHome("nudgeMatches", { count: Math.min(matches.length, 6) }),
+        href: "/matching",
+        action: tNav("matching"),
+      };
     }
     if (ownActive.length === 0) {
-      return { text: tHome("nudgeNoItemsDesc"), href: "/objects/new", action: tNav("addObject") };
+      return {
+        text: tHome("nudgeNoItemsDesc"),
+        href: "/objects/new",
+        action: tNav("addObject"),
+      };
     }
-    return { text: tHome("recommendedForYou"), href: "/matching", action: tNav("matching") };
+    return {
+      text: tHome("recommendedForYou"),
+      href: "/matching",
+      action: tNav("matching"),
+    };
   }, [conversations, items, matches, swaps, tBenefits, tHome, tNav, user]);
 
   return (
     <div className="space-y-8" data-home-living-world>
-      <WorldPulseMap />
-
       <section className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr]" aria-labelledby="swaply-consultant-title">
         <div className="rounded-[2rem] border border-violet-200 bg-gradient-to-br from-violet-50 via-white to-blue-50 p-6 shadow-sm dark:border-violet-900 dark:from-violet-950/30 dark:via-zinc-950 dark:to-blue-950/30">
           <div className="flex items-start gap-4">
@@ -229,8 +270,13 @@ export default function HomeLivingWorld() {
               <h2 id="swaply-consultant-title" className="mt-1 text-2xl font-black text-zinc-950 dark:text-white">
                 {tHome("recommendedForYou")}
               </h2>
-              <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-300">{consultant.text}</p>
-              <Link href={consultant.href} className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full bg-violet-600 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-violet-700">
+              <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-300">
+                {consultant.text}
+              </p>
+              <Link
+                href={consultant.href}
+                className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full bg-violet-600 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-violet-700"
+              >
                 {consultant.action}
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
@@ -242,9 +288,16 @@ export default function HomeLivingWorld() {
           <div className="flex items-center gap-3">
             <Clock3 className="h-5 w-5 text-blue-600" aria-hidden="true" />
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-600 dark:text-blue-400">{tHome("activityFeed")}</p>
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-600 dark:text-blue-400">
+                {tHome("activityFeed")}
+              </p>
               <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                {feed ? new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(feed.since)) : tHome("recommendedForYou")}
+                {feed
+                  ? new Intl.DateTimeFormat(locale, {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                    }).format(new Date(feed.since))
+                  : tHome("recommendedForYou")}
               </p>
             </div>
           </div>
@@ -264,19 +317,28 @@ export default function HomeLivingWorld() {
               {tHome("activityFeed")}
             </h2>
           </div>
-          <Link href="/stories" className="text-sm font-bold text-blue-700 hover:underline dark:text-blue-300">{tHome("viewAll")}</Link>
+          <Link href="/stories" className="text-sm font-bold text-blue-700 hover:underline dark:text-blue-300">
+            {tHome("viewAll")}
+          </Link>
         </div>
 
         {loading ? (
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5" aria-busy="true">
-            {[0, 1, 2, 3, 4].map((index) => <div key={index} className="h-44 animate-pulse rounded-2xl bg-zinc-200 dark:bg-zinc-800" />)}
+            {[0, 1, 2, 3, 4].map((index) => (
+              <div key={index} className="h-44 animate-pulse rounded-2xl bg-zinc-200 dark:bg-zinc-800" />
+            ))}
           </div>
         ) : feed?.stories.length ? (
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
             {feed.stories.map((story) => {
               const Icon = DOMAIN_ICONS[story.domain];
               return (
-                <Link key={story.slug} href={`/stories?story=${encodeURIComponent(story.slug)}`} data-analytics-event="story_opened" className="group rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 motion-reduce:transform-none">
+                <Link
+                  key={story.slug}
+                  href="/stories"
+                  data-analytics-event="story_opened"
+                  className="group rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 motion-reduce:transform-none"
+                >
                   <div className="flex items-center justify-between gap-3">
                     <span className="inline-flex items-center gap-2 text-xs font-bold text-emerald-700 dark:text-emerald-300">
                       <Icon className="h-4 w-4" aria-hidden="true" />
@@ -291,7 +353,27 @@ export default function HomeLivingWorld() {
             })}
           </div>
         ) : (
-          <div className="rounded-2xl border border-dashed border-zinc-300 p-6 text-sm text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">{tBenefits("globalCommunity")}</div>
+          <div className="rounded-[2rem] border border-emerald-200 bg-emerald-50/70 p-5 dark:border-emerald-900 dark:bg-emerald-950/20">
+            <p className="text-sm leading-6 text-emerald-950 dark:text-emerald-100">{tBenefits("globalCommunity")}</p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {DOMAIN_LINKS.map(({ domain, href }) => {
+                const Icon = DOMAIN_ICONS[domain];
+                return (
+                  <Link
+                    key={domain}
+                    href={href}
+                    className="flex items-center justify-between rounded-2xl border border-emerald-200 bg-white px-4 py-4 font-bold text-emerald-950 transition hover:-translate-y-0.5 hover:shadow-sm dark:border-emerald-800 dark:bg-zinc-900 dark:text-emerald-100 motion-reduce:transform-none"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Icon className="h-5 w-5" aria-hidden="true" />
+                      {domainLabel(domain, tBranch)}
+                    </span>
+                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
         )}
       </section>
 
@@ -302,11 +384,17 @@ export default function HomeLivingWorld() {
               <Newspaper className="h-5 w-5 text-blue-600" aria-hidden="true" />
               <h2 className="text-xl font-black text-zinc-950 dark:text-white">Blog</h2>
             </div>
-            <Link href="/blog" data-analytics-event="guide_opened" className="text-sm font-bold text-blue-700 hover:underline dark:text-blue-300">{tHome("viewAll")}</Link>
+            <Link href="/blog" data-analytics-event="guide_opened" className="text-sm font-bold text-blue-700 hover:underline dark:text-blue-300">
+              {tHome("viewAll")}
+            </Link>
           </div>
           <div className="space-y-3">
             {feed?.blog.map((post) => (
-              <Link key={post.slug} href={`/blog/${post.slug}`} className="flex items-start justify-between gap-4 rounded-2xl bg-zinc-50 p-4 transition hover:bg-blue-50 dark:bg-zinc-800/70 dark:hover:bg-blue-950/30">
+              <Link
+                key={post.slug}
+                href={`/blog/${post.slug}`}
+                className="flex items-start justify-between gap-4 rounded-2xl bg-zinc-50 p-4 transition hover:bg-blue-50 dark:bg-zinc-800/70 dark:hover:bg-blue-950/30"
+              >
                 <div className="min-w-0">
                   <p className="text-xs font-bold text-blue-600 dark:text-blue-300">{post.category}</p>
                   <h3 className="mt-1 line-clamp-2 font-bold text-zinc-950 dark:text-white">{post.title}</h3>
@@ -324,15 +412,29 @@ export default function HomeLivingWorld() {
           </div>
           <p className="mt-2 text-sm leading-6 text-emerald-950/70 dark:text-emerald-100/80">{tGuest("bannerCta")} · {tHome("recommendedForYou")}</p>
           <div className="mt-5 space-y-2">
-            {feed?.featureUpdates.map((feature) => {
-              const label = feature.id === "matching" ? tNav("matching") : feature.id === "stories" ? "Stories" : tHome("welcome");
-              return (
-                <Link key={feature.id} href={feature.href} className="flex items-center justify-between rounded-xl border border-emerald-200/70 bg-white/70 px-4 py-3 text-sm font-bold text-emerald-950 transition hover:bg-white dark:border-emerald-800 dark:bg-zinc-950/40 dark:text-emerald-100">
-                  <span>{label}</span>
-                  <span className="flex items-center gap-2"><NewDot active={feature.isNew} /><ArrowRight className="h-4 w-4" aria-hidden="true" /></span>
+            {feed?.featureUpdates.length ? (
+              feed.featureUpdates.map((feature) => (
+                <Link
+                  key={feature.id}
+                  href={feature.href}
+                  className="flex items-center justify-between rounded-xl border border-emerald-200/70 bg-white/70 px-4 py-3 text-sm font-bold text-emerald-950 transition hover:bg-white dark:border-emerald-800 dark:bg-zinc-950/40 dark:text-emerald-100"
+                >
+                  <span>{feature.id === "stories" ? "Stories" : feature.id}</span>
+                  <span className="flex items-center gap-2">
+                    <NewDot active={feature.isNew} />
+                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                  </span>
                 </Link>
-              );
-            })}
+              ))
+            ) : (
+              <Link
+                href="/blog"
+                className="flex items-center justify-between rounded-xl border border-emerald-200/70 bg-white/70 px-4 py-3 text-sm font-bold text-emerald-950 transition hover:bg-white dark:border-emerald-800 dark:bg-zinc-950/40 dark:text-emerald-100"
+              >
+                <span>Blog</span>
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </Link>
+            )}
           </div>
         </div>
       </section>
