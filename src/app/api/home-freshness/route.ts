@@ -143,10 +143,10 @@ export async function GET(request: NextRequest) {
     isNew: new Date(post.date).getTime() > since.getTime(),
   }));
 
+  // This registry is deliberately production-truthful. Add an entry only after the
+  // capability is actually live; Preview-only work and unauthorised providers do not belong here.
   const featureUpdates = [
-    { id: "living-home", href: "/", releasedAt: "2026-08-28T00:00:00.000Z" },
     { id: "stories", href: "/stories", releasedAt: "2026-07-31T00:00:00.000Z" },
-    { id: "matching", href: "/matching", releasedAt: "2026-08-26T00:00:00.000Z" },
   ].map((entry) => ({ ...entry, isNew: new Date(entry.releasedAt).getTime() > since.getTime() }));
 
   return NextResponse.json(
