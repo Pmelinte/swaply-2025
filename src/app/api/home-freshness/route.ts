@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAllPostsDB } from "@/lib/blog-db";
-import { getServiceSupabase } from "@/lib/supabase/service";
 import { getServerSupabase } from "@/lib/supabase/server";
 
 type StoryDomain = "object" | "property" | "service" | "event" | "unknown";
@@ -13,6 +12,8 @@ type StoryPublicationRow = {
   body: string;
   published_at: string;
 };
+
+type PublicSupabase = Awaited<ReturnType<typeof getServerSupabase>>;
 
 const MAX_STORIES = 5;
 const STORY_POOL_SIZE = 24;
@@ -61,16 +62,15 @@ function selectDiverseStories<T extends { domain: StoryDomain; publishedAt: stri
   return selected.slice(0, MAX_STORIES);
 }
 
-async function deriveStoryDomains(publications: StoryPublicationRow[]) {
-  const service = getServiceSupabase();
-  if (!service || publications.length === 0) return new Map<string, StoryDomain>();
+async function deriveStoryDomains(publicClient: PublicSupabase, publications: StoryPublicationRow[]) {
+  if (!publicClient || publications.length === 0) return new Map<string, StoryDomain>();
 
   const storyIds = publications.map((row) => row.story_id);
-  const { data: stories } = await service.from("stories").select("id, swap_id").in("id", storyIds);
+  const { data: stories } = await publicClient.from("stories").select("id, swap_id").in("id", storyIds);
   const swapIds = (stories ?? []).map((row) => String(row.swap_id)).filter(Boolean);
   if (swapIds.length === 0) return new Map<string, StoryDomain>();
 
-  const { data: swaps } = await service
+  const { data: swaps } = await publicClient
     .from("swaps")
     .select("id, requester_item_id, responder_item_id")
     .in("id", swapIds);
@@ -86,7 +86,7 @@ async function deriveStoryDomains(publications: StoryPublicationRow[]) {
 
   const itemTypeById = new Map<string, StoryDomain>();
   if (itemIds.length > 0) {
-    const { data: items } = await service.from("items").select("id, listing_type").in("id", itemIds);
+    const { data: items } = await publicClient.from("items").select("id, listing_type").in("id", itemIds);
     for (const item of items ?? []) itemTypeById.set(String(item.id), normalizeDomain(item.listing_type));
   }
 
@@ -98,15 +98,16 @@ async function deriveStoryDomains(publications: StoryPublicationRow[]) {
   }
 
   const result = new Map<string, StoryDomain>();
-  for (const story of stories ?? []) result.set(String(story.id), swapTypeById.get(String(story.swap_id)) ?? "unknown");
+  for (const story of stories ?? []) {
+    result.set(String(story.id), swapTypeById.get(String(story.swap_id)) ?? "unknown");
+  }
   return result;
 }
 
 export async function GET(request: NextRequest) {
   const locale = (request.nextUrl.searchParams.get("locale") ?? "en").toLowerCase().split(/[-_]/)[0];
   const since = safeSince(request.nextUrl.searchParams.get("since"));
-
-  const publicClient = getServiceSupabase() ?? (await getServerSupabase());
+  const publicClient = await getServerSupabase();
   let publicationRows: StoryPublicationRow[] = [];
 
   if (publicClient) {
@@ -120,7 +121,7 @@ export async function GET(request: NextRequest) {
     if (!error) publicationRows = (data ?? []) as StoryPublicationRow[];
   }
 
-  const domains = await deriveStoryDomains(publicationRows);
+  const domains = await deriveStoryDomains(publicClient, publicationRows);
   const preparedStories = publicationRows.map((row) => ({
     slug: row.public_slug,
     title: row.title,
@@ -143,23 +144,12 @@ export async function GET(request: NextRequest) {
     isNew: new Date(post.date).getTime() > since.getTime(),
   }));
 
-  // This registry is deliberately production-truthful. Add an entry only after the
-  // capability is actually live; Preview-only work and unauthorised providers do not belong here.
   const featureUpdates = [
     { id: "stories", href: "/stories", releasedAt: "2026-07-31T00:00:00.000Z" },
   ].map((entry) => ({ ...entry, isNew: new Date(entry.releasedAt).getTime() > since.getTime() }));
 
   return NextResponse.json(
-    {
-      since: since.toISOString(),
-      stories,
-      blog,
-      featureUpdates,
-    },
-    {
-      headers: {
-        "Cache-Control": "private, max-age=0, must-revalidate",
-      },
-    },
+    { since: since.toISOString(), stories, blog, featureUpdates },
+    { headers: { "Cache-Control": "private, max-age=0, must-revalidate" } },
   );
 }
