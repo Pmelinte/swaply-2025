@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { locales } from "@/i18n/config";
+import DomainUniverseBar from "@/components/navigation/DomainUniverseBar";
 
 const BASE_URL = "https://www.swaply.world";
 
@@ -33,5 +34,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default function ObjectsLayout({ children }: Props) {
-  return children;
+  return (
+    <>
+      <DomainUniverseBar />
+      {children}
+    </>
+  );
 }
