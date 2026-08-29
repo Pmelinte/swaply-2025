@@ -10,8 +10,12 @@ export const revalidate = 300;
 export default function HomePage() {
   return (
     <Suspense fallback={<SkeletonGrid count={4} />}>
-      <div className="relative isolate overflow-hidden rounded-[2.5rem] bg-gradient-to-b from-sky-50 via-lime-50/55 to-green-100/85 p-1 pb-24 sm:p-2 sm:pb-28">
-        <div className="relative z-10 space-y-8">
+      <div className="relative left-1/2 w-[calc(100vw-1rem)] -translate-x-1/2 isolate overflow-hidden bg-gradient-to-b from-[#bdefff] via-[#f5ffe9] to-[#eaffb8] px-3 pb-28 pt-3 sm:w-[calc(100vw-2rem)] sm:px-5 sm:pb-32 lg:px-8 xl:px-10">
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 h-[34rem] bg-[radial-gradient(circle_at_48%_5%,rgba(255,255,255,0.96),transparent_18%),radial-gradient(circle_at_78%_12%,rgba(255,255,255,0.75),transparent_15%),linear-gradient(180deg,rgba(83,202,255,0.34),rgba(255,255,255,0)_78%)]"
+          aria-hidden="true"
+        />
+        <div className="relative z-10 mx-auto max-w-[1920px] space-y-5">
           <HomeWorldExperience />
           <HomeDashboardClient />
           <HomeLivingWorld />
