@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import HomeBotanicalFrame from "./HomeBotanicalFrame";
 import HomeDashboardClient from "./HomeDashboardClient";
 import HomeLivingWorld from "./HomeLivingWorld";
-import HomeWorldExperience from "./HomeWorldExperience";
+import HomeReferenceHero from "./HomeReferenceHero";
 import { SkeletonGrid } from "@/components/ui-custom";
 
 export const revalidate = 300;
@@ -16,7 +16,7 @@ export default function HomePage() {
           aria-hidden="true"
         />
         <div className="relative z-10 mx-auto max-w-[1920px] space-y-5">
-          <HomeWorldExperience />
+          <HomeReferenceHero />
           <HomeDashboardClient />
           <HomeLivingWorld />
         </div>
