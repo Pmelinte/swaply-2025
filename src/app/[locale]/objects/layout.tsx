@@ -13,7 +13,6 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "objects" });
-
   const metaTitle = t("metaTitle");
   const title = `${metaTitle} | Swaply`;
   const description = t("metaDescription");
@@ -35,9 +34,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default function ObjectsLayout({ children }: Props) {
   return (
-    <>
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-sky-100/60">
       <DomainUniverseBar />
       {children}
-    </>
+    </div>
   );
 }
