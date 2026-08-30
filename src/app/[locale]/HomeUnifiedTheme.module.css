@@ -4,7 +4,7 @@
   --swaply-glass-button: rgba(20, 92, 82, 0.115);
   --swaply-glass-border: rgba(255, 255, 255, 0.68);
   --swaply-glass-border-strong: rgba(41, 116, 104, 0.2);
-  --swaply-glass-shadow: 0 10px 28px rgba(35, 91, 82, 0.075);
+  --swaply-glass-shadow: 0 8px 22px rgba(35, 91, 82, 0.065);
   --swaply-ink: #102f3f;
   --swaply-muted: #48656d;
 }
@@ -23,7 +23,7 @@
   background-image: none !important;
   background-color: var(--swaply-glass-2) !important;
   border-color: var(--swaply-glass-border) !important;
-  box-shadow: 0 6px 18px rgba(35, 91, 82, 0.055) !important;
+  box-shadow: 0 5px 14px rgba(35, 91, 82, 0.05) !important;
   backdrop-filter: blur(10px) saturate(1.03);
   -webkit-backdrop-filter: blur(10px) saturate(1.03);
 }
@@ -34,7 +34,7 @@
   background-color: var(--swaply-glass-button) !important;
   border-color: var(--swaply-glass-border-strong) !important;
   color: var(--swaply-ink) !important;
-  box-shadow: 0 4px 14px rgba(35, 91, 82, 0.055) !important;
+  box-shadow: 0 3px 10px rgba(35, 91, 82, 0.05) !important;
   backdrop-filter: blur(10px) saturate(1.04);
   -webkit-backdrop-filter: blur(10px) saturate(1.04);
 }
@@ -43,7 +43,7 @@
 .home button[class*="rounded"]:hover {
   background-color: rgba(20, 92, 82, 0.15) !important;
   border-color: rgba(41, 116, 104, 0.28) !important;
-  box-shadow: 0 7px 18px rgba(35, 91, 82, 0.08) !important;
+  box-shadow: 0 6px 15px rgba(35, 91, 82, 0.075) !important;
 }
 
 .home section[class*="rounded"] [class*="text-white"],
@@ -58,13 +58,26 @@
   color: var(--swaply-muted) !important;
 }
 
+.home [data-home-state="authenticated-dashboard"] {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 0.85rem;
+  padding-bottom: 0.5rem !important;
+}
+
+.home [data-home-state="authenticated-dashboard"] > section {
+  grid-column: 1 / -1;
+  margin: 0 !important;
+}
+
 .home [data-home-state="authenticated-dashboard"] > section:first-child {
   overflow: visible !important;
-  border-radius: 1.5rem !important;
+  border-radius: 1.35rem !important;
   background-image: none !important;
   background-color: var(--swaply-glass-1) !important;
   color: var(--swaply-ink) !important;
   box-shadow: var(--swaply-glass-shadow) !important;
+  padding: 1rem 1.15rem !important;
 }
 
 .home [data-home-state="authenticated-dashboard"] > section:first-child > div:first-child {
@@ -80,6 +93,126 @@
   color: var(--swaply-ink) !important;
 }
 
+.home [data-home-state="authenticated-dashboard"] section[aria-labelledby="personal-overview-title"],
+.home [data-home-state="authenticated-dashboard"] section[aria-labelledby="exchange-journey-title"] {
+  padding: 0.8rem 0.9rem !important;
+}
+
+.home [data-home-state="authenticated-dashboard"] section[aria-labelledby="personal-overview-title"] {
+  grid-column: span 5;
+}
+
+.home [data-home-state="authenticated-dashboard"] section[aria-labelledby="exchange-journey-title"] {
+  grid-column: span 7;
+}
+
+.home [data-home-state="authenticated-dashboard"] section[aria-labelledby="recommendations-title"] {
+  grid-column: 1 / -1;
+  padding: 0.8rem 0.9rem !important;
+}
+
+.home [data-home-state="authenticated-dashboard"] > section[class*="xl:grid-cols-2"] {
+  grid-column: 1 / -1;
+  gap: 0.85rem !important;
+}
+
+.home [data-home-state="authenticated-dashboard"] section[class*="lg:grid-cols"] {
+  gap: 0.85rem !important;
+}
+
+.home [data-home-state="authenticated-dashboard"] section[class*="grid"] > div[class*="rounded"],
+.home [data-home-living-world] section[class*="grid"] > div[class*="rounded"] {
+  padding: 1rem !important;
+}
+
+.home [data-home-state="authenticated-dashboard"] h1 {
+  margin-top: 0.65rem !important;
+}
+
+.home [data-home-state="authenticated-dashboard"] h2,
+.home [data-home-living-world] h2 {
+  margin-top: 0.2rem !important;
+}
+
+.home [data-home-state="authenticated-dashboard"] [class*="mt-7"],
+.home [data-home-state="authenticated-dashboard"] [class*="mt-6"],
+.home [data-home-state="authenticated-dashboard"] [class*="mt-5"],
+.home [data-home-living-world] [class*="mt-7"],
+.home [data-home-living-world] [class*="mt-6"],
+.home [data-home-living-world] [class*="mt-5"] {
+  margin-top: 0.75rem !important;
+}
+
+.home [data-home-state="authenticated-dashboard"] [class*="mb-4"],
+.home [data-home-living-world] [class*="mb-4"] {
+  margin-bottom: 0.55rem !important;
+}
+
+.home [data-home-state="authenticated-dashboard"] [class*="p-6"],
+.home [data-home-state="authenticated-dashboard"] [class*="p-7"],
+.home [data-home-state="authenticated-dashboard"] [class*="p-8"],
+.home [data-home-state="authenticated-dashboard"] [class*="p-10"],
+.home [data-home-living-world] [class*="p-6"],
+.home [data-home-living-world] [class*="p-7"],
+.home [data-home-living-world] [class*="p-8"] {
+  padding: 1rem !important;
+}
+
+.home [data-home-state="authenticated-dashboard"] [class*="gap-8"],
+.home [data-home-state="authenticated-dashboard"] [class*="gap-6"],
+.home [data-home-state="authenticated-dashboard"] [class*="gap-5"],
+.home [data-home-living-world] [class*="gap-8"],
+.home [data-home-living-world] [class*="gap-6"],
+.home [data-home-living-world] [class*="gap-5"] {
+  gap: 0.8rem !important;
+}
+
+.home [data-home-state="authenticated-dashboard"] .text-2xl,
+.home [data-home-living-world] .text-2xl {
+  font-size: 1.15rem !important;
+  line-height: 1.45rem !important;
+}
+
+.home [data-home-state="authenticated-dashboard"] .text-3xl {
+  font-size: 1.6rem !important;
+  line-height: 1.9rem !important;
+}
+
+.home [data-home-living-world] {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 0.85rem !important;
+}
+
+.home [data-home-living-world] > section {
+  grid-column: 1 / -1;
+  margin: 0 !important;
+}
+
+.home [data-home-living-world] > section:not(:first-child) {
+  padding-top: 0.65rem !important;
+  padding-bottom: 0.65rem !important;
+}
+
 .home img {
   box-shadow: none;
+}
+
+@media (max-width: 1279px) {
+  .home [data-home-state="authenticated-dashboard"] section[aria-labelledby="personal-overview-title"],
+  .home [data-home-state="authenticated-dashboard"] section[aria-labelledby="exchange-journey-title"] {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 767px) {
+  .home [data-home-state="authenticated-dashboard"],
+  .home [data-home-living-world] {
+    display: block;
+  }
+
+  .home [data-home-state="authenticated-dashboard"] > section,
+  .home [data-home-living-world] > section {
+    margin-bottom: 0.8rem !important;
+  }
 }
