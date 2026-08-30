@@ -21,7 +21,9 @@ export default function HomePage() {
             <HomeReferenceHero />
             <HomeStaticWorldMap />
           </div>
-          <HomeDashboardClient />
+          <div className="[&_[data-home-state='authenticated-dashboard']>section:first-child]:!overflow-visible [&_[data-home-state='authenticated-dashboard']>section:first-child]:!rounded-none [&_[data-home-state='authenticated-dashboard']>section:first-child]:!bg-none [&_[data-home-state='authenticated-dashboard']>section:first-child]:!bg-transparent [&_[data-home-state='authenticated-dashboard']>section:first-child]:!text-slate-950 [&_[data-home-state='authenticated-dashboard']>section:first-child]:!shadow-none [&_[data-home-state='authenticated-dashboard']>section:first-child>div:first-child]:!hidden [&_[data-home-state='authenticated-dashboard']>section:first-child_span]:!text-slate-950 [&_[data-home-state='authenticated-dashboard']>section:first-child_p]:!text-slate-600 [&_[data-home-state='authenticated-dashboard']>section:first-child_a]:!border-white/80 [&_[data-home-state='authenticated-dashboard']>section:first-child_a]:!bg-white/60 [&_[data-home-state='authenticated-dashboard']>section:first-child_a]:!text-slate-800 [&_[data-home-state='authenticated-dashboard']>section:first-child_[class*='bg-white/10']]:!bg-white/50 [&_[data-home-state='authenticated-dashboard']>section:first-child_[class*='border-white/15']]:!border-white/80">
+            <HomeDashboardClient />
+          </div>
           <HomeLivingWorld />
         </div>
         <HomeBotanicalFrame />
