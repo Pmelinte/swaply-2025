@@ -3,7 +3,9 @@ export const dynamic = "force-dynamic";
 import { getTranslations } from "next-intl/server";
 import { Link, redirect } from "@/i18n/navigation";
 import { getServerSupabase } from "@/lib/supabase/server";
-import { Sparkles, ArrowRight } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
+import { getLocalizedSwapStatus } from "@/i18n/public-core-copy";
+import { getPublicCoreUi } from "@/i18n/public-core-ui";
 
 type ActiveSwap = {
   id: string;
@@ -13,61 +15,6 @@ type ActiveSwap = {
   myItemTitle: string;
   partnerItemTitle: string;
 };
-
-type ExchangePreviewCopy = {
-  badge: string;
-  heading: string;
-  description: string;
-  signin: string;
-  messagesPreview: string;
-  steps: Array<{ label: string; title: string; text: string }>;
-  cards: Array<[heading: string, text: string]>;
-};
-
-const exchangePreviewCopy: Record<"en" | "ro", ExchangePreviewCopy> = {
-  en: {
-    badge: "Public preview",
-    heading: "Manage the exchange after both sides agree",
-    description:
-      "The exchange workspace turns a match into a clear handover: checklist, logistics, shared details and final feedback.",
-    signin: "Sign in to manage exchanges",
-    messagesPreview: "See messages preview",
-    steps: [
-      { label: "1. Confirm intent", title: "Both sides accept the swap", text: "Each person confirms what they offer and what they expect to receive." },
-      { label: "2. Choose logistics", title: "Pick the exchange method", text: "Local handover, courier, vacation handover or service delivery can be coordinated in one place." },
-      { label: "3. Prepare handover", title: "Use a shared checklist", text: "The workspace keeps the next steps clear before completion." },
-      { label: "4. Close and review", title: "Completion and trust score", text: "After both sides confirm completion, feedback updates the trust profile." },
-    ],
-    cards: [
-      ["Checklist", "See what is still pending before handover."],
-      ["Logistics", "Keep timing and delivery notes together."],
-      ["Feedback", "Close the swap and update trust signals."],
-    ],
-  },
-  ro: {
-    badge: "Previzualizare publica",
-    heading: "Gestioneaza schimbul dupa acordul ambelor parti",
-    description:
-      "Spatiul Exchange transforma o potrivire intr-o predare clara: checklist, logistica, detalii comune si feedback final.",
-    signin: "Autentifica-te pentru schimburi",
-    messagesPreview: "Vezi previzualizarea Messages",
-    steps: [
-      { label: "1. Confirmare intentie", title: "Ambele parti accepta schimbul", text: "Fiecare persoana confirma ce ofera si ce asteapta sa primeasca." },
-      { label: "2. Alegere logistica", title: "Alege metoda de schimb", text: "Predarea locala, curierul, predarea in vacanta sau serviciile pot fi coordonate intr-un singur loc." },
-      { label: "3. Pregatire predare", title: "Foloseste un checklist comun", text: "Spatiul pastreaza pasii urmatori clari pana la finalizare." },
-      { label: "4. Inchidere si review", title: "Finalizare si scor de incredere", text: "Dupa confirmarea ambelor parti, feedbackul actualizeaza profilul de incredere." },
-    ],
-    cards: [
-      ["Checklist", "Vezi ce mai este de facut inainte de predare."],
-      ["Logistica", "Pastreaza impreuna data, ora si notele de livrare."],
-      ["Feedback", "Inchide schimbul si actualizeaza semnalele de incredere."],
-    ],
-  },
-};
-
-function getExchangePreviewCopy(locale: string) {
-  return locale.startsWith("ro") ? exchangePreviewCopy.ro : exchangePreviewCopy.en;
-}
 
 async function loadActiveSwaps(userId: string): Promise<ActiveSwap[]> {
   const supabase = await getServerSupabase();
@@ -91,14 +38,14 @@ async function loadActiveSwaps(userId: string): Promise<ActiveSwap[]> {
 
   const itemIds = new Set<string>();
   const partnerIds = new Set<string>();
-  for (const r of rows) {
-    const offered = r.offered_item_id as string | null;
-    const requested = r.requested_item_id as string | null;
+  for (const row of rows) {
+    const offered = row.offered_item_id as string | null;
+    const requested = row.requested_item_id as string | null;
     if (offered) itemIds.add(offered);
     if (requested) itemIds.add(requested);
-    const reqId = String(r.requester_id ?? "");
-    const resId = String(r.responder_id ?? "");
-    partnerIds.add(reqId === userId ? resId : reqId);
+    const requesterId = String(row.requester_id ?? "");
+    const responderId = String(row.responder_id ?? "");
+    partnerIds.add(requesterId === userId ? responderId : requesterId);
   }
 
   const [itemsRes, profilesRes] = await Promise.all([
@@ -124,22 +71,28 @@ async function loadActiveSwaps(userId: string): Promise<ActiveSwap[]> {
   for (const row of (itemsRes.data ?? []) as Array<Record<string, unknown>>) {
     itemById.set(String(row.id), String(row.title ?? ""));
   }
+
   const nameById = new Map<string, string>();
   for (const row of (profilesRes.data ?? []) as Array<Record<string, unknown>>) {
     nameById.set(String(row.user_id), String(row.display_name ?? ""));
   }
 
-  return rows.map((r) => {
-    const reqId = String(r.requester_id ?? "");
-    const resId = String(r.responder_id ?? "");
-    const isRequester = reqId === userId;
-    const partnerId = isRequester ? resId : reqId;
-    const myItemId = String((isRequester ? r.offered_item_id : r.requested_item_id) ?? "");
-    const partnerItemId = String((isRequester ? r.requested_item_id : r.offered_item_id) ?? "");
+  return rows.map((row) => {
+    const requesterId = String(row.requester_id ?? "");
+    const responderId = String(row.responder_id ?? "");
+    const isRequester = requesterId === userId;
+    const partnerId = isRequester ? responderId : requesterId;
+    const myItemId = String(
+      (isRequester ? row.offered_item_id : row.requested_item_id) ?? "",
+    );
+    const partnerItemId = String(
+      (isRequester ? row.requested_item_id : row.offered_item_id) ?? "",
+    );
+
     return {
-      id: String(r.id ?? ""),
-      status: String(r.status ?? ""),
-      createdAt: String(r.created_at ?? ""),
+      id: String(row.id ?? ""),
+      status: String(row.status ?? ""),
+      createdAt: String(row.created_at ?? ""),
       partnerName: nameById.get(partnerId) ?? partnerId.slice(0, 8),
       myItemTitle: itemById.get(myItemId) ?? "",
       partnerItemTitle: itemById.get(partnerItemId) ?? "",
@@ -147,55 +100,59 @@ async function loadActiveSwaps(userId: string): Promise<ActiveSwap[]> {
   });
 }
 
-function PublicExchangePreview({ locale, title }: { locale: string; title: string }) {
+function PublicExchangePreview({ locale }: { locale: string }) {
   const loginUrl = `/${locale}/login?returnTo=/${locale}/exchange`;
-  const copy = getExchangePreviewCopy(locale);
+  const copy = getPublicCoreUi(locale);
 
   return (
     <div className="space-y-6">
-      <h1 className="sr-only">{title}</h1>
+      <h1 className="sr-only">{copy.exchangeTitle}</h1>
 
       <section className="rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-blue-50 p-6 shadow-sm dark:border-emerald-900 dark:from-emerald-950/30 dark:via-zinc-950 dark:to-blue-950/30 md:p-8">
         <div className="max-w-3xl space-y-4">
           <p className="inline-flex rounded-full bg-white px-3 py-1 text-xs font-bold uppercase tracking-wide text-emerald-700 shadow-sm dark:bg-zinc-900 dark:text-emerald-200">
-            {copy.badge}
+            {copy.preview}
           </p>
           <h2 className="text-3xl font-black tracking-tight text-zinc-950 dark:text-zinc-50 md:text-5xl">
-            {copy.heading}
+            {copy.exchangeTitle}
           </h2>
           <p className="text-base leading-7 text-zinc-600 dark:text-zinc-300 md:text-lg">
-            {copy.description}
+            {copy.exchangeDescription}
           </p>
           <div className="flex flex-wrap gap-3">
-            <a href={loginUrl} className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-3 text-sm font-bold text-white shadow-sm hover:bg-emerald-700">
-              {copy.signin}
+            <a
+              href={loginUrl}
+              className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-3 text-sm font-bold text-white shadow-sm hover:bg-emerald-700"
+            >
+              {copy.login}
             </a>
-            <a href={`/${locale}/messages`} className="inline-flex items-center justify-center rounded-full border border-zinc-200 bg-white px-5 py-3 text-sm font-bold text-zinc-800 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800">
-              {copy.messagesPreview}
+            <a
+              href={`/${locale}/messages`}
+              className="inline-flex items-center justify-center rounded-full border border-zinc-200 bg-white px-5 py-3 text-sm font-bold text-zinc-800 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
+            >
+              {copy.messagesTitle}
             </a>
           </div>
         </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-2">
-        {copy.steps.map((step) => (
-          <article key={step.label} className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-            <p className="text-xs font-bold uppercase tracking-wide text-emerald-600 dark:text-emerald-300">{step.label}</p>
-            <h3 className="mt-2 text-lg font-black text-zinc-950 dark:text-zinc-50">{step.title}</h3>
-            <p className="mt-3 text-sm leading-6 text-zinc-600 dark:text-zinc-300">{step.text}</p>
+      <section className="grid gap-4 sm:grid-cols-3">
+        {[copy.matchingTitle, copy.messagesTitle, copy.exchangeTitle].map((label, index) => (
+          <article
+            key={label}
+            className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
+          >
+            <div
+              aria-hidden="true"
+              className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-sm font-black text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-200"
+            >
+              {index + 1}
+            </div>
+            <h3 className="text-sm font-bold text-zinc-950 dark:text-zinc-50">
+              {label}
+            </h3>
           </article>
         ))}
-      </section>
-
-      <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-        <div className="grid gap-4 md:grid-cols-3">
-          {copy.cards.map(([heading, text]) => (
-            <div key={heading} className="rounded-2xl bg-zinc-50 p-4 dark:bg-zinc-800">
-              <h3 className="text-sm font-black text-zinc-950 dark:text-zinc-50">{heading}</h3>
-              <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-300">{text}</p>
-            </div>
-          ))}
-        </div>
       </section>
     </div>
   );
@@ -217,12 +174,11 @@ export default async function ExchangeIndexPage({
   }
 
   if (!user) {
-    return <PublicExchangePreview locale={locale} title={t("listTitle")} />;
+    return <PublicExchangePreview locale={locale} />;
   }
 
   const swaps = await loadActiveSwaps(user.id);
 
-  // Auto-navigate to single active swap for authenticated users
   if (swaps.length === 1) {
     redirect({ href: `/exchange/${swaps[0].id}`, locale });
   }
@@ -266,15 +222,20 @@ export default async function ExchangeIndexPage({
                 <div className="truncate text-sm font-semibold text-zinc-900 dark:text-zinc-100">
                   {swap.myItemTitle || "—"} ↔ {swap.partnerItemTitle || "—"}
                 </div>
-                <div className="mt-1 flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
+                <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
                   <span>{swap.partnerName}</span>
-                  <span>·</span>
+                  <span aria-hidden="true">·</span>
                   <span>
-                    {t("listCardStatus")}: <span className="font-medium">{swap.status}</span>
+                    {t("listCardStatus")}: {" "}
+                    <span className="font-medium">
+                      {getLocalizedSwapStatus(locale, swap.status)}
+                    </span>
                   </span>
-                  <span>·</span>
+                  <span aria-hidden="true">·</span>
                   <time dateTime={swap.createdAt}>
-                    {swap.createdAt ? new Date(swap.createdAt).toLocaleDateString(locale) : ""}
+                    {swap.createdAt
+                      ? new Date(swap.createdAt).toLocaleDateString(locale)
+                      : ""}
                   </time>
                 </div>
               </div>

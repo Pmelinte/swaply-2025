@@ -1,25 +1,22 @@
 #!/usr/bin/env node
 
 /**
- * Validate the canonical Swaply internationalization contract.
+ * Validate the raw Swaply locale catalogue contract.
  *
- * The check is deliberately provider-free and deterministic:
+ * This check is deliberately provider-free and deterministic:
  * - the locale registry in src/i18n/config.ts is the source of truth;
  * - every registered locale must have exactly one JSON message catalogue;
- * - every English leaf key must resolve locally or through the runtime English
- *   technical fallback already implemented in src/i18n/request.ts;
  * - translated values must preserve the English leaf type;
- * - ICU-style variable placeholders must match the English source.
+ * - ICU-style variable placeholders must match the English source, except for
+ *   five documented historical raw-catalogue mismatches repaired at runtime;
+ * - raw locale catalogues may retain the measured historical canonical-key
+ *   debt, but no new raw missing key may increase that debt.
  *
- * Batch 66 starts with a measured translation-debt baseline rather than a
- * machine-generated rewrite. English and Romanian are currently complete.
- * Each of the other 41 catalogues may use at most 129 English technical
- * fallback leaves — the exact pre-Batch-66 baseline. A new untranslated key
- * therefore fails CI, while genuine translations can only lower the budget.
- *
- * Older flat chat namespaces remain for legacy call sites and are reported as
- * extra keys. Five pre-existing ICU placeholder renames remain documented
- * warnings. Later Batch 66 units must reduce these debt budgets toward zero.
+ * IMPORTANT: a raw missing canonical key is NOT automatically an English
+ * fallback visible to users. Runtime compatibility aliases and locale-native
+ * fragments are applied by src/i18n/request.ts. Effective native coverage for
+ * the Global Public Core is enforced separately by
+ * src/lib/i18n/runtimeNativeCoverage.test.ts and is part of `npm run build`.
  */
 
 import { readFileSync, readdirSync } from "node:fs";
@@ -29,9 +26,9 @@ const MESSAGES_DIR = "src/messages";
 const LOCALE_CONFIG_PATH = "src/i18n/config.ts";
 const EXPECTED_LOCALE_COUNT = 43;
 const COMPLETE_SOURCE_LOCALES = new Set(["en", "ro"]);
-const MAX_TECHNICAL_FALLBACK_KEYS_PER_LOCALE = 129;
+const MAX_RAW_CANONICAL_KEY_DEBT_PER_LOCALE = 129;
 
-const KNOWN_PLACEHOLDER_DEBT = new Set([
+const KNOWN_RAW_PLACEHOLDER_DEBT = new Set([
   "it:desk.deadlineProposalExpires",
   "it:desk.taskLeaveReview",
   "it:desk.taskRespondProposal",
@@ -141,7 +138,10 @@ if (!englishCatalogue) {
   console.log(`✓ Locale registry: ${registeredLocales.length}/${EXPECTED_LOCALE_COUNT}`);
   console.log(`✓ en.json: ${englishKeys.length} leaf keys`);
   console.log(
-    `✓ Technical fallback regression budget: <=${MAX_TECHNICAL_FALLBACK_KEYS_PER_LOCALE} leaves per non-source locale`,
+    `✓ Raw catalogue canonical-key debt budget: <=${MAX_RAW_CANONICAL_KEY_DEBT_PER_LOCALE} leaves per non-source locale`,
+  );
+  console.log(
+    "ℹ Effective Global Public Core native runtime coverage is enforced separately by runtimeNativeCoverage.test.ts",
   );
 
   for (const locale of registeredLocales) {
@@ -151,10 +151,10 @@ if (!englishCatalogue) {
     const leaves = flattenLeaves(catalogue);
     const keys = [...leaves.keys()].sort();
     const missingCompleteSourceKeys = [];
-    const technicalFallbackKeys = [];
+    const rawCanonicalKeyDebt = [];
     const typeMismatches = [];
     const placeholderMismatches = [];
-    const knownPlaceholderWarnings = [];
+    const knownRawPlaceholderWarnings = [];
     const emptyValues = [];
 
     for (const key of englishKeys) {
@@ -162,7 +162,7 @@ if (!englishCatalogue) {
         if (COMPLETE_SOURCE_LOCALES.has(locale)) {
           missingCompleteSourceKeys.push(key);
         } else {
-          technicalFallbackKeys.push(key);
+          rawCanonicalKeyDebt.push(key);
         }
         continue;
       }
@@ -190,8 +190,8 @@ if (!englishCatalogue) {
       const translatedPlaceholders = extractPlaceholders(translatedValue);
       if (!sameStringList(sourcePlaceholders, translatedPlaceholders)) {
         const mismatch = `${key} ({${sourcePlaceholders.join(",")}} -> {${translatedPlaceholders.join(",")}})`;
-        if (KNOWN_PLACEHOLDER_DEBT.has(`${locale}:${key}`)) {
-          knownPlaceholderWarnings.push(mismatch);
+        if (KNOWN_RAW_PLACEHOLDER_DEBT.has(`${locale}:${key}`)) {
+          knownRawPlaceholderWarnings.push(mismatch);
         } else {
           placeholderMismatches.push(mismatch);
         }
@@ -205,9 +205,9 @@ if (!englishCatalogue) {
         `${locale}.json is a complete source locale but misses ${missingCompleteSourceKeys.length} keys: ${formatSample(missingCompleteSourceKeys)}`,
       );
     }
-    if (technicalFallbackKeys.length > MAX_TECHNICAL_FALLBACK_KEYS_PER_LOCALE) {
+    if (rawCanonicalKeyDebt.length > MAX_RAW_CANONICAL_KEY_DEBT_PER_LOCALE) {
       failures.push(
-        `${locale}.json exceeds the technical fallback budget (${technicalFallbackKeys.length} > ${MAX_TECHNICAL_FALLBACK_KEYS_PER_LOCALE}): ${formatSample(technicalFallbackKeys)}`,
+        `${locale}.json exceeds the raw canonical-key debt budget (${rawCanonicalKeyDebt.length} > ${MAX_RAW_CANONICAL_KEY_DEBT_PER_LOCALE}): ${formatSample(rawCanonicalKeyDebt)}`,
       );
     }
     if (typeMismatches.length > 0) {
@@ -225,14 +225,14 @@ if (!englishCatalogue) {
         `${locale}.json has ${emptyValues.length} empty values: ${formatSample(emptyValues)}`,
       );
     }
-    if (technicalFallbackKeys.length > 0) {
+    if (rawCanonicalKeyDebt.length > 0) {
       warnings.push(
-        `${locale}.json uses English technical fallback for ${technicalFallbackKeys.length}/${MAX_TECHNICAL_FALLBACK_KEYS_PER_LOCALE} budgeted keys: ${formatSample(technicalFallbackKeys)}`,
+        `${locale}.json retains ${rawCanonicalKeyDebt.length}/${MAX_RAW_CANONICAL_KEY_DEBT_PER_LOCALE} raw canonical-key debt leaves; runtime coverage is checked separately: ${formatSample(rawCanonicalKeyDebt)}`,
       );
     }
-    if (knownPlaceholderWarnings.length > 0) {
+    if (knownRawPlaceholderWarnings.length > 0) {
       warnings.push(
-        `${locale}.json retains ${knownPlaceholderWarnings.length} documented placeholder debt item(s): ${formatSample(knownPlaceholderWarnings)}`,
+        `${locale}.json retains ${knownRawPlaceholderWarnings.length} documented raw placeholder debt item(s), repaired by runtime compatibility: ${formatSample(knownRawPlaceholderWarnings)}`,
       );
     }
     if (extra.length > 0) {
@@ -241,13 +241,13 @@ if (!englishCatalogue) {
 
     if (
       missingCompleteSourceKeys.length === 0 &&
-      technicalFallbackKeys.length <= MAX_TECHNICAL_FALLBACK_KEYS_PER_LOCALE &&
+      rawCanonicalKeyDebt.length <= MAX_RAW_CANONICAL_KEY_DEBT_PER_LOCALE &&
       typeMismatches.length === 0 &&
       placeholderMismatches.length === 0 &&
       emptyValues.length === 0
     ) {
       console.log(
-        `✓ ${locale}.json: runtime-resolvable contract (${technicalFallbackKeys.length} technical fallback keys)`,
+        `✓ ${locale}.json: raw catalogue contract (${rawCanonicalKeyDebt.length} canonical-key debt leaves)`,
       );
     }
   }
@@ -258,11 +258,11 @@ for (const warning of warnings) {
 }
 
 if (failures.length > 0) {
-  console.error(`\n✗ i18n contract failed with ${failures.length} issue(s):`);
+  console.error(`\n✗ i18n raw catalogue contract failed with ${failures.length} issue(s):`);
   for (const failure of failures) {
     console.error(`  - ${failure}`);
   }
   process.exit(1);
 }
 
-console.log(`\n✓ Swaply i18n contract PASS for all ${registeredLocales.length} locales`);
+console.log(`\n✓ Swaply raw i18n catalogue contract PASS for all ${registeredLocales.length} locales`);

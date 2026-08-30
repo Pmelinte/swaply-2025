@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "node scripts/check-i18n-keys.mjs && next build",
+    "build": "node scripts/check-i18n-keys.mjs && vitest run src/__tests__/i18n/runtimeNativeCoverage.test.ts && next build",
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
