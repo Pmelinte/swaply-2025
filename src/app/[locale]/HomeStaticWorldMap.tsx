@@ -1,7 +1,7 @@
 export default function HomeStaticWorldMap() {
   return (
     <div
-      className="pointer-events-none absolute right-[2.5%] top-[17%] z-20 hidden h-[58%] w-[68%] lg:block"
+      className="pointer-events-none absolute right-[-4.3%] top-[11.2%] z-20 hidden h-[69.6%] w-[81.6%] lg:block"
       aria-hidden="true"
     >
       <img
