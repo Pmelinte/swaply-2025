@@ -3,6 +3,7 @@ import HomeBotanicalFrame from "./HomeBotanicalFrame";
 import HomeDashboardClient from "./HomeDashboardClient";
 import HomeLivingWorld from "./HomeLivingWorld";
 import HomeReferenceHero from "./HomeReferenceHero";
+import HomeStaticWorldMap from "./HomeStaticWorldMap";
 import { SkeletonGrid } from "@/components/ui-custom";
 
 export const revalidate = 300;
@@ -16,8 +17,9 @@ export default function HomePage() {
           aria-hidden="true"
         />
         <div className="relative z-10 mx-auto max-w-[1920px] space-y-5">
-          <div className="[&_section>div:nth-child(3)]:lg:grid-cols-1 [&_section>div:nth-child(3)>div:nth-child(2)]:hidden">
+          <div className="relative [&_section>div:nth-child(3)]:lg:grid-cols-[0.42fr_1.58fr] [&_section>div:nth-child(3)>div:nth-child(2)]:hidden">
             <HomeReferenceHero />
+            <HomeStaticWorldMap />
           </div>
           <HomeDashboardClient />
           <HomeLivingWorld />
