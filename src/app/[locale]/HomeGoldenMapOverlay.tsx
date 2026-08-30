@@ -1,64 +1,123 @@
 import { CalendarDays, Home, Package, Wrench } from "lucide-react";
 
 const routes = [
-  { id: "objects-a", d: "M168 108 C245 54 335 58 421 118", color: "#246BFD" },
-  { id: "objects-b", d: "M421 118 C330 78 250 92 177 164", color: "#246BFD" },
-  { id: "objects-c", d: "M184 164 C268 224 348 207 404 145", color: "#246BFD" },
-  { id: "properties-a", d: "M420 124 C500 72 598 78 684 126", color: "#16A765" },
-  { id: "properties-b", d: "M684 126 C595 96 515 101 446 150", color: "#16A765" },
-  { id: "services-a", d: "M636 128 C742 112 822 156 854 244", color: "#8B3CF6" },
-  { id: "services-b", d: "M657 151 C756 150 818 192 842 278", color: "#8B3CF6" },
-  { id: "events-a", d: "M470 196 C590 185 708 221 826 302", color: "#F97316" },
-  { id: "events-b", d: "M490 207 C568 249 649 271 735 292", color: "#F97316" },
+  { id: "objects-a", d: "M150 120 C235 62 330 72 420 138", color: "#246BFD" },
+  { id: "objects-b", d: "M420 138 C338 98 254 100 182 172", color: "#246BFD" },
+  { id: "objects-c", d: "M184 172 C265 225 344 212 405 154", color: "#246BFD" },
+  { id: "properties-a", d: "M425 132 C515 80 605 86 690 136", color: "#16A765" },
+  { id: "properties-b", d: "M690 136 C600 103 520 108 448 156", color: "#16A765" },
+  { id: "services-a", d: "M648 138 C758 120 830 165 860 250", color: "#8B3CF6" },
+  { id: "services-b", d: "M666 156 C760 154 824 198 849 285", color: "#8B3CF6" },
+  { id: "events-a", d: "M486 205 C592 191 708 226 830 304", color: "#F97316" },
+  { id: "events-b", d: "M502 214 C576 252 652 273 742 296", color: "#F97316" },
 ] as const;
 
-const EURASIA_AFRICA_AUSTRALIA = "M1352,199 1278,160 1221,137 1179,123 1147,127 1144,129 1145,132 1121,133 1124,140 1109,138 1104,139 1102,143 1099,141 1100,137 1098,136 1098,139 1092,141 1097,144 1094,149 1099,151 1097,153 1099,156 1088,163 1083,161 1092,154 1088,151 1089,145 1085,141 1088,136 1079,135 1066,143 1067,148 1076,152 1073,155 1053,149 1040,148 1043,151 1039,154 1032,152 1013,155 1014,152 984,161 980,159 980,156 983,154 974,153 976,155 974,157 977,159 974,163 965,162 959,165 961,167 959,169 947,167 948,170 946,172 939,170 937,164 931,160 938,159 953,162 961,160 962,157 945,151 928,148 922,149 918,146 921,145 914,143 897,143 890,147 875,148 856,157 840,170 820,178 822,192 831,193 840,188 851,204 862,201 865,192 872,187 866,181 868,177 883,169 883,166 890,162 899,163 901,166 884,175 885,183 890,186 912,184 915,187 910,190 893,190 893,192 897,193 896,198 886,197 884,199 884,206 877,210 868,208 857,212 851,210 842,211 836,205 841,201 839,200 840,197 833,199 834,211 832,213 820,214 814,221 806,223 804,227 796,230 792,229 792,233 781,233 788,236 795,243 794,250 791,254 767,252 763,254 764,265 761,272 764,274 764,278 769,277 776,282 781,279 790,279 798,271 798,266 803,261 810,259 812,253 825,253 834,248 839,250 848,260 857,263 863,269 862,274 866,270 864,266 866,264 871,265 858,259 847,249 847,245 850,243 854,243 854,246 857,245 863,252 876,258 877,265 888,280 890,280 891,274 894,275 888,266 890,264 895,266 893,264 896,262 902,262 904,265 908,262 913,262 908,256 913,247 922,239 931,241 933,243 930,245 935,248 942,246 938,244 939,240 955,237 947,246 963,254 966,260 961,263 952,264 939,259 932,259 924,263 915,263 913,266 907,266 904,269 909,279 917,281 921,279 928,281 944,280 943,289 935,303 920,301 913,304 883,296 879,299 879,303 874,306 862,302 859,298 847,296 840,292 840,281 842,279 839,280 838,278 803,281 790,287 776,284 771,291 762,296 760,301 761,307 741,322 740,327 731,340 735,352 733,364 730,367 732,376 746,390 749,397 765,408 777,405 791,407 805,401 816,401 823,409 832,407 838,413 835,432 846,445 854,469 854,475 850,479 846,490 846,498 857,516 860,535 872,553 872,562 879,565 888,561 902,561 910,558 927,541 928,529 940,522 937,506 960,488 959,468 954,460 953,448 958,438 970,425 983,416 991,407 1002,384 1002,379 975,386 969,380 971,377 954,362 952,356 947,351 946,340 940,334 940,330 927,309 928,307 934,315 936,310 939,309 938,313 948,328 954,333 956,342 968,356 973,375 993,370 998,366 1006,364 1010,359 1018,358 1025,351 1029,350 1029,345 1037,337 1033,333 1026,331 1023,323 1014,331 1006,331 1003,328 1004,323 1001,328 998,320 992,315 991,306 999,305 1006,315 1017,320 1025,317 1029,323 1039,325 1064,324 1077,336 1076,338 1080,342 1090,342 1093,362 1108,393 1117,384 1118,364 1125,361 1138,348 1143,346 1146,340 1159,338 1161,335 1164,335 1177,354 1176,362 1180,363 1188,359 1194,380 1192,393 1200,401 1204,414 1214,421 1210,405 1202,400 1198,391 1194,389 1198,373 1202,372 1203,375 1209,377 1212,383 1219,387 1219,391 1234,380 1235,372 1233,365 1221,352 1221,347 1231,339 1237,340 1238,344 1240,344 1242,340 1265,333 1275,325 1285,312 1286,308 1283,305 1285,300 1279,290 1274,287 1277,283 1287,278 1282,276 1277,279 1274,278 1268,271 1285,262 1288,265 1285,267 1285,270 1294,266 1301,269 1298,274 1302,274 1306,278 1304,280 1305,288 1314,286 1315,278 1307,270 1308,267 1316,263 1316,260 1324,254 1338,252 1358,232 1363,215 1358,211 1348,212 1345,209 1339,208Z";
-const AMERICAS = "M338,152 304,167 255,193 262,193 283,215 288,217 290,223 296,224 309,232 310,237 308,239 306,235 301,234 304,242 302,265 317,288 321,288 331,295 337,308 343,312 340,316 349,321 352,328 360,334 339,306 338,301 340,299 347,302 351,311 357,315 362,324 376,336 378,340 377,346 385,353 411,363 421,361 433,370 443,373 448,372 456,382 456,386 460,386 465,392 471,393 476,397 480,390 486,393 490,400 491,411 484,421 479,424 476,431 476,436 479,435 480,438 474,444 475,451 484,461 494,483 499,488 513,495 519,504 519,516 513,549 514,556 508,573 505,576 506,585 502,598 506,594 508,600 505,605 502,604 498,613 503,614 497,621 499,635 514,641 517,636 524,635 521,630 535,617 528,612 528,609 536,606 537,601 544,596 539,596 537,591 539,589 548,590 550,581 567,579 571,572 564,564 565,562 573,565 582,564 603,540 603,532 608,525 634,514 641,498 642,481 657,463 658,451 639,439 621,438 616,432 610,430 604,432 603,428 597,428 595,426 598,420 588,406 579,403 569,403 562,395 556,393 553,388 547,385 540,387 526,385 519,379 518,382 514,383 515,389 512,391 510,389 510,381 513,378 506,382 499,383 497,388 491,393 482,389 471,392 463,383 465,366 459,363 442,363 445,360 445,353 448,350 450,341 438,343 437,349 430,353 421,355 413,350 406,337 409,324 408,317 422,307 441,309 440,306 442,304 453,304 458,307 462,305 468,310 468,316 471,321 477,325 478,319 472,306 472,301 483,291 495,284 493,276 490,274 492,271 497,274 496,269 500,269 502,263 517,260 515,254 531,245 540,245 540,247 535,249 535,251 558,243 556,240 552,244 541,243 538,238 540,231 531,231 517,240 514,239 525,229 533,225 558,225 575,218 575,214 568,208 553,203 551,197 540,186 533,193 527,194 520,190 519,183 513,183 505,178 487,178 490,187 486,191 492,196 493,201 486,207 481,208 485,215 481,222 472,218 468,210 469,207 457,206 440,199 430,199 425,192 419,190 420,184 431,174 435,174 438,170 446,169 455,160 461,161 472,158 470,154 473,151 470,149 457,148 457,152 448,158 445,152 440,151 437,153 435,149 429,148 431,145 427,142 417,140 414,142 414,146 421,149 422,152 414,158 413,154 409,153 405,154 405,156 392,157 373,152 365,153 368,155 363,158 360,156 338,156 341,153Z";
-const ANTARCTICA = "M385,718 459,742 513,755 589,769 712,782 840,784 945,777 1065,759 1163,735 1221,716 1271,696 1255,691 1223,695 1216,691 1208,690 1198,696 1183,697 1156,696 1150,693 1146,696 1128,696 1115,700 1106,706 1093,707 1082,716 1070,714 1073,710 1069,708 1076,704 1074,699 1057,697 1043,699 1029,695 1025,691 1009,691 998,696 968,701 956,706 934,701 927,706 910,709 888,710 883,707 862,707 859,709 851,707 841,710 836,707 829,707 798,714 796,712 777,713 771,711 769,714 757,712 747,718 734,721 738,723 728,728 709,732 687,733 656,740 656,743 680,743 684,749 632,753 628,755 597,754 567,760 553,755 495,748 486,743 486,740 490,738 502,738 491,736 490,732 517,732 552,723 555,720 552,711 546,704 539,702 535,698 539,694 549,691 547,689 549,686 545,686 529,695 530,699 525,706 531,715 526,719 493,723 479,720 466,722 443,718 438,721 423,720 410,722 399,718Z";
+const mapFragments = Array.from({ length: 9 }, (_, index) => `/world-map-fragments/${String(index + 1).padStart(2, "0")}.svg`);
 
-function Marker({ x, y, type }: { x: number; y: number; type: "object" | "property" | "service" | "event" }) {
+type MarkerType = "object" | "property" | "service" | "event";
+
+function Marker({ x, y, type }: { x: number; y: number; type: MarkerType }) {
   const Icon = type === "object" ? Package : type === "property" ? Home : type === "service" ? Wrench : CalendarDays;
   const cls = type === "object" ? "bg-blue-600" : type === "property" ? "bg-emerald-600" : type === "service" ? "bg-violet-600" : "bg-orange-500";
-  return <div className={`absolute z-30 flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-xl border-2 border-white text-white shadow-lg ${cls}`} style={{ left: `${x}%`, top: `${y}%` }}><Icon className="h-5 w-5" aria-hidden="true" /></div>;
+
+  return (
+    <div
+      className={`absolute z-30 flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-xl border-2 border-white text-white shadow-lg ${cls}`}
+      style={{ left: `${x}%`, top: `${y}%` }}
+    >
+      <Icon className="h-5 w-5" aria-hidden="true" />
+    </div>
+  );
 }
 
 function Island({ x, y, label }: { x: number; y: number; label: string }) {
-  return <div className="absolute z-30 -translate-x-1/2 -translate-y-1/2 text-center" style={{ left: `${x}%`, top: `${y}%` }}><div className="relative mx-auto h-14 w-20"><div className="absolute bottom-2 left-2 right-2 h-4 rounded-[50%] bg-cyan-300/80"/><div className="absolute bottom-3 left-4 right-4 h-3 rounded-[50%] bg-amber-200"/><div className="absolute bottom-5 left-1/2 h-8 w-1.5 -translate-x-1/2 -rotate-6 rounded-full bg-amber-700"/><div className="absolute bottom-10 left-1/2 h-6 w-11 -translate-x-1/2 rounded-[50%] border-t-4 border-emerald-600"/><div className="absolute bottom-4 right-3 h-2.5 w-2.5 rounded-full bg-red-500"/></div><div className="-mt-1 rounded-xl border border-pink-200 bg-pink-100/95 px-3 py-2 shadow-md"><div className="text-xs font-black text-pink-600">În vacanță</div><div className="text-xs font-black text-slate-900">{label}</div><div className="text-[10px] font-medium text-slate-600">Predare în călătorii</div></div></div>;
+  return (
+    <div className="absolute z-30 -translate-x-1/2 -translate-y-1/2 text-center" style={{ left: `${x}%`, top: `${y}%` }}>
+      <div className="relative mx-auto h-14 w-20">
+        <div className="absolute bottom-2 left-1 right-1 h-4 rounded-[50%] bg-cyan-300/80" />
+        <div className="absolute bottom-3 left-3 right-3 h-3.5 rounded-[50%] bg-amber-200" />
+        <div className="absolute bottom-5 left-1/2 h-8 w-1.5 -translate-x-1/2 -rotate-6 rounded-full bg-amber-700" />
+        <div className="absolute bottom-9 left-1/2 h-6 w-10 -translate-x-1/2 rounded-[50%] border-t-4 border-emerald-600" />
+        <div className="absolute bottom-4 right-3 h-2.5 w-2.5 rounded-full bg-red-500" />
+      </div>
+      <div className="-mt-1 rounded-xl border border-pink-200 bg-pink-100/95 px-3 py-1.5 shadow-md">
+        <div className="text-[11px] font-black text-pink-600">În vacanță</div>
+        <div className="text-[11px] font-black text-slate-900">{label}</div>
+        <div className="text-[9px] font-medium text-slate-600">Predare în călătorii</div>
+      </div>
+    </div>
+  );
+}
+
+function StatBubble({ className, title, count, tone }: { className: string; title: string; count: string; tone: string }) {
+  return (
+    <div className={`absolute z-40 rounded-2xl px-3 py-2 shadow-md backdrop-blur ${tone} ${className}`}>
+      <div className="text-xs font-black">{title}</div>
+      <div className="text-[10px] font-semibold text-slate-700">{count}</div>
+      <div className="text-[9px] text-slate-600">în curs</div>
+    </div>
+  );
 }
 
 export default function HomeGoldenMapOverlay() {
   return (
-    <div className="pointer-events-none absolute right-[2.2%] top-[2.5%] z-30 hidden h-[405px] w-[72%] overflow-visible lg:block" aria-hidden="true">
-      <svg viewBox="0 0 1598 854" className="absolute inset-0 h-full w-full drop-shadow-[0_18px_36px_rgba(33,151,175,.22)]" preserveAspectRatio="xMidYMid meet">
-        <defs>
-          <radialGradient id="swaply-ocean" cx="48%" cy="38%" r="72%"><stop offset="0" stopColor="#effdff"/><stop offset=".48" stopColor="#b6eff9"/><stop offset="1" stopColor="#79d7e9"/></radialGradient>
-          <linearGradient id="swaply-land" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#eef7c8"/><stop offset=".36" stopColor="#c6e583"/><stop offset=".68" stopColor="#93cf6d"/><stop offset="1" stopColor="#6fba6a"/></linearGradient>
-          <radialGradient id="swaply-desert" cx="58%" cy="45%" r="38%"><stop offset="0" stopColor="#f6dda2" stopOpacity=".9"/><stop offset=".7" stopColor="#eed6a0" stopOpacity=".35"/><stop offset="1" stopColor="#eed6a0" stopOpacity="0"/></radialGradient>
-          <filter id="swaply-land-shadow" x="-10%" y="-10%" width="120%" height="120%"><feDropShadow dx="0" dy="7" stdDeviation="7" floodColor="#287f96" floodOpacity=".18"/></filter>
-        </defs>
-        <ellipse cx="799" cy="427" rx="720" ry="360" fill="url(#swaply-ocean)"/>
-        <g fill="url(#swaply-land)" stroke="#f8ffed" strokeWidth="2" filter="url(#swaply-land-shadow)"><path d={AMERICAS}/><path d={EURASIA_AFRICA_AUSTRALIA}/><path d={ANTARCTICA}/></g>
-        <ellipse cx="920" cy="410" rx="235" ry="125" fill="url(#swaply-desert)" opacity=".72"/>
-        <ellipse cx="1110" cy="265" rx="160" ry="72" fill="#fff7d8" opacity=".2"/>
-        <ellipse cx="799" cy="427" rx="720" ry="360" fill="none" stroke="#7dd8e8" strokeWidth="3"/>
+    <div
+      className="pointer-events-none absolute right-[1.1%] top-[13%] z-40 hidden h-[69%] w-[70.5%] overflow-hidden rounded-[2.1rem] lg:block"
+      aria-hidden="true"
+    >
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_48%_42%,#ecfcff_0%,#c7f3fb_23%,#91e1ef_58%,#68cede_100%)] shadow-[inset_0_0_55px_rgba(255,255,255,.55),0_18px_50px_rgba(33,151,175,.22)]" />
+      <div className="absolute inset-[3.5%_2.5%_4%_2.5%] overflow-hidden rounded-[47%]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_42%_18%,rgba(255,255,255,.78),transparent_20%),radial-gradient(circle_at_74%_20%,rgba(255,255,255,.5),transparent_17%)]" />
+        {mapFragments.map((src) => (
+          <div
+            key={src}
+            className="absolute inset-0 bg-contain bg-center bg-no-repeat drop-shadow-[0_7px_5px_rgba(49,132,94,.16)]"
+            style={{ backgroundImage: `url('${src}')` }}
+          />
+        ))}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_55%_43%,rgba(246,218,153,.26),transparent_18%),radial-gradient(ellipse_at_70%_28%,rgba(255,248,210,.18),transparent_16%)] mix-blend-multiply" />
+      </div>
+
+      <svg viewBox="0 0 920 390" className="absolute left-[2%] top-[7%] z-20 h-[76%] w-[96%] overflow-visible">
+        <g fill="none" strokeLinecap="round" strokeWidth="2.5" strokeDasharray="6 6" opacity=".95">
+          {routes.map((route) => (
+            <path key={route.id} d={route.d} stroke={route.color} />
+          ))}
+        </g>
+        {routes.map((route, index) => (
+          <circle key={`${route.id}-dot`} r="4.5" fill={route.color} stroke="white" strokeWidth="2">
+            <animateMotion path={route.d} dur={`${7.2 + (index % 3) * 0.8}s`} begin={`${-(index * 0.85)}s`} repeatCount="indefinite" />
+          </circle>
+        ))}
       </svg>
 
-      <svg viewBox="0 0 920 390" className="absolute inset-[3%_0_0_0] h-[82%] w-full overflow-visible">
-        <g fill="none" strokeLinecap="round" strokeWidth="2.5" strokeDasharray="6 6" opacity=".95">{routes.map((route) => <path key={route.id} d={route.d} stroke={route.color}/>)}</g>
-        {routes.map((route, index) => <circle key={`${route.id}-dot`} r="4.5" fill={route.color} stroke="white" strokeWidth="2"><animateMotion path={route.d} dur={`${7.4 + (index % 3) * .7}s`} begin={`${-(index * .9)}s`} repeatCount="indefinite"/></circle>)}
-      </svg>
+      <Marker x={20} y={27} type="object" />
+      <Marker x={27} y={39} type="object" />
+      <Marker x={35} y={53} type="object" />
+      <Marker x={49} y={24} type="property" />
+      <Marker x={57} y={36} type="property" />
+      <Marker x={67} y={30} type="property" />
+      <Marker x={75} y={31} type="service" />
+      <Marker x={84} y={45} type="service" />
+      <Marker x={88} y={58} type="service" />
+      <Marker x={49} y={53} type="event" />
+      <Marker x={65} y={64} type="event" />
 
-      <Marker x={20} y={24} type="object"/><Marker x={27} y={37} type="object"/><Marker x={35} y={54} type="object"/>
-      <Marker x={49} y={22} type="property"/><Marker x={56} y={37} type="property"/><Marker x={67} y={28} type="property"/>
-      <Marker x={75} y={30} type="service"/><Marker x={84} y={45} type="service"/><Marker x={88} y={59} type="service"/>
-      <Marker x={48} y={54} type="event"/><Marker x={64} y={66} type="event"/>
-      <Island x={34} y={75} label="Caraibe"/><Island x={68} y={76} label="Oceanul Indian"/>
+      <Island x={32} y={73} label="Caraibe" />
+      <Island x={67} y={74} label="Oceanul Indian" />
 
-      <div className="absolute left-[7%] top-[5%] rounded-2xl bg-blue-100/95 px-4 py-3 shadow-md"><div className="text-sm font-black text-blue-700">Obiecte</div><div className="text-xs font-semibold">12,540 schimburi</div><div className="text-xs text-slate-600">în curs</div></div>
-      <div className="absolute left-[50%] top-[0%] rounded-2xl bg-emerald-100/95 px-4 py-3 shadow-md"><div className="text-sm font-black text-emerald-700">Proprietăți</div><div className="text-xs font-semibold">4,210 schimburi</div><div className="text-xs text-slate-600">în curs</div></div>
-      <div className="absolute right-[5%] top-[11%] rounded-2xl bg-violet-200/95 px-4 py-3 shadow-md"><div className="text-sm font-black text-violet-700">Servicii</div><div className="text-xs font-semibold">9,850 schimburi</div><div className="text-xs text-slate-600">în curs</div></div>
-      <div className="absolute bottom-[7%] right-[-1%] rounded-2xl bg-orange-200/95 px-4 py-3 shadow-md"><div className="text-sm font-black text-orange-700">Evenimente</div><div className="text-xs font-semibold">2,430 schimburi</div><div className="text-xs text-slate-600">în curs</div></div>
-      <div className="absolute right-[.5%] top-[35%] flex flex-col overflow-hidden rounded-xl border border-white bg-white/90 shadow-md"><span className="px-3 py-2 text-lg font-black text-slate-700">+</span><span className="h-px bg-slate-200"/><span className="px-3 py-2 text-lg font-black text-slate-700">−</span><span className="h-px bg-slate-200"/><span className="px-3 py-2 text-sm font-black text-slate-700">◎</span></div>
+      <StatBubble className="left-[5%] top-[4%] text-blue-700" title="Obiecte" count="12,540 schimburi" tone="bg-blue-100/95" />
+      <StatBubble className="left-[49%] top-[1%] text-emerald-700" title="Proprietăți" count="4,210 schimburi" tone="bg-emerald-100/95" />
+      <StatBubble className="right-[4%] top-[10%] text-violet-700" title="Servicii" count="9,850 schimburi" tone="bg-violet-200/95" />
+      <StatBubble className="bottom-[8%] right-[1%] text-orange-700" title="Evenimente" count="2,430 schimburi" tone="bg-orange-200/95" />
+
+      <div className="absolute right-[1.2%] top-[35%] z-40 flex flex-col overflow-hidden rounded-xl border border-white bg-white/90 shadow-md">
+        <span className="px-3 py-2 text-lg font-black text-slate-700">+</span>
+        <span className="h-px bg-slate-200" />
+        <span className="px-3 py-2 text-lg font-black text-slate-700">−</span>
+        <span className="h-px bg-slate-200" />
+        <span className="px-3 py-2 text-sm font-black text-slate-700">◎</span>
+      </div>
     </div>
   );
 }
