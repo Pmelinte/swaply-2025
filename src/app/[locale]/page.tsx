@@ -16,7 +16,9 @@ export default function HomePage() {
           aria-hidden="true"
         />
         <div className="relative z-10 mx-auto max-w-[1920px] space-y-5">
-          <HomeReferenceHero />
+          <div className="[&_section>div:nth-child(3)]:lg:grid-cols-1 [&_section>div:nth-child(3)>div:nth-child(2)]:hidden">
+            <HomeReferenceHero />
+          </div>
           <HomeDashboardClient />
           <HomeLivingWorld />
         </div>
