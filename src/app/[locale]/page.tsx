@@ -1,7 +1,6 @@
 import { Suspense } from "react";
 import HomeBotanicalFrame from "./HomeBotanicalFrame";
 import HomeDashboardClient from "./HomeDashboardClient";
-import HomeGoldenMapOverlay from "./HomeGoldenMapOverlay";
 import HomeLivingWorld from "./HomeLivingWorld";
 import HomeReferenceHero from "./HomeReferenceHero";
 import { SkeletonGrid } from "@/components/ui-custom";
@@ -17,10 +16,7 @@ export default function HomePage() {
           aria-hidden="true"
         />
         <div className="relative z-10 mx-auto max-w-[1920px] space-y-5">
-          <div className="relative">
-            <HomeReferenceHero />
-            <HomeGoldenMapOverlay />
-          </div>
+          <HomeReferenceHero />
           <HomeDashboardClient />
           <HomeLivingWorld />
         </div>
