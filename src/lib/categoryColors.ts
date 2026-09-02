@@ -3,6 +3,7 @@ export type ListingCat = "objects" | "properties" | "services" | "events";
 export function getListingCat(listingType?: string | null): ListingCat {
   if (listingType === "property") return "properties";
   if (listingType === "service") return "services";
+  if (listingType === "event") return "events";
   return "objects";
 }
 

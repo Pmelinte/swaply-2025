@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { buildRouteAlternates } from "@/lib/seo/route-alternates";
-import DomainUniverseBar from "@/components/navigation/DomainUniverseBar";
 
 type Props = {
   children: React.ReactNode;
@@ -14,8 +13,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default function ServicesLayout({ children }: Props) {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-violet-50 via-white to-fuchsia-100/50">
-      <DomainUniverseBar />
+    <div className="min-h-screen bg-gradient-to-b from-sky-50 via-white to-emerald-100/60">
       {children}
     </div>
   );

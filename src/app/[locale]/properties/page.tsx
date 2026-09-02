@@ -9,6 +9,7 @@ import { useFavorites } from "@/hooks/useFavorites";
 import { NO_IMAGE_URL } from "@/lib/storage";
 import { SafeImage } from "@/components/SafeImage";
 import { GuestBanner } from "@/components/GuestBanner";
+import { DomainDiscoveryWorld } from "@/components/explore/ExploreWorld";
 import { AuthGateModal } from "@/components/AuthGateModal";
 import { AdBanner } from "@/components/AdBanner";
 import { getSupabaseClient } from "@/lib/supabase/client";
@@ -340,6 +341,10 @@ export default function PropertiesPage() {
   return (
     <div>
       {!user && <GuestBanner />}
+
+      <div className="mx-auto max-w-6xl py-2">
+        <DomainDiscoveryWorld domain="properties" query={search} onQueryChange={setSearch} />
+      </div>
 
       <div className="mx-auto max-w-6xl px-4 py-6">
         {/* Header */}

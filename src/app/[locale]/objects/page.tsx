@@ -15,6 +15,7 @@ import { SafeImage } from "@/components/SafeImage";
 import { CTAButton, Pill } from "@/components/ui-custom";
 import { AdBanner } from "@/components/AdBanner";
 import { GuestBanner } from "@/components/GuestBanner";
+import { DomainDiscoveryWorld } from "@/components/explore/ExploreWorld";
 import { AuthGateModal } from "@/components/AuthGateModal";
 import { SaveSearchModal } from "@/components/SaveSearchModal";
 import { SwipeCard } from "@/features/items/SwipeCard";
@@ -655,6 +656,10 @@ export default function ObjectsPage() {
     <div>
       {/* Guest banner */}
       {!user && <GuestBanner />}
+
+      <div className="mx-auto max-w-6xl py-2">
+        <DomainDiscoveryWorld domain="objects" query={search} onQueryChange={setSearch} />
+      </div>
 
       <div className="mx-auto max-w-6xl px-4 py-6">
         {/* ── Header ── */}

@@ -22,6 +22,8 @@ export function filtersToSearchParams(filters: ExploreFilters): URLSearchParams 
   // ── wants ──
   if (w.selectedCategories.length) sp.set("wCats", asCsv(w.selectedCategories));
   if (w.distance !== 500) sp.set("wDist", String(w.distance));
+  if (w.geography.length) sp.set("wGeo", asCsv(w.geography));
+  if (w.fulfilment.length) sp.set("wFul", asCsv(w.fulfilment));
   // objects
   if (w.objects.categoryL1.length) sp.set("wObjCat", asCsv(w.objects.categoryL1));
   if (w.objects.condition.length) sp.set("wObjCond", asCsv(w.objects.condition));
@@ -68,6 +70,8 @@ export function filtersToSearchParams(filters: ExploreFilters): URLSearchParams 
   // ── offers ──
   if (o.selectedCategories.length) sp.set("oCats", asCsv(o.selectedCategories));
   if (o.distance !== 500) sp.set("oDist", String(o.distance));
+  if (o.geography.length) sp.set("oGeo", asCsv(o.geography));
+  if (o.fulfilment.length) sp.set("oFul", asCsv(o.fulfilment));
   if (o.objects.categoryL1.length) sp.set("oObjCat", asCsv(o.objects.categoryL1));
   if (o.objects.condition.length) sp.set("oObjCond", asCsv(o.objects.condition));
   if (o.objects.perceivedValueTier.length) sp.set("oObjPvt", asCsv(o.objects.perceivedValueTier));
@@ -123,6 +127,8 @@ function parseCatalog(sp: URLSearchParams, prefix: "w" | "o"): CatalogFilter {
   return {
     selectedCategories: asArray(sp.get(`${p}Cats`)),
     distance: asNumber(sp.get(`${p}Dist`), 500),
+    geography: asArray(sp.get(`${p}Geo`)),
+    fulfilment: asArray(sp.get(`${p}Ful`)),
     objects: {
       categoryL1: asArray(sp.get(`${p}ObjCat`)),
       condition: asArray(sp.get(`${p}ObjCond`)),

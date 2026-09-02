@@ -1,5 +1,6 @@
 import type { Item } from "@/lib/types";
 import type { ExploreFilters } from "@/components/drawer/variants/DrawerExplore";
+import { getItemFulfilment, getItemReach } from "@/lib/explore/exploreArchitecture";
 
 export type ExploreDomain = "objects" | "properties" | "services" | "events";
 
@@ -11,7 +12,7 @@ export type GlobalExploreItem = Item & {
 };
 
 function domainFor(item: Item): ExploreDomain {
-  if (item.experienceData) return "events";
+  if (item.experienceData || item.listingType === "event") return "events";
   if (item.listingType === "property") return "properties";
   if (item.listingType === "service") return "services";
   return "objects";
@@ -53,6 +54,8 @@ function includesAny(value: string, options: string[]): boolean {
 
 function matchesCatalog(item: GlobalExploreItem, filters: ExploreFilters["wantsFilters"]): boolean {
   if (!includesAny(item.domain, filters.selectedCategories)) return false;
+  if (filters.geography.length && !filters.geography.some((value) => getItemReach(item).includes(value as ReturnType<typeof getItemReach>[number]))) return false;
+  if (filters.fulfilment.length && !filters.fulfilment.some((value) => getItemFulfilment(item).includes(value as ReturnType<typeof getItemFulfilment>[number]))) return false;
   if (filters.objects.categoryL1.length && item.domain === "objects" && !includesAny(item.category, filters.objects.categoryL1)) return false;
   if (filters.objects.condition.length && item.domain === "objects" && !filters.objects.condition.includes(item.condition)) return false;
   if (filters.properties.country && item.domain === "properties" && !item.searchableText.includes(filters.properties.country.toLowerCase())) return false;

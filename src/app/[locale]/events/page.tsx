@@ -9,6 +9,7 @@ import { useFavorites } from "@/hooks/useFavorites";
 import { NO_IMAGE_URL } from "@/lib/storage";
 import { SafeImage } from "@/components/SafeImage";
 import { GuestBanner } from "@/components/GuestBanner";
+import { DomainDiscoveryWorld } from "@/components/explore/ExploreWorld";
 import { AuthGateModal } from "@/components/AuthGateModal";
 import { AdBanner } from "@/components/AdBanner";
 import { filterEventListings } from "@/lib/events/eventListings";
@@ -302,6 +303,10 @@ export default function EventsPage() {
   return (
     <div>
       {!stateLoading.auth && !user && <GuestBanner />}
+
+      <div className="mx-auto max-w-6xl py-2">
+        <DomainDiscoveryWorld domain="events" query={search} onQueryChange={setSearch} />
+      </div>
 
       <div className="mx-auto max-w-6xl px-4 py-6">
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

@@ -70,6 +70,8 @@ export type EventFilters = {
 export type CatalogFilter = {
   selectedCategories: string[];
   distance: number;
+  geography: string[];
+  fulfilment: string[];
   objects: ObjectFilters;
   properties: PropertyFilters;
   services: ServiceFilters;
@@ -146,6 +148,8 @@ const defaultEvents = (): EventFilters => ({
 const defaultCatalog = (): CatalogFilter => ({
   selectedCategories: [],
   distance: 500,
+  geography: [],
+  fulfilment: [],
   objects: defaultObjects(),
   properties: defaultProperties(),
   services: defaultServices(),
@@ -814,6 +818,21 @@ const TOP_CATEGORIES = [
   { key: "events", label: "Events", emoji: "🎫" },
 ];
 
+const GEOGRAPHY_OPTIONS = [
+  { key: "nearby", label: "Nearby" },
+  { key: "country", label: "Country" },
+  { key: "world", label: "Worldwide" },
+  { key: "travel", label: "Travel" },
+  { key: "online", label: "Online" },
+];
+
+const FULFILMENT_OPTIONS = [
+  { key: "in_person", label: "In person" },
+  { key: "transport", label: "Courier / transport" },
+  { key: "digital", label: "Digital / online" },
+  { key: "hybrid", label: "Hybrid" },
+];
+
 function CategorySelector({
   selected,
   onToggle,
@@ -868,6 +887,7 @@ function CatalogSector({
   onChange: (f: CatalogFilter) => void;
 }) {
   const [collapsed, setCollapsed] = useState(false);
+  const ta = useTranslations("explore.architecture");
 
   const toggleCat = (key: string) => {
     const next = filters.selectedCategories.includes(key)
@@ -906,6 +926,28 @@ function CatalogSector({
             selected={filters.selectedCategories}
             onToggle={toggleCat}
           />
+
+          <FilterGroup label={ta("geographyTitle")}>
+            <Pills
+              options={GEOGRAPHY_OPTIONS.map((option) => ({
+                ...option,
+                label: ta(`reach${option.key[0].toUpperCase()}${option.key.slice(1)}`),
+              }))}
+              selected={filters.geography}
+              onToggle={(value) => onChange({ ...filters, geography: toggleArr(filters.geography, value) })}
+            />
+          </FilterGroup>
+
+          <FilterGroup label={ta("fulfilmentTitle")}>
+            <Pills
+              options={FULFILMENT_OPTIONS.map((option) => ({
+                ...option,
+                label: ta(`fulfilment${option.key.split("_").map((part) => part[0].toUpperCase() + part.slice(1)).join("")}`),
+              }))}
+              selected={filters.fulfilment}
+              onToggle={(value) => onChange({ ...filters, fulfilment: toggleArr(filters.fulfilment, value) })}
+            />
+          </FilterGroup>
 
           {hasObjects && (
             <ObjectPanel
@@ -976,10 +1018,10 @@ function ProfileSector({
       >
         <div>
           <span className="text-sm font-bold text-zinc-700 dark:text-zinc-200">
-            Partner profile
+            {t("profileTitle")}
           </span>
           <p className="text-xs text-zinc-500 dark:text-zinc-400">
-            Reputation, location & preferences
+            {t("profileSubtitle")}
           </p>
         </div>
         {collapsed ? (
@@ -1056,7 +1098,7 @@ function ProfileSector({
             </div>
           </FilterGroup>
 
-          <FilterGroup label="Badge tier">
+          <FilterGroup label={t("profileBadgeTier")}>
             <Pills
               options={BADGE_TIERS}
               selected={filters.badgeTier}
@@ -1066,7 +1108,7 @@ function ProfileSector({
             />
           </FilterGroup>
 
-          <FilterGroup label="Languages">
+          <FilterGroup label={t("profileLanguages")}>
             <StringPills
               options={TOP_LANGUAGES}
               selected={filters.languages}
@@ -1111,7 +1153,7 @@ export default function DrawerExplore() {
           type="button"
           onClick={close}
           className="rounded-full p-1.5 text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-          aria-label="Close filters"
+          aria-label={t("close")}
         >
           <X className="h-5 w-5" />
         </button>
@@ -1122,8 +1164,8 @@ export default function DrawerExplore() {
         {/* Sector 1 — What you want */}
         <div className="border-b-4 border-blue-100 px-4 dark:border-zinc-700">
           <CatalogSector
-            title="What you want"
-            subtitle="Select categories and set filters for items you're looking for"
+            title={t("wantsTitle")}
+            subtitle={t("wantsSubtitle")}
             accentColor="text-blue-700 dark:text-blue-400"
             filters={wantsFilters}
             onChange={setWantsFilters}
@@ -1133,8 +1175,8 @@ export default function DrawerExplore() {
         {/* Sector 2 — What you offer */}
         <div className="border-b-4 border-emerald-100 px-4 dark:border-zinc-700">
           <CatalogSector
-            title="What you offer"
-            subtitle="Select categories and set filters for items you're offering"
+            title={t("offersTitle")}
+            subtitle={t("offersSubtitle")}
             accentColor="text-emerald-700 dark:text-emerald-400"
             filters={offersFilters}
             onChange={setOffersFilters}
