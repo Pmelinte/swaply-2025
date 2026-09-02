@@ -101,6 +101,6 @@ describe("Explore i18n terminal-key contract", () => {
   it.each(locales)("renders GlobalExploreFeed without i18n runtime errors in %s", async (locale) => {
     const { GlobalExploreFeed } = await import("@/components/explore/GlobalExploreFeed");
     activeMessages = catalogues[locale];
-    expect(() => render(<GlobalExploreFeed />)).not.toThrow(/INSUFFICIENT_PATH|MISSING_MESSAGE|INVALID_MESSAGE/);
+    expect(() => render(<GlobalExploreFeed query="" onQueryChange={() => {}} />)).not.toThrow(/INSUFFICIENT_PATH|MISSING_MESSAGE|INVALID_MESSAGE/);
   });
 });
