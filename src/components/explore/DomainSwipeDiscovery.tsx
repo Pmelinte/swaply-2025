@@ -46,6 +46,7 @@ export function DomainSwipeDiscovery({ domain, rows, query = "", loading, failed
   const last = history.at(-1);
   const [offset, setOffset] = useState(0);
   const [dragging, setDragging] = useState(false);
+  const [failedImage, setFailedImage] = useState<string>();
   const cardRef = useRef<HTMLElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const focusEnd = useRef(false);
@@ -151,7 +152,7 @@ export function DomainSwipeDiscovery({ domain, rows, query = "", loading, failed
                 style={{ touchAction: "pan-y pinch-zoom", transform: `translateX(${offset}px) rotate(${offset / 24}deg)` }}
                 className={`relative select-none overflow-hidden rounded-3xl border bg-white shadow-lg shadow-sky-950/10 motion-reduce:!transform-none motion-reduce:transition-none ${dragging ? "cursor-grabbing" : "cursor-grab transition-transform duration-200"} ${accents[domain]} ${focus}`}>
                 <div className="relative h-44 bg-sky-50 sm:h-60">
-                  {current.image ? <SafeImage src={current.image} alt={current.title} fill sizes="(max-width: 640px) 90vw, 560px" className="pointer-events-none object-cover" /> : <div className="flex h-full flex-col items-center justify-center gap-3 text-slate-400"><ImageOff className="h-12 w-12" aria-hidden="true" /><span className="text-xs">{tc("noImage")}</span></div>}
+                  {current.image && current.image !== failedImage ? <SafeImage src={current.image} alt={current.title} fill sizes="(max-width: 640px) 90vw, 560px" className="pointer-events-none object-cover" onError={() => setFailedImage(current.image)} /> : <div className="flex h-full flex-col items-center justify-center gap-3 text-slate-400"><ImageOff className="h-12 w-12" aria-hidden="true" /><span className="text-xs">{tc("noImage")}</span></div>}
                   <span className={`absolute left-3 top-3 rounded-full border bg-white/90 px-3 py-1 text-xs font-bold ${accents[domain]}`}>{tb(domain)}</span>
                   {current.isDemo && <span className="absolute bottom-3 left-3 rounded-full bg-white/95 px-3 py-1 text-xs font-bold text-slate-700">{t("demo")}</span>}
                   {Math.abs(offset) > 28 && <span aria-hidden="true" className="absolute inset-x-3 bottom-3 rounded-2xl border border-sky-300 bg-white/95 p-3 text-center text-sm font-black text-sky-900">{t(offset > 0 ? "interested" : "dismissed")}</span>}

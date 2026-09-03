@@ -20,6 +20,7 @@ function imageUrl(...sources: unknown[]): string | undefined {
     if (Array.isArray(source)) { const image = imageUrl(...source); if (image) return image; }
     else {
       const url = text(source, record(source).url);
+      if (url?.split(/[?#]/)[0].endsWith("/no-image.svg")) continue;
       if (url && (/^https?:\/\//i.test(url) || /^\/(?!\/)/.test(url))) return url;
     }
   }
@@ -70,7 +71,7 @@ export function normalizeSwipeRows(rows: readonly unknown[], domain: ExploreDoma
       if (!value || kind === "date" && !Number.isFinite(Date.parse(value))) return;
       fields.push({ label, value, kind });
     };
-    const city = swipeApproximateLocation(text(row.location_city, row.city, data.city));
+    const city = swipeApproximateLocation(text(row.location_city, row.city, data.city, related.location_city));
     const country = swipeApproximateLocation(text(row.country, row.country_code, data.country));
     const location = [city, country].filter(Boolean).join(", ") || swipeApproximateLocation(row.location);
     const wants = text(row.swap_wants_description, data.swap_wants_description, row.wishlist, row.desired_exchange_description, data.desired_exchange_description, related.swap_wants_description);
@@ -112,7 +113,7 @@ export function normalizeSwipeRows(rows: readonly unknown[], domain: ExploreDoma
     }
     if (search && ![title, wants, row.description, related.description, ...fields.map((field) => field.value)].filter(Boolean).join(" ").toLocaleLowerCase().includes(search)) return [];
     seen.add(id);
-    return [{ id, domain, title, ownerId, city, fields, image: imageUrl(row.photos, row.images, row.image_url, related.images, related.image_url, data.portfolio_images), isDemo: row.is_demo === true || row.isDemo === true }];
+    return [{ id, domain, title, ownerId, city, fields, image: imageUrl(row.photos, row.images, row.image_url, row.gallery, related.images, related.image_url, data.portfolio_images), isDemo: row.is_demo === true || row.isDemo === true || related.is_demo === true }];
   });
 }
 

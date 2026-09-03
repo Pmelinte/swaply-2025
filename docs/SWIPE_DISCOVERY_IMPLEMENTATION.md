@@ -25,7 +25,8 @@ Undo removes the most recent local decision; restart clears local decisions. Lea
 ## Data
 
 - Objects: isolated, abortable anonymous/RLS-governed read of active `items`, capped at 200. The selected columns were checked against the deployed schema; no `wizard_type` select is used because it is absent there.
-- Properties and Services: their existing public dedicated-table/item fallback sources and filters, preserving original row metadata and demo flags.
+- Properties: the existing public dedicated-table/item fallback sources and filters, preserving original row metadata and demo flags.
+- Services: an isolated public read of canonical `services_listings` with public item metadata, capped at 500. The legacy catalogue's `services`/items fallback is unchanged; only Swipe reads canonical delivery format and availability. Swipe uses the shared domain text search, not the legacy catalogue's additional filters.
 - Events: the existing public `/api/items/events` source and its filters.
 - Own offers, duplicates, inactive rows and explicitly cross-domain rows are excluded.
 - Real structured dates/capacity/bedrooms/service format/event location_type/reach/owner wants are shown only when supplied. UTC date formatting avoids server/client timezone drift. Availability weekdays use locale formatting.
@@ -37,7 +38,7 @@ Undo removes the most recent local decision; restart clears local decisions. Lea
 ## Verification
 
 - TypeScript: passed.
-- Relevant Vitest suite: 176 passed across five files, including all four domains in all 43 locale catalogues.
+- Relevant Vitest suite: 178 tests across five files, including all four domains in all 43 locale catalogues, canonical Services metadata and legacy image-placeholder handling.
 - Full ESLint: zero errors, 73 existing warnings; no newly introduced warnings.
 - Browser suite: 24 passed — Objects/Properties/Services/Events × desktop/tablet/mobile × English/Romanian.
 - Native mouse and touch left/right, buttons, strong interest, next card, undo, end, restart, keyboard focus, reload reset, guest access, no mutation requests, no hydration errors and no horizontal overflow were verified.
@@ -61,7 +62,7 @@ Browser tests default to an already-running localhost:3100 instance. For isolate
 
 No backend interest persistence, explicit-wish creation, new authentication flow, new matching/AI logic, Reverse Exploration, Photo Search, map expansion, Exchange changes, merge or PR.
 
-## Complete changed-file list (55)
+## Complete changed-file list (56)
 
 - `src/app/[locale]/objects/page.tsx`
 - `src/app/[locale]/properties/page.tsx`
@@ -70,6 +71,7 @@ No backend interest persistence, explicit-wish creation, new authentication flow
 - `src/components/explore/ExploreWorld.tsx`
 - `src/components/explore/DomainSwipeDiscovery.tsx`
 - `src/components/explore/ObjectSwipeSource.tsx`
+- `src/components/explore/ServiceSwipeSource.tsx`
 - `src/lib/explore/swipeDiscovery.ts`
 - `src/__tests__/swipe-discovery.test.tsx`
 - `e2e/swipe-discovery.spec.ts`

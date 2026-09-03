@@ -24,7 +24,7 @@ async function publicFixtures(page: Page) {
     const table = url.pathname.split("/").at(-1);
     let data: unknown[] = [];
     if (table === "properties") data = fixtureRows("properties");
-    if (table === "services") data = fixtureRows("services");
+    if (table === "services" || table === "services_listings") data = fixtureRows("services");
     if (table === "items") {
       const query = decodeURIComponent(url.search);
       data = query.includes("eq.property") ? fixtureRows("properties") : query.includes("eq.service") ? fixtureRows("services") : fixtureRows("objects");
@@ -99,6 +99,8 @@ for (const domain of domains) {
     await page.getByTestId("swipe-interested").click();
     await expect(card).toHaveAttribute("data-item-id", `swipe-fixture-${domain}-3`);
     await page.emulateMedia({ reducedMotion: "reduce" });
+    await expect(card).toHaveCSS("transform", "none");
+    await expect(card).toHaveCSS("transition-property", "none");
     await card.focus(); await page.keyboard.press("ArrowUp");
     await expect(page.getByTestId("swipe-end")).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);

@@ -127,6 +127,19 @@ it("only explains same-city evidence when both cities are present", () => {
 });
 
 describe("truthful public metadata and local reducer", () => {
+  it("preserves canonical service format, availability and public joined-item metadata", () => {
+    const candidate = normalizeSwipeRows([{ id: "service", service_name: "Lessons", delivery_mode: "both", available_days: ["monday"], gallery: ["https://example.com/service.jpg"], items: { location_city: "Bucharest", is_demo: true } }], "services")[0];
+    expect(candidate.city).toBe("Bucharest");
+    expect(candidate.isDemo).toBe(true);
+    expect(candidate.image).toBe("https://example.com/service.jpg");
+    expect(candidate.fields).toContainEqual({ label: "delivery", value: "both", kind: "enum" });
+    expect(candidate.fields).toContainEqual({ label: "availability", value: "monday", kind: "weekdays" });
+  });
+  it("treats the legacy Romanian placeholder asset as a missing image in every locale", () => {
+    for (const image_url of ["/no-image.svg", "https://example.com/no-image.svg?v=1"]) {
+      expect(normalizeSwipeRows([{ id: "legacy", title: "Legacy", image_url }], "objects")[0].image).toBeUndefined();
+    }
+  });
   it("uses the canonical hybrid event format instead of guessing from is_online", () => {
     const candidate = normalizeSwipeRows([{ id: "event", title: "Hybrid event", location_type: "hybrid", is_online: false }], "events")[0];
     expect(candidate.fields).toContainEqual({ label: "eventMode", value: "hybrid", kind: "enum" });

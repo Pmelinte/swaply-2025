@@ -34,6 +34,7 @@ import { MapEmbed } from "@/components/maps/MapEmbed";
 import { NO_IMAGE_URL } from "@/lib/storage";
 import { DomainSwipeDiscovery } from "./DomainSwipeDiscovery";
 import { ObjectSwipeSource } from "./ObjectSwipeSource";
+import { ServiceSwipeSource } from "./ServiceSwipeSource";
 import type { Item, WantedRequest } from "@/lib/types";
 import {
   approximateLocation,
@@ -245,6 +246,7 @@ export function DomainDiscoveryWorld({ domain, query = "", onQueryChange, swipeR
           {(loading.items || demandLoading) ? <SkeletonRows /> : explicitWants.length ? <div className="space-y-2">{explicitWants.slice(0, 3).map((request) => <DemandCard key={request.id} request={request} saved={saved.includes(request.id)} onSave={() => toggleSaved(request.id)} />)}</div> : <EmptyState text={user ? t("emptyWantsUser") : t("emptyWantsGuest")} href={user ? "/wanted" : "/register?returnTo=/wanted"} />}
         </WorldPanel>
         {domain === "objects" ? <ObjectSwipeSource viewerId={user?.id} viewerCity={user?.location?.city} query={query} />
+          : domain === "services" ? <ServiceSwipeSource viewerId={user?.id} viewerCity={user?.location?.city} query={query} />
           : domain ? <DomainSwipeDiscovery key={`${domain}-${user?.id ?? "guest"}`} domain={domain} rows={swipeRows} loading={swipeLoading} viewerId={user?.id} viewerCity={user?.location?.city} />
           : <WorldPanel icon={Sparkles} title={t("discoveryTitle")} description={t("discoveryDesc")}>
           {loading.items ? <SkeletonRows /> : discoveryItems.length ? <div className="grid gap-2 sm:grid-cols-2">{discoveryItems.slice(0, 4).map((item) => <OfferCard key={item.id} item={item} saved={saved.includes(item.id)} onSave={() => toggleSaved(item.id)} />)}</div> : <EmptyState text={t("noDiscoveryResults")} />}

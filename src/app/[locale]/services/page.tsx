@@ -384,7 +384,7 @@ export default function ServicesPage() {
       {!user && <GuestBanner />}
 
       <div className="mx-auto max-w-6xl py-2">
-        <DomainDiscoveryWorld domain="services" query={search} onQueryChange={setSearch} swipeRows={filtered.map((row) => services.find((source) => source.id === row.id) ?? stateServices.find((source) => source.id === row.id) ?? row)} swipeLoading={isLoading} />
+        <DomainDiscoveryWorld domain="services" query={search} onQueryChange={setSearch} />
       </div>
 
       <div className="mx-auto max-w-6xl px-4 py-6">
