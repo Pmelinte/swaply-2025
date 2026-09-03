@@ -48,6 +48,24 @@ describe("Explore hub refinement", () => {
     await screen.findByText(catalogues.en.explore.hub.radarUnavailable);
   });
 
+  it("explains two Sky perspectives, the map, then two Field perspectives without simulated controls", async () => {
+    show();
+    const model = within(screen.getByTestId("explore-model"));
+    const copy = catalogues.en.explore.hub;
+    const regions = model.getAllByRole("region");
+    expect(regions.map((region) => within(region).getByRole("heading", { level: 3 }).textContent)).toEqual([copy.skyTitle, copy.horizonTitle, copy.fieldTitle]);
+    expect(within(regions[0]).getAllByRole("heading", { level: 4 }).map((heading) => heading.textContent)).toEqual([copy.modelWantsTitle, copy.modelDiscoveryTitle]);
+    expect(within(regions[2]).getAllByRole("heading", { level: 4 }).map((heading) => heading.textContent)).toEqual([copy.modelOffersTitle, copy.modelDemandTitle]);
+    expect(within(regions[0]).getAllByRole("listitem")).toHaveLength(2);
+    expect(within(regions[2]).getAllByRole("listitem")).toHaveLength(2);
+    expect(within(regions[2]).getByRole("list").getAttribute("start")).toBe("3");
+    expect(within(regions[1]).getByText(copy.modelMapViews)).toBeTruthy();
+    expect(model.queryByRole("button")).toBeNull();
+    expect(model.queryByRole("link")).toBeNull();
+    expect(model.getByText(copy.modelAvailability)).toBeTruthy();
+    await screen.findByText(copy.radarUnavailable);
+  });
+
   it("clearly labels the available alternatives instead of pretending Swipe or Reverse works", async () => {
     show();
     fireEvent.click(screen.getByRole("button", { name: /I want to discover/ }));

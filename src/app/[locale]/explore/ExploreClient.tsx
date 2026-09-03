@@ -153,12 +153,34 @@ export function ExploreClient() {
       <section aria-labelledby="explore-model-title" className="rounded-3xl border border-slate-200/80 bg-gradient-to-b from-sky-50/80 via-white/80 to-emerald-50/80 p-5 sm:p-7">
         <h2 id="explore-model-title" className="text-lg font-black">{t("modelTitle")}</h2>
         <p className="mt-1 text-sm text-slate-600">{t("modelDescription")}</p>
-        <ol className="mt-5 space-y-3">
-          {(["sky", "horizon", "field"] as const).map((layer, index) => <li key={layer}>
-            {index > 0 ? <ArrowDown className="mb-3 ml-4 h-4 w-4 text-slate-400" aria-hidden="true" /> : null}
-            <div className="flex items-center gap-4"><span className={`h-10 w-1 shrink-0 rounded-full ${layer === "sky" ? "bg-sky-500" : layer === "field" ? "bg-emerald-500" : "bg-slate-300"}`} aria-hidden="true" /><div><h3 className={`text-sm font-black ${layer === "sky" ? "text-sky-800" : layer === "field" ? "text-emerald-800" : "text-slate-700"}`}>{t(`${layer}Title`)}</h3><p className="mt-0.5 text-sm text-slate-600">{t(`${layer}Description`)}</p></div></div>
-          </li>)}
-        </ol>
+        <div className="mt-5 space-y-4" data-testid="explore-model">
+          <section aria-labelledby="explore-model-sky" className="border-l-2 border-sky-400 pl-4">
+            <h3 id="explore-model-sky" className="text-xs font-black uppercase tracking-wide text-sky-800">{t("skyTitle")}</h3>
+            <ol className="mt-3 list-decimal space-y-3 pl-5 marker:text-sky-800 marker:font-bold">
+              {(["modelWants", "modelDiscovery"] as const).map((part) => <li key={part} className="pl-1">
+                <h4 className="text-sm font-bold text-sky-900">{t(`${part}Title`)}</h4>
+                <p className="mt-0.5 text-sm leading-5 text-slate-600">{t(`${part}Description`)}</p>
+              </li>)}
+            </ol>
+          </section>
+          <ArrowDown className="ml-4 h-4 w-4 text-slate-400" aria-hidden="true" />
+          <section aria-labelledby="explore-model-horizon" className="border-y border-slate-200 py-3 pl-4">
+            <h3 id="explore-model-horizon" className="text-xs font-black uppercase tracking-wide text-slate-700">{t("horizonTitle")}</h3>
+            <p className="mt-1 text-sm text-slate-600">{t("horizonDescription")}</p>
+            <p className="mt-2 text-xs font-semibold text-slate-700">{t("modelMapViews")}</p>
+          </section>
+          <ArrowDown className="ml-4 h-4 w-4 text-slate-400" aria-hidden="true" />
+          <section aria-labelledby="explore-model-field" className="border-l-2 border-emerald-400 pl-4">
+            <h3 id="explore-model-field" className="text-xs font-black uppercase tracking-wide text-emerald-800">{t("fieldTitle")}</h3>
+            <ol start={3} className="mt-3 list-decimal space-y-3 pl-5 marker:text-emerald-800 marker:font-bold">
+              {(["modelOffers", "modelDemand"] as const).map((part) => <li key={part} className="pl-1">
+                <h4 className="text-sm font-bold text-emerald-900">{t(`${part}Title`)}</h4>
+                <p className="mt-0.5 text-sm leading-5 text-slate-600">{t(`${part}Description`)}</p>
+              </li>)}
+            </ol>
+          </section>
+          <p className="text-xs leading-5 text-slate-500">{t("modelAvailability")}</p>
+        </div>
       </section>
 
       <aside aria-labelledby="explore-radar-title" className="border-t border-slate-200 px-1 pt-5">
