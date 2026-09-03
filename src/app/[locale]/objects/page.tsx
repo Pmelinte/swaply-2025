@@ -298,6 +298,7 @@ export default function ObjectsPage() {
   const tc = useTranslations("common");
   const tCat = useTranslations("categories");
   const tss = useTranslations("savedSearches");
+  const tControls = useTranslations("explore.filterDrawer");
 
   const initialTypeFromUrl = searchParams.get("type");
   const initialListingType: ListingType | "all" =
@@ -697,12 +698,14 @@ export default function ObjectsPage() {
           <div className="flex rounded-lg border border-zinc-200 dark:border-zinc-700">
             <button
               onClick={() => setBrowseMode("grid")}
+              aria-label={t("gridView")}
               className={`rounded-l-lg px-2.5 py-2 ${browseMode === "grid" ? "bg-blue-600 text-white" : "text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"}`}
             >
               <LayoutGrid className="h-3.5 w-3.5" />
             </button>
             <button
               onClick={() => setBrowseMode("list")}
+              aria-label={t("listView")}
               className={`rounded-r-lg px-2.5 py-2 ${browseMode === "list" ? "bg-blue-600 text-white" : "text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"}`}
             >
               <List className="h-3.5 w-3.5" />
@@ -732,6 +735,7 @@ export default function ObjectsPage() {
               </div>
               <button
                 onClick={() => setShowFilters(!showFilters)}
+                aria-label={tControls("title")}
                 className={`inline-flex items-center gap-1 rounded-lg px-3 py-2 text-xs font-medium transition ${
                   showFilters || hasFilters
                     ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
@@ -745,6 +749,7 @@ export default function ObjectsPage() {
               </button>
               <select
                 value={sortMode}
+                aria-label={tControls("title")}
                 onChange={(e) => setSortMode(e.target.value as typeof sortMode)}
                 className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
               >

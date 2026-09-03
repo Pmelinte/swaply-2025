@@ -202,6 +202,7 @@ export default function PropertiesPage() {
   const t = useTranslations("objects");
   const tb = useTranslations("branches");
   const tc = useTranslations("common");
+  const tControls = useTranslations("explore.filterDrawer");
 
   const [browseMode, setBrowseMode] = useState<BrowseMode>("grid");
   const [search, setSearch] = useState("");
@@ -343,7 +344,7 @@ export default function PropertiesPage() {
       {!user && <GuestBanner />}
 
       <div className="mx-auto max-w-6xl py-2">
-        <DomainDiscoveryWorld domain="properties" query={search} onQueryChange={setSearch} />
+        <DomainDiscoveryWorld domain="properties" query={search} onQueryChange={setSearch} swipeRows={filtered.map((row) => properties.find((source) => source.id === row.id) ?? stateProperties.find((source) => source.id === row.id) ?? row)} swipeLoading={loadingProps || stateLoading.items} />
       </div>
 
       <div className="mx-auto max-w-6xl px-4 py-6">
@@ -375,12 +376,14 @@ export default function PropertiesPage() {
           <div className="flex rounded-lg border border-zinc-200 dark:border-zinc-700">
             <button
               onClick={() => setBrowseMode("grid")}
+              aria-label={t("gridView")}
               className={`rounded-l-lg px-2.5 py-2 ${browseMode === "grid" ? "bg-purple-600 text-white" : "text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"}`}
             >
               <LayoutGrid className="h-3.5 w-3.5" />
             </button>
             <button
               onClick={() => setBrowseMode("list")}
+              aria-label={t("listView")}
               className={`rounded-r-lg px-2.5 py-2 ${browseMode === "list" ? "bg-purple-600 text-white" : "text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"}`}
             >
               <List className="h-3.5 w-3.5" />
@@ -408,6 +411,7 @@ export default function PropertiesPage() {
 
           <button
             onClick={() => setShowFilters(!showFilters)}
+            aria-label={tControls("title")}
             className={`inline-flex items-center gap-1 rounded-lg px-3 py-2 text-xs font-medium transition ${
               showFilters || hasFilters
                 ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300"

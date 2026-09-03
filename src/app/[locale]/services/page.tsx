@@ -252,6 +252,7 @@ export default function ServicesPage() {
   const t = useTranslations("objects");
   const tb = useTranslations("branches");
   const tc = useTranslations("common");
+  const tControls = useTranslations("explore.filterDrawer");
 
   const [browseMode, setBrowseMode] = useState<BrowseMode>("grid");
   const [search, setSearch] = useState("");
@@ -383,7 +384,7 @@ export default function ServicesPage() {
       {!user && <GuestBanner />}
 
       <div className="mx-auto max-w-6xl py-2">
-        <DomainDiscoveryWorld domain="services" query={search} onQueryChange={setSearch} />
+        <DomainDiscoveryWorld domain="services" query={search} onQueryChange={setSearch} swipeRows={filtered.map((row) => services.find((source) => source.id === row.id) ?? stateServices.find((source) => source.id === row.id) ?? row)} swipeLoading={isLoading} />
       </div>
 
       <div className="mx-auto max-w-6xl px-4 py-6">
@@ -409,12 +410,14 @@ export default function ServicesPage() {
           <div className="flex rounded-lg border border-zinc-200 dark:border-zinc-700">
             <button
               onClick={() => setBrowseMode("grid")}
+              aria-label={t("gridView")}
               className={`rounded-l-lg px-2.5 py-2 ${browseMode === "grid" ? "bg-green-600 text-white" : "text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"}`}
             >
               <LayoutGrid className="h-3.5 w-3.5" />
             </button>
             <button
               onClick={() => setBrowseMode("list")}
+              aria-label={t("listView")}
               className={`rounded-r-lg px-2.5 py-2 ${browseMode === "list" ? "bg-green-600 text-white" : "text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"}`}
             >
               <List className="h-3.5 w-3.5" />
@@ -439,6 +442,7 @@ export default function ServicesPage() {
 
           <button
             onClick={() => setShowFilters(!showFilters)}
+            aria-label={tControls("title")}
             className={`inline-flex items-center gap-1 rounded-lg px-3 py-2 text-xs font-medium transition ${
               showFilters || hasFilters
                 ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"

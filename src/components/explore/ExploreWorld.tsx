@@ -32,6 +32,8 @@ import { useDrawerStore } from "@/lib/state/drawerStore";
 import { SafeImage } from "@/components/SafeImage";
 import { MapEmbed } from "@/components/maps/MapEmbed";
 import { NO_IMAGE_URL } from "@/lib/storage";
+import { DomainSwipeDiscovery } from "./DomainSwipeDiscovery";
+import { ObjectSwipeSource } from "./ObjectSwipeSource";
 import type { Item, WantedRequest } from "@/lib/types";
 import {
   approximateLocation,
@@ -203,7 +205,7 @@ export function ExploreOpportunityRadar({ items, demands }: { items: Item[]; dem
   </section>;
 }
 
-export function DomainDiscoveryWorld({ domain, query = "", onQueryChange }: { domain?: ExploreDomain; query?: string; onQueryChange?: (value: string) => void }) {
+export function DomainDiscoveryWorld({ domain, query = "", onQueryChange, swipeRows = [], swipeLoading = false }: { domain?: ExploreDomain; query?: string; onQueryChange?: (value: string) => void; swipeRows?: readonly unknown[]; swipeLoading?: boolean }) {
   const t = useTranslations("explore.architecture");
   const tb = useTranslations("branches");
   const { user, items, loading } = useAppState();
@@ -238,14 +240,16 @@ export function DomainDiscoveryWorld({ domain, query = "", onQueryChange }: { do
 
       {onQueryChange && <label className="mt-5 flex items-center gap-2 rounded-2xl border border-sky-200 bg-white/55 px-3 py-2.5 backdrop-blur"><Search className="h-4 w-4 text-sky-700" /><span className="sr-only">{t("searchLabel")}</span><input value={query} onChange={(event) => onQueryChange(event.target.value)} placeholder={t("filterSearch", { domain: title })} className="w-full bg-transparent text-sm font-semibold outline-none" /></label>}
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-[.9fr_1.35fr]">
+      <div className={domain ? "mt-6 space-y-4" : "mt-6 grid gap-4 lg:grid-cols-[.9fr_1.35fr]"}>
         <WorldPanel icon={UserRound} title={t("explicitWants")} description={user ? t("explicitWantsDesc") : t("explicitWantsGuestDesc")}>
           {(loading.items || demandLoading) ? <SkeletonRows /> : explicitWants.length ? <div className="space-y-2">{explicitWants.slice(0, 3).map((request) => <DemandCard key={request.id} request={request} saved={saved.includes(request.id)} onSave={() => toggleSaved(request.id)} />)}</div> : <EmptyState text={user ? t("emptyWantsUser") : t("emptyWantsGuest")} href={user ? "/wanted" : "/register?returnTo=/wanted"} />}
         </WorldPanel>
-        <WorldPanel icon={Sparkles} title={t("discoveryTitle")} description={t("discoveryDesc")}>
+        {domain === "objects" ? <ObjectSwipeSource viewerId={user?.id} viewerCity={user?.location?.city} query={query} />
+          : domain ? <DomainSwipeDiscovery key={`${domain}-${user?.id ?? "guest"}`} domain={domain} rows={swipeRows} loading={swipeLoading} viewerId={user?.id} viewerCity={user?.location?.city} />
+          : <WorldPanel icon={Sparkles} title={t("discoveryTitle")} description={t("discoveryDesc")}>
           {loading.items ? <SkeletonRows /> : discoveryItems.length ? <div className="grid gap-2 sm:grid-cols-2">{discoveryItems.slice(0, 4).map((item) => <OfferCard key={item.id} item={item} saved={saved.includes(item.id)} onSave={() => toggleSaved(item.id)} />)}</div> : <EmptyState text={t("noDiscoveryResults")} />}
           <p className="mt-3 flex items-center gap-1.5 text-[11px] font-semibold text-sky-800"><Bot className="h-3.5 w-3.5" />{t("whySeeing")}</p>
-        </WorldPanel>
+        </WorldPanel>}
       </div>
     </div>
 
