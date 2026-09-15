@@ -1,0 +1,43 @@
+name: Home 3D review
+on:
+  push:
+    branches: [codex/home-3d-world]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: home-3d-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci --legacy-peer-deps
+      - name: Typecheck and targeted lint
+        run: |
+          npm run typecheck
+          npx eslint src/components/home/HomeWorldHero.tsx src/components/home/homeWorld.ts src/components/home/homeWorld.test.ts 'src/app/[locale]/page.tsx' e2e/home-3d.spec.ts playwright.home-3d.config.ts
+      - name: Geometry contracts
+        run: npx vitest run src/components/home/homeWorld.test.ts
+      - name: Full application build
+        run: npm run build
+      - name: Install browser
+        run: npx playwright install --with-deps chromium
+      - name: Real browser checks and screenshots
+        run: xvfb-run -a npx playwright test --config=playwright.home-3d.config.ts
+      - name: Save verification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: home-3d-browser-evidence
+          path: test-results/
+          retention-days: 14
+          if-no-files-found: warn
