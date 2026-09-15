@@ -42,6 +42,12 @@ export default function HomeWorldHero() {
     // Code splitting: WebGL never runs during SSR and does not block the dashboard.
     void import("./homeWorld").then(({ createHomeWorld }) => {
       if (cancelled) return;
+      // Establish the buffer before the renderer reuses this WebGL context.
+      // Retain pixels while reduced-motion rendering is idle and the UI recomposites.
+      const context = element.getContext("webgl2", {
+        alpha: true, antialias: true, powerPreference: "low-power", preserveDrawingBuffer: true,
+      });
+      if (!context) throw new Error("WebGL2 unavailable");
       instance = createHomeWorld(element, {
         reducedMotion: media.matches,
         onSelect: setSelected,
@@ -106,7 +112,7 @@ export default function HomeWorldHero() {
         {enabled && status === "ready" && <>
           <button type="button" onClick={() => controller.current?.zoom(-.2)} aria-label="3D −"><Minus size={16} aria-hidden="true" /></button>
           <button type="button" onClick={() => controller.current?.zoom(.2)} aria-label="3D +"><Plus size={16} aria-hidden="true" /></button>
-          <button type="button" onClick={() => controller.current?.reset()} aria-label={`${tCommon("reset")} 3D`}><RotateCcw size={16} aria-hidden="true" /></button>
+          <button type="button" data-world-reset onClick={() => controller.current?.reset()} aria-label={`${tCommon("reset")} 3D`}><RotateCcw size={16} aria-hidden="true" /></button>
         </>}
       </div>
       {enabled && status !== "ready" && <div className={styles.status} role="status">
