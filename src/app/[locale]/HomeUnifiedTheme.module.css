@@ -44,8 +44,8 @@
 .home [data-home-living-world] a { min-height: 44px; }
 .home [data-home-state="authenticated-dashboard"] a:focus-visible,
 .home [data-home-living-world] a:focus-visible { outline: 3px solid #2768ab; outline-offset: 4px; }
-.map { position: relative; min-height: 200px; overflow: hidden; border-radius: 22px; background: #e3eee9; }
-.map > * { position: relative !important; inset: auto !important; width: 100% !important; max-width: 100% !important; margin: 0 auto !important; transform: none !important; }
+.map { position: relative; height: 260px; overflow: hidden; border-radius: 22px; background: #e3eee9; }
+.map > * { display: block !important; height: 100% !important; position: relative !important; inset: auto !important; width: 100% !important; max-width: 100% !important; margin: 0 auto !important; transform: none !important; }
 @media(min-width:1200px) {
   .home [data-home-state="authenticated-dashboard"] section[aria-labelledby="personal-overview-title"] { grid-column: span 5; }
   .home [data-home-state="authenticated-dashboard"] section[aria-labelledby="exchange-journey-title"] { grid-column: span 7; }
@@ -53,6 +53,7 @@
 }
 @media(max-width:700px) {
   .home { border-radius: 20px; }
+  .map { display: none; }
   .home [data-home-state="authenticated-dashboard"],.home [data-home-living-world] { display: flex; flex-direction: column; gap: 12px; }
   .home [data-home-state="authenticated-dashboard"] > section:first-child { padding: 18px !important; }
   .home [data-home-state="authenticated-dashboard"] section[aria-labelledby],.home [data-home-living-world] section { min-width: 0; }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildHomeWorld, DOMAIN_IDS, multiply } from "./homeWorld";
+import { buildHomeWorld, DOMAIN_IDS, multiply } from "../components/home/homeWorld";
 
 describe("Home 3D geometry", () => {
   const world = buildHomeWorld();

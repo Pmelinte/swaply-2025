@@ -24,9 +24,9 @@ jobs:
       - name: Typecheck and targeted lint
         run: |
           npm run typecheck
-          npx eslint src/components/home/HomeWorldHero.tsx src/components/home/homeWorld.ts src/components/home/homeWorld.test.ts 'src/app/[locale]/page.tsx' e2e/home-3d.spec.ts playwright.home-3d.config.ts
+          npx eslint src/components/home/HomeWorldHero.tsx src/components/home/homeWorld.ts src/__tests__/homeWorld.test.ts 'src/app/[locale]/page.tsx' e2e/home-3d.spec.ts playwright.home-3d.config.ts
       - name: Geometry contracts
-        run: npx vitest run src/components/home/homeWorld.test.ts
+        run: npx vitest run src/__tests__/homeWorld.test.ts
       - name: Full application build
         run: npm run build
       - name: Install browser
