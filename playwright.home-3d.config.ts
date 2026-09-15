@@ -11,7 +11,7 @@ export default defineConfig({
     baseURL: "http://127.0.0.1:3000",
     browserName: "chromium",
     viewport: { width: 1440, height: 1000 },
-    reducedMotion: "reduce",
+    contextOptions: { reducedMotion: "reduce" },
     launchOptions: { args: ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader"] },
     screenshot: "only-on-failure",
     trace: "retain-on-failure",
