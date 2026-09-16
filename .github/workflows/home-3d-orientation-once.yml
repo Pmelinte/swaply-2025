@@ -1,0 +1,41 @@
+name: Home 3D orientation one-shot
+on:
+  push:
+    branches: [codex/home-3d-world]
+    paths: [.github/workflows/home-3d-orientation-once.yml]
+permissions:
+  contents: write
+jobs:
+  orient:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/home-3d-world
+      - name: Face the four islands toward the opening camera
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('src/components/home/homeWorld.ts')
+          s = p.read_text()
+          old = '''  const transforms=()=>batches.map((b,i)=>model([b.centre[0],b.centre[1]+(i<5?Math.sin(elapsed*.5+i*1.6)*.1:0),b.centre[2]],0));'''
+          new = '''  // Each domain is turned slightly toward the opening camera so its recognisable\n  // facade/activity is visible immediately, while preserving manual orbit.\n  const openingAngles = [.24, -.24, .12, -.12, 0, 0];\n  const transforms=()=>batches.map((b,i)=>model([b.centre[0],b.centre[1]+(i<5?Math.sin(elapsed*.5+i*1.6)*.1:0),b.centre[2]],openingAngles[i] ?? 0));'''
+          if old not in s:
+              raise SystemExit('Expected transforms line not found')
+          s = s.replace(old, new, 1)
+          s = s.replace('let aspect=1, cssWidth=1, cssHeight=1, target:V3=[-2.4,0,0], cameraTarget:V3=[...target], eye:V3=[0,15,26];', 'let aspect=1, cssWidth=1, cssHeight=1, target:V3=[0,0,0], cameraTarget:V3=[...target], eye:V3=[0,15,26];', 1)
+          s = s.replace('if(!selected)target=aspect<1.2?[0,0,0]:[-2.4,0,0];', 'if(!selected)target=[0,0,0];', 1)
+          s = s.replace('target=i>=0?add(CENTRES[i],[0,.5,0]):aspect<1.2?[0,0,0]:[-2.4,0,0];', 'target=i>=0?add(CENTRES[i],[0,.5,0]):[0,0,0];', 1)
+          p.write_text(s)
+      - name: Verify targeted contracts
+        run: |
+          npm ci --legacy-peer-deps
+          npm run typecheck
+          npx vitest run src/__tests__/homeWorld.test.ts
+      - name: Commit orientation refinement
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/components/home/homeWorld.ts
+          git commit -m "fix(home): orient 3D islands toward opening camera"
+          git push origin HEAD:codex/home-3d-world

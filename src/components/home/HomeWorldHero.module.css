@@ -1,0 +1,62 @@
+.hero {
+  position: relative; isolation: isolate; width: 100%; min-height: 640px;
+  overflow: hidden; border-radius: 24px; color: #fff; background: #a4c4cf;
+  box-shadow: 0 18px 50px #244a6220;
+}
+.sky { position: absolute; inset: 0; background: radial-gradient(ellipse at 86% 8%, #ffeccf 0, #f2dece55 30%, transparent 55%), linear-gradient(175deg, #507999 0%, #adc9d3 52%, #dfebdd 100%); }
+.canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: pan-y; cursor: grab; }
+.canvas:active { cursor: grabbing; }
+.shade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg,#153c64b3 0%,#153c6445 23%,transparent 44%),linear-gradient(0deg,#f0f5eb66,transparent 23%); }
+.copy { position: relative; z-index: 1; width: clamp(235px,25%,350px); padding: 42px 0 160px 30px; pointer-events: none; text-shadow: 0 2px 24px #16304a33; }
+.eyebrow { display: inline-flex; align-items: center; gap: 9px; font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.copy h2 { font-size: clamp(30px,3.15vw,50px); line-height: 1.04; letter-spacing: -.045em; font-weight: 800; margin: 20px 0 18px; text-wrap: balance; }
+.description { font-size: 15px; line-height: 1.6; max-width: 300px; color: #fff; }
+.account { margin: 18px 0; display: grid; gap: 7px; font-size: 13px; line-height: 1.5; }
+.account strong { font-size: 17px; }
+.primary { pointer-events: auto; display: inline-flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 20px; padding: 13px 21px; min-height: 46px; max-width: 100%; background: #fff; border: 1px solid #fff; border-radius: 30px; color: #183e63; font-size: 14px; line-height: 1.4; font-weight: 700; text-decoration: none; text-shadow: none; box-shadow: 0 8px 20px #24394f1a; }
+.secondary { pointer-events: auto; display: flex; align-items: center; gap: 10px; width: fit-content; min-height: 44px; font-size: 13px; text-decoration: none; color: #fff; margin-top: 5px; }
+.controls { position: absolute; top: 16px; right: 16px; display: flex; flex-wrap: wrap; gap: 6px; z-index: 2; }
+.controls button, .status button { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; border-radius: 14px; border: 1px solid #ffffffb8; background: #ffffffdf; color: #234663; font-weight: 700; cursor: pointer; backdrop-filter: blur(12px); }
+.controls .mode[aria-pressed="true"] { background: #214e70; color: #fff; }
+.controls button:hover,.primary:hover { background: #e7f2f6; color: #16384f; }
+.domains { position: absolute; z-index: 2; left: 28%; right: 22px; bottom: 22px; display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 10px; }
+.domain { --tone: #2969be; min-width: 0; border: 1px solid #ffffffb3; border-top: 3px solid var(--tone); border-radius: 19px; background: #ffffffdc; backdrop-filter: blur(18px); color: #193347; box-shadow: 0 10px 28px #38566522; }
+.domain[data-domain-tone="properties"] { --tone: #277d52; }
+.domain[data-domain-tone="services"] { --tone: #805ba8; }
+.domain[data-domain-tone="events"] { --tone: #bb722b; }
+.domain[data-active="true"] { outline: 2px solid var(--tone); outline-offset: 3px; background: #fff; }
+.domainView { width: 100%; min-height: 47px; display: flex; align-items: center; gap: 7px; color: var(--tone); padding: 12px 12px 7px; background: none; border: 0; text-align: start; font-size: 14px; line-height: 1.3; font-weight: 750; cursor: pointer; }
+.domainView span:first-of-type { overflow-wrap: anywhere; }
+.domainView:disabled { cursor: default; }
+.badge { margin-inline-start: auto; font-size: 9px; opacity: .8; }
+.domainLink { min-height: 44px; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 3px 12px 12px; color: #365265; font-size: 11px; line-height: 1.4; text-decoration: none; }
+.domainLink svg { flex-shrink: 0; }
+.domainLink:hover { color: var(--tone); text-decoration: underline; }
+.hero :is(a,button):focus-visible { outline: 3px solid #ffce72; outline-offset: 3px; }
+.status { position: absolute; z-index: 3; right: 20px; top: 75px; display: flex; align-items: center; gap: 10px; border-radius: 16px; padding: 8px 12px; font-size: 12px; background: #1b3b59df; color: #fff; }
+.fallback { position: absolute; left: 35%; right: 8%; top: 17%; bottom: 25%; display: grid; grid-template-columns: 1fr 1fr; gap: 25px; perspective: 800px; }
+.fallbackIsland { position: relative; display: grid; place-items: center; background: linear-gradient(130deg,#c9dba6,#78a98f); border-radius: 46%; box-shadow: 0 16px 0 #647e83,0 29px 0 -6px #6c8795,0 45px 35px #32577540; transform: rotateX(22deg); }
+.fallbackIsland svg { width: 44px; height: 44px; color: #fff; filter: drop-shadow(0 6px 6px #38536c30); }
+.srOnly { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+@media(min-width:1700px) { .hero { min-height: 700px; } }
+@media(max-width:1100px) { .hero { min-height: 620px; } .copy { width: 27%; padding-left: 22px; } .copy h2 { font-size: 34px; } .description { font-size: 13px; } .domains { left: 24px; } }
+@media(max-width:700px) {
+  .hero { min-height: 750px; border-radius: 19px; }
+  .copy { width: min(72%,340px); padding: 25px 0 0 20px; }
+  .copy h2 { font-size: 31px; line-height: 1.07; margin: 13px 0; }
+  .description { font-size: 12px; line-height: 1.5; max-height: 56px; overflow: auto; }
+  .eyebrow { font-size: 11px; }
+  .primary { margin-top: 10px; padding: 9px 15px; font-size: 12px; min-height: 44px; }
+  .secondary { font-size: 11px; }
+  .account { gap: 2px; margin: 8px 0; font-size: 11px; }.account strong{font-size:13px;}
+  .canvas { top: 165px; height: 425px; }
+  .shade { background: linear-gradient(180deg,#24496788,transparent 36%,transparent 72%,#e9f1de66); }
+  .controls { top: 14px; right: 12px; max-width: 102px; justify-content: flex-end; }
+  .controls button { min-width: 42px; min-height: 42px; border-radius: 12px; }
+  .domains { left: 14px; right: 14px; bottom: 16px; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; }
+  .domainView { font-size: 13px; min-height: 44px; }
+  .domainLink { font-size: 11px; min-height: 45px; }
+  .fallback { left: 10%; right: 10%; top: 39%; bottom: 31%; gap: 22px; }
+  .status { top: 110px; right: 12px; max-width: 45%; }
+}
+@media(prefers-reduced-motion:reduce) { .hero *, .hero *::before, .hero *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
